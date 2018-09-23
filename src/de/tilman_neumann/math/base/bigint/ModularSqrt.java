@@ -17,8 +17,6 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
-import static de.tilman_neumann.math.base.bigint.BigIntConstants.ONE;
-import static de.tilman_neumann.math.base.bigint.BigIntConstants.TWO;
 import static org.junit.Assert.*;
 
 /**
@@ -184,60 +182,6 @@ public class ModularSqrt {
 		if (DEBUG) assertEquals(BigInteger.valueOf(t).pow(2).mod(p_big), n.mod(p_big));
 		// return the smaller sqrt
 		return t <= (p>>1) ? t : p-t;
-	}
-	
-	/**
-	 * Silverman's first proposal to compute solutions u of u^2 == n (mod p^2). Works only for p==3 (mod 4).
-	 * @param n a positive integer having Jacobi(n|p) = 1
-	 * @param p an odd prime with p==3 (mod 4)
-	 * @param pSquare p^2
-	 * @return
-	 */
-	public BigInteger modularSqrtModSquare_v01(BigInteger n, BigInteger p, BigInteger pSquare) {
-		// Silvermans first solution of u^2 == n (mod p^2): works only for p==3 (mod 4) 
-		BigInteger u = n.modPow(pSquare.subtract(p).add(TWO).shiftRight(2), pSquare);
-		// return the smaller sqrt
-		return u.compareTo(pSquare.shiftRight(1)) <= 0 ? u : pSquare.subtract(u);
-	}
-	
-	/**
-	 * Silverman's second proposal to compute solutions u of u^2 == n (mod p^2). Works only for p==3 (mod 4).
-	 * @param n a positive integer having Jacobi(n|p) = 1
-	 * @param p an odd prime with p==3 (mod 4)
-	 * @param pSquare p^2
-	 * @return
-	 */
-	public BigInteger modularSqrtModSquare_v02(BigInteger n, BigInteger p, BigInteger pSquare) {
-		BigInteger b1 = n.modPow(p.add(ONE).shiftRight(2), p);
-		// now b = b1 + x*p, x unknown
-		BigInteger b1invp = b1.shiftLeft(1).modInverse(p); // 1/(2*b1) mod q
-		BigInteger b1Square = b1.multiply(b1);
-		BigInteger b2 = b1invp.multiply(n.subtract(b1Square).divide(p)).mod(p);
-		// square root == n (mod p^2)
-		BigInteger u = b1.add(b2.multiply(p)).mod(pSquare);
-		// return the smaller sqrt
-		return u.compareTo(pSquare.shiftRight(1)) <= 0 ? u : pSquare.subtract(u);
-	}
-
-	/**
-	 * General solution of u^2 == n (mod p^exponent), well explained in
-	 * [http://mathoverflow.net/questions/52081/is-there-an-efficient-algorithm-for-finding-a-square-root-modulo-a-prime-power, Gottfried Barthel].
-	 * Works for any odd p with t^2 == n (mod p) having solution t>0.
-	 * 
-	 * @param n
-	 * @param power p^exponent
-	 * @param last_power p^(exponent-1)
-	 * @param t solution of t^2 == n (mod p)
-	 * 
-	 * @return sqrt of n (mod p^exponent)
-	 */
-	public BigInteger modularSqrtModPower(BigInteger n, BigInteger power, BigInteger last_power, BigInteger t) {
-		// Barthel's e = (power - 2*last_power + 1)/2
-		BigInteger f = power.subtract(last_power.shiftLeft(1)).add(ONE).shiftRight(1);
-		// square root == n (mod p^exponent)
-		BigInteger u = t.modPow(last_power, power).multiply(n.modPow(f, power)).mod(power);
-		// return the smaller sqrt
-		return u.compareTo(power.shiftRight(1)) <= 0 ? u : power.subtract(u);
 	}
 	
 	/**
