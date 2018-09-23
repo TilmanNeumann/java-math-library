@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<appender name="Console" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" /> 
+		<layout class="org.apache.log4j.PatternLayout">
+			<!-- Conversion Pattern Options:
+			    %c 		Logger-Name
+			    %C{prec} 	calling class name (SLOW)
+			    %d 		Timestamp
+			    %F		file name where the event was issued (VERY SLOW)
+			    %l		local information (class, method, ...) (EXTREMELY SLOW)
+			    %L		line number
+			    %m 		Message
+			    %M		method name
+			    %n 		Line end
+			    %p 		Loglevel
+			    %r 		Milliseconds since start
+			    %t 		Thread-Name
+			    %x 		NDC (nested diagnostic context) associated with the thread
+			    %X		MDC (mapped diagnostic context) associated with the thread 
+				
+			    Each entry can be set to a minimal length by inserting -length after the % character.
+			-->
+			<param name="ConversionPattern" value="%d %-5p %c{1}(%L) [%t]: %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="File" class="org.apache.log4j.FileAppender">
+		<param name="File" value="log.txt" />
+		<param name="Append" value="false" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<!-- no meta-information
+			<param name="ConversionPattern" value="%m%n" /> -->
+			<!-- many informations -->
+			<param name="ConversionPattern" value="%d %-5p %c{1}(%L) [%t]: %m%n" />
+		</layout>
+	</appender>
+
+	<root>
+		<!-- all|debug|info|warn|error|fatal|off|null --> 
+		<priority value="debug" />
+		<appender-ref ref="Console" />
+		<appender-ref ref="File" />
+	</root>
+</log4j:configuration>
