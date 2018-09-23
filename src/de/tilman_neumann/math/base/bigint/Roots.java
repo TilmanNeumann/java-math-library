@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.math.base.bigint.BigIntConstants.*;
+import static org.junit.Assert.*;
 
 /**
  * i.th root of integers.
@@ -39,7 +40,7 @@ import static de.tilman_neumann.math.base.bigint.BigIntConstants.*;
 public class Roots {
 	private static final Logger LOG = Logger.getLogger(Roots.class);
 	private static final SecureRandom RNG = new SecureRandom();
-	
+	private static final boolean DEBUG = false;
 	private static final boolean TEST_BITWISE = false;
 
 	/**
@@ -208,17 +209,25 @@ public class Roots {
 		} catch (ArithmeticException e) {
 			LOG.debug("   N=" + N + ", i=" + i + ", guess = " + guess, e);
 		}
+		//LOG.debug("guess = " + guess);
+		
 		// final test
 		cmp = guess.pow(i).compareTo(N);
+		//LOG.debug("cmp = " + cmp);
 		if (cmp==0) return new BigInteger[] {guess, guess}; // exact sqrt()
 		if (cmp<0) {
 			BigInteger guessPlus1 = guess.add(ONE);
 			if (guessPlus1.pow(i).compareTo(N)>0) return new BigInteger[] {guess, guessPlus1};
+			// else guess+1 is exact
+			if (DEBUG) assertEquals(guessPlus1.pow(i), N);
+			return new BigInteger[] {guessPlus1, guessPlus1};
 		} else {
 			BigInteger guessMinus1 = guess.subtract(ONE);
 			if (guessMinus1.pow(i).compareTo(N)<0) return new BigInteger[] {guessMinus1, guess};
+			// else guess-1 is exact
+			if (DEBUG) assertEquals(guessMinus1.pow(i), N);
+			return new BigInteger[] {guessMinus1, guessMinus1};
 		}
-		throw new IllegalStateException("unexpected: absolute error of final guess > 1");
 	}
 
 	private static BigInteger computeInitialGuess(BigInteger N, int i) {
@@ -232,12 +241,14 @@ public class Roots {
 			double shiftsLeft_frac = ((double) shiftsRight)/i - shiftsLeft_int;
 			// compute root in double precision: double precision of exponent 1/i is better than float!
 			double root = Math.pow(N.shiftRight(shiftsRight).doubleValue(), 1.0D/i) * Math.pow(2, shiftsLeft_frac);
+			BigInteger initialGuess = BigIntConverter.fromDoubleMulPow2(root, shiftsLeft_int);
 			//LOG.debug(i + ".th root(" + N + "): initialGuess = " + initialGuess);
-			return BigIntConverter.fromDoubleMulPow2(root, shiftsLeft_int);
+			return initialGuess;
 		}
 		// no shifts required, double precision is sufficient
+		BigInteger initialGuess = BigIntConverter.fromDouble(Math.pow(N.doubleValue(), 1.0D/i));
 		//LOG.debug(i + ".th root(" + N + "): initialGuess = " + initialGuess);
-		return BigIntConverter.fromDouble(Math.pow(N.doubleValue(), 1.0D/i));
+		return initialGuess;
 	}
 
    	/**
