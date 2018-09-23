@@ -31,7 +31,7 @@ public class BigIntConverter {
 	private static final Logger LOG = Logger.getLogger(BigIntConverter.class);
 	
 	/**
-	 * Create a BigDecimal from double, with minimal precision loss.
+	 * Create a BigInteger from double, with minimal precision loss.
 	 * @param d
 	 * @return BigInteger
 	 */
