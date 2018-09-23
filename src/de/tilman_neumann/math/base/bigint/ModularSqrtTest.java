@@ -34,8 +34,7 @@ public class ModularSqrtTest {
 		int i = 0;
 		while (i<count) {
 			// get non-negative random n
-			int n = rng.nextInt();
-			if (n < 0) n = -n;
+			int n = rng.nextInt(Integer.MAX_VALUE);
 			// add n to the test set if it is an odd prime with the wanted modulus mod 8
 			if (n>2 && (n&7) == wantedPMod8 && bpsw.isProbablePrime(n)) {
 				pArray[i] = n;
@@ -56,8 +55,7 @@ public class ModularSqrtTest {
 		int i = 0;
 		while (i<count) {
 			// get non-negative random n
-			int n = rng.nextInt();
-			if (n<0) n = -n;
+			int n = rng.nextInt(Integer.MAX_VALUE);
 			// add n if it has Jacobi(n|p) = 1
 			int p = pList[i];
 			if (jacobiEngine.jacobiSymbol(n, p) == 1) {
