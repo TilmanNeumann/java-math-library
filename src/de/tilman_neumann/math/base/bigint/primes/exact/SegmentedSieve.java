@@ -118,10 +118,10 @@ public class SegmentedSieve {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		CountingCallback callback = new CountingCallback();
 		long limit = 1000000;
 		while (true) {
 			long start = System.nanoTime();
+			CountingCallback callback = new CountingCallback(); // initialize count=0 for each limit
 			SegmentedSieve sieve = new SegmentedSieve(callback);
 			sieve.sieve(limit);
 			LOG.info("Sieving x <= " + limit + " found " + callback.getCount() + " primes in " + ((System.nanoTime()-start) / 1000000) + " ms");
