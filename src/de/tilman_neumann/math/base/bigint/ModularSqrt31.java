@@ -57,7 +57,7 @@ public class ModularSqrt31 {
 		case 5:			
 			return case5Mod8(n, p);
 		default:
-			LOG.warn("Tonelli_Shanks() has been called with even p=" + p + " -> brute force search required.");
+			if (p>2) LOG.warn("Tonelli_Shanks() has been called with even p=" + p + " -> brute force search required."); // p=2 is no problem
 			return bruteForce(n, p);
 		}
 	}
@@ -151,8 +151,13 @@ public class ModularSqrt31 {
 		long gSquare = (g*g) % p;
 		long i = (n2 * gSquare) % p;
 		int ng = (int) ((n*g) % p);
-		int t = (int) ((ng * (i-1)) % p);
+		int t = (int) ((ng * (i-1)) % p); // TODO Here we may falsely get t=0 if i=1. Can that be cured?
 		if (DEBUG) {
+			// We have i = (2a)^(p-1)/4 (mod p). This looks closely related to Euler's criterion a^(p-1)/2 (mod p) == +-1 and the Legendre symbol definition.
+			long i2 = mpe.modPow(n2, (p-1)/4, p);
+			assertEquals(i, i2);
+			LOG.debug("n=" + n + ", p=" + p + ", i=" + i + ", i2=" + i2);
+			LOG.debug("k=" + k + ", n2=" + n2 + ", g=" + g + ", gSquare=" + gSquare + ", i=" + i + ", ng=" + ng + ", t=" + t);
 			BigInteger p_big = BigInteger.valueOf(p);
 			assertEquals(BigInteger.valueOf(t).pow(2).mod(p_big), BigInteger.valueOf(n%p));
 		}
