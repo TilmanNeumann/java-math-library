@@ -41,7 +41,7 @@ public class PurePowerTest {
 	private static final double LN_2 = Math.log(2);
 	private static final double LN_3 = Math.log(3);
 	
-	private Gcd63 gcdEngine = new Gcd63();
+	private Gcd31 gcdEngine = new Gcd31();
 	private SieveFacade primeGen = SieveFacade.get();
 
 	public static class Result {
