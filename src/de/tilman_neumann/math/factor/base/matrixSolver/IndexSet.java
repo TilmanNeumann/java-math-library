@@ -85,10 +85,8 @@ public class IndexSet  {
 		return biggestEntry<0;
 	}
 
-	public void addXor(IndexSet o) {
-		if (!(o instanceof IndexSet)) throw new IllegalArgumentException("bitArray.xor() works only with bitArray arguments");
-		IndexSet other = (IndexSet) o;
-		if (numberOfBits!=other.numberOfBits) throw new IllegalArgumentException("bitArray.xor(): the argument has a different size!");
+	public void addXor(IndexSet other) {
+		if (numberOfBits!=other.numberOfBits) throw new IllegalArgumentException("IndexSet.addXor(): the argument has a different size!");
 	
 		int xMax = Math.max(biggestEntry, other.biggestEntry);
 		int maxLongIndex = xMax>>6; // xMax/64
@@ -151,9 +149,4 @@ public class IndexSet  {
 		}
 		return str.substring(0, str.length()-1) + "]";
 	}
-	
-//	@Override
-//	protected void finalize() {
-//		LOG.debug("release " + this);
-//	}
 }
