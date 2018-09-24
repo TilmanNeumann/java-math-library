@@ -32,9 +32,9 @@ public class BlockLanczos implements Serializable {
 	/**
 	 * Block-Lanczos matrix solver.
 	 * 
-	 * @param matrixB The matrix holding the smooth relations. The first dimension of the matrix is the number of rows or relations.
-	 * The int[] representing a single row or relation contains the indices of the primes belonging to that relation. As such, the size
-	 * of the sub-arrays is not fixed but depends on each relation. matrixB is not changed by the Block-Lanczos algorithm.
+	 * @param matrixB The matrix holding the smooth relations. Each row = matrixB[rowIndex] represents one smooth congruence.
+	 * A row contains the indices of the primes that occur in the smooth part of the relation with odd exponent.
+	 * As such, the size of the sub-arrays depends on each relation. matrixB is not changed by the Block-Lanczos algorithm.
 	 * 
 	 * @param matrixBlength number of rows
 	 * 
