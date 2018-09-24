@@ -169,7 +169,10 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			computeFirstBParameter();
 			bParamCount++;
 			bIndex = 1;
-			//LOG.debug("first a=" + a + ", b=" + b);
+			if (DEBUG) {
+				LOG.debug("first a=" + a + ", b=" + b);
+				LOG.debug("(b^2-kN)/a [" + bIndex + "] = " + b.multiply(b).subtract(kN).divide(a));
+			}
 			if (profile) firstBDuration += timer.capture();
 			// filter prime base
 			BaseFilter.Result filterResult = baseFilter.filter(solutionArrays, baseArrays, mergedBaseSize, qArray, qCount, k);
@@ -190,7 +193,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			// bIndex/2^v is a half-integer. Therefore we have ceilTerm = ceil(bIndex/2^v) = bIndex/2^v + 1.
 			// If ceilTerm is even, then (-1)^ceilTerm is positive and B_l[v] must be added.
 			// Slightly faster is: if ceilTerm-1 = bIndex/2^v is odd then B_l[v] must be added.
-			boolean bParameterNeedsAddition = (((bIndex/(1<<v)) & 1) == 1);
+			boolean bParameterNeedsAddition = ((bIndex>>v) & 1) == 1;
 			// WARNING: In contrast to the description in [Contini p.10, 2nd paragraph],
 			// WARNING: b must not be computed (mod a) !
 			b = bParameterNeedsAddition ? b.add(B2Array[v-1]) : b.subtract(B2Array[v-1]);
@@ -214,7 +217,10 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				}
 			}
 			bIndex++;
-			//LOG.debug("a=" + a + ": " + bIndex + ".th b=" + b + ", c=" + c);
+			if (DEBUG) {
+				LOG.debug("a=" + a + ": " + bIndex + ".th b=" + b);
+				LOG.debug("(b^2-kN)/a [" + bIndex + "] = " + b.multiply(b).subtract(kN).divide(a));
+			}
 			if (profile) nextBDuration += timer.capture();
 
 			// Update solution arrays: 
@@ -356,6 +362,8 @@ public class SIQSPolyGenerator implements PolyGenerator {
 					assertTrue(0<=Bainv2Array[j][pIndex] && Bainv2Array[j][pIndex]<p);
 				}
 				assertEquals(b.mod(BigInteger.valueOf(p)).intValue(), bModP);
+				assertTrue(0 <= bModP & bModP < p);
+				assertTrue(0 <= t & t < p);
 
 				assertTrue(0<=t_minus_b_modP && t_minus_b_modP<p);
 				if (t>0) {
@@ -365,6 +373,8 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				}
 				// x1,x2 were chosen such that p divides Q
 				int x1 = x1Array[pIndex];
+				if (t==0) assertEquals(x1, (int) ((ainvp * (p - bModP)) % p));
+				
 				BigInteger Q1 = da.multiply(BigInteger.valueOf(x1)).add(b).pow(2).subtract(kN);
 				assertEquals(ZERO, Q1.mod(p_big));
 				int x2 = x2Array[pIndex];
