@@ -533,24 +533,17 @@ public class BlockLanczos implements Serializable {
 	    	TempMatr[index] = 0;
 	    }
 	    
-	    // debug very rare ArrayIndexOutOfBoundsException (one appearance at a 270 bit number):
 	    int row = matrixBlength - 1;
 	    int congruenceColumn = -1, matrixVEntry = -1;
-	    try {
-		    for (; row >= 0; row--) {
-		    	rowMatrixB = matrixB[row];
-		    	for (index = rowMatrixB.length - 1; index >= 0; index--) {
-		    		congruenceColumn = rowMatrixB[index];
-		    		matrixVEntry = matrixV[row];
-		    		TempMatr[congruenceColumn] ^= matrixVEntry;
-		    	}
-		    }
-	    } catch (Exception e) {
-	    	LOG.error("Caught exception " + e, e);
-	    	LOG.error("matrixBlength = " + matrixBlength + ", row = " + row);
-	    	LOG.error("rowMatrixB.length = " + rowMatrixB.length + ", index = " + index);
-	    	LOG.error("congruenceColumn = " + congruenceColumn + ", matrixVEntry = " + matrixVEntry);
-	    	throw e;
+	    for (; row >= 0; row--) {
+	    	rowMatrixB = matrixB[row];
+	    	for (index = rowMatrixB.length - 1; index >= 0; index--) {
+	    		// congruenceColumn is the index of a prime occuring in the congruence with odd exponent (an equation system column/variable)
+	    		congruenceColumn = rowMatrixB[index];
+	    		matrixVEntry = matrixV[row];
+	    		// In the following line we would get an ArrayIndexOutOfBoundsException if the equation system is under-determined
+	    		TempMatr[congruenceColumn] ^= matrixVEntry;
+	    	}
 	    }
 	    
 	    /* Compute ProdMatr = Bt * TempMatr */
