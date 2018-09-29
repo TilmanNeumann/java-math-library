@@ -77,12 +77,14 @@ public class SquFoF63 extends FactorAlgorithmBase {
 		while (true) {
 			// get a new k, return immediately if kN is square
 			this.kN = kSequence.next().multiply(N);
-			floor_sqrt_kN = (long) Math.sqrt(kN.doubleValue()); // faster than BigInteger sqrt; but the type conversion may give ceil(sqrt(kN)) for some N >= 54 bit
+			// sqrt(double) is much faster than BigInteger.sqrt() but the class cast may be wrong for some N >= 54 bit
+			floor_sqrt_kN = (long) Math.sqrt(kN.doubleValue());
 			BigInteger sqrt_kN_big = BigInteger.valueOf(floor_sqrt_kN);
 			long diff = kN.subtract(sqrt_kN_big.multiply(sqrt_kN_big)).longValue();
 			if (diff==0) return N.gcd(sqrt_kN_big);
-			if (diff<0) {
-				// floor_sqrt_kN was too big, diff too small -> compute correction
+			while (diff<0) {
+				// floor_sqrt_kN was too big, diff too small -> compute correction.
+				// a loop seems to pay out, thus the error term may often be bigger than 1.
 				floor_sqrt_kN--;
 				diff += (floor_sqrt_kN<<1) + 1;
 			}
