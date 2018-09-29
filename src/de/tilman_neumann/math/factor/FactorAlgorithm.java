@@ -25,7 +25,7 @@ import de.tilman_neumann.types.SortedMultiset;
 public interface FactorAlgorithm {
 	
 	/** The best available single-threaded factor algorithm. (multi-threading may not always be wanted) */
-	public static FactorAlgorithm DEFAULT = new CombinedFactorAlgorithm(1);
+	public static FactorAlgorithm DEFAULT = new CombinedFactorAlgorithm(1, false);
 
 	/**
 	 * Decomposes the argument N into prime factors.

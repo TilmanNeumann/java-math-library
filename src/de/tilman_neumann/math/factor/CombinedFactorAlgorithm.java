@@ -61,14 +61,14 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	 * Complete constructor.
 	 * @param numberOfThreads the number of parallel threads for PSIQS
 	 */
-	public CombinedFactorAlgorithm(int numberOfThreads) {
+	public CombinedFactorAlgorithm(int numberOfThreads, boolean profile) {
 		tDiv31 = new TDiv31Preload();
 		squFoF31 = new SquFoF31();
 		squFoF63 = new SquFoF63();
 		// SIQS tuned for small N
 		siqs_smallArgs = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false);
 		// PSIQS for bigger N: monolithic sieve is still slightly faster than SBH in the long run.
-		siqs_bigArgs = new PSIQS_U(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), true);
+		siqs_bigArgs = new PSIQS_U(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), profile);
 	}
 
 	@Override
@@ -198,7 +198,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
     	}
     	// run
     	long t0 = System.currentTimeMillis();
-    	CombinedFactorAlgorithm factorizer = new CombinedFactorAlgorithm(numberOfThreads);
+    	CombinedFactorAlgorithm factorizer = new CombinedFactorAlgorithm(numberOfThreads, true);
     	SortedMultiset<BigInteger> result = factorizer.factor(N);
 		long duration = System.currentTimeMillis()-t0;
 		String durationStr = TimeUtil.timeStr(duration);
