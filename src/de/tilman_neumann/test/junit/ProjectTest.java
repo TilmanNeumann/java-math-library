@@ -41,6 +41,8 @@ public class ProjectTest extends TestSuite {
     	LOG.info("Start Project JUnit tests...");
 		TestSuite suite = new TestSuite("Project JUnit tests");
         suite.addTest(de.tilman_neumann.jml.precision.PackageTests.suite());
+        suite.addTest(de.tilman_neumann.jml.roots.PackageTests.suite());
+        suite.addTest(de.tilman_neumann.jml.transcendental.PackageTests.suite());
         // XXX: Add more packages here
         
 		return suite;
