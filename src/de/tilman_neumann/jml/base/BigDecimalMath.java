@@ -30,6 +30,7 @@ import de.tilman_neumann.jml.precision.Scale;
  */
 public class BigDecimalMath {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(BigDecimalMath.class);
 
 	private BigDecimalMath() {
