@@ -1,6 +1,6 @@
 /*
- * PSIQS 4.0 is a Java library for integer factorization, including a parallel self-initializing quadratic sieve (SIQS).
- * Copyright (C) 2018  Tilman Neumann (www.tilman-neumann.de)
+ * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
+ * Copyright (C) 2018 Tilman Neumann (www.tilman-neumann.de)
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -19,7 +19,6 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import sun.misc.Unsafe;
-//import sun.misc.VM;
 
 /**
  * Utility to provide a sun.misc.Unsafe instance and manages native memory.
@@ -33,11 +32,9 @@ public class UnsafeUtil {
 	private static final Unsafe UNSAFE = fetchUnsafe();
 	
     // From DirectByteBuffer class: If IS_PAGE_ALIGNED is true, then we have to add PAGE_SIZE to the size of each allocation
-//	private static final boolean IS_PAGE_ALIGNED = VM.isDirectMemoryPageAligned();
-	private static final boolean IS_PAGE_ALIGNED = false; // IntelliJ does not like dependencies on VM
+	private static final boolean IS_PAGE_ALIGNED = false; // VM.isDirectMemoryPageAligned(); // IntelliJ does not like dependencies on VM
 	private static final int PAGE_SIZE = UNSAFE.pageSize();
 	private static final int ADDITIONAL_SIZE = IS_PAGE_ALIGNED ? PAGE_SIZE : 0;
-//	private static final long MAX_DIRECT_MEMORY = VM.maxDirectMemory(); // IntelliJ does not like dependencies on VM
 	
 	// a map from addresses to allocation sizes
 	private static final HashMap<Long, Long> ADDRESS_2_SIZE_MAP = new HashMap<Long, Long>();
@@ -45,9 +42,6 @@ public class UnsafeUtil {
 	private static long TOTAL_ALLOCATED = 0;
 	
 	static {
-		// some info on startup
-//		if (DEBUG) LOG.info("IS_PAGE_ALIGNED = " + IS_PAGE_ALIGNED + ", PAGE_SIZE = " + PAGE_SIZE + ", MAX_DIRECT_MEMORY = " + MAX_DIRECT_MEMORY);
-		
 		// register shutdown hook that checks release of all memory on normal shutdown
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 		    public void run() {
@@ -89,10 +83,6 @@ public class UnsafeUtil {
 	 */
 	public synchronized static long allocateMemory(long size) {
 		long allocationSize = size + ADDITIONAL_SIZE;
-//		long freeMemory = MAX_DIRECT_MEMORY - TOTAL_ALLOCATED;
-//		if (freeMemory < allocationSize) {
-//			throw new OutOfMemoryError("Can not allocate more native memory: allocationSize = " + allocationSize + ", freeMemory = " + freeMemory);
-//		}
 		if (DEBUG) LOG.debug("Allocate " + allocationSize + " bytes >>>");
 		long address = UNSAFE.allocateMemory(allocationSize);
 		if (DEBUG) LOG.debug("<<< Allocation of " + allocationSize + " bytes complete.");
