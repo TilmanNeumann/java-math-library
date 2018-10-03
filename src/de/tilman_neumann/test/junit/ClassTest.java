@@ -1,5 +1,5 @@
 /*
- * integer-sequence-search (ISS) is an offline OEIS sequence search engine.
+ * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
  * Copyright (C) 2018 Tilman Neumann (www.tilman-neumann.de)
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
