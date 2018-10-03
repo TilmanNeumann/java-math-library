@@ -17,8 +17,9 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigIntConstants;
 import de.tilman_neumann.util.ConfigUtil;
+
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Implementations of the factorial function.
@@ -29,13 +30,13 @@ public class Factorial {
 
 	private static final Logger LOG = Logger.getLogger(Factorial.class);
 
-	private static BigInteger[] factorials = new BigInteger[]{BigIntConstants.ONE, BigIntConstants.ONE};
+	private static BigInteger[] factorials = new BigInteger[]{ONE, ONE};
 	
 	/**
 	 * Object used to synchronize access to the static factorials array.
 	 * We need to call a constructor, with valueof() we would block one of the standard values!
 	 */
-	private static Boolean factorialsSyncObject = new Boolean(true);
+	private static Boolean syncObject = new Boolean(true);
 
 	/**
 	 * Computes the factorial for non-negative integer arguments by the
@@ -47,7 +48,7 @@ public class Factorial {
 	 */
 	public static BigInteger simpleProduct(int n) throws IllegalArgumentException {
 		if (n >= 0) {
-			BigInteger ret = BigIntConstants.ONE;
+			BigInteger ret = ONE;
 			for (int i=2; i<=n; i++) {
 				ret = ret.multiply(BigInteger.valueOf(i));
 			}
@@ -74,7 +75,7 @@ public class Factorial {
 	    		// the effects of the first ones). Therefore we do this in a
 	    		// synchronized block, and every thread checks again if the
 	    		// array is still to small when it enters the block:
-	    		synchronized (factorialsSyncObject) {
+	    		synchronized (syncObject) {
 	        		if (n >= factorials.length) {
 	        			BigInteger[] newFactorials = new BigInteger[n+100];
 			            System.arraycopy(factorials, 0, newFactorials, 0, factorials.length);
@@ -143,7 +144,7 @@ public class Factorial {
     	start = System.currentTimeMillis();
     	BigInteger resultWithMemory = null;
     	for (int i=0; i<numberOfTests; i++) {
-    		factorials = new BigInteger[]{BigIntConstants.ONE, BigIntConstants.ONE};
+    		factorials = new BigInteger[]{ONE, ONE};
     		resultWithMemory = withMemory(n);
     	}
     	end = System.currentTimeMillis();
