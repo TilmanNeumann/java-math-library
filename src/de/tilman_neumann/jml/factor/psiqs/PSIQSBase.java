@@ -20,7 +20,6 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.PurePowerTest;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
@@ -42,6 +41,7 @@ import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
+import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
 
