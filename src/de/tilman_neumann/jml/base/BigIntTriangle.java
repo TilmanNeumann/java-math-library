@@ -32,7 +32,7 @@ public class BigIntTriangle {
 	private static final Logger LOG = Logger.getLogger(BigIntTriangle.class);
 
 	private static long count = 0;
-	private static final String syncObject = "SYNC";
+	private static final Boolean syncObject = new Boolean(true);
 	
 	private ArrayList<ArrayList<BigInteger>> rows = null;
 	private long id;
