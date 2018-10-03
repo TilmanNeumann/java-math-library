@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
  * Integer list, with factory method from comma-separated string.
  * @author Tilman Neumann
  */
-public class IntegerList extends ArrayList<Integer> {
+public class IntList extends ArrayList<Integer> {
 
 	private static final long serialVersionUID = -9086114515836575213L;
 
@@ -29,8 +29,8 @@ public class IntegerList extends ArrayList<Integer> {
 	 * @param str
 	 * @return list of sequence elements
 	 */
-	public static IntegerList valueOf(String str) {
-		IntegerList list = new IntegerList();
+	public static IntList valueOf(String str) {
+		IntList list = new IntList();
 		if (str!=null) {
 	        StringTokenizer tokenizer = new StringTokenizer(str.trim(), ",");
 	        while (tokenizer.hasMoreTokens()) {
