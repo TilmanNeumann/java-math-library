@@ -29,9 +29,7 @@ import de.tilman_neumann.util.TimeUtil;
 /**
  * Factor all entries from a batch file.
  * 
- * Sample run commands:
- * -t 6 ./src/de/tilman_neumann/jml/factor/qaTests.txt
- * -t 6 ./src/de/tilman_neumann/jml/factor/mersenne-forum.txt
+ * Sample run command: -t 6 ./src/de/tilman_neumann/jml/factor/qaTests.txt
  * 
  * @author Tilman Neumann
  */
