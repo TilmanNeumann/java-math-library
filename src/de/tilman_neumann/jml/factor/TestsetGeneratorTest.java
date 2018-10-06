@@ -15,6 +15,8 @@ package de.tilman_neumann.jml.factor;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
@@ -31,9 +33,23 @@ public class TestsetGeneratorTest {
 		int nCount = 100;
 		for (int bits = 20; ; bits+=10) {
 			long start = timer.capture();
-			ArrayList<BigInteger> t1 = TestsetGenerator.generate(bits, nCount);
+			ArrayList<BigInteger> list = TestsetGenerator.generate(bits, nCount);
 			long end = timer.capture();
-			LOG.info("bits=" + bits + ": t1 took " + TimeUtil.timeDiffStr(start, end));
+			// Collect the true
+			Map<Integer, Integer> sizeCounts = new TreeMap<>();
+			for (BigInteger num : list) {
+				int bitlen = num.bitLength();
+				Integer count = sizeCounts.get(bitlen);
+				count = (count==null) ? Integer.valueOf(1) : count.intValue()+1;
+				sizeCounts.put(bitlen, count);
+			}
+			String generatedBitLens = "";
+			for (int bitlen : sizeCounts.keySet()) {
+				generatedBitLens += sizeCounts.get(bitlen) + "x" + bitlen + ", ";
+			}
+			generatedBitLens = generatedBitLens.substring(0, generatedBitLens.length()-2);
+			LOG.info("Requesting " + nCount + " " + bits + "-numbers took " + TimeUtil.timeDiffStr(start, end) + " ms and generated the following bit lengths: " + generatedBitLens);
+			// Roughly 1/3 of generated numbers are one bit smaller than requested. No big problem though.
 		}
 	}
 }
