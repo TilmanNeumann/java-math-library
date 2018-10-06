@@ -23,6 +23,13 @@ You will need Java 8 or higher for the project to compile.
 There is no documentation and no support, so you should be ready to start exploring the source code.
 
 
+## Remarks
+
+* The quadratic sieve will be quite good for difficult numbers like semiprimes.
+However, is still missing a good small factor test like ECM.
+So it won't be very efficient for numbers having many small prime factors.
+
+
 ## Authors
 
 * **Tilman Neumann** - *Initial work*
@@ -38,7 +45,4 @@ This project is licensed under the GPL 3 License - see the [License.txt](License
 Big thanks to
 * Dario Alpern for the permission to use his Block-Lanczos solver under GPL 3, and
 * Graeme Willoughby for his great comments on the BigInteger algorithms in the SqrtInt, SqrtExact, Root and PurePowerTest classes.
-
-More code used or adapted from other software:
-* The method Factorial.withStartResult(...) was adapted from Johann Nepomuk Loefflmann's BigAl program, see http://www.jonelo.de
 
