@@ -18,7 +18,7 @@ import java.math.BigInteger;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.modular.JacobiSymbol;
-import de.tilman_neumann.jml.primes.exact.SieveFacade;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.*;
@@ -34,7 +34,7 @@ public class PrimeBaseGenerator {
 	private static final Logger LOG = Logger.getLogger(PrimeBaseGenerator.class);
 	private static final boolean DEBUG = false;
 	
-	private SieveFacade primeGenerator = SieveFacade.get();
+	private AutoExpandingPrimesArray rawPrimesArray = AutoExpandingPrimesArray.get();
 	private JacobiSymbol jacobiEngine = new JacobiSymbol();
 
 	/**
@@ -63,7 +63,7 @@ public class PrimeBaseGenerator {
 		// odd primes
 		int count = 1;
 		for (int i=1; ; i++) {
-			int p = primeGenerator.getPrime(i);
+			int p = rawPrimesArray.getPrime(i);
 			int jacobi = jacobiEngine.jacobiSymbol(kN, p);
 			if (DEBUG) {
 				// ensure correctness of prime generator

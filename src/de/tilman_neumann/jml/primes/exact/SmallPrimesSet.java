@@ -34,7 +34,7 @@ public class SmallPrimesSet extends HashSet<Integer> {
 		
 	private int limit;
 
-	private static final SieveFacade THE_SIEVE = SieveFacade.get();
+	private static final AutoExpandingPrimesArray THE_PRIMES_ARRAY = AutoExpandingPrimesArray.get();
 
 	private static final SmallPrimesSet THE_SET = new SmallPrimesSet();
 	
@@ -61,7 +61,7 @@ public class SmallPrimesSet extends HashSet<Integer> {
 	public SmallPrimesSet ensurePrimeCount(int count) {
 		int initialSize = this.size();
 		if (initialSize < count) {
-			IntArray primes = THE_SIEVE.ensurePrimeCount(count).getPrimes();
+			IntArray primes = THE_PRIMES_ARRAY.ensurePrimeCount(count).getPrimes();
 			int[] array = primes.array;
 			if (DEBUG) LOG.debug("set.initialSize = " + initialSize  + ", array.size = " + primes.count);
 			for (int i = initialSize; i<count; i++) {
@@ -82,7 +82,7 @@ public class SmallPrimesSet extends HashSet<Integer> {
 	public SmallPrimesSet ensureLimit(int desiredLimit) {
 		if (limit < desiredLimit) {
 			int initialSize = this.size();
-			IntArray primes = THE_SIEVE.ensureLimit(desiredLimit).getPrimes();
+			IntArray primes = THE_PRIMES_ARRAY.ensureLimit(desiredLimit).getPrimes();
 			int[] array = primes.array;
 			if (DEBUG) LOG.debug("set.initialSize = " + initialSize  + ", array.size = " + primes.count);
 			

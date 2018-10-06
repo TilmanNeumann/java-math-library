@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.combinatorics.Factorial;
 import de.tilman_neumann.jml.factor.CombinedFactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.primes.exact.SieveFacade;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.roots.SqrtInt;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
@@ -451,10 +451,10 @@ public class Divisors {
 	 */
 	public static SortedMultiset<BigInteger> factor(BigInteger n) {
 		SortedMultiset<BigInteger> factors = new SortedMultiset_BottomUp<>();
-		SieveFacade sieve = new SieveFacade().ensureLimit(1000);
+		AutoExpandingPrimesArray primesArray = new AutoExpandingPrimesArray().ensureLimit(1000);
 		
 		for (int i=0; ; i++) {
-			int p_i = sieve.getPrime(i);
+			int p_i = primesArray.getPrime(i);
 			BigInteger p_i_big = BigInteger.valueOf(p_i);
 			BigInteger[] div;
 			while (true) {

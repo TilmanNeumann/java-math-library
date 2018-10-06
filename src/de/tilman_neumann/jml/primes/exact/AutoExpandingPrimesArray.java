@@ -26,8 +26,8 @@ import de.tilman_neumann.jml.primes.bounds.PrimeCountUpperBounds;
  * 
  * @author Tilman Neumann
  */
-public class SieveFacade implements SieveCallback {
-	private static final Logger LOG = Logger.getLogger(SieveFacade.class);
+public class AutoExpandingPrimesArray implements SieveCallback {
+	private static final Logger LOG = Logger.getLogger(AutoExpandingPrimesArray.class);
 	private static final boolean DEBUG = false;
 	
 	// variables must be initialized to avoid exceptions in ensureMaxPrime()
@@ -36,9 +36,9 @@ public class SieveFacade implements SieveCallback {
 	private int capacity = 1; // maximal array capacity
 	
 	// singleton
-	private static final SieveFacade THE_PRIMES_ARRAY = new SieveFacade();
+	private static final AutoExpandingPrimesArray THE_PRIMES_ARRAY = new AutoExpandingPrimesArray();
 	
-	public static SieveFacade get() {
+	public static AutoExpandingPrimesArray get() {
 		return THE_PRIMES_ARRAY;
 	}
 	
@@ -47,7 +47,7 @@ public class SieveFacade implements SieveCallback {
 	 * @param desiredCount
 	 * @return PrimeGenerator
 	 */
-	public SieveFacade ensurePrimeCount(int desiredCount) {
+	public AutoExpandingPrimesArray ensurePrimeCount(int desiredCount) {
 		if (count < desiredCount) {
 			// The current primes array is to small -> expansion needed.
 			// Compute (tight) bound such that there are at least count primes in (0, nthPrimeUpperBound]
@@ -62,7 +62,7 @@ public class SieveFacade implements SieveCallback {
 	 * @param x
 	 * @return PrimeGenerator
 	 */
-	public SieveFacade ensureLimit(int x) {
+	public AutoExpandingPrimesArray ensureLimit(int x) {
 		if (array[count-1] < x) {
 			// The current primes array is to small -> expansion needed.
 			// Compute upper bound for the number of primes in (0, x]

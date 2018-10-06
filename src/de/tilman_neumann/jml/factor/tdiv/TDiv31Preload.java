@@ -16,7 +16,7 @@ package de.tilman_neumann.jml.factor.tdiv;
 import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
-import de.tilman_neumann.jml.primes.exact.SieveFacade;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 
 /**
  * Trial division factor algorithm preloading all primes <= sqrt(Integer.MAX_VALUE).
@@ -30,7 +30,7 @@ import de.tilman_neumann.jml.primes.exact.SieveFacade;
 public class TDiv31Preload extends FactorAlgorithmBase {
 	private static final int NUM_PRIMES = 4793;
 	
-	private int[] primes = SieveFacade.get().ensurePrimeCount(NUM_PRIMES).getPrimes().array;
+	private int[] primes = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES).getPrimes().array;
 
 	@Override
 	public String getName() {

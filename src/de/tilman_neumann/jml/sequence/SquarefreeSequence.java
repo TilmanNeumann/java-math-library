@@ -19,7 +19,7 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.primes.exact.SieveFacade;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
@@ -29,7 +29,7 @@ import de.tilman_neumann.util.ConfigUtil;
 public class SquarefreeSequence implements IntegerSequence<BigInteger> {
 	private static final Logger LOG = Logger.getLogger(SquarefreeSequence.class);
 
-	private SieveFacade primeGen = SieveFacade.get();
+	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
 	
 	private BigInteger multiplier;
 	private BigInteger next;
@@ -67,7 +67,7 @@ public class SquarefreeSequence implements IntegerSequence<BigInteger> {
 			// divide by p and if necessary by another p is much faster than division by p^2 in one go!
 			BigInteger test = next;
 			int primeIndex = 0;
-			for (BigInteger p = TWO; p.multiply(p).compareTo(test)<=0; p = BigInteger.valueOf(primeGen.getPrime(++primeIndex))) {
+			for (BigInteger p = TWO; p.multiply(p).compareTo(test)<=0; p = BigInteger.valueOf(primesArray.getPrime(++primeIndex))) {
 				// test p
 				BigInteger[] div = test.divideAndRemainder(p);
 				if (div[1].equals(ZERO)) {

@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.gcd.Gcd31;
-import de.tilman_neumann.jml.primes.exact.SieveFacade;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.roots.Roots;
 import de.tilman_neumann.jml.roots.SqrtExact;
 import de.tilman_neumann.util.ConfigUtil;
@@ -46,7 +46,7 @@ public class PurePowerTest {
 	private static final double LN_3 = Math.log(3);
 	
 	private Gcd31 gcdEngine = new Gcd31();
-	private SieveFacade primeGen = SieveFacade.get();
+	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
 
 	public static class Result {
 		public BigInteger base;
@@ -95,7 +95,7 @@ public class PurePowerTest {
 		if (lsb > 0) {
 			// N is even -> we can test bit patterns before the full i.th root
 			BigInteger N_reduced = N.shiftRight(lsb);
-			for (int b = 3; b<log3N; b=primeGen.getPrime(++bIndex)) {
+			for (int b = 3; b<log3N; b=primesArray.getPrime(++bIndex)) {
 				//LOG.debug("test b = " + b);
 				// if the number of trailing zeros in N is not equal to 0 (mod b), then N is not a b.th power
 				if (lsb % b != 0) continue;
@@ -108,7 +108,7 @@ public class PurePowerTest {
 			}
 		} else {
 			// N is odd
-			for (int b = 3; b<log3N; b=primeGen.getPrime(++bIndex)) {
+			for (int b = 3; b<log3N; b=primesArray.getPrime(++bIndex)) {
 				//LOG.debug("test b = " + b);
 				BigInteger floor_bthRoot = Roots.ithRoot(N, b)[0];
 				if (floor_bthRoot.pow(b).equals(N)) {
@@ -153,7 +153,7 @@ public class PurePowerTest {
 			UnsignedBigInt quotient = new UnsignedBigInt(new int[intLen]);
 			UnsignedBigInt tmp;
 			int a, aIndex=1;
-			for (a = 3; a<aMax; a=primeGen.getPrime(++aIndex)) {
+			for (a = 3; a<aMax; a=primesArray.getPrime(++aIndex)) {
 				int exp = 0;
 				int rem = N_UBI.divideAndRemainder(a, quotient);
 				if (rem > 0) continue;
@@ -185,11 +185,11 @@ public class PurePowerTest {
 			UnsignedBigInt N_square = new UnsignedBigInt(N.multiply(N));
 			int b2 = 3, b2Index = 1; // skip 2
 			int bIndex = 1; // skip 2
-			for (int b = 3; b<=bMax; b=primeGen.getPrime(++bIndex)) {
+			for (int b = 3; b<=bMax; b=primesArray.getPrime(++bIndex)) {
 				if (maxExp>0 && (maxExp%b != 0)) continue;
 				// Sieve out some powers: If (2b+1) is prime, then N = x^b is only possible if N^2 == 1 (mod (2b+1)) or if (2b+1) | N
 				final int b2p = (b<<1) + 1;
-				while (b2 < b2p) b2 = primeGen.getPrime(b2Index++);
+				while (b2 < b2p) b2 = primesArray.getPrime(b2Index++);
 				//LOG.debug("test b = " + b + ", b2 = " + b2);
 				if (b2 == b2p) {
 					// 2*b+1 is prime
@@ -218,13 +218,13 @@ public class PurePowerTest {
 		UnsignedBigInt N_reduced_square = new UnsignedBigInt(N_reduced.multiply(N_reduced));
 		int b2 = 3, b2Index = 1; // skip 2
 		int bIndex = 1; // skip 2
-		for (int b = 3; b<=lsb; b=primeGen.getPrime(++bIndex)) {
+		for (int b = 3; b<=lsb; b=primesArray.getPrime(++bIndex)) {
 			//LOG.debug("test b = " + b);
 			// N can only be a b.th power if b | lsb
 			if (lsb % b != 0) continue;
 			// Sieve out some powers: If (2b+1) is prime, then N = x^b is only possible if N^2 == 1 (mod (2b+1)) or if (2b+1) | N
 			final int b2p = (b<<1) + 1;
-			while (b2 < b2p) b2 = primeGen.getPrime(b2Index++);
+			while (b2 < b2p) b2 = primesArray.getPrime(b2Index++);
 			//LOG.debug("test b = " + b + ", b2 = " + b2);
 			if (b2 == b2p) {
 				// 2*b+1 is prime

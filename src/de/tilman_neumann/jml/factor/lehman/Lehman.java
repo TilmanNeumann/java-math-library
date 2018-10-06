@@ -17,7 +17,7 @@ import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.gcd.Gcd63;
-import de.tilman_neumann.jml.primes.exact.SieveFacade;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 
 /**
  * Naive implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/
@@ -28,7 +28,7 @@ import de.tilman_neumann.jml.primes.exact.SieveFacade;
 public class Lehman extends FactorAlgorithmBase {
 	private static final int NUM_PRIMES = 4793;
 	
-	private int[] primes = SieveFacade.get().ensurePrimeCount(NUM_PRIMES).getPrimes().array;
+	private int[] primesArray = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES).getPrimes().array;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
@@ -46,7 +46,7 @@ public class Lehman extends FactorAlgorithmBase {
 		// 1. Check via trial division whether N has a nontrivial divisor d <= cbrt(N), and if so, return d.
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
 		int i=0, p;
-		while ((p = primes[i++]) <= cbrt) {
+		while ((p = primesArray[i++]) <= cbrt) {
 			if (N%p==0) return p;
 		}
 		

@@ -20,7 +20,7 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.modular.JacobiSymbol;
-import de.tilman_neumann.jml.primes.exact.SieveFacade;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence63;
 
 /**
@@ -51,7 +51,7 @@ public class KnuthSchroeppel {
 	private static final double PENALTY_WEIGHT = 0.35;
 
 	// 10000 primes would always be enough, but using the auto-expanding sieve facade is nicer
-	private SieveFacade primeGen = SieveFacade.get();
+	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
 	private SquarefreeSequence63 squareFreeSequence = new SquarefreeSequence63(1);
 
 	private int[] kArray = new int[10000];
@@ -108,7 +108,7 @@ public class KnuthSchroeppel {
 		// add odd primes contribution
 		int i=1;
 		for (; ; i++) {
-			int p = primeGen.getPrime(i);
+			int p = primesArray.getPrime(i);
 			double lnP = Math.log(p);
 			double lnPTerm1 = lnP / (double) p;
 			double lnPTerm2 = 2*lnP / (double) (p-1);

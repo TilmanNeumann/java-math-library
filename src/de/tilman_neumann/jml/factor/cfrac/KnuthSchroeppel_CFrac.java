@@ -22,7 +22,7 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.modular.JacobiSymbol;
-import de.tilman_neumann.jml.primes.exact.SieveFacade;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence;
 
 /**
@@ -41,7 +41,7 @@ public class KnuthSchroeppel_CFrac {
 	private static final double FOUR_BY_3 = 4.0/3.0 * Math.log(2);
 
 	// 10000 primes would always be enough, but using the expandable sieve is nicer
-	private SieveFacade primeGen = SieveFacade.get();
+	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
 	private SquarefreeSequence squareFreeSequence = new SquarefreeSequence(1);
 
 	private int[] kArray = new int[10000];
@@ -101,7 +101,7 @@ public class KnuthSchroeppel_CFrac {
 		// odd primes
 		int i=1;
 		for (; ; i++) {
-			int p = primeGen.getPrime(i);
+			int p = primesArray.getPrime(i);
 			double lnPTerm1 = Math.log(p) / (double) (p+1);
 			double lnPTerm2 = (p<<1)*lnPTerm1 / (double) (p-1); // 2*p*ln(p) / (p^2-1)
 			int Legendre_N_p = jacobiEngine.jacobiSymbol(N, p);

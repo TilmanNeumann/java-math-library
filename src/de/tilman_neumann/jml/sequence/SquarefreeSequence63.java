@@ -19,7 +19,7 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.primes.exact.SieveFacade;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
@@ -29,7 +29,7 @@ import de.tilman_neumann.util.ConfigUtil;
 public class SquarefreeSequence63 implements IntegerSequence<Long> {
 	private static final Logger LOG = Logger.getLogger(SquarefreeSequence63.class);
 
-	private SieveFacade primeGen = SieveFacade.get();
+	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
 	
 	private long multiplier;
 	private long next;
@@ -62,7 +62,7 @@ public class SquarefreeSequence63 implements IntegerSequence<Long> {
 			// next must not be divisible by any prime square p^2 <= next
 			long test = next;
 			int primeIndex = 0;
-			for (long p = 2; p*p<=test; p = primeGen.getPrime(++primeIndex)) {
+			for (long p = 2; p*p<=test; p = primesArray.getPrime(++primeIndex)) {
 				// test p
 				if (test%p == 0) {
 					test /= p;
