@@ -32,51 +32,48 @@ import de.tilman_neumann.util.TimeUtil;
  * Computations of Pi = 3.1415... to arbitrary precision.
  * @author Tilman Neumann
  */
-// TODO sometimes precision is a digit or so too low
 public class Pi {
 	private static final Logger LOG = Logger.getLogger(Pi.class);
 
-	/** PI computed to PI_DEC_PREC decimal digits precision. */
+	/** PI computed to PI_SCALE decimal after-floating point digits. */
     private static BigDecimal PI;
-    private static Scale PI_DEC_PREC = Scale.valueOf(0);
+    private static Scale PI_SCALE = Scale.valueOf(0);
     
 	/**
-	 * Compute Pi using the approximation formula found by Plouffe and the
-	 * Borwein brothers also used in mpfr.
-	 * The result is accurate to at least decPrec decimal after-comma digits.
+	 * Compute Pi using the approximation formula found by Plouffe and the Borwein brothers also used in mpfr.
+	 * The result is accurate to at least <code>scale</code> decimal after-floating point digits.
 	 * 
-	 * @param decPrec Wanted precision in after-comma decimal digits
+	 * @param scale Wanted precision in decimal after-floating point digits
 	 * @return PI = 3.1415...
 	 */
-    public static BigDecimal pi(Scale decPrec) {
-	    if (decPrec.compareTo(PI_DEC_PREC) > 0) {
+    public static BigDecimal pi(Scale scale) {
+	    if (scale.compareTo(PI_SCALE) > 0) {
 	        // need to recompute Pi with higher precision...
             PI = BigDecimalConstants.ZERO;
-	        BigDecimal maxErr = decPrec.getErrorBound();
+	        BigDecimal maxErr = scale.getErrorBound();
 	        int i=0;
 	        
-        	// Wanted series element precision is one digit more than output precision
-	        Scale elemPrec = decPrec.add(1);
+        	// Do internal computations with a few extra digits to get the rounding right
+	        Scale internalScale = scale.add(2);
 	        BigDecimal sElement;
 	        
 	        do {
 	            // Compute i.th series element: ----------------
 		        // Denominator is 16^i == 2^(4*i)
-		        BigDecimal den = Pow2.pow2(4*i);
+	        	int four_i = i<<2, eight_i = i<<3;
+		        BigDecimal den = Pow2.pow2(four_i);
 		        int denMagnitude = Magnitude.of(den);
-		        // Numerator: Required precision is elemPrec + magnitude(den):
-		        Scale numPrec = elemPrec.add(denMagnitude);
-		        BigRational c1 = new BigRational(BigIntConstants.FOUR, BigInteger.valueOf(8*i+1));
-		        BigRational c2 = new BigRational(BigIntConstants.ONE, BigInteger.valueOf(4*i+2));
-		        BigRational c3 = new BigRational(BigIntConstants.ONE, BigInteger.valueOf(8*i+5));
-		        BigRational c4 = new BigRational(BigIntConstants.ONE, BigInteger.valueOf(8*i+6));
-	            sElement = c1.subtract(c2).subtract(c3).subtract(c4).toBigDecimal(numPrec);
-		        // Divide by denominator:
-	            // To achieve precision decPrec+1, the sElement-Argument needs precision elemPrec + magnitude(den)...
-	            sElement = BigDecimalMath.divide(sElement, den, elemPrec);
+		        // The required numerator scale is internalScale + magnitude(den):
+		        Scale numScale = internalScale.add(denMagnitude);
+		        BigRational c1 = new BigRational(BigIntConstants.FOUR, BigInteger.valueOf(eight_i+1));
+		        BigRational c2 = new BigRational(BigIntConstants.ONE, BigInteger.valueOf(four_i+2));
+		        BigRational c3 = new BigRational(BigIntConstants.ONE, BigInteger.valueOf(eight_i+5));
+		        BigRational c4 = new BigRational(BigIntConstants.ONE, BigInteger.valueOf(eight_i+6));
+	            sElement = c1.subtract(c2).subtract(c3).subtract(c4).toBigDecimal(numScale);
+		        // Divide by denominator with the result having internalScale
+	            sElement = BigDecimalMath.divide(sElement, den, internalScale);
 
 	            // Add new series element to the total:
-	            // We want both arguments to have precision decPrec+1...
 	            PI = PI.add(sElement);
 	            //LOG.debug("i=" + i + ", sElement=" + sElement + ", PI=" + PI);
 	            i++;
@@ -85,16 +82,16 @@ public class Pi {
 	        } while (sElement.compareTo(maxErr) > 0);
 	        
 	        // store PI with wished precision:
-	        PI_DEC_PREC = decPrec;
+	        PI_SCALE = scale;
 	    }
 
 	    // assign output with wished accuracy:
-	    return decPrec.applyTo(PI);
+	    return scale.applyTo(PI);
 	}
 
-	private static void testPi(Scale maxDecPrec) {
+	private static void testPi(Scale maxScale) {
         long t0 = System.currentTimeMillis();
-        for (Scale decPrec=Scale.valueOf(2); decPrec.compareTo(maxDecPrec)<=0; decPrec = decPrec.add(1)) {
+        for (Scale decPrec=Scale.valueOf(2); decPrec.compareTo(maxScale)<=0; decPrec = decPrec.add(1)) {
             LOG.debug("pi(" + decPrec + ")=" + Pi.pi(decPrec));
         }
         long t1 = System.currentTimeMillis();
