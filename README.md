@@ -11,8 +11,8 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Releases
 
-### v0.9 thread-safe AutoExpandingPrimesArray, some refactorings
-### v0.8 The first revision containing all the stuff I wanted to add initially.
+* v0.9 thread-safe AutoExpandingPrimesArray, some refactorings
+* v0.8 The first revision containing all the stuff I wanted to add initially.
 
 
 ## Getting Started
