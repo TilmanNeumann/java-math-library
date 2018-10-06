@@ -39,7 +39,7 @@ public class Stirling {
 	 * Object used to synchronize access to the static Stirling numbers array.
 	 * We need to call a constructor, with valueof() we would block one of the standard values!
 	 */
-	private static Boolean syncObject = new Boolean(true);
+	private static Object syncObject = new Object();
 
     /** hashtable for of 1.kind Stirling numbers indexed by (n,k) */
     private static HashMap<Pair<Integer, Integer>, BigInteger> s1Map = new HashMap<Pair<Integer, Integer>, BigInteger>();

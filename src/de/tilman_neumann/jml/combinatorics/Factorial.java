@@ -36,7 +36,7 @@ public class Factorial {
 	 * Object used to synchronize access to the static factorials array.
 	 * We need to call a constructor, with valueof() we would block one of the standard values!
 	 */
-	private static Boolean syncObject = new Boolean(true);
+	private static Object syncObject = new Object();
 
 	/**
 	 * Computes the factorial for non-negative integer arguments by the
@@ -133,7 +133,7 @@ public class Factorial {
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
     	int n=1000;
-    	int numberOfTests = 1000;
+    	int numberOfTests = 10000;
     	long start = System.currentTimeMillis();
     	BigInteger result = null;
     	for (int i=0; i<numberOfTests; i++) {
