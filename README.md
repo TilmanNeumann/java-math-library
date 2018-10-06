@@ -18,6 +18,8 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 Clone the repository, create a plain Java project importing it, make sure that 'src' is the source folder of your project, and add the log4j- and junit-jars from the lib-folder to your classpath. 
 
+You will need Java 8 or higher for the project to compile.
+
 There is no documentation and no support, so you should be ready to start exploring the source code.
 
 
