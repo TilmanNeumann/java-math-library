@@ -17,16 +17,12 @@ package de.tilman_neumann.jml.factor.base.matrixSolver;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
-
 /**
  * Block-Lanczos matrix solver by Dario Alejandro Alpern.
  * Extracted from Dario Alpern's Siqs package by Tilman Neumann.
  */
 public class BlockLanczos implements Serializable {
 	private static final long serialVersionUID = 4895131221265947979L;
-
-	private static final Logger LOG = Logger.getLogger(BlockLanczos.class);
 
 	private static final long DosALa31_1 = (1L << 31) - 1; // 2^31 - 1
 
