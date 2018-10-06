@@ -25,9 +25,9 @@ There is no documentation and no support, so you should be ready to start explor
 
 ## Remarks
 
-* The quadratic sieve will be quite good for difficult numbers like semiprimes.
-However, is still missing a good small factor test like ECM.
-So it won't be very efficient for numbers having many small prime factors.
+* The quadratic sieve is still missing a good small factor test algorithm like ECM.
+So it will be quite efficient for inputs having few small factors (in particular semiprimes),
+but not when the number of small prime factors is large.
 
 
 ## Authors
