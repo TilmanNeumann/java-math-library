@@ -36,10 +36,10 @@ public class SieveFacade implements SieveCallback {
 	private int capacity = 1; // maximal array capacity
 	
 	// singleton
-	private static final SieveFacade THE_SIEVE = new SieveFacade();
-
+	private static final SieveFacade THE_PRIMES_ARRAY = new SieveFacade();
+	
 	public static SieveFacade get() {
-		return THE_SIEVE;
+		return THE_PRIMES_ARRAY;
 	}
 	
 	/**
@@ -49,7 +49,7 @@ public class SieveFacade implements SieveCallback {
 	 */
 	public SieveFacade ensurePrimeCount(int desiredCount) {
 		if (count < desiredCount) {
-			// Current primes array is to small -> expansion needed.
+			// The current primes array is to small -> expansion needed.
 			// Compute (tight) bound such that there are at least count primes in (0, nthPrimeUpperBound]
 			long nthPrimeUpperBound = NthPrimeUpperBounds.combinedUpperBound(desiredCount);
 			fetchPrimes(desiredCount, nthPrimeUpperBound);
@@ -64,6 +64,7 @@ public class SieveFacade implements SieveCallback {
 	 */
 	public SieveFacade ensureLimit(int x) {
 		if (array[count-1] < x) {
+			// The current primes array is to small -> expansion needed.
 			// Compute upper bound for the number of primes in (0, x]
 			int countUpperBound = (int) PrimeCountUpperBounds.combinedUpperBound(x);
 			fetchPrimes(countUpperBound, x);
@@ -90,6 +91,7 @@ public class SieveFacade implements SieveCallback {
 	 */
 	public int getPrime(int n) {
 		if (count <= n) {
+			// The current primes array is to small -> expansion needed.
 			int nextCount = 3*count; // trade-off between speed and memory waste
 			// Compute (tight) bound such that there are at least count primes in (0, nthPrimeUpperBound]
 			long nthPrimeUpperBound = NthPrimeUpperBounds.combinedUpperBound(nextCount);
@@ -99,16 +101,19 @@ public class SieveFacade implements SieveCallback {
 	}
 	
 	/**
-	 * Trigger the sieve.
+	 * Run the sieve to expand the primes array. Thread-safe.
 	 * @param desiredCount wanted number of primes
 	 * @param limit maximum value to be checked for being prime.
 	 */
-	private void fetchPrimes(int desiredCount, long limit) {
-		array = new int[desiredCount];
-		capacity = desiredCount;
-		count = 0;
-		SegmentedSieve segmentedSieve = new SegmentedSieve(this);
-		segmentedSieve.sieve(limit);
+	private synchronized void fetchPrimes(int desiredCount, long limit) {
+		// Is the array still too small when the current thread gets its go?
+		if (desiredCount > count) {
+			array = new int[desiredCount];
+			capacity = desiredCount;
+			count = 0;
+			SegmentedSieve segmentedSieve = new SegmentedSieve(this);
+			segmentedSieve.sieve(limit);
+		}
 	}
 
 	/**
