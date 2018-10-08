@@ -38,7 +38,7 @@ but not when the number of small prime factors is large.
 
 ## License
 
-This project is licensed under the GPL 3 License - see the [License.txt](License.txt) file for details
+This project is licensed under the GPL 3 License - see the [LICENSE](LICENSE) file for details
 
 
 ## Credits
