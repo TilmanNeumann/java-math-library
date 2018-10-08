@@ -162,21 +162,31 @@ public class ModularSqrt_BB {
 	}
 	
 	/**
-	 * Silverman's first proposal to compute solutions u of u^2 == n (mod p^2). Works only for p==3 (mod 4).
+	 * Simplest algorithm to compute solutions u of u^2 == n (mod p^2).
+	 * This is the first proposition in [Pomerance 1985: The Quadratic Sieve Factoring Algorithm, p. 178].
+	 * Works only for p==3 (mod 4).
+	 * 
 	 * @param n a positive integer having Jacobi(n|p) = 1
 	 * @param p an odd prime with p==3 (mod 4)
 	 * @param pSquare p^2
 	 * @return
 	 */
 	public BigInteger modularSqrtModSquare_v01(BigInteger n, BigInteger p, BigInteger pSquare) {
-		// Silvermans first solution of u^2 == n (mod p^2): works only for p==3 (mod 4) 
+		// Compute one of the two solutions
 		BigInteger u = n.modPow(pSquare.subtract(p).add(TWO).shiftRight(2), pSquare);
-		// return the smaller sqrt
+		// Return the smaller sqrt
 		return u.compareTo(pSquare.shiftRight(1)) <= 0 ? u : pSquare.subtract(u);
 	}
 	
 	/**
-	 * Silverman's second proposal to compute solutions u of u^2 == n (mod p^2). Works only for p==3 (mod 4).
+	 * A faster version to compute solutions u of u^2 == n (mod p^2), 
+	 * doing modular arithmetics (mod p) only, which is an application of lifting via Hensels lemma.
+	 * 
+	 * This is the second proposition in [Pomerance 1985], but not fully out-formulated there.
+	 * This implementation was accomplished following [Silverman 1987: The Multiple Polynomial Quadratic Sieve], p. 332].
+	 * 
+	 * Works only for p==3 (mod 4).
+	 * 
 	 * @param n a positive integer having Jacobi(n|p) = 1
 	 * @param p an odd prime with p==3 (mod 4)
 	 * @param pSquare p^2
