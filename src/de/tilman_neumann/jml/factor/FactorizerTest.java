@@ -45,6 +45,7 @@ import de.tilman_neumann.util.TimeUtil;
  * Main class to compare the performance of factor algorithms.
  * @author Tilman Neumann
  */
+@SuppressWarnings("unused") // suppress warnings on unused imports
 public class FactorizerTest {
 	private static final Logger LOG = Logger.getLogger(FactorizerTest.class);
 
