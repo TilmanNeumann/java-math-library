@@ -1,0 +1,148 @@
+PSIQS Change Log
+================
+
+Version 1.0 (2016-01-15):
+---------------------------
+
+* Initial release
+
+Version 1.1 (2016-01-15):
+---------------------------
+
+* Suppress exception when then executable jar is terminated with Ctrl-C
+* Added more parametric class SquFoF63_02
+
+Version 1.2 (2016-01-17):
+---------------------------
+
+* Added log4j xml-configuration that allows logging into a file, too
+* Extended class SquFoF63_02 to support hand-selected multiplier lists
+
+Version 2.0 (2017-01-31):
+---------------------------
+
+The main goal in version 02.00 was to improve SIQS in terms of speed, memory requirements, structure and readability.
+
+SIQS and PSIQS have become significantly faster than in version 01, about factor 3 or even more for large factor arguments (300 bit and more).
+Let's compare some average timings of PSIQS(6 threads) on my notebook:
+Version 01: ~3s   @ 200bit, ~2min @ 250 bit, ~90min @ 300 bit
+Version 02: ~2.5s @ 200bit, ~1min @ 250 bit, ~30min @ 300 bit
+
+This was mostly achieved due to the following changes:
+* Now primes are permitted that exceed the sieve array size (it was a major performance bug in version 01 not to do so)
+* The primes q_l forming the a-parameter are now filtered out before sieving.
+* The sieve has been rolled out for large primes.
+* Polynomial switching has become much faster. Exchanging the sub-indices of the Bainv2[][] from Bainv2[p][v] to Bainv2[v][p] had a large impact here.
+* Trial division (aka resieving) has been sped up by about 20%, too.
+* I managed to interface Dario Alpern's Block-Lanczos solver. (a big thanks to Dario for the permission to use it!)
+* The computation of the A and sqrt(Q)-values of the final congruence A^2 == Q (mod kN) (where Q is a square) is now done (mod N).
+
+A second important point was to reduce the memory consumption.
+(P)SIQS stores all partials in memory, which will become very expensive for large factor arguments.
+The memory demands have been reduced a lot by the following measures:
+* Store large factors as long, not as BigInteger.
+* Introduce particular subclasses for partials with 1 and 2 factors; in Java this is much cheaper than storing an array of large factors.
+* Some further overhead in the data structures used to store partials was removed.
+
+While PSIQS 01 with 12 GB RAM failed to factor 340 bit numbers because of memory problems, with PSIQS 02 such numbers require only about 3.4 GB RAM.
+I estimate that with 12 GB RAM, PSIQS 02 should be capable to factor 380 bit numbers. But for such large numbers, NFS should be used anyway.
+
+Structure and readability have been improved in many parts of PSIQS.
+Some of the changes include
+* Basic QS and MPQS have been dropped. They are documented in version 01, which will be available further-on.
+* Many lazy initializations have been replaced by more direct, mandatory initializations.
+* The Poly interface and it's subclasses have been removed completely.
+* The computation of ainv[], Bainv2[][] and first x-arrays is now done in a single loop.
+* Many more small changes.
+* Many updated comments.
+
+A second focus was the improvement of some BigInteger argument functions like SqrtInt, SqrtExact, Root and PurePowerTest,
+following several very helpful comments from Graeme Willoughby (big thanks, Graeme!).
+* SqrtInt has been improved by about 20% by using the full mantissa precision of Math.sqrt() to construct the initial guess BigInteger.
+* SqrtExact was slightly improved replacing the first modulus (by a power of 2) with a test of the 001 bit pattern.
+* The computation of n.th root of BigIntegers has become much faster (like factor 10) due to a new Heron-style implementation.
+* The PurePowerTest has a much better implementation now, too.
+Have a look at the comments in the source files, all changes have been explained in detail there.
+
+Last not least I added new implementations of the following algorithms:
+* Segmented sieves (both single and double block) following Wambach and Wettig. To my disappointment, in Java these are just slower than monolithic sieves.
+  The reason for this seems to be that the JVM running as the top-level task absorbs any caching effects. All we get is the additional bookkeeping costs.
+* Sieving with powers of small primes. This approach gives a small performance gain for small and medium-size factor arguments.
+  But for N >= 260 bit or so the effect vanishes. Probably the small number of sieved powers does not justify the overhead introduced by it.
+* Brent's improvement of the PollardRho method.
+
+Version 2.1 (2017-02-05):
+---------------------------
+
+* In collaboration with Graeme Willoughby, the test for pure powers has been sped up by another factor around 10
+   --> in total the speedup since release 01 was about factor 200 !
+* Thread-handling in PSIQS has been improved for small N. The parallel version is stable for N>56 bit now.
+* Much faster ainvp computation, exploiting that (1/a) mod p = (1/(a%p) mod p
+
+Version 3.0 (2017-09-24)
+------------------------
+
+This version experienced a modest speedup of the quadratic sieve,
+mostly due to a nice improvement in trial division (re-sieving) and using local and final arrays.
+
+Furthermore, there are a couple of new algorithms, and many code quality improvements.
+
+In detail:
+* Slightly faster sieve due to making some arrays local and final.
+* Trial division (in fact I mean re-sieving) performance improved almost by factor 2:
+  Since we have many primes greater than the sieve array, it is that much faster to compute
+  			int xModP = xAbs<p ? x : x % p;
+  instead of
+  			int xModP = x % p;
+  where xAbs is the absolute value of the resieved smallest x-solution x.
+* Implementation of BPSW probable prime test: always faster than Java's built-in probable prime test,
+  quite a lot for small arguments (<64 bit), only slightly better asymptotically.
+* Faster and less memory-consuming sieve of Eratosthenes, replaced old sequential prime generator.
+* Better adjustment of the quadratic sieve for small N; the transition between SquFoF and SIQS
+  dropped from 67/68 bits to 60/61 bits.
+* Minor correction of Knuth-Schroeppel algorithm for QS.
+* Better adjustment of Knuth-Schroeppel algorithm for QS for small N.
+* Implemented Knuth-Schroeppel algorithm for CFrac.
+* Small improvement in PurePowerTest.
+* SqrtInt: better correctness test.
+* SqrtExact: faster for N<=106 bits.
+* Higher-quality SortedMultiset implementations.
+
+Version 4.0 (2018-03-04)
+------------------------
+
+1 Changes that significantly improved (P)SIQS performance:
+1.1 Relax the condition for "smooth candidates" passed to the trial division phase for bigger N.
+    This resembles Silverman's comment on his T-parameter.
+    I have a slightly different parametrization though, based on N instead of pMax (biggest prime in the prime base).
+1.2 Use of polynomial Q2(x) = (2*a*x+b)^2 - kN for kN == 1 (mod 8) and corresponding adjustment of the Knuth-Schroeppel algorithm.
+1.3 Use native memory for the sieve array using sun.misc.Unsafe !! This allows array conversion and Contini's "0x80808080" collect trick in Java.
+    The back sides of this approach are:
+    * "Undefined behavior" if there is not enough native memory.
+      This should be manageable, considering that we need only about numberOfThreads*2.5MB for 340 bit numbers.
+    * The support for sun.misc.Unsafe in coming Java versions is unclear. That's why I kept the corresponding sieve versions not using Unsafe.
+
+2 Other SIQS improvements
+2.1 Stopped collecting partials with factors > 31 bit and switched "large factor"-type from long to int -> huge memory save
+2.2 Readjusted "small prime variant", not sieving with primes < cbrt(maxPrime)
+2.3 Seamless integration of sieving with powers -> that might be slightly faster now.
+    (the integration implies a minor drawback for sieving without powers in the trial division phase, though)
+2.4 Capture profiling information in parallel SIQS
+2.5 Faster block sieves (still not fast enough though)
+2.6 New hybrid sieves (doing large primes on monolithic sieve array, small primes on blocks) -> quite near but still slower than the monolithic sieve
+2.6 a-param generator: uses constant rng seed -> more reliable algorithm comparisons
+2.7 a-param generator: better adjustment of index variance
+2.8 Improved relation (AQPair/Smooth/Partial) class hierarchy
+
+3. Improvements in other factor algorithms
+3.1 CFrac has become much faster for large N (starting at 128 bits) using my own "UnsignedBigInt.divide(int)" implementation instead of BigInteger.
+3.2 CFrac: stopped collecting useless partials with large factors > 31 bit
+3.3 SquFoF31 now works up to 52 bit
+3.4 Added a silly Lehman implementation
+
+4. Notable improvements in base classes
+4.1 Adapted Kim Walisch's segmented prime sieve (https://primesieve.org/segmented_sieve.html) -> faster than my old one and works for long arguments
+4.2 Singleton "small primes set" -> reduced memory needs
+4.3 nextProbablePrime() improved for N<256 bits using BPSW instead of Java's BigInteger method (which is quite good for N>=256 bit)
+4.4 Faster TestsetGenerator (principally interesting for small number mass tests)
+
