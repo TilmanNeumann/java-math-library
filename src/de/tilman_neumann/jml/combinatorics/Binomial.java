@@ -69,9 +69,11 @@ public class Binomial {
     // iterative solution, recursive is overkill!
     // applies "fruehes Kuerzen"
     public static final BigInteger nk(int n, int k) throws ArithmeticException {
-        if ((n < 0) || (k < 0)) throw new ArithmeticException("arguments need to be non-negative, but n=" + n + " and k=" + k);
+    	// if n<0 then binomial(n,k) = (-1)^k*binomial(k-n-1,k) // TODO
+    	if (n < 0 || k < 0) throw new ArithmeticException("arguments need to be non-negative, but n=" + n + " and k=" + k);
+    	
         if (k > n) return BigInteger.ZERO;
-        if ((n==k) || (k==0)) return BigInteger.ONE;
+        if (n==k || k==0) return BigInteger.ONE;
 
         BigInteger result = BigInteger.ONE;
         // initialize with 1. factor in numerator
