@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.base.BigIntGrid;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -96,12 +97,14 @@ public class Binomial {
     public static void main(String[] args) {
     	ConfigUtil.initProject();
     	
+    	BigIntGrid grid = new BigIntGrid("n", -10, "k", -10);
     	for (int n=-10; n<=10; n++) {
     		ArrayList<BigInteger> row = new ArrayList<>();
         	for (int k=-10; k<=10; k++) {
         		row.add(nk(n,k));
         	}
-        	LOG.info("n=" + n + ": C(n,k)= " + row);
+        	grid.add(row);
     	}
+    	LOG.info("binomial coefficients:\n" + grid);
     }
 }
