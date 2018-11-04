@@ -39,8 +39,8 @@ public class Multinomial {
 		for (int i = 0; i<k; i++) Nall += N[i];
 	
 		// calculate the multinomial
-		BigInteger ret = Factorial.withMemory(Nall);
-		for (int i=0; i<k; i++) ret = ret.divide(Factorial.withMemory(N[i]));
+		BigInteger ret = Factorial.factorial(Nall);
+		for (int i=0; i<k; i++) ret = ret.divide(Factorial.factorial(N[i]));
 	
 		// return the result
 		return ret;

@@ -81,7 +81,7 @@ public class MpiPartitionGeneratorTest {
 	private static void printNumberOfFactorialFactorizations() {
     	for (int i=0; i<14; i++) {
 			long start = System.currentTimeMillis();
-    		BigInteger factorial = Factorial.withMemory(i);
+    		BigInteger factorial = Factorial.factorial(i);
     		long numberOfFactorizations = MpiPartitionGenerator.numberOfFactorizationsOf(factorial);
     		LOG.info(i + "! = " + factorial + " can be factored in " + numberOfFactorizations + " different ways (computed in " + (System.currentTimeMillis()-start) + " ms)");
     	}

@@ -17,6 +17,7 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -25,18 +26,11 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * Implementations of the factorial function.
  * @author Tilman Neumann
  */
-// TODO: Implement Luschny´s prime swing factorial
 public class Factorial {
 
 	private static final Logger LOG = Logger.getLogger(Factorial.class);
 
-	private static BigInteger[] factorials = new BigInteger[]{ONE, ONE};
-	
-	/**
-	 * Object used to synchronize access to the static factorials array.
-	 * We need to call a constructor, with valueof() we would block one of the standard values!
-	 */
-	private static Object syncObject = new Object();
+	private static final AutoExpandingPrimesArray PRIMES_ARRAY = new AutoExpandingPrimesArray().ensureLimit(1000);
 
 	/**
 	 * Computes the factorial for non-negative integer arguments by the
@@ -44,9 +38,9 @@ public class Factorial {
 	 * 
 	 * @param n Argument
 	 * @return n! if n is a non-negative integer
-	 * @throws IllegalArgumentException if n is not a non-negative integer
+	 * @throws IllegalArgumentException if n is a negative integer
 	 */
-	public static BigInteger simpleProduct(int n) throws IllegalArgumentException {
+	private static BigInteger simpleProduct(int n) throws IllegalArgumentException {
 		if (n >= 0) {
 			BigInteger ret = ONE;
 			for (int i=2; i<=n; i++) {
@@ -55,47 +49,6 @@ public class Factorial {
 			return ret;
 		}
 		throw new IllegalArgumentException("factorial currently supports only non-negative integers, but the argument is n=" + n);
-	}
-
-	/**
-	 * Computes the factorial for non-negative integer arguments applying the
-	 * simple product rule, but remembering previously computed values.
-	 * Additional speed is provided by the the arraycopy-function.
-	 * 
-	 * @param n Argument
-	 * @return n! if n is a non-negative integer
-	 * @throws IllegalArgumentException if n is not a non-negative integer
-	 */
-	public static BigInteger withMemory(int n) {
-	    if (n >= 0) {
-	    	// pass by the synchronized block if the factorials array is big enough
-	    	if (n >= factorials.length) {
-	    		// we need to enlarge the factorials array, but we don't want
-	    		// several threads to do this in parallel (and the latter undo
-	    		// the effects of the first ones). Therefore we do this in a
-	    		// synchronized block, and every thread checks again if the
-	    		// array is still to small when it enters the block:
-	    		synchronized (syncObject) {
-	        		if (n >= factorials.length) {
-	        			BigInteger[] newFactorials = new BigInteger[n+100];
-			            System.arraycopy(factorials, 0, newFactorials, 0, factorials.length);
-			        	factorials = newFactorials;
-		        	}
-	    		}
-	        }
-	        
-	        // Check if value still needs to be computed:
-	        if (factorials[n] == null) {
-	        	// Recursion. Usually iterative updating should be faster, but the
-	        	// recursion profits from multi-threaded environments: it stops
-	        	// immediately when another thread has already computed a new value
-	        	factorials[n] = BigInteger.valueOf(n).multiply(withMemory(n-1));
-	            //LOG.debug(n + "! = " + _factorials[n]);
-	        }
-	        return factorials[n];
-	    }
-	    
-	    throw new IllegalArgumentException("factorial currently supports only non-negative integers!");
 	}
 	
 	/**
@@ -109,7 +62,7 @@ public class Factorial {
 	 * @param start Argument of the start result
 	 * @param startResult Factorial for start
 	 * @return n! if n is a non-negative integer
-	 * @throws IllegalArgumentException if n is not a non-negative integer
+	 * @throws IllegalArgumentException if n is a negative integer
 	 */
 	public static BigInteger withStartResult(int n, int start, BigInteger startResult) throws ArithmeticException {
         if (n<0) throw new ArithmeticException("The factorial function supports only non-negative arguments.");
@@ -127,13 +80,49 @@ public class Factorial {
 	}
 
 	/**
+	 * Peter Luschny's swinging prime factorial algorithm, see http://luschny.de/math/factorial/SwingIntro.pdf
+	 * @param n
+	 * @return n!
+	 */
+	public static BigInteger factorial/*Luschny*/(int n) throws ArithmeticException {
+        if (n<0) throw new ArithmeticException("The factorial function supports only non-negative arguments.");
+		if (n<2) return ONE;
+		BigInteger f = factorial/*Luschny*/(n>>1);
+		return f.multiply(f).multiply(primeSwing(n));
+	}
+	
+	private static BigInteger primeSwing(int n) {
+		// ensure we find all primes <= n
+		PRIMES_ARRAY.ensureLimit(n);
+
+		BigInteger product = ONE;
+		int i=0;
+		while (true) {
+			int prime = PRIMES_ARRAY.getPrime(i++);
+			if (prime>n) break;
+			
+			int q=n;
+			int p=1;
+			do {
+				q /= prime; // lower
+				if ((q&1)==1) p *= prime;
+			} while (q>0);
+			if (p>1) product = product.multiply(BigInteger.valueOf(p));
+		}
+		return product;
+	}
+	
+	/**
 	 * Test.
 	 * @param args Ignored.
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
+    	
+    	// compute 1000! ten thousand times
     	int n=1000;
     	int numberOfTests = 10000;
+    	
     	long start = System.currentTimeMillis();
     	BigInteger result = null;
     	for (int i=0; i<numberOfTests; i++) {
@@ -141,16 +130,16 @@ public class Factorial {
     	}
     	long end = System.currentTimeMillis();
     	LOG.info("simpleProduct(" + n + ") took " + (end-start) + "ms");
+    	
     	start = System.currentTimeMillis();
-    	BigInteger resultWithMemory = null;
+    	BigInteger resultLuschny = null;
     	for (int i=0; i<numberOfTests; i++) {
-    		factorials = new BigInteger[]{ONE, ONE};
-    		resultWithMemory = withMemory(n);
+    		resultLuschny = factorial/*Luschny*/(n);
     	}
     	end = System.currentTimeMillis();
-    	LOG.info("factorial(" + n + ") took " + (end-start) + "ms");
-    	if (!resultWithMemory.equals(result)) {
-    		LOG.error("factorial() computed wrong result!");
+    	LOG.info("factorialLuschny(" + n + ") took " + (end-start) + "ms");
+    	if (!resultLuschny.equals(result)) {
+    		LOG.error("resultLuschny() computed wrong result!");
     	}
 	}
 }

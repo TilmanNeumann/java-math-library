@@ -35,7 +35,7 @@ public class Variations {
 			throw new IllegalArgumentException("Var(" + n + ", " + n1 + ")?? Both args need to be positive, and the selection must not be bigger than the base!");
 		}
 
-		return Factorial.withMemory(n).divide(Factorial.withMemory(n-n1));
+		return Factorial.factorial(n).divide(Factorial.factorial(n-n1));
 	}
 	
 	public static BigInteger multivariate(int[] N, int[] n) {

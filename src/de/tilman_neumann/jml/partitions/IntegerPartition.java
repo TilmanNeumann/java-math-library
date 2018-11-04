@@ -59,11 +59,11 @@ public class IntegerPartition extends SortedMultiset_BottomUp<Integer> {
 		// lazy init
 		if (realizations == null) {
 			if (n==null) n = this.sum();
-			realizations = Factorial.withMemory(n);
+			realizations = Factorial.factorial(n);
 			for (Map.Entry<Integer, Integer> partAndPower : this.entrySet()) {
 				int part = partAndPower.getKey().intValue();
 				int power = partAndPower.getValue().intValue();
-				realizations = realizations.divide(Factorial.withMemory(part).pow(power).multiply(Factorial.withMemory(power)));
+				realizations = realizations.divide(Factorial.factorial(part).pow(power).multiply(Factorial.factorial(power)));
 			}
 		}
 		return realizations;

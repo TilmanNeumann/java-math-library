@@ -230,7 +230,7 @@ public class Stirling {
 	    		}
 	    		ret = ret.add(elem);
 	    	}
-	    	return ret.divide(Factorial.withMemory(k));
+	    	return ret.divide(Factorial.factorial(k));
     	}
     	if (k==0) { return BigIntConstants.ZERO; }
     	throw new IllegalArgumentException("Parameter k must be non-negative, but is " + k);
@@ -361,10 +361,10 @@ public class Stirling {
                 diag[i-1] = BigInteger.ONE;
         
             // create initial i1!
-            BigInteger fac = Factorial.withMemory(a1);
+            BigInteger fac = Factorial.factorial(a1);
 
             // create the multiplicator in front of the sum:
-            BigInteger mu = fac.multiply(Factorial.withMemory(a2));
+            BigInteger mu = fac.multiply(Factorial.factorial(a2));
 
             // add sign:
             if ((a1+a2)%2 != 0)

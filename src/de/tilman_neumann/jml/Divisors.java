@@ -487,7 +487,7 @@ public class Divisors {
 	private static void testSumOfDivisorsForFactorials() {
 		for (int n=0; ; n++) {
 			// old version
-			BigInteger fac = Factorial.withMemory(n);
+			BigInteger fac = Factorial.factorial(n);
 			BigInteger sigma;
 			
 //			long t0 = System.currentTimeMillis();
@@ -510,7 +510,7 @@ public class Divisors {
 
 	private static void testDivisors() {
 		for (int n=0; ; n++) {
-			BigInteger fac = Factorial.withMemory(n);
+			BigInteger fac = Factorial.factorial(n);
 			SortedMultiset<BigInteger> factors;
 			
 			long t0 = System.currentTimeMillis();
@@ -549,7 +549,7 @@ public class Divisors {
 
 	private static void testSmallDivisors() {
 		for (int n=0; ; n++) {
-			BigInteger fac = Factorial.withMemory(n);
+			BigInteger fac = Factorial.factorial(n);
 			SortedMultiset<BigInteger> factors;
 			
 //			long t0 = System.currentTimeMillis();
