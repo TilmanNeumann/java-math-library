@@ -139,7 +139,7 @@ public class Factorial {
     	end = System.currentTimeMillis();
     	LOG.info("factorialLuschny(" + n + ") took " + (end-start) + "ms");
     	if (!resultLuschny.equals(result)) {
-    		LOG.error("resultLuschny() computed wrong result!");
+    		LOG.error("factorialLuschny() computed wrong result!");
     	}
 	}
 }
