@@ -73,6 +73,9 @@ public class Binomial {
      * @return binomial coefficient C(n, k)
      */
     private static final BigInteger core(int n, int k) {
+    	// C(n, k) == C(n, n-k); the smaller choice of k means less iterations in the loop below 
+    	if (k<<1 > n) k = n-k;
+    	
         // initialize with 1. factor in numerator
         BigInteger num = BigInteger.valueOf(n-k+1);
         BigInteger den = ONE;
