@@ -73,17 +73,15 @@ public class Binomial {
      * @return binomial coefficient C(n, k)
      */
     private static final BigInteger core(int n, int k) {
-       BigInteger result = ONE;
         // initialize with 1. factor in numerator
         BigInteger num = BigInteger.valueOf(n-k+1);
         BigInteger den = ONE;
-        long i=0;
 
-        while (k > i) {
+        BigInteger result = ONE;
+        for (int i=0; i<k; i++) {
             result = result.multiply(num).divide(den);
             num=num.add(ONE);
             den=den.add(ONE);
-            i++;
         }
         return result;
     }
