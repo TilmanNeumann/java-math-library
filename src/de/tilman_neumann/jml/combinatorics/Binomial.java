@@ -14,79 +14,93 @@
 package de.tilman_neumann.jml.combinatorics;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 
-import de.tilman_neumann.jml.base.BigIntConstants;
+import org.apache.log4j.Logger;
+
+import de.tilman_neumann.util.ConfigUtil;
+
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Implementation of the binomial coefficient.
  * @author Tilman Neumann
  */
 public class Binomial {
-    /**
-     * Compute binomial coefficient n choose k using three factorials.
-	 * 
-	 * @param n total number of objects
-	 * @param k objects of first kind
-	 * @return binomial coefficient n choose k
-	 * @throws IllegalArgumentException
-     */
-    private static BigInteger simple(int n, int k) {
-	    if (k>0 && n>k) {
-	        // Compute denominator:
-	        return Factorial.withMemory(n).divide(Factorial.withMemory(k).multiply(Factorial.withMemory((n-k))));
-	    } else if (k==0 || n==k)
-	        return BigIntConstants.ONE;
-	    else {
-	    	throw new IllegalArgumentException("Unadmissible parameters for binomial coefficient: " + n + ", " + k + " !! Exit...");
-	    }
-	}
-
-	/**
-	 * Simple implementation of the binomial coefficient n choose k
-	 * using the variations of n choose k.
-	 * 
-	 * @param n total number of objects
-	 * @param k objects of first kind
-	 * @return binomial coefficient n choose k
-	 * @throws IllegalArgumentException
-	 */
-    // TODO: has a problem with arguments (0, 2) ?
-    private static BigInteger withVariations(int n, int k) throws IllegalArgumentException {
-		return Variations.bivariate(n, k).divide(Factorial.withMemory(k));
-	}
+	private static final Logger LOG = Logger.getLogger(Binomial.class);
 	
     /**
-     * Returns a BigInteger whose value is the binomial coefficient (n choose k).
+     * Returns the binomial coefficient C(n, k). Works for negative n,k, too.
+	 * 
+     * @param n
+     * @param k
+     * @return binomial coefficient C(n, k)
+     */
+    public static final BigInteger nk(int n, int k) {
+    	if (k==0 || n==k) return ONE; // holds for negative n, k, too
+
+    	if (n>=0) {
+    		if (k<0 || k>n) return ZERO;
+    		
+    		// standard case C(n, k) with n>k>0
+    		return core(n, k);
+    	}
+
+    	// now treat n<0
+    	if (k>0) {
+    		BigInteger C = core(k-n-1, k);
+    		if ((k&1)==1) C = C.negate();
+    		return C;
+    	}
+    	
+    	// n, k < 0
+    	if (k>n) return ZERO;
+		BigInteger C = core(-k-1, -n-1);
+		if ((Math.abs(n-k)&1)==1) C = C.negate();
+		return C;
+
+    }
+    
+    /**
+     * Computes the binomial coefficient C(n, k) for positive n, k.
+     * Applies "early fraction reduction".
      * 
 	 * Adapted from http://www.jonelo.de by Johann Nepomuk Loefflmann (jonelo@jonelo.de),
 	 * published under GNU General Public License.
 	 * 
-     * @param n parameter in n choose k
-     * @param k parameter in n choose k
-     * @throws ArithmeticException if n is negative
-     * @return a BigInteger whose value is the binomial coefficient (n choose k)
+     * @param n
+     * @param k
+     * @return binomial coefficient C(n, k)
      */
-    // iterative solution, recursive is overkill!
-    // applies "fruehes Kuerzen"
-    public static final BigInteger nk(int n, int k) throws ArithmeticException {
-    	// if n<0 then binomial(n,k) = (-1)^k*binomial(k-n-1,k) // TODO
-    	if (n < 0 || k < 0) throw new ArithmeticException("arguments need to be non-negative, but n=" + n + " and k=" + k);
-    	
-        if (k > n) return BigInteger.ZERO;
-        if (n==k || k==0) return BigInteger.ONE;
-
-        BigInteger result = BigInteger.ONE;
+    private static final BigInteger core(int n, int k) {
+       BigInteger result = ONE;
         // initialize with 1. factor in numerator
-        BigInteger zaehler = BigInteger.valueOf(n-k+1);
-        BigInteger nenner = BigInteger.ONE;
+        BigInteger num = BigInteger.valueOf(n-k+1);
+        BigInteger den = ONE;
         long i=0;
 
         while (k > i) {
-            result = (result.multiply(zaehler)).divide(nenner);
-            zaehler=zaehler.add(BigInteger.ONE);
-            nenner=nenner.add(BigInteger.ONE);
+            result = result.multiply(num).divide(den);
+            num=num.add(ONE);
+            den=den.add(ONE);
             i++;
         }
         return result;
+    }
+    
+    /**
+     * Test
+     * @param args ignored
+     */
+    public static void main(String[] args) {
+    	ConfigUtil.initProject();
+    	
+    	for (int n=-10; n<=10; n++) {
+    		ArrayList<BigInteger> row = new ArrayList<>();
+        	for (int k=-10; k<=10; k++) {
+        		row.add(nk(n,k));
+        	}
+        	LOG.info("n=" + n + ": C(n,k)= " + row);
+    	}
     }
 }
