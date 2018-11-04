@@ -66,11 +66,11 @@ public class Factorial {
 	 */
 	public static BigInteger withStartResult(int n, int start, BigInteger startResult) throws ArithmeticException {
         if (n<0) throw new ArithmeticException("The factorial function supports only non-negative arguments.");
-        if (n==0) return BigInteger.ONE;
+        if (n==0) return ONE;
         if (n==start) return startResult;
         if (n<start) {
         	start=1; 
-        	startResult = BigInteger.ONE; 
+        	startResult = ONE; 
         }
         BigInteger x = startResult;
         for (int i=start+1; i <= n; i++) {
