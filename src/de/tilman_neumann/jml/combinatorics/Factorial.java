@@ -87,7 +87,7 @@ public class Factorial {
 	public static BigInteger factorial/*Luschny*/(int n) throws ArithmeticException {
         if (n<0) throw new ArithmeticException("The factorial function supports only non-negative arguments.");
 		if (n<2) return ONE;
-		BigInteger f = factorial/*Luschny*/(n>>1);
+		BigInteger f = factorial/*Luschny*/(n>>1); // floor(n/2)
 		return f.multiply(f).multiply(primeSwing(n));
 	}
 	
@@ -98,13 +98,13 @@ public class Factorial {
 		BigInteger product = ONE;
 		int i=0;
 		while (true) {
-			int prime = PRIMES_ARRAY.getPrime(i++);
+			int prime = PRIMES_ARRAY.getPrime(i++); // starts with p[0] = 2
 			if (prime>n) break;
 			
 			int q=n;
 			int p=1;
 			do {
-				q /= prime; // lower
+				q /= prime; // floor(q/prime)
 				if ((q&1)==1) p *= prime;
 			} while (q>0);
 			if (p>1) product = product.multiply(BigInteger.valueOf(p));
