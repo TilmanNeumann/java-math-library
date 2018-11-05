@@ -68,6 +68,7 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 			factors.add(TWO, lsb);
 			N = N.shiftRight(lsb);
 		}
+		// TODO do some trial division to factor smooth numbers much faster
 		if (N.equals(ONE)) {
 			// N was just a power of 2
 			return factors;
