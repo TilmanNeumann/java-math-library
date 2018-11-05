@@ -97,10 +97,11 @@ public class Binomial {
     public static void main(String[] args) {
     	ConfigUtil.initProject();
     	
-    	BigIntGrid grid = new BigIntGrid("n", -10, "k", -10);
-    	for (int n=-10; n<=10; n++) {
+    	int max = 10;
+    	BigIntGrid grid = new BigIntGrid("n", -max, "k", -max); // works for negative k, too
+    	for (int n=-max; n<=max; n++) {
     		ArrayList<BigInteger> row = new ArrayList<>();
-        	for (int k=-10; k<=10; k++) {
+        	for (int k=-max; k<=max; k++) {
         		row.add(nk(n,k));
         	}
         	grid.add(row);
