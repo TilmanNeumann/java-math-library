@@ -15,7 +15,7 @@ package de.tilman_neumann.jml.combinatorics;
 
 import java.math.BigInteger;
 
-import de.tilman_neumann.jml.base.BigIntConstants;
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Hyperfactorials.
@@ -29,7 +29,7 @@ public class HyperFactorial {
 	 * @return
 	 */
 	public static BigInteger standard(int n) {
-		BigInteger result = BigIntConstants.ONE;
+		BigInteger result = ONE;
 		for (int k=2; k<=n; k++) {
 			result = result.multiply(BigInteger.valueOf(k).pow(k));
 		}
@@ -43,8 +43,8 @@ public class HyperFactorial {
 	 * @return
 	 */
 	public static BigInteger inverse(int n) {
-		BigInteger result = BigIntConstants.ONE;
-		BigInteger kFactorial = BigIntConstants.ONE;
+		BigInteger result = ONE;
+		BigInteger kFactorial = ONE;
 		for (int k=2; k<=n; k++) {
 			kFactorial = kFactorial.multiply(BigInteger.valueOf(k));
 			result = result.multiply(kFactorial);
