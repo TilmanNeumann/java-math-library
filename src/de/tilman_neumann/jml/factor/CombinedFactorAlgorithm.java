@@ -93,8 +93,6 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	 * 
 	 * @param args [-t <numberOfThreads>] <numberToFactor>
 	 */
-	// Strange test number: 6161853029018433804288000000000 = 2^20 * 3^12 * 5^9 * 7^4 * 11^9
-	// TODO Very bad performance test number: 9318867499664195430077499078475776000 = 2^20 * 3^12 * 5^3 * 7 * 11^4 * 13^5 * 17^5 * 19^5
 	// Quite difficult 280 bit: 1794577685365897117833870712928656282041295031283603412289229185967719140138841093599 takes about 5:48 min
 	public static void main(String[] args) {
 		ConfigUtil.verbose = false;

@@ -513,31 +513,43 @@ public class Divisors {
 			BigInteger fac = Factorial.factorial(n);
 			SortedMultiset<BigInteger> factors;
 			
-			long t0 = System.currentTimeMillis();
-			ArrayList<BigInteger> divSet1 = getDivisors_v1(fac);
-			long t1 = System.currentTimeMillis();
-			ArrayList<BigInteger> divSet2 = getDivisors_v2(fac);
+			// v1 is very slow...
+			//long t0 = System.currentTimeMillis();
+			//ArrayList<BigInteger> divSet1 = getDivisors_v1(fac);
+			
+			// v2 is quite slow
+			//long t1 = System.currentTimeMillis();
+			//ArrayList<BigInteger> divSet2 = getDivisors_v2(fac);
+			
 			long t2 = System.currentTimeMillis();
 			SortedSet<BigInteger> divSet3 = getDivisors/*_v3*/(fac);
+			
 			long t3 = System.currentTimeMillis();
 			factors = factor(fac);
 			SortedSet<BigInteger> divSet4 = getDivisorsTopDown(factors);
+			
 			long t4 = System.currentTimeMillis();
 			factors = factor(fac);
 			SortedSet<BigInteger> divSet5 = getDivisors/*BottomUp*/(factors); // slightly faster than top-down
+			
 			long t5 = System.currentTimeMillis();
-			BigInteger divCount1 = getDivisorCount(fac); // slowed down by factorization
+			BigInteger divCount1 = getDivisorCount(fac); // very fast
+			
 			long t6 = System.currentTimeMillis();
 			factors = factor(fac);
-			BigInteger divCount2 = getDivisorCount(factors);
+			BigInteger divCount2 = getDivisorCount(factors); // very fast
+			
 			long t7 = System.currentTimeMillis();
-			LOG.info("divisors_v1(" + n + "!) = " + divSet1);
-			LOG.info("divisors_v2(" + n + "!) = " + divSet2);
-			LOG.info("divisors_v3(" + n + "!) = " + divSet3);
-			LOG.info("divisors_v4(" + n + "!) = " + divSet4);
-			LOG.info("divisors_v5(" + n + "!) = " + divSet5);
-			LOG.info("divisors_v1(" + n + "!) found " + divSet1.size() + " divisors in " + (t1-t0) + "ms");
-			LOG.info("divisors_v2(" + n + "!) found " + divSet2.size() + " divisors in " + (t2-t1) + "ms");
+			
+			// The sets get too big for logging
+			//LOG.info("divisors_v1(" + n + "!) = " + divSet1);
+			//LOG.info("divisors_v2(" + n + "!) = " + divSet2);
+			//LOG.info("divisors_v3(" + n + "!) = " + divSet3);
+			//LOG.info("divisors_v4(" + n + "!) = " + divSet4);
+			//LOG.info("divisors_v5(" + n + "!) = " + divSet5);
+			
+			//LOG.info("divisors_v1(" + n + "!) found " + divSet1.size() + " divisors in " + (t1-t0) + "ms");
+			//LOG.info("divisors_v2(" + n + "!) found " + divSet2.size() + " divisors in " + (t2-t1) + "ms");
 			LOG.info("divisors_v3(" + n + "!) found " + divSet3.size() + " divisors in " + (t3-t2) + "ms");
 			LOG.info("divisors_v4(" + n + "!) found " + divSet4.size() + " divisors in " + (t4-t3) + "ms");
 			LOG.info("divisors_v5(" + n + "!) found " + divSet5.size() + " divisors in " + (t5-t4) + "ms");
@@ -576,7 +588,7 @@ public class Divisors {
 		SecureRandom rng = new SecureRandom();
 		int NCOUNT=100000;
 		
-		for (int bits = 15; ; bits++) {
+		for (int bits = 15; bits<32; bits++) { // getBiggestSecondFactorOfSmallArguments() needs int arguments
 			// create test set
 			ArrayList<BigInteger> testSet = new ArrayList<>();
 			for (int i=0; i<NCOUNT; ) {
@@ -613,8 +625,8 @@ public class Divisors {
     	ConfigUtil.initProject();
 //    	testDivisors();
 //    	testSmallDivisors();
-    	testBiggestSecondFactor();
+//    	testBiggestSecondFactor();
 //    	testSumOfDivisorsForSmallIntegers();
-//    	testSumOfDivisorsForFactorials();
+    	testSumOfDivisorsForFactorials();
 	}
 }

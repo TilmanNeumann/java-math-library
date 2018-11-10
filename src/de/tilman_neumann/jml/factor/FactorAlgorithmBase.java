@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -34,6 +35,11 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(FactorAlgorithmBase.class);
+
+	// the number of primes needed to factor any int <= 2^31 - 1
+	private static final int NUM_PRIMES = 4793;
+	
+	private int[] SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES).getPrimes().array;
 
 	private BPSWTest probablePrimeTest;
 
@@ -68,13 +74,40 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 			factors.add(TWO, lsb);
 			N = N.shiftRight(lsb);
 		}
-		// TODO do some trial division to factor smooth numbers much faster
 		if (N.equals(ONE)) {
-			// N was just a power of 2
+			// N was a power of 2
 			return factors;
 		}
+
+		// Do some trial division to factor smooth numbers much faster.
+		// We start at p[1]=3, because powers of 2 have already been removed.
+		// We run over all p_i<2^31-1 as long as N can still have a prime factor >= p_i.
+		for (int i=1; i<NUM_PRIMES; i++) {
+			BigInteger p_i = BigInteger.valueOf(SMALL_PRIMES[i]);
+			while (true) {
+				BigInteger[] div = N.divideAndRemainder(p_i);
+				if (!div[1].equals(ZERO)) break;
+				// found small factor
+				factors.add(p_i);
+				N = div[0];
+			}
+			
+			if (N.equals(ONE)) {
+				// N was smooth
+				return factors;
+			}
+			
+			BigInteger p_i_square = p_i.multiply(p_i);
+			if (p_i_square.compareTo(N) > 0) {
+				// the remaining N must be prime!
+				factors.add(N);
+				return factors;
+			}
+		}
 		
-		// N contains other factors...
+		// TODO For large and not so smooth N, an advanced small factor test like ECM or parallel Pollard-Rho would be nice here
+		
+		// N contains larger factors...
 		SortedMultiset<BigInteger> otherFactors = factor_recurrent(N);
 		//LOG.debug(this.factorAlg + ": pow2Factors=" + factors + ", otherFactors=" + otherFactors);
 		factors.addAll(otherFactors);
