@@ -159,7 +159,7 @@ public class BigDecimalMath {
 	 * @param x
 	 * @return
 	 */
-	// TODO: Check if there is a similar problem than below...
+	// TODO: Check if there is a similar problem as below...
 	public static BigDecimal frac(BigDecimal x) {
 		return x.subtract(x.setScale(0, RoundingMode.FLOOR));
 	}
