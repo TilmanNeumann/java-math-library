@@ -57,7 +57,7 @@ public class Magnitude {
 	 * @param n
 	 * @return
 	 */
-	// TODO: Check with jad how precision() is computed
+	// TODO: Check how BigDecimal.precision() is computed (OpenJDK sources or using jad)
 	public static int of/*digits_fromBigDecimal*/(BigInteger n) {
 		return n.compareTo(BigIntConstants.ZERO)!=0 ? new BigDecimal(n).precision() : 0;
 	}
