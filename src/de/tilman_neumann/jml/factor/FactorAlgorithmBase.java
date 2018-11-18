@@ -84,25 +84,21 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 		// We run over all p_i<2^31-1 as long as N can still have a prime factor >= p_i.
 		// This would find all prime factors < 46340.
 		for (int i=1; i<NUM_PRIMES; i++) {
-			boolean weDividedBy_p_i = false;
 			BigInteger p_i = BigInteger.valueOf(SMALL_PRIMES[i]);
-			while (true) {
-				BigInteger[] div = N.divideAndRemainder(p_i);
-				if (!div[1].equals(ZERO)) break;
-				// found small factor
-				factors.add(p_i);
-				N = div[0];
-				weDividedBy_p_i = true;
-			}
-			
-			if (weDividedBy_p_i) {
+			BigInteger[] div = N.divideAndRemainder(p_i);
+			if (div[1].equals(ZERO)) {
+				// p_i divides N at least once
+				do {
+					factors.add(p_i);
+					N = div[0];
+					div = N.divideAndRemainder(p_i);
+				} while (div[1].equals(ZERO));
+
 				// check if we are done
-				if (N.equals(ONE)) return factors;
-				
 				BigInteger p_i_square = p_i.multiply(p_i);
 				if (p_i_square.compareTo(N) > 0) {
-					// the remaining N must be prime!
-					factors.add(N);
+					// the remaining N is 1 or prime
+					if (N.compareTo(ONE)>0) factors.add(N);
 					return factors;
 				}
 			}
