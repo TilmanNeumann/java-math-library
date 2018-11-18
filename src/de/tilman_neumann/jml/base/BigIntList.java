@@ -17,6 +17,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+
 /**
  * A list of big integers.
  * 
@@ -67,7 +69,7 @@ public class BigIntList extends ArrayList<BigInteger> {
 	 * @return The sum of all elements.
 	 */
 	public BigInteger sum() {
-		BigInteger sum = BigIntConstants.ZERO;
+		BigInteger sum = I_0;
 		for (BigInteger elem : this) {
 			sum = sum.add(elem);
 		}
@@ -78,7 +80,7 @@ public class BigIntList extends ArrayList<BigInteger> {
 	 * @return The sum of the absolute values of the elements.
 	 */
 	public BigInteger absSum() {
-		BigInteger sum = BigIntConstants.ZERO;
+		BigInteger sum = I_0;
 		for (BigInteger elem : this) {
 			sum = sum.add(elem.abs());
 		}
@@ -90,10 +92,10 @@ public class BigIntList extends ArrayList<BigInteger> {
 	 */
 	public BigInteger product() {
 		if (this.isEmpty()) {
-			return BigIntConstants.ZERO;
+			return I_0;
 		}
 		
-		BigInteger prod = BigIntConstants.ONE;
+		BigInteger prod = I_1;
 		for (BigInteger elem : this) {
 			prod = prod.multiply(elem);
 		}

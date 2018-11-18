@@ -51,7 +51,7 @@ public class NextProbablePrimeTest {
 			int i = 0;
 			while (i < NCOUNT) {
 				BigInteger n = new BigInteger(nBits, RNG);
-				if (n.equals(ZERO)) continue; // exclude 0 from test set
+				if (n.equals(I_0)) continue; // exclude 0 from test set
 				
 				// supposed correct value:
 				BigInteger nextProbablePrime = n.nextProbablePrime();

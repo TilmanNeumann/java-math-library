@@ -192,7 +192,7 @@ public class CFrac63_01 extends FactorAlgorithmBase {
 		// initialization for first iteration step
 		long i = 0;
 		BigInteger A_im2 = null;
-		BigInteger A_im1 = ONE;
+		BigInteger A_im1 = I_1;
 		BigInteger A_i = BigInteger.valueOf(floor_sqrt_kN);
 		long P_im1 = 1;
 		long P_i = floor_sqrt_kN;
@@ -212,7 +212,7 @@ public class CFrac63_01 extends FactorAlgorithmBase {
 				if (Q_ip1_sqrt*Q_ip1_sqrt==Q_ip1) {
 					// Q_i+1 is square -> test gcd
 					BigInteger gcd = N.gcd(A_i.subtract(BigInteger.valueOf(Q_ip1_sqrt)));
-					if (gcd.compareTo(ONE)>0 && gcd.compareTo(N)<0) throw new FactorException(gcd);
+					if (gcd.compareTo(I_1)>0 && gcd.compareTo(N)<0) throw new FactorException(gcd);
 					isSquare = true;
 				}
 			}
@@ -271,7 +271,7 @@ public class CFrac63_01 extends FactorAlgorithmBase {
 		// verify congruence A^2 == Q (mod N)
 		BigInteger Q_test = i%2==1 ? Q_ip1 : Q_ip1.negate().mod(N);
 		BigInteger div[] = A_i.pow(2).subtract(Q_test).divideAndRemainder(N);
-		assertEquals(ZERO, div[1]); // works
+		assertEquals(I_0, div[1]); // works
 		LOG.debug("A^2-Q = " + div[0] + " * N");
 		LOG.debug("A^2 % N = " + A_i.pow(2).mod(N) + ", Q = " + Q_test);
 		assertEquals(Q_test, A_i.pow(2).mod(N)); // works
@@ -298,7 +298,7 @@ public class CFrac63_01 extends FactorAlgorithmBase {
 		if (m_long<4) { // 0, 1, 10, 11
 			int m = (int) m_long;
 			switch (m) {
-			case 0: return ZERO;
+			case 0: return I_0;
 			case 1: return a;
 			case 2: {
 				BigInteger two_a = a.shiftLeft(1); // faster than 2*a or a+a

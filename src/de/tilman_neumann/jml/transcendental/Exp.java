@@ -60,7 +60,7 @@ public class Exp {
 	    // calculate series expansion:
         BigDecimal r = F_1;
 	    BigDecimal xpow = F_1;
-	    BigInteger iFac = ONE;
+	    BigInteger iFac = I_1;
 	    int i=1;
 	    BigDecimal elem;
 	    Scale internalScale = errorScale.add(1);
@@ -150,7 +150,7 @@ public class Exp {
 	    if (DEBUG) LOG.debug("expX = " + expX);
 
 	    // Compute the final result y:
-	    BigInteger ex = ONE.shiftLeft(K); // may be large, like 2^1000
+	    BigInteger ex = I_1.shiftLeft(K); // may be large, like 2^1000
 	    if (DEBUG) LOG.debug("ex = " + ex);
 	    Precision yPrecision = Precision.valueOf(outMag + outScale.digits() + Magnitude.binaryToDecimal(K));
 	    if (DEBUG) LOG.debug("yPrecision = " + yPrecision);

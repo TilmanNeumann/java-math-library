@@ -79,7 +79,7 @@ public class ModularSqrt_BB {
 	 */
 	private BigInteger Tonelli_Shanks(BigInteger n, BigInteger p) {
 		// factor out powers of 2 from p-1, defining Q and S as p-1 = Q*2^S with Q odd.
-		BigInteger pm1 = p.subtract(ONE);
+		BigInteger pm1 = p.subtract(I_1);
 		int S = pm1.getLowestSetBit(); // lowest set bit (0 if pm1 were odd which is impossible because p is odd)
 		if (DEBUG) {
 			LOG.debug("n=" + n + ", p=" + p);
@@ -94,30 +94,30 @@ public class ModularSqrt_BB {
 		}
 		// now z is found -> set c == z^Q
 		BigInteger c = mpe.modPow(BigInteger.valueOf(z), Q, p); // TODO: implement modPow(int, BigInteger, BigInteger)
-		BigInteger R = mpe.modPow(n, Q.add(ONE).shiftRight(1), p);
+		BigInteger R = mpe.modPow(n, Q.add(I_1).shiftRight(1), p);
 		BigInteger t = mpe.modPow(n, Q, p);
 		int M = S;
-		while (t.compareTo(ONE) != 0) { // if t=1 then R is the result
+		while (t.compareTo(I_1) != 0) { // if t=1 then R is the result
 			// find the smallest i, 0<i<M, such that t^(2^i) == 1 (mod p)
 			if (DEBUG) {
 				LOG.debug("Find i < M=" + M + " with t=" + t);
 				// test invariants from <link>https://en.wikipedia.org/wiki/Tonelli%E2%80%93Shanks_algorithm#Proof</link>:
-				assertEquals(pm1, mpe.modPow(c, ONE.shiftLeft(M-1), p)); //  -1 == c^(2^(M-1)) (mod p)
-				assertEquals(1, mpe.modPow(t, ONE.shiftLeft(M-1), p));   //   1 == t^(2^(M-1)) (mod p)
+				assertEquals(pm1, mpe.modPow(c, I_1.shiftLeft(M-1), p)); //  -1 == c^(2^(M-1)) (mod p)
+				assertEquals(1, mpe.modPow(t, I_1.shiftLeft(M-1), p));   //   1 == t^(2^(M-1)) (mod p)
 				BigInteger nModP = n.mod(p);
 				assertEquals(R.multiply(R).mod(p), t.multiply(nModP).mod(p));  // R^2 == t*n (mod p)
 			}
 			boolean foundI = false;
 			int i;
 			for (i=1; i<M; i++) {
-				if (mpe.modPow(t, ONE.shiftLeft(i), p).equals(ONE)) { // t^(2^i) == 1 (mod p) ?
+				if (mpe.modPow(t, I_1.shiftLeft(i), p).equals(I_1)) { // t^(2^i) == 1 (mod p) ?
 					foundI = true;
 					break;
 				}
 			}
 			if (foundI==false) throw new IllegalStateException("Tonelli-Shanks did not find an 'i' < M=" + M);
 			
-			BigInteger b = mpe.modPow(c, ONE.shiftLeft(M-i-1), p); // c^(2^(M-i-1))
+			BigInteger b = mpe.modPow(c, I_1.shiftLeft(M-i-1), p); // c^(2^(M-i-1))
 			R = R.multiply(b).mod(p);
 			c = b.multiply(b).mod(p);
 			t = t.multiply(c).mod(p);
@@ -135,7 +135,7 @@ public class ModularSqrt_BB {
 	 * @return sqrt of a modulo p
 	 */
 	private BigInteger Lagrange(BigInteger n, BigInteger p) {
-		BigInteger k = p.add(ONE).shiftRight(2);
+		BigInteger k = p.add(I_1).shiftRight(2);
 		BigInteger t = mpe.modPow(n, k, p);
 		if (DEBUG) assertEquals(t.pow(2).mod(p), n.mod(p));
 		// return the smaller sqrt
@@ -154,7 +154,7 @@ public class ModularSqrt_BB {
 		BigInteger g = mpe.modPow(n2, k, p);
 		BigInteger gSquare = g.multiply(g);
 		BigInteger i = n2.multiply(gSquare).mod(p);
-		BigInteger im1 = i.subtract(ONE);
+		BigInteger im1 = i.subtract(I_1);
 		BigInteger t = n.multiply(g.multiply(im1)).mod(p);
 		if (DEBUG) assertEquals(t.pow(2).mod(p), n.mod(p));
 		// return the smaller sqrt
@@ -173,7 +173,7 @@ public class ModularSqrt_BB {
 	 */
 	public BigInteger modularSqrtModSquare_v01(BigInteger n, BigInteger p, BigInteger pSquare) {
 		// Compute one of the two solutions
-		BigInteger u = n.modPow(pSquare.subtract(p).add(TWO).shiftRight(2), pSquare);
+		BigInteger u = n.modPow(pSquare.subtract(p).add(I_2).shiftRight(2), pSquare);
 		// Return the smaller sqrt
 		return u.compareTo(pSquare.shiftRight(1)) <= 0 ? u : pSquare.subtract(u);
 	}
@@ -193,7 +193,7 @@ public class ModularSqrt_BB {
 	 * @return
 	 */
 	public BigInteger modularSqrtModSquare_v02(BigInteger n, BigInteger p, BigInteger pSquare) {
-		BigInteger b1 = n.modPow(p.add(ONE).shiftRight(2), p);
+		BigInteger b1 = n.modPow(p.add(I_1).shiftRight(2), p);
 		// now b = b1 + x*p, x unknown
 		BigInteger b1invp = b1.shiftLeft(1).modInverse(p); // 1/(2*b1) mod q
 		BigInteger b1Square = b1.multiply(b1);
@@ -218,7 +218,7 @@ public class ModularSqrt_BB {
 	 */
 	public BigInteger modularSqrtModPower(BigInteger n, BigInteger power, BigInteger last_power, BigInteger t) {
 		// Barthel's e = (power - 2*last_power + 1)/2
-		BigInteger f = power.subtract(last_power.shiftLeft(1)).add(ONE).shiftRight(1);
+		BigInteger f = power.subtract(last_power.shiftLeft(1)).add(I_1).shiftRight(1);
 		// square root == n (mod p^exponent)
 		BigInteger u = t.modPow(last_power, power).multiply(n.modPow(f, power)).mod(power);
 		// return the smaller sqrt

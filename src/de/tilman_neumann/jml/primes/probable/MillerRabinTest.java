@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.primes.probable;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.ONE;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -35,7 +35,7 @@ public class MillerRabinTest {
 	 */
 	public boolean isProbablePrime(BigInteger N, int numberOfRounds) {
 		// init
-		BigInteger N_m1 = N.subtract(ONE);
+		BigInteger N_m1 = N.subtract(I_1);
         int lsb = N_m1.getLowestSetBit();
         BigInteger N_m1_without2s = N_m1.shiftRight(lsb);
         
@@ -46,16 +46,16 @@ public class MillerRabinTest {
             BigInteger x;
             do {
                 x = new BigInteger(N_bits, rng);
-            } while (x.compareTo(ONE) <= 0 || x.compareTo(N) >= 0);
+            } while (x.compareTo(I_1) <= 0 || x.compareTo(N) >= 0);
             
             // do Miller-Rabin test to base x
             int l = 0;
             BigInteger test = x.modPow(N_m1_without2s, N);
-            if ((!test.equals(ONE)) && !test.equals(N_m1)) {
+            if ((!test.equals(I_1)) && !test.equals(N_m1)) {
                 if (++l == lsb) return false;
                 test = test.multiply(test).mod(N);
                 while (!test.equals(N_m1)) {
-                    if (test.equals(ONE) || ++l == lsb) return false;
+                    if (test.equals(I_1) || ++l == lsb) return false;
                     test = test.multiply(test).mod(N);
                 }
             }
@@ -72,18 +72,18 @@ public class MillerRabinTest {
 	 */
 	public boolean testSingleBase(BigInteger N, BigInteger x) {
 		// init
-		BigInteger N_m1 = N.subtract(ONE);
+		BigInteger N_m1 = N.subtract(I_1);
         int lsb = N_m1.getLowestSetBit();
         BigInteger N_m1_without2s = N_m1.shiftRight(lsb);
         
 		// test base x
         int l = 0;
         BigInteger test = x.modPow(N_m1_without2s, N);
-        if ((!test.equals(ONE)) && !test.equals(N_m1)) {
+        if ((!test.equals(I_1)) && !test.equals(N_m1)) {
             if (++l == lsb) return false;
             test = test.multiply(test).mod(N);
             while (!test.equals(N_m1)) {
-                if (test.equals(ONE) || ++l == lsb) return false;
+                if (test.equals(I_1) || ++l == lsb) return false;
                 test = test.multiply(test).mod(N);
             }
         }

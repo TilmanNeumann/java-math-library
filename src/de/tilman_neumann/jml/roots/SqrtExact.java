@@ -81,7 +81,7 @@ public class SqrtExact {
 	 * @return sqrt(n) or null
 	 */
 	public static BigInteger exactSqrt(BigInteger n) {
-		if (n.equals(ZERO)) return ZERO;
+		if (n.equals(I_0)) return I_0;
 		// check contained power of 2
 		int lsb = n.getLowestSetBit();
 		if ((lsb&1) == 1) return null; // n has an odd power of 2 -> no square

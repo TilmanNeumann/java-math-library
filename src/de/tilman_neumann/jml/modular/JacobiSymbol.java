@@ -34,7 +34,7 @@ public class JacobiSymbol {
 	 * Basic implementation. (slow)
 	 */
 	/* not public */ int jacobiSymbol_v01(BigInteger a, BigInteger m) {
-    	int aCmpZero = a.compareTo(ZERO);
+    	int aCmpZero = a.compareTo(I_0);
         if (aCmpZero == 0) return 0;
 
        // make a positive
@@ -50,7 +50,7 @@ public class JacobiSymbol {
 		// reduction loops
         int mMod4, aMod4;
 		BigInteger tmp;
-		while(!a.equals(ZERO)) {
+		while(!a.equals(I_0)) {
 			// make a odd: we can take a.intValue() because we only need the lowest bit
 			while ((a.intValue() & 1) == 0) {
 				a = a.shiftRight(1);
@@ -65,7 +65,7 @@ public class JacobiSymbol {
 			if (aMod4==3 && mMod4==3) t = -t; // a == m == 3 (mod 4) -> negate t
 			a = a.mod(m);
 		}
-		if (m.equals(ONE)) return t;
+		if (m.equals(I_1)) return t;
 		return 0;
 	}
 	
@@ -79,7 +79,7 @@ public class JacobiSymbol {
 	 * @return
 	 */
 	/* not public */ int jacobiSymbol_v02(BigInteger a, BigInteger m) {
-    	int aCmpZero = a.compareTo(ZERO);
+    	int aCmpZero = a.compareTo(I_0);
         if (aCmpZero == 0) return 0;
 
        // make a positive
@@ -96,7 +96,7 @@ public class JacobiSymbol {
         int lsb, mMod4, aMod4;
 		boolean hasOddPowerOf2;
 		BigInteger tmp;
-		while(!a.equals(ZERO)) {
+		while(!a.equals(I_0)) {
 			// make a odd
 			lsb = a.getLowestSetBit();
 			hasOddPowerOf2 = (lsb&1)==1; // e.g. lsb==1 -> a has one 2
@@ -117,7 +117,7 @@ public class JacobiSymbol {
 			if (aMod4==3 && mMod4==3) t = -t; // a == m == 3 (mod 4)
 			a = a.mod(m);
 		}
-		if (m.equals(ONE)) return t;
+		if (m.equals(I_1)) return t;
 		return 0;
 	}
 	
@@ -131,7 +131,7 @@ public class JacobiSymbol {
 	 * @return
 	 */
 	public int jacobiSymbol/*_v03*/(BigInteger a, BigInteger m) {
-    	int aCmpZero = a.compareTo(ZERO);
+    	int aCmpZero = a.compareTo(I_0);
         if (aCmpZero == 0) return 0;
 
        // make a positive
@@ -148,7 +148,7 @@ public class JacobiSymbol {
         int lsb;
 		boolean hasOddPowerOf2;
 		BigInteger tmp;
-		while(!a.equals(ZERO)) {
+		while(!a.equals(I_0)) {
 			// make a odd
 			lsb = a.getLowestSetBit();
 			hasOddPowerOf2 = (lsb&1)==1; // e.g. lsb==1 -> a has one 2
@@ -169,11 +169,11 @@ public class JacobiSymbol {
 			// reduce a
 			a = a.mod(m);
 		}
-		return (m.equals(ONE)) ? t : 0;
+		return (m.equals(I_1)) ? t : 0;
 	}
 	
 	public int jacobiSymbol/*_v03*/(BigInteger a, int m) {
-    	int aCmpZero = a.compareTo(ZERO);
+    	int aCmpZero = a.compareTo(I_0);
         if (aCmpZero == 0) return 0;
 
        // make a positive
@@ -243,7 +243,7 @@ public class JacobiSymbol {
 			// mMod8 is still valid
 			if (mMod8==3 || mMod8==5) t = -t; // m == 3, 5 (mod 8) -> negate t
 		}
-		if (a==0) return (m.equals(ONE)) ? t : 0;
+		if (a==0) return (m.equals(I_1)) ? t : 0;
 
 		// now both a and m are odd (m was odd from the start!)
 		// swap variables:
@@ -330,7 +330,7 @@ public class JacobiSymbol {
     public int kroneckerSymbol(BigInteger a, BigInteger m) {
     	int easyPart = 1;
     	// make n positive if necessary
-    	int mCmpZero = m.compareTo(ZERO);
+    	int mCmpZero = m.compareTo(I_0);
     	if (mCmpZero == 0) throw new IllegalArgumentException("Kronecker symbol Kr(a|m): illegal argument m=0");
     	if (mCmpZero < 0) {
     		easyPart = -1;
@@ -353,7 +353,7 @@ public class JacobiSymbol {
     	}
     	
     	// result is easyPart multiplied with result for the remaining m
-    	if (m.equals(ONE)) return easyPart;
+    	if (m.equals(I_1)) return easyPart;
     	return easyPart * jacobiSymbol(a, m);
     }
 }

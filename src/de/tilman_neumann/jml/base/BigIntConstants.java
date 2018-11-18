@@ -17,77 +17,65 @@ import java.math.BigInteger;
 
 public class BigIntConstants {
 	
-	/** -1 */
-	public static final BigInteger MINUS_ONE = BigInteger.ONE.negate();
-	/**
-	 * 0.
-	 * UNDOCUMENTED_FEATURE: Some BigInteger methods return this object, so that we can use "==" for equality tests.
-	 * TODO: divideAndRemainder() and which other methods?
-	 */
-	public static final BigInteger ZERO = BigInteger.ZERO;
-	/**
-	 * 1.
-	 * TODO: Which methods return this constant?
-	 */
-	public static final BigInteger ONE = BigInteger.ONE;
+	/** -1 */				public static final BigInteger I_MINUS_1 = BigInteger.ONE.negate();
 	
-	/** 2 */				public static final BigInteger TWO = BigInteger.valueOf(2);
-	/** 3 */				public static final BigInteger THREE = BigInteger.valueOf(3);
-	/** 4 */				public static final BigInteger FOUR = BigInteger.valueOf(4);
-	/** 5 */				public static final BigInteger FIVE = BigInteger.valueOf(5);
-	/** 6 */				public static final BigInteger SIX = BigInteger.valueOf(6);
-	/** 7 */				public static final BigInteger SEVEN = BigInteger.valueOf(7);
-	/** 8 */				public static final BigInteger EIGHT = BigInteger.valueOf(8);
-	/** 9 */				public static final BigInteger NINE = BigInteger.valueOf(9);
+	/** 0 */				public static final BigInteger I_0 = BigInteger.ZERO;
+	/** 1 */				public static final BigInteger I_1 = BigInteger.ONE;
+	/** 2 */				public static final BigInteger I_2 = BigInteger.valueOf(2);
+	/** 3 */				public static final BigInteger I_3 = BigInteger.valueOf(3);
+	/** 4 */				public static final BigInteger I_4 = BigInteger.valueOf(4);
+	/** 5 */				public static final BigInteger I_5 = BigInteger.valueOf(5);
+	/** 6 */				public static final BigInteger I_6 = BigInteger.valueOf(6);
+	/** 7 */				public static final BigInteger I_7 = BigInteger.valueOf(7);
+	/** 8 */				public static final BigInteger I_8 = BigInteger.valueOf(8);
+	/** 9 */				public static final BigInteger I_9 = BigInteger.valueOf(9);
+	/** 10 */				public static final BigInteger I_10 = BigInteger.TEN;
+	/** 11 */				public static final BigInteger I_11 = BigInteger.valueOf(11);
+	/** 12 */				public static final BigInteger I_12 = BigInteger.valueOf(12);
+	/** 13 */				public static final BigInteger I_13 = BigInteger.valueOf(13);
+	/** 14 */				public static final BigInteger I_14 = BigInteger.valueOf(14);
+	/** 15 */				public static final BigInteger I_15 = BigInteger.valueOf(15);
+	/** 16 */				public static final BigInteger I_16 = BigInteger.valueOf(16);
+	/** 17 */				public static final BigInteger I_17 = BigInteger.valueOf(17);
+	/** 18 */				public static final BigInteger I_18 = BigInteger.valueOf(18);
+	/** 19 */				public static final BigInteger I_19 = BigInteger.valueOf(19);
+	/** 20 */				public static final BigInteger I_20 = BigInteger.valueOf(20);
+	/** 21 */				public static final BigInteger I_21 = BigInteger.valueOf(21);
+	/** 22 */				public static final BigInteger I_22 = BigInteger.valueOf(22);
+	/** 23 */				public static final BigInteger I_23 = BigInteger.valueOf(23);
+	/** 24 */				public static final BigInteger I_24 = BigInteger.valueOf(24);
+	/** 25 */				public static final BigInteger I_25 = BigInteger.valueOf(25);
+	/** 26 */				public static final BigInteger I_26 = BigInteger.valueOf(26);
+	/** 27 */				public static final BigInteger I_27 = BigInteger.valueOf(27);
+	/** 28 */				public static final BigInteger I_28 = BigInteger.valueOf(28);
+	/** 29 */				public static final BigInteger I_29 = BigInteger.valueOf(29);
+	/** 30 */				public static final BigInteger I_30 = BigInteger.valueOf(30);
 	
-	/**
-	 * 10.
-	 * TODO: Which methods return this constant?
-	 */
-	public static final BigInteger TEN = BigInteger.TEN;
-	
-	/** 11 */				public static final BigInteger ELEVEN = BigInteger.valueOf(11);
-	/** 12 */				public static final BigInteger TWELVE = BigInteger.valueOf(12);
-	/** 13 */				public static final BigInteger THIRTEEN = BigInteger.valueOf(13);
-	/** 14 */				public static final BigInteger FOURTEEN = BigInteger.valueOf(14);
-	/** 15 */				public static final BigInteger FIFTEEN = BigInteger.valueOf(15);
-	/** 16 */				public static final BigInteger SIXTEEN = BigInteger.valueOf(16);
-	/** 17 */				public static final BigInteger SEVENTEEN = BigInteger.valueOf(17);
-	/** 18 */				public static final BigInteger EIGHTEEN = BigInteger.valueOf(18);
-	/** 19 */				public static final BigInteger NINETEEN = BigInteger.valueOf(19);
-	/** 20 */				public static final BigInteger TWENTY = BigInteger.valueOf(20);
-	/** 21 */				public static final BigInteger TWENTYONE = BigInteger.valueOf(21);
-	/** 22 */				public static final BigInteger TWENTYTWO = BigInteger.valueOf(22);
-	/** 23 */				public static final BigInteger TWENTYTHREE = BigInteger.valueOf(23);
-	/** 24 */				public static final BigInteger TWENTYFOUR = BigInteger.valueOf(24);
-	/** 25 */				public static final BigInteger TWENTYFIVE = BigInteger.valueOf(25);
-	/** 29 */				public static final BigInteger TWENTYNINE = BigInteger.valueOf(29);
-	/** 30 */				public static final BigInteger THIRTY = BigInteger.valueOf(30);
-	/** 32 */				public static final BigInteger THIRTYTWO = BigInteger.valueOf(32);
-	/** 40 */				public static final BigInteger FOURTY = BigInteger.valueOf(40);
-	/** 48 */				public static final BigInteger FOURTYEIGHT = BigInteger.valueOf(48);
-	/** 50 */				public static final BigInteger FIFTY = BigInteger.valueOf(50);
-	/** 60 */				public static final BigInteger SIXTY = BigInteger.valueOf(60);
-	/** 64 */				public static final BigInteger SIXTYFOUR = BigInteger.valueOf(64);
-	/** 100 */				public static final BigInteger HUNDRED = BigInteger.valueOf(100);
-	/** 1000 */				public static final BigInteger THOUSAND = BigInteger.valueOf(1000);
-	/** 10000 */			public static final BigInteger TEN_THOUSAND = BigInteger.valueOf(10000);
-	/** 100000 */			public static final BigInteger HUNDRED_THOUSAND = BigInteger.valueOf(100000);
-	/** a million */		public static final BigInteger MILLION = BigInteger.valueOf(1000000);
-	/** ten million */		public static final BigInteger TEN_MILLION = BigInteger.valueOf(10000000);
-	/** 100 million */		public static final BigInteger HUNDRED_MILLION = BigInteger.valueOf(100000000);
-	/** max pow exponent */	public static final BigInteger MAX_EXPONENT = BigInteger.valueOf(999999999);
-	/** 10^9 */				public static final BigInteger TENPOW9 = BigInteger.valueOf(1000000000);
-	/** max integer */		public static final BigInteger MAX_INT = BigInteger.valueOf(Integer.MAX_VALUE);
-	/** 10^10 */			public static final BigInteger TENPOW10 = BigInteger.valueOf(10000000000L);
-	/** 10^11 */			public static final BigInteger TENPOW11 = BigInteger.valueOf(100000000000L);
-	/** 10^12 */			public static final BigInteger TENPOW12 = BigInteger.valueOf(1000000000000L);
-	/** 10^13 */			public static final BigInteger TENPOW13 = BigInteger.valueOf(10000000000000L);
-	/** 10^14 */			public static final BigInteger TENPOW14 = BigInteger.valueOf(100000000000000L);
-	/** 10^15 */			public static final BigInteger TENPOW15 = BigInteger.valueOf(1000000000000000L);
-	/** 10^16 */			public static final BigInteger TENPOW16 = BigInteger.valueOf(10000000000000000L);
-	/** 10^17 */			public static final BigInteger TENPOW17 = BigInteger.valueOf(100000000000000000L);
-	/** 10^18 */			public static final BigInteger TENPOW18 = BigInteger.valueOf(1000000000000000000L);
-	/** 10^19 */			public static final BigInteger TENPOW19 = TENPOW10.multiply(TENPOW9);
-	/** 10^20 */			public static final BigInteger TENPOW20 = TENPOW10.multiply(TENPOW10);
+	/** 32 */				public static final BigInteger I_32 = BigInteger.valueOf(32);
+	/** 40 */				public static final BigInteger I_40 = BigInteger.valueOf(40);
+	/** 48 */				public static final BigInteger I_48 = BigInteger.valueOf(48);
+	/** 50 */				public static final BigInteger I_50 = BigInteger.valueOf(50);
+	/** 60 */				public static final BigInteger I_60 = BigInteger.valueOf(60);
+	/** 64 */				public static final BigInteger I_64 = BigInteger.valueOf(64);
+	/** 100 */				public static final BigInteger I_100 = BigInteger.valueOf(100);
+	/** 1000 */				public static final BigInteger I_1E3 = BigInteger.valueOf(1000);
+	/** 10000 */			public static final BigInteger I_1E4 = BigInteger.valueOf(10000);
+	/** 100000 */			public static final BigInteger I_1E5 = BigInteger.valueOf(100000);
+	/** a million */		public static final BigInteger I_1E6 = BigInteger.valueOf(1000000);
+	/** ten million */		public static final BigInteger I_1E7 = BigInteger.valueOf(10000000);
+	/** 100 million */		public static final BigInteger I_1E8 = BigInteger.valueOf(100000000);
+	/** max pow exponent */	public static final BigInteger I_MAX_EXPONENT = BigInteger.valueOf(999999999);
+	/** 10^9 */				public static final BigInteger I_1E9 = BigInteger.valueOf(1000000000);
+	/** max integer */		public static final BigInteger I_MAX_INT = BigInteger.valueOf(Integer.MAX_VALUE);
+	/** 10^10 */			public static final BigInteger I_1E10 = BigInteger.valueOf(10000000000L);
+	/** 10^11 */			public static final BigInteger I_1E11 = BigInteger.valueOf(100000000000L);
+	/** 10^12 */			public static final BigInteger I_1E12 = BigInteger.valueOf(1000000000000L);
+	/** 10^13 */			public static final BigInteger I_1E13 = BigInteger.valueOf(10000000000000L);
+	/** 10^14 */			public static final BigInteger I_1E14 = BigInteger.valueOf(100000000000000L);
+	/** 10^15 */			public static final BigInteger I_1E15 = BigInteger.valueOf(1000000000000000L);
+	/** 10^16 */			public static final BigInteger I_1E16 = BigInteger.valueOf(10000000000000000L);
+	/** 10^17 */			public static final BigInteger I_1E17 = BigInteger.valueOf(100000000000000000L);
+	/** 10^18 */			public static final BigInteger I_1E18 = BigInteger.valueOf(1000000000000000000L);
+	/** 10^19 */			public static final BigInteger I_1E19 = I_1E10.multiply(I_1E9);
+	/** 10^20 */			public static final BigInteger I_1E20 = I_1E10.multiply(I_1E10);
 }

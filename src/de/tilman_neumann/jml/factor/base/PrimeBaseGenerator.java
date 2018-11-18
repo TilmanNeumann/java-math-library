@@ -59,7 +59,7 @@ public class PrimeBaseGenerator {
 	public void computeReducedPrimeBase(BigInteger kN, int primeBaseSize, int[] primesArray, BigInteger[] primesArray_big) {
 		// the 2 is always added
 		primesArray[0] = 2;
-		if (primesArray_big!=null) primesArray_big[0] = TWO;
+		if (primesArray_big!=null) primesArray_big[0] = I_2;
 		// odd primes
 		int count = 1;
 		for (int i=1; ; i++) {

@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.modular;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.ONE;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 
 import java.math.BigInteger;
 
@@ -38,8 +38,8 @@ public class LegendreSymbol {
 	 * @return
 	 */
 	public int EulerFormula(BigInteger a, BigInteger p) {
-		BigInteger modPow = a.modPow(p.subtract(ONE).shiftRight(1), p);
-		return (modPow.compareTo(ONE)>0) ? modPow.subtract(p).intValue() : modPow.intValue();
+		BigInteger modPow = a.modPow(p.subtract(I_1).shiftRight(1), p);
+		return (modPow.compareTo(I_1)>0) ? modPow.subtract(p).intValue() : modPow.intValue();
 	}
 
 	/**

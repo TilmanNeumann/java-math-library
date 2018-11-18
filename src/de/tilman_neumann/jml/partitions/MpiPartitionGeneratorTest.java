@@ -44,7 +44,7 @@ public class MpiPartitionGeneratorTest {
 	 */
 	private static void printNumberOfFactorizationsRecords() {
 		long record = 0;
-    	for (BigInteger n = ONE; ; n=n.add(ONE)) {
+    	for (BigInteger n = I_1; ; n=n.add(I_1)) {
     		long numberOfFactorizations = MpiPartitionGenerator.numberOfFactorizationsOf(n);
     		if (numberOfFactorizations > record) { // same value does not count as new record
     			LOG.info(n + " can be factored in " + numberOfFactorizations + " different ways");
@@ -61,9 +61,9 @@ public class MpiPartitionGeneratorTest {
 		long recordFactorizations = 0;
 		double recordBitLength;
 		double recordRatio = 0;
-    	for (BigInteger n = ONE; ; n=n.add(ONE)) {
+    	for (BigInteger n = I_1; ; n=n.add(I_1)) {
     		long numberOfFactorizations = MpiPartitionGenerator.numberOfFactorizationsOf(n);
-    		double bits = n.equals(ONE) ? 1.0 : Math.log(n.doubleValue())/Math.log(2.0); // ld(n)
+    		double bits = n.equals(I_1) ? 1.0 : Math.log(n.doubleValue())/Math.log(2.0); // ld(n)
     		double ratio = numberOfFactorizations/bits;
     		if (ratio > recordRatio) { // same value does not count as new record
     			LOG.info(n + " (" + bits + " bit) can be factored in " + numberOfFactorizations + " different ways -> ratio = " + ratio);

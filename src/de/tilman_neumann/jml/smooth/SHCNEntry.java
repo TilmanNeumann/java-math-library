@@ -42,7 +42,7 @@ public class SHCNEntry {
 	// private, use factory method computeSHCN(x)
 	private SHCNEntry(double x) {
 		this.x = x;
-		this.shcn = ONE;
+		this.shcn = I_1;
 		this.primes = new ArrayList<BigInteger>();
 		this.exponents = new ArrayList<Integer>();
 		this.exponentSum = 0;
@@ -78,7 +78,7 @@ public class SHCNEntry {
 	public static SHCNEntry computeSHCN(double x) {
 		double twoPowx = Math.pow(2, x);
 		SHCNEntry result = new SHCNEntry(x);
-		BigInteger p = TWO;
+		BigInteger p = I_2;
 		while (p.doubleValue() <= twoPowx) {
 			int exponent = computeExponent(x, p);
 			if (DEBUG) LOG.debug("    x=" + x + ", p=" + p + ", exponent=" + exponent);

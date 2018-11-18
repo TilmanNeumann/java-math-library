@@ -35,7 +35,7 @@ public class CollatzSequenceTest {
 		ArrayList<BigInteger> recordLengthsN = new ArrayList<BigInteger>();
 		// convention: length(1)=0
 		recordLengths.add(0);
-		recordLengthsN.add(ONE);
+		recordLengthsN.add(I_1);
 		
 		// analyze the length of all dropping sequences, arranged by length
 		TreeMap<Integer, ArrayList<BigInteger>> length2NStartList = new TreeMap<Integer, ArrayList<BigInteger>>();
@@ -49,7 +49,7 @@ public class CollatzSequenceTest {
 		TreeMap<Integer, TreeMap<Integer, Integer>> progressionToMaxLength = new TreeMap<Integer, TreeMap<Integer, Integer>>();
 		
 		HashSet<BigInteger> resolved = new HashSet<>();
-		resolved.add(ONE);
+		resolved.add(I_1);
 		for (int i=2; i<N_COUNT; i++) {
 			ArrayList<BigInteger> sequence = new ArrayList<>();
 			BigInteger nStart = BigInteger.valueOf(i);
@@ -57,7 +57,7 @@ public class CollatzSequenceTest {
 			sequence.add(n);
 			while (true) {
 				if ((n.intValue()&1)==1) {
-					n = n.multiply(THREE).add(ONE);
+					n = n.multiply(I_3).add(I_1);
 				} else {
 					n = n.shiftRight(1);
 				}
@@ -101,7 +101,7 @@ public class CollatzSequenceTest {
 		ArrayList<BigInteger> recordLengthsN = new ArrayList<BigInteger>();
 		// convention: length(1)=0
 		recordLengths.add(0);
-		recordLengthsN.add(ONE);
+		recordLengthsN.add(I_1);
 		
 		// analyze the length of all repeat sequences, arranged by length
 		TreeMap<Integer, ArrayList<BigInteger>> length2NStartList = new TreeMap<Integer, ArrayList<BigInteger>>();
@@ -115,7 +115,7 @@ public class CollatzSequenceTest {
 		TreeMap<Integer, TreeMap<Integer, Integer>> progressionToMaxLength = new TreeMap<Integer, TreeMap<Integer, Integer>>();
 
 		HashSet<BigInteger> resolved = new HashSet<>();
-		resolved.add(ONE);
+		resolved.add(I_1);
 		for (int i=2; i<N_COUNT; i++) {
 			ArrayList<BigInteger> sequence = new ArrayList<>();
 			BigInteger nStart = BigInteger.valueOf(i);
@@ -124,7 +124,7 @@ public class CollatzSequenceTest {
 			resolved.add(n);
 			while (true) {
 				if ((n.intValue()&1)==1) {
-					n = n.multiply(THREE).add(ONE);
+					n = n.multiply(I_3).add(I_1);
 				} else {
 					n = n.shiftRight(1);
 				}

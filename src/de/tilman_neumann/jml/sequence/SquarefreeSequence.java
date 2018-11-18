@@ -48,12 +48,12 @@ public class SquarefreeSequence implements IntegerSequence<BigInteger> {
 	}
 
 	public void reset() {
-		this.next = ONE;
+		this.next = I_1;
 	}
 	
 	@Override
 	public void reset(BigInteger N) {
-		this.next = ONE;
+		this.next = I_1;
 	}
 
 	@Override
@@ -61,19 +61,19 @@ public class SquarefreeSequence implements IntegerSequence<BigInteger> {
 		BigInteger ret = next;
 		// compute next square free number
 		while (true) {
-			next = next.add(ONE);
+			next = next.add(I_1);
 			boolean isSquareFree = true;
 			// next must not be divisible by any prime square p^2 <= next.
 			// divide by p and if necessary by another p is much faster than division by p^2 in one go!
 			BigInteger test = next;
 			int primeIndex = 0;
-			for (BigInteger p = TWO; p.multiply(p).compareTo(test)<=0; p = BigInteger.valueOf(primesArray.getPrime(++primeIndex))) {
+			for (BigInteger p = I_2; p.multiply(p).compareTo(test)<=0; p = BigInteger.valueOf(primesArray.getPrime(++primeIndex))) {
 				// test p
 				BigInteger[] div = test.divideAndRemainder(p);
-				if (div[1].equals(ZERO)) {
+				if (div[1].equals(I_0)) {
 					test = div[0];
 					BigInteger[] div2 = test.divideAndRemainder(p);
-					if (div2[1].equals(ZERO)) {
+					if (div2[1].equals(I_0)) {
 						// next is not square free !
 						isSquareFree = false;
 						break;
@@ -88,9 +88,9 @@ public class SquarefreeSequence implements IntegerSequence<BigInteger> {
 	// standalone test
 	public static void main(String[] args) {
 	   	ConfigUtil.initProject();
-	   	SquarefreeSequence seqGen = new SquarefreeSequence(ONE);
+	   	SquarefreeSequence seqGen = new SquarefreeSequence(I_1);
 	   	long start = System.currentTimeMillis();
-		seqGen.reset(ONE); // >1 required!
+		seqGen.reset(I_1); // >1 required!
 		for (int i=1; i<=1000000; i++) {
 			@SuppressWarnings("unused")
 			BigInteger squarefree = seqGen.next();

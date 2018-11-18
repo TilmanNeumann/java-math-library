@@ -69,7 +69,7 @@ public class Roots {
 	 * @return [lower, upper] int values of i.th root(N)
 	 */
 	private static BigInteger[] ithRoot_bitwise(BigInteger N, int i) {
-		BigInteger ret = ZERO;
+		BigInteger ret = I_0;
 		int maxResultBitIndex = N.bitLength()/i;
 		for (int bitIdx=maxResultBitIndex; bitIdx>=0; bitIdx--) {
 			BigInteger next = ret.setBit(bitIdx);
@@ -81,7 +81,7 @@ public class Roots {
 				}
 			}
 		}
-		return new BigInteger[] {ret, ret.add(ONE)};
+		return new BigInteger[] {ret, ret.add(I_1)};
 	}
 	
 	/**
@@ -109,10 +109,10 @@ public class Roots {
 		int cmp = guess.pow(i).compareTo(N);
 		if (cmp==0) return new BigInteger[] {guess, guess};
 		if (cmp<0) {
-			BigInteger guessPlus1 = guess.add(ONE);
+			BigInteger guessPlus1 = guess.add(I_1);
 			if (guessPlus1.pow(i).compareTo(N)>0) return new BigInteger[] {guess, guessPlus1};
 		} else {
-			BigInteger guessMinus1 = guess.subtract(ONE);
+			BigInteger guessMinus1 = guess.subtract(I_1);
 			if (guessMinus1.pow(i).compareTo(N)<0) return new BigInteger[] {guessMinus1, guess};
 		}
 		
@@ -137,24 +137,24 @@ public class Roots {
 		if (cmp < 0) {
 			// guess is smaller than the exact result
 			do {
-				guess = guess.add(ONE);
+				guess = guess.add(I_1);
 				cmp = guess.pow(i).compareTo(N);
 				//linStepCount++;
 			} while (cmp < 0);
 			// now guess >= exact result
 			//if (linStepCount>0) LOG.info(i + ".th root(" + N + ") required " + linStepCount + " linear steps at the end.");
-			return cmp==0 ? new BigInteger[] {guess, guess} : new BigInteger[] {guess.subtract(ONE), guess};
+			return cmp==0 ? new BigInteger[] {guess, guess} : new BigInteger[] {guess.subtract(I_1), guess};
 		}
 		if (cmp > 0) {
 			// guess is bigger than the exact result
 			do {
-				guess = guess.subtract(ONE);
+				guess = guess.subtract(I_1);
 				cmp = guess.pow(i).compareTo(N);
 				//linStepCount++;
 			} while (cmp > 0);
 			// now guess <= exact result
 			//if (linStepCount>0) LOG.info(i + ".th root(" + N + ") required " + linStepCount + " linear steps at the end.");
-			return cmp==0 ? new BigInteger[] {guess, guess} : new BigInteger[] {guess, guess.add(ONE)};
+			return cmp==0 ? new BigInteger[] {guess, guess} : new BigInteger[] {guess, guess.add(I_1)};
 		}
 		return new BigInteger[] {guess, guess}; // exact sqrt()
 	}
@@ -190,10 +190,10 @@ public class Roots {
 		int cmp = guess.pow(i).compareTo(N);
 		if (cmp==0) return new BigInteger[] {guess, guess};
 		if (cmp<0) {
-			BigInteger guessPlus1 = guess.add(ONE);
+			BigInteger guessPlus1 = guess.add(I_1);
 			if (guessPlus1.pow(i).compareTo(N)>0) return new BigInteger[] {guess, guessPlus1};
 		} else {
-			BigInteger guessMinus1 = guess.subtract(ONE);
+			BigInteger guessMinus1 = guess.subtract(I_1);
 			if (guessMinus1.pow(i).compareTo(N)<0) return new BigInteger[] {guessMinus1, guess};
 		}
 		
@@ -217,13 +217,13 @@ public class Roots {
 		//LOG.debug("cmp = " + cmp);
 		if (cmp==0) return new BigInteger[] {guess, guess}; // exact sqrt()
 		if (cmp<0) {
-			BigInteger guessPlus1 = guess.add(ONE);
+			BigInteger guessPlus1 = guess.add(I_1);
 			if (guessPlus1.pow(i).compareTo(N)>0) return new BigInteger[] {guess, guessPlus1};
 			// else guess+1 is exact
 			if (DEBUG) assertEquals(guessPlus1.pow(i), N);
 			return new BigInteger[] {guessPlus1, guessPlus1};
 		} else {
-			BigInteger guessMinus1 = guess.subtract(ONE);
+			BigInteger guessMinus1 = guess.subtract(I_1);
 			if (guessMinus1.pow(i).compareTo(N)<0) return new BigInteger[] {guessMinus1, guess};
 			// else guess-1 is exact
 			if (DEBUG) assertEquals(guessMinus1.pow(i), N);

@@ -43,7 +43,7 @@ public class CANIterator {
 		if (last == null) {
 			// CAN(0.5) = 2 // see test in class CANEntry
 			last = CANEntry.computeCAN(0.5);
-			assertEquals(TWO, last.getCAN());
+			assertEquals(I_2, last.getCAN());
 			return last;
 		}
 		

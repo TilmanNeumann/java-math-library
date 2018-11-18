@@ -38,10 +38,10 @@ public class Binomial {
      * @return binomial coefficient C(n, k)
      */
     public static final BigInteger nk(int n, int k) {
-    	if (k==0 || n==k) return ONE; // holds for negative n, k, too
+    	if (k==0 || n==k) return I_1; // holds for negative n, k, too
 
     	if (n>=0) {
-    		if (k<0 || k>n) return ZERO;
+    		if (k<0 || k>n) return I_0;
     		
     		// standard case C(n, k) with n>k>0
     		return core(n, k);
@@ -55,7 +55,7 @@ public class Binomial {
     	}
     	
     	// n, k < 0
-    	if (k>n) return ZERO;
+    	if (k>n) return I_0;
 		BigInteger C = core(-k-1, -n-1);
 		if ((Math.abs(n-k)&1)==1) C = C.negate();
 		return C;
@@ -79,13 +79,13 @@ public class Binomial {
     	
         // initialize with 1. factor in numerator
         BigInteger num = BigInteger.valueOf(n-k+1);
-        BigInteger den = ONE;
+        BigInteger den = I_1;
 
-        BigInteger result = ONE;
+        BigInteger result = I_1;
         for (int i=0; i<k; i++) {
             result = result.multiply(num).divide(den);
-            num=num.add(ONE);
-            den=den.add(ONE);
+            num=num.add(I_1);
+            den=den.add(I_1);
         }
         return result;
     }

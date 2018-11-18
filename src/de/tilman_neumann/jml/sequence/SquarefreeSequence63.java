@@ -82,7 +82,7 @@ public class SquarefreeSequence63 implements IntegerSequence<Long> {
 	public static void main(String[] args) {
 	   	ConfigUtil.initProject();
 	   	SquarefreeSequence63 seqGen = new SquarefreeSequence63(1);
-		seqGen.reset(ONE); // >1 required!
+		seqGen.reset(I_1); // >1 required!
 		for (int i=1; i<=1000; i++) {
 			LOG.info("squarefree(" + i + ") = " + seqGen.next());
 		}

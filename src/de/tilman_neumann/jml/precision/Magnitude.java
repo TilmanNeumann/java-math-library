@@ -16,8 +16,9 @@ package de.tilman_neumann.jml.precision;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import de.tilman_neumann.jml.base.BigIntConstants;
 import de.tilman_neumann.jml.base.BigRational;
+
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 public class Magnitude {
 	
@@ -59,7 +60,7 @@ public class Magnitude {
 	 */
 	// TODO: Check how BigDecimal.precision() is computed (OpenJDK sources or using jad)
 	public static int of/*digits_fromBigDecimal*/(BigInteger n) {
-		return n.compareTo(BigIntConstants.ZERO)!=0 ? new BigDecimal(n).precision() : 0;
+		return n.compareTo(I_0)!=0 ? new BigDecimal(n).precision() : 0;
 	}
 	
 	/**
@@ -78,7 +79,7 @@ public class Magnitude {
 		// BigInteger.toString() allows for String concatenation with +
 		// thus it should be fine for this purpose, too.
 		// however, toString() seems to be more expensive then creating a new BigDecimal...
-		return n.compareTo(BigIntConstants.ZERO)!=0 ? n.abs().toString().length() : 0;
+		return n.compareTo(I_0)!=0 ? n.abs().toString().length() : 0;
 	}
 	
 	// slow
@@ -92,9 +93,9 @@ public class Magnitude {
 	// slow
 	static int digits_mulTest(BigInteger n) {
 		int digits = (bitsOf(n)*3)/10; // lower bound
-		BigInteger test = BigIntConstants.TEN.pow(digits);
+		BigInteger test = I_10.pow(digits);
 		while(test.compareTo(n)<=0) {
-			test = test.multiply(BigIntConstants.TEN);
+			test = test.multiply(I_10);
 			digits++;
 		}
 		return digits;
@@ -119,14 +120,14 @@ public class Magnitude {
 	// now exact but slow
 	static int digits_multiplier(BigInteger x) {
 		int testDigits = (int) Math.ceil(LOG2_TO_LOG10_MULTIPLIER * bitsOf(x)) - 1;
-		BigInteger test = BigIntConstants.TEN.pow(testDigits);
+		BigInteger test = I_10.pow(testDigits);
 		return test.compareTo(x) > 0 ? testDigits : testDigits+1;
 	}
 	
 	// now exact but slow
 	static int digits_multiplier2(BigInteger x) {
 		int testDigits = (int) (LOG2_TO_LOG10_MULTIPLIER * bitsOf(x));
-		BigInteger test = BigIntConstants.TEN.pow(testDigits);
+		BigInteger test = I_10.pow(testDigits);
 		return test.compareTo(x) > 0 ? testDigits : testDigits+1;
 	}
 

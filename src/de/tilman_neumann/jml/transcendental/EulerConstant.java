@@ -72,11 +72,11 @@ public class EulerConstant {
 		// start with r=1: num = (-k)^2, den1 = 0! * 2^1 = 2, den2 = 0! * 2^2 = 4
 		BigInteger minusK = BigInteger.valueOf(k).negate();
 		BigInteger num = minusK.multiply(minusK);
-		BigDecimal sum1 = BigDecimalMath.divide(new BigDecimal(num), TWO, internalScale);
-		BigDecimal sum2 = BigDecimalMath.divide(new BigDecimal(num), FOUR, internalScale);
+		BigDecimal sum1 = BigDecimalMath.divide(new BigDecimal(num), I_2, internalScale);
+		BigDecimal sum2 = BigDecimalMath.divide(new BigDecimal(num), I_4, internalScale);
 		
 		// loop
-		BigInteger factorial = ONE;
+		BigInteger factorial = I_1;
 		int rMax = 12*k+1;
 		for (int r=2; r<=rMax; r++) {
 			// numerator
@@ -122,10 +122,10 @@ public class EulerConstant {
 		// start with r=1: num = (-k)^2, den1 = 0! * 2^1 = 2, den2 = 0! * 2^2 = 4
 		BigInteger minusK = BigInteger.valueOf(k).negate();
 		BigInteger num = minusK.multiply(minusK);
-		BigDecimal sum2 = BigDecimalMath.divide(new BigDecimal(num), FOUR, internalScale);
+		BigDecimal sum2 = BigDecimalMath.divide(new BigDecimal(num), I_4, internalScale);
 		
 		// loop
-		BigInteger factorial = ONE;
+		BigInteger factorial = I_1;
 		int rMax = 12*k+1;
 		for (int r=2; r<=rMax; r++) {
 			// numerator

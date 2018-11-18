@@ -44,7 +44,7 @@ public class CANEntry {
 	// private, use factory method computeCAN(epsilon)
 	private CANEntry(double epsilon) {
 		this.epsilon = epsilon;
-		this.can = ONE;
+		this.can = I_1;
 		this.primes = new ArrayList<BigInteger>();
 		this.exponents = new ArrayList<Integer>();
 		this.exponentSum = 0;
@@ -81,7 +81,7 @@ public class CANEntry {
 	 */
 	public static CANEntry computeCAN(double epsilon) {
 		CANEntry result = new CANEntry(epsilon);
-		BigInteger p = TWO;
+		BigInteger p = I_2;
 		while (true) {
 			int exponent = computeExponent(epsilon, p);
 			if (exponent==0) break;

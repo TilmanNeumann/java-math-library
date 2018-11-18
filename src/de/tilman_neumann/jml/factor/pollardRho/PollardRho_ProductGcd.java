@@ -52,7 +52,7 @@ public class PollardRho_ProductGcd extends FactorAlgorithmBase {
             BigInteger xx = x;
 	        
 	        do {
-	        	product = ONE;
+	        	product = I_1;
 	        	for (int i=0; i<100; i++) {
 		            x  = addModN( x.multiply(x) .mod(N), c);
 		            xx = addModN(xx.multiply(xx).mod(N), c);
@@ -60,7 +60,7 @@ public class PollardRho_ProductGcd extends FactorAlgorithmBase {
 		            product = product.multiply(x.subtract(xx)).mod(N);
 	        	}
 	            gcd = product.gcd(N); // the gcd function must give gcd(0,N) = N
-	        } while(gcd.equals(ONE));
+	        } while(gcd.equals(I_1));
 	        
 	    // leave loop if factor found; otherwise continue with new random x0, c
         } while (gcd.equals(N));

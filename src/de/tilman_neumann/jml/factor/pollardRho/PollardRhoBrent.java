@@ -59,7 +59,7 @@ public class PollardRhoBrent extends FactorAlgorithmBase {
             // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
         	final int m = 100;
         	int r = 1;
-        	BigInteger q = ONE;
+        	BigInteger q = I_1;
         	do {
 	    	    x = y;
 	    	    for (int i=1; i<=r; i++) {
@@ -78,16 +78,16 @@ public class PollardRhoBrent extends FactorAlgorithmBase {
 	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0, c
 	    	        k += m;
 		    	    //LOG.info("r = " + r + ", k = " + k);
-	    	    } while (k<r && G.equals(ONE));
+	    	    } while (k<r && G.equals(I_1));
 	    	    r <<= 1;
 	    	    //LOG.info("r = " + r + ", G = " + G);
-	    	} while (G.equals(ONE));
+	    	} while (G.equals(I_1));
 	    	if (G.equals(N)) {
 	    	    do {
 	    	        ys = addModN(ys.multiply(ys).mod(N), c);
     	            final BigInteger diff = x.compareTo(ys) < 0 ? ys.subtract(x) : x.subtract(ys);
     	            G = diff.gcd(N);
-	    	    } while (G.equals(ONE));
+	    	    } while (G.equals(I_1));
 	    	    //LOG.info("G = " + G);
 	    	}
         } while (G.equals(N));

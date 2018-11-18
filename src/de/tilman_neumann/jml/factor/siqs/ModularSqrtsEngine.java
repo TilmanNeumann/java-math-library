@@ -62,13 +62,13 @@ public class ModularSqrtsEngine {
 			// * Testing for p|N does not help TDiv's internal QS, because the Q's have been stripped of prime base elements before it is called.
 		}
 		if (DEBUG) {
-			assertEquals(kN.mod(TWO), BigInteger.valueOf(tArray[0]).pow(2).mod(TWO));
+			assertEquals(kN.mod(I_2), BigInteger.valueOf(tArray[0]).pow(2).mod(I_2));
 			ModularSqrt modularSqrtEngine_big = new ModularSqrt();
 			for (int i = primeBaseSize-1; i>0; i--) {
 				int p = primesArray[i];
 				BigInteger pBig = BigInteger.valueOf(p);
 				BigInteger kN_mod_p = kN.mod(pBig);
-				if (kN_mod_p.compareTo(ZERO) > 0) {
+				if (kN_mod_p.compareTo(I_0) > 0) {
 					assertEquals(modularSqrtEngine_big.modularSqrt(kN, p), tArray[i]);
 					assertEquals(modularSqrtEngine_big.modularSqrt(kN_mod_p, p), tArray[i]);
 				} else {

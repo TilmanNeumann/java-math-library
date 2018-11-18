@@ -49,8 +49,8 @@ public class SmoothnessMeasures {
 	private BigDecimal sqrt;
 	private SortedSet<BigInteger> smallDivisors;
 	private TreeSet<BigInteger> allDivisors;
-	private BigInteger smallDivisorsSum = ZERO;
-	private BigInteger allDivisorsSum = ZERO; // sigma(n)
+	private BigInteger smallDivisorsSum = I_0;
+	private BigInteger allDivisorsSum = I_0; // sigma(n)
 	private int smallDivisorsCount;
 	private int allDivisorsCount; // d(n)
 	

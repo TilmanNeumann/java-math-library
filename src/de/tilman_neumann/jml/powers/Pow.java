@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.powers;
 
-import static de.tilman_neumann.jml.base.BigDecimalConstants.F_1;
-
 import java.math.BigInteger;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -22,10 +20,12 @@ import java.math.RoundingMode;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigIntConstants;
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Precision;
 import de.tilman_neumann.jml.precision.Scale;
+
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static de.tilman_neumann.jml.base.BigDecimalConstants.F_1;
 
 public class Pow {
 	@SuppressWarnings("unused")
@@ -40,11 +40,11 @@ public class Pow {
 	 */
 	public static BigDecimal pow(BigDecimal x, BigInteger n, Precision wantedDecPrec) {
 		//LOG.debug(x + "^" + n + " [prec=" + wantedDecPrec + "]...");
-		if (n.compareTo(BigIntConstants.ZERO) >= 0) {
-			if (n.compareTo(BigIntConstants.MAX_EXPONENT) > 0) {
+		if (n.compareTo(I_0) >= 0) {
+			if (n.compareTo(I_MAX_EXPONENT) > 0) {
 				// split exponent in permitted factors:
-				BigInteger[] nDivMaxInt = n.divideAndRemainder(BigIntConstants.MAX_EXPONENT);
-				BigDecimal xPowMaxInt = pow(x, BigIntConstants.MAX_EXPONENT.intValue(), wantedDecPrec); // x^MAX_EXPONENT
+				BigInteger[] nDivMaxInt = n.divideAndRemainder(I_MAX_EXPONENT);
+				BigDecimal xPowMaxInt = pow(x, I_MAX_EXPONENT.intValue(), wantedDecPrec); // x^MAX_EXPONENT
 				// The following recursion allows arbitrary big exponents, because
 				// (x^maxInt)^(floor(n/maxInt)) == x^((floor(n/maxInt)*maxInt)
 				BigDecimal ret = pow(xPowMaxInt, nDivMaxInt[0], wantedDecPrec);

@@ -169,7 +169,7 @@ public class AParamGenerator01 implements AParamGenerator {
 	 */
 	private void computeAParameter() {
 		TreeSet<Integer> qIndexSet = new TreeSet<Integer>();
-		a = ONE;
+		a = I_1;
 		// find the first (qCount-1) q randomly
 		for (int i=0; i<qCount-1; i++) {
 			// introduce some randomness

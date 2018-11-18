@@ -73,7 +73,7 @@ public class PollardRho extends FactorAlgorithmBase {
 	            xx = addModN(xx.multiply(xx).mod(N), c);
 	            xx = addModN(xx.multiply(xx).mod(N), c);
 	            gcd = x.subtract(xx).gcd(N);
-	        } while(gcd.equals(ONE));
+	        } while(gcd.equals(I_1));
 	        
 	    // leave loop if factor found; otherwise continue with a new random c
         } while (gcd.equals(N));

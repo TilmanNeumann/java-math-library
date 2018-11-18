@@ -201,12 +201,12 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 		String durationStr = TimeUtil.timeStr(duration);
 		if (result.totalCount()==1) {
 			BigInteger singleElement = result.keySet().iterator().next();
-			if (singleElement.abs().compareTo(ONE)<=0) {
+			if (singleElement.abs().compareTo(I_1)<=0) {
 				System.out.println(N + " is trivial");
 			} else {
 				System.out.println(N + " is probable prime");
 			}
-		} else if (result.totalCount()==2 && result.keySet().contains(MINUS_ONE)) {
+		} else if (result.totalCount()==2 && result.keySet().contains(I_MINUS_1)) {
 			System.out.println(N + " is probable prime");
 		} else {
 			System.out.println(N + " (" + N_bits + " bits) = " + factorizer.getPrettyFactorString(result) + " (factored in " + durationStr + ")");

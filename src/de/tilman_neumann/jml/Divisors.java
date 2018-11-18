@@ -55,15 +55,15 @@ public class Divisors {
 	 */
 	private static ArrayList<BigInteger> getDivisors_v1(BigInteger n) {
 		ArrayList<BigInteger> divisors = new ArrayList<BigInteger>();
-		divisors.add(ONE);
-		BigInteger test = TWO;
+		divisors.add(I_1);
+		BigInteger test = I_2;
 		while (test.compareTo(n) < 0) {
-			if (n.mod(test).equals(ZERO)) {
+			if (n.mod(test).equals(I_0)) {
 				divisors.add(test);
 			}
-			test = test.add(ONE);
+			test = test.add(I_1);
 		}
-		if (n.compareTo(ONE)>0) {
+		if (n.compareTo(I_1)>0) {
 			// avoid double entry
 			divisors.add(n);
 		}
@@ -80,7 +80,7 @@ public class Divisors {
 	private static ArrayList<BigInteger> getDivisors_v2(BigInteger n) {
 		// all divisors <= sqrt(n)
 		ArrayList<BigInteger> smallDivisors = getSmallDivisors_v1(n);
-		if (n.equals(ONE)) return smallDivisors; // avoid double entry of 1
+		if (n.equals(I_1)) return smallDivisors; // avoid double entry of 1
 		
 		// copy small divisors
 		ArrayList<BigInteger> allDivisors = new ArrayList<BigInteger>(smallDivisors);
@@ -128,7 +128,7 @@ public class Divisors {
 		}
 
 		TreeSet<BigInteger> divisors = new TreeSet<BigInteger>();
-		if (primes.size()==0 || (primes.size()==1 && primes.get(0).equals(ZERO))) {
+		if (primes.size()==0 || (primes.size()==1 && primes.get(0).equals(I_0))) {
 			return divisors;
 		}
 		
@@ -136,7 +136,7 @@ public class Divisors {
 		stack.push(powers);
 		while (!stack.isEmpty()) {
 			powers = stack.pop();
-			BigInteger divisor = ONE;
+			BigInteger divisor = I_1;
 			for (int i=0; i<powers.size(); i++) {
 				int power = powers.get(i);
 				if (power > 0) {
@@ -172,7 +172,7 @@ public class Divisors {
 		}
 
 		TreeSet<BigInteger> divisors = new TreeSet<BigInteger>();
-		if (primes.size()==0 || (primes.size()==1 && primes.get(0).equals(ZERO))) {
+		if (primes.size()==0 || (primes.size()==1 && primes.get(0).equals(I_0))) {
 			return divisors;
 		}
 		
@@ -186,7 +186,7 @@ public class Divisors {
 		while (!stack.isEmpty()) {
 			ArrayList<Integer> powers = stack.pop();
 			// compute divisor from stack element
-			BigInteger divisor = ONE;
+			BigInteger divisor = I_1;
 			for (int i=0; i<powers.size(); i++) {
 				int power = powers.get(i);
 				if (power > 0) {
@@ -220,7 +220,7 @@ public class Divisors {
 		// find divisors of n
 		SortedSet<BigInteger> divisors = getDivisors(n);
 		// remove 1 and n
-		divisors.remove(ONE);
+		divisors.remove(I_1);
 		divisors.remove(n);
 		// done
 		return divisors;
@@ -236,8 +236,8 @@ public class Divisors {
 		BigInteger d_max = SqrtInt.iSqrt(n)[0];
 		//LOG.debug("n=" + n + ", d_max=" + d_max);
 		ArrayList<BigInteger> smallDivisors = new ArrayList<BigInteger>();
-		for (BigInteger d=ONE; d.compareTo(d_max)<=0; d=d.add(ONE)) {
-			if (n.mod(d).equals(ZERO)) {
+		for (BigInteger d=I_1; d.compareTo(d_max)<=0; d=d.add(I_1)) {
+			if (n.mod(d).equals(I_0)) {
 				// found small divisor
 				smallDivisors.add(d);
 			}
@@ -269,7 +269,7 @@ public class Divisors {
 		}
 
 		TreeSet<BigInteger> divisors = new TreeSet<BigInteger>();
-		if (primes.size()==0 || (primes.size()==1 && primes.get(0).equals(ZERO))) {
+		if (primes.size()==0 || (primes.size()==1 && primes.get(0).equals(I_0))) {
 			return divisors;
 		}
 		
@@ -283,7 +283,7 @@ public class Divisors {
 		while (!stack.isEmpty()) {
 			ArrayList<Integer> powers = stack.pop();
 			// compute divisor from stack element
-			BigInteger divisor = ONE;
+			BigInteger divisor = I_1;
 			for (int i=0; i<powers.size(); i++) {
 				int power = powers.get(i);
 				if (power > 0) {
@@ -349,15 +349,15 @@ public class Divisors {
 			// entry sum: if the entry is 3^4, then the entry sum is S(3,4) = 3^0 + 3^1 + 3^2 + 3^3 + 3^4.
 			BigInteger p = entry.getKey();
 			int exp = entry.getValue();
-			BigInteger entrySum = ONE; // p^0
-			BigInteger summand = ONE;
+			BigInteger entrySum = I_1; // p^0
+			BigInteger summand = I_1;
 			for (int i=1; i<=exp; i++) {
 				summand = summand.multiply(p);
 				entrySum = entrySum.add(summand);
 			}
 			entrySums.add(entrySum);
 		}
-		BigInteger productOfEntrySums = ONE;
+		BigInteger productOfEntrySums = I_1;
 		for (BigInteger entrySum : entrySums) {
 			productOfEntrySums = productOfEntrySums.multiply(entrySum);
 		}
@@ -381,7 +381,7 @@ public class Divisors {
 	 * @return
 	 */
 	public static BigInteger getDivisorCount(SortedMultiset<BigInteger> factors) {
-		BigInteger count = ONE;
+		BigInteger count = I_1;
 		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
 			count = count.multiply(BigInteger.valueOf(entry.getValue()+1));
 		}
@@ -417,7 +417,7 @@ public class Divisors {
 				return BigInteger.valueOf(test);
 			}
 		}
-		return ONE; // prime
+		return I_1; // prime
     }
 	
     /**
@@ -459,22 +459,22 @@ public class Divisors {
 			BigInteger[] div;
 			while (true) {
 				div = n.divideAndRemainder(p_i_big);
-				if (!div[1].equals(ZERO)) break;
+				if (!div[1].equals(I_0)) break;
 				
 				// p_i divides n
 				factors.add(p_i_big);
 				n = div[0];
 			}
-			if (n.equals(ONE)) break;
+			if (n.equals(I_1)) break;
 		}
 		return factors;
 	}
 
 	private static void testSumOfDivisorsForSmallIntegers() {
-		BigInteger n = ZERO;
-		while (n.compareTo(TEN_THOUSAND) <= 0) {
+		BigInteger n = I_0;
+		while (n.compareTo(I_1E4) <= 0) {
 			LOG.info("sumOfDivisors(" + n + ") = " + sumOfDivisors_v1(n));
-			n = n.add(ONE);
+			n = n.add(I_1);
 		}
 	}
 	
@@ -593,7 +593,7 @@ public class Divisors {
 			ArrayList<BigInteger> testSet = new ArrayList<>();
 			for (int i=0; i<NCOUNT; ) {
 				BigInteger n = new BigInteger(bits, rng);
-				if (n.compareTo(ZERO)>0) {
+				if (n.compareTo(I_0)>0) {
 					testSet.add(n);
 					i++;
 				}

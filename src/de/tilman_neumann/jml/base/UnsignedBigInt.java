@@ -285,7 +285,7 @@ public class UnsignedBigInt {
 
 	public BigInteger toBigInteger() {
 		//LOG.debug("intLength = " + intLength);
-		if (intLength==0) return ZERO;
+		if (intLength==0) return I_0;
 		if (intLength==1) return BigInteger.valueOf(intArray[0] & 0xFFFFFFFFL);
 		// For intLength==2 we already need byte[], because intArray[1]<<32 could be a negative long
 		int byteLength = intLength<<2;

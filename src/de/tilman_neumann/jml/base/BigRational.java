@@ -23,6 +23,8 @@ import de.tilman_neumann.jml.precision.Precision;
 import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.jml.base.BigDecimalMath;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+
 /**
  * Big rational numbers with exact arithmetics.
  * @author Tilman Neumann
@@ -37,7 +39,7 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	// Constants -----------------------------------------------------------------------------
 	
 	public static final BigRational ZERO = new BigRational(BigInteger.ZERO);
-	public static final BigRational ONE_HALF = new BigRational(BigInteger.ONE, BigIntConstants.TWO);
+	public static final BigRational ONE_HALF = new BigRational(BigInteger.ONE, I_2);
 	public static final BigRational ONE = new BigRational(BigInteger.ONE);
 	
 	// Fields -----------------------------------------------------------------------------
@@ -54,7 +56,7 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	 * @param n Number in decimal representation.
 	 */
 	public BigRational(BigInteger n) {
-		this(n, BigIntConstants.ONE);
+		this(n, I_1);
 	}
 	
 	/**
@@ -321,7 +323,7 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	 */
 	@Override
 	public String toString() {
-		if (this.den.equals(BigIntConstants.ONE)) {
+		if (this.den.equals(I_1)) {
 			return this.num.toString();
 		}
 		return this.num + "/" + this.den;

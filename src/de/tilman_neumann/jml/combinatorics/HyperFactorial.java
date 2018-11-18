@@ -29,7 +29,7 @@ public class HyperFactorial {
 	 * @return
 	 */
 	public static BigInteger standard(int n) {
-		BigInteger result = ONE;
+		BigInteger result = I_1;
 		for (int k=2; k<=n; k++) {
 			result = result.multiply(BigInteger.valueOf(k).pow(k));
 		}
@@ -43,8 +43,8 @@ public class HyperFactorial {
 	 * @return
 	 */
 	public static BigInteger inverse(int n) {
-		BigInteger result = ONE;
-		BigInteger kFactorial = ONE;
+		BigInteger result = I_1;
+		BigInteger kFactorial = I_1;
 		for (int k=2; k<=n; k++) {
 			kFactorial = kFactorial.multiply(BigInteger.valueOf(k));
 			result = result.multiply(kFactorial);

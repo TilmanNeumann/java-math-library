@@ -33,8 +33,8 @@ public class ModularPower {
 	 * @return a^b (mod c)
 	 */
   	/* not public */ BigInteger modPow(BigInteger a, BigInteger b, BigInteger c) {
-  		BigInteger modPow = ONE;
-  		while (b.compareTo(ZERO) > 0) {
+  		BigInteger modPow = I_1;
+  		while (b.compareTo(I_0) > 0) {
   			if ((b.intValue() & 1) == 1) { // oddness test needs only the lowest bit
   				modPow = modPow.multiply(a).mod(c);
   			}

@@ -22,7 +22,6 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.base.BigDecimalMath;
-import de.tilman_neumann.jml.base.BigIntConstants;
 import de.tilman_neumann.jml.powers.Pow2;
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Precision;
@@ -32,6 +31,7 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 
 import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Implementation of the natural logarithm function for BigDecimals.
@@ -137,7 +137,7 @@ public class Ln {
         
         // 1/(1*2^1) + 1/(2*2^2) + 1/(3*2^3) = 2/3
     	BigDecimal r = BigDecimalMath.divide(F_2, F_3, internalScale);
-    	BigInteger pow2 = BigIntConstants.ONE.shiftLeft(4); // 2^4
+    	BigInteger pow2 = I_1.shiftLeft(4); // 2^4
     	int i = 4;
 
         BigDecimal sElement;

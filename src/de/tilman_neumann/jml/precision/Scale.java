@@ -18,7 +18,7 @@ import java.math.RoundingMode;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigIntConstants;
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Immutable class for precision statements in after-floating point decimal digits.
@@ -97,7 +97,7 @@ public class Scale implements Comparable<Scale> {
 	 * @return maximum allowed error
 	 */
 	public BigDecimal getErrorBound() {
-		return new BigDecimal(BigIntConstants.FIVE, digits+1);
+		return new BigDecimal(I_5, digits+1);
 	}
 	
 	public int digits() {

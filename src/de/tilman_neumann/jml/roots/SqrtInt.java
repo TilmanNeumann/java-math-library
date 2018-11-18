@@ -92,7 +92,7 @@ public class SqrtInt {
 				return new BigInteger[] {BigInteger.valueOf(sqrt-1), sqrt_big};
 			}
 		}
-		if (sign==0) return new BigInteger[] {ZERO, ZERO};
+		if (sign==0) return new BigInteger[] {I_0, I_0};
 		throw new IllegalArgumentException("n = " + N + ", but sqrt(n) is defined for n>=0 only!");
 	}
 
@@ -116,8 +116,8 @@ public class SqrtInt {
 		} while (guess.subtract(lastGuess).abs().bitLength()>1); // while absolute difference > 1
 		
 		int cmp = guess.multiply(guess).compareTo(n);
-		if (cmp < 0) return new BigInteger[] {guess, guess.add(ONE)};
-		if (cmp > 0) return new BigInteger[] {guess.subtract(ONE), guess};
+		if (cmp < 0) return new BigInteger[] {guess, guess.add(I_1)};
+		if (cmp > 0) return new BigInteger[] {guess.subtract(I_1), guess};
 		return new BigInteger[] {guess, guess}; // exact sqrt()
 	}
 	
@@ -160,7 +160,7 @@ public class SqrtInt {
    		if (lowerSquare.equals(testNum) || upperSquare.equals(testNum)) {
    			if (!lower.equals(upper)) LOG.error(algStr + ": ERROR at " + bits + " bits: sqrt(" + testNum + ") is exact, but the computed bounds = [" + lower + ", " + upper + "] are different!");
    		} else {
-   			if (upper.subtract(lower).compareTo(ONE)>0) LOG.error(algStr + ": ERROR at " + bits + " bits: lower and upper bound of sqrt(" + testNum + ") = [" + lower + ", " + upper + "] differ by more than 1");
+   			if (upper.subtract(lower).compareTo(I_1)>0) LOG.error(algStr + ": ERROR at " + bits + " bits: lower and upper bound of sqrt(" + testNum + ") = [" + lower + ", " + upper + "] differ by more than 1");
    		}
 	}
 

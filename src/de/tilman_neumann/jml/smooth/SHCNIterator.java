@@ -43,7 +43,7 @@ public class SHCNIterator {
 		if (last == null) {
 			// SHCN(1) = 2
 			last = SHCNEntry.computeSHCN(1);
-			assertEquals(TWO, last.getSHCN());
+			assertEquals(I_2, last.getSHCN());
 			return last;
 		}
 		

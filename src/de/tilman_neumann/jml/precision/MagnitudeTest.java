@@ -24,57 +24,57 @@ import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 public class MagnitudeTest extends ClassTest {
 	
 	public void testBigIntegerBitOperations() {
-		assertEquals(0, ZERO.bitLength());
-		assertEquals(1, ONE.bitLength());
-		assertEquals(2, TWO.bitLength());
-		assertEquals(2, THREE.bitLength());
-		assertEquals(3, FOUR.bitLength());
+		assertEquals(0, I_0.bitLength());
+		assertEquals(1, I_1.bitLength());
+		assertEquals(2, I_2.bitLength());
+		assertEquals(2, I_3.bitLength());
+		assertEquals(3, I_4.bitLength());
 		
-		assertEquals(0, ZERO.bitCount());
-		assertEquals(1, ONE.bitCount());
-		assertEquals(1, TWO.bitCount());
-		assertEquals(2, THREE.bitCount());
-		assertEquals(1, FOUR.bitCount());
+		assertEquals(0, I_0.bitCount());
+		assertEquals(1, I_1.bitCount());
+		assertEquals(1, I_2.bitCount());
+		assertEquals(2, I_3.bitCount());
+		assertEquals(1, I_4.bitCount());
 		// bitCount counts the number of set bits
 		
-		assertEquals(-1, ZERO.getLowestSetBit()); // !
-		assertEquals(0, ONE.getLowestSetBit());
-		assertEquals(1, TWO.getLowestSetBit());
-		assertEquals(0, THREE.getLowestSetBit());
-		assertEquals(2, FOUR.getLowestSetBit());
+		assertEquals(-1, I_0.getLowestSetBit()); // !
+		assertEquals(0, I_1.getLowestSetBit());
+		assertEquals(1, I_2.getLowestSetBit());
+		assertEquals(0, I_3.getLowestSetBit());
+		assertEquals(2, I_4.getLowestSetBit());
 		// getLowestSetBit() gives 0 for odd numbers, -1 for zero
 	}
 	
 	public void testDigits() {
-		assertEquals(0, Magnitude.of(ZERO));
-		assertEquals(0, Magnitude.of(ZERO.negate()));
-		assertEquals(1, Magnitude.of(ONE));
-		assertEquals(1, Magnitude.of(ONE.negate()));
-		assertEquals(1, Magnitude.of(NINE));
-		assertEquals(1, Magnitude.of(NINE.negate()));
-		assertEquals(2, Magnitude.of(TEN));
-		assertEquals(2, Magnitude.of(TEN.negate()));
+		assertEquals(0, Magnitude.of(I_0));
+		assertEquals(0, Magnitude.of(I_0.negate()));
+		assertEquals(1, Magnitude.of(I_1));
+		assertEquals(1, Magnitude.of(I_1.negate()));
+		assertEquals(1, Magnitude.of(I_9));
+		assertEquals(1, Magnitude.of(I_9.negate()));
+		assertEquals(2, Magnitude.of(I_10));
+		assertEquals(2, Magnitude.of(I_10.negate()));
 		assertEquals(3, Magnitude.of(BigInteger.valueOf(999)));
 		assertEquals(3, Magnitude.of(BigInteger.valueOf(-999)));
-		assertEquals(4, Magnitude.of(THOUSAND));
-		assertEquals(4, Magnitude.of(THOUSAND.negate()));
+		assertEquals(4, Magnitude.of(I_1E3));
+		assertEquals(4, Magnitude.of(I_1E3.negate()));
 	}
 	
 	public void testBits() {
-		assertEquals(0, Magnitude.bitsOf(ZERO));
-		assertEquals(0, Magnitude.bitsOf(ZERO.negate()));
-		assertEquals(1, Magnitude.bitsOf(ONE));
-		assertEquals(1, Magnitude.bitsOf(ONE.negate()));
-		assertEquals(2, Magnitude.bitsOf(TWO));
-		assertEquals(2, Magnitude.bitsOf(TWO.negate()));
-		assertEquals(2, Magnitude.bitsOf(THREE));
-		assertEquals(2, Magnitude.bitsOf(THREE.negate()));
-		assertEquals(3, Magnitude.bitsOf(FOUR));
-		assertEquals(3, Magnitude.bitsOf(FOUR.negate()));
+		assertEquals(0, Magnitude.bitsOf(I_0));
+		assertEquals(0, Magnitude.bitsOf(I_0.negate()));
+		assertEquals(1, Magnitude.bitsOf(I_1));
+		assertEquals(1, Magnitude.bitsOf(I_1.negate()));
+		assertEquals(2, Magnitude.bitsOf(I_2));
+		assertEquals(2, Magnitude.bitsOf(I_2.negate()));
+		assertEquals(2, Magnitude.bitsOf(I_3));
+		assertEquals(2, Magnitude.bitsOf(I_3.negate()));
+		assertEquals(3, Magnitude.bitsOf(I_4));
+		assertEquals(3, Magnitude.bitsOf(I_4.negate()));
 	}
 	
 	public void testZero() {
-		assertEquals(ZERO, F_0.unscaledValue());
+		assertEquals(I_0, F_0.unscaledValue());
 		assertEquals(0, F_0.scale());
 		assertEquals(10, F_0.setScale(10).scale());
 		assertEquals(-10, F_0.setScale(-10).scale());

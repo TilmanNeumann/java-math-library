@@ -60,7 +60,7 @@ public class JacobiTest {
 			while (i<NCOUNT_CORRECTNESS) {
 				// the p must be odd, and to allow comparison with the Legendre symbol it should be odd primes
 				BigInteger p = bpsw.nextProbablePrime(new BigInteger(bits, rng));
-				if (p.and(ONE).intValue()==1) {
+				if (p.and(I_1).intValue()==1) {
 					pList.add(p);
 					i++;
 				}
@@ -124,7 +124,7 @@ public class JacobiTest {
 			while (i<NCOUNT_PERFORMANCE) {
 				// the p must be odd, and to allow comparison with the Legendre symbol it should be odd primes
 				BigInteger p = bpsw.nextProbablePrime(new BigInteger(bits, rng));
-				if (p.and(ONE).intValue()==1) {
+				if (p.and(I_1).intValue()==1) {
 					pList.add(p);
 					i++;
 				}

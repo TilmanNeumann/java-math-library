@@ -18,11 +18,12 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigIntConstants;
 import de.tilman_neumann.jml.base.BigIntList;
 import de.tilman_neumann.jml.base.BigIntPoly;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.Pair;
+
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Computation of Stirling numbers.
@@ -33,7 +34,7 @@ public class Stirling {
 	private static final Logger LOG = Logger.getLogger(Stirling.class);
 
 	/** Cache for fast implementation with memory */
-    private static BigInteger[][] stirling1Arr = new BigInteger[][] {new BigInteger[] {BigIntConstants.ONE} };
+    private static BigInteger[][] stirling1Arr = new BigInteger[][] {new BigInteger[] {I_1} };
 	
 	/**
 	 * Object used to synchronize access to the static Stirling numbers array.
@@ -79,9 +80,9 @@ public class Stirling {
             return stirling1Recurrent(n-1,k-1).subtract(stirling1Recurrent(n-1,k).multiply(BigInteger.valueOf(n-1)));
     	}
         if (n==k) {
-            return BigIntConstants.ONE;
+            return I_1;
         }
-        return BigIntConstants.ZERO;
+        return I_0;
     }
 
 	/** 
@@ -96,7 +97,7 @@ public class Stirling {
 	 */
 	private static BigInteger stirling1byStirling2(int n, int k) {
     	if (n>k && k>0) {
-    		BigInteger result = BigIntConstants.ZERO;
+    		BigInteger result = I_0;
 			for (int j=0; j<=n-k; j++) {
 				BigInteger elem = Binomial.nk((n-1+j), (n-k+j)).multiply(Binomial.nk((2*n-k), (n-k-j))).multiply(stirling2(n-k+j,j));
 				if (j%2 != 0) {
@@ -110,9 +111,9 @@ public class Stirling {
 			return result;
     	}
         if (n==k) {
-            return BigIntConstants.ONE;
+            return I_1;
         }
-        return BigIntConstants.ZERO;
+        return I_0;
 	}
 
 	/** 
@@ -141,9 +142,9 @@ public class Stirling {
 			return xprod.get(k);
     	}
         if (n==k) {
-            return BigIntConstants.ONE;
+            return I_1;
         }
-        return BigIntConstants.ZERO;
+        return I_0;
 	}
 
 	/**
@@ -186,10 +187,10 @@ public class Stirling {
             return stirling1Arr[n][k];
     	}
         if (n==k) {
-        	return BigIntConstants.ONE;
+        	return I_1;
         }
 	    // k==0, n>0:
-        return BigIntConstants.ZERO;
+        return I_0;
 	}
 	
     /**
@@ -208,9 +209,9 @@ public class Stirling {
             return(retValue);
     	}
         if (n==k) {
-            return BigIntConstants.ONE;
+            return I_1;
         }
-        return BigIntConstants.ZERO;
+        return I_0;
     }
 
     /**
@@ -221,7 +222,7 @@ public class Stirling {
      * @return BigInt
      */
     public static BigInteger stirling2(int n, int k) {
-    	BigInteger ret = BigIntConstants.ZERO;
+    	BigInteger ret = I_0;
     	if (k>0) {
 	    	for (int i=0; i<=n; i++) {
 	    		BigInteger elem = Binomial.nk(k, i).multiply(BigInteger.valueOf(k-i).pow(n));
@@ -232,7 +233,7 @@ public class Stirling {
 	    	}
 	    	return ret.divide(Factorial.factorial(k));
     	}
-    	if (k==0) { return BigIntConstants.ZERO; }
+    	if (k==0) { return I_0; }
     	throw new IllegalArgumentException("Parameter k must be non-negative, but is " + k);
     }
 
@@ -248,9 +249,9 @@ public class Stirling {
     		return rStirling1(n-1,k-1,r).add(rStirling1(n-1,k,r).multiply(BigInteger.valueOf(n-1)));
     	}
     	if (n==r && k==r) {
-    		return BigIntConstants.ONE;
+    		return I_1;
     	}
-    	return BigIntConstants.ZERO;
+    	return I_0;
 	}
 
     /**

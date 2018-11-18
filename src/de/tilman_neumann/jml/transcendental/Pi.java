@@ -19,7 +19,6 @@ import java.math.BigInteger;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.base.BigDecimalMath;
-import de.tilman_neumann.jml.base.BigIntConstants;
 import de.tilman_neumann.jml.base.BigRational;
 import de.tilman_neumann.jml.powers.Pow2;
 import de.tilman_neumann.jml.precision.Magnitude;
@@ -27,6 +26,7 @@ import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
 
 /**
@@ -66,10 +66,10 @@ public class Pi {
 		        int denMagnitude = Magnitude.of(den);
 		        // The required numerator scale is internalScale + magnitude(den):
 		        Scale numScale = internalScale.add(denMagnitude);
-		        BigRational c1 = new BigRational(BigIntConstants.FOUR, BigInteger.valueOf(eight_i+1));
-		        BigRational c2 = new BigRational(BigIntConstants.ONE, BigInteger.valueOf(four_i+2));
-		        BigRational c3 = new BigRational(BigIntConstants.ONE, BigInteger.valueOf(eight_i+5));
-		        BigRational c4 = new BigRational(BigIntConstants.ONE, BigInteger.valueOf(eight_i+6));
+		        BigRational c1 = new BigRational(I_4, BigInteger.valueOf(eight_i+1));
+		        BigRational c2 = new BigRational(I_1, BigInteger.valueOf(four_i+2));
+		        BigRational c3 = new BigRational(I_1, BigInteger.valueOf(eight_i+5));
+		        BigRational c4 = new BigRational(I_1, BigInteger.valueOf(eight_i+6));
 	            sElement = c1.subtract(c2).subtract(c3).subtract(c4).toBigDecimal(numScale);
 		        // Divide by denominator with the result having internalScale
 	            sElement = BigDecimalMath.divide(sElement, den, internalScale);

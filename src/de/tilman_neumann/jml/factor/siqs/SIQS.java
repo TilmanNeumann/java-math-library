@@ -183,7 +183,7 @@ public class SIQS extends FactorAlgorithmBase {
 		if (k>1) {
 			BigInteger kBig = BigInteger.valueOf(k);
 			// avoid square kN without square N; that would lead to an infinite loop in trial division
-			if (N.mod(kBig).equals(ZERO)) return kBig;
+			if (N.mod(kBig).equals(I_0)) return kBig;
 			kN = kBig.multiply(N);
 		}
 		
@@ -309,7 +309,7 @@ public class SIQS extends FactorAlgorithmBase {
 				LOG.info(getName() + ":");
 				LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " in " + TimeUtil.timeStr(timer.totalRuntime()));
 				int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
-				LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(EIGHT) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
+				LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
 				LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 				LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 				LOG.info("    cc: " + ccReport.getOperationDetails());

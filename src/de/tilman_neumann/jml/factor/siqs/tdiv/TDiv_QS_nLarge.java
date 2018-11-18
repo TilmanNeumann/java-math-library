@@ -160,7 +160,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
 					SortedMultiset<Integer> allQFactors = aqPair.getAllQFactors();
-					BigInteger testProduct = ONE;
+					BigInteger testProduct = I_1;
 					for (Map.Entry<Integer, Integer> entry : allQFactors.entrySet()) {
 						BigInteger prime = BigInteger.valueOf(entry.getKey());
 						int exponent = entry.getValue();
@@ -230,7 +230,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 				Q_rest = div[0];
 			}
 		}
-		if (Q_rest.equals(ONE)) return new Smooth_Perfect(A, smallFactors);
+		if (Q_rest.equals(I_1)) return new Smooth_Perfect(A, smallFactors);
 		
 		// Division by all p<=pMax was not sufficient to factor Q completely.
 		// The remaining Q_rest is either a prime > pMax, or a composite > pMax^2.

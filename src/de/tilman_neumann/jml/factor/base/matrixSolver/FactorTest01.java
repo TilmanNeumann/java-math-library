@@ -68,7 +68,7 @@ public class FactorTest01 implements FactorTest {
 		// Compose totalQSqrt from the prime factorizations of the involved Q's;
 		// BlockLanczos returns non-square "solutions", too, so we test on the fly if Q is really a square.
 		long t0 = System.currentTimeMillis();
-		BigInteger totalQSqrt = ONE;
+		BigInteger totalQSqrt = I_1;
 		for (int factor : totalQ_factors.keySet()) {
 			if (factor == -1) continue; // sqrt(Q-product) can be positive or negative, but we want the positive solution -> skip sign
 			int exp = totalQ_factors.get(factor);
@@ -81,7 +81,7 @@ public class FactorTest01 implements FactorTest {
 			totalQSqrt = totalQSqrt.multiply(BigInteger.valueOf(factor).pow(halfExp)).mod(N); // reduction (mod N) is much faster
 		}
 		// Compute product of all A (mod N)
-		BigInteger AProd = ONE;
+		BigInteger AProd = I_1;
 		for (AQPair aqPair : aqPairs) {
 			AProd = AProd.multiply(aqPair.getA()).mod(N); // reduction (mod N) is much faster
 		}
@@ -92,7 +92,7 @@ public class FactorTest01 implements FactorTest {
 			// verify congruence A^2 == Q (mod N)
 			BigInteger totalQ = totalQSqrt.multiply(totalQSqrt);
 			BigInteger div[] = AProd.pow(2).subtract(totalQ).divideAndRemainder(N);
-			assertEquals(ZERO, div[1]);
+			assertEquals(I_0, div[1]);
 			LOG.debug("A^2-Q = " + div[0] + " * N");
 			LOG.debug("A^2 % N = " + AProd.pow(2).mod(N) + ", Q = " + totalQ);
 		}
@@ -100,11 +100,11 @@ public class FactorTest01 implements FactorTest {
 		// test A-sqrt(Q)
 		BigInteger minusGcd = AProd.subtract(totalQSqrt).gcd(N);
 		if (DEBUG) LOG.debug("minusGcd = " + minusGcd);
-		if (minusGcd.compareTo(ONE)>0 && minusGcd.compareTo(N)<0) throw new FactorException(minusGcd); // factor!
+		if (minusGcd.compareTo(I_1)>0 && minusGcd.compareTo(N)<0) throw new FactorException(minusGcd); // factor!
 		// test A+sqrt(Q)
 		BigInteger plusGcd = AProd.add(totalQSqrt).gcd(N);
 		if (DEBUG) LOG.debug("plusGcd = " + plusGcd);
-		if (plusGcd.compareTo(ONE)>0 && plusGcd.compareTo(N)<0) throw new FactorException(plusGcd); // factor!
+		if (plusGcd.compareTo(I_1)>0 && plusGcd.compareTo(N)<0) throw new FactorException(plusGcd); // factor!
 		// no factor exception -> no success
 	}
 	

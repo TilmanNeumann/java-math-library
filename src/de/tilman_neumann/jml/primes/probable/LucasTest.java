@@ -13,8 +13,8 @@
  */
 package de.tilman_neumann.jml.primes.probable;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.ONE;
-import static de.tilman_neumann.jml.base.BigIntConstants.ZERO;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 
 import java.math.BigInteger;
 
@@ -50,11 +50,11 @@ public class LucasTest {
         BigInteger D = findDParameter(N);
         
         // delta(N) = N - Jacobi(D|N); since Jacobi(D|N)==-1 it evaluates to delta = N+1
-        BigInteger delta = N.add(ONE);
+        BigInteger delta = N.add(I_1);
         
         // run Lucas sequence until we find U_delta
-        BigInteger U = ONE;
-        BigInteger V = ONE;
+        BigInteger U = I_1;
+        BigInteger V = I_1;
         for (int i = delta.bitLength()-2; i >= 0; i--) { // i = index of delta bits from left to right
         	// double indices:
         	// U_2k = U_k * V_k (mod N)
@@ -86,7 +86,7 @@ public class LucasTest {
         }
         // If U_delta == 0 (mod N) then N is a Lucas probable prime.
         // Another mod() is not required, because U is already in the range [1-N, N-1]
-        return U.equals(ZERO);
+        return U.equals(I_0);
     }
 
     /**
@@ -104,14 +104,14 @@ public class LucasTest {
         BigInteger D = findDParameter(N);
         
         // delta(N) = N - Jacobi(D|N); since Jacobi(D|N)==-1 it evaluates to delta = N+1
-        BigInteger delta = N.add(ONE);
+        BigInteger delta = N.add(I_1);
     	// decompose delta = d*2^s, d odd
     	int s = delta.getLowestSetBit();
     	BigInteger d = delta.shiftRight(s);
     	
     	// run Lucas sequence until we find U_d
-        BigInteger U = ONE;
-        BigInteger V = ONE;
+        BigInteger U = I_1;
+        BigInteger V = I_1;
         for (int i = d.bitLength()-2; i >= 0; i--) {
         	// double indices:
             BigInteger U2 = U.multiply(V).mod(N);
@@ -134,7 +134,7 @@ public class LucasTest {
             }
         }
         // If U_d == 0 (mod N) or V_(d*2^0)=V_d == 0 (mod N) then N is a Lucas probable prime
-        if (U.equals(ZERO) || V.equals(ZERO)) return true;
+        if (U.equals(I_0) || V.equals(I_0)) return true;
          
         // test V_(d*2^r) == 0 (mod N) for 0<r<s
         for (int r=1; r<s; r++) {
@@ -153,7 +153,7 @@ public class LucasTest {
                 U = U2;
                 V = V2;
                 // here we need to test if V_(d*2^r) == 0 (mod N); then N is a Lucas probable prime
-                if (V.equals(ZERO)) return true;
+                if (V.equals(I_0)) return true;
             }
         }
         return false;

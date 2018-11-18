@@ -38,7 +38,7 @@ import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.Timer;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.ONE;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 import static org.junit.Assert.*;
 
 /**
@@ -167,7 +167,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
 					SortedMultiset<Integer> allQFactors = aqPair.getAllQFactors();
-					BigInteger testProduct = ONE;
+					BigInteger testProduct = I_1;
 					for (Map.Entry<Integer, Integer> entry : allQFactors.entrySet()) {
 						BigInteger prime = BigInteger.valueOf(entry.getKey());
 						int exponent = entry.getValue();

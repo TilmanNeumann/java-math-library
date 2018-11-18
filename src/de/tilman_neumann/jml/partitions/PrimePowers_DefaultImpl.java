@@ -20,10 +20,11 @@ import java.util.SortedSet;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.Divisors;
-import de.tilman_neumann.jml.base.BigIntConstants;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
+
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 public class PrimePowers_DefaultImpl extends Mpi_IntegerArrayImpl implements PrimePowers {
 	
@@ -51,7 +52,7 @@ public class PrimePowers_DefaultImpl extends Mpi_IntegerArrayImpl implements Pri
 		for (Map.Entry<BigInteger, Integer> primeAndPower : primepowersMultiset.entrySet()) {
 			BigInteger prime = primeAndPower.getKey();
 			int mult = primeAndPower.getValue();
-			if (prime.compareTo(BigIntConstants.ONE)>0 && mult>0) {
+			if (prime.compareTo(I_1)>0 && mult>0) {
 			// TODO: Check with isProbablePrime() ?
 				size++;
 			}
@@ -64,7 +65,7 @@ public class PrimePowers_DefaultImpl extends Mpi_IntegerArrayImpl implements Pri
 			if (DEBUG) LOG.debug("primeAndPower = " + primeAndPower);
 			BigInteger prime = primeAndPower.getKey();
 			int mult = primeAndPower.getValue();
-			if (prime.compareTo(BigIntConstants.ONE)>0 && mult>0) {
+			if (prime.compareTo(I_1)>0 && mult>0) {
 				primePowers.primes[i] = prime;
 				primePowers.values[i] = mult;
 				i++;

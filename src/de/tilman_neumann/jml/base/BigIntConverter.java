@@ -53,7 +53,7 @@ public class BigIntConverter {
 		// => x = s*(1+M/2^p)*2^e = s * [2^e + M * 2^(e-p)]
 		// Now we can reduce the loss of precision we'ld get converting M/2^p to integer !!
 		// Note that shiftLeft(n) will do a right shift for negative n
-		BigInteger result = ONE.shiftLeft(e).add(BigInteger.valueOf(M).shiftLeft(e-52));
+		BigInteger result = I_1.shiftLeft(e).add(BigInteger.valueOf(M).shiftLeft(e-52));
 		return (isNegative) ? result.negate() : result;
 	}
 	
@@ -83,7 +83,7 @@ public class BigIntConverter {
 		// Now we can reduce the loss of precision we'ld get converting M/2^p to integer !!
 		// Note that shiftLeft(n) will do a right shift for negative n.
 		// Exponent e2 can simply be added, but will only have beneficial effects on the result precision if it is positive.
-		BigInteger result = ONE.shiftLeft(e+e2).add(BigInteger.valueOf(M).shiftLeft(e+e2-52));
+		BigInteger result = I_1.shiftLeft(e+e2).add(BigInteger.valueOf(M).shiftLeft(e+e2-52));
 		return (isNegative) ? result.negate() : result;
 	}
 

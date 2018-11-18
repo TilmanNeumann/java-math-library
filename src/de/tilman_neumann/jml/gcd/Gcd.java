@@ -39,8 +39,8 @@ public class Gcd {
 	public BigInteger gcd_euclid_withDivision(BigInteger m, BigInteger n) {
 		m = m.abs();
 		n = n.abs();
-		int mCmp1 = m.compareTo(ONE);
-		int nCmp1 = n.compareTo(ONE);
+		int mCmp1 = m.compareTo(I_1);
+		int nCmp1 = n.compareTo(I_1);
 		if (mCmp1>0 && nCmp1>0) {
 			// initialize
 			BigInteger g; // greater argument
@@ -53,7 +53,7 @@ public class Gcd {
 				s = m;
 			}
 			// iterate
-			while (s.compareTo(ZERO)>0) {
+			while (s.compareTo(I_0)>0) {
 				BigInteger[] dv = g.divideAndRemainder(s);
 				g = s;
 				s = dv[1]; // remainder
@@ -63,15 +63,15 @@ public class Gcd {
 		if (mCmp1<0) return n;
 		if (nCmp1<0) return m;
 		// else one argument is 1
-		return ONE;
+		return I_1;
 	}
 	
 	// very slow for arguments that are not very small
 	public BigInteger gcd_euclid_withoutDivision(BigInteger m, BigInteger n) {
 		m = m.abs();
 		n = n.abs();
-		int mCmp1 = m.compareTo(ONE);
-		int nCmp1 = n.compareTo(ONE);
+		int mCmp1 = m.compareTo(I_1);
+		int nCmp1 = n.compareTo(I_1);
 		if (mCmp1>0 && nCmp1>0) {
 			int cmp = m.compareTo(n);
 			while (cmp != 0) {
@@ -88,7 +88,7 @@ public class Gcd {
 		if (mCmp1<0) return n;
 		if (nCmp1<0) return m;
 		// else one argument is 1
-		return ONE;
+		return I_1;
 	}
 	
 	/**
@@ -100,8 +100,8 @@ public class Gcd {
 	public BigInteger gcd/*_binary*/(BigInteger m, BigInteger n) {
 		m = m.abs();
 		n = n.abs();
-		int mCmp1 = m.compareTo(ONE);
-		int nCmp1 = n.compareTo(ONE);
+		int mCmp1 = m.compareTo(I_1);
+		int nCmp1 = n.compareTo(I_1);
 		if (mCmp1>0 && nCmp1>0) {
 			int m_lsb = m.getLowestSetBit();
 			int n_lsb = n.getLowestSetBit();
@@ -127,7 +127,7 @@ public class Gcd {
 		if (mCmp1<0) return n;
 		if (nCmp1<0) return m;
 		// else one argument is 1
-		return ONE;
+		return I_1;
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class Gcd {
 	 * @return LCM
 	 */
 	public static BigInteger lcm(BigInteger a, BigInteger b) {
-		if (a.equals(ZERO) || b.equals(ZERO)) return ZERO;
+		if (a.equals(I_0) || b.equals(I_0)) return I_0;
 		return a.multiply(b).divide(a.gcd(b));
 	}
 	

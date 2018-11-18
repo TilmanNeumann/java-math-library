@@ -66,7 +66,7 @@ public class TestsetGenerator {
 			if (SELECT) {
 				// skip N that do not match the selection criterion
 				int k = multiplierFinder.computeMultiplier(N);
-				int kNMod = BigInteger.valueOf(k).multiply(N).mod(EIGHT).intValue();
+				int kNMod = BigInteger.valueOf(k).multiply(N).mod(I_8).intValue();
 				if (kNMod == 1) continue;
 			}
 			

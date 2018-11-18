@@ -59,22 +59,22 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 	public SortedMultiset<BigInteger> factor(BigInteger N) {
 		SortedMultiset<BigInteger> factors = new SortedMultiset_BottomUp<BigInteger>();
 		// first get rid of case |N|<=1:
-		if (N.abs().compareTo(ONE)<=0) {
+		if (N.abs().compareTo(I_1)<=0) {
 			factors.add(N);
 			return factors;
 		}
 		// make N positive:
 		if (N.signum()<0) {
-			factors.add(MINUS_ONE);
+			factors.add(I_MINUS_1);
 			N = N.abs();
 		}
 		// Remove multiples of 2:
 		int lsb = N.getLowestSetBit();
 		if (lsb > 0) {
-			factors.add(TWO, lsb);
+			factors.add(I_2, lsb);
 			N = N.shiftRight(lsb);
 		}
-		if (N.equals(ONE)) {
+		if (N.equals(I_1)) {
 			// N was a power of 2
 			return factors;
 		}
@@ -86,19 +86,19 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 		for (int i=1; i<NUM_PRIMES; i++) {
 			BigInteger p_i = BigInteger.valueOf(SMALL_PRIMES[i]);
 			BigInteger[] div = N.divideAndRemainder(p_i);
-			if (div[1].equals(ZERO)) {
+			if (div[1].equals(I_0)) {
 				// p_i divides N at least once
 				do {
 					factors.add(p_i);
 					N = div[0];
 					div = N.divideAndRemainder(p_i);
-				} while (div[1].equals(ZERO));
+				} while (div[1].equals(I_0));
 
 				// check if we are done
 				BigInteger p_i_square = p_i.multiply(p_i);
 				if (p_i_square.compareTo(N) > 0) {
 					// the remaining N is 1 or prime
-					if (N.compareTo(ONE)>0) factors.add(N);
+					if (N.compareTo(I_1)>0) factors.add(N);
 					return factors;
 				}
 			}

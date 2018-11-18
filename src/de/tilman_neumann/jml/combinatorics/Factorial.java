@@ -42,7 +42,7 @@ public class Factorial {
 	 */
 	private static BigInteger simpleProduct(int n) throws IllegalArgumentException {
 		if (n >= 0) {
-			BigInteger ret = ONE;
+			BigInteger ret = I_1;
 			for (int i=2; i<=n; i++) {
 				ret = ret.multiply(BigInteger.valueOf(i));
 			}
@@ -66,11 +66,11 @@ public class Factorial {
 	 */
 	public static BigInteger withStartResult(int n, int start, BigInteger startResult) throws ArithmeticException {
         if (n<0) throw new ArithmeticException("The factorial function supports only non-negative arguments.");
-        if (n==0) return ONE;
+        if (n==0) return I_1;
         if (n==start) return startResult;
         if (n<start) {
         	start=1; 
-        	startResult = ONE; 
+        	startResult = I_1; 
         }
         BigInteger x = startResult;
         for (int i=start+1; i <= n; i++) {
@@ -86,7 +86,7 @@ public class Factorial {
 	 */
 	public static BigInteger factorial/*Luschny*/(int n) throws ArithmeticException {
         if (n<0) throw new ArithmeticException("The factorial function supports only non-negative arguments.");
-		if (n<2) return ONE;
+		if (n<2) return I_1;
 		BigInteger f = factorial/*Luschny*/(n>>1); // floor(n/2)
 		return f.multiply(f).multiply(primeSwing(n));
 	}
@@ -95,7 +95,7 @@ public class Factorial {
 		// ensure we find all primes <= n
 		PRIMES_ARRAY.ensureLimit(n);
 
-		BigInteger product = ONE;
+		BigInteger product = I_1;
 		int i=0;
 		while (true) {
 			int prime = PRIMES_ARRAY.getPrime(i++); // starts with p[0] = 2

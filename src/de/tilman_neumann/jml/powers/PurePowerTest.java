@@ -75,10 +75,10 @@ public class PurePowerTest {
 	 * @return prime power representing N, or null if N is no pure power.
 	 */
 	public Result test_v01(BigInteger N) {
-		if (N.compareTo(FOUR)<0) return null; // negative or not composite
+		if (N.compareTo(I_4)<0) return null; // negative or not composite
 		if (N.bitCount()==1) {
 			// only 1 bit set -> N is a power of 2
-			return new Result(TWO, N.getLowestSetBit());
+			return new Result(I_2, N.getLowestSetBit());
 		}
 		
 		// square test
@@ -127,8 +127,8 @@ public class PurePowerTest {
 	 * @return base and exponent, or null if N is no pure power
 	 */
 	public Result test/*_v02*/(BigInteger N) {
-		if (N.compareTo(FOUR)<0) return null; // negative or not composite
-		if (N.bitCount()==1) return new Result(TWO, N.getLowestSetBit()); // N>=4 and only 1 bit set -> N is a power of 2
+		if (N.compareTo(I_4)<0) return null; // negative or not composite
+		if (N.bitCount()==1) return new Result(I_2, N.getLowestSetBit()); // N>=4 and only 1 bit set -> N is a power of 2
 		
 		// square test: we could skip it for odd lsb but it makes no notable difference
 		BigInteger exactSqrt = SqrtExact.exactSqrt(N);

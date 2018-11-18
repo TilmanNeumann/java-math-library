@@ -27,9 +27,9 @@ public class Pow2 {
 	 */
 	public static BigDecimal pow2(int n) {
 		if (n >= 0) {
-			return new BigDecimal(ONE.shiftLeft(n));
+			return new BigDecimal(I_1.shiftLeft(n));
 		}
-		return new BigDecimal(FIVE.pow(-n), -n);
+		return new BigDecimal(I_5.pow(-n), -n);
 	}
 	
 	/**

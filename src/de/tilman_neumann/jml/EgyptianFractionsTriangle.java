@@ -21,7 +21,7 @@ public class EgyptianFractionsTriangle extends BigIntTriangle {
 	private static final Logger LOG = Logger.getLogger(EgyptianFractionsTriangle.class);
 
 	public EgyptianFractionsTriangle(int n) {
-		super(n, ZERO);
+		super(n, I_0);
 		for (int m=1; m<=n; m++) {
 			for (int k=1; k<=m; k++) {
 				this.set(m, k, BigInteger.valueOf(greedyCount(m,k)));
@@ -34,8 +34,8 @@ public class EgyptianFractionsTriangle extends BigIntTriangle {
 		int count = 0;
 		BigRational rest = new BigRational(BigInteger.valueOf(k), BigInteger.valueOf(n));
 		int rez = 1;
-		while (!rest.equals(ZERO)) {
-			BigRational test = new BigRational(ONE, BigInteger.valueOf(rez));
+		while (!rest.equals(I_0)) {
+			BigRational test = new BigRational(I_1, BigInteger.valueOf(rez));
 			//LOG.debug("test=" + test + ", rest = " + rest);
 			if (test.compareTo(rest) <= 0) {
 				rest = rest.subtract(test);

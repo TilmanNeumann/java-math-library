@@ -48,9 +48,9 @@ public class HarmonicNumbers {
 	 */
 	public static BigRational harmonic(int n) {
 		if (n<1) throw new IllegalArgumentException("argument n must be positive, but is " + n);
-		BigRational result = new BigRational(ZERO);
+		BigRational result = new BigRational(I_0);
 		for (int i=1; i<=n; i++) {
-			result = result.add(new BigRational(ONE, BigInteger.valueOf(i)));
+			result = result.add(new BigRational(I_1, BigInteger.valueOf(i)));
 			// Every now and then we should reduce the fraction...
 			// each 100th time is much better than each 10th, which was better than never...
 			if (i % 200 == 0) {
@@ -89,9 +89,9 @@ public class HarmonicNumbers {
 		result = result.add(Ln.ln(new BigDecimal(n), scale));
 		BigInteger den = n.shiftLeft(1); // 2n
 		result = result.add(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
-		den = den.multiply(SIX).multiply(n); // 12 n^2
+		den = den.multiply(I_6).multiply(n); // 12 n^2
 		result = result.subtract(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
-		den = den.multiply(TEN).multiply(n.multiply(n)); // 120 n^4
+		den = den.multiply(I_10).multiply(n.multiply(n)); // 120 n^4
 		result = result.add(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
 		return result;
 	}
@@ -112,13 +112,13 @@ public class HarmonicNumbers {
 		result = result.add(Ln.ln(new BigDecimal(n), scale));
 		BigInteger den = n.shiftLeft(1); // 2n
 		result = result.add(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
-		den = den.multiply(SIX).multiply(n); // 12 n^2
+		den = den.multiply(I_6).multiply(n); // 12 n^2
 		result = result.subtract(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
 		BigInteger nSquare = n.multiply(n);
 		BigInteger tmp = den.multiply(nSquare); // 12 n^4
-		den = tmp.multiply(TEN); // 120 n^4
+		den = tmp.multiply(I_10); // 120 n^4
 		result = result.add(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
-		den = tmp.multiply(TWENTYONE).multiply(nSquare); // 252 n^6
+		den = tmp.multiply(I_21).multiply(nSquare); // 252 n^6
 		result = result.subtract(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
 		return result;
 	}
@@ -155,7 +155,7 @@ public class HarmonicNumbers {
 	private static BigRational _hyperharmonic_recurrent(int n, int r) {
 		// arguments are already checked
 		if (r>1) {
-			BigRational ret = new BigRational(ZERO, ONE);
+			BigRational ret = new BigRational(I_0, I_1);
 			for (int i=1; i<=n; i++) {
 				ret = ret.add(_hyperharmonic_recurrent(i,r-1));
 			}
@@ -175,9 +175,9 @@ public class HarmonicNumbers {
 	public static BigRational harmonicPower(int n, int r) {
 		if (n<1) throw new IllegalArgumentException("argument n must be positive, but is " + n);
 		if (r>1) {
-			BigRational ret = new BigRational(ZERO, ONE);
+			BigRational ret = new BigRational(I_0, I_1);
 			for (int i=1; i<=n; i++) {
-				ret = ret.add(new BigRational(ONE, BigInteger.valueOf(i).pow(r)));
+				ret = ret.add(new BigRational(I_1, BigInteger.valueOf(i).pow(r)));
 			}
 			return ret.normalize();
 		}

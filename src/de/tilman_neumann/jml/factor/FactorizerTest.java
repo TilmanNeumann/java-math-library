@@ -145,7 +145,7 @@ public class FactorizerTest {
 	}
 	
 	private void testRange(int bits) {
-		BigInteger N_min = ONE.shiftLeft(bits-1);
+		BigInteger N_min = I_1.shiftLeft(bits-1);
 		// find N-set for square tests
 		//ArrayList NSet = TestsetGenerator.generate(bits, N_COUNT);
 		ArrayList<BigInteger> NSet = TestsetGenerator.generate(bits, N_COUNT);
@@ -173,13 +173,13 @@ public class FactorizerTest {
 				for (BigInteger N : NSet) {
 					BigInteger factor = algorithm.findSingleFactor(N);
 					// test correctness
-					if (factor==null || factor.equals(ZERO) || factor.equals(ONE) || factor.mod(N).equals(ZERO)) {
+					if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {
 						//LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
 						failCount++;
 					} else {
 						// not null, not trivial -> test division
 						BigInteger[] test = N.divideAndRemainder(factor);
-						if (!test[1].equals(ZERO)) {
+						if (!test[1].equals(I_0)) {
 							//LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
 							failCount++;
 						}

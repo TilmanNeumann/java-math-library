@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.siqs.poly;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.ZERO;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -54,7 +54,7 @@ public class BParamTest {
 	 */
 	private void computeFirstBParameter() {
 		// compute 2*B_l[] and the first b; the notation is mostly following [Contini97]
-		this.b = ZERO;
+		this.b = I_0;
 		for (int l=0; l<qCount; l++) {
 			int ql = qArray[l];
 			int qIndex = qIndexArray[l];
@@ -67,8 +67,8 @@ public class BParamTest {
 			if (gamma > (ql>>1)) gamma = ql - gamma; // take the smaller choice of gamma
 			BigInteger Bl = a_div_ql.multiply(BigInteger.valueOf(gamma));
 			if (DEBUG) {
-				assertTrue(Bl.compareTo(ZERO) >= 0);
-				assertEquals(ZERO, Bl.multiply(Bl).subtract(kN).mod(ql_big));
+				assertTrue(Bl.compareTo(I_0) >= 0);
+				assertEquals(I_0, Bl.multiply(Bl).subtract(kN).mod(ql_big));
 			}
 			B2Array[l] = Bl.shiftLeft(1); // store 2 * B_l in B2[0]...B2[s-1] (the last one is only required to compute b below)
 			// WARNING: In contrast to the description in [Contini p.10, 2nd paragraph],
@@ -79,7 +79,7 @@ public class BParamTest {
 			// initial b are positive (50% of "next" b's are not)
 			assertTrue(b.signum() >= 0);
 			// we have b^2 == kN (mod a)
-			assertEquals(ZERO, b.multiply(b).subtract(kN).mod(a));
+			assertEquals(I_0, b.multiply(b).subtract(kN).mod(a));
 		}
 	}
 

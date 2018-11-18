@@ -49,11 +49,11 @@ public class FallingFactorial {
 		// for k<0 see https://math.stackexchange.com/questions/612631/negative-falling-factorial/612637
 		if (k<0) throw new IllegalArgumentException("FallingFactorial(" + n + ", k): Negative k are not supported yet, the result would be rational.");
 		
-		if (k==0) return ONE; // n!/n! = 1
-		if (n==0) return ZERO; 
+		if (k==0) return I_1; // n!/n! = 1
+		if (n==0) return I_0; 
 		if (n>0) {
 			// (n-k+1) * ... * n = 0 if n==0 or k>n
-			if (k>n) return ZERO;
+			if (k>n) return I_0;
 			// n>0 and k<=n
 			return (k<<1 < n) ? simpleProduct(n, k) : byFactorials(n, k); // XXX the turning point estimate is very crude
 		}
@@ -84,10 +84,10 @@ public class FallingFactorial {
 	 */
 	private static BigInteger simpleProduct(int n, int k) {
         BigInteger element = BigInteger.valueOf(n-k+1);
-        BigInteger result = ONE;
+        BigInteger result = I_1;
         for (int i=0; i<k; i++) {
             result = result.multiply(element);
-            element=element.add(ONE);
+            element=element.add(I_1);
         }
         return result;
 	}

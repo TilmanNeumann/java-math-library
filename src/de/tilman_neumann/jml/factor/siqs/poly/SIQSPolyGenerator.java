@@ -209,11 +209,11 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				assertTrue((2*bIndex) % Math.pow(2, v+1) > 0);
 				if (d == 2) {
 					// b is odd
-					assertEquals(ONE, b.and(ONE));
+					assertEquals(I_1, b.and(I_1));
 					// with Kechlibars polynomial and multiplier k with kN == 1 (mod 8) we have b^2 == kN (mod 4a)
-					assertEquals(ZERO, b.multiply(b).subtract(kN).mod(a.multiply(FOUR)));
+					assertEquals(I_0, b.multiply(b).subtract(kN).mod(a.multiply(I_4)));
 				} else {
-					assertEquals(ZERO, b.multiply(b).subtract(kN).mod(a)); // we have b^2 == kN (mod a)
+					assertEquals(I_0, b.multiply(b).subtract(kN).mod(a)); // we have b^2 == kN (mod a)
 				}
 			}
 			bIndex++;
@@ -237,7 +237,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 	 */
 	private void computeFirstBParameter() {
 		// compute 2*B_l[] and the first b; the notation is mostly following [Contini97]
-		this.b = ZERO;
+		this.b = I_0;
 		for (int l=0; l<qCount; l++) {
 			int ql = qArray[l];
 			int t = qtArray[l];
@@ -265,14 +265,14 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				LOG.debug("qArray = " + Arrays.toString(qArray));
 				LOG.debug("t = " + t + ", ql = " + ql + ", a_div_ql_modInv_ql = " + a_div_ql_modInv_ql + ", gamma = " + gamma + ", Bl = " + Bl);
 				assertEquals(a_div_ql.modInverse(ql_big).longValue(), a_div_ql_modInv_ql);
-				assertTrue(Bl.compareTo(ZERO) >= 0);
-				assertEquals(ZERO, Bl.multiply(Bl).subtract(kN).mod(ql_big));
+				assertTrue(Bl.compareTo(I_0) >= 0);
+				assertEquals(I_0, Bl.multiply(Bl).subtract(kN).mod(ql_big));
 				//assertEquals(t % ql, Bl.mod(ql_big).intValue()); // does not hold if we choose the smaller gamma
-				assertEquals(ZERO, Bl.mod(a_div_ql));
+				assertEquals(I_0, Bl.mod(a_div_ql));
 				for (int l2=0; l2<qCount; l2++) {
 					if (l2 != l) {
 						BigInteger ql2 = BigInteger.valueOf(qArray[l2]);
-						assertEquals(ZERO, Bl.mod(ql2));
+						assertEquals(I_0, Bl.mod(ql2));
 					}
 				}
 			}
@@ -283,18 +283,18 @@ public class SIQSPolyGenerator implements PolyGenerator {
 
 		if (DEBUG) {
 			LOG.debug ("a = " + a + ", b = " + b + ", b^2 = " + b.multiply(b) + ", kN = " + kN);
-			LOG.debug ("b^2 % 8 = " + b.multiply(b).mod(EIGHT) + ", kN % 8 = " + kN.mod(EIGHT));
+			LOG.debug ("b^2 % 8 = " + b.multiply(b).mod(I_8) + ", kN % 8 = " + kN.mod(I_8));
 			// initial b are positive
 			assertTrue(b.signum() >= 0);
 			if (d == 2) {
 				// b is odd
-				assertEquals(ONE, b.and(ONE));
+				assertEquals(I_1, b.and(I_1));
 				// with Kechlibars polynomial and multiplier k with kN == 1 (mod 8) we have b^2 == kN (mod 4a)
 				//assertEquals(ZERO, b.multiply(b).subtract(kN).mod(a.multiply(TWO)));
-				assertEquals(ZERO, b.multiply(b).subtract(kN).mod(a.multiply(FOUR)));
+				assertEquals(I_0, b.multiply(b).subtract(kN).mod(a.multiply(I_4)));
 			} else {
 				// we have b^2 == kN (mod a)
-				assertEquals(ZERO, b.multiply(b).subtract(kN).mod(a));
+				assertEquals(I_0, b.multiply(b).subtract(kN).mod(a));
 			}
 		}
 	}
@@ -376,10 +376,10 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				if (t==0) assertEquals(x1, (int) ((ainvp * (p - bModP)) % p));
 				
 				BigInteger Q1 = da.multiply(BigInteger.valueOf(x1)).add(b).pow(2).subtract(kN);
-				assertEquals(ZERO, Q1.mod(p_big));
+				assertEquals(I_0, Q1.mod(p_big));
 				int x2 = x2Array[pIndex];
 				BigInteger Q2 = da.multiply(BigInteger.valueOf(x2)).add(b).pow(2).subtract(kN);
-				assertEquals(ZERO, Q2.mod(p_big));
+				assertEquals(I_0, Q2.mod(p_big));
 				if (x1<0 || x2<0) LOG.debug("p=" + p + ", ainvp=" + ainvp + ": x1 = " + x1 + ", x2 = " + x2);
 			}
 		} // end_for (primes)

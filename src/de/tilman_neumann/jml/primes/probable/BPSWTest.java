@@ -59,7 +59,7 @@ public class BPSWTest {
 
     public boolean isProbablePrime(BigInteger N) {
         N = N.abs(); // sign is irrelevant
-        if (!N.testBit(0)) return N.equals(TWO); // even N>2 is not prime
+        if (!N.testBit(0)) return N.equals(I_2); // even N>2 is not prime
         if (N.bitLength()<32) {
             // test small primes, at least all those below 30030
         	int N_int = N.intValue();
@@ -72,7 +72,7 @@ public class BPSWTest {
 		if (!primeRestsMod30030.contains(N.mod(BIG_30030).intValue())) return false;
 		// N could be prime -> do more expensive test:
 		// The Lucas test is not carried out if N fails the base 2 Miller-Rabin test.
-        return millerRabinTest.testSingleBase(N, TWO) && lucasTest.isStrongProbablePrime(N);
+        return millerRabinTest.testSingleBase(N, I_2) && lucasTest.isStrongProbablePrime(N);
     }
     
     /**
@@ -84,12 +84,12 @@ public class BPSWTest {
     	if (N.bitLength()>=256) return N.nextProbablePrime();
     	
         N = N.abs(); // sign is irrelevant
-        if (N.bitLength()<=1) return TWO;
+        if (N.bitLength()<=1) return I_2;
     	// skip argument and make even argument odd
-        N = N.testBit(0) ? N.add(TWO) : N.add(ONE);
+        N = N.testBit(0) ? N.add(I_2) : N.add(I_1);
     	
     	// loop to next prime
-    	while (!isProbablePrime(N)) N = N.add(TWO);
+    	while (!isProbablePrime(N)) N = N.add(I_2);
     	return N;
     }
 }
