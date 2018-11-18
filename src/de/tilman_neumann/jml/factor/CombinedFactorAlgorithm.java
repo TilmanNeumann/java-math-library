@@ -48,8 +48,6 @@ import de.tilman_neumann.util.TimeUtil;
 public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
-
-	private static final String JAR_FILE = "psiqs4.0.jar";
 	
 	private TDiv31Preload tDiv31;
 	private SquFoF31 squFoF31;
@@ -154,7 +152,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
     		}
     	} else if (args.length==3) {
     		if (!args[0].trim().equals("-t")) {
-    			System.err.println("Illegal option: '" + args[0] + "'. Usage: java -jar " + JAR_FILE + " [-t <numberOfThreads>] <numberToFactor>");
+    			System.err.println("Illegal option: '" + args[0] + "'. Usage: java -jar <jar_file> [-t <numberOfThreads>] <numberToFactor>");
     			System.exit(-1);
     		}
     		try {
@@ -170,7 +168,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
     			System.exit(-1);
     		}
     	} else {
-			System.err.println("Illegal number of arguments. Usage: java -jar " + JAR_FILE + " [-t <numberOfThreads>] <numberToFactor>");
+			System.err.println("Illegal number of arguments. Usage: java -jar <jar_file> [-t <numberOfThreads>] <numberToFactor>");
 			System.exit(-1);
     	}
     	// run
