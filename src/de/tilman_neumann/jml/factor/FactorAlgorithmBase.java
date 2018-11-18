@@ -36,10 +36,10 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(FactorAlgorithmBase.class);
 
-	// the number of primes needed to factor any int <= 2^31 - 1
-	private static final int NUM_PRIMES = 4793;
+	// the number of primes needed to factor any int <= 2^31 - 1 using trial division
+	protected static final int NUM_PRIMES = 4793;
 	
-	private int[] SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES).getPrimes().array;
+	protected int[] SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES).getPrimes().array;
 
 	private BPSWTest probablePrimeTest;
 
