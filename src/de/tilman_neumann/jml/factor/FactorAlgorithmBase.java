@@ -82,6 +82,7 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 		// Do some trial division to factor smooth numbers much faster.
 		// We start at p[1]=3, because powers of 2 have already been removed.
 		// We run over all p_i<2^31-1 as long as N can still have a prime factor >= p_i.
+		// This would find all prime factors < 46340.
 		for (int i=1; i<NUM_PRIMES; i++) {
 			BigInteger p_i = BigInteger.valueOf(SMALL_PRIMES[i]);
 			while (true) {
