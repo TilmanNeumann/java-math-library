@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -21,7 +22,6 @@ import java.math.RoundingMode;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigDecimalConstants;
 import de.tilman_neumann.jml.base.BigRational;
 import de.tilman_neumann.jml.combinatorics.Binomial;
 import de.tilman_neumann.jml.precision.Scale;
@@ -88,11 +88,11 @@ public class HarmonicNumbers {
 		result.setScale(scale.digits(), RoundingMode.CEILING);
 		result = result.add(Ln.ln(new BigDecimal(n), scale));
 		BigInteger den = n.shiftLeft(1); // 2n
-		result = result.add(BigDecimalConstants.ONE.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
+		result = result.add(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
 		den = den.multiply(SIX).multiply(n); // 12 n^2
-		result = result.subtract(BigDecimalConstants.ONE.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
+		result = result.subtract(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
 		den = den.multiply(TEN).multiply(n.multiply(n)); // 120 n^4
-		result = result.add(BigDecimalConstants.ONE.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
+		result = result.add(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
 		return result;
 	}
 
@@ -111,15 +111,15 @@ public class HarmonicNumbers {
 		result.setScale(scale.digits(), RoundingMode.FLOOR);
 		result = result.add(Ln.ln(new BigDecimal(n), scale));
 		BigInteger den = n.shiftLeft(1); // 2n
-		result = result.add(BigDecimalConstants.ONE.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
+		result = result.add(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
 		den = den.multiply(SIX).multiply(n); // 12 n^2
-		result = result.subtract(BigDecimalConstants.ONE.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
+		result = result.subtract(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
 		BigInteger nSquare = n.multiply(n);
 		BigInteger tmp = den.multiply(nSquare); // 12 n^4
 		den = tmp.multiply(TEN); // 120 n^4
-		result = result.add(BigDecimalConstants.ONE.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
+		result = result.add(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
 		den = tmp.multiply(TWENTYONE).multiply(nSquare); // 252 n^6
-		result = result.subtract(BigDecimalConstants.ONE.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
+		result = result.subtract(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
 		return result;
 	}
 
@@ -201,6 +201,7 @@ public class HarmonicNumbers {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private static void computeAndPrintHyperharmonic_recurrent(int nMax, int rMax) {
     	BigRational[][] results = new BigRational[nMax][rMax];
     	for (int n=1; n<=nMax; n++) {

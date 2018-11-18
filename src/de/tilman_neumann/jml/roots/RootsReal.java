@@ -17,13 +17,14 @@ import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigDecimalConstants;
 import de.tilman_neumann.jml.base.BigDecimalMath;
 import de.tilman_neumann.jml.powers.Pow;
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
+
+import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
 
 /**
  * i.th root of floating point numbers.
@@ -107,7 +108,7 @@ public class RootsReal {
 	 */
 	public static BigDecimal ithRoot(BigDecimal x, int i, BigDecimal guess, Scale resultScale) {
 		// Make sure x is a positive number
-		int cmpToZero = x.compareTo(BigDecimalConstants.ZERO);
+		int cmpToZero = x.compareTo(F_0);
 		if (cmpToZero > 0) {
 			BigDecimal lastGuess;
 			BigDecimal maxAllowedError = resultScale.getErrorBound();
@@ -133,7 +134,7 @@ public class RootsReal {
 			return resultScale.applyTo(guess);
 		}
 		if (cmpToZero == 0) {
-			return BigDecimalConstants.ZERO;
+			return F_0;
 		}
 		
 		throw new IllegalArgumentException("x = " + x + ", but i.th root(x) is defined for x>=0 only!");

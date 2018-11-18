@@ -18,13 +18,14 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigDecimalConstants;
 import de.tilman_neumann.jml.base.BigDecimalMath;
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.jml.powers.Pow2;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
+
+import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
 
 /**
  * Compute square root of large numbers using Heron's method with a good initial guess.
@@ -92,7 +93,7 @@ public class SqrtReal {
 	 */
 	public static BigDecimal sqrt(BigDecimal x, BigDecimal guess, Scale resultScale) {
 		// Make sure x is a positive number
-		int cmpToZero = x.compareTo(BigDecimalConstants.ZERO);
+		int cmpToZero = x.compareTo(F_0);
 		if (cmpToZero > 0) {
 			BigDecimal lastGuess;
 			BigDecimal maxAllowedError = resultScale.getErrorBound();
@@ -113,7 +114,7 @@ public class SqrtReal {
 			return resultScale.applyTo(guess);
 		}
 		if (cmpToZero == 0) {
-			return BigDecimalConstants.ZERO;
+			return F_0;
 		}
 		
 		throw new IllegalArgumentException("x = " + x + ", but sqrt(x) is defined for x>=0 only!");

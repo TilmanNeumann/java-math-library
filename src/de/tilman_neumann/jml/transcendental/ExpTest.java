@@ -15,9 +15,10 @@ package de.tilman_neumann.jml.transcendental;
 
 import java.math.BigDecimal;
 
-import de.tilman_neumann.jml.base.BigDecimalConstants;
 import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.test.junit.ClassTest;
+
+import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 
 /**
  * Test class for floating point Exp function
@@ -28,7 +29,7 @@ public class ExpTest extends ClassTest {
 
 	public void testExpZero() {
 		// exp(0) with 10 digits precision
-		BigDecimal one = Exp.exp(BigDecimalConstants.ZERO, Scale.valueOf(10));
-		assertEquals(BigDecimalConstants.ONE.setScale(10), one);
+		BigDecimal one = Exp.exp(F_0, Scale.valueOf(10));
+		assertEquals(F_1.setScale(10), one);
 	}
 }

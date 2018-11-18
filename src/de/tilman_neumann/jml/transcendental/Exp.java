@@ -16,15 +16,12 @@ package de.tilman_neumann.jml.transcendental;
 import java.math.BigInteger;
 import java.util.StringTokenizer;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigDecimalConstants;
 import de.tilman_neumann.jml.base.BigDecimalMath;
 import de.tilman_neumann.jml.powers.Pow;
 import de.tilman_neumann.jml.powers.Pow2;
@@ -33,6 +30,9 @@ import de.tilman_neumann.jml.precision.Precision;
 import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
+
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 
 /**
  * Implementation of the exponential function for big decimals.
@@ -58,8 +58,8 @@ public class Exp {
         if (DEBUG) LOG.debug("outScale=" + outScale + ", errorScale=" + errorScale + ", maxErr=" + maxErr);
 	    
 	    // calculate series expansion:
-        BigDecimal r = BigDecimalConstants.ONE;
-	    BigDecimal xpow = BigDecimalConstants.ONE;
+        BigDecimal r = F_1;
+	    BigDecimal xpow = F_1;
 	    BigInteger iFac = ONE;
 	    int i=1;
 	    BigDecimal elem;
@@ -179,7 +179,7 @@ public class Exp {
 	    // The number d we desire results just from rounding -x/ln(2);
 		// here the precision of ln(2) must be the magnitude of x + some extra digits.
 		Scale ln2Scale1 = Scale.valueOf(Math.max(0, Magnitude.of(x)) + 2);
-		BigInteger optimalD = BigDecimalMath.divide(x.negate(), Ln.ln2(ln2Scale1), Scale.valueOf(2)).add(BigDecimalConstants.ZERO_POINT_FIVE).toBigInteger();
+		BigInteger optimalD = BigDecimalMath.divide(x.negate(), Ln.ln2(ln2Scale1), Scale.valueOf(2)).add(F_0_5).toBigInteger();
 	    int d = (optimalD.compareTo(BigInteger.valueOf(Integer.MIN_VALUE))<0) ? Integer.MIN_VALUE : optimalD.intValue(); // d is negative !
 	    if (DEBUG) LOG.debug("outScale=" + outScale + ", ln2Scale1=" + ln2Scale1 + ", d=" + d);
 	    

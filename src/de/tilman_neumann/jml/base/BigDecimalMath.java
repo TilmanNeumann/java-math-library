@@ -24,7 +24,7 @@ import de.tilman_neumann.jml.precision.Precision;
 import de.tilman_neumann.jml.precision.Scale;
 
 /**
- * Basic methods for big decimal numbers not covered by BigDecimal implementation.
+ * Basic BigDecimal arithmetics.
  * 
  * @author Tilman Neumann
  */

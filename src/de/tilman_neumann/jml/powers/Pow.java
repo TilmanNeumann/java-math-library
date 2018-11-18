@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.powers;
 
+import static de.tilman_neumann.jml.base.BigDecimalConstants.F_1;
+
 import java.math.BigInteger;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -20,7 +22,6 @@ import java.math.RoundingMode;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigDecimalConstants;
 import de.tilman_neumann.jml.base.BigIntConstants;
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Precision;
@@ -55,7 +56,7 @@ public class Pow {
 			return pow(x, nInt, wantedDecPrec);
 		}
 		
-		return BigDecimalConstants.ONE.divide(pow(x, n.negate(), wantedDecPrec));
+		return F_1.divide(pow(x, n.negate(), wantedDecPrec));
 	}
 	
 	public static BigDecimal pow(BigDecimal x, int n, Scale resultScale) {

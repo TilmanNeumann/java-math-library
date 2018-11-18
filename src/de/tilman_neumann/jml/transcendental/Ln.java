@@ -21,7 +21,6 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigDecimalConstants;
 import de.tilman_neumann.jml.base.BigDecimalMath;
 import de.tilman_neumann.jml.base.BigIntConstants;
 import de.tilman_neumann.jml.powers.Pow2;
@@ -31,6 +30,8 @@ import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.jml.roots.RootsReal;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
+
+import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 
 /**
  * Implementation of the natural logarithm function for BigDecimals.
@@ -42,7 +43,7 @@ public class Ln {
 	private static final boolean DEBUG = false;
 	
 	/** ln(2) computed to LN2_DEC_PREC decimal digits precision. Initialized with scale 10. */
-    private static BigDecimal LN2 = Ln.lnSeriesExpansion(BigDecimalConstants.TWO, Scale.valueOf(10));
+    private static BigDecimal LN2 = Ln.lnSeriesExpansion(F_2, Scale.valueOf(10));
     private static Scale LN2_DEC_PREC = Scale.valueOf(10);
 
 	/**
@@ -55,13 +56,11 @@ public class Ln {
 	 * @return ln(x)
 	 */
 	private static BigDecimal lnSeriesExpansion(BigDecimal x, Scale outScale) {
-		if (x.compareTo(BigDecimalConstants.ZERO)<=0) {
+		if (x.compareTo(F_0)<=0) {
 			throw new IllegalArgumentException("x=" + x + ", but ln(x) is only defined for x>0 !");
 		}
-		int cmp1 = x.compareTo(BigDecimalConstants.ONE);
-	    if (cmp1 == 0) {
-	        return BigDecimalConstants.ZERO;
-	    }
+		int cmp1 = x.compareTo(F_1);
+	    if (cmp1 == 0) return F_0;
 
 	    // Bestimme interne Genauigkeit und erlaubten Restfehler des letzten Serien-Elements:
 	    // Diese muss im allgemeinen genauer sein als die geforderte Ausgabegenauigkeit,
@@ -74,7 +73,7 @@ public class Ln {
         //LOG.debug("maxErr = " + maxErr);
         
         // Compute ratio (x-1)/(x+1):
-    	BigDecimal r = BigDecimalMath.divide(x.subtract(BigDecimalConstants.ONE), x.add(BigDecimalConstants.ONE), elemPrec);
+    	BigDecimal r = BigDecimalMath.divide(x.subtract(F_1), x.add(F_1), elemPrec);
     	
         // Compute the square of the ratio: Note that r<1 -> square<1, too.
     	BigDecimal square = r.multiply(r); // slightly faster than pow(r, 2)
@@ -110,10 +109,11 @@ public class Ln {
 	 * @param outScale Wanted precision in after-comma decimal digits
 	 * @return ln(2)
 	 */
+	@SuppressWarnings("unused")
 	private static BigDecimal ln2SeriesExpansion(Scale outScale) {
 	    //LOG.debug("outScale = " + outScale);
 	    if (outScale.compareTo(LN2_DEC_PREC) > 0) {
-	        LN2 = Ln.lnSeriesExpansion(BigDecimalConstants.TWO, outScale);
+	        LN2 = Ln.lnSeriesExpansion(F_2, outScale);
 	        LN2_DEC_PREC = outScale;
 	    }
 
@@ -128,6 +128,7 @@ public class Ln {
 	 * @param outScale
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private static BigDecimal ln2ElementarySeriesExpansion(Scale outScale) {
 	    Scale internalScale = outScale.add(1);
 	    //LOG.debug("internalScale = " + internalScale);
@@ -135,14 +136,14 @@ public class Ln {
         //LOG.debug("maxErr = " + maxErr);
         
         // 1/(1*2^1) + 1/(2*2^2) + 1/(3*2^3) = 2/3
-    	BigDecimal r = BigDecimalMath.divide(BigDecimalConstants.TWO, BigDecimalConstants.THREE, internalScale);
+    	BigDecimal r = BigDecimalMath.divide(F_2, F_3, internalScale);
     	BigInteger pow2 = BigIntConstants.ONE.shiftLeft(4); // 2^4
     	int i = 4;
 
         BigDecimal sElement;
         do {
             BigDecimal den = new BigDecimal(pow2.multiply(BigInteger.valueOf(i)), 0);
-            sElement = BigDecimalMath.divide(BigDecimalConstants.ONE, den, internalScale);
+            sElement = BigDecimalMath.divide(F_1, den, internalScale);
             r = r.add(sElement);
             //LOG.debug("ln(" + x + ", " + i + ") = " + r);
             i++;
@@ -168,7 +169,7 @@ public class Ln {
 	    if (outScale.compareTo(LN2_DEC_PREC) > 0) {
 			int optimalDegree = Math.max(2, (int) Math.sqrt(outScale.digits()));
 			Scale internalScale = outScale.add(Magnitude.of(optimalDegree));
-			BigDecimal root = RootsReal.ithRoot(BigDecimalConstants.TWO, optimalDegree, internalScale);
+			BigDecimal root = RootsReal.ithRoot(F_2, optimalDegree, internalScale);
 		    BigDecimal series = Ln.lnSeriesExpansion(root, internalScale);
 	        LN2 = series.multiply(BigDecimal.valueOf(optimalDegree));
 	        LN2_DEC_PREC = outScale;
@@ -199,7 +200,7 @@ public class Ln {
 	 */
 	private static BigDecimal lnSimpleReduction(BigDecimal x, Scale outScale) {
 	    // check argument:
-	    if (x.compareTo(BigDecimalConstants.ZERO) <= 0) {
+	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
 	    }
 
@@ -242,7 +243,7 @@ public class Ln {
 	 */
 	private static BigDecimal lnReciprocalSimpleReduction(BigDecimal x, Scale outScale) {
 	    // check argument:
-	    if (x.compareTo(BigDecimalConstants.ZERO) <= 0) {
+	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
 	    }
 
@@ -304,7 +305,7 @@ public class Ln {
 	 */
 	private static BigDecimal lnAgm(BigDecimal x, Scale outScale) {
 	    // check argument:
-	    if (x.compareTo(BigDecimalConstants.ZERO) <= 0) {
+	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("Logarithm of a non-positive argument argument expected");
 	    }
 
@@ -344,12 +345,12 @@ public class Ln {
 	    // b is pretty small like 10^-100 -> we need to add the magnitude of s to bScale
 	    Scale bScale = outScale.add(Magnitude.of(s));
 	    if (DEBUG) LOG.debug("bScale=" + bScale);
-	    BigDecimal b = BigDecimalMath.divide(BigDecimalConstants.FOUR, s, bScale);
+	    BigDecimal b = BigDecimalMath.divide(F_4, s, bScale);
 	    if (DEBUG) LOG.debug("b=" + b);
-	    int agmMag = Agm.getResultMagnitude(BigDecimalConstants.ONE, b);
+	    int agmMag = Agm.getResultMagnitude(F_1, b);
 	    Scale agmScale = outScale.add(5);
 	    if (agmMag < 0) agmScale = agmScale.add(-agmMag);
-	    BigDecimal agm = Agm.agm(BigDecimalConstants.ONE, b, agmScale); // time-critical !!
+	    BigDecimal agm = Agm.agm(F_1, b, agmScale); // time-critical !!
 	    if (DEBUG) LOG.debug("agm(1, " + b + ") = " + agm);
 	    BigDecimal r = Pow2.mulPow2(agm, 1); // r = 2*agm
 	    if (DEBUG) LOG.debug("r = " + r);
@@ -383,7 +384,7 @@ public class Ln {
 	 */
 	private static BigDecimal lnSimplePlusAgmReduction(BigDecimal x, Scale outScale) {
 	    // check argument:
-	    if (x.compareTo(BigDecimalConstants.ZERO) <= 0) {
+	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
 	    }
 
@@ -426,7 +427,7 @@ public class Ln {
 	 */
 	public static BigDecimal ln/*ReciprocalSimplePlusAgmReduction*/(BigDecimal x, Scale outScale) {
 	    // check argument:
-	    if (x.compareTo(BigDecimalConstants.ZERO) <= 0) {
+	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
 	    }
 
@@ -512,7 +513,7 @@ public class Ln {
 	 */
 	private static BigDecimal lnSimplePlusRootReduction(BigDecimal x, Scale outScale) {
 	    // check argument:
-	    if (x.compareTo(BigDecimalConstants.ZERO) <= 0) {
+	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
 	    }
 
@@ -553,7 +554,7 @@ public class Ln {
 	 */
 	private static BigDecimal lnReciprocalSimplePlusRootReduction(BigDecimal x, Scale outScale) {
 	    // check argument:
-	    if (x.compareTo(BigDecimalConstants.ZERO) <= 0) {
+	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
 	    }
 

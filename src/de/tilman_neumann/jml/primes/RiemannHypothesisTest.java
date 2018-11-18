@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.Divisors;
-import de.tilman_neumann.jml.base.BigDecimalConstants;
 import de.tilman_neumann.jml.base.BigDecimalMath;
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Precision;
@@ -35,6 +34,8 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.util.Timer;
+
+import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
 
 /**
  * Tests Robins and Lagarias' Riemann hypothesis tests on colossally abundant numbers (CANs).
@@ -97,7 +98,7 @@ public class RiemannHypothesisTest {
 			BigDecimal diff = BigDecimalMath.subtract(robin, sigma);
 			t4 = timer.capture();
 			if (DEBUG) LOG.debug("sigma(n)=" + sigma + ", robin=" + robin + ", diff=" + diff);
-			if (diff.compareTo(BigDecimalConstants.ZERO) < 0) {
+			if (diff.compareTo(F_0) < 0) {
 				LOG.info("Found RH counterexample candidate!");
 				LOG.info("    m=" + m + ": n has " + Magnitude.of(n) + " digits");
 				LOG.info("    n=" + n);
@@ -167,7 +168,7 @@ public class RiemannHypothesisTest {
 			if (DEBUG) LOG.debug("sigma(n)=" + sigma + ", Hn+exp(Hn)ln(Hn)=" + hsExpr + ", diff=" + diff);
 			t6 = timer.capture();
 			
-			if (diff.compareTo(BigDecimalConstants.ZERO) < 0) {
+			if (diff.compareTo(F_0) < 0) {
 				LOG.info("Found RH counterexample candidate!");
 				LOG.info("    m=" + m + ": n has " + Magnitude.of(n) + " digits");
 				LOG.info("    n=" + n);

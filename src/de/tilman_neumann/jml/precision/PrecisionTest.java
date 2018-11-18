@@ -20,8 +20,9 @@ import java.math.RoundingMode;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigDecimalConstants;
 import de.tilman_neumann.test.junit.ClassTest;
+
+import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
 
 public class PrecisionTest extends ClassTest {
 
@@ -38,9 +39,9 @@ public class PrecisionTest extends ClassTest {
 		assertEquals(13, new BigDecimal("310.5670").setScale(10).precision());
 		assertEquals(5, new BigDecimal("310.5670").setScale(2, RoundingMode.HALF_EVEN).precision());
 
-		assertEquals(1, BigDecimalConstants.ZERO.precision());
-		assertEquals(1, BigDecimalConstants.ZERO.setScale(10).precision());
-		assertEquals(1, BigDecimalConstants.ZERO.setScale(-10).precision());
+		assertEquals(1, F_0.precision());
+		assertEquals(1, F_0.setScale(10).precision());
+		assertEquals(1, F_0.setScale(-10).precision());
 		// zero has precision 1 no matter what it's scale is
 	}
 
@@ -67,15 +68,15 @@ public class PrecisionTest extends ClassTest {
 		LOG.debug(adjustedBig + " has unscaled value " + adjustedBig.unscaledValue() + " and scale " + adjustedBig.scale());
 		assertEquals(new BigDecimal(new BigInteger("54300"), -10), adjustedBig);
 		// test zero ;)
-		BigDecimal zero10 = BigDecimalConstants.ZERO.setScale(10);
+		BigDecimal zero10 = F_0.setScale(10);
 		LOG.debug("zero with scale 10 = " + zero10);
 		BigDecimal roundedZero10 = precision.applyTo(zero10);
 		LOG.debug("rounded zero = " + roundedZero10);
-		BigDecimal zero1 = BigDecimalConstants.ZERO.setScale(1);
+		BigDecimal zero1 = F_0.setScale(1);
 		LOG.debug("zero with scale 1 = " + zero1);
 		BigDecimal roundedZero1 = precision.applyTo(zero1);
 		LOG.debug("rounded zero = " + roundedZero1);
-		BigDecimal zero_7 = BigDecimalConstants.ZERO.setScale(-7);
+		BigDecimal zero_7 = F_0.setScale(-7);
 		LOG.debug("zero with scale -7 = " + zero_7);
 		BigDecimal roundedZero_7 = precision.applyTo(zero_7);
 		LOG.debug("rounded zero = " + roundedZero_7);

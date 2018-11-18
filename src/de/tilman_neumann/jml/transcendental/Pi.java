@@ -18,7 +18,6 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigDecimalConstants;
 import de.tilman_neumann.jml.base.BigDecimalMath;
 import de.tilman_neumann.jml.base.BigIntConstants;
 import de.tilman_neumann.jml.base.BigRational;
@@ -27,6 +26,8 @@ import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
+
+import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
 
 /**
  * Computations of Pi = 3.1415... to arbitrary precision.
@@ -49,7 +50,7 @@ public class Pi {
     public static BigDecimal pi(Scale scale) {
 	    if (scale.compareTo(PI_SCALE) > 0) {
 	        // need to recompute Pi with higher precision...
-            PI = BigDecimalConstants.ZERO;
+            PI = F_0;
 	        BigDecimal maxErr = scale.getErrorBound();
 	        int i=0;
 	        

@@ -16,7 +16,7 @@ package de.tilman_neumann.jml.precision;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import de.tilman_neumann.jml.base.BigDecimalConstants;
+import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 
 /**
  * Relative precision for BigDecimal operations.
@@ -86,7 +86,7 @@ public class Precision implements Comparable<Precision> {
 	 */
 	public BigDecimal applyTo(BigDecimal x) {
 		if (x==null) return null;
-		if (BigDecimalConstants.ZERO.compareTo(x)!=0) { // don´t use equals()
+		if (F_0.compareTo(x)!=0) { // don´t use equals()
 			int currentDigits = Precision.of(x).digits;
 			int exceedingDigits = currentDigits - digits;
 			if (exceedingDigits <= 0) return x;
