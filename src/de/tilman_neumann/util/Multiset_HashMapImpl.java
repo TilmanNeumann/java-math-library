@@ -44,6 +44,7 @@ public class Multiset_HashMapImpl<T> extends HashMap<T, Integer> implements Mult
 	
 	private static final long serialVersionUID = -6604624351619809213L;
 	
+	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(Multiset_HashMapImpl.class);
 
 	private int totalCount = 0;
