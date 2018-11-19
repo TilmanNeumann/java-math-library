@@ -24,6 +24,8 @@ import de.tilman_neumann.jml.roots.SqrtInt;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+
 /**
  * Implementations of the Moebius function.
  * 
@@ -48,7 +50,7 @@ public class MoebiusFunction {
 	 * @return the moebius function.
 	 */
 	public static int moebius(BigInteger n) {
-		if (n.compareTo(BigInteger.ONE) <= 0) {
+		if (n.compareTo(I_1) <= 0) {
 			return 1;
 		}
 		

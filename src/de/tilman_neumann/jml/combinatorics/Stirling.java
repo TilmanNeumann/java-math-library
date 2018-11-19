@@ -262,7 +262,7 @@ public class Stirling {
         // prepare initial diagonal S1(1,1), ... S1(k,k):
         BigInteger[] diag = new BigInteger[k];
         for (int i=1; i<=k; i++)
-            diag[i-1] = BigInteger.ONE;
+            diag[i-1] = I_1;
 
         // progression until n:
         BigInteger[] nextDiag;
@@ -302,10 +302,10 @@ public class Stirling {
             // create initial diagonal of Stirling numbers:
             BigInteger[] diag = new BigInteger[a1];
             for (i=1; i<=a1; i++)
-                diag[i-1] = BigInteger.ONE;
+                diag[i-1] = I_1;
         
             // create initial n!
-            BigInteger fac = BigInteger.ONE;
+            BigInteger fac = I_1;
             if (a1>1) {
                 for (i=1; i<=a1; i++) {
                     fac = fac.multiply(BigInteger.valueOf(i));
@@ -359,7 +359,7 @@ public class Stirling {
             // create initial diagonal of Stirling numbers:
             BigInteger[] diag = new BigInteger[a1];
             for (i=1; i<=a1; i++)
-                diag[i-1] = BigInteger.ONE;
+                diag[i-1] = I_1;
         
             // create initial i1!
             BigInteger fac = Factorial.factorial(a1);

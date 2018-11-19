@@ -28,6 +28,8 @@ import de.tilman_neumann.jml.roots.SqrtInt;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+
 public class Agm {
 	private static final Logger LOG = Logger.getLogger(Agm.class);
 
@@ -90,7 +92,7 @@ public class Agm {
 	        // Check stopping criterion:
 	        err = y.subtract(x).abs();
 	        //LOG.debug("err=" + err);
-	    } while (err.compareTo(BigInteger.ONE) > 0);
+	    } while (err.compareTo(I_1) > 0);
         //LOG.debug("x=" + x + ", y=" + y);
 
 	    // Assign output, remove extra digits again

@@ -38,9 +38,9 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	
 	// Constants -----------------------------------------------------------------------------
 	
-	public static final BigRational ZERO = new BigRational(BigInteger.ZERO);
-	public static final BigRational ONE_HALF = new BigRational(BigInteger.ONE, I_2);
-	public static final BigRational ONE = new BigRational(BigInteger.ONE);
+	public static final BigRational ZERO = new BigRational(I_0);
+	public static final BigRational ONE_HALF = new BigRational(I_1, I_2);
+	public static final BigRational ONE = new BigRational(I_1);
 	
 	// Fields -----------------------------------------------------------------------------
 	
@@ -166,7 +166,7 @@ public class BigRational extends Number implements Comparable<BigRational> {
 			den = den.negate();
 		}
 		BigInteger gcd = this.num.gcd(this.den);
-		if (gcd!=null && gcd.compareTo(BigInteger.ONE)>0) {
+		if (gcd!=null && gcd.compareTo(I_1)>0) {
 			return new BigRational(this.num.divide(gcd), this.den.divide(gcd));
 		}
 		return this;
@@ -214,12 +214,12 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	 */
 	public BigInteger ceilInt() {
 		BigInteger[] div = num.divideAndRemainder(den);
-		if (div[1].equals(BigInteger.ZERO)) {
+		if (div[1].equals(I_0)) {
 			// no rest, the division was exact and the quotient is the ceil() value.
 			return div[0];
 		}
 		// division was not exact, return quotient+1
-		return div[0].add(BigInteger.ONE);
+		return div[0].add(I_1);
 	}
 	
 	// Comparison --------------------------------------------------------------------

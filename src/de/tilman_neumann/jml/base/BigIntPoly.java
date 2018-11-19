@@ -18,6 +18,8 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+
 /**
  * A simple integer polynomial implementation, once inspired by http://www.strw.leidenuniv.nl/~mathar/progs/FI/oeis_8java.html
  * (now dead link, sorry)
@@ -36,8 +38,8 @@ public class BigIntPoly extends ArrayList<BigInteger> {
 	 */
 	public BigIntPoly(int n) {
 		super(n);
-		this.add(BigInteger.ZERO);
-		this.add(BigInteger.ONE);
+		this.add(I_0);
+		this.add(I_1);
 	}
 	
 	/**

@@ -14,7 +14,6 @@
 package de.tilman_neumann.jml.roots;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
@@ -26,6 +25,7 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 
 import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Compute square root of large numbers using Heron's method with a good initial guess.
@@ -78,7 +78,7 @@ public class SqrtReal {
 		BigDecimal guess = new BigDecimal(sqrt_dbl).movePointRight(shiftsRight>>1);
 		if (guess.equals(BigDecimal.ZERO)) {
 			// double precision was not enough, avoid division by zero in the approximation loop
-			guess = new BigDecimal(BigInteger.ONE, 52);
+			guess = new BigDecimal(I_1, 52);
 		}
 		return guess;
 	}

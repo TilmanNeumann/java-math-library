@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.roots;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
@@ -93,7 +94,7 @@ public class RootsReal {
 		if (guess.equals(BigDecimal.ZERO)) {
 			// double precision was not enough
 			throw new ArithmeticException("root_dbl was 0 !?");
-			//guess = new BigDecimal(BigInteger.ONE, 52); // old handling
+			//guess = new BigDecimal(I_1, 52); // old handling
 		}
 		return guess;
 	}
