@@ -58,8 +58,8 @@ public class MpiPartitionGeneratorTest {
 	 */
 	// Note: factorizations per n is too restrictive, small n (like 1) would be unbeatable!
 	private static void printNumberOfFactorizationsRecordsPerBit() {
-		long recordFactorizations = 0;
-		double recordBitLength;
+		//long recordFactorizations = 0;
+		//double recordBitLength;
 		double recordRatio = 0;
     	for (BigInteger n = I_1; ; n=n.add(I_1)) {
     		long numberOfFactorizations = MpiPartitionGenerator.numberOfFactorizationsOf(n);
@@ -68,8 +68,8 @@ public class MpiPartitionGeneratorTest {
     		if (ratio > recordRatio) { // same value does not count as new record
     			LOG.info(n + " (" + bits + " bit) can be factored in " + numberOfFactorizations + " different ways -> ratio = " + ratio);
     			recordRatio = ratio;
-    			recordBitLength = bits;
-    			recordFactorizations = numberOfFactorizations;
+    			//recordBitLength = bits;
+    			//recordFactorizations = numberOfFactorizations;
     		}
     	}
 	}
