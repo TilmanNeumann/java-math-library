@@ -14,7 +14,6 @@
 package de.tilman_neumann.jml.roots;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
