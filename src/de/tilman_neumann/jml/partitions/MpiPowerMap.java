@@ -39,6 +39,7 @@ import de.tilman_neumann.util.Multiset_HashMapImpl;
 public class MpiPowerMap extends HashMap<Mpi, TreeMap<Mpi, Mpi>>{
 
 	private static final long serialVersionUID = 8022823673465565644L;
+	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(MpiPowerMap.class);
 
 	private static boolean logAccesses = false;
