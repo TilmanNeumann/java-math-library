@@ -25,9 +25,7 @@ import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 
 /**
  * Computation of values of the Chebyshev polynomials.
- * 
  * @author Tilman Neumann
- * @since 2015-05-08
  */
 public class ChebyshevPolynomials {
 	private static final Logger LOG = Logger.getLogger(ChebyshevPolynomials.class);
