@@ -79,32 +79,36 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 			return factors;
 		}
 
-		// Do some trial division to factor smooth numbers much faster.
-		// We start at p[1]=3, because powers of 2 have already been removed.
-		// We run over all p_i<2^31-1 as long as N can still have a prime factor >= p_i.
-		// This would find all prime factors < 46340.
-		for (int i=1; i<NUM_PRIMES; i++) {
-			BigInteger p_i = BigInteger.valueOf(SMALL_PRIMES[i]);
-			BigInteger[] div = N.divideAndRemainder(p_i);
-			if (div[1].equals(I_0)) {
-				// p_i divides N at least once
-				do {
-					factors.add(p_i);
-					N = div[0];
-					div = N.divideAndRemainder(p_i);
-				} while (div[1].equals(I_0));
+		if (N.bitLength() > 45) {
+			// TODO This is a crude decision strategy, think about a better one.
 
-				// check if we are done
-				BigInteger p_i_square = p_i.multiply(p_i);
-				if (p_i_square.compareTo(N) > 0) {
-					// the remaining N is 1 or prime
-					if (N.compareTo(I_1)>0) factors.add(N);
-					return factors;
+			// Do some trial division to factor smooth numbers much faster.
+			// We start at p[1]=3, because powers of 2 have already been removed.
+			// We run over all p_i<2^31-1 as long as N can still have a prime factor >= p_i.
+			// This would find all prime factors < 46340.
+			for (int i=1; i<NUM_PRIMES; i++) {
+				BigInteger p_i = BigInteger.valueOf(SMALL_PRIMES[i]);
+				BigInteger[] div = N.divideAndRemainder(p_i);
+				if (div[1].equals(I_0)) {
+					// p_i divides N at least once
+					do {
+						factors.add(p_i);
+						N = div[0];
+						div = N.divideAndRemainder(p_i);
+					} while (div[1].equals(I_0));
+
+					// check if we are done
+					BigInteger p_i_square = p_i.multiply(p_i);
+					if (p_i_square.compareTo(N) > 0) {
+						// the remaining N is 1 or prime
+						if (N.compareTo(I_1)>0) factors.add(N);
+						return factors;
+					}
 				}
 			}
+			
+			// TODO For large and not so smooth N, an advanced small factor test like ECM or parallel Pollard-Rho would be nice here
 		}
-		
-		// TODO For large and not so smooth N, an advanced small factor test like ECM or parallel Pollard-Rho would be nice here
 		
 		// N contains larger factors...
 		SortedMultiset<BigInteger> otherFactors = factor_recurrent(N);
