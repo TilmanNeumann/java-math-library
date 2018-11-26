@@ -56,6 +56,9 @@ public class Lehman extends FactorAlgorithmBase {
 			long fourKN = k*N<<2;
 			double fourSqrtK = Math.sqrt(k<<4);
 			int sqrt4kN = (int) Math.ceil(Math.sqrt(fourKN)); // ceil() is required for stability
+			// TODO: The above statement may give too small results for 4kN >= 55 bit, and then we will get
+			// test<0 below. This problem appears first at N with 41 bit (4kN ~ 55 bit) and becomes
+			// inevitable when N reaches 46 bit (4kN >= 63 bit).
 			int limit = (int) (sqrt4kN + sixthRoot / fourSqrtK);
 			for (int a = sqrt4kN; a <= limit; a++) {
 				long test = a*(long)a - fourKN;
