@@ -19,10 +19,9 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.gcd.Gcd63;
-import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 
 /**
- * Naive implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/
+ * Decent implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/
  * Works for N <= 45 bit.
  * 
  * @author Tilman Neumann
@@ -30,10 +29,6 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 public class Lehman extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(Lehman.class);
 	private static final boolean DEBUG = false;
-	
-	private static final int NUM_PRIMES = 4793;
-	
-	private int[] primesArray = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES).getPrimes().array;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 
@@ -61,7 +56,7 @@ public class Lehman extends FactorAlgorithmBase {
 		// 1. Check via trial division whether N has a nontrivial divisor d <= cbrt(N), and if so, return d.
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
 		int i=0, p;
-		while ((p = primesArray[i++]) <= cbrt) {
+		while ((p = SMALL_PRIMES[i++]) <= cbrt) {
 			if (N%p==0) return p;
 		}
 		
