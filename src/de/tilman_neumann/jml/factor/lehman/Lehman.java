@@ -15,6 +15,8 @@ package de.tilman_neumann.jml.factor.lehman;
 
 import java.math.BigInteger;
 
+import org.apache.log4j.Logger;
+
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
@@ -26,12 +28,25 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
  * @author Tilman Neumann
  */
 public class Lehman extends FactorAlgorithmBase {
+	private static final Logger LOG = Logger.getLogger(Lehman.class);
+	private static final boolean DEBUG = false;
+	
 	private static final int NUM_PRIMES = 4793;
 	
 	private int[] primesArray = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES).getPrimes().array;
 
 	private final Gcd63 gcdEngine = new Gcd63();
-	
+
+    private static final boolean[] isSquareMod1024 = isSquareMod1024();
+
+    private static boolean[] isSquareMod1024() {
+    	boolean[] isSquareMod_1024 = new boolean[1024];
+        for (int i = 0; i < 1024; i++) {
+        	isSquareMod_1024[(i * i) & 1023] = true;
+        }
+        return isSquareMod_1024;
+    }
+
 	@Override
 	public String getName() {
 		return "Lehman";
@@ -56,20 +71,30 @@ public class Lehman extends FactorAlgorithmBase {
 			long fourKN = k*N<<2;
 			double fourSqrtK = Math.sqrt(k<<4);
 			int sqrt4kN = (int) Math.ceil(Math.sqrt(fourKN)); // ceil() is required for stability
-			// TODO: The above statement may give too small results for 4kN >= 55 bit, and then we will get
+			// The above statement may give too small results for 4kN >= 55 bit, and then we'ld get
 			// test<0 below. This problem appears first at N with 41 bit (4kN ~ 55 bit) and becomes
-			// inevitable when N reaches 46 bit (4kN >= 63 bit).
+			// inevitable when N reaches 46 bit (4kN >= 63 bit). Fix it:
+			while (sqrt4kN*(long)sqrt4kN < fourKN) {
+				if (DEBUG) LOG.debug("fourKN=" + fourKN + " (" + bitLength(fourKN) + " bit), sqrt4kN=" + sqrt4kN + " (" + bitLength(sqrt4kN) + " bit)");
+				sqrt4kN++;
+			}
 			int limit = (int) (sqrt4kN + sixthRoot / fourSqrtK);
 			for (int a = sqrt4kN; a <= limit; a++) {
 				long test = a*(long)a - fourKN;
-				long b = (long) Math.sqrt(test);
-				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+		        if (isSquareMod1024[(int) (test & 1023)]) {
+		        	long b = (long) Math.sqrt(test);
+		        	if (b*b == test) {
+		        		return gcdEngine.gcd(a+b, N);
+		        	}
 				}
 			}
 	    }
 		
-		// Nothing found. Either N is prime or the implementation is buggy. For N > 45 bit it won't work.
+		// Nothing found. Either N is prime or the algorithm didn't work because N > 45 bit.
 		return 0;
+	}
+
+	private static int bitLength(long arg) {
+		return 64 - Long.numberOfLeadingZeros(arg);
 	}
 }
