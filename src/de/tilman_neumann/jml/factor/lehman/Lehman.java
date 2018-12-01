@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.gcd.Gcd63;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 
 /**
  * Decent implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/
@@ -28,10 +29,11 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  * @author Tilman Neumann
  */
 public class Lehman extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(Lehman.class);
+	private static final Logger LOG = Logger.getLogger(Lehman3.class);
 	private static final boolean DEBUG = false;
 
-	private final Gcd63 gcdEngine = new Gcd63();
+	/** for kLimitMultiplier ~ 2 we need some more primes */
+	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(10000);
 
     private static final boolean[] isSquareMod1024 = isSquareMod1024();
 
@@ -43,9 +45,21 @@ public class Lehman extends FactorAlgorithmBase {
         return isSquareMod_1024;
     }
 
+    /**
+     * A multiplicative constant to adjust the limit of trial division and k-loop.
+     * Older implementations of the algorithm correspond to kLimitMultiplier = 1.
+     */
+	private float kLimitMultiplier;
+	
+	private final Gcd63 gcdEngine = new Gcd63();
+
+    public Lehman(float kLimitMultiplier) {
+    	this.kLimitMultiplier = kLimitMultiplier;
+    }
+    
 	@Override
 	public String getName() {
-		return "Lehman";
+		return "Lehman(" + kLimitMultiplier + ")";
 	}
 
 	@Override
@@ -55,15 +69,17 @@ public class Lehman extends FactorAlgorithmBase {
 	
 	public long findSingleFactor(long N) {
 		// 1. Check via trial division whether N has a nontrivial divisor d <= cbrt(N), and if so, return d.
-		int cbrt = (int) Math.ceil(Math.cbrt(N));
+		double cbrt = Math.ceil(Math.cbrt(N));
+		int tDivLimit = (int) (kLimitMultiplier*cbrt);
 		int i=0, p;
-		while ((p = SMALL_PRIMES[i++]) <= cbrt) {
+		while ((p = SMALL_PRIMES.getPrime(i++)) <= tDivLimit) {
 			if (N%p==0) return p;
 		}
 		
 		// 2. Main loop
+		int kLimit = tDivLimit;
 		double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
-		for (int k=1; k <= cbrt; k++) {
+		for (int k=1; k <= kLimit; k++) {
 			long fourKN = k*N<<2;
 			double sqrtK = Math.sqrt(k);
 			int sqrt4kN = (int) Math.ceil(Math.sqrt(fourKN)); // ceil() is required for stability

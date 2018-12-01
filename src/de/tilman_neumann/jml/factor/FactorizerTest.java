@@ -73,7 +73,8 @@ public class FactorizerTest {
 //			new TDiv31Preload(),
 				
 			// Lehman: never the best, works until 45 bit
-			//new Lehman(),
+//			new Lehman(1F),
+//			new Lehman(2F),
 
 			// PollardRho:
 			// * never the best algorithm
