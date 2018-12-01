@@ -74,7 +74,7 @@ public class Lehman extends FactorAlgorithmBase {
 				if (DEBUG) LOG.debug("fourKN=" + fourKN + " (" + bitLength(fourKN) + " bit), sqrt4kN=" + sqrt4kN + " (" + bitLength(sqrt4kN) + " bit)");
 				sqrt4kN++;
 			}
-			int limit = (int) (sqrt4kN + sixthRootTerm / sqrtK);
+			final int aLimit = (int) (sqrt4kN + sixthRootTerm / sqrtK);
 			int aStart, aStep;
 			if ((k&1)==1) {
 				// k is odd
@@ -89,7 +89,7 @@ public class Lehman extends FactorAlgorithmBase {
 				aStart = sqrt4kN | 1;
 				aStep = 2;
 			}
-			for (int a=aStart; a <= limit; a+=aStep) {
+			for (int a=aStart; a <= aLimit; a+=aStep) {
 				long test = a*(long)a - fourKN;
 		        if (isSquareMod1024[(int) (test & 1023)]) {
 		        	long b = (long) Math.sqrt(test);
