@@ -62,10 +62,10 @@ public class Lehman extends FactorAlgorithmBase {
 		}
 		
 		// 2. Main loop
-		double sixthRoot = Math.pow(N, 1/6.0); // double precision is required for stability
+		double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k <= cbrt; k++) {
 			long fourKN = k*N<<2;
-			double fourSqrtK = Math.sqrt(k<<4);
+			double sqrtK = Math.sqrt(k);
 			int sqrt4kN = (int) Math.ceil(Math.sqrt(fourKN)); // ceil() is required for stability
 			// The above statement may give too small results for 4kN >= 55 bit, and then we'ld get
 			// test<0 below. This problem appears first at N with 41 bit (4kN ~ 55 bit) and becomes
@@ -74,8 +74,22 @@ public class Lehman extends FactorAlgorithmBase {
 				if (DEBUG) LOG.debug("fourKN=" + fourKN + " (" + bitLength(fourKN) + " bit), sqrt4kN=" + sqrt4kN + " (" + bitLength(sqrt4kN) + " bit)");
 				sqrt4kN++;
 			}
-			int limit = (int) (sqrt4kN + sixthRoot / fourSqrtK);
-			for (int a = sqrt4kN; a <= limit; a++) {
+			int limit = (int) (sqrt4kN + sixthRootTerm / sqrtK);
+			int aStart, aStep;
+			if ((k&1)==1) {
+				// k is odd
+				aStart = sqrt4kN;
+				aStep = 1;
+				// XXX unsuccessful improvement attempt following https://de.wikipedia.org/wiki/Faktorisierungsmethode_von_Lehman
+				//final int m = (k+Nmod4-sqrt4kN)&3;
+				//aStart = m<0 ? sqrt4kN + m + 4 : sqrt4kN + m;
+				//aStep = 4;
+			} else {
+				// k even -> make sure aStart is odd
+				aStart = sqrt4kN | 1;
+				aStep = 2;
+			}
+			for (int a=aStart; a <= limit; a+=aStep) {
 				long test = a*(long)a - fourKN;
 		        if (isSquareMod1024[(int) (test & 1023)]) {
 		        	long b = (long) Math.sqrt(test);
