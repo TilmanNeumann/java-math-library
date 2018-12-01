@@ -75,23 +75,27 @@ public class AutoExpandingPrimesArray implements SieveCallback {
 
 	/**
 	 * Get the primes computed so far.
-	 * This method is not auto-expanding; to have a guaranteed number of primes, one of the ensure-methods must be called before.
+	 * This method is not auto-expanding and as such not very safe to use;
+	 * to have a guaranteed number of primes, one of the ensure-methods must be called before.
+	 * 
 	 * @return primes array
 	 */
+	@Deprecated // unsafe
 	public IntArray getPrimes() {
 		return new IntArray(array, count);
 	}
 
 	/**
-	 * Get the n.th prime, e.g. p[0]=2.
-	 * This method is auto-expanding the prime array: Save but not as fast as possible.
+	 * Get the n.th prime, e.g. p[0]=2. This method is auto-expanding the prime array when required.
+	 * This should be slower than "unsafe" raw array access, but in typical applications like trial division
+	 * I could not spot any performance penalty at all.
 	 * 
 	 * @param n
 	 * @return n.th prime, where n starts at 0, e.g. p[0] = 2
 	 */
 	public int getPrime(int n) {
 		if (count <= n) {
-			// The current primes array is to small -> expansion needed.
+			// The current primes array is too small -> expansion needed.
 			int nextCount = 3*count; // trade-off between speed and memory waste
 			// Compute (tight) bound such that there are at least count primes in (0, nthPrimeUpperBound]
 			long nthPrimeUpperBound = NthPrimeUpperBounds.combinedUpperBound(nextCount);

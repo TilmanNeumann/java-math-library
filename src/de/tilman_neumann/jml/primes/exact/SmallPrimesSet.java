@@ -54,44 +54,47 @@ public class SmallPrimesSet extends HashSet<Integer> {
 	}
 	
 	/**
-	 * Ensures that the set contains the first 'count' primes
-	 * @param count
-	 * @return SmallPrimesSet
+	 * Ensures that this set contains at least the first desiredCount primes.
+	 * @param desiredCount
+	 * @return SmallPrimesSet containing at least desiredCount primes
 	 */
-	public SmallPrimesSet ensurePrimeCount(int count) {
-		int initialSize = this.size();
-		if (initialSize < count) {
-			IntArray primes = THE_PRIMES_ARRAY.ensurePrimeCount(count).getPrimes();
-			int[] array = primes.array;
-			if (DEBUG) LOG.debug("set.initialSize = " + initialSize  + ", array.size = " + primes.count);
-			for (int i = initialSize; i<count; i++) {
-				this.add(array[i]);
+	public SmallPrimesSet ensurePrimeCount(int desiredCount) {
+		int oldSize = this.size();
+		if (oldSize < desiredCount) {
+			if (DEBUG) LOG.debug("old size = " + oldSize  + ",  desired size = " + desiredCount);
+			AutoExpandingPrimesArray primes = THE_PRIMES_ARRAY.ensurePrimeCount(desiredCount);
+			
+			for (int i = oldSize; i<desiredCount; i++) {
+				this.add(primes.getPrime(i));
 			}
-			int finalSize = this.size();
-			limit = array[finalSize-1];
-			if (DEBUG) LOG.debug("Enhanced small primes set has " + finalSize + " elements.");
+			int newSize = this.size();
+			limit = primes.getPrime(newSize-1);
+			if (DEBUG) LOG.debug("Enhanced small primes set has " + newSize + " elements.");
 		}
 		return this;
 	}
 
 	/**
-	 * Ensures that the set contains all primes <= desiredLimit.
+	 * Ensures that this set contains at least all primes <= desiredLimit.
 	 * @param desiredLimit
-	 * @return SmallPrimesSet containing all primes <= desiredLimit
+	 * @return SmallPrimesSet containing at least all primes <= desiredLimit
 	 */
 	public SmallPrimesSet ensureLimit(int desiredLimit) {
 		if (limit < desiredLimit) {
-			int initialSize = this.size();
-			IntArray primes = THE_PRIMES_ARRAY.ensureLimit(desiredLimit).getPrimes();
-			int[] array = primes.array;
-			if (DEBUG) LOG.debug("set.initialSize = " + initialSize  + ", array.size = " + primes.count);
+			int oldSize = this.size();
+			if (DEBUG) LOG.debug("old limit = " + limit  + ", desired limit = " + desiredLimit);
+			AutoExpandingPrimesArray primes = THE_PRIMES_ARRAY.ensureLimit(desiredLimit);
 			
-			for (int i = initialSize; i < primes.count; i++) {// XXX Should we really add all primes the array contains? That might become expensive...
-				this.add(array[i]);
+			int i, p;
+			for (i = oldSize; (p=primes.getPrime(i))<desiredLimit; i++) {
+				this.add(p);
 			}
-			if (DEBUG) assertEquals(primes.count, this.size());
-			limit = Math.max(array[primes.count-1], desiredLimit);
-			if (DEBUG) LOG.debug("Small primes set has " + primes.count + " elements.");
+			int newSize = this.size();
+			limit = primes.getPrime(newSize-1);
+			if (DEBUG) {
+				LOG.debug("old size = " + oldSize + ", new size = " + newSize);
+				assertTrue(limit >= desiredLimit);
+			}
 		}
 		return this;
 	}
