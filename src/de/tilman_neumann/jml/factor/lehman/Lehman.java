@@ -29,7 +29,7 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
  * @author Tilman Neumann
  */
 public class Lehman extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(Lehman3.class);
+	private static final Logger LOG = Logger.getLogger(Lehman.class);
 	private static final boolean DEBUG = false;
 
 	/** for kLimitMultiplier ~ 2 we need some more primes */
