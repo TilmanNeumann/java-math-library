@@ -18,8 +18,6 @@ import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.IntArray;
-
 import static org.junit.Assert.*;
 
 /**
