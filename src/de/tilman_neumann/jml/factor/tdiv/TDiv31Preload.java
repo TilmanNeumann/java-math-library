@@ -16,7 +16,6 @@ package de.tilman_neumann.jml.factor.tdiv;
 import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
-import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 
 /**
  * Trial division factor algorithm preloading all primes <= sqrt(Integer.MAX_VALUE).
@@ -28,11 +27,6 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
  * @author Tilman Neumann
  */
 public class TDiv31Preload extends FactorAlgorithmBase {
-
-	// the number of primes needed to factor any int <= 2^31 - 1 using trial division
-	private static final int NUM_PRIMES = 4793;
-	
-	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES);
 
 	@Override
 	public String getName() {
@@ -50,7 +44,7 @@ public class TDiv31Preload extends FactorAlgorithmBase {
 	
 	public int findSingleFactor(int N) {
 		// if N is odd and composite then the loop runs maximally up to test = floor(sqrt(N))
-		for (int i=0; i<NUM_PRIMES; i++) {
+		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
 			int p = SMALL_PRIMES.getPrime(i);
 			if (N%p==0) return p;
 		}
@@ -68,7 +62,7 @@ public class TDiv31Preload extends FactorAlgorithmBase {
 		int n = N.intValue();
 		int maxTestNumberL = maxTestNumber.intValue();
 		// test until maxTestNumber or until a factor is found
-		for (int i=0; i<NUM_PRIMES; i++) {
+		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
 			int p = SMALL_PRIMES.getPrime(i);
 			if (p>maxTestNumberL) return null;
 			if (n%p==0) return BigInteger.valueOf(p);

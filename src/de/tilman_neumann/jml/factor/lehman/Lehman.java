@@ -19,7 +19,6 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.gcd.Gcd63;
-import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 
 /**
  * Decent implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/
@@ -31,9 +30,6 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 public class Lehman extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(Lehman.class);
 	private static final boolean DEBUG = false;
-
-	/** for kLimitMultiplier ~ 2 we need some more primes */
-	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(10000);
 
     private static final boolean[] isSquareMod1024 = isSquareMod1024();
 
@@ -55,6 +51,7 @@ public class Lehman extends FactorAlgorithmBase {
 
     public Lehman(float kLimitMultiplier) {
     	this.kLimitMultiplier = kLimitMultiplier;
+    	SMALL_PRIMES.ensurePrimeCount(10000); // for kLimitMultiplier ~ 2 we need more than 4793 primes
     }
     
 	@Override

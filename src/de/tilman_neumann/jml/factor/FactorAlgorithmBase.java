@@ -36,10 +36,10 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(FactorAlgorithmBase.class);
 
-	// the number of primes needed to factor any int <= 2^31 - 1 using trial division
-	private static final int NUM_PRIMES = 4793;
+	/** the number of primes needed to factor any int <= 2^31 - 1 using trial division */
+	protected static final int NUM_PRIMES_FOR_31_BIT_TDIV = 4793;
 	
-	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(10000);
+	protected static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
 
 	private BPSWTest probablePrimeTest;
 
@@ -86,7 +86,7 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 			// We start at p[1]=3, because powers of 2 have already been removed.
 			// We run over all p_i<2^31-1 as long as N can still have a prime factor >= p_i.
 			// This would find all prime factors < 46340.
-			for (int i=1; i<NUM_PRIMES; i++) {
+			for (int i=1; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
 				BigInteger p_i = BigInteger.valueOf(SMALL_PRIMES.getPrime(i));
 				BigInteger[] div = N.divideAndRemainder(p_i);
 				if (div[1].equals(I_0)) {
