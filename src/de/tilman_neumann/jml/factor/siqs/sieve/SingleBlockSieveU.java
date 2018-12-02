@@ -135,8 +135,7 @@ public class SingleBlockSieveU implements Sieve {
 
 		// preprocessing
 		final int[] powers = solutionArrays.powers;
-		int r_s = binarySearch.getFirstGreaterEntryIndex(powers, filteredBaseSize, effectiveBlockSize);
-		if (r_s < 0) r_s = filteredBaseSize;
+		int r_s = binarySearch.getInsertPosition(powers, filteredBaseSize, effectiveBlockSize);
 
 		final int[] x1Array = solutionArrays.x1Array;
 		final int[] x2Array = solutionArrays.x2Array;

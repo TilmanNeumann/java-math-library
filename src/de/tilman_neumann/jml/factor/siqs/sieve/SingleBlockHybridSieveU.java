@@ -132,15 +132,11 @@ public class SingleBlockHybridSieveU implements Sieve {
 		int[] powers = solutionArrays.powers;
 		this.primeBaseSize = filteredBaseSize;
 		
-		p1Index = binarySearch.getFirstGreaterEntryIndex(powers, primeBaseSize, sieveArraySize);
-		if (p1Index<0) p1Index = primeBaseSize;
-		p2Index = binarySearch.getFirstGreaterEntryIndex(powers, p1Index, (sieveArraySize+1)/2);
-		if (p2Index<0) p2Index = p1Index;
-		p3Index = binarySearch.getFirstGreaterEntryIndex(powers, p2Index, (sieveArraySize+2)/3);
-		if (p3Index<0) p3Index = p2Index;
+		p1Index = binarySearch.getInsertPosition(powers, primeBaseSize, sieveArraySize);
+		p2Index = binarySearch.getInsertPosition(powers, p1Index, (sieveArraySize+1)/2);
+		p3Index = binarySearch.getInsertPosition(powers, p2Index, (sieveArraySize+2)/3);
 		// find the index of the largest prime < p3 fitting into a block
-		r_s = binarySearch.getFirstGreaterEntryIndex(powers, p3Index, effectiveBlockSize);
-		if (r_s < 0) r_s = p3Index; // effectiveBlockSize > p3 -> all primes < p3 have two roots inside a block
+		r_s = binarySearch.getInsertPosition(powers, p3Index, effectiveBlockSize);
 		if (DEBUG) LOG.debug("primeBaseSize=" + primeBaseSize + ", p1Index=" + p1Index + ", p2Index=" + p2Index + ", p3Index=" + p3Index + ", r_s = " + r_s);
 
 		xPosArray = new long[p3Index];

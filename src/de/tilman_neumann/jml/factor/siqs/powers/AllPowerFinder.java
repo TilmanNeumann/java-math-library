@@ -62,7 +62,7 @@ public class AllPowerFinder extends SomePowerFinder {
 		
 		TreeSet<PowerEntry> powerEntries = new TreeSet<PowerEntry>();
 		// exclude powers of primes > sqrt(pMax)
-		int sqrtPMaxIndex = binarySearch.getFirstGreaterEntryIndex(primes, primeBaseSize, (int)Math.sqrt(pMax));
+		int sqrtPMaxIndex = binarySearch.getInsertPosition(primes, primeBaseSize, (int)Math.sqrt(pMax));
 		for (int pIndex=1; pIndex<sqrtPMaxIndex; pIndex++) { // p[0]==2 never has 2 x-solutions
 			// [https://members.loria.fr/EThome/old/MPRI/cours_02.pdf, page 11]: Solutions of Q(x) == 0 (mod p^exponent), Q(x) = (a*x+b)^2-kN, exponent>1
 			// exist only if Q(x) == 0 (mod p) has two distinct solutions. p must not divide disc(Q).

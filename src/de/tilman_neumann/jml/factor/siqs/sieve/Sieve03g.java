@@ -118,12 +118,9 @@ public class Sieve03g implements Sieve {
 		int[] powers = solutionArrays.powers;
 		this.primeBaseSize = filteredBaseSize;
 		
-		this.p1Index = binarySearch.getFirstGreaterEntryIndex(powers, primeBaseSize, sieveArraySize);
-		if (p1Index<0) p1Index = primeBaseSize;
-		this.p2Index = binarySearch.getFirstGreaterEntryIndex(powers, p1Index, (sieveArraySize+1)/2);
-		if (p2Index<0) p2Index = p1Index;
-		this.p3Index = binarySearch.getFirstGreaterEntryIndex(powers, p2Index, (sieveArraySize+2)/3);
-		if (p3Index<0) p3Index = p2Index;
+		this.p1Index = binarySearch.getInsertPosition(powers, primeBaseSize, sieveArraySize);
+		this.p2Index = binarySearch.getInsertPosition(powers, p1Index, (sieveArraySize+1)/2);
+		this.p3Index = binarySearch.getInsertPosition(powers, p2Index, (sieveArraySize+2)/3);
 		if (DEBUG) LOG.debug("primeBaseSize=" + primeBaseSize + ", p1Index=" + p1Index + ", p2Index=" + p2Index + ", p3Index=" + p3Index);
 		
 		// The minimum number of x-solutions in the sieve array is floor(sieveArraySize/p).

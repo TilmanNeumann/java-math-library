@@ -135,20 +135,14 @@ public class DoubleBlockHybridSieve implements Sieve {
 		int[] powers = solutionArrays.powers;
 		this.solutionCount = filteredBaseSize;
 		
-		p1Index = binarySearch.getFirstGreaterEntryIndex(powers, solutionCount, sieveArraySize);
-		if (p1Index<0) p1Index = solutionCount;
-		p2Index = binarySearch.getFirstGreaterEntryIndex(powers, p1Index, (sieveArraySize+1)/2);
-		if (p2Index<0) p2Index = p1Index;
-		p3Index = binarySearch.getFirstGreaterEntryIndex(powers, p2Index, (sieveArraySize+2)/3);
-		if (p3Index<0) p3Index = p2Index;
+		p1Index = binarySearch.getInsertPosition(powers, solutionCount, sieveArraySize);
+		p2Index = binarySearch.getInsertPosition(powers, p1Index, (sieveArraySize+1)/2);
+		p3Index = binarySearch.getInsertPosition(powers, p2Index, (sieveArraySize+2)/3);
 		if (DEBUG) LOG.debug("primeBaseSize=" + solutionCount + ", p1Index=" + p1Index + ", p2Index=" + p2Index + ", p3Index=" + p3Index);
 
-		r_l = binarySearch.getFirstGreaterEntryIndex(powers, p3Index, effectiveB2);
-		if (r_l < 0) r_l = p3Index;
-		r_m = binarySearch.getFirstGreaterEntryIndex(powers, r_l, geometricMeanOfB1AndB2);
-		if (r_m < 0) r_m = r_l;
-		r_s = binarySearch.getFirstGreaterEntryIndex(powers, r_m, effectiveB1);
-		if (r_s < 0) r_s = r_m;
+		r_l = binarySearch.getInsertPosition(powers, p3Index, effectiveB2);
+		r_m = binarySearch.getInsertPosition(powers, r_l, geometricMeanOfB1AndB2);
+		r_s = binarySearch.getInsertPosition(powers, r_m, effectiveB1);
 		if (DEBUG) LOG.debug("db: r_s = " + r_s + ", r_m = " + r_m + ", r_l = " + r_l);
 
 		xPosArray = new int[p3Index];

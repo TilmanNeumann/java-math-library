@@ -158,12 +158,9 @@ public class DoubleBlockSieve implements Sieve {
 			}
 		}
 
-		int r_l = binarySearch.getFirstGreaterEntryIndex(powers, filteredBaseSize, effectiveB2);
-		if (r_l < 0) r_l = filteredBaseSize;
-		int r_m = binarySearch.getFirstGreaterEntryIndex(powers, r_l, geometricMeanOfB1AndB2);
-		if (r_m < 0) r_m = r_l;
-		int r_s = binarySearch.getFirstGreaterEntryIndex(powers, r_m, effectiveB1);
-		if (r_s < 0) r_s = r_m;
+		int r_l = binarySearch.getInsertPosition(powers, filteredBaseSize, effectiveB2);
+		int r_m = binarySearch.getInsertPosition(powers, r_l, geometricMeanOfB1AndB2);
+		int r_s = binarySearch.getInsertPosition(powers, r_m, effectiveB1);
 		if (DEBUG) {
 			LOG.debug("db: sieveArraySize=" + sieveArraySize + ", effectiveB2=" + effectiveB2 + ", k2=" + k2 + ", effectiveB1=" + effectiveB1 + ", k1=" + k1);
 			LOG.debug("db: r_s=" + r_s + ", r_m = " + r_m + ", r_l = " + r_l);

@@ -15,7 +15,7 @@ package de.tilman_neumann.jml.primes.exact;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.IntArray;
+import de.tilman_neumann.jml.BinarySearch;
 import de.tilman_neumann.jml.primes.bounds.NthPrimeUpperBounds;
 import de.tilman_neumann.jml.primes.bounds.PrimeCountUpperBounds;
 
@@ -34,6 +34,8 @@ public class AutoExpandingPrimesArray implements SieveCallback {
 	private int[] array = new int[] {2}; // the array to store the primes
 	private int count = 1; // actual element count
 	private int capacity = 1; // maximal array capacity
+	
+	private BinarySearch bs = new BinarySearch();
 	
 	// singleton
 	private static final AutoExpandingPrimesArray THE_PRIMES_ARRAY = new AutoExpandingPrimesArray();
@@ -72,17 +74,13 @@ public class AutoExpandingPrimesArray implements SieveCallback {
 		}
 		return this;
 	}
-
+	
 	/**
-	 * Get the primes computed so far.
-	 * This method is not auto-expanding and as such not very safe to use;
-	 * to have a guaranteed number of primes, one of the ensure-methods must be called before.
-	 * 
-	 * @return primes array
+	 * @param x
+	 * @return the index where x would be inserted into the prime array.
 	 */
-	@Deprecated // unsafe
-	public IntArray getPrimes() {
-		return new IntArray(array, count);
+	public int getInsertPosition(int x) {
+		return bs.getInsertPosition(array, count, x);
 	}
 
 	/**

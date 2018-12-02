@@ -206,8 +206,8 @@ public class AParamGenerator01 implements AParamGenerator {
 	}
 
 	private int getBestIndex(double wanted_q) {
-		int q1_index = binarySearch.getFirstGreaterEntryIndex(primesArray, primeBaseSize, (int) wanted_q);
-		if (q1_index==-1) return primeBaseSize-1; // wanted_q is bigger than pMax
+		int q1_index = binarySearch.getInsertPosition(primesArray, primeBaseSize, (int) wanted_q);
+		if (q1_index==primeBaseSize) return primeBaseSize-1; // wanted_q is bigger than pMax
 		if (q1_index<2) return 1; // avoid p[0]=2
 		double q1_error = Math.abs(wanted_q - primesArray[q1_index]);
 		int q0_index = q1_index-1;
