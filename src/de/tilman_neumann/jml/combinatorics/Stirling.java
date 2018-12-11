@@ -99,7 +99,7 @@ public class Stirling {
     	if (n>k && k>0) {
     		BigInteger result = I_0;
 			for (int j=0; j<=n-k; j++) {
-				BigInteger elem = Binomial.nk((n-1+j), (n-k+j)).multiply(Binomial.nk((2*n-k), (n-k-j))).multiply(stirling2(n-k+j,j));
+				BigInteger elem = Binomial.binomial((n-1+j), (n-k+j)).multiply(Binomial.binomial((2*n-k), (n-k-j))).multiply(stirling2(n-k+j,j));
 				if (j%2 != 0) {
 					elem = elem.negate();
 				}
@@ -225,7 +225,7 @@ public class Stirling {
     	BigInteger ret = I_0;
     	if (k>0) {
 	    	for (int i=0; i<=n; i++) {
-	    		BigInteger elem = Binomial.nk(k, i).multiply(BigInteger.valueOf(k-i).pow(n));
+	    		BigInteger elem = Binomial.binomial(k, i).multiply(BigInteger.valueOf(k-i).pow(n));
 	    		if (i%2 != 0) {
 	    			elem = elem.negate();
 	    		}

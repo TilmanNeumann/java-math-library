@@ -37,7 +37,7 @@ public class Binomial {
      * @param k
      * @return binomial coefficient C(n, k)
      */
-    public static final BigInteger nk(int n, int k) {
+    public static final BigInteger binomial(int n, int k) {
     	if (k==0 || n==k) return I_1; // holds for negative n, k, too
 
     	if (n>=0) {
@@ -63,7 +63,7 @@ public class Binomial {
     }
     
     /**
-     * Computes the binomial coefficient C(n, k) for positive n, k.
+     * Computes the binomial coefficient C(n, k) for n >= k >= 0.
      * Applies "early fraction reduction".
      * 
 	 * Adapted from http://www.jonelo.de by Johann Nepomuk Loefflmann (jonelo@jonelo.de),
@@ -102,7 +102,7 @@ public class Binomial {
     	for (int n=-max; n<=max; n++) {
     		ArrayList<BigInteger> row = new ArrayList<>();
         	for (int k=-max; k<=max; k++) {
-        		row.add(nk(n,k));
+        		row.add(binomial(n,k));
         	}
         	grid.add(row);
     	}

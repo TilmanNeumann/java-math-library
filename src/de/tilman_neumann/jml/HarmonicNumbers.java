@@ -133,7 +133,7 @@ public class HarmonicNumbers {
 	 */
 	public static BigRational hyperharmonic_closedForm(int n, int r) {
 		if (n<1) throw new IllegalArgumentException("argument n must be positive, but is " + n);
-		if (r>1) return (harmonic(n+r-1).subtract(harmonic(r-1))).multiply(Binomial.nk((n+r-1), (r-1)));
+		if (r>1) return (harmonic(n+r-1).subtract(harmonic(r-1))).multiply(Binomial.binomial((n+r-1), (r-1)));
 		if (r<1) throw new IllegalArgumentException("argument r must be positive, but is " + r);
 		return harmonic(n);
 	}
