@@ -101,23 +101,25 @@ public class Lehman extends FactorAlgorithmBase {
 			// inevitable when N reaches 46 bit (4kN >= 63 bit). Nonetheless we do not fix sqrt4kN
 			// because that'ld mean a (small) performance penalty.
 			
-			long fourKN = k*fourN;
-			final int aLimit = (int) (sqrt4kN + sixthRootTerm / sqrt[k]);
-			int aStart, aStep;
-			if ((k&1)==1) {
-				// k is odd
-				aStart = sqrt4kN;
-				aStep = 1;
-				// XXX unsuccessful improvement attempt following https://de.wikipedia.org/wiki/Faktorisierungsmethode_von_Lehman
-				//final int m = (k+Nmod4-sqrt4kN)&3;
-				//aStart = m<0 ? sqrt4kN + m + 4 : sqrt4kN + m;
-				//aStep = 4;
-			} else {
-				// k even -> make sure aStart is odd
-				aStart = sqrt4kN | 1;
+			int aStart = sqrt4kN;
+			int aLimit = (int) (sqrt4kN + sixthRootTerm / sqrt[k]);
+			int aStep = 1;
+			if ((k&1)==0) {
+				// k even -> make sure aLimit is odd
+				aLimit |= 1;
 				aStep = 2;
+//			} else {
+//				// XXX unsuccessful improvement attempt following 
+//				// https://de.wikipedia.org/wiki/Faktorisierungsmethode_von_Lehman.
+//				// Note that the attempt was build for running the a-loop bottom-up.
+//				final int m = (int) ((k+N)&3 - sqrt4kN&3);
+//				aStart = m<0 ? sqrt4kN + m + 4 : sqrt4kN + m;
+//				aStep = 4;
 			}
-			for (int a=aStart; a <= aLimit; a+=aStep) {
+			
+			// processing the a-loop top-down is faster than bottom-up
+			long fourKN = k*fourN;
+			for (int a=aLimit; a >= aStart; a-=aStep) {
 				long test = a*(long)a - fourKN;
 		        if (isSquareMod1024[(int) (test & 1023)]) {
 		        	long b = (long) Math.sqrt(test);
