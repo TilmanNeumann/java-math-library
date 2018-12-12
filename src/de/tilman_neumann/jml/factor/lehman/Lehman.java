@@ -89,7 +89,7 @@ public class Lehman extends FactorAlgorithmBase {
 		}
 		
 		// 2. Main loop
-		int kLimit = tDivLimit;
+		int kLimit = (int) cbrt; // here multiplier 1 is just exact
 		//LOG.debug("kLimit = " + kLimit);
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
