@@ -29,7 +29,6 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  */
 public class Lehman extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(Lehman.class);
-	private static final boolean DEBUG = false;
 
 	private double[] sqrt;
 	
@@ -92,19 +91,17 @@ public class Lehman extends FactorAlgorithmBase {
 		// 2. Main loop
 		int kLimit = tDivLimit;
 		//LOG.debug("kLimit = " + kLimit);
-		long N4 = N<<2;
-		double sqrt4N = Math.sqrt(N4);
+		long fourN = N<<2;
+		double sqrt4N = Math.sqrt(fourN);
 		double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k <= kLimit; k++) {
 			int sqrt4kN = (int) Math.ceil(sqrt4N * sqrt[k]); // ceil() is required for stability
 			// The above statement may give too small results for 4kN >= 55 bit, and then we'ld get
-			// test<0 below. This problem appears first at N with 41 bit (4kN ~ 55 bit) and becomes
-			// inevitable when N reaches 46 bit (4kN >= 63 bit). Fix it:
-			long fourKN = k*N4;
-			while (sqrt4kN*(long)sqrt4kN < fourKN) {
-				if (DEBUG) LOG.debug("fourKN=" + fourKN + " (" + bitLength(fourKN) + " bit), sqrt4kN=" + sqrt4kN + " (" + bitLength(sqrt4kN) + " bit)");
-				sqrt4kN++;
-			}
+			// test<0 below. This appears first at N with 41 bit (4kN ~ 55 bit) and becomes
+			// inevitable when N reaches 46 bit (4kN >= 63 bit). Nonetheless we do not fix sqrt4kN
+			// because that'ld mean a (small) performance penalty.
+			
+			long fourKN = k*fourN;
 			final int aLimit = (int) (sqrt4kN + sixthRootTerm / sqrt[k]);
 			int aStart, aStep;
 			if ((k&1)==1) {
@@ -133,9 +130,5 @@ public class Lehman extends FactorAlgorithmBase {
 		
 		// Nothing found. Either N is prime or the algorithm didn't work because N > 45 bit.
 		return 0;
-	}
-
-	private static int bitLength(long arg) {
-		return 64 - Long.numberOfLeadingZeros(arg);
 	}
 }
