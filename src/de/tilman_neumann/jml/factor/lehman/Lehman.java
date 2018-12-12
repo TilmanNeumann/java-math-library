@@ -21,8 +21,8 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.gcd.Gcd63;
 
 /**
- * Decent implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/
- * Some improvements inspired by Thilo Harich (https://github.com/ThiloHarich/factoring.git).
+ * Faster implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/.
+ * Improvements inspired by Thilo Harich (https://github.com/ThiloHarich/factoring.git).
  * Works for N <= 45 bit.
  * 
  * @author Tilman Neumann
@@ -31,6 +31,8 @@ public class Lehman extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(Lehman.class);
 	private static final boolean DEBUG = false;
 
+	private double[] sqrt;
+	
     private static final boolean[] isSquareMod1024 = isSquareMod1024();
 
     private static boolean[] isSquareMod1024() {
@@ -52,8 +54,22 @@ public class Lehman extends FactorAlgorithmBase {
     public Lehman(float kLimitMultiplier) {
     	this.kLimitMultiplier = kLimitMultiplier;
     	SMALL_PRIMES.ensurePrimeCount(10000); // for kLimitMultiplier ~ 2 we need more than 4793 primes
+    	initSqrts();
     }
     
+	private void initSqrts() {
+		// precompte sqrts for all possible k. Requires ~ (kLimitMultiplier*2^15) entries.
+		int kMax = (int) (kLimitMultiplier*Math.cbrt(1L<<45) + 1);
+		//LOG.debug("kMax = " + kMax);
+		
+		sqrt = new double[kMax + 1];
+		for (int i = 1; i < sqrt.length; i++) {
+			final double sqrtI = Math.sqrt(i);
+			sqrt[i] = sqrtI;
+		}
+		LOG.info("Lehman: Built sqrt table for multiplier " + kLimitMultiplier + " with " + sqrt.length + " entries");
+	}
+
 	@Override
 	public String getName() {
 		return "Lehman(" + kLimitMultiplier + ")";
@@ -75,19 +91,21 @@ public class Lehman extends FactorAlgorithmBase {
 		
 		// 2. Main loop
 		int kLimit = tDivLimit;
+		//LOG.debug("kLimit = " + kLimit);
+		long N4 = N<<2;
+		double sqrt4N = Math.sqrt(N4);
 		double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k <= kLimit; k++) {
-			long fourKN = k*N<<2;
-			double sqrtK = Math.sqrt(k);
-			int sqrt4kN = (int) Math.ceil(Math.sqrt(fourKN)); // ceil() is required for stability
+			int sqrt4kN = (int) Math.ceil(sqrt4N * sqrt[k]); // ceil() is required for stability
 			// The above statement may give too small results for 4kN >= 55 bit, and then we'ld get
 			// test<0 below. This problem appears first at N with 41 bit (4kN ~ 55 bit) and becomes
 			// inevitable when N reaches 46 bit (4kN >= 63 bit). Fix it:
+			long fourKN = k*N4;
 			while (sqrt4kN*(long)sqrt4kN < fourKN) {
 				if (DEBUG) LOG.debug("fourKN=" + fourKN + " (" + bitLength(fourKN) + " bit), sqrt4kN=" + sqrt4kN + " (" + bitLength(sqrt4kN) + " bit)");
 				sqrt4kN++;
 			}
-			final int aLimit = (int) (sqrt4kN + sixthRootTerm / sqrtK);
+			final int aLimit = (int) (sqrt4kN + sixthRootTerm / sqrt[k]);
 			int aStart, aStep;
 			if ((k&1)==1) {
 				// k is odd
