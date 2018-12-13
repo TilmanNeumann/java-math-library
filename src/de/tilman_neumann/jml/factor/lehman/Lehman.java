@@ -28,7 +28,7 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  * @author Tilman Neumann
  */
 public class Lehman extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(Lehman3.class);
+	private static final Logger LOG = Logger.getLogger(Lehman.class);
 
 	private double[] sqrt;
 	
