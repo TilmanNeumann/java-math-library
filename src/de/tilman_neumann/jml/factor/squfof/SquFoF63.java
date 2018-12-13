@@ -72,7 +72,7 @@ public class SquFoF63 extends FactorAlgorithmBase {
 		this.maxI = (int) (stopMult * Math.pow(N.doubleValue(), 0.2)); // stopMult * (5.th root of N)
 		// sequence: for each new N start again with the first k
 		IntegerSequence<BigInteger> kSequence = new SquarefreeSequence(1680);
-		kSequence.reset(N);
+		kSequence.reset();
 		//int iterations=0;
 		while (true) {
 			// get a new k, return immediately if kN is square

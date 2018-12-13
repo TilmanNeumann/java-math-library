@@ -47,12 +47,8 @@ public class SquarefreeSequence implements IntegerSequence<BigInteger> {
 		return multiplier + "*squarefree";
 	}
 
-	public void reset() {
-		this.next = I_1;
-	}
-	
 	@Override
-	public void reset(BigInteger N) {
+	public void reset() {
 		this.next = I_1;
 	}
 
@@ -90,7 +86,7 @@ public class SquarefreeSequence implements IntegerSequence<BigInteger> {
 	   	ConfigUtil.initProject();
 	   	SquarefreeSequence seqGen = new SquarefreeSequence(I_1);
 	   	long start = System.currentTimeMillis();
-		seqGen.reset(I_1); // >1 required!
+		seqGen.reset();
 		for (int i=1; i<=1000000; i++) {
 			@SuppressWarnings("unused")
 			BigInteger squarefree = seqGen.next();

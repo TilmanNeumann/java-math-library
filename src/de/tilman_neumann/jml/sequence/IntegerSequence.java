@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.sequence;
 
-import java.math.BigInteger;
-
 /**
  * Interface for integer sequence generators.
  * @author Tilman Neumann
@@ -25,11 +23,8 @@ public interface IntegerSequence<T> {
 	/** The name of this sequence generator */
 	public String getName();
 	
-	/**
-	 * Reset sequence so that it starts again with its first element.
-	 * @param N the number to factor
-	 */
-	public void reset(BigInteger N);
+	/** Reset sequence so that it starts again with its first element. */
+	public void reset();
 	
 	/** Return the next integer */
 	public T next();
