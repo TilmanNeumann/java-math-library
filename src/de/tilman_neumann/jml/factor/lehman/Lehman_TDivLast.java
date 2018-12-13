@@ -25,10 +25,12 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  * Improvements inspired by Thilo Harich (https://github.com/ThiloHarich/factoring.git).
  * Works for N <= 45 bit.
  * 
+ * This version does trial division after the main loop.
+ * 
  * @author Tilman Neumann
  */
-public class Lehman extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(Lehman.class);
+public class Lehman_TDivLast extends FactorAlgorithmBase {
+	private static final Logger LOG = Logger.getLogger(Lehman_TDivLast.class);
 
 	private double[] sqrt;
 	
@@ -50,7 +52,7 @@ public class Lehman extends FactorAlgorithmBase {
 	
 	private final Gcd63 gcdEngine = new Gcd63();
 
-    public Lehman(float kLimitMultiplier) {
+    public Lehman_TDivLast(float kLimitMultiplier) {
     	this.kLimitMultiplier = kLimitMultiplier;
     	SMALL_PRIMES.ensurePrimeCount(10000); // for kLimitMultiplier ~ 2 we need more than 4793 primes
     	initSqrts();
@@ -71,7 +73,7 @@ public class Lehman extends FactorAlgorithmBase {
 
 	@Override
 	public String getName() {
-		return "Lehman(" + kLimitMultiplier + ")";
+		return "Lehman_TDivLast(" + kLimitMultiplier + ")";
 	}
 
 	@Override
@@ -80,16 +82,10 @@ public class Lehman extends FactorAlgorithmBase {
 	}
 	
 	public long findSingleFactor(long N) {
-		// 1. Check via trial division whether N has a nontrivial divisor d <= cbrt(N), and if so, return d.
 		double cbrt = Math.ceil(Math.cbrt(N));
-		int tDivLimit = (int) (kLimitMultiplier*cbrt);
-		int i=0, p;
-		while ((p = SMALL_PRIMES.getPrime(i++)) <= tDivLimit) {
-			if (N%p==0) return p;
-		}
 		
-		// 2. Main loop
-		int kLimit = (int) cbrt; // here multiplier 1 is just exact
+		// 1. Main loop
+		int kLimit = (int) cbrt;
 		//LOG.debug("kLimit = " + kLimit);
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
@@ -128,6 +124,14 @@ public class Lehman extends FactorAlgorithmBase {
 			}
 	    }
 		
+		// 2. Check via trial division whether N has a nontrivial divisor d <= cbrt(N), and if so, return d.
+		int tDivLimit = (int) (kLimitMultiplier*cbrt);
+		int i=0, p;
+		while ((p = SMALL_PRIMES.getPrime(i++)) <= tDivLimit) {
+			if (N%p==0) return p;
+		}
+		
+
 		// Nothing found. Either N is prime or the algorithm didn't work because N > 45 bit.
 		return 0;
 	}
