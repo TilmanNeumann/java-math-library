@@ -13,10 +13,6 @@
  */
 package de.tilman_neumann.jml.sequence;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-
-import java.math.BigInteger;
-
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
