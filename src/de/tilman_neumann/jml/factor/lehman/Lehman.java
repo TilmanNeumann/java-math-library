@@ -28,7 +28,7 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  * @author Tilman Neumann
  */
 public class Lehman extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(Lehman.class);
+	private static final Logger LOG = Logger.getLogger(Lehman3.class);
 
 	private double[] sqrt;
 	
@@ -103,18 +103,16 @@ public class Lehman extends FactorAlgorithmBase {
 			
 			int aStart = sqrt4kN;
 			int aLimit = (int) (sqrt4kN + sixthRootTerm / sqrt[k]);
-			int aStep = 1;
+			int aStep;
 			if ((k&1)==0) {
 				// k even -> make sure aLimit is odd
 				aLimit |= 1;
 				aStep = 2;
-//			} else {
-//				// XXX unsuccessful improvement attempt following 
-//				// https://de.wikipedia.org/wiki/Faktorisierungsmethode_von_Lehman.
-//				// Note that the attempt was build for running the a-loop bottom-up.
-//				final int m = (int) ((k+N)&3 - sqrt4kN&3);
-//				aStart = m<0 ? sqrt4kN + m + 4 : sqrt4kN + m;
-//				aStep = 4;
+			} else {
+				// minor improvement following https://de.wikipedia.org/wiki/Faktorisierungsmethode_von_Lehman
+				final int m = (int) (((k+N)&3) - (aLimit&3));
+				aLimit = m<0 ? aLimit + m + 4 : aLimit + m;
+				aStep = 4;
 			}
 			
 			// processing the a-loop top-down is faster than bottom-up
