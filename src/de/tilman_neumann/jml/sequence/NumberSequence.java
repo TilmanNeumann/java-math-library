@@ -14,18 +14,22 @@
 package de.tilman_neumann.jml.sequence;
 
 /**
- * Interface for integer sequence generators.
+ * Interface for number sequences of type T.
  * @author Tilman Neumann
  * 
  * @param T sequence element type
  */
-public interface IntegerSequence<T> {
+public interface NumberSequence<T> {
 	/** The name of this sequence generator */
-	public String getName();
+	String getName();
 	
-	/** Reset sequence so that it starts again with its first element. */
-	public void reset();
-	
+	/** 
+	 * Reset sequence so that it starts again with its first element. 
+	 * @param newParam
+	 */
+	// TODO removing the parameter destroys SquareFactor algorithms!?
+	void reset();
+
 	/** Return the next integer */
-	public T next();
+	T next();
 }

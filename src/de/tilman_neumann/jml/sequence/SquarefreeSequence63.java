@@ -22,7 +22,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * Sequence of multiplier * {squarefree numbers 1,2,3,5,6,7,10,11,13,...}, long implementation.
  * @author Tilman Neumann
  */
-public class SquarefreeSequence63 implements IntegerSequence<Long> {
+public class SquarefreeSequence63 implements NumberSequence<Long> {
 	private static final Logger LOG = Logger.getLogger(SquarefreeSequence63.class);
 
 	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();

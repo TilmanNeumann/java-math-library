@@ -20,7 +20,7 @@ import java.math.BigInteger;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
-import de.tilman_neumann.jml.sequence.IntegerSequence;
+import de.tilman_neumann.jml.sequence.NumberSequence;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence;
 
 /**
@@ -71,7 +71,7 @@ public class SquFoF63 extends FactorAlgorithmBase {
 		// max iterations: there is no need to account for k, because expansions of smooth kN are typically not longer than those for N.
 		this.maxI = (int) (stopMult * Math.pow(N.doubleValue(), 0.2)); // stopMult * (5.th root of N)
 		// sequence: for each new N start again with the first k
-		IntegerSequence<BigInteger> kSequence = new SquarefreeSequence(1680);
+		NumberSequence<BigInteger> kSequence = new SquarefreeSequence(1680);
 		kSequence.reset();
 		//int iterations=0;
 		while (true) {
