@@ -101,11 +101,11 @@ public class Lehman_TDivLast extends FactorAlgorithmBase {
 				// k even -> make sure aLimit is odd
 				aLimit |= 1;
 				aStep = 2;
-//			} else {
-//				// minor improvement following https://de.wikipedia.org/wiki/Faktorisierungsmethode_von_Lehman
-//				final int m = (int) (((k+N)&3) - (aLimit&3));
-//				aLimit = m<0 ? aLimit + m + 4 : aLimit + m;
-//				aStep = 4;
+			} else {
+				// minor improvement following https://de.wikipedia.org/wiki/Faktorisierungsmethode_von_Lehman
+				final int m = (int) (((k+N)&3) - (aLimit&3));
+				aLimit = m<0 ? aLimit + m + 4 : aLimit + m;
+				aStep = 4;
 			}
 			
 			// processing the a-loop top-down is faster than bottom-up
