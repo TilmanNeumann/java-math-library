@@ -11,6 +11,8 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Releases
 
+* v0.9.2/3/4/5 refactorings, work on Lehman's algorithm
+* v0.9.1 implemented Peter Luschny's swinging prime factorial
 * v0.9 thread-safe AutoExpandingPrimesArray, some refactorings
 * v0.8 The first revision containing all the stuff I wanted to add initially.
 
@@ -44,6 +46,7 @@ This project is licensed under the GPL 3 License - see the [LICENSE](LICENSE) fi
 ## Credits
 
 Big thanks to
-* Dario Alpern for the permission to use his Block-Lanczos solver under GPL 3, and
-* Graeme Willoughby for his great comments on the BigInteger algorithms in the SqrtInt, SqrtExact, Root and PurePowerTest classes.
+* Dario Alpern for the permission to use his Block-Lanczos solver under GPL 3
+* Graeme Willoughby for his great comments on the BigInteger algorithms in the SqrtInt, SqrtExact, Root and PurePowerTest classes
+* Thilo Harich for many communications and his open source code on the Lehman factoring method
 
