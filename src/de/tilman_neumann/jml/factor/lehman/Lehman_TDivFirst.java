@@ -32,6 +32,9 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 public class Lehman_TDivFirst extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(Lehman_TDivFirst.class);
 
+	// This is a constant that is below 1 for rounding up double values to long
+	private static final double ROUND_UP_DOUBLE = 0.9999999665;
+
 	private double[] sqrt;
 	
     private static final boolean[] isSquareMod1024 = isSquareMod1024();
@@ -59,7 +62,7 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
     }
     
 	private void initSqrts() {
-		// precompte sqrts for all possible k. Requires ~ (kLimitMultiplier*2^15) entries.
+		// precompute sqrts for all possible k. Requires ~ (kLimitMultiplier*2^15) entries.
 		int kMax = (int) (kLimitMultiplier*Math.cbrt(1L<<45) + 1);
 		//LOG.debug("kMax = " + kMax);
 		
@@ -101,12 +104,7 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 		int k=1;
 		for (; k <= kMedium; k++) {
 			double sqrt4KN = sqrt4N * sqrt[k];
-			// The above statement may give too small results for 4kN >= 55 bit, and then we'ld get
-			// test<0 below. This appears first at N with 41 bit (4kN ~ 55 bit) and becomes
-			// inevitable when N reaches 46 bit (4kN >= 63 bit). Nonetheless we do not fix sqrt4kN
-			// because that'ld mean a (small) performance penalty.
-			
-			int aStart = (int) sqrt4KN + 1;
+			int aStart = (int) (sqrt4KN + ROUND_UP_DOUBLE); // much faster than ceil() !
 			int aLimit = (int) (sqrt4KN + sixthRootTerm / sqrt[k]);
 			int aStep;
 			if ((k&1)==0) {
@@ -135,7 +133,7 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 		
 		// 3. continue main loop for larger k, where we can have only 1 a-value per k
 		for ( ; k <= kLimit; k++) {
-			int a = (int) Math.ceil(sqrt4N * sqrt[k]); // ceil() is required for stability
+			int a = (int) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE); // much faster than ceil() !
 			if ((k&1)==0) {
 				// k even -> make sure aLimit is odd
 				a |= 1;
