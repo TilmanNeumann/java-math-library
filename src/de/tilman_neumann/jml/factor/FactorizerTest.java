@@ -71,11 +71,11 @@ public class FactorizerTest {
 
 			// Trial division: Fastest algorithm for N < 2^29
 //			new TDiv31Preload(),
-				
+			
 			// Lehman: never the best, works until 45 bit
 			new Lehman_Simple(),
 			new Lehman_TDivFirst(1.6F),
-			new Lehman_TDivLast(1.6F),
+			new Lehman_TDivLast(1.6F), // fastest Lehman implementation
 
 			// PollardRho:
 			// * never the best algorithm
