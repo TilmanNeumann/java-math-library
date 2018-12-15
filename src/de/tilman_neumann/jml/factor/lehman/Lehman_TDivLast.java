@@ -50,7 +50,7 @@ public class Lehman_TDivLast extends FactorAlgorithmBase {
 	
 	private final Gcd63 gcdEngine = new Gcd63();
 
-	private double[] sqrt;
+	private double[] sqrt, sqrtInv;
 
     public Lehman_TDivLast(float tDivLimitMultiplier) {
     	this.tDivLimitMultiplier = tDivLimitMultiplier;
@@ -64,11 +64,13 @@ public class Lehman_TDivLast extends FactorAlgorithmBase {
 		//LOG.debug("kMax = " + kMax);
 		
 		sqrt = new double[kMax + 1];
+		sqrtInv = new double[kMax + 1];
 		for (int i = 1; i < sqrt.length; i++) {
 			final double sqrtI = Math.sqrt(i);
 			sqrt[i] = sqrtI;
+			sqrtInv[i] = 1.0/sqrtI;
 		}
-		LOG.info("Lehman: Built sqrt table for multiplier " + tDivLimitMultiplier + " with " + sqrt.length + " entries");
+		LOG.info("Lehman: Built sqrt tables for multiplier " + tDivLimitMultiplier + " with " + sqrt.length + " entries");
 	}
 
 	@Override
@@ -95,7 +97,7 @@ public class Lehman_TDivLast extends FactorAlgorithmBase {
 		for (; k <= kMedium; k++) {
 			double sqrt4kN = sqrt4N * sqrt[k];
 			int aStart = (int) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
-			int aLimit = (int) (sqrt4kN + sixthRootTerm / sqrt[k]);
+			int aLimit = (int) (sqrt4kN + sixthRootTerm * sqrtInv[k]);
 			int aStep = 1;
 			if ((k&1)==0) {
 				// k even -> make sure aLimit is odd
