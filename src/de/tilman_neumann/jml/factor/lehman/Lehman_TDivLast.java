@@ -22,7 +22,7 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 
 /**
  * Faster implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/.
- * Improvements inspired by Thilo Harich (https://github.com/ThiloHarich/factoring.git).
+ * Many improvements inspired by Thilo Harich (https://github.com/ThiloHarich/factoring.git).
  * Works for N <= 45 bit.
  * 
  * This version does trial division after the main loop.
