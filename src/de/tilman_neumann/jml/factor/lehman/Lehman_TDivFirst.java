@@ -32,10 +32,8 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 public class Lehman_TDivFirst extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(Lehman_TDivFirst.class);
 
-	// This is a constant that is below 1 for rounding up double values to long
+	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
-
-	private double[] sqrt;
 	
     private static final boolean[] isSquareMod1024 = isSquareMod1024();
 
@@ -47,23 +45,22 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
         return isSquareMod_1024;
     }
 
-    /**
-     * A multiplicative constant to adjust the limit of trial division and k-loop.
-     * Older implementations of the algorithm correspond to kLimitMultiplier = 1.
-     */
-	private float kLimitMultiplier;
+    /** A multiplicative constant to adjust the  trial division limit. */
+	private float tDivLimitMultiplier;
 	
 	private final Gcd63 gcdEngine = new Gcd63();
 
-    public Lehman_TDivFirst(float kLimitMultiplier) {
-    	this.kLimitMultiplier = kLimitMultiplier;
-    	SMALL_PRIMES.ensurePrimeCount(10000); // for kLimitMultiplier ~ 2 we need more than 4793 primes
+	private double[] sqrt;
+
+    public Lehman_TDivFirst(float tDivLimitMultiplier) {
+    	this.tDivLimitMultiplier = tDivLimitMultiplier;
+    	SMALL_PRIMES.ensurePrimeCount(10000); // for tDivLimitMultiplier ~ 2 we need more than 4793 primes
     	initSqrts();
     }
     
 	private void initSqrts() {
-		// precompute sqrts for all possible k. Requires ~ (kLimitMultiplier*2^15) entries.
-		int kMax = (int) (kLimitMultiplier*Math.cbrt(1L<<45) + 1);
+		// precompute sqrts for all possible k. Requires ~ (tDivLimitMultiplier*2^15) entries.
+		int kMax = (int) (tDivLimitMultiplier*Math.cbrt(1L<<45) + 1);
 		//LOG.debug("kMax = " + kMax);
 		
 		sqrt = new double[kMax + 1];
@@ -71,12 +68,12 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 			final double sqrtI = Math.sqrt(i);
 			sqrt[i] = sqrtI;
 		}
-		LOG.info("Lehman: Built sqrt table for multiplier " + kLimitMultiplier + " with " + sqrt.length + " entries");
+		LOG.info("Lehman: Built sqrt table for multiplier " + tDivLimitMultiplier + " with " + sqrt.length + " entries");
 	}
 
 	@Override
 	public String getName() {
-		return "Lehman_TDivFirst(" + kLimitMultiplier + ")";
+		return "Lehman_TDivFirst(" + tDivLimitMultiplier + ")";
 	}
 
 	@Override
@@ -88,7 +85,7 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 		double cbrt = Math.ceil(Math.cbrt(N));
 
 		// 1. Check via trial division whether N has a nontrivial divisor d <= cbrt(N), and if so, return d.
-		int tDivLimit = (int) (kLimitMultiplier*cbrt);
+		int tDivLimit = (int) (tDivLimitMultiplier*cbrt);
 		int i=0, p;
 		while ((p = SMALL_PRIMES.getPrime(i++)) <= tDivLimit) {
 			if (N%p==0) return p;
@@ -133,12 +130,11 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 		
 		// 3. continue main loop for larger k, where we can have only 1 a-value per k
 		for ( ; k <= kLimit; k++) {
-			int a = (int) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE); // much faster than ceil() !
+			int a = (int) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE);
 			if ((k&1)==0) {
 				// k even -> make sure aLimit is odd
 				a |= 1;
 //			} else {
-//				// minor improvement following https://de.wikipedia.org/wiki/Faktorisierungsmethode_von_Lehman
 //				final int m = (int) (((k+N)&3) - (a&3));
 //				a = m<0 ? a + m + 4 : a + m;
 			}
