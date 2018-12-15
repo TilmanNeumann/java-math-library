@@ -27,6 +27,7 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
+import de.tilman_neumann.jml.factor.lehman.Lehman_TDivLast;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
@@ -81,6 +82,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 
 	private BPSWTest probablePrimeTest;
 	
+	private Lehman_TDivLast lehman = new Lehman_TDivLast(1.6F);
 	private SquFoF31 squFoF31; // used for Q <= 2^52 that pass trial division
 	private SquFoF63 squFoF63; // used for 2^53 <= Q <= 2^59
 	private SIQS qsInternal; // Nested SIQS for Q_rest >= 2^60. Required only for approximately N>310 bit.
@@ -281,7 +283,9 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 		// At N with 200 bit we have pMax ~ 17 bit, thus Q_rest >= 34 bit -> trial division is no help here.
 		BigInteger factor1;
 		int Q_rest_bits = Q_rest.bitLength();
-		if (Q_rest_bits < 53) {
+		if (Q_rest_bits < 38) {
+			factor1 = lehman.findSingleFactor(Q_rest);
+		} else if (Q_rest_bits < 53) {
 			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use squFoF31");
 			factor1 = squFoF31.findSingleFactor(Q_rest);
 		} else if (Q_rest_bits < 60) {
