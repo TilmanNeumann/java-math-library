@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver02_BlockLanczos;
+import de.tilman_neumann.jml.factor.lehman.Lehman_TDivLast;
 import de.tilman_neumann.jml.factor.psiqs.PSIQSBase;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS_U;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
@@ -49,9 +50,10 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
 	
-	private TDiv31Preload tDiv31;
-	private SquFoF31 squFoF31;
-	private SquFoF63 squFoF63;
+	private TDiv31Preload tDiv31 = new TDiv31Preload();
+	private Lehman_TDivLast lehman = new Lehman_TDivLast(1.6F);
+	private SquFoF31 squFoF31 = new SquFoF31();
+	private SquFoF63 squFoF63 = new SquFoF63();
 	private SIQS siqs_smallArgs;
 	private PSIQSBase siqs_bigArgs;
 	
@@ -60,9 +62,6 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	 * @param numberOfThreads the number of parallel threads for PSIQS
 	 */
 	public CombinedFactorAlgorithm(int numberOfThreads, boolean profile) {
-		tDiv31 = new TDiv31Preload();
-		squFoF31 = new SquFoF31();
-		squFoF63 = new SquFoF63();
 		// SIQS tuned for small N
 		siqs_smallArgs = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false);
 		// PSIQS for bigger N: monolithic sieve is still slightly faster than SBH in the long run.
@@ -77,8 +76,9 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
 		int N_bits = N.bitLength();
-		if (N_bits < 29) return tDiv31.findSingleFactor(N);
-		if (N_bits < 53) return squFoF31.findSingleFactor(N);
+		if (N_bits < 25) return tDiv31.findSingleFactor(N);
+		if (N_bits < 38) return lehman.findSingleFactor(N); // squFoF31 slightly better at 36 bit
+		if (N_bits < 53) return squFoF31.findSingleFactor(N); // lehman slightly better at 40 bit
 		if (N_bits < 60) return squFoF63.findSingleFactor(N);
 		if (N_bits < 97) return siqs_smallArgs.findSingleFactor(N);
 		return siqs_bigArgs.findSingleFactor(N);
