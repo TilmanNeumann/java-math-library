@@ -91,21 +91,23 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 			if (N%p==0) return p;
 		}
 		
-		// 2. Main loop
+		// 2. Main loop for small k, where we can have more than 1 a-value
 		int kLimit = (int) cbrt; // here multiplier 1 is just exact
+		int kMedium = kLimit >> 4;
 		//LOG.debug("kLimit = " + kLimit);
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
 		double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
-		for (int k=1; k <= kLimit; k++) {
-			int sqrt4kN = (int) Math.ceil(sqrt4N * sqrt[k]); // ceil() is required for stability
+		int k=1;
+		for (; k <= kMedium; k++) {
+			double sqrt4KN = sqrt4N * sqrt[k];
 			// The above statement may give too small results for 4kN >= 55 bit, and then we'ld get
 			// test<0 below. This appears first at N with 41 bit (4kN ~ 55 bit) and becomes
 			// inevitable when N reaches 46 bit (4kN >= 63 bit). Nonetheless we do not fix sqrt4kN
 			// because that'ld mean a (small) performance penalty.
 			
-			int aStart = sqrt4kN;
-			int aLimit = (int) (sqrt4kN + sixthRootTerm / sqrt[k]);
+			int aStart = (int) sqrt4KN + 1;
+			int aLimit = (int) (sqrt4KN + sixthRootTerm / sqrt[k]);
 			int aStep;
 			if ((k&1)==0) {
 				// k even -> make sure aLimit is odd
@@ -128,6 +130,27 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 		        		return gcdEngine.gcd(a+b, N);
 		        	}
 				}
+			}
+	    }
+		
+		// 3. continue main loop for larger k, where we can have only 1 a-value per k
+		for ( ; k <= kLimit; k++) {
+			int a = (int) Math.ceil(sqrt4N * sqrt[k]); // ceil() is required for stability
+			if ((k&1)==0) {
+				// k even -> make sure aLimit is odd
+				a |= 1;
+//			} else {
+//				// minor improvement following https://de.wikipedia.org/wiki/Faktorisierungsmethode_von_Lehman
+//				final int m = (int) (((k+N)&3) - (a&3));
+//				a = m<0 ? a + m + 4 : a + m;
+			}
+			
+			long test = a*(long)a - k*fourN;
+	        if (isSquareMod1024[(int) (test & 1023)]) {
+	        	long b = (long) Math.sqrt(test);
+	        	if (b*b == test) {
+	        		return gcdEngine.gcd(a+b, N);
+	        	}
 			}
 	    }
 		
