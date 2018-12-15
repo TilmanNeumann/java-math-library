@@ -69,12 +69,12 @@ public class FactorizerTest {
 	public FactorizerTest() {
 		algorithms = new SingleFactorFinder[] {
 
-			// Trial division: Fastest algorithm for N < 2^29
-//			new TDiv31Preload(),
+			// Trial division: Fastest algorithm for N < 2^25
+			new TDiv31Preload(),
 			
-			// Lehman: never the best, works until 45 bit
-			new Lehman_Simple(),
-			new Lehman_TDivFirst(1.6F),
+			// Lehman: best algorithm for 25 to 37 bits, works until 45 bit
+			//new Lehman_Simple(),
+			//new Lehman_TDivFirst(1.6F),
 			new Lehman_TDivLast(1.6F), // fastest Lehman implementation
 
 			// PollardRho:
@@ -86,11 +86,11 @@ public class FactorizerTest {
 			//new PollardRho31(),
 
 			// SquFoF variants
-			// * SquFoF31 is the best algorithm overall for N = 2^29...2^52, SquFoF63 for N = 2^52...2^60
+			// * SquFoF31 is the best algorithm overall for N = 2^38...2^52, SquFoF63 for N = 2^52...2^60
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
 //			new SquFoF63(), // best algorithm for N = 2^52...2^60 (freezes at some N > 2^90)
-//			new SquFoF31(), // best algorithm for N = 2^29...2^52
+			new SquFoF31(), // best algorithm for N = 2^38...2^52
 			
 			// CFrac
 			// * never the best algorithm: SquFoF63 is better for N <= 66 bit, SIQS is better for N >= 55 bits
