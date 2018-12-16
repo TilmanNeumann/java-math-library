@@ -88,30 +88,36 @@ public class Lehman_TDivLast extends FactorAlgorithmBase {
 		
 		// 1. Main loop for small k, where we can have more than 1 a-value
 		int kLimit = (int) cbrt;
-		int kMedium = kLimit >> 4;
+		int kMedium = (kLimit >> 5) | 1;
 		//LOG.debug("kLimit = " + kLimit);
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
 		double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
 		int k=1;
 		for (; k <= kMedium; k++) {
+			long kn = k*N;
 			double sqrt4kN = sqrt4N * sqrt[k];
 			int aStart = (int) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
 			int aLimit = (int) (sqrt4kN + sixthRootTerm * sqrtInv[k]);
-			int aStep = 1;
+			int aStep;
 			if ((k&1)==0) {
 				// k even -> make sure aLimit is odd
 				aLimit |= 1;
 				aStep = 2;
 			} else {
 				// minor improvement following https://de.wikipedia.org/wiki/Faktorisierungsmethode_von_Lehman
-				final int m = (int) (((k+N)&3) - (aLimit&3));
-				aLimit = m<0 ? aLimit + m + 4 : aLimit + m;
-				aStep = 4;
+				// this extra case gives ~ 5 %
+				if ((kn & 3) == 3) {
+					aStep = 8;
+					aLimit += (int) ((7 - kn - aLimit) & 7);
+				} else {
+					aStep = 4;
+					aLimit += (int) ((k + N - aLimit) & 3);
+				}
 			}
 			
 			// processing the a-loop top-down is faster than bottom-up
-			long fourKN = k*fourN;
+			long fourKN = kn << 2;
 			for (int a=aLimit; a >= aStart; a-=aStep) {
 				long test = a*(long)a - fourKN;
 		        if (isSquareMod1024[(int) (test & 1023)]) {
@@ -123,18 +129,12 @@ public class Lehman_TDivLast extends FactorAlgorithmBase {
 			}
 	    }
 		
-		// 2. continue main loop for larger k, where we can have only 1 a-value per k
-		for ( ; k <= kLimit; k++) {
-			int a = (int) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE);
-			if ((k&1)==0) {
-				// k even -> make sure aLimit is odd
-				a |= 1;
-//			} else {
-//				final int m = (int) (((k+N)&3) - (a&3));
-//				a = m<0 ? a + m + 4 : a + m;
-			}
-			
-			long test = a*(long)a - k*fourN;
+		// 2. continue main loop for larger even k, where we can have only 1 a-value per k
+		int k1 = k;
+		for ( ; k1 <= kLimit; k1+=2) {
+			// for even k we need odd a
+			int a = (int) (sqrt4N * sqrt[k1] + ROUND_UP_DOUBLE) | 1;
+			long test = a*(long)a - k1*fourN;
 	        if (isSquareMod1024[(int) (test & 1023)]) {
 	        	long b = (long) Math.sqrt(test);
 	        	if (b*b == test) {
@@ -143,6 +143,19 @@ public class Lehman_TDivLast extends FactorAlgorithmBase {
 			}
 	    }
 		
+		// 2. continue main loop for larger odd k, where we can have only 1 a-value per k
+		int k2 = k+1;
+		for ( ; k2 <= kLimit; k2+=2) {
+			int a = (int) (sqrt4N * sqrt[k2] + ROUND_UP_DOUBLE);
+			long test = a*(long)a - k2*fourN;
+	        if (isSquareMod1024[(int) (test & 1023)]) {
+	        	long b = (long) Math.sqrt(test);
+	        	if (b*b == test) {
+	        		return gcdEngine.gcd(a+b, N);
+	        	}
+			}
+	    }
+
 		// 3. Check via trial division whether N has a nontrivial divisor d <= cbrt(N), and if so, return d.
 		int tDivLimit = (int) (tDivLimitMultiplier*cbrt);
 		int i=0, p;
