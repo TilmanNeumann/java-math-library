@@ -74,9 +74,9 @@ public class FactorizerTest {
 			
 			// Lehman: best algorithm for 25 to 37 bits, works until 45 bit
 			//new Lehman_Simple(),
-			//new Lehman_TDivFirst(1.6F),
-			new Lehman_TDivLast(1.6F), // fastest Lehman implementation
-
+			new Lehman_TDivFirst(1F),
+			new Lehman_TDivLast(1F), // fastest Lehman implementation
+			
 			// PollardRho:
 			// * never the best algorithm
 			// * Best BigInteger version is PollardRhoBrent
