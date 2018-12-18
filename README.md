@@ -48,5 +48,5 @@ This project is licensed under the GPL 3 License - see the [LICENSE](LICENSE) fi
 Big thanks to
 * Dario Alpern for the permission to use his Block-Lanczos solver under GPL 3
 * Graeme Willoughby for his great comments on the BigInteger algorithms in the SqrtInt, SqrtExact, Root and PurePowerTest classes
-* Thilo Harich for many communications and his open source code on the Lehman factoring method
+* Thilo Harich for a great collaboration and his immense improvements on the Lehman factoring method
 
