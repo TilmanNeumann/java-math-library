@@ -42,8 +42,6 @@ public class Lehman_Advanced extends FactorAlgorithmBase {
 	static {
 		// Precompute sqrts for all possible k. 2^22 entries are enough for N~2^66.
 		final int kMax = (int) (1<<22);
-		//LOG.debug("kMax = " + kMax);
-
 		sqrt = new double[kMax + 1];
 		sqrtInv = new double[kMax + 1];
 		for (int i = 1; i < sqrt.length; i++) {
