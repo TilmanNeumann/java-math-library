@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver02_BlockLanczos;
-import de.tilman_neumann.jml.factor.lehman.Lehman_TDivLast;
+import de.tilman_neumann.jml.factor.lehman.Lehman_Advanced;
 import de.tilman_neumann.jml.factor.psiqs.PSIQSBase;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS_U;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
@@ -51,7 +51,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
 	
 	private TDiv31Preload tDiv31 = new TDiv31Preload();
-	private Lehman_TDivLast lehman = new Lehman_TDivLast(1.6F);
+	private Lehman_Advanced lehman = new Lehman_Advanced();
 	private SquFoF31 squFoF31 = new SquFoF31();
 	private SquFoF63 squFoF63 = new SquFoF63();
 	private SIQS siqs_smallArgs;

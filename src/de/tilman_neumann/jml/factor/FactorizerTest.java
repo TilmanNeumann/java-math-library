@@ -17,6 +17,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -60,7 +61,7 @@ public class FactorizerTest {
 	private static final Integer MAX_BITS = 45;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
-
+	
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
 	 */
@@ -71,12 +72,12 @@ public class FactorizerTest {
 
 			// Trial division: Fastest algorithm for N < 2^25
 			new TDiv31Preload(),
-			
-			// Lehman: best algorithm for 25 to 37 bits, works until 45 bit
-			//new Lehman_Simple(),
+//			
+//			// Lehman: best algorithm for 25 to 37 bits, works until 45 bit
+//			//new Lehman_Simple(),
 			new Lehman_TDivFirst(1F),
-			new Lehman_TDivLast(1F), // fastest Lehman implementation
-			
+			new Lehman_Advanced(), // fastest Lehman implementation
+
 			// PollardRho:
 			// * never the best algorithm
 			// * Best BigInteger version is PollardRhoBrent

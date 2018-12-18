@@ -27,7 +27,7 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
-import de.tilman_neumann.jml.factor.lehman.Lehman_TDivLast;
+import de.tilman_neumann.jml.factor.lehman.Lehman_Advanced;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
@@ -82,7 +82,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 
 	private BPSWTest probablePrimeTest;
 	
-	private Lehman_TDivLast lehman = new Lehman_TDivLast(1.6F);
+	private Lehman_Advanced lehman = new Lehman_Advanced();
 	private SquFoF31 squFoF31; // used for Q <= 2^52 that pass trial division
 	private SquFoF63 squFoF63; // used for 2^53 <= Q <= 2^59
 	private SIQS qsInternal; // Nested SIQS for Q_rest >= 2^60. Required only for approximately N>310 bit.
