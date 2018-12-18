@@ -52,13 +52,13 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 1000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = 45;
+	private static final Integer MAX_BITS = 63;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	
@@ -75,9 +75,9 @@ public class FactorizerTest {
 //			
 //			// Lehman: best algorithm for 25 to 37 bits, works until 45 bit
 //			//new Lehman_Simple(),
-			new Lehman_TDivFirst(1F),
+//			new Lehman_TDivFirst(1F),
 			new Lehman_Advanced(), // fastest Lehman implementation
-
+			
 			// PollardRho:
 			// * never the best algorithm
 			// * Best BigInteger version is PollardRhoBrent
@@ -90,7 +90,7 @@ public class FactorizerTest {
 			// * SquFoF31 is the best algorithm overall for N = 2^38...2^52, SquFoF63 for N = 2^52...2^60
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-//			new SquFoF63(), // best algorithm for N = 2^52...2^60 (freezes at some N > 2^90)
+			new SquFoF63(), // best algorithm for N = 2^52...2^60 (freezes at some N > 2^90)
 			new SquFoF31(), // best algorithm for N = 2^38...2^52
 			
 			// CFrac
@@ -107,7 +107,7 @@ public class FactorizerTest {
 			// * BlockLanczos is better than Gauss for about N>200 bit
 			//new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SimpleSieve(), new TDiv_QS_1Large(), 10, new MatrixSolver01_Gauss(), false),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
-//			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
+			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
 
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), false),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), false),
@@ -154,18 +154,18 @@ public class FactorizerTest {
 		ArrayList<BigInteger> NSet = TestsetGenerator.generate(bits, N_COUNT);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
-		// take 3 timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
+		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
 		TreeMap<Long, List<SingleFactorFinder>> ms_2_algorithms = new TreeMap<Long, List<SingleFactorFinder>>();
 		for (int i=0; i<REPEATS; i++) {
 			for (SingleFactorFinder algorithm : algorithms) {
 				// exclude special size implementations
 				String algName = algorithm.getName();
-				if (bits<45 && algName.startsWith("SIQS")) continue; // unstable for smaller N
+				if (bits<46 && algName.startsWith("SIQS")) continue; // unstable for smaller N
 				if (bits<57 && algName.startsWith("PSIQS")) continue; // unstable for smaller N
 				if (bits>98 && algName.startsWith("CFrac63")) continue; // unstable for N>98 bits
 				if (bits>63 && algName.startsWith("TDiv63")) continue; // long implementation
 				if (bits>52 && algName.equals("SquFoF31")) continue; // int implementation
-				if (bits>45 && algName.startsWith("Lehman")) continue; // int implementation
+				if (bits>63 && algName.startsWith("Lehman")) continue; // int implementation
 				if (bits>31 && algName.startsWith("TDiv31")) continue; // int implementation
 				if (bits>31 && algName.startsWith("PollardRho31")) continue; // long implementation
 				
