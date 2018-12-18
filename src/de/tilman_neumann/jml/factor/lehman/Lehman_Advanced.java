@@ -40,8 +40,8 @@ public class Lehman_Advanced extends FactorAlgorithmBase {
 	private static double[] sqrt, sqrtInv;
 
 	static {
-		// precompute sqrts for all possible k. Requires about 2^15 entries.
-		final int kMax = (int) (Math.cbrt(1L<<45) + 1);
+		// Precompute sqrts for all possible k. 2^22 entries are enough for N~2^66.
+		final int kMax = (int) (1<<22);
 		//LOG.debug("kMax = " + kMax);
 
 		sqrt = new double[kMax + 1];
