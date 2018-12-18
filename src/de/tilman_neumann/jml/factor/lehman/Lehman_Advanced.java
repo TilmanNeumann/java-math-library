@@ -37,13 +37,9 @@ public class Lehman_Advanced extends FactorAlgorithmBase {
 
 	private final Gcd63 gcdEngine = new Gcd63();
 
-	private double[] sqrt, sqrtInv;
+	private static double[] sqrt, sqrtInv;
 
-	public Lehman_Advanced() {
-		initSqrts();
-	}
-
-	private void initSqrts() {
+	static {
 		// precompute sqrts for all possible k. Requires about 2^15 entries.
 		final int kMax = (int) (Math.cbrt(1L<<45) + 1);
 		//LOG.debug("kMax = " + kMax);
