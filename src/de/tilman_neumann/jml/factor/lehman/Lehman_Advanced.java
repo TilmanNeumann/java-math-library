@@ -98,8 +98,9 @@ public class Lehman_Advanced extends FactorAlgorithmBase {
 			}
 
 			// processing the a-loop top-down is faster than bottom-up
+			final long fourKN = k * fourN;
 			for (long a=aLimit; a >= aStart; a-=aStep) {
-				final long test = a*a - k * fourN;
+				final long test = a*a - fourKN;
 				final long b = (long) Math.sqrt(test);
 				if (b*b == test) {
 					return gcdEngine.gcd(a+b, N);
