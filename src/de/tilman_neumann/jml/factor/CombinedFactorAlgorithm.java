@@ -75,12 +75,12 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		int N_bits = N.bitLength();
-		if (N_bits < 25) return tDiv31.findSingleFactor(N);
-		if (N_bits < 38) return lehman.findSingleFactor(N); // squFoF31 slightly better at 36 bit
-		if (N_bits < 53) return squFoF31.findSingleFactor(N); // lehman slightly better at 40 bit
-		if (N_bits < 60) return squFoF63.findSingleFactor(N);
-		if (N_bits < 97) return siqs_smallArgs.findSingleFactor(N);
+		int NBits = N.bitLength();
+		if (NBits<25) return tDiv31.findSingleFactor(N);
+		if (NBits<45 && NBits!=42 && NBits!=39) return lehman.findSingleFactor(N);
+		if (NBits<53) return squFoF31.findSingleFactor(N);
+		if (NBits<60) return squFoF63.findSingleFactor(N);
+		if (NBits<97) return siqs_smallArgs.findSingleFactor(N);
 		return siqs_bigArgs.findSingleFactor(N);
 	}
 	

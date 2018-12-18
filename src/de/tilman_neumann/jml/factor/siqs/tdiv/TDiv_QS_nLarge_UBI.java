@@ -283,12 +283,12 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 		// At N with 200 bit we have pMax ~ 17 bit, thus Q_rest >= 34 bit -> trial division is no help here.
 		BigInteger factor1;
 		int Q_rest_bits = Q_rest.bitLength();
-		if (Q_rest_bits < 38) {
+		if (Q_rest_bits<45 && Q_rest_bits!=42 && Q_rest_bits!=39) {
 			factor1 = lehman.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits < 53) {
+		} else if (Q_rest_bits<53) {
 			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use squFoF31");
 			factor1 = squFoF31.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits < 60) {
+		} else if (Q_rest_bits<60) {
 			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use squFoF63");
 			factor1 = squFoF63.findSingleFactor(Q_rest);
 		} else {
