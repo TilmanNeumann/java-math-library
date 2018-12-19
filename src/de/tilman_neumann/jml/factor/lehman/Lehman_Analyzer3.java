@@ -112,7 +112,7 @@ public class Lehman_Analyzer3 extends FactorAlgorithmBase {
 			boolean logged = false;
 			for (int j=0; j<MOD; j++) {
 				if (aValues[i][j].size() > 0) {
-					LOG.info("Success a-values for k%" + MOD + "==" + i + ", (N+k)%" + MOD + "==" + j + " = " + aValues[i][j]);
+					LOG.info("Success a-values %" + MOD + " for k%" + MOD + "==" + i + ", (N+k)%" + MOD + "==" + j + " : " + aValues[i][j]);
 					logged = true;
 				}
 			}

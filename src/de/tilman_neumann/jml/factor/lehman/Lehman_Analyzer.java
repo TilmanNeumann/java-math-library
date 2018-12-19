@@ -96,7 +96,7 @@ public class Lehman_Analyzer {
 		
 		for (int i=0; i<MOD; i++) {
 			if (aValues[i].size() > 0) {
-				LOG.info("Success a-values for (N+k)%" + MOD + "==" + i + " = " + aValues[i]);
+				LOG.info("Success a-values %" + MOD + " for (N+k)%" + MOD + "==" + i + " : " + aValues[i]);
 			}
 		}
 	}

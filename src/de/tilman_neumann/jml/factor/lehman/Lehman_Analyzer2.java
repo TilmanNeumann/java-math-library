@@ -106,7 +106,7 @@ public class Lehman_Analyzer2 {
 		boolean logged = false;
 		for (int i=0; i<MOD; i++) {
 			if (aValuesEvenK[i].size() > 0) {
-				LOG.info("Success a-values for (N+k)%" + MOD + "==" + i + " with even k = " + aValuesEvenK[i]);
+				LOG.info("Success a-values %" + MOD + " for (N+k)%" + MOD + "==" + i + " with even k : " + aValuesEvenK[i]);
 				logged = true;
 			}
 		}
@@ -115,7 +115,7 @@ public class Lehman_Analyzer2 {
 		logged = false;
 		for (int i=0; i<MOD; i++) {
 			if (aValuesOddK[i].size() > 0) {
-				LOG.info("Success a-values for (N+k)%" + MOD + "==" + i + " with odd k = " + aValuesOddK[i]);
+				LOG.info("Success a-values %" + MOD + " for (N+k)%" + MOD + "==" + i + " with odd k : " + aValuesOddK[i]);
 				logged = true;
 			}
 		}
