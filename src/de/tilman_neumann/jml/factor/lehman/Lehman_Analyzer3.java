@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
-import de.tilman_neumann.jml.factor.FactorizerTest;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 
 /**
@@ -37,7 +36,7 @@ import de.tilman_neumann.jml.factor.TestsetGenerator;
  * @author Tilman Neumann
  */
 public class Lehman_Analyzer3 extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(FactorizerTest.class);
+	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer3.class);
 
 	// algorithm options
 	/** number of test numbers */
