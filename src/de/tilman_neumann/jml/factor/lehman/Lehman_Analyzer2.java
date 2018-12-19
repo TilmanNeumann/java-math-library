@@ -28,12 +28,14 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 
 /**
- * Analysis of Lehman's algorithm: We need (k+N) and a in the same rest classes (%12, %24, %30, ?)
+ * Analysis of Lehman's algorithm:
+ * 1. We need (k+N) and a in the same rest classes (%12, %24, %30, ?)
+ * 2. If k is even then a must be odd and vice versa
  * 
  * @author Tilman Neumann
  */
-public class Lehman_Analyzer {
-	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer.class);
+public class Lehman_Analyzer2 {
+	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer2.class);
 
 	// algorithm options
 	/** number of test numbers */
@@ -47,14 +49,17 @@ public class Lehman_Analyzer {
 	
 	private final Gcd63 gcdEngine = new Gcd63();
 	
-	private Set<Integer>[] aValues;
+	private Set<Integer>[] aValuesEvenK;
+	private Set<Integer>[] aValuesOddK;
 	
 	private static final int MOD = 12;
 	
-	public Lehman_Analyzer() {
-		aValues = new SortedSet[MOD];
+	public Lehman_Analyzer2() {
+		aValuesEvenK = new SortedSet[MOD];
+		aValuesOddK = new SortedSet[MOD];
 		for (int i=0; i<MOD; i++) {
-			aValues[i] = new TreeSet<Integer>();
+			aValuesEvenK[i] = new TreeSet<Integer>();
+			aValuesOddK[i] = new TreeSet<Integer>();
 		}
 	}
 	
@@ -74,7 +79,11 @@ public class Lehman_Analyzer {
 				long test = a*(long)a - fourKN;
 				long b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					aValues[(int)((N+k)%MOD)].add(a%MOD);
+					if ((k&1)==0) {
+						aValuesEvenK[(int)((N+k)%MOD)].add(a%MOD);
+					} else {
+						aValuesOddK[(int)((N+k)%MOD)].add(a%MOD);
+					}
 					return gcdEngine.gcd(a+b, N);
 				}
 			}
@@ -94,11 +103,23 @@ public class Lehman_Analyzer {
 			this.findSingleFactor(N);
 		}
 		
+		boolean logged = false;
 		for (int i=0; i<MOD; i++) {
-			if (aValues[i].size() > 0) {
-				LOG.info("Success a-values for (N+k)%" + MOD + "==" + i + " = " + aValues[i]);
+			if (aValuesEvenK[i].size() > 0) {
+				LOG.info("Success a-values for (N+k)%" + MOD + "==" + i + " with even k = " + aValuesEvenK[i]);
+				logged = true;
 			}
 		}
+		if (logged) LOG.info("");
+		
+		logged = false;
+		for (int i=0; i<MOD; i++) {
+			if (aValuesOddK[i].size() > 0) {
+				LOG.info("Success a-values for (N+k)%" + MOD + "==" + i + " with odd k = " + aValuesOddK[i]);
+				logged = true;
+			}
+		}
+		if (logged) LOG.info("");
 	}
 
 	public static void main(String[] args) {
@@ -106,7 +127,7 @@ public class Lehman_Analyzer {
 		int bits = START_BITS;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
-	    	Lehman_Analyzer testEngine = new Lehman_Analyzer();
+	    	Lehman_Analyzer2 testEngine = new Lehman_Analyzer2();
 			testEngine.testRange(bits);
 			bits += INCR_BITS;
 			if (MAX_BITS!=null && bits > MAX_BITS) break;
