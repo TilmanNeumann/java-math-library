@@ -14,6 +14,8 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -48,7 +50,7 @@ public class Lehman_Analyzer1_1 {
 	
 	private SortedMultiset<Integer>[] aValues;
 	
-	private static final int MOD = 12;
+	private static final int MOD = 6;
 	
 	public Lehman_Analyzer1_1() {
 		aValues = new SortedMultiset_BottomUp[MOD];
@@ -73,6 +75,8 @@ public class Lehman_Analyzer1_1 {
 				long test = a*(long)a - fourKN;
 				long b = (long) Math.sqrt(test);
 				if (b*b == test) {
+					assertTrue( (k+N-a)%6 == 0 || (k+N+a)%6 == 0); // CORRECT
+					//assertEquals(((k+N)*(k+N)) % 6, (a*a)%6); // WRONG
 					aValues[(int)((N+k)%MOD)].add(a%MOD);
 					return gcdEngine.gcd(a+b, N);
 				}
@@ -102,6 +106,12 @@ public class Lehman_Analyzer1_1 {
 
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
+    	
+    	for (int x=0; x<6; x++) {
+    		LOG.info("x % 6 = " + x%6);
+    		LOG.info("(6-x) % 6 = " + (6-x)%6);
+    	}
+    	
 		int bits = START_BITS;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
