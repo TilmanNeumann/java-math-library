@@ -30,6 +30,7 @@ import de.tilman_neumann.jml.factor.TestsetGenerator;
 
 /**
  * Analysis of Lehman's algorithm: We need (k+N) and a in the same rest classes (%12, %24, %30, ?)
+ * Current stateof investigation: (mod 6) looks most interesting...
  * 
  * @author Tilman Neumann
  */
@@ -75,6 +76,7 @@ public class Lehman_Analyzer1_1 {
 				long test = a*(long)a - fourKN;
 				long b = (long) Math.sqrt(test);
 				if (b*b == test) {
+					//assertTrue( (k+N-a)%MOD == 0 || (k+N+a)%MOD == 0); // WRONG
 					assertTrue( (k+N-a)%6 == 0 || (k+N+a)%6 == 0); // CORRECT
 					//assertEquals(((k+N)*(k+N)) % 6, (a*a)%6); // WRONG
 					aValues[(int)((N+k)%MOD)].add(a%MOD);
