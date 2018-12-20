@@ -32,8 +32,8 @@ import de.tilman_neumann.jml.factor.TestsetGenerator;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_Analyzer {
-	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer.class);
+public class Lehman_Analyzer1 {
+	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer1.class);
 
 	// algorithm options
 	/** number of test numbers */
@@ -51,7 +51,7 @@ public class Lehman_Analyzer {
 	
 	private static final int MOD = 12;
 	
-	public Lehman_Analyzer() {
+	public Lehman_Analyzer1() {
 		aValues = new SortedSet[MOD];
 		for (int i=0; i<MOD; i++) {
 			aValues[i] = new TreeSet<Integer>();
@@ -106,7 +106,7 @@ public class Lehman_Analyzer {
 		int bits = START_BITS;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
-	    	Lehman_Analyzer testEngine = new Lehman_Analyzer();
+	    	Lehman_Analyzer1 testEngine = new Lehman_Analyzer1();
 			testEngine.testRange(bits);
 			bits += INCR_BITS;
 			if (MAX_BITS!=null && bits > MAX_BITS) break;
