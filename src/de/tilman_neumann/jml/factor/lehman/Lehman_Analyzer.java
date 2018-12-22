@@ -17,14 +17,12 @@ import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 
@@ -48,17 +46,17 @@ public class Lehman_Analyzer extends FactorAlgorithmBase {
 	
 	private final Gcd63 gcdEngine = new Gcd63();
 	
-	private Set<Integer>[][] aValues;
+	private SortedMultiset_BottomUp<Integer>[][] aValues;
 	
 	private static final int MOD = 16;
 	
 	@SuppressWarnings("unchecked")
 	public Lehman_Analyzer() {
-		aValues = new SortedSet[MOD][MOD];
+		aValues = new SortedMultiset_BottomUp[MOD][MOD];
 		for (int i=0; i<MOD; i++) {
-			aValues[i] = new SortedSet[MOD];
+			aValues[i] = new SortedMultiset_BottomUp[MOD];
 			for (int j=0; j<MOD; j++) {
-				aValues[i][j] = new TreeSet<Integer>();
+				aValues[i][j] = new SortedMultiset_BottomUp<Integer>();
 			}
 		}
 	}
@@ -113,7 +111,7 @@ public class Lehman_Analyzer extends FactorAlgorithmBase {
 			boolean logged = false;
 			for (int j=0; j<MOD; j++) {
 				if (aValues[i][j].size() > 0) {
-					LOG.info("Success a-values %" + MOD + " for N%" + MOD + "==" + i + ", k%" + MOD + "==" + j + " : " + aValues[i][j]);
+					LOG.info("Successful a-values %" + MOD + " for N%" + MOD + "==" + i + ", k%" + MOD + "==" + j + " : " + aValues[i][j]);
 					logged = true;
 				}
 			}
