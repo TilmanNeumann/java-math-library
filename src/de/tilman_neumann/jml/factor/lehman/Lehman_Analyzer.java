@@ -14,28 +14,27 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
+import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 
 /**
- * Analysis of Lehman's algorithm: We need (k+N) and a in the same rest classes (%12, %24, %30, ?)
- * Current stateof investigation: (mod 6) looks most interesting...
+ * Analyze which a-values help the Lehman algorithm to find factors.
  * 
  * @author Tilman Neumann
  */
-public class Lehman_Analyzer1_1 {
-	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer1_1.class);
+public class Lehman_Analyzer extends FactorAlgorithmBase {
+	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer.class);
 
 	// algorithm options
 	/** number of test numbers */
@@ -49,17 +48,27 @@ public class Lehman_Analyzer1_1 {
 	
 	private final Gcd63 gcdEngine = new Gcd63();
 	
-	private SortedMultiset<Integer>[] aValues;
+	private Set<Integer>[][] aValues;
 	
-	private static final int MOD = 6;
+	private static final int MOD = 16;
 	
-	public Lehman_Analyzer1_1() {
-		aValues = new SortedMultiset_BottomUp[MOD];
+	@SuppressWarnings("unchecked")
+	public Lehman_Analyzer() {
+		aValues = new SortedSet[MOD][MOD];
 		for (int i=0; i<MOD; i++) {
-			aValues[i] = new SortedMultiset_BottomUp<Integer>();
+			aValues[i] = new SortedSet[MOD];
+			for (int j=0; j<MOD; j++) {
+				aValues[i][j] = new TreeSet<Integer>();
+			}
 		}
 	}
 	
+	@Override
+	public String getName() {
+		return "Lehman_Analyzer";
+	}
+
+	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
 		return BigInteger.valueOf(findSingleFactor(N.longValue()));
 	}
@@ -70,16 +79,17 @@ public class Lehman_Analyzer1_1 {
 		for (int k=1; k <= cbrt; k++) {
 			long fourKN = k*N<<2;
 			double fourSqrtK = Math.sqrt(k<<4);
-			int sqrt4kN = (int) Math.ceil(Math.sqrt(fourKN)); // ceil() is required for stability
+			int sqrt4kN = (int) Math.ceil(Math.sqrt(fourKN));
 			int limit = (int) (sqrt4kN + sixthRoot / fourSqrtK);
 			for (int a = sqrt4kN; a <= limit; a++) {
 				long test = a*(long)a - fourKN;
 				long b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					//assertTrue( (k+N-a)%MOD == 0 || (k+N+a)%MOD == 0); // WRONG
-					assertTrue( (k+N-a)%6 == 0 || (k+N+a)%6 == 0); // CORRECT
-					//assertEquals(((k+N)*(k+N)) % 6, (a*a)%6); // WRONG
-					aValues[(int)((N+k)%MOD)].add(a%MOD);
+					try {
+						aValues[(int)(N%MOD)][k%MOD].add(a%MOD);
+					} catch (ArrayIndexOutOfBoundsException e) {
+						LOG.error("N=" + N  + " caused " + e, e);
+					}
 					return gcdEngine.gcd(a+b, N);
 				}
 			}
@@ -100,24 +110,24 @@ public class Lehman_Analyzer1_1 {
 		}
 		
 		for (int i=0; i<MOD; i++) {
-			if (aValues[i].size() > 0) {
-				LOG.info("Success a-values %" + MOD + " for (N+k)%" + MOD + "==" + i + " : " + aValues[i]);
+			boolean logged = false;
+			for (int j=0; j<MOD; j++) {
+				if (aValues[i][j].size() > 0) {
+					LOG.info("Success a-values %" + MOD + " for N%" + MOD + "==" + i + ", k%" + MOD + "==" + j + " : " + aValues[i][j]);
+					logged = true;
+				}
 			}
+			if (logged) LOG.info("");
 		}
+
 	}
 
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-    	
-    	for (int x=0; x<6; x++) {
-    		LOG.info("x % 6 = " + x%6);
-    		LOG.info("(6-x) % 6 = " + (6-x)%6);
-    	}
-    	
 		int bits = START_BITS;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
-	    	Lehman_Analyzer1_1 testEngine = new Lehman_Analyzer1_1();
+	    	Lehman_Analyzer testEngine = new Lehman_Analyzer();
 			testEngine.testRange(bits);
 			bits += INCR_BITS;
 			if (MAX_BITS!=null && bits > MAX_BITS) break;
