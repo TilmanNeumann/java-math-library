@@ -117,7 +117,6 @@ public class Lehman_Analyzer extends FactorAlgorithmBase {
 			}
 			if (logged) LOG.info("");
 		}
-
 	}
 
 	public static void main(String[] args) {
