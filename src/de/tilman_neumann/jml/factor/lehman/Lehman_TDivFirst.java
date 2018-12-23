@@ -104,8 +104,8 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 		for (; k <= kMedium; k++) {
 			long kn = k*N;
 			double sqrt4kN = sqrt4N * sqrt[k];
-			int aStart = (int) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
-			int aLimit = (int) (sqrt4kN + sixthRootTerm * sqrtInv[k]);
+			long aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
+			long aLimit = (long) (sqrt4kN + sixthRootTerm * sqrtInv[k]);
 			int aStep;
 			if ((k&1)==0) {
 				// k even -> make sure aLimit is odd
@@ -125,8 +125,8 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 			
 			// processing the a-loop top-down is faster than bottom-up
 			long fourKN = kn << 2;
-			for (int a=aLimit; a >= aStart; a-=aStep) {
-				long test = a*(long)a - fourKN;
+			for (long a=aLimit; a >= aStart; a-=aStep) {
+				long test = a*a - fourKN;
 		        if (isSquareMod1024[(int) (test & 1023)]) {
 		        	long b = (long) Math.sqrt(test);
 		        	if (b*b == test) {
@@ -140,8 +140,8 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 		int k1 = k;
 		for ( ; k1 <= kLimit; k1+=2) {
 			// for even k we need odd a
-			int a = (int) (sqrt4N * sqrt[k1] + ROUND_UP_DOUBLE) | 1;
-			long test = a*(long)a - k1*fourN;
+			long a = (long) (sqrt4N * sqrt[k1] + ROUND_UP_DOUBLE) | 1;
+			long test = a*a - k1*fourN;
 	        if (isSquareMod1024[(int) (test & 1023)]) {
 	        	long b = (long) Math.sqrt(test);
 	        	if (b*b == test) {
@@ -153,8 +153,8 @@ public class Lehman_TDivFirst extends FactorAlgorithmBase {
 		// 4. continue main loop for larger odd k, where we can have only 1 a-value per k
 		int k2 = k+1;
 		for ( ; k2 <= kLimit; k2+=2) {
-			int a = (int) (sqrt4N * sqrt[k2] + ROUND_UP_DOUBLE);
-			long test = a*(long)a - k2*fourN;
+			long a = (long) (sqrt4N * sqrt[k2] + ROUND_UP_DOUBLE);
+			long test = a*a - k2*fourN;
 	        if (isSquareMod1024[(int) (test & 1023)]) {
 	        	long b = (long) Math.sqrt(test);
 	        	if (b*b == test) {

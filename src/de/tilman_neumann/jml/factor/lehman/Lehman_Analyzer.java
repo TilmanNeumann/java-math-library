@@ -77,14 +77,14 @@ public class Lehman_Analyzer extends FactorAlgorithmBase {
 		for (int k=1; k <= cbrt; k++) {
 			long fourKN = k*N<<2;
 			double fourSqrtK = Math.sqrt(k<<4);
-			int sqrt4kN = (int) Math.ceil(Math.sqrt(fourKN));
-			int limit = (int) (sqrt4kN + sixthRoot / fourSqrtK);
-			for (int a = sqrt4kN; a <= limit; a++) {
-				long test = a*(long)a - fourKN;
+			long sqrt4kN = (long) Math.ceil(Math.sqrt(fourKN));
+			long limit = (long) (sqrt4kN + sixthRoot / fourSqrtK);
+			for (long a = sqrt4kN; a <= limit; a++) {
+				long test = a*a - fourKN;
 				long b = (long) Math.sqrt(test);
 				if (b*b == test) {
 					try {
-						aValues[(int)(N%MOD)][k%MOD].add(a%MOD);
+						aValues[(int)(N%MOD)][k%MOD].add((int) (a%MOD));
 					} catch (ArrayIndexOutOfBoundsException e) {
 						LOG.error("N=" + N  + " caused " + e, e);
 					}
