@@ -58,8 +58,13 @@ public class Lehman_kaAnalyzer extends FactorAlgorithmBase {
 		final int kLimit = ((int) cbrt  + 6) / 6 * 6;
 		int kTwoA = Math.max(((kLimit >> 6) - 1), 0) | 1;
 		double sixthRoot = Math.pow(N, 1/6.0); // double precision is required for stability
+		boolean loggedOverflow = false;
 		for (int k=1; k <= cbrt; k++) {
 			long fourKN = k*N<<2;
+			if (fourKN<0 && !loggedOverflow) {
+				LOG.error("    ******** 4kN = " + fourKN + " overflows positive longs!");
+				loggedOverflow = true;
+			}
 			double fourSqrtK = Math.sqrt(k<<4);
 			long sqrt4kN = (long) Math.ceil(Math.sqrt(fourKN));
 			long limit = (long) (sqrt4kN + sixthRoot / fourSqrtK);
@@ -78,7 +83,7 @@ public class Lehman_kaAnalyzer extends FactorAlgorithmBase {
 			}
 	    }
 		
-		LOG.debug("    Failed factoring !");
+		LOG.debug("    ******** Factoring failed.");
 		return 0;
 	}
 	
@@ -86,6 +91,7 @@ public class Lehman_kaAnalyzer extends FactorAlgorithmBase {
 		ConfigUtil.initProject();
 		
 		long[] testNumbers = new long[] {
+				// Here Lehman_TillSimple3 still fails
 				//5640012124823L,
 				//7336014366011L,
 				//19699548984827L,
@@ -93,23 +99,35 @@ public class Lehman_kaAnalyzer extends FactorAlgorithmBase {
 				73891306919159L,
 				//112454098638991L,
 				
+				// Here Lehman_TillSimple3_2 still fails
 				//32427229648727L,
 				//87008511088033L,
 				92295512906873L,
-				338719143795073L,
+				//338719143795073L,
 				//346425669865991L,
-				1058244082458461L,
+				//1058244082458461L,
 				1773019201473077L,
 				//6150742154616377L,
 
-				44843649362329L,
+				// Here Lehman_Fast2, Lehman_Fast3 still fail
+				//44843649362329L,
 				67954151927287L,
 				134170056884573L,
-				198589283218993L,
+				//198589283218993L,
 				737091621253457L,
-				1112268234497993L,
+				//1112268234497993L,
 				2986396307326613L,
-		};
+				
+				// Here Lehman_TillSimple3_3 still fails
+				26275638086419L,
+				62246008190941L,
+				209195243701823L,
+				290236682491211L,
+				485069046631849L,
+				1239671094365611L,
+				2815471543494793L,
+				5682546780292609L,
+			};
 		
 		Lehman_kaAnalyzer lehman = new Lehman_kaAnalyzer();
 		for (long testNumber : testNumbers) {
