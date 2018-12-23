@@ -83,18 +83,16 @@ public class Lehman_Analyzer extends FactorAlgorithmBase {
 				long test = a*a - fourKN;
 				long b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					try {
+					long gcd = gcdEngine.gcd(a+b, N);
+					if (gcd>1 && gcd<N) {
 						aValues[(int)(N%MOD)][k%MOD].add((int) (a%MOD));
-					} catch (ArrayIndexOutOfBoundsException e) {
-						LOG.error("N=" + N  + " caused " + e, e);
+						return gcd;
 					}
-					return gcdEngine.gcd(a+b, N);
 				}
 			}
 	    }
 		
-		// Nothing found. Either N is prime or the implementation is buggy. For N > 45 bit it won't work.
-		return 0;
+		return 0; // Fail
 	}
 	
 	private void testRange(int bits) {
