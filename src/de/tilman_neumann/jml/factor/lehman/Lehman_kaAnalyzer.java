@@ -61,7 +61,7 @@ public class Lehman_kaAnalyzer extends FactorAlgorithmBase {
 		for (int k=1; k <= cbrt; k++) {
 			long fourKN = k*N<<2;
 			double fourSqrtK = Math.sqrt(k<<4);
-			long sqrt4kN = (long) Math.ceil(Math.sqrt(fourKN)); // ceil() is required for stability
+			long sqrt4kN = (long) Math.ceil(Math.sqrt(fourKN));
 			long limit = (long) (sqrt4kN + sixthRoot / fourSqrtK);
 			for (long a = sqrt4kN; a <= limit; a++) {
 				long test = a*a - fourKN;
@@ -69,7 +69,7 @@ public class Lehman_kaAnalyzer extends FactorAlgorithmBase {
 				if (b*b == test) {
 					long gcd = gcdEngine.gcd(a+b, N);
 					if (gcd>1 && gcd<N) {
-						LOG.debug("Lehman found factor " + gcd + ":");
+						LOG.debug("    Lehman found factor " + gcd + ":");
 						LOG.debug("    k=" + k + ", k%24=" + (k%24) + ", cbrt=" + cbrt + ", kLimit=" + kLimit + ", kTwoA=" + kTwoA);
 						LOG.debug("    a=" + a + ", a%24=" + (a%24) + ", aStart=" + sqrt4kN + ", aLimit=" + limit);
 						return gcd;
@@ -85,12 +85,12 @@ public class Lehman_kaAnalyzer extends FactorAlgorithmBase {
 		ConfigUtil.initProject();
 		
 		long[] testNumbers = new long[] {
-			5640012124823L,
-			7336014366011L,
-			19699548984827L,
+			// 5640012124823L, // Fixed
+			// 7336014366011L, // Fixed
+			// 19699548984827L, // Fixed
 			52199161732031L,
 			73891306919159L,
-			112454098638991L,
+			// 112454098638991L, // Fixed
 			
 			32427229648727L,
 			87008511088033L,
