@@ -21,7 +21,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 /**
  * Simple implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/,
  * useful for illustrating the basic algorithm.
- * Slow but reliable for N up to 60 bit.
+ * Slow but the most reliable for N up to 60 bit.
  * 
  * @author Tilman Neumann
  */
@@ -63,6 +63,6 @@ public class Lehman_Simple extends FactorAlgorithmBase {
 			}
 	    }
 		
-		return 0; // Fail. // XXX Should not happen at all in Lehman_Simple?
+		return 0; // Fail
 	}
 }
