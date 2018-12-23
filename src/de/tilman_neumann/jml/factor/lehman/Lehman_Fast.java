@@ -219,7 +219,7 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 
-		// all active test numbers run into trial division...
+		// These test number were too hard for previous versions:
 		long[] testNumbers = new long[] {
 				// stuff Lehman_TillSimple3 did not like
 				5640012124823L,
