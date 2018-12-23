@@ -13,7 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
-
 import java.math.BigInteger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
@@ -22,7 +21,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 /**
  * Simple implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/,
  * useful for illustrating the basic algorithm.
- * Works for N <= 45 bit.
+ * Slow but reliable for N up to 60 bit.
  * 
  * @author Tilman Neumann
  */
@@ -58,12 +57,12 @@ public class Lehman_Simple extends FactorAlgorithmBase {
 				long test = a*a - fourKN;
 				long b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+					long gcd = gcdEngine.gcd(a+b, N);
+					if (gcd>1 && gcd<N) return gcd;
 				}
 			}
 	    }
 		
-		// Nothing found. Either N is prime or the implementation is buggy. For N > 45 bit it won't work.
-		return 0;
+		return 0; // Fail. // XXX Should not happen at all in Lehman_Simple?
 	}
 }
