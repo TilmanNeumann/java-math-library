@@ -49,10 +49,6 @@ public class TDiv31Preload extends FactorAlgorithmBase {
 		return BigInteger.valueOf(findSingleFactor(N.intValue()));
 	}
 	
-	public long findSingleFactor(long N) {
-		return (long) findSingleFactor( (int) N);
-	}
-	
 	public int findSingleFactor(int N) {
 		// if N is odd and composite then the loop runs maximally up to test = floor(sqrt(N))
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
