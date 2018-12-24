@@ -52,13 +52,13 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1000;
+	private static final int N_COUNT = 1000000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 40;
+	private static final int START_BITS = 15;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = 70;
+	private static final Integer MAX_BITS = 60;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	
@@ -81,7 +81,7 @@ public class FactorizerTest {
 			//new Lehman_TDivLast(1F),
 			//new Lehman_Advanced(),
 			new Lehman_Fast(true), // best algorithm for 25 to 56 bits
-
+			
 			// PollardRho:
 			// * never the best algorithm
 			// * Best BigInteger version is PollardRhoBrent
@@ -100,10 +100,10 @@ public class FactorizerTest {
 			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits
 			// * stopRoot, stopMult: if big enough, then a second k is rarely needed; (5, 1.5) is good
 			// * TDiv_CF01 is good for N < 80 bits; for N > 90 bit we need TDiv_CF02
-//			new CFrac01(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF01(), 10, new MatrixSolver01_Gauss(), 5, false),
-//			new CFrac01(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5, false),
-			new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 12),
-//			new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
+			//new CFrac01(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF01(), 10, new MatrixSolver01_Gauss(), 5, false),
+			//new CFrac01(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5, false),
+//			new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 12),
+			//new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
 
 			// SIQS:
 			// * TDiv: UBI-variants are better than BigInteger-variants; nLarge is better than 1Large for N >= 200 bit
