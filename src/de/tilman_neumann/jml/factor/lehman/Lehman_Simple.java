@@ -19,10 +19,11 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 
 /**
- * Simple implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/,
- * useful for illustrating the basic algorithm.
- * Slow but the most reliable algorithm for N up to 60 bit.
+ * Simple implementation of Lehmans factor algorithm following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/.
  * 
+ * This implementation is pretty slow, but useful for illustrating the basic algorithm.
+ * It may fail for N>=49 bit where 4*k*N produces a long-overflow.
+ *
  * @author Tilman Neumann
  */
 public class Lehman_Simple extends FactorAlgorithmBase {
@@ -49,7 +50,7 @@ public class Lehman_Simple extends FactorAlgorithmBase {
 		// 2. Main loop
 		double sixthRoot = Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k <= cbrt; k++) {
-			long fourKN = k*N<<2; // XXX long overflow possible for N>=49 bit
+			long fourKN = k*N<<2; // long overflow possible for N>=49 bit
 			double fourSqrtK = Math.sqrt(k<<4);
 			long sqrt4kN = (long) Math.ceil(Math.sqrt(fourKN)); // ceil() is required for stability
 			long limit = (long) (sqrt4kN + sixthRoot / fourSqrtK);

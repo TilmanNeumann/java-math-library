@@ -24,6 +24,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 /**
  * Lehman analyzer that finds the correct k- and a-values of inputs other algorithms can not cope with.
  * Based on the simple implementation.
+ * Detects 4kN long overflows.
  * 
  * @author Tilman Neumann
  */
@@ -90,35 +91,32 @@ public class Lehman_kaAnalyzer extends FactorAlgorithmBase {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		
+		// These test number were too hard for older Lehman implementations
 		long[] testNumbers = new long[] {
-				// Here Lehman_TillSimple3 still fails
-				//5640012124823L,
-				//7336014366011L,
-				//19699548984827L,
+				5640012124823L,
+				7336014366011L,
+				19699548984827L,
 				52199161732031L,
 				73891306919159L,
-				//112454098638991L,
+				112454098638991L,
 				
-				// Here Lehman_TillSimple3_2 still fails
-				//32427229648727L,
-				//87008511088033L,
+				32427229648727L,
+				87008511088033L,
 				92295512906873L,
-				//338719143795073L,
-				//346425669865991L,
-				//1058244082458461L,
+				338719143795073L,
+				346425669865991L,
+				1058244082458461L,
 				1773019201473077L,
-				//6150742154616377L,
+				6150742154616377L,
 
-				// Here Lehman_Fast2, Lehman_Fast3 still fail
-				//44843649362329L,
+				44843649362329L,
 				67954151927287L,
 				134170056884573L,
-				//198589283218993L,
+				198589283218993L,
 				737091621253457L,
-				//1112268234497993L,
+				1112268234497993L,
 				2986396307326613L,
 				
-				// Here Lehman_TillSimple3_3 still fails
 				26275638086419L,
 				62246008190941L,
 				209195243701823L,

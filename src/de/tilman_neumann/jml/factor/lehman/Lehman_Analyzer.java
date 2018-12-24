@@ -27,7 +27,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 
 /**
- * Analyze which a-values help the Lehman algorithm to find factors.
+ * Analyze the moduli of a-values that help the Lehman algorithm to find factors.
  * 
  * @author Tilman Neumann
  */
@@ -48,7 +48,7 @@ public class Lehman_Analyzer extends FactorAlgorithmBase {
 	
 	private SortedMultiset_BottomUp<Integer>[][] aValues;
 	
-	private static final int MOD = 16;
+	private static final int MOD = 6;
 	
 	@SuppressWarnings("unchecked")
 	public Lehman_Analyzer() {
