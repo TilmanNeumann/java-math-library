@@ -205,7 +205,6 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 
 		// These test number were too hard for previous versions:
 		long[] testNumbers = new long[] {
-				// stuff Lehman_TillSimple3 did not like
 				5640012124823L,
 				7336014366011L,
 				19699548984827L,
@@ -213,7 +212,6 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 				73891306919159L,
 				112454098638991L,
 				
-				// stuff Lehman_TillSimple3_2 did not like
 				32427229648727L,
 				87008511088033L,
 				92295512906873L,
@@ -223,7 +221,6 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 				1773019201473077L,
 				6150742154616377L,
 
-				// stuff Lehman_Fast2, Lehman_Fast3 did not like
 				44843649362329L,
 				67954151927287L,
 				134170056884573L,
@@ -232,7 +229,6 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 				1112268234497993L,
 				2986396307326613L,
 				
-				// stuff Lehman_TillSimple3_3 did not like
 				26275638086419L,
 				62246008190941L,
 				209195243701823L,
