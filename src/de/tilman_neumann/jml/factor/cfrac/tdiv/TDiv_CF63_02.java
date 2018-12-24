@@ -24,9 +24,9 @@ import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
-import de.tilman_neumann.jml.factor.squfof.SquFoF31;
+import de.tilman_neumann.jml.factor.lehman.Lehman_Fast;
 import de.tilman_neumann.jml.factor.squfof.SquFoF63;
-import de.tilman_neumann.jml.factor.tdiv.TDiv31Preload;
+import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 
 /**
@@ -49,9 +49,9 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
 	private double maxQRest;
 
-	private TDiv31Preload tDiv31; // used for Q <= 2^28
-	private SquFoF31 squFoF31; // used for 2^29 <= Q <= 2^52
-	private SquFoF63 squFoF63; // used for 2^53 <= Q <= 2^63
+	private TDiv31Inverse tDiv31; // used for Q <= 2^24
+	private Lehman_Fast lehman; // used for 2^25 <= Q <= 2^56
+	private SquFoF63 squFoF63; // used for 2^57 <= Q <= 2^63
 	
 	private BPSWTest bpsw;
 
@@ -61,8 +61,8 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 	private AQPairFactory aqPairFactory = new AQPairFactory();
 
 	public TDiv_CF63_02() {
-		this.tDiv31 = new TDiv31Preload();
-		this.squFoF31 = new SquFoF31();
+		this.tDiv31 = new TDiv31Inverse();
+		this.lehman = new Lehman_Fast(true);
 		this.squFoF63 = new SquFoF63();
 		this.bpsw = new BPSWTest(1<<20);
 	}
@@ -170,10 +170,10 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 		// Find a factor of Q_rest, where Q_rest is pMax < Q_rest <= maxQRest, composite and odd.
 		long factor1;
 		int Q_rest_bits = bitLength(Q_rest);
-		if (Q_rest_bits <= 28) {
+		if (Q_rest_bits <= 24) {
 			factor1 = tDiv31.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits <= 52) {
-			factor1 = squFoF31.findSingleFactor(Q_rest);
+		} else if (Q_rest_bits <= 56) {
+			factor1 = lehman.findSingleFactor(Q_rest);
 		} else { // max Q_rest_bits is 63
 			factor1 = squFoF63.findSingleFactor(Q_rest);
 		}

@@ -36,7 +36,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_1Large_UBI;
 import de.tilman_neumann.jml.factor.squfof.SquFoF31;
 import de.tilman_neumann.jml.factor.squfof.SquFoF63;
-import de.tilman_neumann.jml.factor.tdiv.TDiv31Preload;
+import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.TimeUtil;
@@ -50,7 +50,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
 	
-	private TDiv31Preload tDiv31 = new TDiv31Preload();
+	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
 	private Lehman_Advanced lehman = new Lehman_Advanced();
 	private SquFoF31 squFoF31 = new SquFoF31();
 	private SquFoF63 squFoF63 = new SquFoF63();

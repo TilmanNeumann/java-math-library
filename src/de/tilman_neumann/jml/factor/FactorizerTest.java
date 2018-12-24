@@ -52,13 +52,13 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 10000;
+	private static final int N_COUNT = 1000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 30;
+	private static final int START_BITS = 40;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = 63;
+	private static final Integer MAX_BITS = 70;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	
@@ -70,14 +70,18 @@ public class FactorizerTest {
 	public FactorizerTest() {
 		algorithms = new SingleFactorFinder[] {
 
-			// Trial division: Fastest algorithm for N < 2^25
-			new TDiv31Preload(),
-//			
-//			// Lehman: best algorithm for 25 to 37 bits, works until 45 bit
-//			//new Lehman_Simple(),
-//			new Lehman_TDivFirst(1F),
-			new Lehman_Advanced(), // fastest Lehman implementation
+			// Trial division
+			//new TDiv31(),
+			//new TDiv31Preload(),
+			new TDiv31Inverse(), // Fastest algorithm for N < 2^25
 			
+			// Lehman
+			//new Lehman_Simple(),
+			//new Lehman_TDivFirst(1F),
+			//new Lehman_TDivLast(1F),
+			//new Lehman_Advanced(),
+			new Lehman_Fast(true), // best algorithm for 25 to 56 bits
+
 			// PollardRho:
 			// * never the best algorithm
 			// * Best BigInteger version is PollardRhoBrent
@@ -87,19 +91,18 @@ public class FactorizerTest {
 			//new PollardRho31(),
 
 			// SquFoF variants
-			// * SquFoF31 is the best algorithm overall for N = 2^38...2^52, SquFoF63 for N = 2^52...2^60
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-			new SquFoF63(), // best algorithm for N = 2^52...2^60 (freezes at some N > 2^90)
-			new SquFoF31(), // best algorithm for N = 2^38...2^52
+			new SquFoF63(), // best algorithm for N = 2^57...2^60 (freezes at some N > 2^90)
+			new SquFoF31(), // never better than Lehman_Fast
 			
 			// CFrac
-			// * never the best algorithm: SquFoF63 is better for N <= 66 bit, SIQS is better for N >= 55 bits
+			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits
 			// * stopRoot, stopMult: if big enough, then a second k is rarely needed; (5, 1.5) is good
 			// * TDiv_CF01 is good for N < 80 bits; for N > 90 bit we need TDiv_CF02
 //			new CFrac01(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF01(), 10, new MatrixSolver01_Gauss(), 5, false),
 //			new CFrac01(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5, false),
-//			new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 12),
+			new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 12),
 //			new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
 
 			// SIQS:
@@ -107,7 +110,7 @@ public class FactorizerTest {
 			// * BlockLanczos is better than Gauss for about N>200 bit
 			//new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SimpleSieve(), new TDiv_QS_1Large(), 10, new MatrixSolver01_Gauss(), false),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
-			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
+//			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
 
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), false),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), false),
@@ -160,12 +163,11 @@ public class FactorizerTest {
 			for (SingleFactorFinder algorithm : algorithms) {
 				// exclude special size implementations
 				String algName = algorithm.getName();
-				if (bits<52 && algName.startsWith("SIQS")) continue; // unstable for smaller N // TODO bound war schon mal besser
+				if (bits<53 && algName.startsWith("SIQS")) continue; // unstable for smaller N // TODO the bound has been much smaller some time ago
 				if (bits<57 && algName.startsWith("PSIQS")) continue; // unstable for smaller N
 				if (bits>98 && algName.startsWith("CFrac63")) continue; // unstable for N>98 bits
-				if (bits>63 && algName.startsWith("TDiv63")) continue; // long implementation
 				if (bits>52 && algName.equals("SquFoF31")) continue; // int implementation
-				if (bits>63 && algName.startsWith("Lehman")) continue; // int implementation
+				if (bits>60 && algName.startsWith("Lehman")) continue;
 				if (bits>31 && algName.startsWith("TDiv31")) continue; // int implementation
 				if (bits>31 && algName.startsWith("PollardRho31")) continue; // long implementation
 				
@@ -173,17 +175,20 @@ public class FactorizerTest {
 
 				int failCount = 0;
 				long startTimeMillis = System.currentTimeMillis();
+				BigInteger failExample = null;
 				for (BigInteger N : NSet) {
 					BigInteger factor = algorithm.findSingleFactor(N);
 					// test correctness
 					if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {
 						//LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
+						failExample = N;
 						failCount++;
 					} else {
 						// not null, not trivial -> test division
 						BigInteger[] test = N.divideAndRemainder(factor);
 						if (!test[1].equals(I_0)) {
 							//LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
+							failExample = N;
 							failCount++;
 						}
 					}
@@ -196,7 +201,7 @@ public class FactorizerTest {
 				algList.add(algorithm);
 				ms_2_algorithms.put(duration, algList);
 				if (failCount>0) {
-					LOG.error("FactorAlgorithm " + algorithm.getName() + " failed at " + failCount + "/" + N_COUNT + " test numbers...");
+					LOG.error("FactorAlgorithm " + algorithm.getName() + " failed at " + failCount + "/" + N_COUNT + " test numbers, e.g. for N = " + failExample);
 				}
 			}
 		}

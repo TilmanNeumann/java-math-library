@@ -18,30 +18,36 @@ import java.math.BigInteger;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 
 /**
- * Trial division factor algorithm preloading all primes <= sqrt(Integer.MAX_VALUE).
+ * Trial division factor algorithm replacing division by multiplications.
  * 
- * sqrt(Integer.MAX_VALUE) = sqrt(2^31 - 1) = sqrt(2147483647) = 46340.95
- * -> we need to preload all primes < 46340.
- * -> there are 4793 such primes...
+ * Instead of dividing N by consecutive primes, we store the reciprocals of those primes, too,
+ * and multiply N by those reciprocals. Only if such a result is near to an integer we need
+ * to do a division.
  * 
- * Performance just like TDiv31.
+ * Following an idea of Thilo Harich (https://github.com/ThiloHarich/factoring.git).
  * 
  * @author Tilman Neumann
  */
-public class TDiv31Preload extends FactorAlgorithmBase {
-	
-	private static int[] primes;
+public class TDiv31Inverse extends FactorAlgorithmBase {
 
-	public TDiv31Preload() {
+	private static final double DISCRIMINATOR = 1.0/Integer.MAX_VALUE;
+
+	private static int[] primes;
+	private static double[] reciprocals;
+	
+	public TDiv31Inverse() {
 		primes = new int[NUM_PRIMES_FOR_31_BIT_TDIV];
+		reciprocals = new double[NUM_PRIMES_FOR_31_BIT_TDIV];
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
-			primes[i] = SMALL_PRIMES.getPrime(i);
+			int p = SMALL_PRIMES.getPrime(i);
+			primes[i] = p;
+			reciprocals[i] = 1.0/p;
 		}
 	}
 	
 	@Override
 	public String getName() {
-		return "TDiv31Preload";
+		return "TDiv31Inverse";
 	}
 
 	@Override
@@ -54,9 +60,15 @@ public class TDiv31Preload extends FactorAlgorithmBase {
 	}
 	
 	public int findSingleFactor(int N) {
-		// if N is odd and composite then the loop runs maximally up to test = floor(sqrt(N))
+		// if N is odd and composite then the loop runs maximally up to prime = floor(sqrt(N))
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
-			if (N%primes[i]==0) return primes[i];
+			double prod = N*reciprocals[i];
+			if (((int)(prod+DISCRIMINATOR)) - ((int)(prod-DISCRIMINATOR)) == 1) {
+				// prod is very near to an integer
+				if (N%primes[i]==0) {
+					return primes[i];
+				}
+			}
 		}
 		// otherwise N is prime!
 		throw new IllegalArgumentException("N = " + N + " is prime!");

@@ -18,30 +18,15 @@ import java.math.BigInteger;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 
 /**
- * Trial division factor algorithm preloading all primes <= sqrt(Integer.MAX_VALUE).
- * 
- * sqrt(Integer.MAX_VALUE) = sqrt(2^31 - 1) = sqrt(2147483647) = 46340.95
- * -> we need to preload all primes < 46340.
- * -> there are 4793 such primes...
- * 
- * Performance just like TDiv31.
+ * Trial division factor algorithm using the safe AutoExpandingPrimesArray class.
  * 
  * @author Tilman Neumann
  */
-public class TDiv31Preload extends FactorAlgorithmBase {
-	
-	private static int[] primes;
+public class TDiv31 extends FactorAlgorithmBase {
 
-	public TDiv31Preload() {
-		primes = new int[NUM_PRIMES_FOR_31_BIT_TDIV];
-		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
-			primes[i] = SMALL_PRIMES.getPrime(i);
-		}
-	}
-	
 	@Override
 	public String getName() {
-		return "TDiv31Preload";
+		return "TDiv31";
 	}
 
 	@Override
@@ -56,7 +41,8 @@ public class TDiv31Preload extends FactorAlgorithmBase {
 	public int findSingleFactor(int N) {
 		// if N is odd and composite then the loop runs maximally up to test = floor(sqrt(N))
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
-			if (N%primes[i]==0) return primes[i];
+			int p = SMALL_PRIMES.getPrime(i);
+			if (N%p==0) return p;
 		}
 		// otherwise N is prime!
 		throw new IllegalArgumentException("N = " + N + " is prime!");

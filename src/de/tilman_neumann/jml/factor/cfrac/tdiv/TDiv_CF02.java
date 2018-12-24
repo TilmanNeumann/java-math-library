@@ -25,9 +25,9 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.cfrac.CFrac63_01;
-import de.tilman_neumann.jml.factor.squfof.SquFoF31;
+import de.tilman_neumann.jml.factor.lehman.Lehman_Fast;
 import de.tilman_neumann.jml.factor.squfof.SquFoF63;
-import de.tilman_neumann.jml.factor.tdiv.TDiv31Preload;
+import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -54,9 +54,9 @@ public class TDiv_CF02 implements TDiv_CF {
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
 	private double maxQRest;
 
-	private TDiv31Preload tDiv31; // used for Q <= 2^28
-	private SquFoF31 squFoF31; // used for 2^29 <= Q <= 2^52
-	private SquFoF63 squFoF63; // used for 2^53 <= Q <= 2^66
+	private TDiv31Inverse tDiv31; // used for Q <= 2^28
+	private Lehman_Fast lehman; // used for 2^29 <= Q <= 2^56
+	private SquFoF63 squFoF63; // used for 2^57 <= Q <= 2^66
 	private CFrac63_01 cf_internal = new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 12);
 
 	private BPSWTest bpsw;
@@ -69,8 +69,8 @@ public class TDiv_CF02 implements TDiv_CF {
 	private AQPairFactory aqPairFactory = new AQPairFactory();
 	
 	public TDiv_CF02() {
-		this.tDiv31 = new TDiv31Preload();
-		this.squFoF31 = new SquFoF31();
+		this.tDiv31 = new TDiv31Inverse();
+		this.lehman = new Lehman_Fast(true);
 		this.squFoF63 = new SquFoF63();
 		this.bpsw = new BPSWTest(1<<20);
 	}
@@ -208,8 +208,8 @@ public class TDiv_CF02 implements TDiv_CF {
 		int Q_rest_bits = Q_rest.bitLength();
 		if (Q_rest_bits <= 28) {
 			factor1 = tDiv31.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits <= 52) {
-			factor1 = squFoF31.findSingleFactor(Q_rest);
+		} else if (Q_rest_bits <= 56) {
+			factor1 = lehman.findSingleFactor(Q_rest);
 		} else if (Q_rest_bits <= 66) {
 			factor1 = squFoF63.findSingleFactor(Q_rest);
 		} else {
