@@ -51,6 +51,7 @@ public class TDiv31Inverse extends FactorAlgorithmBase {
 	}
 
 	@Override
+	// TODO will not work for N > 31 bit having factors > 15 bit
 	public BigInteger findSingleFactor(BigInteger N) {
 		return BigInteger.valueOf(findSingleFactor(N.intValue()));
 	}
