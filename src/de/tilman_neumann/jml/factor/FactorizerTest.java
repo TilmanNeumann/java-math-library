@@ -52,9 +52,9 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1000000;
+	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 15;
+	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
@@ -95,6 +95,7 @@ public class FactorizerTest {
 			// * best stopping criterion = O(5.th root(N))
 			new SquFoF63(), // best algorithm for N = 2^57...2^60 (freezes at some N > 2^90)
 			new SquFoF31(), // never better than Lehman_Fast
+			new SquFoF31Preload(),
 			
 			// CFrac
 			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits
