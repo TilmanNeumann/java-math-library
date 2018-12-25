@@ -32,7 +32,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class SquFoF31 extends FactorAlgorithmBase {
-	@SuppressWarnings("unused")
+
 	private static final Logger LOG = Logger.getLogger(SquFoF31.class);
 
 	private static final int[] BASE_MULTIPLIERS = new int[] {1680, 48, 8, 1};
