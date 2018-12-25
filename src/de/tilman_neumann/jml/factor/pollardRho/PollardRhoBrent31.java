@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.pollardRho;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,73 +22,84 @@ import java.security.SecureRandom;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.gcd.Gcd31;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
 /**
  * Brents's improvement of Pollard's Rho algorithm, following [Richard P. Brent: An improved Monte Carlo Factorization Algorithm, 1980].
  * 
+ * 31 bit version.
+ * 
  * @author Tilman Neumann
  */
-public class PollardRhoBrent extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(PollardRhoBrent.class);
+// TODO still buggy for 31 bit inputs
+public class PollardRhoBrent31 extends FactorAlgorithmBase {
+	private static final Logger LOG = Logger.getLogger(PollardRhoBrent31.class);
 	private static final SecureRandom RNG = new SecureRandom();
 
-	private BigInteger N;
+	private int N;
 
+	private Gcd31 gcd = new Gcd31();
+	
 	@Override
 	public String getName() {
-		return "PollardRhoBrent";
+		return "PollardRhoBrent31";
 	}
 	
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
+		return BigInteger.valueOf(findSingleFactor(N.intValue()));
+	}
+	
+	public int findSingleFactor(int N) {
 		this.N = N;
-		int Nbits = N.bitLength();
-        BigInteger G, x, ys;
+		int Nbits = 32 - Integer.numberOfLeadingZeros(N);
+		int G;
+		int ys, x;
         do {
 	        // start with random x0, c from [0, N-1]
-        	BigInteger c = new BigInteger(Nbits, RNG);
-            if (c.compareTo(N)>=0) c = c.subtract(N);
-            BigInteger x0 = new BigInteger(Nbits, RNG);
-            if (x0.compareTo(N)>=0) x0 = x0.subtract(N);
-            BigInteger y = x0;
+        	int c = RNG.nextInt(1<<Nbits);
+            if (c >= N) c -= N;
+            int x0 = RNG.nextInt(1<<Nbits);
+            if (x0 >= N) x0 -= N;
+            int y = x0;
 
             // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
         	final int m = 100;
         	int r = 1;
-        	BigInteger q = I_1;
+        	int q = 1;
         	do {
 	    	    x = y;
 	    	    for (int i=1; i<=r; i++) {
-	    	        y = addModN(y.multiply(y).mod(N), c);
+	    	        y = addModN((int) ((y*(long)y)%N), c);
 	    	    }
 	    	    int k = 0;
 	    	    do {
 	    	        ys = y;
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=1; i<=iMax; i++) {
-	    	            y = addModN(y.multiply(y).mod(N), c);
-	    	            final BigInteger diff = x.compareTo(y) < 0 ? y.subtract(x) : x.subtract(y);
-	    	            q = diff.multiply(q).mod(N);
+	    	            y = addModN((int) ((y*(long)y)%N), c);
+	    	            final long diff = x<y ? y-x : x-y;
+	    	            q = (int) ((diff*(long)q) % N);
 	    	        }
-	    	        G = q.gcd(N);
+	    	        G = gcd.gcd(q, N);
 	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0, c
 	    	        k += m;
 		    	    //LOG.info("r = " + r + ", k = " + k);
-	    	    } while (k<r && G.equals(I_1));
+	    	    } while (k<r && G==1);
 	    	    r <<= 1;
 	    	    //LOG.info("r = " + r + ", G = " + G);
-	    	} while (G.equals(I_1));
-	    	if (G.equals(N)) {
+	    	} while (G==1);
+	    	if (G==N) {
 	    	    do {
-	    	        ys = addModN(ys.multiply(ys).mod(N), c);
-    	            final BigInteger diff = x.compareTo(ys) < 0 ? ys.subtract(x) : x.subtract(ys);
-    	            G = diff.gcd(N);
-	    	    } while (G.equals(I_1));
+	    	        ys = addModN((int) ((ys*(long)ys)%N), c);
+    	            int diff = x<ys ? ys-x : x-ys;
+    	            G = gcd.gcd(diff, N);
+	    	    } while (G==1);
 	    	    //LOG.info("G = " + G);
 	    	}
-        } while (G.equals(N));
+        } while (G==N);
 		//LOG.debug("Found factor of " + N + " = " + factor);
         return G;
 	}
@@ -101,19 +110,13 @@ public class PollardRhoBrent extends FactorAlgorithmBase {
 	 * @param b
 	 * @return (a+b) mod N
 	 */
-	private BigInteger addModN(BigInteger a, BigInteger b) {
-		BigInteger sum = a.add(b);
-		return sum.compareTo(N)<0 ? sum : sum.subtract(N);
+	private int addModN(int a, int b) {
+		int sum = a+b;
+		return sum<N ? sum : sum-N;
 	}
 	
 	/**
 	 * Test.
-	 * Nice test numbers:
-	 * 5679148659138759837165981543 = 450469808245315337 * 466932157 * 3^3 in ~ 250 ms<br/>
-	 * 54924524576914518357355679148659138759837165981543 = 1557629117554716582307318666440656471 * 35261619058033 in ~ 4s<br/>
-	 * 7.th Fermat number: Hard for Pollard-Rho-Brent (~ 414s) , easy for CFrac or ECM:
-	 * 2^128 + 1 = 340282366920938463463374607431768211457 = 5704689200685129054721 * 59649589127497217<br/>
-	 * 
 	 * @param args ignored
 	 */
 	public static void main(String[] args) {
@@ -134,7 +137,7 @@ public class PollardRhoBrent extends FactorAlgorithmBase {
 			
 			long start = System.currentTimeMillis();
 			BigInteger n = new BigInteger(input);
-			SortedMultiset<BigInteger> result = new PollardRhoBrent().factor(n);
+			SortedMultiset<BigInteger> result = new PollardRhoBrent31().factor(n);
 			LOG.info("Factored " + n + " = " + result.toString() + " in " + (System.currentTimeMillis()-start) + " ms");
 
 		} // next input...

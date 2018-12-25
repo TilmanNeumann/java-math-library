@@ -52,7 +52,7 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 10000;
+	private static final int N_COUNT = 1000000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
@@ -72,7 +72,7 @@ public class FactorizerTest {
 
 			// Trial division
 			//new TDiv31(),
-			//new TDiv31Preload(),
+			new TDiv31Preload(),
 			new TDiv31Inverse(), // Fastest algorithm for N <= 27 bit
 			new TDiv63Inverse(1<<21),
 			
@@ -86,8 +86,9 @@ public class FactorizerTest {
 			// * Best BigInteger version is PollardRhoBrent
 			//new PollardRho(),
 			//new PollardRho_ProductGcd(),
-//			new PollardRhoBrent(),
-			//new PollardRho31(),
+			//new PollardRhoBrent(),
+			new PollardRho31(),
+			new PollardRhoBrent31(),
 
 			// SquFoF variants
 			// * best multiplier sequence = 1680 * {squarefree sequence}
