@@ -124,9 +124,9 @@ public class TDiv63Inverse extends FactorAlgorithmBase {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		SecureRandom RNG = new SecureRandom();
-		int  count = 100000;
+		int count = 100000;
 		TDiv63Inverse tdivInv = new TDiv63Inverse(1<<21);
-		SquFoF63 squfof = new SquFoF63();
+		SquFoF63 testFactorizer = new SquFoF63();
 		for (int bits=10; bits<63; bits++) {
 			LOG.info("Testing " + count + " random numbers with " + bits + " bits...");
 			tdivInv.setTestLimit(1<<Math.min(21, (bits+1)/2));
@@ -140,12 +140,12 @@ public class TDiv63Inverse extends FactorAlgorithmBase {
 				}
 				long tdivFactor = tdivInv.findSingleFactor(N);
 				if (tdivFactor<2) {
-					long squfofFactor = squfof.findSingleFactor(N);
-					if (squfofFactor > 1 && squfofFactor<N) {
-						//LOG.debug("N=" + N + ": TDiv failed to find factor " + squfofFactor);
+					long testFactor = testFactorizer.findSingleFactor(N);
+					if (testFactor > 1 && testFactor<N) {
+						//LOG.debug("N=" + N + ": TDiv failed to find factor " + testFactor);
 						failCount++;
 					} else {
-						LOG.error("Squfof failed to factor N=" + N + " !");
+						LOG.error("The test factorizer failed to factor N=" + N + " !");
 					}
 				} else {
 					if (N%tdivFactor!=0) {
