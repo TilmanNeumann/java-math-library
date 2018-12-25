@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.jml.factor.lehman.TrialInvFact;
+import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
 /**
  * Fast implementation of Lehman's factor algorithm.
@@ -36,7 +36,7 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private static final TrialInvFact tdiv = new TrialInvFact(1 << 21);
+	private static final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 
 	private static double[] sqrt, sqrtInv;
 
@@ -82,8 +82,14 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 		final int cbrt = (int) Math.cbrt(N);
 
 		long factor;
-		tdiv.setMaxFactor(cbrt);
-		if (!doLehmanBeforeTDiv && (factor = tdiv.findFactors(N, null)) != N) return factor;
+		tdiv.setTestLimit(cbrt);
+		if (!doLehmanBeforeTDiv) {
+			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
+//			int i=0, p;
+//			while ((p = SMALL_PRIMES.getPrime(i++)) <= cbrt) {
+//				if (N%p==0) return p;
+//			}
+		}
 
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
@@ -148,7 +154,13 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 		if ((factor = lehmanOdd(kTwoA + 5, kLimit)) > 1) return factor;
 
 		// Check via trial division whether N has a nontrivial divisor d <= cbrt(N).
-		if (doLehmanBeforeTDiv && (factor = tdiv.findFactors(N, null)) != N) return factor;
+		if (doLehmanBeforeTDiv) {
+			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
+//			int i=0, p;
+//			while ((p = SMALL_PRIMES.getPrime(i++)) <= cbrt) {
+//				if (N%p==0) return p;
+//			}
+		}
 		
 		// if sqrt(4kN) is an exact integer then the previous fast ceil() operations may have failed.
 		// This can only happen for k%6=1 or k%6=5. Fixing one of these loops seems to be sufficient.
