@@ -170,7 +170,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 		// Find a factor of Q_rest, where Q_rest is pMax < Q_rest <= maxQRest, composite and odd.
 		long factor1;
 		int Q_rest_bits = bitLength(Q_rest);
-		if (Q_rest_bits <= 24) {
+		if (Q_rest_bits <= 27) {
 			factor1 = tDiv31.findSingleFactor((int) Q_rest);
 		} else if (Q_rest_bits <= 56) {
 			factor1 = lehman.findSingleFactor(Q_rest);
