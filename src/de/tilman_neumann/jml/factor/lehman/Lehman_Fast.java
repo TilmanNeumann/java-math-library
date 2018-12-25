@@ -150,8 +150,8 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 		// Check via trial division whether N has a nontrivial divisor d <= cbrt(N).
 		if (doLehmanBeforeTDiv && (factor = tdiv.findSingleFactor(N))>1) return factor;
 		
-		// if sqrt(4kN) is an exact integer then the previous fast ceil() operations may have failed.
-		// This can only happen for k%6=1 or k%6=5. Fixing one of these loops seems to be sufficient.
+		// If sqrt(4kN) is very near to an exact integer then the fast ceil() operations may have failed.
+		// It seems that it is enough to fix either the k%6=1 or the k%6=5 loop.
 		for (int k=kTwoA + 1; k <= kLimit; k++) {
 			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) - 1;
 			long test = a*a - k*fourN;
