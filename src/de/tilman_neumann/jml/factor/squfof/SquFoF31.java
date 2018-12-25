@@ -170,7 +170,7 @@ public class SquFoF31 extends FactorAlgorithmBase {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		SecureRandom RNG = new SecureRandom();
-		int  count = 1000000;
+		int count = 1000000;
 		SquFoF31 squfof31 = new SquFoF31();
 		SingleFactorFinder testFactorizer = (SingleFactorFinder) FactorAlgorithm.DEFAULT;
 		for (int bits=52; bits<63; bits++) {
