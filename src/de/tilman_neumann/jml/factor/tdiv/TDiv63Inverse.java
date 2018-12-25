@@ -51,6 +51,7 @@ public class TDiv63Inverse extends FactorAlgorithmBase {
 	 * @param factorLimit
 	 */
 	public TDiv63Inverse(int factorLimit) {
+		pLimit = factorLimit; // default if not set explicitly
 		int primeCountBound = (int) PrimeCountUpperBounds.combinedUpperBound(factorLimit);
 		primes = new int[primeCountBound];
 		reciprocals = new double[primeCountBound];
