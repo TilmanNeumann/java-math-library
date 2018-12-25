@@ -52,7 +52,7 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 10000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
@@ -166,10 +166,11 @@ public class FactorizerTest {
 				if (bits<53 && algName.startsWith("SIQS")) continue; // unstable for smaller N // TODO the bound has been much smaller some time ago
 				if (bits<57 && algName.startsWith("PSIQS")) continue; // unstable for smaller N
 				if (bits>98 && algName.startsWith("CFrac63")) continue; // unstable for N>98 bits
-				if (bits>52 && algName.equals("SquFoF31")) continue; // int implementation
+				if (bits>52 && algName.startsWith("SquFoF31")) continue; // int implementation
 				if (bits>60 && algName.startsWith("Lehman")) continue;
 				if (bits>31 && algName.startsWith("TDiv31")) continue; // int implementation
 				if (bits>31 && algName.startsWith("PollardRho31")) continue; // long implementation
+				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
 				
 				System.gc(); // create equal conditions for all algorithms
 
