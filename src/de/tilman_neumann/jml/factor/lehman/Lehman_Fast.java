@@ -36,7 +36,7 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private static final TrialInvFact smallFact = new TrialInvFact(1 << 21);
+	private static final TrialInvFact tdiv = new TrialInvFact(1 << 21);
 
 	private static double[] sqrt, sqrtInv;
 
@@ -55,21 +55,21 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 	private long N;
 	private long fourN;
 	private double sqrt4N;
-	private boolean factorSemiprimes;
+	private boolean doLehmanBeforeTDiv;
 	private final Gcd63 gcdEngine = new Gcd63();
 
 	/**
 	 * Full constructor.
-	 * @param factorSemiprimes if true then the Lehman loop is executed first, trial division second.
-	 * This improves performance for "difficult" numbers (semiprimes with both factors of similar size)
+	 * @param doLehmanBeforeTDiv If true than the Lehman loop is executed before trial division.
+	 * This is recommended for "hard" numbers (semiprimes having factors of similar size).
 	 */
-	public Lehman_Fast(boolean factorSemiprimes) {
-		this.factorSemiprimes = factorSemiprimes;
+	public Lehman_Fast(boolean doLehmanBeforeTDiv) {
+		this.doLehmanBeforeTDiv = doLehmanBeforeTDiv;
 	}
 
 	@Override
 	public String getName() {
-		return "Lehman_Fast";
+		return "Lehman_Fast(" + doLehmanBeforeTDiv + ")";
 	}
 
 	@Override
@@ -82,8 +82,8 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 		final int cbrt = (int) Math.cbrt(N);
 
 		long factor;
-		smallFact.setMaxFactor(cbrt);
-		if (!factorSemiprimes && (factor = smallFact.findFactors(N, null)) != N) return factor;
+		tdiv.setMaxFactor(cbrt);
+		if (!doLehmanBeforeTDiv && (factor = tdiv.findFactors(N, null)) != N) return factor;
 
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
@@ -148,7 +148,7 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 		if ((factor = lehmanOdd(kTwoA + 5, kLimit)) > 1) return factor;
 
 		// Check via trial division whether N has a nontrivial divisor d <= cbrt(N).
-		if (factorSemiprimes && (factor = smallFact.findFactors(N, null)) != N) return factor;
+		if (doLehmanBeforeTDiv && (factor = tdiv.findFactors(N, null)) != N) return factor;
 		
 		// if sqrt(4kN) is an exact integer then the previous fast ceil() operations may have failed.
 		// This can only happen for k%6=1 or k%6=5. Fixing one of these loops seems to be sufficient.
