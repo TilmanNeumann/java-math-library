@@ -75,7 +75,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 	private BPSWTest bpsw = new BPSWTest();
 	
 	private Lehman_Fast lehman = new Lehman_Fast(true); // for N <= 2^56
-	private SquFoF63 squFoF63 = new SquFoF63(); // used for 2^53 <= Q <= 2^59
+	private SquFoF63 squFoF63 = new SquFoF63(); // used for 2^57 <= Q <= 2^59
 	private SIQS qsInternal; // Nested SIQS for Q_rest >= 2^60. Required only for approximately N>310 bit.
 
 	// smallest solutions of Q(x) == A(x)^2 (mod p)
