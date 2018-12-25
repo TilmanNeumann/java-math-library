@@ -31,8 +31,8 @@ import de.tilman_neumann.jml.factor.TestsetGenerator;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_Analyzer extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer.class);
+public class Lehman_Analyzer1 extends FactorAlgorithmBase {
+	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer1.class);
 
 	// algorithm options
 	/** number of test numbers */
@@ -51,7 +51,7 @@ public class Lehman_Analyzer extends FactorAlgorithmBase {
 	private static final int MOD = 6;
 	
 	@SuppressWarnings("unchecked")
-	public Lehman_Analyzer() {
+	public Lehman_Analyzer1() {
 		aValues = new SortedMultiset_BottomUp[MOD][MOD];
 		for (int i=0; i<MOD; i++) {
 			aValues[i] = new SortedMultiset_BottomUp[MOD];
@@ -63,7 +63,7 @@ public class Lehman_Analyzer extends FactorAlgorithmBase {
 	
 	@Override
 	public String getName() {
-		return "Lehman_Analyzer";
+		return "Lehman_Analyzer1";
 	}
 
 	@Override
@@ -122,7 +122,7 @@ public class Lehman_Analyzer extends FactorAlgorithmBase {
 		int bits = START_BITS;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
-	    	Lehman_Analyzer testEngine = new Lehman_Analyzer();
+	    	Lehman_Analyzer1 testEngine = new Lehman_Analyzer1();
 			testEngine.testRange(bits);
 			bits += INCR_BITS;
 			if (MAX_BITS!=null && bits > MAX_BITS) break;
