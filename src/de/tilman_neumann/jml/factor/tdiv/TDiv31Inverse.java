@@ -30,7 +30,9 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
  */
 public class TDiv31Inverse extends FactorAlgorithmBase {
 
-	private static final double DISCRIMINATOR = 1.0/Integer.MAX_VALUE;
+	// The allowed discriminator bit size is d <= 53 - bitLength(N/p), thus d<=23 would be safe
+	// for any integer N and p>=2. d=10 is the value that performs best, determined by experiment.
+	private static final double DISCRIMINATOR = 1.0/(1<<10);
 
 	private static int[] primes;
 	private static double[] reciprocals;

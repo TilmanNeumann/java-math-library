@@ -52,7 +52,7 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 1000000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 20;
 	/** the increment in bit size from test set to test set */
@@ -73,11 +73,11 @@ public class FactorizerTest {
 			// Trial division
 			//new TDiv31(),
 			//new TDiv31Preload(),
-			new TDiv31Inverse(), // Fastest algorithm for N < 2^25
-			
+			new TDiv31Inverse(), // Fastest algorithm for N <= 27 bit
+
 			// Lehman
 			//new Lehman_Simple(),
-			new Lehman_Fast(true), // best algorithm for 25 to 56 bits
+			new Lehman_Fast(true), // best algorithm for 28 to 56 bits
 			new Lehman_Fast(false),
 			
 			// PollardRho:
@@ -91,9 +91,9 @@ public class FactorizerTest {
 			// SquFoF variants
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-			new SquFoF63(), // best algorithm for N = 2^57...2^60 (freezes at some N > 2^90)
-//			new SquFoF31(), // never better than Lehman_Fast
-			new SquFoF31Preload(),
+//			new SquFoF63(), // best algorithm for N = 2^57...2^60 (freezes at some N > 2^90)
+////			new SquFoF31(), // never better than Lehman_Fast
+//			new SquFoF31Preload(),
 			
 			// CFrac
 			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits
