@@ -93,12 +93,12 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 		// For kTwoA = kLimit / 64 the range for a is at most 2. We make it 0 mod 6, too.
 		final int kTwoA = (((cbrt >> 6) + 6) / 6) * 6;
 
-		// First investigate in solutions a^2 - sqrt(k*n) = y^2, where we only have two possible 'a' values per k.
+		// Investigate solutions of a^2 - sqrt(k*n) = y^2, where we only have two possible 'a' values per k.
 		// But do not go to far, since there we have a lower chance to find a factor.
 		// Here we only inspect k == 0 (mod 6) which are most likely to have a solution x^2 - sqrt(k*n) = y^2.
 		if ((factor = lehmanEven(kTwoA, kLimit))>1) return factor;
 
-		// Investigate in solution a^2 - sqrt(k*n) = y^2 where we might have more then two solutions 'a'.
+		// Investigate solutions of a^2 - sqrt(k*n) = y^2 where we might have more then two solutions 'a'.
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k < kTwoA; k++) {
 			final double sqrt4kN = sqrt4N * sqrt[k];
