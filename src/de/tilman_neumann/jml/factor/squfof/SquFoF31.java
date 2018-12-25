@@ -14,16 +14,20 @@
 package de.tilman_neumann.jml.factor.squfof;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.SingleFactorFinder;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence63;
+import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Shanks' SQUFOF algorithm, 31-bit version.
- * This version works without fail for N <= 2^52 and is faster than SquFoF63 for N <= 2^51.
+ * This implementation works without fail for N <= 2^52 and is faster than SquFoF63 for N <= 2^51.
  * 
  * @author Tilman Neumann
  */
@@ -157,5 +161,44 @@ public class SquFoF31 extends FactorAlgorithmBase {
 		// result
 		long gcd = gcdEngine.gcd(N, P_i);
 		return (gcd>1 && gcd<N) ? gcd : null;
+	}
+	
+	/**
+	 * Test.
+	 * @param args ignored
+	 */
+	public static void main(String[] args) {
+		ConfigUtil.initProject();
+		SecureRandom RNG = new SecureRandom();
+		int  count = 1000000;
+		SquFoF31 squfof31 = new SquFoF31();
+		SingleFactorFinder testFactorizer = (SingleFactorFinder) FactorAlgorithm.DEFAULT;
+		for (int bits=52; bits<63; bits++) {
+			LOG.info("Testing " + count + " random numbers with " + bits + " bits...");
+			int failCount = 0;
+			for (int i=0; i<count; i++) {
+				long N = 0;
+				while (true) { 
+					BigInteger N_big = new BigInteger(bits, RNG);
+					N = N_big.longValue();
+					if (N>2 && !N_big.isProbablePrime(20)) break;
+				}
+				long tdivFactor = squfof31.findSingleFactor(N);
+				if (tdivFactor<2) {
+					long squfofFactor = testFactorizer.findSingleFactor(BigInteger.valueOf(N)).longValue();
+					if (squfofFactor > 1 && squfofFactor<N) {
+						//LOG.debug("N=" + N + ": TDiv failed to find factor " + squfofFactor);
+						failCount++;
+					} else {
+						LOG.error("Squfof63 failed to factor N=" + N + " !");
+					}
+				} else {
+					if (N%tdivFactor!=0) {
+						failCount++;
+					}
+				}
+			}
+			LOG.info("    #fails = " + failCount);
+		}
 	}
 }
