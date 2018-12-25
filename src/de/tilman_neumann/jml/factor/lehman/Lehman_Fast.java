@@ -83,13 +83,7 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 
 		long factor;
 		tdiv.setTestLimit(cbrt);
-		if (!doLehmanBeforeTDiv) {
-			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
-//			int i=0, p;
-//			while ((p = SMALL_PRIMES.getPrime(i++)) <= cbrt) {
-//				if (N%p==0) return p;
-//			}
-		}
+		if (!doLehmanBeforeTDiv && (factor = tdiv.findSingleFactor(N))>1) return factor;
 
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
@@ -154,13 +148,7 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 		if ((factor = lehmanOdd(kTwoA + 5, kLimit)) > 1) return factor;
 
 		// Check via trial division whether N has a nontrivial divisor d <= cbrt(N).
-		if (doLehmanBeforeTDiv) {
-			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
-//			int i=0, p;
-//			while ((p = SMALL_PRIMES.getPrime(i++)) <= cbrt) {
-//				if (N%p==0) return p;
-//			}
-		}
+		if (doLehmanBeforeTDiv && (factor = tdiv.findSingleFactor(N))>1) return factor;
 		
 		// if sqrt(4kN) is an exact integer then the previous fast ceil() operations may have failed.
 		// This can only happen for k%6=1 or k%6=5. Fixing one of these loops seems to be sufficient.
