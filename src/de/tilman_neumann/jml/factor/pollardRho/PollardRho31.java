@@ -78,7 +78,6 @@ public class PollardRho31 extends FactorAlgorithmBase {
 	 * @return
 	 */
 	private long squareModN(long x) {
-		long square = x * x;
-		return square % n;
+		return (x * x) % n;
 	}
 }
