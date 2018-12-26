@@ -62,6 +62,9 @@ public class TestsetGenerator {
 			if (n2bits>0) n2 = n2.setBit(n2bits-1);
 			n2 = bpsw.nextProbablePrime(n2);
 			BigInteger N = n1.multiply(n2);
+		
+			// Skip cases where the construction above failed to produce the correct bit length
+			if (N.bitLength() != bits) continue;
 			
 			if (SELECT) {
 				// skip N that do not match the selection criterion
