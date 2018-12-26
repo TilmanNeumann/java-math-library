@@ -33,7 +33,6 @@ import de.tilman_neumann.util.SortedMultiset;
  * 
  * @author Tilman Neumann
  */
-// TODO still buggy for 31 bit inputs
 public class PollardRhoBrent31 extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(PollardRhoBrent31.class);
 	private static final SecureRandom RNG = new SecureRandom();
@@ -69,16 +68,16 @@ public class PollardRhoBrent31 extends FactorAlgorithmBase {
         	do {
 	    	    x = y;
 	    	    for (int i=1; i<=r; i++) {
-	    	        y = addModN((int) ((y*(long)y)%N), c);
+    	            y = addModN(squareModN(y), c);
 	    	    }
 	    	    int k = 0;
 	    	    do {
 	    	        ys = y;
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=1; i<=iMax; i++) {
-	    	            y = addModN((int) ((y*(long)y)%N), c);
+	    	            y = addModN(squareModN(y), c);
 	    	            final long diff = x<y ? y-x : x-y;
-	    	            q = (int) ((diff*(long)q) % N);
+	    	            q = (int) ((diff*q) % N);
 	    	        }
 	    	        G = gcd.gcd(q, N);
 	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0, c
@@ -90,7 +89,7 @@ public class PollardRhoBrent31 extends FactorAlgorithmBase {
 	    	} while (G==1);
 	    	if (G==N) {
 	    	    do {
-	    	        ys = addModN((int) ((ys*(long)ys)%N), c);
+    	            ys = addModN(squareModN(ys), c);
     	            int diff = x<ys ? ys-x : x-ys;
     	            G = gcd.gcd(diff, N);
 	    	    } while (G==1);
@@ -111,7 +110,16 @@ public class PollardRhoBrent31 extends FactorAlgorithmBase {
 		int sum = a+b;
 		return sum<N ? sum : sum-N;
 	}
-	
+
+	/**
+	 * x^2 modulo N.
+	 * @param x
+	 * @return
+	 */
+	private int squareModN(long x) {
+		return (int) ((x * x) % N);
+	}
+
 	/**
 	 * Test.
 	 * @param args ignored
