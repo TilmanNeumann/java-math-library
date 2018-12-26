@@ -54,15 +54,12 @@ public class PollardRhoBrent31 extends FactorAlgorithmBase {
 	
 	public int findSingleFactor(int N) {
 		this.N = N;
-		int Nbits = 32 - Integer.numberOfLeadingZeros(N);
 		int G;
 		int ys, x;
         do {
 	        // start with random x0, c from [0, N-1]
-        	int c = RNG.nextInt(1<<Nbits);
-            if (c >= N) c -= N;
-            int x0 = RNG.nextInt(1<<Nbits);
-            if (x0 >= N) x0 -= N;
+        	int c = RNG.nextInt(N);
+            int x0 = RNG.nextInt(N);
             int y = x0;
 
             // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
