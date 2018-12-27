@@ -70,7 +70,7 @@ public class Gcd31 {
 	 * @param n
 	 * @return gcd(m, n)
 	 */
-	public int gcd/*_binary*/(int m, int n) {
+	public int gcd_binary1(int m, int n) {
 		m = Math.abs(m);
 		n = Math.abs(n);
 		int mCmp1 = m-1;
@@ -101,6 +101,38 @@ public class Gcd31 {
 		if (nCmp1<0) return m;
 		// else one argument is 1
 		return 1;
+	}
+
+	/**
+	 * Faster binary gcd adapted from OpenJdk's MutableBigInteger.binaryGcd(int, int).
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public int gcd/*_binary2*/(int a, int b) {
+		a = Math.abs(a);
+		if (b == 0) return a;
+		b = Math.abs(b);
+		if (a == 0) return b;
+
+		// Right shift a & b till their last bits equal to 1.
+		final int aZeros = Integer.numberOfTrailingZeros(a);
+		final int bZeros = Integer.numberOfTrailingZeros(b);
+		a >>>= aZeros;
+		b >>>= bZeros;
+
+		final int t = (aZeros < bZeros ? aZeros : bZeros);
+
+		while (a != b) {
+			if ((a+0x80000000) > (b+0x80000000)) { // a > b as unsigned
+				a -= b;
+				a >>>= Integer.numberOfTrailingZeros(a);
+			} else {
+				b -= a;
+				b >>>= Integer.numberOfTrailingZeros(b);
+			}
+		}
+		return a<<t;
 	}
 
 	/**

@@ -97,7 +97,7 @@ public class Gcd {
 	 * @param n
 	 * @return gcd(m, n)
 	 */
-	public BigInteger gcd/*_binary*/(BigInteger m, BigInteger n) {
+	public BigInteger gcd_binary1(BigInteger m, BigInteger n) {
 		m = m.abs();
 		n = n.abs();
 		int mCmp1 = m.compareTo(I_1);
@@ -128,6 +128,41 @@ public class Gcd {
 		if (nCmp1<0) return m;
 		// else one argument is 1
 		return I_1;
+	}
+
+	/**
+	 * Slightly faster binary gcd adapted from OpenJdk's MutableBigInteger.binaryGcd(int, int).
+	 * The BigInteger.gcd() implementation is still much faster.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public BigInteger gcd/*_binary2*/(BigInteger a, BigInteger b) {
+		a = a.abs();
+		if (b.equals(I_0)) return a;
+		b = b.abs();
+		if (a.equals(I_0)) return b;
+
+		// Right shift a & b till their last bits equal to 1.
+		final int aZeros = a.getLowestSetBit();
+		final int bZeros = b.getLowestSetBit();
+		a = a.shiftRight(aZeros);
+		b = b.shiftRight(bZeros);
+
+		final int t = (aZeros < bZeros ? aZeros : bZeros);
+
+		int cmp;
+		while ((cmp = a.compareTo(b)) != 0) {
+			if (cmp > 0) {
+				a = a.subtract(b);
+				a = a.shiftRight(a.getLowestSetBit());
+			} else {
+				b = b.subtract(a);
+				b = b.shiftRight(b.getLowestSetBit());
+			}
+		}
+		return a.shiftLeft(t);
 	}
 
 	/**

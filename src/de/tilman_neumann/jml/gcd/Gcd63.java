@@ -70,7 +70,7 @@ public class Gcd63 {
 	 * @param n
 	 * @return gcd(m, n)
 	 */
-	public long gcd/*_binary*/(long m, long n) {
+	public long gcd_binary1(long m, long n) {
 		m = Math.abs(m);
 		n = Math.abs(n);
 		long mCmp1 = m-1;
@@ -101,6 +101,38 @@ public class Gcd63 {
 		if (nCmp1<0) return m;
 		// else one argument is 1
 		return 1;
+	}
+
+	/**
+	 * Faster binary gcd adapted from OpenJdk's MutableBigInteger.binaryGcd(int, int).
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public long gcd/*_binary2*/(long a, long b) {
+		a = Math.abs(a);
+		if (b == 0) return a;
+		b = Math.abs(b);
+		if (a == 0) return b;
+
+		// Right shift a & b till their last bits equal to 1.
+		final int aZeros = Long.numberOfTrailingZeros(a);
+		final int bZeros = Long.numberOfTrailingZeros(b);
+		a >>>= aZeros;
+		b >>>= bZeros;
+
+		final int t = (aZeros < bZeros ? aZeros : bZeros);
+
+		while (a != b) {
+			if ((a+0x8000000000000000L) > (b+0x8000000000000000L)) { // a > b as unsigned
+				a -= b;
+				a >>>= Long.numberOfTrailingZeros(a);
+			} else {
+				b -= a;
+				b >>>= Long.numberOfTrailingZeros(b);
+			}
+		}
+		return a<<t;
 	}
 
 	/**
