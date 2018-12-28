@@ -53,14 +53,14 @@ public class EEA31 {
 		int w = y;
 		// loop
 		int q, tmp;
-		while(w>0) {
+		while(w != 0) {
 			q = g/w; // floor
 			// update
 			tmp = a - q*u; a=u; u=tmp;
 			tmp = b - q*v; b=v; v=tmp;
 			tmp = g - q*w; g=w; w=tmp;
 		}
-		if (a<0) a = a+y; // TODO: change b, too?
+		if (a<0) a = a+y; // TODO: What about b?
 		return new Result(g, a, b);
 	}
 	
