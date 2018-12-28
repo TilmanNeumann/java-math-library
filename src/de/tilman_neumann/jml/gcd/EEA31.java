@@ -13,14 +13,20 @@
  */
 package de.tilman_neumann.jml.gcd;
 
+//import java.math.BigInteger;
+//import org.apache.log4j.Logger;
+
 /**
- * Extended Euclidean algorithm, following [Crandall/Pomerance 2005: "Prime numbers", algorithm 2.1.4].
+ * Extended Euclidean algorithm, mostly used to compute the modular inverse of x (mod y).
+ * Extends [Crandall/Pomerance 2005: "Prime numbers", algorithm 2.1.4]
+ * to let modInverse(x, y) work on negative x, too.
  * 
  * This int implementation is quite fast.
  * 
  * @author Tilman Neumann
  */
 public class EEA31 {
+	//private static final Logger LOG = Logger.getLogger(EEA31.class);
 
 	public static class Result {
 		/** if g==1 and y>0 then a = (1/x) mod y */
@@ -51,6 +57,8 @@ public class EEA31 {
 		int u = 0;
 		int v = 1;
 		int w = y;
+		int parity = -1;
+
 		// loop
 		int q, tmp;
 		while(w != 0) {
@@ -59,8 +67,19 @@ public class EEA31 {
 			tmp = a - q*u; a=u; u=tmp;
 			tmp = b - q*v; b=v; v=tmp;
 			tmp = g - q*w; g=w; w=tmp;
+			parity = -parity;
 		}
-		if (a<0) a = a+y; // TODO: What about b?
+		
+//		LOG.debug("correctResult = " + BigInteger.valueOf(x).modInverse(BigInteger.valueOf(y)));
+//		LOG.debug("a = " + a);
+//		LOG.debug("y-a = " + (y-a));
+//		LOG.debug("y+a = " + (y+a));
+//		LOG.debug("parity = " + parity);
+//		LOG.debug("sign of x = " + Long.signum(x));
+
+		if (Long.signum(x)==parity) {
+			a = (parity==1) ? y+a : y-a; // TODO: What about b?
+		}
 		return new Result(g, a, b);
 	}
 	
@@ -76,6 +95,8 @@ public class EEA31 {
 		int g = x;
 		int u = 0;
 		int w = y;
+		int parity = -1;
+		
 		// loop
 		int tmp, rem;
 		while (w != 0) {
@@ -85,8 +106,12 @@ public class EEA31 {
 			u = tmp;
 			g = w; 
 			w = rem;
+			parity = -parity;
 		}
-		if (a<0) a = a+y;
+		
+		if (Long.signum(x)==parity) {
+			a = (parity==1) ? y+a : y-a;
+		}
 		return new Result(g, a, -1);
 	}
 	
@@ -102,6 +127,8 @@ public class EEA31 {
 		int g = x;
 		int u = 0;
 		int w = y;
+		int parity = -1;
+		
 		// loop
 		int tmp, rem;
 		while (w != 0) {
@@ -111,7 +138,12 @@ public class EEA31 {
 			u = tmp;
 			g = w; 
 			w = rem;
+			parity = -parity;
 		}
-		return a<0 ? a+y : a;
+		
+		if (Long.signum(x)==parity) {
+			a = (parity==1) ? y+a : y-a;
+		}
+		return a;
 	}
 }
