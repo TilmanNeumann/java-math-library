@@ -75,9 +75,9 @@ public class EEA31 {
 //		LOG.debug("y-a = " + (y-a));
 //		LOG.debug("y+a = " + (y+a));
 //		LOG.debug("parity = " + parity);
-//		LOG.debug("sign of x = " + Long.signum(x));
+//		LOG.debug("sign of x = " + Integer.signum(x));
 
-		if (Long.signum(x)==parity) {
+		if (Integer.signum(x)==parity) {
 			a = (parity==1) ? y+a : y-a; // TODO: What about b?
 		}
 		return new Result(g, a, b);
@@ -109,7 +109,7 @@ public class EEA31 {
 			parity = -parity;
 		}
 		
-		if (Long.signum(x)==parity) {
+		if (Integer.signum(x)==parity) {
 			a = (parity==1) ? y+a : y-a;
 		}
 		return new Result(g, a, -1);
@@ -141,7 +141,7 @@ public class EEA31 {
 			parity = -parity;
 		}
 		
-		if (Long.signum(x)==parity) {
+		if (Integer.signum(x)==parity) {
 			a = (parity==1) ? y+a : y-a;
 		}
 		return a;
