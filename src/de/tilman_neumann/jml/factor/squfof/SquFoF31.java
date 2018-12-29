@@ -24,6 +24,7 @@ import de.tilman_neumann.jml.factor.SingleFactorFinder;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence63;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
 
 /**
  * Shanks' SQUFOF algorithm, 31-bit version.
@@ -170,9 +171,18 @@ public class SquFoF31 extends FactorAlgorithmBase {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		SecureRandom RNG = new SecureRandom();
-		int count = 1000000;
+		int count = 100000;
 		SquFoF31 squfof31 = new SquFoF31();
 		SingleFactorFinder testFactorizer = (SingleFactorFinder) FactorAlgorithm.DEFAULT;
+		
+		// TODO Squfof31 crash !
+		BigInteger N0 = BigInteger.valueOf(1099511627970L); // 2*3*5*7*23*227642159
+		LOG.info("Factoring N=" + N0 + ":");
+		SortedMultiset<BigInteger> correctFactors = testFactorizer.factor(N0);
+		LOG.info("testFactorizer found " + correctFactors);
+		SortedMultiset<BigInteger> squfofFactors = squfof31.factor(N0);
+		LOG.info("SquFoF31 found " + squfofFactors);
+		
 		for (int bits=52; bits<63; bits++) {
 			LOG.info("Testing " + count + " random numbers with " + bits + " bits...");
 			int failCount = 0;
