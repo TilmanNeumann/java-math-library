@@ -26,8 +26,6 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  * Fast implementation of Lehman's factor algorithm.
  * Works flawlessly for N up to 60 bit.
  *
- * This version will do trial division before or after the main loop depending on factorSemiprimes.
- *
  * @authors Tilman Neumann + Thilo Harich
  */
 public class Lehman_Fast extends FactorAlgorithmBase {
