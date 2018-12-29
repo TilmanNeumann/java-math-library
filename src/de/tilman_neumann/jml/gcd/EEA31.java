@@ -101,7 +101,7 @@ public class EEA31 {
 		int tmp, rem;
 		while (w != 0) {
 			rem = g % w;
-			tmp = a - (g/w)*u; // floor(g/w) !
+			tmp = a - (g/w)*u; // floor(g/w)
 			a = u; 
 			u = tmp;
 			g = w; 
@@ -121,7 +121,7 @@ public class EEA31 {
 	 * @param y
 	 * @return (1/x) mod y
 	 */
-	public int modularInverse(int x, int y) {
+	public int modularInverse1(int x, int y) {
 		// initialize
 		int a = 1;
 		int g = x;
@@ -133,7 +133,7 @@ public class EEA31 {
 		int tmp, rem;
 		while (w != 0) {
 			rem = g % w;
-			tmp = a - (g/w)*u; // floor(g/w) !
+			tmp = a - (g/w)*u; // floor(g/w)
 			a = u; 
 			u = tmp;
 			g = w; 
@@ -145,5 +145,48 @@ public class EEA31 {
 			a = (parity==1) ? y+a : y-a;
 		}
 		return a;
+	}
+	
+	/**
+	 * Slightly faster modular inverse initializing variables with first iteration
+	 * and needing one step less at the end.
+	 * 
+	 * Adapted from R.D.Silverman's single_modinv2(),
+	 * see http://www.mersenneforum.org/showthread.php?t=12963&page=2, post #16.
+	 *
+	 * @param a
+	 * @param modulus
+	 * @return
+	 */
+	public int modularInverse/*2*/(int a, int modulus) {
+		int ps, ps1, ps2, parity, dividend, divisor, rem, q, sign, aPos;
+
+		if (a == 1) return 1;
+		
+		// make argument positive, remember sign
+		sign = Integer.signum(a);
+		aPos = (a<0) ? -a : a;
+		
+		// initialize variables with first iteration
+		q = modulus / aPos;
+		rem = modulus % aPos;
+		dividend = aPos;
+		divisor = rem;
+		ps1 = q;
+		ps2 = 1;
+		parity = 1;
+
+		while (divisor > 1) {
+			q = dividend / divisor;
+			rem = dividend % divisor; // faster than rem = dividend - q * divisor
+			ps = q*ps1 + ps2;
+			ps2 = ps1;
+			ps1 = ps;
+			dividend = divisor;
+			divisor = rem;
+			parity = -parity;
+		}
+		
+		return (sign==parity) ? modulus-ps1 : ps1;
 	}
 }
