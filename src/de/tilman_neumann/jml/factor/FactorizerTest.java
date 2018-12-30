@@ -52,7 +52,7 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 10000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
@@ -78,7 +78,7 @@ public class FactorizerTest {
 			
 			// Lehman
 			//new Lehman_Simple(),
-			new Lehman_Fast(true), // best algorithm for hard N with 28 to 56 bits
+			new Lehman_Fast(true), // best algorithm for hard N with 28 to 50 bits
 			new Lehman_Fast(false), // great for random composite N<60 bit having small factors frequently
 			
 			// PollardRho:
@@ -89,12 +89,15 @@ public class FactorizerTest {
 			//new PollardRhoBrent(),
 //			new PollardRho31(),
 //			new PollardRhoBrent31(),
-
+			new PollardRhoBrentMontgomery63(), // best algorithm for N from 51 to 62 bit
+			
 			// SquFoF variants
+			// * pretty good, but never the best algorithm
+			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-			new SquFoF63(), // best algorithm for N = 2^57...2^60 (freezes at some N > 2^90)
-//			new SquFoF31(), // never better than Lehman_Fast
+			new SquFoF63(),
+			new SquFoF31(),
 			new SquFoF31Preload(),
 			
 			// CFrac
