@@ -138,7 +138,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 	    long u = 1;
 	    long v = 0;
 	    
-	    while (a != 0) { // XXX a>0 does not work in Java because the first a is negative
+	    while (a > 0) {
 	    	//LOG.debug("a=" + a + ", u=" + u + ", v=" + v);
 	        a = a >>> 1;
 	        if ((u & 1) == 0) {
@@ -164,7 +164,10 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 	private long montgomeryMult(final long a, final long b) {
 		Int127 ab = Int127.mul64(a, b);
 		// t = ab * (-1/N) mod R
+		// XXX The "and" operations could be removed if R = 2^64
 		long t = Int127.mul64(ab.and(R_MASK), minusNInvModR).and(R_MASK);
+		// reduced = (a*b + t*N) / R
+		// XXX the right shift would be much simpler if R = 2^64
 		long reduced = ab.add(Int127.mul64(t, N)).shiftRight(R_BITS).getLow();
 		long result = reduced<N ? reduced : reduced-N;
 		
