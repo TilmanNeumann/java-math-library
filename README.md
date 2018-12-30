@@ -11,6 +11,7 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Releases
 
+* v0.9.7: Workaround for rare SquFoF fails (still fails at SquFoF63)
 * v0.9.6: 	Added Pollard-Rho-Brent implementation with Montgomery multiplication in longs;
 			improved Lehman implementation;
 			faster trial division;
