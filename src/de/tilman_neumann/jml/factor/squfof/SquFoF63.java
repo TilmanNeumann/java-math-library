@@ -16,12 +16,17 @@ package de.tilman_neumann.jml.factor.squfof;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.SingleFactorFinder;
 import de.tilman_neumann.jml.sequence.NumberSequence;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence;
+import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
 
 /**
  * Shanks' SQUFOF algorithm, 63-bit version.<br/>
@@ -75,8 +80,18 @@ public class SquFoF63 extends FactorAlgorithmBase {
 		kSequence.reset();
 		//int iterations=0;
 		while (true) {
-			// get a new k, return immediately if kN is square
-			this.kN = kSequence.next().multiply(N);
+			// get a new k
+			BigInteger k = kSequence.next();
+			if (k.compareTo(N) > 0) {
+				// workaround for problem with N = 1099511627970 = 2*3*5*7*23*227642159
+				LOG.debug("k=" + k + ", N=" + N);
+				BigInteger gcd = k.gcd(N);
+				if (gcd.compareTo(I_1)>0 && gcd.compareTo(N)<0) return gcd;
+				break; // TODO still fails because in SquFoF63 there is no backup sequence!
+			}
+			this.kN = k.multiply(N);
+			
+			// return immediately if kN is square
 			// sqrt(double) is much faster than BigInteger.sqrt() but the class cast may be wrong for some N >= 54 bit
 			floor_sqrt_kN = (long) Math.sqrt(kN.doubleValue());
 			BigInteger sqrt_kN_big = BigInteger.valueOf(floor_sqrt_kN);
@@ -88,6 +103,7 @@ public class SquFoF63 extends FactorAlgorithmBase {
 				floor_sqrt_kN--;
 				diff += (floor_sqrt_kN<<1) + 1;
 			}
+			
 			// search square Q_i
 			BigInteger factor = test(diff);
 			if (factor!=null) {
@@ -96,6 +112,7 @@ public class SquFoF63 extends FactorAlgorithmBase {
 			}
 			//iterations++;
 		}
+		return I_0; // not found
 	}
 
 	// inlining this method makes hardly a difference (100ms of 27s for a 81 but number)
@@ -160,5 +177,53 @@ public class SquFoF63 extends FactorAlgorithmBase {
 		// result
 		BigInteger gcd = N.gcd(BigInteger.valueOf(P_i));
 		return (gcd.compareTo(I_1)>0 && gcd.compareTo(N)<0) ? gcd : null;
+	}
+	/**
+	 * Test.
+	 * @param args ignored
+	 */
+	public static void main(String[] args) {
+		ConfigUtil.initProject();
+		SecureRandom RNG = new SecureRandom();
+		int count = 100000;
+		SquFoF63 squfof63 = new SquFoF63();
+		SingleFactorFinder testFactorizer = (SingleFactorFinder) FactorAlgorithm.DEFAULT;
+		
+		// address (former) special problems
+		BigInteger N0 = BigInteger.valueOf(1099511627970L); // 2*3*5*7*23*227642159
+		LOG.info("Factoring N=" + N0 + ":");
+		SortedMultiset<BigInteger> correctFactors = testFactorizer.factor(N0);
+		LOG.info("testFactorizer found " + correctFactors);
+		SortedMultiset<BigInteger> squfofFactors = squfof63.factor(N0);
+		LOG.info("SquFoF63 found " + squfofFactors);
+		
+		// test random N
+		for (int bits=52; bits<63; bits++) {
+			LOG.info("Testing " + count + " random numbers with " + bits + " bits...");
+			int failCount = 0;
+			for (int i=0; i<count; i++) {
+				long N = 0;
+				while (true) { 
+					BigInteger N_big = new BigInteger(bits, RNG);
+					N = N_big.longValue();
+					if (N>2 && !N_big.isProbablePrime(20)) break;
+				}
+				long tdivFactor = squfof63.findSingleFactor(N);
+				if (tdivFactor<2) {
+					long squfofFactor = testFactorizer.findSingleFactor(BigInteger.valueOf(N)).longValue();
+					if (squfofFactor > 1 && squfofFactor<N) {
+						//LOG.debug("N=" + N + ": TDiv failed to find factor " + squfofFactor);
+						failCount++;
+					} else {
+						LOG.error("Squfof63 failed to factor N=" + N + " !");
+					}
+				} else {
+					if (N%tdivFactor!=0) {
+						failCount++;
+					}
+				}
+			}
+			LOG.info("    #fails = " + failCount);
+		}
 	}
 }

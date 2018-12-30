@@ -80,9 +80,19 @@ public class SquFoF31 extends FactorAlgorithmBase {
 			SquarefreeSequence63 kSequence = new SquarefreeSequence63(baseMultiplier);
 			kSequence.reset();
 			while (true) {
-				// get a new k, return immediately if kN is square
-				this.kN = kSequence.next().longValue() * N;
+				// get a new k
+				long k = kSequence.next().longValue();
+				if (k > N) {
+					// workaround for problem with N = 1099511627970 = 2*3*5*7*23*227642159
+					LOG.debug("k=" + k + ", N=" + N);
+					long gcd = gcdEngine.gcd(k, N);
+					if (gcd>1 && gcd<N) return gcd;
+					break;
+				}
+				this.kN = k*N;
 				if (bitLength(kN) > 60) break; // use next smaller base multiplier; the inner loops need 3 bit tolerance
+				
+				// return immediately if kN is square
 				floor_sqrt_kN = (int) Math.sqrt(kN);
 				int diff = (int) (kN - floor_sqrt_kN*(long)floor_sqrt_kN);
 				if (diff==0) return gcdEngine.gcd(N, floor_sqrt_kN);
@@ -91,6 +101,7 @@ public class SquFoF31 extends FactorAlgorithmBase {
 					floor_sqrt_kN--;
 					diff += (floor_sqrt_kN<<1) + 1;
 				}
+				
 				// search square Q_i
 				Long factor = test(diff);
 				if (factor!=null) return factor;
@@ -175,7 +186,7 @@ public class SquFoF31 extends FactorAlgorithmBase {
 		SquFoF31 squfof31 = new SquFoF31();
 		SingleFactorFinder testFactorizer = (SingleFactorFinder) FactorAlgorithm.DEFAULT;
 		
-		// TODO Squfof31 crash !
+		// address (former) special problems
 		BigInteger N0 = BigInteger.valueOf(1099511627970L); // 2*3*5*7*23*227642159
 		LOG.info("Factoring N=" + N0 + ":");
 		SortedMultiset<BigInteger> correctFactors = testFactorizer.factor(N0);
@@ -183,6 +194,7 @@ public class SquFoF31 extends FactorAlgorithmBase {
 		SortedMultiset<BigInteger> squfofFactors = squfof31.factor(N0);
 		LOG.info("SquFoF31 found " + squfofFactors);
 		
+		// test random N
 		for (int bits=52; bits<63; bits++) {
 			LOG.info("Testing " + count + " random numbers with " + bits + " bits...");
 			int failCount = 0;

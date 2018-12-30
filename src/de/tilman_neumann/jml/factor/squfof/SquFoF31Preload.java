@@ -14,13 +14,18 @@
 package de.tilman_neumann.jml.factor.squfof;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.SingleFactorFinder;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence63;
+import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
 
 /**
  * Shanks' SQUFOF algorithm, 31-bit version.
@@ -93,9 +98,19 @@ public class SquFoF31Preload extends FactorAlgorithmBase {
 			long[] baseSequence = baseSequences[baseMultiplierIndex];
 			int baseSequenceIndex = 0;
 			while (true) {
-				// get a new k, return immediately if kN is square
-				this.kN = baseSequence[baseSequenceIndex++] * N;
+				// get a new k
+				long k = baseSequence[baseSequenceIndex++];
+				if (k > N) {
+					// workaround for problem with N = 1099511627970 = 2*3*5*7*23*227642159
+					LOG.debug("k=" + k + ", N=" + N);
+					long gcd = gcdEngine.gcd(k, N);
+					if (gcd>1 && gcd<N) return gcd;
+					break;
+				}
+				this.kN = k*N;
 				if (bitLength(kN) > 60) break; // use next smaller base multiplier; the inner loops need 3 bit tolerance
+
+				// return immediately if kN is square
 				floor_sqrt_kN = (int) Math.sqrt(kN);
 				int diff = (int) (kN - floor_sqrt_kN*(long)floor_sqrt_kN);
 				if (diff==0) return gcdEngine.gcd(N, floor_sqrt_kN);
@@ -104,6 +119,7 @@ public class SquFoF31Preload extends FactorAlgorithmBase {
 					floor_sqrt_kN--;
 					diff += (floor_sqrt_kN<<1) + 1;
 				}
+				
 				// search square Q_i
 				Long factor = test(diff);
 				if (factor!=null) return factor;
@@ -175,5 +191,54 @@ public class SquFoF31Preload extends FactorAlgorithmBase {
 		// result
 		long gcd = gcdEngine.gcd(N, P_i);
 		return (gcd>1 && gcd<N) ? gcd : null;
+	}
+	
+	/**
+	 * Test.
+	 * @param args ignored
+	 */
+	public static void main(String[] args) {
+		ConfigUtil.initProject();
+		SecureRandom RNG = new SecureRandom();
+		int count = 100000;
+		SquFoF31Preload squfof31 = new SquFoF31Preload();
+		SingleFactorFinder testFactorizer = (SingleFactorFinder) FactorAlgorithm.DEFAULT;
+		
+		// address (former) special problems
+		BigInteger N0 = BigInteger.valueOf(1099511627970L); // 2*3*5*7*23*227642159
+		LOG.info("Factoring N=" + N0 + ":");
+		SortedMultiset<BigInteger> correctFactors = testFactorizer.factor(N0);
+		LOG.info("testFactorizer found " + correctFactors);
+		SortedMultiset<BigInteger> squfofFactors = squfof31.factor(N0);
+		LOG.info("SquFoF31 found " + squfofFactors);
+		
+		// test random N
+		for (int bits=52; bits<63; bits++) {
+			LOG.info("Testing " + count + " random numbers with " + bits + " bits...");
+			int failCount = 0;
+			for (int i=0; i<count; i++) {
+				long N = 0;
+				while (true) { 
+					BigInteger N_big = new BigInteger(bits, RNG);
+					N = N_big.longValue();
+					if (N>2 && !N_big.isProbablePrime(20)) break;
+				}
+				long tdivFactor = squfof31.findSingleFactor(N);
+				if (tdivFactor<2) {
+					long squfofFactor = testFactorizer.findSingleFactor(BigInteger.valueOf(N)).longValue();
+					if (squfofFactor > 1 && squfofFactor<N) {
+						//LOG.debug("N=" + N + ": TDiv failed to find factor " + squfofFactor);
+						failCount++;
+					} else {
+						LOG.error("Squfof63 failed to factor N=" + N + " !");
+					}
+				} else {
+					if (N%tdivFactor!=0) {
+						failCount++;
+					}
+				}
+			}
+			LOG.info("    #fails = " + failCount);
+		}
 	}
 }
