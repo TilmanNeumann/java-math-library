@@ -4,7 +4,7 @@ This library is focused on number theory, but not necessarily limited to it.
 Its intention is to collect basic math routines that may be of value to others.
 It is based on PSIQS 4.0 and as such provides some pretty good methods for integer factorization. 
 The factoring methods are used as well to implement a fast sumOfDivisors() function.
-Other noteworthy things added on top of PSIQS 4.0 are sqrt(), nth_root(), ln() and exp() functions for BigDecimals,
+Other noteworthy things are sqrt(), nth_root(), ln() and exp() functions for BigDecimals,
 a fast generator for the partitions of multipartite numbers, and - quite special -
 implementations of smooth number sequences like CANs (colossally abundant numbers) and SHCNs (superior highly composite numbers).
 
