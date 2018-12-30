@@ -178,6 +178,7 @@ public class SquFoF63 extends FactorAlgorithmBase {
 		BigInteger gcd = N.gcd(BigInteger.valueOf(P_i));
 		return (gcd.compareTo(I_1)>0 && gcd.compareTo(N)<0) ? gcd : null;
 	}
+	
 	/**
 	 * Test.
 	 * @param args ignored
