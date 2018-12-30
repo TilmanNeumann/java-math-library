@@ -139,10 +139,10 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 	    long v = 0;
 	    
 	    while (a > 0) {
-	    	//LOG.debug("a=" + a + ", u=" + u + ", v=" + v);
-	        a = a >>> 1;
+	        a >>>= 1;
 	        if ((u & 1) == 0) {
-	            u = u >>> 1; v = v >>> 1;
+	            u >>>= 1;
+	    	    v >>>= 1;
 	        } else {
 	            u = ((u ^ N) >>> 1) + (u & N);
 	            v = (v >>> 1) + R_HALF;
