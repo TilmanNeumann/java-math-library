@@ -75,9 +75,6 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 		this.N = N;
         long G, x, ys;
         
-		// Modular inverse required by Montgomery multiplication:
-        // EEA63 would not work here because R=2^63 overflows positive longs.
-		// But we can adapt the algorithm from http://coliru.stacked-crooked.com/a/f57f11426d06acd8
 		setUpMontgomeryMult();
 
         do {
@@ -126,11 +123,14 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 	}
 	
 	/**
-	 * Finds (1/R) mod N and (-1/N) mod R for odd N (hacker's delight) and R=2^63.
-	 * Note that R=2^63 is the biggest reducer we can get for Java longs.
-	 * R=2^64 would let Rhalf overflow.
+	 * Finds (1/R) mod N and (-1/N) mod R for odd N and R=2^63.
 	 * 
-	 * Adapted from http://coliru.stacked-crooked.com/a/f57f11426d06acd8.
+	 * EEA63 would not work with R=2^63 because R overflows positive longs.
+	 * 
+	 * This algorithm adapted from http://coliru.stacked-crooked.com/a/f57f11426d06acd8
+	 * (which refers to "hackers delight") can deal with R=2^63.
+	 * 
+	 * The desired R=2^64 is still unachievable because R_HALF would overflow positive longs.
 	 */
 	private void setUpMontgomeryMult() {
 		// initialization
