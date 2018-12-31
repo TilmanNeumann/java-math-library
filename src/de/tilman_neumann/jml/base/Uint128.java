@@ -46,7 +46,7 @@ public class Uint128 {
 	}
 	
 	/**
-	 * Multiplication of 63 bit integers,
+	 * Multiplication of unsigned 63 bit integers,
 	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
 	 * 
 	 * This method ignores overflows of the "middle term".
@@ -70,7 +70,7 @@ public class Uint128 {
 	}
 
 	/**
-	 * Multiplication of 64 bit integers,
+	 * Multiplication of unsigned 64 bit integers,
 	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
 	 * 
 	 * This method takes notice of overflows of the "middle term".
@@ -108,7 +108,7 @@ public class Uint128 {
 	}
 
 	/**
-	 * Computes the low part of the product of two 64 bit integers.
+	 * Computes the low part of the product of two unsigned 64 bit integers.
 	 * 
 	 * Overflows of the "middle term" are not interesting here because they'ld only
 	 * affect the high part of the multiplication result.
@@ -129,7 +129,7 @@ public class Uint128 {
 	}
 
 	/**
-	 * Add two 127 bit integers.
+	 * Add two unsigned 127 bit integers.
 	 * @param other
 	 * @return this + other
 	 */
