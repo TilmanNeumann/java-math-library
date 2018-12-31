@@ -195,7 +195,9 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 	/**
 	 * Test.
 	 * Test numbers:
-	 * 3225275494496681 = 56791489 * 56791529
+	 * 3225275494496681 (52 bits) = 56791489 * 56791529
+	 * 322527333642009919 (59 bits) = 567914891 * 567914909
+	 * 3225273260887418687 (62 bits) = 567914891 * 5679148957
 	 * 
 	 * @param args ignored
 	 */
