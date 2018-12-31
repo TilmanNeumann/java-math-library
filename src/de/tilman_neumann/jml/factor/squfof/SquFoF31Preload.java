@@ -85,12 +85,20 @@ public class SquFoF31Preload extends FactorAlgorithmBase {
 	 */
 	public long findSingleFactor(long N) {
 		this.N = N;
+		
 		// stopMult was derived experimentally
 		int bits = bitLength(N);
 		float stopMult = (bits<=45) ? 0.8F : 0.8F + (bits-45)*0.18F;
 		// max iterations
 		this.maxI = (int) (stopMult * Math.pow(N, 0.2)); // stopMult * (5.th root of N)
 		
+		// test all factors of the base multipliers:
+		// This is required for N that consist of them only.
+		int[] baseMultiplierFactors = new int[] {2, 3, 5, 7}; // 1680 = 2^4 * 3 * 5 * 7
+		for (int baseMultiplierFactor : baseMultiplierFactors) {
+			if (N%baseMultiplierFactor == 0) return baseMultiplierFactor;
+		}
+
 		// Several base multipliers allow to expand the fail-free working range until N=2^52.
 		// None of the base multipliers is a square of another one.
 		for (int baseMultiplierIndex=0; baseMultiplierIndex<BASE_MULTIPLIERS.length; baseMultiplierIndex++) {
@@ -98,15 +106,7 @@ public class SquFoF31Preload extends FactorAlgorithmBase {
 			long[] baseSequence = baseSequences[baseMultiplierIndex];
 			int baseSequenceIndex = 0;
 			while (true) {
-				// get a new k
 				long k = baseSequence[baseSequenceIndex++];
-				if (k > N) {
-					// workaround for problem with N = 1099511627970 = 2*3*5*7*23*227642159
-					LOG.debug("k=" + k + ", N=" + N);
-					long gcd = gcdEngine.gcd(k, N);
-					if (gcd>1 && gcd<N) return gcd;
-					break;
-				}
 				this.kN = k*N;
 				if (bitLength(kN) > 60) break; // use next smaller base multiplier; the inner loops need 3 bit tolerance
 
@@ -199,20 +199,20 @@ public class SquFoF31Preload extends FactorAlgorithmBase {
 	 */
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
-		SecureRandom RNG = new SecureRandom();
-		int count = 100000;
 		SquFoF31Preload squfof31 = new SquFoF31Preload();
 		SingleFactorFinder testFactorizer = (SingleFactorFinder) FactorAlgorithm.DEFAULT;
 		
-		// address (former) special problems
+		// test numbers that caused problems with former versions
 		BigInteger N0 = BigInteger.valueOf(1099511627970L); // 2*3*5*7*23*227642159
-		LOG.info("Factoring N=" + N0 + ":");
+		LOG.info("Test N=" + N0 + ":");
 		SortedMultiset<BigInteger> correctFactors = testFactorizer.factor(N0);
 		LOG.info("testFactorizer found " + correctFactors);
 		SortedMultiset<BigInteger> squfofFactors = squfof31.factor(N0);
 		LOG.info("SquFoF31 found " + squfofFactors);
 		
 		// test random N
+		SecureRandom RNG = new SecureRandom();
+		int count = 100000;
 		for (int bits=52; bits<63; bits++) {
 			LOG.info("Testing " + count + " random numbers with " + bits + " bits...");
 			int failCount = 0;

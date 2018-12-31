@@ -65,6 +65,7 @@ public class SquFoF63 extends FactorAlgorithmBase {
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
 		this.N = N;
+		
 		// best parameters found by experiments:
 		// multiplier = 1680 always, and stopMult approximated piecewise:
 		float stopMult;
@@ -75,20 +76,20 @@ public class SquFoF63 extends FactorAlgorithmBase {
 		else /* bits>=70 */ stopMult = 1.25F + (bits-70)*0.062F;
 		// max iterations: there is no need to account for k, because expansions of smooth kN are typically not longer than those for N.
 		this.maxI = (int) (stopMult * Math.pow(N.doubleValue(), 0.2)); // stopMult * (5.th root of N)
+
+		// test all factors of the base multiplier:
+		// This is required for N that consist of them only.
+		BigInteger[] baseMultiplierFactors = new BigInteger[] {I_2, I_3, I_5, I_7}; // 1680 = 2^4 * 3 * 5 * 7
+		for (BigInteger baseMultiplierFactor : baseMultiplierFactors) {
+			if (N.mod(baseMultiplierFactor).equals(I_0)) return baseMultiplierFactor;
+		}
+
 		// sequence: for each new N start again with the first k
 		NumberSequence<BigInteger> kSequence = new SquarefreeSequence(1680);
 		kSequence.reset();
-		//int iterations=0;
+		
 		while (true) {
-			// get a new k
 			BigInteger k = kSequence.next();
-			if (k.compareTo(N) > 0) {
-				// workaround for problem with N = 1099511627970 = 2*3*5*7*23*227642159
-				LOG.debug("k=" + k + ", N=" + N);
-				BigInteger gcd = k.gcd(N);
-				if (gcd.compareTo(I_1)>0 && gcd.compareTo(N)<0) return gcd;
-				break; // TODO still fails because in SquFoF63 there is no backup sequence!
-			}
 			this.kN = k.multiply(N);
 			
 			// return immediately if kN is square
@@ -107,12 +108,9 @@ public class SquFoF63 extends FactorAlgorithmBase {
 			// search square Q_i
 			BigInteger factor = test(diff);
 			if (factor!=null) {
-				//if (iterations>1000) LOG.debug(getName() + ": Found factor after " + iterations + " k-values");
 				return factor;
 			}
-			//iterations++;
 		}
-		return I_0; // not found
 	}
 
 	// inlining this method makes hardly a difference (100ms of 27s for a 81 but number)
@@ -185,12 +183,10 @@ public class SquFoF63 extends FactorAlgorithmBase {
 	 */
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
-		SecureRandom RNG = new SecureRandom();
-		int count = 100000;
 		SquFoF63 squfof63 = new SquFoF63();
 		SingleFactorFinder testFactorizer = (SingleFactorFinder) FactorAlgorithm.DEFAULT;
 		
-		// address (former) special problems
+		// test numbers that caused problems with former versions
 		BigInteger N0 = BigInteger.valueOf(1099511627970L); // 2*3*5*7*23*227642159
 		LOG.info("Factoring N=" + N0 + ":");
 		SortedMultiset<BigInteger> correctFactors = testFactorizer.factor(N0);
@@ -199,6 +195,8 @@ public class SquFoF63 extends FactorAlgorithmBase {
 		LOG.info("SquFoF63 found " + squfofFactors);
 		
 		// test random N
+		SecureRandom RNG = new SecureRandom();
+		int count = 100000;
 		for (int bits=52; bits<63; bits++) {
 			LOG.info("Testing " + count + " random numbers with " + bits + " bits...");
 			int failCount = 0;
