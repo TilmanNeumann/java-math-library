@@ -23,17 +23,16 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Rudimentary 127 bit int implementation.
+ * Rudimentary 128 bit unsigned int implementation.
  * 
  * @author Tilman Neumann
  */
-public class Int127 {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = Logger.getLogger(Int127.class);
+public class Uint128 {
+	private static final Logger LOG = Logger.getLogger(Uint128.class);
 	
 	private long high, low;
 	
-	public Int127(long high, long low) {
+	public Uint128(long high, long low) {
 		this.high = high;
 		this.low = low;
 	}
@@ -47,28 +46,73 @@ public class Int127 {
 	}
 	
 	/**
-	 * Multiplication of 64 bit integers,
-	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java
+	 * Multiplication of 63 bit integers,
+	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
+	 * 
+	 * This method ignores overflows of the "middle term".
+	 * As such it won't work for 64 bit inputs but is otherwise faster than mul64().
+	 * 
 	 * @param x
 	 * @param y
 	 * @return
 	 */
-	// TODO fails for 64 bit inputs
-	public static Int127 mul64(long x, long y) {
+	public static Uint128 mul63(long x, long y) {
 		final long x_hi = x >>> 32;
 		final long y_hi = y >>> 32;
 		final long x_lo = x & 0xFFFFFFFFL;
 		final long y_lo = y & 0xFFFFFFFFL;
 		final long lo_prod = x_lo * y_lo;
-		final long med_term = x_hi * y_lo + x_lo * y_hi;
+		final long med_term = x_hi * y_lo + x_lo * y_hi; // possible overflow here
 		final long hi_prod = x_hi * y_hi;
 		long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
 		long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
-		return new Int127(r_hi, r_lo);
+		return new Uint128(r_hi, r_lo);
+	}
+
+	/**
+	 * Multiplication of 64 bit integers,
+	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
+	 * 
+	 * This method takes notice of overflows of the "middle term".
+	 * As such it works for 64 bit inputs but is slightly slower than mul63().
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static Uint128 mul64(long x, long y) {
+		final long x_hi = x >>> 32;
+		final long y_hi = y >>> 32;
+		final long x_lo = x & 0xFFFFFFFFL;
+		final long y_lo = y & 0xFFFFFFFFL;
+		
+		final long lo_prod = x_lo * y_lo;
+		final long med_prod1 = x_hi * y_lo;
+		final long med_prod2 = x_lo * y_hi;
+		final long med_term = med_prod1 + med_prod2;
+		long hi_prod = x_hi * y_hi;
+		
+		// the medium term could overflow
+		boolean carry = (med_prod1<0) && (med_prod2<0);
+		if (!carry) {
+			boolean checkCarry = (med_prod1<0) || (med_prod2<0);
+			if (checkCarry && med_term>=0) {
+				carry = true;
+			}
+		}
+		
+		long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
+		if (carry) r_hi += 1L<<32;
+		long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		return new Uint128(r_hi, r_lo);
 	}
 
 	/**
 	 * Computes the low part of the product of two 64 bit integers.
+	 * 
+	 * Overflows of the "middle term" are not interesting here because they'ld only
+	 * affect the high part of the multiplication result.
+	 * 
 	 * @param x
 	 * @param y
 	 * @return (x*y) & 0xFFFFFFFFL
@@ -89,7 +133,7 @@ public class Int127 {
 	 * @param other
 	 * @return this + other
 	 */
-	public Int127 add(Int127 other) {
+	public Uint128 add(Uint128 other) {
 		// We know for sure that low overflows if both low and o_lo are 64 bit.
 		// If only one of the input 'low's is 64 bit, then we can recognize an overflow
 		// if the result.lo is not 64 bit.
@@ -116,7 +160,7 @@ public class Int127 {
 		//LOG.debug("low = " + Long.toBinaryString(low));
 		//LOG.debug("o_lo = " + Long.toBinaryString(o_lo));
 		//LOG.debug("r_lo = " + Long.toBinaryString(r_lo));
-		return new Int127(r_hi, r_lo);
+		return new Uint128(r_hi, r_lo);
 	}
 	
 	/**
@@ -124,13 +168,13 @@ public class Int127 {
 	 * @param bits
 	 * @return
 	 */
-	public Int127 shiftLeft(int bits) {
+	public Uint128 shiftLeft(int bits) {
 		if (bits<64) {
 			long rh = (high<<bits) | (low>>>(64-bits));
 			long rl = low<<bits;
-			return new Int127(rh, rl);
+			return new Uint128(rh, rl);
 		}
-		return new Int127(low<<(bits-64), 0);
+		return new Uint128(low<<(bits-64), 0);
 	}
 	
 	/**
@@ -138,13 +182,13 @@ public class Int127 {
 	 * @param bits
 	 * @return
 	 */
-	public Int127 shiftRight(int bits) {
+	public Uint128 shiftRight(int bits) {
 		if (bits<64) {
 			long rh = high>>>bits;
 			long rl = (low>>>bits) | (high<<(64-bits));
-			return new Int127(rh, rl);
+			return new Uint128(rh, rl);
 		}
-		return new Int127(0, high>>>(bits-64));
+		return new Uint128(0, high>>>(bits-64));
 	}
 
 	/**
@@ -189,18 +233,30 @@ public class Int127 {
 			long b_lo = b_lo_big.longValue();
 			
 			// test addition
-			Int127 a128 = new Int127(a_hi, a_lo);
-			Int127 b128 = new Int127(b_hi, b_lo);
-			Int127 sum128 = a128.add(b128);
+			Uint128 a128 = new Uint128(a_hi, a_lo);
+			Uint128 b128 = new Uint128(b_hi, b_lo);
+			Uint128 sum128 = a128.add(b128);
 			BigInteger sum128Big = sum128.toBigInteger();
 			BigInteger sumBig = a128.toBigInteger().add(b128.toBigInteger());
 			assertEquals(sumBig, sum128Big);
 
-			// test multiplication
-			Int127 mul128 = mul64(a_hi, b_hi);
-			BigInteger mul128Big = mul128.toBigInteger();
-			BigInteger mulBig = a_hi_big.multiply(b_hi_big);
-			assertEquals(mulBig, mul128Big);
+			// test multiplication with 63 bit numbers
+			Uint128 prod128 = mul63(a_hi, b_hi);
+			BigInteger prod128Big = prod128.toBigInteger();
+			BigInteger prodBig = a_hi_big.multiply(b_hi_big);
+			assertEquals(prodBig, prod128Big);
+
+			// test multiplication with 64 bit numbers
+			prod128 = mul64(a_lo, b_lo);
+			prod128Big = prod128.toBigInteger();
+			prodBig = a_lo_big.multiply(b_lo_big);
+			//LOG.debug("Test " + a_lo_big + "*" + b_lo_big + ":");
+			//LOG.debug("BigInt result = " + prodBig);
+			//LOG.debug("int127 result = " + prod128Big);
+			if (!prodBig.equals(prod128Big)) {
+				LOG.debug("error! diff = " + prodBig.subtract(prod128Big));
+			}
+			assertEquals(prodBig, prod128Big);
 		}
 	}
 }
