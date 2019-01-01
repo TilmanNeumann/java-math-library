@@ -60,7 +60,11 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 		SortedMultiset<BigInteger> factors = new SortedMultiset_BottomUp<BigInteger>();
 		// first get rid of case |N|<=1:
 		if (N.abs().compareTo(I_1)<=0) {
-			factors.add(N);
+			// https://oeis.org/wiki/Empty_product#Prime_factorization_of_1:
+			// "the set of prime factors of 1 is the empty set"
+			if (!N.equals(I_1)) {
+				factors.add(N);
+			}
 			return factors;
 		}
 		// make N positive:
