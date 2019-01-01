@@ -114,6 +114,15 @@ public class PollardRhoBrent extends FactorAlgorithmBase {
 	 * 7.th Fermat number: Hard for Pollard-Rho-Brent (~ 414s) , easy for CFrac or ECM:
 	 * 2^128 + 1 = 340282366920938463463374607431768211457 = 5704689200685129054721 * 59649589127497217<br/>
 	 * 
+	 * 8225267468394993133669189614204532935183709603155231863020477010700542265332938919716662623
+	 * = 1234567891 * 1234567907 * 1234567913 * 1234567927 * 1234567949 * 1234567967 * 1234567981 * 1234568021 * 1234568029 * 1234568047
+	 * takes about 300 ms
+	 * 
+	 * 101546450935661953908994991437690198927080333663460351836152986526126114727314353555755712261904130976988029406423152881932996637460315302992884162068350429 = 
+	 * 123456789012419 * 123456789012421 * 123456789012437 * 123456789012439 * 123456789012463 * 123456789012521 *
+	 * 123456789012523 * 123456789012533 * 123456789012577 * 123456789012629 * 123456789012637
+	 * takes about 147s
+	 * 
 	 * @param args ignored
 	 */
 	public static void main(String[] args) {
@@ -126,9 +135,9 @@ public class PollardRhoBrent extends FactorAlgorithmBase {
 				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 				String line = in.readLine();
 				input = line.trim();
-				LOG.debug("factoring " + input + "...");
+				LOG.debug("Factoring " + input + "...");
 			} catch (IOException ioe) {
-				LOG.error("io-error occuring on input: " + ioe.getMessage());
+				LOG.error("IO-error occuring on input: " + ioe.getMessage());
 				continue;
 			}
 			
