@@ -106,6 +106,12 @@ public class Divisors {
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
 	public static SortedSet<BigInteger> getDivisors/*_v3*/(BigInteger n) {
+		if (n.equals(I_1)) {
+			// the prime factorization of 1 is the empty set, but the set of divisors of 1 is {1}
+			SortedSet<BigInteger> factors = new TreeSet<>();
+			factors.add(I_1);
+			return factors;
+		}
 		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
 		SortedMultiset<BigInteger> factors = factorizer.factor(n);
 		return getDivisors(factors);
