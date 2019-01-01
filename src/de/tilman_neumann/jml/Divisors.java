@@ -401,57 +401,61 @@ public class Divisors {
 	}
 	
     /**
-     * Find the biggest "second factor" of n, i.e. the biggest divisor d with d<=n/d.
+     * Find the biggest divisor of n <= sqrt(n).
      * 
      * @param n
-     * @return biggest "second factor" of n (1 for primes)
+     * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
      */
-    public static BigInteger getBiggestSecondFactor(BigInteger n) {
-    	if (n.bitLength() < 30) {
-    		return getBiggestSecondFactorOfSmallArguments(n.intValue());
+    public static BigInteger getBiggestDivisorBelowSqrtN(BigInteger n) {
+    	if (n.bitLength() <= 30) {
+    		return BigInteger.valueOf(getBiggestDivisorBelowSqrtN_small(n.intValue()));
     	}
-    	return getBiggestSecondFactorOfLargeArguments(n);
+    	return getBiggestDivisorBelowSqrtN_big(n);
     }
 
     /**
-     * Find the biggest "second factor" of n, i.e. the biggest divisor d with d<=n/d.
-     * This implementation does trial division from sqrt(n) downwards; this is fast for arguments < 30 bit.
+     * Find the biggest divisor of n <= sqrt(n).
+     * 
+     * This implementation does trial division from sqrt(n) downwards.
+     * It works correctly for n <= 31 bit and is the fastest implementation for n <= 30 bit.
      * 
      * @param n
-     * @return biggest "second factor" of n (1 for primes)
+     * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
      */
-    private static BigInteger getBiggestSecondFactorOfSmallArguments(int n) {
+    private static int getBiggestDivisorBelowSqrtN_small(int n) {
 		// The biggest second factor must be <= lower(sqrt(n));
 		// we start there and return the first (biggest) divisor that we find.
 		for (int test = (int) Math.sqrt(n); test > 1; test--) {
 			if (n%test == 0) {
 				// found divisor
-				return BigInteger.valueOf(test);
+				return test;
 			}
 		}
-		return I_1; // prime
+		return 1; // prime
     }
 	
     /**
-     * Find the biggest "second factor" of n, i.e. the biggest divisor d with d<=n/d.
-     * This implementation finds the prime factorization first, computes all divisors <= sqrt(n) and returns the largest of them.
+     * Find the biggest divisor of n <= sqrt(n).
+     * This implementation finds the prime factorization first, computes all divisors <= sqrt(n)
+     * and returns the largest of them.
      * 
+     * Fastest implementation for n > 30 bit.
      * @param n
-     * @return biggest "second factor" of n (1 for primes or n=1)
+     * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
      */
-    private static BigInteger getBiggestSecondFactorOfLargeArguments(BigInteger n) {
+    private static BigInteger getBiggestDivisorBelowSqrtN_big(BigInteger n) {
 		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
 		SortedMultiset<BigInteger> factors = factorizer.factor(n);
-		return getBiggestSecondFactor(n, factors);
+		return getBiggestDivisorBelowSqrtN(n, factors);
     }
 
     /**
-     * Find the biggest "second factor" of n given its prime factorization.
+     * Find the biggest divisor of n <= sqrt(n) given the prime factorization of n.
      * 
      * @param n
-     * @return biggest "second factor" of n (1 for primes or n=1)
+     * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
      */
-    public static BigInteger getBiggestSecondFactor(BigInteger n, SortedMultiset<BigInteger> factors) {
+    public static BigInteger getBiggestDivisorBelowSqrtN(BigInteger n, SortedMultiset<BigInteger> factors) {
     	SortedSet<BigInteger> smallDivisors = getSmallDivisors(n, factors);
     	return smallDivisors.last();
     }
@@ -595,12 +599,12 @@ public class Divisors {
 		}
 	}
 
-	private static void testBiggestSecondFactor() {
+	private static void testBiggestDivisorBelowSqrtN() {
 		long t0, t1;
 		SecureRandom rng = new SecureRandom();
-		int NCOUNT=100000;
+		int NCOUNT=10000;
 		
-		for (int bits = 15; bits<32; bits++) { // getBiggestSecondFactorOfSmallArguments() needs int arguments
+		for (int bits = 15; bits<32; bits++) { // getBiggestDivisorBelowSqrtN_small() needs int arguments
 			// create test set
 			ArrayList<BigInteger> testSet = new ArrayList<>();
 			for (int i=0; i<NCOUNT; ) {
@@ -612,19 +616,19 @@ public class Divisors {
 			}
 			t0 = System.currentTimeMillis();
 			for (BigInteger nBig : testSet) {
-				BigInteger biggestSecondFactor = getBiggestSecondFactorOfSmallArguments(nBig.intValue());
-				//LOG.info("getBiggestSecondFactorOfSmallArguments(" + n + ") = " + biggestSecondFactor);
+				int divisor = getBiggestDivisorBelowSqrtN_small(nBig.intValue());
+				//LOG.info("getBiggestDivisorBelowSqrtN_small(" + n + ") = " + divisor);
 			}
 			t1 = System.currentTimeMillis();
-			LOG.info("getBiggestSecondFactorOfSmallArguments(" + bits + "bit) took " + (t1-t0) + "ms");
+			LOG.info("getBiggestDivisorBelowSqrtN_small(" + bits + "bit) took " + (t1-t0) + "ms");
 			
 			t0 = System.currentTimeMillis();
 			for (BigInteger nBig : testSet) {
-				BigInteger biggestSecondFactor = getBiggestSecondFactorOfLargeArguments(nBig);
-				//LOG.info("getBiggestSecondFactorOfLargeArguments(" + n + ") = " + biggestSecondFactor);
+				BigInteger divisor = getBiggestDivisorBelowSqrtN_big(nBig);
+				//LOG.info("getBiggestDivisorBelowSqrtN_big(" + n + ") = " + divisor);
 			}
 			t1 = System.currentTimeMillis();
-			LOG.info("getBiggestSecondFactorOfLargeArguments(" + bits + "bit) took " + (t1-t0) + "ms");
+			LOG.info("getBiggestDivisorBelowSqrtN_big(" + bits + "bit) took " + (t1-t0) + "ms");
 		}
 	}
 	
@@ -637,8 +641,8 @@ public class Divisors {
     	ConfigUtil.initProject();
 //    	testDivisors();
 //    	testSmallDivisors();
-//    	testBiggestSecondFactor();
-    	testSumOfDivisorsForSmallIntegers();
-    	testSumOfDivisorsForFactorials();
+    	testBiggestDivisorBelowSqrtN();
+//    	testSumOfDivisorsForSmallIntegers();
+//    	testSumOfDivisorsForFactorials();
 	}
 }
