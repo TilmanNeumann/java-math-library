@@ -42,6 +42,14 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 public class Divisors {
 	private static final Logger LOG = Logger.getLogger(Divisors.class);
 
+	/** {1} */
+	private static final SortedSet<BigInteger> ONE_AS_SET = oneAsSet();
+	private static SortedSet<BigInteger> oneAsSet() {
+		SortedSet<BigInteger> factors = new TreeSet<>();
+		factors.add(I_1);
+		return factors;
+	}
+	
 	private Divisors() {
 		// static class, not instantiable
 	}
@@ -106,12 +114,6 @@ public class Divisors {
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
 	public static SortedSet<BigInteger> getDivisors/*_v3*/(BigInteger n) {
-		if (n.equals(I_1)) {
-			// the prime factorization of 1 is the empty set, but the set of divisors of 1 is {1}
-			SortedSet<BigInteger> factors = new TreeSet<>();
-			factors.add(I_1);
-			return factors;
-		}
 		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
 		SortedMultiset<BigInteger> factors = factorizer.factor(n);
 		return getDivisors(factors);
@@ -124,8 +126,9 @@ public class Divisors {
 	 * @param factors prime factorization
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
-	// TODO the current algorithm creates much more duplicates of divisors than actual divisors -> use a PowerSet?
 	private static SortedSet<BigInteger> getDivisorsTopDown(SortedMultiset<BigInteger> factors) {
+		if (factors.size()==0) return ONE_AS_SET; // n=1 has factor set {}
+		
 		ArrayList<BigInteger> primes = new ArrayList<>();
 		ArrayList<Integer> powers = new ArrayList<>();
 		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
@@ -168,8 +171,9 @@ public class Divisors {
 	 * @param factors
 	 * @return
 	 */
-	// TODO the current algorithm creates much more duplicates of divisors than actual divisors -> use a PowerSet?
 	public static SortedSet<BigInteger> getDivisors/*BottomUp*/(SortedMultiset<BigInteger> factors) {
+		if (factors.size()==0) return ONE_AS_SET; // n=1 has factor set {}
+		
 		ArrayList<BigInteger> primes = new ArrayList<>();
 		ArrayList<Integer> maxPowers = new ArrayList<>();
 		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
@@ -265,6 +269,8 @@ public class Divisors {
 	 */
 	// TODO the current algorithm creates much more duplicates of divisors than actual divisors -> use a PowerSet?
 	public static SortedSet<BigInteger> getSmallDivisors/*_v2*/(BigInteger n, SortedMultiset<BigInteger> factors) {
+		if (n.equals(I_1)) return ONE_AS_SET; // n=1 has empty factor set
+		
 		BigInteger d_max = SqrtInt.iSqrt(n)[0];
 		
 		ArrayList<BigInteger> primes = new ArrayList<>();
@@ -363,7 +369,7 @@ public class Divisors {
 			}
 			entrySums.add(entrySum);
 		}
-		BigInteger productOfEntrySums = I_1;
+		BigInteger productOfEntrySums = I_1; // this is already the answer for n=1 having empty factor set
 		for (BigInteger entrySum : entrySums) {
 			productOfEntrySums = productOfEntrySums.multiply(entrySum);
 		}
@@ -382,12 +388,12 @@ public class Divisors {
 	}
 
 	/**
-	 * Computes the number of positive divisors given the prime factorizaton of a number.
+	 * Computes the number of positive divisors given the prime factorization of a number.
 	 * @param factors
 	 * @return
 	 */
 	public static BigInteger getDivisorCount(SortedMultiset<BigInteger> factors) {
-		BigInteger count = I_1;
+		BigInteger count = I_1; // this is already the answer for n=1 having empty factor set
 		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
 			count = count.multiply(BigInteger.valueOf(entry.getValue()+1));
 		}
@@ -431,7 +437,7 @@ public class Divisors {
      * This implementation finds the prime factorization first, computes all divisors <= sqrt(n) and returns the largest of them.
      * 
      * @param n
-     * @return biggest "second factor" of n (1 for primes)
+     * @return biggest "second factor" of n (1 for primes or n=1)
      */
     private static BigInteger getBiggestSecondFactorOfLargeArguments(BigInteger n) {
 		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
@@ -443,7 +449,7 @@ public class Divisors {
      * Find the biggest "second factor" of n given its prime factorization.
      * 
      * @param n
-     * @return biggest "second factor" of n (1 for primes)
+     * @return biggest "second factor" of n (1 for primes or n=1)
      */
     public static BigInteger getBiggestSecondFactor(BigInteger n, SortedMultiset<BigInteger> factors) {
     	SortedSet<BigInteger> smallDivisors = getSmallDivisors(n, factors);
@@ -632,7 +638,7 @@ public class Divisors {
 //    	testDivisors();
 //    	testSmallDivisors();
 //    	testBiggestSecondFactor();
-//    	testSumOfDivisorsForSmallIntegers();
+    	testSumOfDivisorsForSmallIntegers();
     	testSumOfDivisorsForFactorials();
 	}
 }
