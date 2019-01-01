@@ -26,7 +26,7 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.cfrac.CFrac63_01;
 import de.tilman_neumann.jml.factor.lehman.Lehman_Fast;
-import de.tilman_neumann.jml.factor.squfof.SquFoF63;
+import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 
@@ -54,12 +54,12 @@ public class TDiv_CF02 implements TDiv_CF {
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
 	private double maxQRest;
 
-	private TDiv31Inverse tDiv31; // used for Q <= 2^28
-	private Lehman_Fast lehman; // used for 2^29 <= Q <= 2^56
-	private SquFoF63 squFoF63; // used for 2^57 <= Q <= 2^66
+	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
+	private Lehman_Fast lehman = new Lehman_Fast(true);
+	private PollardRhoBrentMontgomery63 pollardRho = new PollardRhoBrentMontgomery63();
 	private CFrac63_01 cf_internal = new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 12);
 
-	private BPSWTest bpsw;
+	private BPSWTest bpsw = new BPSWTest(1<<20);
 
 	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
 
@@ -67,13 +67,6 @@ public class TDiv_CF02 implements TDiv_CF {
 	private SortedIntegerArray smallFactors = new SortedIntegerArray();
 	private SortedLongArray bigFactors = new SortedLongArray();
 	private AQPairFactory aqPairFactory = new AQPairFactory();
-	
-	public TDiv_CF02() {
-		this.tDiv31 = new TDiv31Inverse();
-		this.lehman = new Lehman_Fast(true);
-		this.squFoF63 = new SquFoF63();
-		this.bpsw = new BPSWTest(1<<20);
-	}
 
 	@Override
 	public String getName() {
@@ -206,12 +199,12 @@ public class TDiv_CF02 implements TDiv_CF {
 		// Find a factor of Q_rest, where Q_rest is pMax < Q_rest <= maxQRest, composite and odd.
 		BigInteger factor1;
 		int Q_rest_bits = Q_rest.bitLength();
-		if (Q_rest_bits <= 27) {
+		if (Q_rest_bits < 28) {
 			factor1 = tDiv31.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits <= 56) {
+		} else if (Q_rest_bits < 51) {
 			factor1 = lehman.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits <= 66) {
-			factor1 = squFoF63.findSingleFactor(Q_rest);
+		} else if (Q_rest_bits < 63) {
+			factor1 = pollardRho.findSingleFactor(Q_rest);
 		} else {
 			factor1 = cf_internal.findSingleFactor(Q_rest);
 		}

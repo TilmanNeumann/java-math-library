@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver02_BlockLanczos;
 import de.tilman_neumann.jml.factor.lehman.Lehman_Fast;
+import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery63;
 import de.tilman_neumann.jml.factor.psiqs.PSIQSBase;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS_U;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
@@ -34,7 +35,6 @@ import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerOfSmallPrimesFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_1Large_UBI;
-import de.tilman_neumann.jml.factor.squfof.SquFoF63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
@@ -51,7 +51,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	
 	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
 	private Lehman_Fast lehman = new Lehman_Fast(true);
-	private SquFoF63 squFoF63 = new SquFoF63();
+	private PollardRhoBrentMontgomery63 pollardRho = new PollardRhoBrentMontgomery63();
 	private SIQS siqs_smallArgs;
 	private PSIQSBase siqs_bigArgs;
 	
@@ -74,9 +74,9 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
 		int NBits = N.bitLength();
-		if (NBits<25) return tDiv31.findSingleFactor(N);
-		if (NBits<57) return lehman.findSingleFactor(N);
-		if (NBits<60) return squFoF63.findSingleFactor(N);
+		if (NBits<28) return tDiv31.findSingleFactor(N);
+		if (NBits<51) return lehman.findSingleFactor(N);
+		if (NBits<63) return pollardRho.findSingleFactor(N);
 		if (NBits<97) return siqs_smallArgs.findSingleFactor(N);
 		return siqs_bigArgs.findSingleFactor(N);
 	}

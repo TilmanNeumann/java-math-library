@@ -25,6 +25,7 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.lehman.Lehman_Fast;
+import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery63;
 import de.tilman_neumann.jml.factor.squfof.SquFoF63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
@@ -49,23 +50,16 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
 	private double maxQRest;
 
-	private TDiv31Inverse tDiv31; // used for Q <= 2^24
-	private Lehman_Fast lehman; // used for 2^25 <= Q <= 2^56
-	private SquFoF63 squFoF63; // used for 2^57 <= Q <= 2^63
+	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
+	private Lehman_Fast lehman = new Lehman_Fast(true);
+	private PollardRhoBrentMontgomery63 pollardRho = new PollardRhoBrentMontgomery63();
 	
-	private BPSWTest bpsw;
+	private BPSWTest bpsw = new BPSWTest(1<<20);
 
 	// result: two arrays that are reused, their content is _copied_ to AQ-pairs
 	private SortedIntegerArray smallFactors = new SortedIntegerArray();
 	private SortedLongArray bigFactors = new SortedLongArray();
 	private AQPairFactory aqPairFactory = new AQPairFactory();
-
-	public TDiv_CF63_02() {
-		this.tDiv31 = new TDiv31Inverse();
-		this.lehman = new Lehman_Fast(true);
-		this.squFoF63 = new SquFoF63();
-		this.bpsw = new BPSWTest(1<<20);
-	}
 
 	@Override
 	public String getName() {
@@ -170,12 +164,12 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 		// Find a factor of Q_rest, where Q_rest is pMax < Q_rest <= maxQRest, composite and odd.
 		long factor1;
 		int Q_rest_bits = bitLength(Q_rest);
-		if (Q_rest_bits <= 27) {
+		if (Q_rest_bits < 28) {
 			factor1 = tDiv31.findSingleFactor((int) Q_rest);
-		} else if (Q_rest_bits <= 56) {
+		} else if (Q_rest_bits < 51) {
 			factor1 = lehman.findSingleFactor(Q_rest);
-		} else { // max Q_rest_bits is 63
-			factor1 = squFoF63.findSingleFactor(Q_rest);
+		} else { // max Q_rest_bits is 63, pollardRho works only until 62 bit, but that should be ok
+			factor1 = pollardRho.findSingleFactor(Q_rest);
 		}
 		// Recurrence: Is it possible to further decompose the parts?
 		// Here we can not exclude factors > 31 bit because they may have 2 prime factors themselves.
