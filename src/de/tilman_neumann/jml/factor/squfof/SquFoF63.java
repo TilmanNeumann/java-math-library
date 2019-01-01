@@ -38,7 +38,6 @@ import de.tilman_neumann.util.SortedMultiset;
  * @author Tilman Neumann
  */
 public class SquFoF63 extends FactorAlgorithmBase {
-	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(SquFoF63.class);
 
 	// input
