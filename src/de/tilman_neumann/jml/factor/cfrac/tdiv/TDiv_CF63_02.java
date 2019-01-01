@@ -26,7 +26,6 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.lehman.Lehman_Fast;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery63;
-import de.tilman_neumann.jml.factor.squfof.SquFoF63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 
