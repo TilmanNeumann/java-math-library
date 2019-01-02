@@ -57,7 +57,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 
 	private long N;
 
-	private long minusNInvModR;	// (-1/N) mod R, required for multiplication
+	private long minusNInvModR;	// (-1/N) mod R, required for Montgomery multiplication
 	
 	private Gcd63 gcd = new Gcd63();
 
