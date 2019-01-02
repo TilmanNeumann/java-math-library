@@ -129,7 +129,7 @@ public class Uint128 {
 	}
 
 	/**
-	 * Add two unsigned 127 bit integers.
+	 * Add two unsigned 128 bit integers.
 	 * @param other
 	 * @return this + other
 	 */
@@ -140,29 +140,19 @@ public class Uint128 {
 		long o_lo = other.getLow();
 		long o_hi = other.getHigh();
 		boolean sureCarry = (low<0) && (o_lo<0);
-		long r_hi, r_lo;
+		long r_hi = high + o_hi;
+		long r_lo = low + o_lo;
 		if (sureCarry) {
-			r_hi = high + o_hi + 1;
-			r_lo = low + o_lo; // overflow bit gets dropped, no masks required
+			r_hi++;
 		} else {
 			boolean checkCarry = (low<0) || (o_lo<0);
-			r_hi = high + o_hi;
-			r_lo = low + o_lo;
-			if (checkCarry) {
-				//LOG.debug("check carry!");
-				if (r_lo >= 0) {
-					// low overflow!
-					//LOG.debug("low overflow!");
-					r_hi++;
-				}
+			if (checkCarry && r_lo >= 0) {
+				r_hi++;
 			}
 		}
-		//LOG.debug("low = " + Long.toBinaryString(low));
-		//LOG.debug("o_lo = " + Long.toBinaryString(o_lo));
-		//LOG.debug("r_lo = " + Long.toBinaryString(r_lo));
 		return new Uint128(r_hi, r_lo);
 	}
-	
+
 	/**
 	 * Shift this 'bits' bits to the left.
 	 * @param bits
