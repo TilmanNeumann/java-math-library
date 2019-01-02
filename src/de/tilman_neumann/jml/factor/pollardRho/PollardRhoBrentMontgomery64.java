@@ -219,7 +219,7 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithmBase {
 			}
 			
 			long start = System.currentTimeMillis();
-			SortedMultiset<BigInteger> result = new PollardRhoBrentMontgomery65().factor(n);
+			SortedMultiset<BigInteger> result = new PollardRhoBrentMontgomery64().factor(n);
 			LOG.info("Factored " + n + " = " + result.toString() + " in " + (System.currentTimeMillis()-start) + " ms");
 
 		} // next input...
