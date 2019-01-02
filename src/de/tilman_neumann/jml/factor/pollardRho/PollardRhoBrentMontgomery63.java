@@ -35,7 +35,7 @@ import de.tilman_neumann.util.SortedMultiset;
  * The main reason why Montgomery multiplication is helpful for Pollard-Rho is that
  * no conversions to/from Montgomery form are required.
  * 
- * This implementation is long-based and uses the Montgomery reducer R=2^63. Already quite fast.
+ * This implementation is long-based and uses the Montgomery reducer R=2^63.
  * 
  * @see [Richard P. Brent: An improved Monte Carlo Factorization Algorithm, 1980]
  * @see [http://projecteuler.chat/viewtopic.php?t=3776]
@@ -52,7 +52,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 	// Reducer constants
 	private static final long R = 1L << 63; // The reducer, a power of 2
 	private static final int R_BITS = 63;
-	private static final long R_MASK = ~R; // R-1 = 0x7FFFFFFFFFFFFFFFL, helps to compute x mod R = x & (R - 1)
+	private static final long R_MASK = R-1; // 0x7FFFFFFFFFFFFFFFL, helps to compute x mod R = x & (R - 1)
 	private static final long R_HALF = 1L << 62;
 
 	private long N;
@@ -77,14 +77,16 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
         
 		setUpMontgomeryMult();
 
+		// number of iterations before gcd tests.
+        // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
+    	final int m = 100;
+
         do {
 	        // start with random x0, c from [0, N-1]
         	long c = Math.abs(RNG.nextLong()) % N;
             long x0 = Math.abs(RNG.nextLong()) % N;
             long y = x0;
 
-            // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
-        	final int m = 100;
         	int r = 1;
         	long q = 1;
         	do {
@@ -126,11 +128,8 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 	 * Finds (1/R) mod N and (-1/N) mod R for odd N and R=2^63.
 	 * 
 	 * EEA63 would not work with R=2^63 because R overflows positive longs.
-	 * 
-	 * This algorithm adapted from http://coliru.stacked-crooked.com/a/f57f11426d06acd8
+	 * But the algorithm from http://coliru.stacked-crooked.com/a/f57f11426d06acd8
 	 * (which refers to "hackers delight") can deal with R=2^63.
-	 * 
-	 * The desired R=2^64 is still unachievable because R_HALF would overflow positive longs.
 	 */
 	private void setUpMontgomeryMult() {
 		// initialization
@@ -162,12 +161,13 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 	 * @return
 	 */
 	private long montgomeryMult(final long a, final long b) {
+		// Step 1: Compute a*b
 		Uint128 ab = Uint128.mul63(a, b);
-		// t = ab * (-1/N) mod R
-		// XXX The "and" operations could be removed if R = 2^64
+		// Step 2: Compute t = ab * (-1/N) mod R
+		// Since R is a power of 2, "mod R" can be computed by "& R_MASK".
 		long t = Uint128.mul63(ab.and(R_MASK), minusNInvModR).and(R_MASK);
-		// reduced = (a*b + t*N) / R
-		// XXX the right shift would be much simpler if R = 2^64
+		// Step 3: Compute reduced = (a*b + t*N) / R
+		// Since R is a power of 2, "/ R" can be computed by "shiftRight(R_BITS)".
 		long reduced = ab.add(Uint128.mul63(t, N)).shiftRight(R_BITS).getLow();
 		long result = reduced<N ? reduced : reduced-N;
 		
