@@ -84,8 +84,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
         do {
 	        // start with random x0, c from [0, N-1]
         	long c = Math.abs(RNG.nextLong()) % N;
-            long x0 = Math.abs(RNG.nextLong()) % N;
-            long y = x0;
+            long y = Math.abs(RNG.nextLong()) % N;
 
         	int r = 1;
         	long q = 1;
