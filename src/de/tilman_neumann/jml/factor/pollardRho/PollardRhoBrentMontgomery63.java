@@ -120,7 +120,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 	    	    //LOG.info("G = " + G);
 	    	}
         } while (G==N);
-		//LOG.debug("Found factor of " + N + " = " + factor);
+		//LOG.debug("Found factor " + G + " of N=" + N);
         return G;
 	}
 	
