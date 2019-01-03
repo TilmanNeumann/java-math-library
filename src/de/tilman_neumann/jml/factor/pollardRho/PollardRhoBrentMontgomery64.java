@@ -38,6 +38,9 @@ import de.tilman_neumann.util.SortedMultiset;
  * In this implementation I managed to use the Montgomery reducer R=2^64, which simplifies
  * the Montgomery multiplication a good deal.
  * 
+ * Another small performance improvement stems from using the polynomial x*(x+1) instead of x^2+c,
+ * which saves us the addition modulo N after each Montgomery multiplication.
+ * 
  * @see [Richard P. Brent: An improved Monte Carlo Factorization Algorithm, 1980]
  * @see [http://projecteuler.chat/viewtopic.php?t=3776]
  * @see [http://coliru.stacked-crooked.com/a/f57f11426d06acd8]
@@ -81,8 +84,7 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithmBase {
     	final int m = 2*Nbits;
 
         do {
-	        // start with random x0, c from [0, N-1]
-        	long c = Math.abs(RNG.nextLong()) % N;
+	        // start with random x0 from [0, N-1]
             long x0 = Math.abs(RNG.nextLong()) % N;
             long y = x0;
 
@@ -91,19 +93,19 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithmBase {
         	do {
 	    	    x = y;
 	    	    for (int i=1; i<=r; i++) {
-	    	        y = addModN(montgomeryMult(y, y), c);
+	    	        y = montgomeryMult(y, y+1);
 	    	    }
 	    	    int k = 0;
 	    	    do {
 	    	        ys = y;
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=1; i<=iMax; i++) {
-	    	            y = addModN(montgomeryMult(y, y), c);
+	    	            y = montgomeryMult(y, y+1);
 	    	            final long diff = x<y ? y-x : x-y;
 	    	            q = montgomeryMult(diff, q);
 	    	        }
 	    	        G = gcd.gcd(q, N);
-	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0, c
+	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0
 	    	        k += m;
 		    	    //LOG.info("r = " + r + ", k = " + k);
 	    	    } while (k<r && G==1);
@@ -112,14 +114,14 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithmBase {
 	    	} while (G==1);
 	    	if (G==N) {
 	    	    do {
-	    	        ys = addModN(montgomeryMult(ys, ys), c);
+	    	        ys = montgomeryMult(ys, ys+1);
     	            final long diff = x<ys ? ys-x : x-ys;
 	    	        G = gcd.gcd(diff, N);
 	    	    } while (G==1);
 	    	    //LOG.info("G = " + G);
 	    	}
         } while (G==N);
-		//LOG.debug("Found factor of " + N + " = " + factor);
+		//LOG.debug("Found factor " + G + " of N=" + N);
         return G;
 	}
 	
@@ -180,17 +182,6 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithmBase {
 		}
 		
 		return result;
-	}
-
-	/**
-	 * Addition modulo N, with <code>a, b < N</code>.
-	 * @param a
-	 * @param b
-	 * @return (a+b) mod N
-	 */
-	private long addModN(long a, long b) {
-		long sum = a+b;
-		return sum<N ? sum : sum-N;
 	}
 	
 	/**
