@@ -77,7 +77,8 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithmBase {
 
 		// number of iterations before gcd tests.
         // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
-    	final int m = 100;
+		final int Nbits = 64 - Long.numberOfLeadingZeros(N);
+    	final int m = 2*Nbits;
 
         do {
 	        // start with random x0, c from [0, N-1]
