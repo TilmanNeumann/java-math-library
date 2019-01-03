@@ -52,11 +52,11 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1;
+	private static final int N_COUNT = 10000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 70;
+	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 10;
+	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
@@ -78,7 +78,7 @@ public class FactorizerTest {
 			
 			// Lehman
 			//new Lehman_Simple(),
-//			new Lehman_Fast(true), // best algorithm for hard N with 28 to 50 bits
+			new Lehman_Fast(true), // best algorithm for hard N with 28 to 49 bits
 //			new Lehman_Fast(false), // great for random composite N<60 bit having small factors frequently
 			
 			// PollardRho:
@@ -90,7 +90,7 @@ public class FactorizerTest {
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
 //			new PollardRhoBrentMontgomery63(),
-//			new PollardRhoBrentMontgomery64(), // best algorithm for N from 50 to 62 bit
+			new PollardRhoBrentMontgomery64(), // best algorithm for N from 50 to 62 bit
 
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
@@ -145,8 +145,8 @@ public class FactorizerTest {
 			// * 4/6 threads takes over at N around 100 bit (more exact estimates: 4 threads best for N>=88 bits, 6 threads for N>=112 bits)
 			// * we need 0.14 < maxQRestExponent < 0.2; everything else is prohibitive; use null for dynamic determination
 			// * BlockLanczos is better than Gauss solver for N > 200 bit
-			new PSIQS(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false),
-			new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false),
+//			new PSIQS(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false),
+//			new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), true),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new AllPowerFinder(), new MatrixSolver02_BlockLanczos(), true),
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), true), // best for large N

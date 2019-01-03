@@ -25,7 +25,7 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.lehman.Lehman_Fast;
-import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery63;
+import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 
@@ -51,7 +51,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 
 	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
 	private Lehman_Fast lehman = new Lehman_Fast(true);
-	private PollardRhoBrentMontgomery63 pollardRho = new PollardRhoBrentMontgomery63();
+	private PollardRhoBrentMontgomery64 pollardRho = new PollardRhoBrentMontgomery64();
 	
 	private BPSWTest bpsw = new BPSWTest(1<<20);
 
@@ -165,7 +165,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 		int Q_rest_bits = bitLength(Q_rest);
 		if (Q_rest_bits < 28) {
 			factor1 = tDiv31.findSingleFactor((int) Q_rest);
-		} else if (Q_rest_bits < 51) {
+		} else if (Q_rest_bits < 50) {
 			factor1 = lehman.findSingleFactor(Q_rest);
 		} else { // max Q_rest_bits is 63, pollardRho works only until 62 bit, but that should be ok
 			factor1 = pollardRho.findSingleFactor(Q_rest);
