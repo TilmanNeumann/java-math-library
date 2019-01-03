@@ -89,8 +89,9 @@ public class FactorizerTest {
 			//new PollardRhoBrent(),
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
-//			new PollardRhoBrentMontgomery63(), // best algorithm for N from 51 to 62 bit
-			
+//			new PollardRhoBrentMontgomery63(),
+//			new PollardRhoBrentMontgomery64(), // best algorithm for N from 50 to 62 bit
+
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
