@@ -82,7 +82,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
     	final int m = 100;
 
         do {
-	        // start with random x0, c from [0, N-1]
+	        // Start with random y, c from [0, N).
         	long c = Math.abs(RNG.nextLong()) % N;
             long y = Math.abs(RNG.nextLong()) % N;
 
@@ -103,7 +103,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
 	    	            q = montgomeryMult(diff, q);
 	    	        }
 	    	        G = gcd.gcd(q, N);
-	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0, c
+	    	        // if q==0 then G==N -> the loop will be left and restarted with new y, c
 	    	        k += m;
 		    	    //LOG.info("r = " + r + ", k = " + k);
 	    	    } while (k<r && G==1);
