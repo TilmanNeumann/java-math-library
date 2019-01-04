@@ -78,7 +78,7 @@ public class FactorizerTest {
 			
 			// Lehman
 			//new Lehman_Simple(),
-			new Lehman_Fast(true), // best algorithm for hard N with 28 to 49 bits
+			new Lehman_Fast(true), // best algorithm for hard N with 28 to 47 bits
 //			new Lehman_Fast(false), // great for random composite N<60 bit having small factors frequently
 			
 			// PollardRho:
