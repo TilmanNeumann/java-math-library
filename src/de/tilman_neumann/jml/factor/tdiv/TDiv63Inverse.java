@@ -40,8 +40,6 @@ public class TDiv63Inverse extends FactorAlgorithmBase {
 
 	private static final int DISCRIMINATOR_BITS = 10; // experimental result
 	private static final double DISCRIMINATOR = 1.0/(1<<DISCRIMINATOR_BITS);
-	
-	private static final double ROUNDING_CORRECTION = 0.0000001;
 
 	private int[] primes;
 	private double[] reciprocals;
@@ -135,7 +133,7 @@ public class TDiv63Inverse extends FactorAlgorithmBase {
 		// Now the primes are big enough to apply trial division by inverses
 		for (; primes[i]<pLimit; i++) {
 			//LOG.debug("N=" + N + ": Test p=" + primes[i]);
-			long nDivPrime = (long) (N*reciprocals[i] + ROUNDING_CORRECTION);
+			long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
 			if (nDivPrime * primes[i] == N) {
 				// nDivPrime is very near to an integer
 				if (N%primes[i]==0) {

@@ -32,8 +32,6 @@ public class TDiv31Inverse extends FactorAlgorithmBase {
 	// for any integer N and p>=2. d=10 is the value that performs best, determined by experiment.
 	private static final double DISCRIMINATOR = 1.0/(1<<10);
 
-	private static final double ROUNDING_CORRECTION = 0.0000001;
-
 	private static int[] primes;
 	private static double[] reciprocals;
 	
@@ -76,7 +74,7 @@ public class TDiv31Inverse extends FactorAlgorithmBase {
 	public int findSingleFactor/*_v2*/(int N) {
 		// if N is odd and composite then the loop runs maximally up to prime = floor(sqrt(N))
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
-			int nDivPrime = (int) (N*reciprocals[i] + ROUNDING_CORRECTION);
+			int nDivPrime = (int) (N*reciprocals[i] + DISCRIMINATOR);
 			if (nDivPrime * primes[i] == N) {
 				// nDivPrime is very near to an integer
 				if (N%primes[i]==0) {
