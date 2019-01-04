@@ -94,7 +94,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
 		int NBits = N.bitLength();
-		if (NBits<28) return tDiv31.findSingleFactor(N);
+		if (NBits<31) return tDiv31.findSingleFactor(N);
 		if (NBits<48) return lehman.findSingleFactor(N);
 		if (NBits<58) return pollardRhoR64Mul63.findSingleFactor(N);
 		if (NBits<63) return pollardRho64.findSingleFactor(N);

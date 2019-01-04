@@ -201,7 +201,7 @@ public class TDiv_CF02 implements TDiv_CF {
 		// Find a factor of Q_rest, where Q_rest is pMax < Q_rest <= maxQRest, composite and odd.
 		BigInteger factor1;
 		int Q_rest_bits = Q_rest.bitLength();
-		if (Q_rest_bits < 28) {
+		if (Q_rest_bits < 31) {
 			factor1 = tDiv31.findSingleFactor(Q_rest);
 		} else if (Q_rest_bits < 48) {
 			factor1 = lehman.findSingleFactor(Q_rest);
