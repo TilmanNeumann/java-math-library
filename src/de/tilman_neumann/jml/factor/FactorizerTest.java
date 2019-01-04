@@ -52,9 +52,9 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 10000;
+	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 30;
+	private static final int START_BITS = 40;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
@@ -89,9 +89,10 @@ public class FactorizerTest {
 			//new PollardRhoBrent(),
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
-//			new PollardRhoBrentMontgomery63(),
-			new PollardRhoBrentMontgomery64(), // best algorithm for N from 50 to 62 bit
-
+			new PollardRhoBrentMontgomery63(),
+			new PollardRhoBrentMontgomery64(), // best algorithm for N from 58 to 62 bit
+			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 48 to 57 bit
+		
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
