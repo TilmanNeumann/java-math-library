@@ -83,8 +83,8 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 			return factors;
 		}
 
-		if (N.bitLength() > 45) {
-			// TODO This is a crude decision strategy, think about a better one.
+		if (N.bitLength() > 62) {
+			// TODO Move small factor finding to (P)SIQS
 
 			// Do some trial division to factor smooth numbers much faster.
 			// We start at p[1]=3, because powers of 2 have already been removed.
