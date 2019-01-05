@@ -11,15 +11,14 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Releases
 
-* v0.9.7, 0.9.8: Fixed bug in SquFoF for N not coprime with multipliers
-* v0.9.6: 	Added Pollard-Rho-Brent implementation with Montgomery multiplication in longs;
-			improved Lehman implementation;
-			faster trial division;
-			slightly faster EEA31, Gcd31.
-* v0.9.2 - 0.9.5 work on Lehman's algorithm, refactorings
-* v0.9.1 implemented Peter Luschny's swinging prime factorial
-* v0.9 thread-safe AutoExpandingPrimesArray, some refactorings
-* v0.8 The first revision containing all the stuff I wanted to add initially.
+* v0.9.9: Significantly faster trial division and Pollard-Rho
+* v0.9.8: Fixed bug in SquFoF for N not coprime with multipliers
+* v0.9.6: New Pollard-Rho-Brent implementation with Montgomery multiplication in longs;
+  improved Lehman, trial division, EEA31, Gcd31.
+* v0.9.5: Work on Lehman's algorithm, refactorings.
+* v0.9.1: Implemented Peter Luschny's swinging prime factorial.
+* v0.9: Thread-safe AutoExpandingPrimesArray, some refactorings.
+* v0.8: The first revision containing all the stuff I wanted to add initially.
 
 
 ## Getting Started
