@@ -53,6 +53,7 @@ import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_nLarge_UBI;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
 
@@ -383,8 +384,12 @@ public class SIQS extends FactorAlgorithmBase {
 	 * 11111111111111111111111111
 	 * 5679148659138759837165981543
 	 * 11111111111111111111111111155555555555111111111111111
+	 * 
+	 * 2900608971182010301486951469292513060638582965350239259380273225053930627446289431038392125
+	 * = 33333 * 33335 * 33337 * 33339 * 33341 * 33343 * 33345 * 33347 * 33349 * 33351 * 33353 * 33355 * 33357 * 33359 * 33361 * 33363 * 33367 * 33369 * 33369 * 33371
 	 */
-	private static void testInput() {
+	public static void main(String[] args) {
+    	ConfigUtil.initProject();
 		SIQS qs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), true);
 		Timer timer = new Timer();
 		while(true) {
@@ -396,25 +401,16 @@ public class SIQS extends FactorAlgorithmBase {
 				BigInteger N = new BigInteger(input);
 				LOG.info("Factoring " + N + " (" + N.bitLength() + " bits)...");
 				timer.capture();
-				BigInteger factor = qs.findSingleFactor(N);
-				if (factor != null) {
+				SortedMultiset<BigInteger> factors = qs.factor(N);
+				if (factors != null) {
 					long duration = timer.capture();
-					LOG.info("Found factor " + factor + " in " + TimeUtil.timeStr(duration) + ".");
-				} else {
+					LOG.info("Factored N = " + factors + " in " + TimeUtil.timeStr(duration) + ".");
+			} else {
 					LOG.info("No factor found...");
 				}
 			} catch (Exception ex) {
 				LOG.error("Error " + ex, ex);
 			}
 		}
-	}
-	
-	/**
-	 * Test of input k, N and #iterations.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-    	testInput();
 	}
 }
