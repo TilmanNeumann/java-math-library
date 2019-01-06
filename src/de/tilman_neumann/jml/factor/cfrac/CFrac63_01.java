@@ -85,7 +85,6 @@ public class CFrac63_01 extends FactorAlgorithmBase {
 	
 	/**
 	 * Standard constructor.
-	 * @param kSequence multiplier generator
 	 * @param use_all_i
 	 * @param stopRoot order of the root to compute the maximum number of iterations
 	 * @param stopMult multiplier to compute the maximum number of iterations
@@ -294,10 +293,10 @@ public class CFrac63_01 extends FactorAlgorithmBase {
 	 * @param a
 	 * @return (m*a) mod N
 	 */
-	private BigInteger mulModN(long m_long, BigInteger a) {
-		if (m_long<4) { // 0, 1, 10, 11
-			int m = (int) m_long;
-			switch (m) {
+	private BigInteger mulModN(long m, BigInteger a) {
+		if (m<4) { // 0, 1, 10, 11
+			int m_int = (int) m;
+			switch (m_int) {
 			case 0: return I_0;
 			case 1: return a;
 			case 2: {
@@ -313,7 +312,7 @@ public class CFrac63_01 extends FactorAlgorithmBase {
 			}
 			// adding case 4 does not help because then bitLength() does not fit exactly
 		}
-		BigInteger product = a.multiply(BigInteger.valueOf(m_long));
+		BigInteger product = a.multiply(BigInteger.valueOf(m));
 		return product.compareTo(N)<0 ? product : product.mod(N);
 	}
 }
