@@ -43,7 +43,6 @@ public class SortedIntegerArray {
 	/**
 	 * Add a factor.
 	 * @param factor
-	 * @param power
 	 */
 	public void add(int factor) {
 		//LOG.debug("add small factor " + factor);

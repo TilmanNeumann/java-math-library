@@ -44,7 +44,6 @@ public class SortedLongArray {
 	/**
 	 * Add a factor.
 	 * @param factor
-	 * @param power
 	 */
 	// XXX: Big factor arrays have at most 2 (QS) or 3 (CFrac) elements. Overpowered ??
 	public void add(int factor) {
