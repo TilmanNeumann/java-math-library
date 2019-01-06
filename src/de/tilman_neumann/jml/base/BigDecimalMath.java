@@ -60,9 +60,10 @@ public class BigDecimalMath {
 	}
 
 	/**
-	 * Computes the subtraction of this and the argument.
-	 * @param b Argument.
-	 * @return subtraction
+	 * Computes the difference of a and b.
+	 * @param a
+	 * @param b
+	 * @return a-b
 	 */
 	public static BigDecimal subtract(BigDecimal a, BigInteger b) {
 		return a.subtract(new BigDecimal(b));
@@ -106,10 +107,11 @@ public class BigDecimalMath {
 	}
 
 	/**
-	 * Multiplication without precision loss.
+	 * Computes the product a*b without precision loss.
 	 * 
-	 * @param b long argument.
-	 * @return this*b
+	 * @param a
+	 * @param b
+	 * @return a*b
 	 */
 	public static BigDecimal multiply(BigDecimal a, long b) {
 		BigDecimal ret = new BigDecimal(a.unscaledValue().multiply(BigInteger.valueOf(b)), a.scale());
@@ -142,6 +144,7 @@ public class BigDecimalMath {
 	/**
 	 * Division by an integer.
 	 * 
+	 * @param a dividend
 	 * @param b divisor
 	 * @param resultScale result accuracy in decimal digits after the floating point
 	 * @return quotient with wanted precision.
@@ -157,7 +160,7 @@ public class BigDecimalMath {
 	/**
 	 * Returns the fractional part of x, with the same scale than x.
 	 * @param x
-	 * @return
+	 * @return frac(x)
 	 */
 	// TODO: Check if there is a rounding problem similar to the one commented below...
 	public static BigDecimal frac(BigDecimal x) {
@@ -167,7 +170,7 @@ public class BigDecimalMath {
 	/**
 	 * Round x to the nearest integer.
 	 * @param x
-	 * @return
+	 * @return round(x)
 	 */
 	public static BigInteger roundInt(BigDecimal x) {
 		return x.setScale(0, RoundingMode.HALF_EVEN).toBigIntegerExact();
@@ -176,7 +179,7 @@ public class BigDecimalMath {
 	/**
 	 * Returns ceil(x) as a big integer.
 	 * @param x
-	 * @return
+	 * @return ceil(x)
 	 */
 	// TODO: Can give 71.000000000000000000000540264914491376961 -> 72 instead of 71
 	public static BigInteger ceilInt(BigDecimal x) {
@@ -186,7 +189,7 @@ public class BigDecimalMath {
 	/**
 	 * Returns floor(x) as a big integer.
 	 * @param x
-	 * @return
+	 * @return floor(x)
 	 */
 	// TODO: Can give 71.9999999999999999999977540264914491376961 -> 71 instead of 72
 	public static BigInteger floorInt(BigDecimal x) {
