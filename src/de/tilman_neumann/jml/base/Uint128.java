@@ -183,7 +183,7 @@ public class Uint128 {
 
 	/**
 	 * Bitwise "and" operation with a long.
-	 * @param mask
+	 * @param other
 	 * @return this & other
 	 */
 	public long and(long other) {
