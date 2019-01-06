@@ -140,6 +140,11 @@ public class IndexSet  {
 		}
 		return true;
 	}
+	
+	@Override
+	public int hashCode() {
+		throw new IllegalStateException("Class IndexSet is not ready to be used in hash structures");
+	}
 
 	@Override
 	public String toString() {
