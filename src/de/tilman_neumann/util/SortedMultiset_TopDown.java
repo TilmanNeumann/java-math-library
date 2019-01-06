@@ -288,6 +288,11 @@ public class SortedMultiset_TopDown<T extends Comparable<T>> extends TreeMap<T, 
 		return false;
 	}
 	
+	@Override
+	public int hashCode() {
+		throw new IllegalStateException("SortedMultisets are not ready to be used in hash structures");
+	}
+	
 	public String toString(String entrySep, String expSep) {
 		String ret = "";
 		for (Map.Entry<T, Integer> entry : this.entrySet()) {

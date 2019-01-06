@@ -258,4 +258,9 @@ public class Multiset_HashMapImpl<T> extends HashMap<T, Integer> implements Mult
 		}
 		return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		throw new IllegalStateException("SortedMultisets are not ready to be used in hash structures");
+	}
 }
