@@ -45,18 +45,20 @@ public class MatrixSolver01_Gauss extends MatrixSolver {
 		List<MatrixRow> rows = createMatrix(congruences, factors_2_columnIndices);
 		// solve
 		while (rows.size()>0) {
-			// find pivot column index and row:
+			// Find pivot column index and row:
 			// Note that sorting the rows is not good for performance,
-			// because the insort-operation is more expensive then iterating over all rows.
+			// because the insort operation is more expensive then iterating over all rows.
 			Iterator<MatrixRow> rowIter = rows.iterator();
-			MatrixRow pivotRow = null;
-			Integer pivotColumnIndex = null;
+			// Initialize pivot row with first element, which is ensured to exist
+			MatrixRow pivotRow = rowIter.next();
+			int pivotColumnIndex = pivotRow.getBiggestColumnIndex();
+			// Now check if there is a row having a bigger column
 			while (rowIter.hasNext()) {
 				MatrixRow row = rowIter.next();
 				//LOG.debug("row = " + row);
 				int biggestColumnIndex = row.getBiggestColumnIndex();
-				if (pivotColumnIndex==null || biggestColumnIndex>pivotColumnIndex) {
-					// new pivot candidate
+				if (biggestColumnIndex > pivotColumnIndex) {
+					// Found a new pivot candidate
 					pivotRow = row;
 					pivotColumnIndex = biggestColumnIndex;
 				}
