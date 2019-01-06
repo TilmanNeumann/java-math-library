@@ -177,7 +177,7 @@ public class AParamGenerator01 implements AParamGenerator {
 			int wanted_qIndex = indexCentre + randomOffset;
 			if (DEBUG) LOG.debug("indexCentre=" + indexCentre + ", indexVariance=" + indexVariance + " -> randomOffset=" + randomOffset + ", wanted_qIndex=" + wanted_qIndex);
 			// find the first "free" index around wanted_qIndex
-			Integer qIndex = findFreeQIndex(qIndexSet, wanted_qIndex);
+			int qIndex = findFreeQIndex(qIndexSet, wanted_qIndex);
 			// now we have found qIndex :)
 			qIndexSet.add(qIndex);
 			int q = primesArray[qIndex];
