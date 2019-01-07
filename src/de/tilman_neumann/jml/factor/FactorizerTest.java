@@ -81,9 +81,7 @@ public class FactorizerTest {
 			new Lehman_Fast(true), // best algorithm for hard N with 31 to 47 bits
 //			new Lehman_Fast(false), // great for random composite N<60 bit having small factors frequently
 			
-			// PollardRho:
-			// * never the best algorithm
-			// * Best BigInteger version is PollardRhoBrent
+			// PollardRho
 			//new PollardRho(),
 			//new PollardRho_ProductGcd(),
 			//new PollardRhoBrent(),
