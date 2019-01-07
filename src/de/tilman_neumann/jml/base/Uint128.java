@@ -54,7 +54,7 @@ public class Uint128 {
 	 * 
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return x*y accurate for inputs <= 63 bit
 	 */
 	public static Uint128 mul63(long x, long y) {
 		final long x_hi = x >>> 32;
@@ -64,8 +64,8 @@ public class Uint128 {
 		final long lo_prod = x_lo * y_lo;
 		final long med_term = x_hi * y_lo + x_lo * y_hi; // possible overflow here
 		final long hi_prod = x_hi * y_hi;
-		long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
-		long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
+		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
 		return new Uint128(r_hi, r_lo);
 	}
 
