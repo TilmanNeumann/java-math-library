@@ -112,8 +112,9 @@ public class FactorizerTest {
 			//new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
 
 			// SIQS:
-			// * TDiv: UBI-variants are better than BigInteger-variants; nLarge is better than 1Large for N >= 200 bit
-			// * BlockLanczos is better than Gauss for about N>200 bit
+			// * best until 220 bit: Sieve03gU + smallPowers + TDiv1L + Gauss
+			// * best for 230, 240 bit: Sieve03gU + smallPowers + TDivnL + BL
+			// * best for >= 250 bit: (Sieve03gU or SingleBlockHybridSieve) + (noPowers or smallPowers) + (TDiv2L or TDivnL) + BL
 			//new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SimpleSieve(), new TDiv_QS_1Large(), 10, new MatrixSolver01_Gauss(), false),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
