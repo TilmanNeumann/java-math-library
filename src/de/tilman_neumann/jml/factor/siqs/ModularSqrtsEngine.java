@@ -40,7 +40,7 @@ public class ModularSqrtsEngine {
 	 * @param primesArray
 	 * @param primeBaseSize
 	 * @param kN
-	 * @return
+	 * @return the array of modular sqrt's t with t^2 == kN (mod p) for all p of the prime base
 	 */
 	public int[] computeTArray(int[] primesArray, int primeBaseSize, BigInteger kN) {
 		UnsignedBigInt kN_UBI = new UnsignedBigInt(kN);
