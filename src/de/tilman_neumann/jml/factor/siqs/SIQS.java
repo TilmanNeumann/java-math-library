@@ -380,7 +380,10 @@ public class SIQS extends FactorAlgorithmBase {
 	// Standalone test --------------------------------------------------------------------------------------------------
 
 	/**
-	 * Test numbers:
+	 * Stand-alone test.
+	 * @param args ignored
+	 * 
+	 * Some test numbers:
 	 * 11111111111111111111111111
 	 * 5679148659138759837165981543
 	 * 11111111111111111111111111155555555555111111111111111
