@@ -54,7 +54,7 @@ public class FactorizerTest {
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 40;
+	private static final int START_BITS = 20;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
@@ -96,17 +96,18 @@ public class FactorizerTest {
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-//			new SquFoF63(),
+			new SquFoF63(),
 			//new SquFoF31(),
-//			new SquFoF31Preload(),
+			new SquFoF31Preload(),
 			
 			// CFrac
 			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits
 			// * stopRoot, stopMult: if big enough, then a second k is rarely needed; (5, 1.5) is good
 			// * TDiv_CF01 is good for N < 80 bits; for N > 90 bit we need TDiv_CF02
+			// * ksAdjust: Must be <=3 for N=20bit, <=6 for N=30 bit etc. // TODO this implies some optimization potential
 			//new CFrac01(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF01(), 10, new MatrixSolver01_Gauss(), 5, false),
 			//new CFrac01(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5, false),
-//			new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 6), // small N need small ksAdjust, at 30 bit ksAdjust=12 is too much
+//			new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 3),
 			//new CFrac63_01(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
 
 			// SIQS:
@@ -124,7 +125,7 @@ public class FactorizerTest {
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), true),
 
 			// sieving with prime powers: best sieve for small N!
-//			new SIQS(0.32F, 0.37F, null, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
+			new SIQS(0.32F, 0.37F, null, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
 //			new SIQS(0.32F, 0.37F, null, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), true),
 //			new SIQS(0.32F, 0.37F, null, null, new AllPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), true),
 			
