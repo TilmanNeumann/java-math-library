@@ -137,7 +137,7 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 			for (long a=aLimit; a >= aStart; a-=aStep) {
 				final long test = a*a - fourkN;
 				// Here test<0 is possible because of double to long cast errors in the 'a'-computation.
-				// But then b = Math.sqrt(test) = 0 and 0*0 != test, so this does not cause any errors.
+				// But then b = Math.sqrt(test) gives 0 (sic!) => 0*0 != test => no errors.
 				final long b = (long) Math.sqrt(test);
 				if (b*b == test) {
 					return gcdEngine.gcd(a+b, N);
