@@ -24,8 +24,14 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
 /**
  * Fast implementation of Lehman's factor algorithm.
- * Works flawlessly for N up to 60 bit.
- *
+ * Works flawlessly for N up to 60 bit.<br><br>
+ * 
+ * It is quite surprising that the exact sqrt test of <code>test = a^2 - 4kN</code> works for N >= 45 bit.
+ * At that size, both a^2 and 4kN start to overflow Long.MAX_VALUE.
+ * But the error - comparing correct results vs. long results - is just the same for both a^2 and 4kN
+ * (and a multiple of 2^64).
+ *  Thus <code>test</code> is correct and <code>b</code> is correct, too. <code>a</code> is correct anyway.
+ * 
  * @authors Tilman Neumann + Thilo Harich
  */
 public class Lehman_Fast extends FactorAlgorithmBase {
@@ -130,6 +136,8 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 			final long fourkN = k * fourN;
 			for (long a=aLimit; a >= aStart; a-=aStep) {
 				final long test = a*a - fourkN;
+				// Here test<0 is possible because of double to long cast errors in the 'a'-computation.
+				// But then b = Math.sqrt(test) = 0 and 0*0 != test, so this does not cause any errors.
 				final long b = (long) Math.sqrt(test);
 				if (b*b == test) {
 					return gcdEngine.gcd(a+b, N);
