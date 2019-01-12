@@ -121,6 +121,7 @@ public class Lehman_Analyzer1 extends FactorAlgorithmBase {
 		}
 		int tdivCount = N_COUNT - lehmanCount;
 		LOG.info("Factored by trial division: " + tdivCount);
+		LOG.info("");
 	}
 
 	public static void main(String[] args) {
