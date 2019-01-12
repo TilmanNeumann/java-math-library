@@ -28,14 +28,14 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_Analyzer2 extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer2.class);
+public class Lehman_SpecialArgumentAnalyzer extends FactorAlgorithmBase {
+	private static final Logger LOG = Logger.getLogger(Lehman_SpecialArgumentAnalyzer.class);
 	
 	private final Gcd63 gcdEngine = new Gcd63();
 
 	@Override
 	public String getName() {
-		return "Lehman_Analyzer2";
+		return "Lehman_SpecialArgumentAnalyzer";
 	}
 
 	@Override
@@ -127,7 +127,7 @@ public class Lehman_Analyzer2 extends FactorAlgorithmBase {
 				5682546780292609L,
 			};
 		
-		Lehman_Analyzer2 lehman = new Lehman_Analyzer2();
+		Lehman_SpecialArgumentAnalyzer lehman = new Lehman_SpecialArgumentAnalyzer();
 		for (long testNumber : testNumbers) {
 			lehman.findSingleFactor(testNumber);
 		}
