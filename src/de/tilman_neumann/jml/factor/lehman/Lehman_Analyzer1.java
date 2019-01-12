@@ -48,14 +48,16 @@ public class Lehman_Analyzer1 extends FactorAlgorithmBase {
 	
 	private SortedMultiset_BottomUp<Integer>[][] aValues;
 	
-	private static final int MOD = 6;
-	
+	private static final int N_MOD = 6;
+	private static final int k_MOD = 6;
+	private static final int a_MOD = 4;
+
 	@SuppressWarnings("unchecked")
 	public Lehman_Analyzer1() {
-		aValues = new SortedMultiset_BottomUp[MOD][MOD];
-		for (int NMod=0; NMod<MOD; NMod++) {
-			aValues[NMod] = new SortedMultiset_BottomUp[MOD];
-			for (int kMod=0; kMod<MOD; kMod++) {
+		aValues = new SortedMultiset_BottomUp[N_MOD][k_MOD];
+		for (int NMod=0; NMod<N_MOD; NMod++) {
+			aValues[NMod] = new SortedMultiset_BottomUp[k_MOD];
+			for (int kMod=0; kMod<k_MOD; kMod++) {
 				aValues[NMod][kMod] = new SortedMultiset_BottomUp<Integer>();
 			}
 		}
@@ -85,7 +87,7 @@ public class Lehman_Analyzer1 extends FactorAlgorithmBase {
 				if (b*b == test) {
 					long gcd = gcdEngine.gcd(a+b, N);
 					if (gcd>1 && gcd<N) {
-						aValues[(int)(N%MOD)][k%MOD].add((int) (a%MOD));
+						aValues[(int)(N%N_MOD)][k%k_MOD].add((int) (a%a_MOD));
 						return gcd;
 					}
 				}
@@ -106,13 +108,13 @@ public class Lehman_Analyzer1 extends FactorAlgorithmBase {
 		}
 		
 		int lehmanCount = 0;
-		for (int NMod=0; NMod<MOD; NMod++) {
+		for (int NMod=0; NMod<N_MOD; NMod++) {
 			boolean logged = false;
-			for (int kMod=0; kMod<MOD; kMod++) {
+			for (int kMod=0; kMod<k_MOD; kMod++) {
 				SortedMultiset_BottomUp<Integer> aCounts = aValues[NMod][kMod];
 				if (aCounts.size() > 0) {
 					int totalCount = aCounts.totalCount();
-					LOG.info("Successful a-values %" + MOD + " for N%" + MOD + "==" + NMod + ", k%" + MOD + "==" + kMod + " : " + totalCount + " (" + aCounts + ")");
+					LOG.info("Successful a-values %" + a_MOD + " for N%" + N_MOD + "==" + NMod + ", k%" + k_MOD + "==" + kMod + " : " + totalCount + " (" + aCounts + ")");
 					lehmanCount += totalCount;
 					logged = true;
 				}
