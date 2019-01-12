@@ -53,10 +53,10 @@ public class Lehman_Analyzer1 extends FactorAlgorithmBase {
 	@SuppressWarnings("unchecked")
 	public Lehman_Analyzer1() {
 		aValues = new SortedMultiset_BottomUp[MOD][MOD];
-		for (int i=0; i<MOD; i++) {
-			aValues[i] = new SortedMultiset_BottomUp[MOD];
-			for (int j=0; j<MOD; j++) {
-				aValues[i][j] = new SortedMultiset_BottomUp<Integer>();
+		for (int NMod=0; NMod<MOD; NMod++) {
+			aValues[NMod] = new SortedMultiset_BottomUp[MOD];
+			for (int kMod=0; kMod<MOD; kMod++) {
+				aValues[NMod][kMod] = new SortedMultiset_BottomUp<Integer>();
 			}
 		}
 	}
@@ -105,16 +105,22 @@ public class Lehman_Analyzer1 extends FactorAlgorithmBase {
 			this.findSingleFactor(N);
 		}
 		
-		for (int i=0; i<MOD; i++) {
+		int lehmanCount = 0;
+		for (int NMod=0; NMod<MOD; NMod++) {
 			boolean logged = false;
-			for (int j=0; j<MOD; j++) {
-				if (aValues[i][j].size() > 0) {
-					LOG.info("Successful a-values %" + MOD + " for N%" + MOD + "==" + i + ", k%" + MOD + "==" + j + " : " + aValues[i][j]);
+			for (int kMod=0; kMod<MOD; kMod++) {
+				SortedMultiset_BottomUp<Integer> aCounts = aValues[NMod][kMod];
+				if (aCounts.size() > 0) {
+					int totalCount = aCounts.totalCount();
+					LOG.info("Successful a-values %" + MOD + " for N%" + MOD + "==" + NMod + ", k%" + MOD + "==" + kMod + " : " + totalCount + " (" + aCounts + ")");
+					lehmanCount += totalCount;
 					logged = true;
 				}
 			}
 			if (logged) LOG.info("");
 		}
+		int tdivCount = N_COUNT - lehmanCount;
+		LOG.info("Factored by trial division: " + tdivCount);
 	}
 
 	public static void main(String[] args) {
