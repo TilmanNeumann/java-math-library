@@ -23,7 +23,7 @@ import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Conversion from doubles to BigInteger with minimal precision loss and no need of slow BigDecimal.
- * @see https://de.wikipedia.org/wiki/IEEE_754#Allgemeines
+ * @see <a href="https://de.wikipedia.org/wiki/IEEE_754#Allgemeines">https://de.wikipedia.org/wiki/IEEE_754#Allgemeines</a>
  * 
  * @author Tilman Neumann
  */
@@ -62,7 +62,7 @@ public class BigIntConverter {
 	 * 
 	 * @param d
 	 * @param e2
-	 * @return
+	 * @return a BigInteger with approximate value d * 2^e2
 	 */
 	public static BigInteger fromDoubleMulPow2(double d, int e2) {
 		long dblBitRep = Double.doubleToRawLongBits(d);
