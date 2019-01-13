@@ -93,7 +93,7 @@ public class Stirling {
 	 * @param n the first argument to the Stirling function.
 	 * @param m the second argument to the Stirling function.
 	 * @return s(n,k)
-	 * @see http://en.wikipedia.org/wiki/Stirling_number
+	 * @see <a href="http://en.wikipedia.org/wiki/Stirling_number">http://en.wikipedia.org/wiki/Stirling_number</a>
 	 */
 	private static BigInteger stirling1byStirling2(int n, int k) {
     	if (n>k && k>0) {
@@ -197,6 +197,7 @@ public class Stirling {
      * Fast version of the 1. kind Stirling numbers with hashed memory.
      * OutOfMemoryError at n=849.
      */
+	@SuppressWarnings("unused")
 	private static BigInteger stirling1WithHashedMemory(int n, int k) {
     	if (n>k && k>0) {
         	Pair<Integer, Integer> nkp = new Pair<Integer, Integer>(n, k);
@@ -216,7 +217,8 @@ public class Stirling {
 
     /**
      * Stirling numbers of the second kind S(n,k).
-     * @see http://mathworld.wolfram.com/StirlingNumberoftheSecondKind.html
+     * @see <a href="http://mathworld.wolfram.com/StirlingNumberoftheSecondKind.html">http://mathworld.wolfram.com/StirlingNumberoftheSecondKind.html</a>
+     * 
      * @param n
      * @param k
      * @return BigInt
@@ -257,6 +259,10 @@ public class Stirling {
     /**
      * Calculates the diagonal of Stirling numbers of the first kind
      * S1(n-k+1,1), S1(n-k+2,2), ..., S1(n-1,k-1), S1(n,k).
+     * 
+     * @param n
+     * @param k
+     * @return an array containing the Stirling numbers of the diagonal
      */
     public static BigInteger[] stirling1Diag(int n, int k) {
         // prepare initial diagonal S1(1,1), ... S1(k,k):
@@ -285,7 +291,8 @@ public class Stirling {
         return nextDiag;
     }
 
-    private static void testDiagonal(String[] args) {
+    @SuppressWarnings("unused")
+	private static void testDiagonal(String[] args) {
     	int nofArgs = args.length;
         if (nofArgs == 3) {
             // get parameters from command line
@@ -418,7 +425,8 @@ public class Stirling {
         }
     }
 
-    private static void printFirstStirlings() {
+    @SuppressWarnings("unused")
+	private static void printFirstStirlings() {
 		for (int n=0; n<12; n++) {
 			BigIntList stirlings1 = new BigIntList();
 			for (int i=1; i<=n; i++) {
@@ -486,6 +494,7 @@ public class Stirling {
     
     /**
      * Tests.
+     * @param args ignored
      */
     public static void main(String[] args) {
     	ConfigUtil.initProject();

@@ -26,7 +26,7 @@ public class HyperFactorial {
 	/**
 	 * A002109 or the standard "hyperfactorial" is the product {1^1*2^2*..n^n}.
 	 * @param n
-	 * @return
+	 * @return hyperfactorial(n)
 	 */
 	public static BigInteger standard(int n) {
 		BigInteger result = I_1;
@@ -38,9 +38,9 @@ public class HyperFactorial {
 	
 	/**
 	 * A000197 or what I call the "inverse hyperfactorial" is the product
-	 * {1^n*2^(n-1)*..*(n-1)^2*n^1} = {1!*2!*3!*...(n-1)!*n!}.
+	 * 1^n*2^(n-1)*..*(n-1)^2*n^1 = 1!*2!*3!*...(n-1)!*n!.
 	 * @param n
-	 * @return
+	 * @return the "inverse hyperfactorial" of n aka 1!*2!*3!*...(n-1)!*n!
 	 */
 	public static BigInteger inverse(int n) {
 		BigInteger result = I_1;

@@ -62,7 +62,7 @@ public class Factorial {
 	 * @param start Argument of the start result
 	 * @param startResult Factorial for start
 	 * @return n! if n is a non-negative integer
-	 * @throws IllegalArgumentException if n is a negative integer
+	 * @throws ArithmeticException if n is a negative integer
 	 */
 	public static BigInteger withStartResult(int n, int start, BigInteger startResult) throws ArithmeticException {
         if (n<0) throw new ArithmeticException("The factorial function supports only non-negative arguments.");
@@ -83,6 +83,7 @@ public class Factorial {
 	 * Peter Luschny's swinging prime factorial algorithm, see http://luschny.de/math/factorial/SwingIntro.pdf
 	 * @param n
 	 * @return n!
+	 * @throws ArithmeticException if n is a negative integer
 	 */
 	public static BigInteger factorial/*Luschny*/(int n) throws ArithmeticException {
         if (n<0) throw new ArithmeticException("The factorial function supports only non-negative arguments.");
