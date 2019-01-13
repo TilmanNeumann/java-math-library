@@ -152,6 +152,31 @@ public class Uint128 {
 		}
 		return new Uint128(r_hi, r_lo);
 	}
+	
+	/**
+	 * Compute the sum of this and other, return the high part.
+	 * @param other
+	 * @return high part of this + other
+	 */
+	public long add_getHigh(Uint128 other) {
+		// We know for sure that low overflows if both low and o_lo are 64 bit.
+		// If only one of the input 'low's is 64 bit, then we can recognize an overflow
+		// if the result.lo is not 64 bit.
+		long o_lo = other.getLow();
+		long o_hi = other.getHigh();
+		boolean sureCarry = (low<0) && (o_lo<0);
+		long r_hi = high + o_hi;
+		if (sureCarry) {
+			r_hi++;
+		} else {
+			boolean checkCarry = (low<0) || (o_lo<0);
+			long r_lo = low + o_lo;
+			if (checkCarry && r_lo >= 0) {
+				r_hi++;
+			}
+		}
+		return r_hi;
+	}
 
 	/**
 	 * Shift this 'bits' bits to the left.
