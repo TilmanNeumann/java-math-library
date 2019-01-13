@@ -79,6 +79,9 @@ abstract public class MatrixSolver {
 	 * Remove singletons from <code>congruences</code>.
 	 * This can reduce the size of the equation system; actually it never diminishes the difference (#eqs - #vars).
 	 * It is very fast, too - like 60ms for a matrix for which solution via Gauss elimination takes 1 minute.
+	 * 
+	 * @param congruences 
+	 * @param oddExpFactors_2_congruences 
 	 */
 	protected void removeSingletons(List<Congruence> congruences, Map<Integer, ArrayList<Congruence>> oddExpFactors_2_congruences) {
 		// Parse all congruences as long as we find a singleton in a complete pass
@@ -115,8 +118,9 @@ abstract public class MatrixSolver {
 	
 	/**
 	 * Create a map from odd-exp-elements to matrix column indices.
+	 * 
 	 * @param oddExpFactors_2_congruences unsorted map from factors to the congruences in which they appear with odd exponent
-	 * @return
+	 * @return map from factors to column indices
 	 */
 	protected Map<Integer, Integer> createFactor2ColumnIndexMap(Map<Integer, ArrayList<Congruence>> oddExpFactors_2_congruences) {
 		int index = 0;
