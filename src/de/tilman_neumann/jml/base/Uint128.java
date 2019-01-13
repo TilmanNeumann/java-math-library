@@ -78,7 +78,7 @@ public class Uint128 {
 	 * 
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return x*y
 	 */
 	public static Uint128 mul64(long x, long y) {
 		final long x_hi = x >>> 32;
@@ -90,7 +90,7 @@ public class Uint128 {
 		final long med_prod1 = x_hi * y_lo;
 		final long med_prod2 = x_lo * y_hi;
 		final long med_term = med_prod1 + med_prod2;
-		long hi_prod = x_hi * y_hi;
+		final long hi_prod = x_hi * y_hi;
 		
 		// the medium term could overflow
 		boolean carry = (med_prod1<0) && (med_prod2<0);
@@ -124,7 +124,7 @@ public class Uint128 {
 		final long y_lo = y & 0xFFFFFFFFL;
 		final long lo_prod = x_lo * y_lo;
 		final long med_term = x_hi * y_lo + x_lo * y_hi;
-		long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
 		return r_lo;
 	}
 
@@ -181,7 +181,7 @@ public class Uint128 {
 	/**
 	 * Shift this 'bits' bits to the left.
 	 * @param bits
-	 * @return
+	 * @return this << bits
 	 */
 	public Uint128 shiftLeft(int bits) {
 		if (bits<64) {
@@ -195,7 +195,7 @@ public class Uint128 {
 	/**
 	 * Shift this 'bits' bits to the right.
 	 * @param bits
-	 * @return
+	 * @return this >>> bits
 	 */
 	public Uint128 shiftRight(int bits) {
 		if (bits<64) {
@@ -217,7 +217,7 @@ public class Uint128 {
 
 	/**
 	 * Convert this to BigInteger.
-	 * @return
+	 * @return this unsigned 128 bit integer converted to BigInteger
 	 */
 	public BigInteger toBigInteger() {
 		return new BigInteger(Long.toBinaryString(high), 2).shiftLeft(64).add(new BigInteger(Long.toBinaryString(low), 2));
