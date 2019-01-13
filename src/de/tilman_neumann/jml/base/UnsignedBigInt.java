@@ -207,9 +207,11 @@ public class UnsignedBigInt {
     }
 
     /**
-     * Mutable divide and remainder computation.
+     * Mutable divide and remainder computation. After the operation, this will be the quotient,
+     * and the remainder is returned.
+     * 
      * @param divisor
-     * @return
+     * @return remainder of this / divisor
      */
     public int divideAndRemainder(final int divisor) {
     	// A special treatment of intLength==1 is asymptotically bad
