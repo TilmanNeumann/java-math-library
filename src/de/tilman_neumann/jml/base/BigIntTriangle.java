@@ -104,7 +104,7 @@ public class BigIntTriangle {
 	/**
 	 * return n.th row, where the first row has index 1.
 	 * @param n
-	 * @return
+	 * @return n.th row
 	 */
 	public ArrayList<BigInteger> getRow(int n) {
 		return rows.get(n-1);
@@ -114,7 +114,7 @@ public class BigIntTriangle {
 	 * Returns the sum over all entries of the n.th row, 
 	 * where the first row has index 1.
 	 * @param n
-	 * @return
+	 * @return the sum over all entries of the n.th row
 	 */
 	public BigInteger getRowSum(int n) {
 		BigInteger rowSum = BigInteger.ZERO;
