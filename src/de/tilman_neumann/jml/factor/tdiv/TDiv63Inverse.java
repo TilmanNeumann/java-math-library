@@ -131,7 +131,7 @@ public class TDiv63Inverse extends FactorAlgorithmBase {
 		}
 		
 		// Now the primes are big enough to apply trial division by inverses
-		for (; primes[i]<pLimit; i++) {
+		for (; primes[i]<=pLimit; i++) {
 			//LOG.debug("N=" + N + ": Test p=" + primes[i]);
 			long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
 			if (nDivPrime * primes[i] == N) {
