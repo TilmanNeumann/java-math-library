@@ -173,7 +173,8 @@ public class TDiv63Inverse extends FactorAlgorithmBase {
 				44579405690563L,
 				72795445155721L,
 				155209074377713L,
-				293851765137859L // = 11736397 * 25037647; can not be found with factorLimit=2^21
+				293851765137859L, // = 11736397 * 25037647; can not be found with factorLimit=2^21
+				67915439339311L // = 2061599 * 32943089, ok
 		};
 		for (long N : specialN) {
 			long tdivFactor = tdivInv.findSingleFactor(N);
