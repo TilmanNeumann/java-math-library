@@ -54,7 +54,7 @@ public class FactorizerTest {
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 20;
+	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
@@ -72,14 +72,17 @@ public class FactorizerTest {
 
 			// Trial division
 			//new TDiv31(),
-			//new TDiv31Preload(),
+			new TDiv31Preload(),
 			new TDiv31Inverse(), // Fastest algorithm for N <= 30 bit
 			new TDiv63Inverse(1<<21),
 			
 			// Lehman
-			//new Lehman_Simple(),
-			new Lehman_Fast(true), // best algorithm for hard N with 31 to 47 bits
-//			new Lehman_Fast(false), // great for random composite N<60 bit having small factors frequently
+			new Lehman_Simple(false),
+			new Lehman_Simple_FastTDiv(false),
+			new Lehman_Smith(false),
+			new Lehman_Smith_FastTDiv(false),
+			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
+//			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
 			
 			// PollardRho
 			//new PollardRho(),
@@ -125,7 +128,7 @@ public class FactorizerTest {
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), true),
 
 			// sieving with prime powers: best sieve for small N!
-			new SIQS(0.32F, 0.37F, null, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
+//			new SIQS(0.32F, 0.37F, null, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
 //			new SIQS(0.32F, 0.37F, null, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), true),
 //			new SIQS(0.32F, 0.37F, null, null, new AllPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), true),
 			
