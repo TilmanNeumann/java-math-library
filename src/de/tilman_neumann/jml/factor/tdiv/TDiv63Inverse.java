@@ -158,6 +158,7 @@ public class TDiv63Inverse extends FactorAlgorithmBase {
 		TDiv63Inverse tdivInv = new TDiv63Inverse(1<<21);
 		SquFoF63 testFactorizer = new SquFoF63();
 		long[] specialN = new long[] {
+				// first charge
 				621887327L,
 				676762483L,
 				2947524803L,
@@ -165,7 +166,14 @@ public class TDiv63Inverse extends FactorAlgorithmBase {
 				35936505149L,
 				145682871839L,
 				317756737253L,
-				3294635112749L
+				3294635112749L,
+				// second charge
+				13293477682249L,
+				24596491225651L, // = 3311299 * 7428049; can not be found with factorLimit=2^21
+				44579405690563L,
+				72795445155721L,
+				155209074377713L,
+				293851765137859L // = 11736397 * 25037647; can not be found with factorLimit=2^21
 		};
 		for (long N : specialN) {
 			long tdivFactor = tdivInv.findSingleFactor(N);
