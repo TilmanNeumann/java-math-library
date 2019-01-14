@@ -158,8 +158,8 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 		// do trial division after Lehman loop ?
 		if (!doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
 		
-		// If sqrt(4kN) is very near to an exact integer then the fast ceil() operations may have failed.
-		// It seems that it is enough to fix either the k%6=1 or the k%6=5 loop.
+		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
+		// may have failed. Then we need a "correction loop":
 		for (int k=kTwoA + 1; k <= kLimit; k++) {
 			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) - 1;
 			long test = a*a - k*fourN;

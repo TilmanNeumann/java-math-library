@@ -54,7 +54,7 @@ public class FactorizerTest {
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 30;
+	private static final int START_BITS = 44;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
@@ -77,8 +77,8 @@ public class FactorizerTest {
 			new TDiv63Inverse(1<<21),
 			
 			// Lehman
-			new Lehman_Simple(false),
-			new Lehman_Simple_FastTDiv(false),
+//			new Lehman_Simple(false),
+//			new Lehman_Simple_FastTDiv(false),
 			new Lehman_Smith(false),
 			new Lehman_Smith_FastTDiv(false),
 			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
