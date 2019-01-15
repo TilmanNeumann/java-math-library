@@ -47,7 +47,7 @@ public class Lehman_Simple extends FactorAlgorithmBase {
 
 	@Override
 	public String getName() {
-		return "Lehman_Simple";
+		return "Lehman_Simple(" + doTDivFirst + ")";
 	}
 
 	@Override
