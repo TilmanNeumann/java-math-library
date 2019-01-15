@@ -20,11 +20,11 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.jml.factor.tdiv.TDiv63;
+import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
 /**
  * An attempt to reproduce Warren D. Smith's Lehman implementation used by YaFu,
- * using standard trial division. This attempt may not match the original accurately.
+ * using fast inverse trial division. This attempt may not match the original accurately.
  * 
  * @author Tilman Neumann
  */
@@ -34,7 +34,7 @@ public class Lehman_Smith extends FactorAlgorithmBase {
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private static final TDiv63 tdiv = new TDiv63();
+	private static final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 
 	private long fourN;
 	private double sqrt4N;
@@ -73,7 +73,7 @@ public class Lehman_Smith extends FactorAlgorithmBase {
 
 		final int kLimit = cbrt;
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
-		for (int k=1; k < kLimit; k++) {
+		for (int k=1; k <= kLimit; k++) {
 			double sqrtK = Math.sqrt(k);
 			final double sqrt4kN = sqrt4N * sqrtK;
 			// only use long values

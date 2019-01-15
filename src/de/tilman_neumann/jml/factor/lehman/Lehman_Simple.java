@@ -17,11 +17,12 @@ import java.math.BigInteger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
 /**
  * Simple implementation of Lehmans factor algorithm,
  * following https://programmingpraxis.com/2017/08/22/lehmans-factoring-algorithm/,
- * using standard trial division.
+ * using fast inverse trial division.
  * 
  * This implementation is pretty slow, but useful for illustrating the basic algorithm.
  * It may fail for N>=47 bit where 4*k*N produces a long-overflow.
@@ -30,8 +31,10 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
  */
 public class Lehman_Simple extends FactorAlgorithmBase {
 	private final Gcd63 gcdEngine = new Gcd63();
-	
+
 	private boolean doTDivFirst;
+
+	private static final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 
 	/**
 	 * Full constructor.
@@ -54,14 +57,12 @@ public class Lehman_Simple extends FactorAlgorithmBase {
 	
 	public long findSingleFactor(long N) {
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
-		if (doTDivFirst) {
-			// do trial division before Lehman loop
-			int i=0, p;
-			while ((p = SMALL_PRIMES.getPrime(i++)) <= cbrt) {
-				if (N%p==0) return p;
-			}
-		}
-		
+
+		// do trial division before Lehman loop ?
+		long factor;
+		tdiv.setTestLimit(cbrt);
+		if (doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
+
 		// Lehman loop
 		double sixthRoot = Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k <= cbrt; k++) {
@@ -78,14 +79,9 @@ public class Lehman_Simple extends FactorAlgorithmBase {
 				}
 			}
 	    }
-		
-		if (!doTDivFirst) {
-			// do trial division after Lehman loop
-			int i=0, p;
-			while ((p = SMALL_PRIMES.getPrime(i++)) <= cbrt) {
-				if (N%p==0) return p;
-			}
-		}
+
+		// do trial division after Lehman loop ?
+		if (!doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
 
 		return 0; // Fail
 	}
