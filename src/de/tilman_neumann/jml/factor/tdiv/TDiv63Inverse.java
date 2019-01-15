@@ -85,38 +85,7 @@ public class TDiv63Inverse extends FactorAlgorithmBase {
 		return BigInteger.valueOf(findSingleFactor(N.longValue()));
 	}
 	
-	public int findSingleFactor_v1(long N) {
-		int i=0;
-		int Nbits = 64-Long.numberOfLeadingZeros(N);
-		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
-		if (pMinBits>0) {
-			// for the smallest primes we must do standard trial division
-			int pMin = 1<<pMinBits;
-			for ( ; primes[i]<pMin; i++) {
-				if (N%primes[i]==0) {
-					return primes[i];
-				}
-			}
-		}
-		
-		// Now the primes are big enough to apply trial division by inverses
-		for (; primes[i]<pLimit; i++) {
-			//LOG.debug("N=" + N + ": Test p=" + primes[i]);
-			double prod = N*reciprocals[i];
-			if (((long)(prod+DISCRIMINATOR)) - ((long)(prod-DISCRIMINATOR)) == 1) {
-				// prod is very near to an integer
-				if (N%primes[i]==0) {
-					//LOG.debug("Found factor " + primes[i]);
-					return primes[i];
-				}
-			}
-		}
-
-		// nothing found up to pLimit
-		return 0;
-	}
-	
-	public int findSingleFactor/*_v2*/(long N) {
+	public int findSingleFactor(long N) {
 		int i=0;
 		int Nbits = 64-Long.numberOfLeadingZeros(N);
 		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
