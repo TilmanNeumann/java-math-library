@@ -18,7 +18,6 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * GCD implementations for BigIntegers.
@@ -167,7 +166,7 @@ public class Gcd {
 
 	/**
 	 * GCD of k arguments n1, n2, ..., nk.
-	 * @param arguments
+	 * @param arguments Collection of arguments
 	 * @return GCD(n1, n2, ..., nk)
 	 */
 	public static BigInteger gcd(Collection<BigInteger> arguments) {
@@ -179,6 +178,23 @@ public class Gcd {
 		BigInteger ret = itr.next();
 		while(itr.hasNext()) {
 			ret = ret.gcd(itr.next()); // fastest gcd
+		}
+		return ret;
+	}
+
+	/**
+	 * GCD of k arguments n1, n2, ..., nk.
+	 * @param arguments array of arguments
+	 * @return GCD(n1, n2, ..., nk)
+	 */
+	public static BigInteger gcd(BigInteger[] arguments) {
+		if (arguments==null || arguments.length==0) { 
+			return null;
+		}
+
+		BigInteger ret = arguments[0];
+		for(int i=1; i<arguments.length; i++) {
+			ret = ret.gcd(arguments[i]);
 		}
 		return ret;
 	}
@@ -198,10 +214,10 @@ public class Gcd {
 	
 	/**
 	 * Least common multiple of k arguments n1, n2, ..., nk.
-	 * @param arguments list of arguments
+	 * @param arguments Collection of arguments
 	 * @return LCM(n1, n2, ..., nk)
 	 */
-	public static BigInteger lcm(List<BigInteger> arguments) {
+	public static BigInteger lcm(Collection<BigInteger> arguments) {
 		if (arguments==null || arguments.size()==0) { 
 			return null;
 		}
@@ -210,6 +226,23 @@ public class Gcd {
 		BigInteger ret = itr.next();
 		while(itr.hasNext()) {
 			ret = lcm(ret, itr.next());
+		}
+		return ret;
+	}
+	
+	/**
+	 * Least common multiple of k arguments n1, n2, ..., nk.
+	 * @param arguments array of arguments
+	 * @return LCM(n1, n2, ..., nk)
+	 */
+	public static BigInteger lcm(BigInteger[] arguments) {
+		if (arguments==null || arguments.length==0) { 
+			return null;
+		}
+
+		BigInteger ret = arguments[0];
+		for(int i=1; i<arguments.length; i++) {
+			ret = lcm(ret, arguments[i]);
 		}
 		return ret;
 	}
