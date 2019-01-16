@@ -34,7 +34,7 @@ public class Gcd {
 	 * Euclid's algorithm implementation with division.
 	 * @param m
 	 * @param n
-	 * @return
+	 * @return gcd(m, n)
 	 */
 	public BigInteger gcd_euclid_withDivision(BigInteger m, BigInteger n) {
 		m = m.abs();
@@ -136,7 +136,7 @@ public class Gcd {
 	 * 
 	 * @param a
 	 * @param b
-	 * @return
+	 * @return gcd(a, b)
 	 */
 	public BigInteger gcd/*_binary2*/(BigInteger a, BigInteger b) {
 		a = a.abs();
@@ -166,9 +166,9 @@ public class Gcd {
 	}
 
 	/**
-	 * GCD of all arguments.
+	 * GCD of k arguments n1, n2, ..., nk.
 	 * @param arguments
-	 * @return
+	 * @return GCD(n1, n2, ..., nk)
 	 */
 	public static BigInteger gcd(Collection<BigInteger> arguments) {
 		if (arguments==null || arguments.size()==0) { 
@@ -187,17 +187,19 @@ public class Gcd {
 	 * Least common multiple of two arguments.
 	 * @param a
 	 * @param b
-	 * @return LCM
+	 * @return LCM(a, b)
 	 */
 	public static BigInteger lcm(BigInteger a, BigInteger b) {
 		if (a.equals(I_0) || b.equals(I_0)) return I_0;
-		return a.multiply(b).divide(a.gcd(b));
+		BigInteger ab = a.multiply(b);
+		BigInteger gcd = a.gcd(b);
+		return gcd.equals(I_1) ? ab : ab.divide(gcd);
 	}
 	
 	/**
-	 * Least common multiple of n arguments.
+	 * Least common multiple of k arguments n1, n2, ..., nk.
 	 * @param arguments list of arguments
-	 * @return LCM
+	 * @return LCM(n1, n2, ..., nk)
 	 */
 	public static BigInteger lcm(List<BigInteger> arguments) {
 		if (arguments==null || arguments.size()==0) { 
