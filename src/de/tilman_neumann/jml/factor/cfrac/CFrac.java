@@ -56,8 +56,8 @@ import static org.junit.Assert.*;
  * 
  * @author Tilman Neumann
  */
-public class CFrac01 extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(CFrac01.class);
+public class CFrac extends FactorAlgorithmBase {
+	private static final Logger LOG = Logger.getLogger(CFrac.class);
 	private static final boolean DEBUG = false;
 
 	// input
@@ -114,7 +114,7 @@ public class CFrac01 extends FactorAlgorithmBase {
 	 * @param ks_adjust
 	 * @param profile if true then analyze operations & timings
 	 */
-	public CFrac01(boolean use_all_i, int stopRoot, float stopMult, float C, float maxQRestExponent, TDiv_CF auxFactorizer,
+	public CFrac(boolean use_all_i, int stopRoot, float stopMult, float C, float maxQRestExponent, TDiv_CF auxFactorizer,
 			       int extraCongruences, MatrixSolver matrixSolver, int ks_adjust, boolean profile) {
 		
 		this.use_all_i = use_all_i;
@@ -132,7 +132,7 @@ public class CFrac01 extends FactorAlgorithmBase {
 
 	@Override
 	public String getName() {
-		return "CFrac01(all_i=" + use_all_i + ", ks_adjust=" + ks_adjust + ", stop=(" + stopRoot + ", " + stopMult + "), C=" + C + ", maxSuSmoothExp=" + maxQRestExponent + ", " + auxFactorizer.getName() + ")";
+		return "CFrac(all_i=" + use_all_i + ", ks_adjust=" + ks_adjust + ", stop=(" + stopRoot + ", " + stopMult + "), C=" + C + ", maxSuSmoothExp=" + maxQRestExponent + ", " + auxFactorizer.getName() + ")";
 	}
 	
 	/**
@@ -346,7 +346,7 @@ public class CFrac01 extends FactorAlgorithmBase {
 	}
 	
 	private static void testInput() {
-		CFrac01 cfrac = new CFrac01(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5, false);
+		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5, false);
 		Timer timer = new Timer();
 		while(true) {
 			try {

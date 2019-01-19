@@ -39,8 +39,8 @@ import static org.junit.Assert.*;
  * 
  * @author Tilman Neumann
  */
-public class CFrac63_01 extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(CFrac63_01.class);
+public class CFrac63 extends FactorAlgorithmBase {
+	private static final Logger LOG = Logger.getLogger(CFrac63.class);
 	private static final boolean DEBUG = false;
 
 	// input
@@ -95,7 +95,7 @@ public class CFrac63_01 extends FactorAlgorithmBase {
 	 * @param matrixSolver matrix solver for the smooth congruence equation system
 	 * @param ks_adjust
 	 */
-	public CFrac63_01(boolean use_all_i, int stopRoot, float stopMult, float C, float maxQRestExponent,
+	public CFrac63(boolean use_all_i, int stopRoot, float stopMult, float C, float maxQRestExponent,
 				   TDiv_CF63 auxFactorizer, int extraCongruences, MatrixSolver matrixSolver, int ks_adjust) {
 
 		this.use_all_i = use_all_i;
@@ -112,7 +112,7 @@ public class CFrac63_01 extends FactorAlgorithmBase {
 
 	@Override
 	public String getName() {
-		return "CFrac63_01(all_i=" + use_all_i + ", ks_adjust=" + ks_adjust + ", stop=(" + stopRoot + ", " + stopMult + "), C=" + C + ", maxSuSmoothExp=" + maxQRestExponent + ", " + auxFactorizer.getName() + ")";
+		return "CFrac63(all_i=" + use_all_i + ", ks_adjust=" + ks_adjust + ", stop=(" + stopRoot + ", " + stopMult + "), C=" + C + ", maxSuSmoothExp=" + maxQRestExponent + ", " + auxFactorizer.getName() + ")";
 	}
 	
 	/**
