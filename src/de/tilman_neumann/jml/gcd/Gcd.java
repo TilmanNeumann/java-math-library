@@ -177,7 +177,8 @@ public class Gcd {
 		Iterator<BigInteger> itr = arguments.iterator();
 		BigInteger ret = itr.next();
 		while(itr.hasNext()) {
-			ret = ret.gcd(itr.next()); // fastest gcd
+			if (ret.equals(I_1)) return I_1; // gcd(1, n) == 1, no further change possible (thx to Axel Kramer)
+			ret = ret.gcd(itr.next()); // fastest BigInteger gcd
 		}
 		return ret;
 	}
