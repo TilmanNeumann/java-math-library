@@ -47,14 +47,14 @@ There is no documentation and no support, so you should be ready to start explor
 
 ## Remarks
 
-* The quadratic sieve is still missing a good small factor test algorithm like ECM.
+The quadratic sieve is still missing a good small factor test algorithm like ECM.
 So it will be quite efficient for inputs having few small factors (in particular semiprimes),
 but not when the number of small prime factors is large.
 
 
 ## Authors
 
-* **Tilman Neumann** - *Initial work*
+ **Tilman Neumann** - *Initial work*
 
 
 ## License
