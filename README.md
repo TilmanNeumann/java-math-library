@@ -2,7 +2,22 @@
 
 This library is focused on number theory, but not necessarily limited to it.
 Its intention is to collect basic math routines that may be of value to others.
-It is based on PSIQS 4.0 and as such provides some pretty good methods for integer factorization. 
+It is based on PSIQS 4.0 and as such provides some pretty good methods for integer factorization.
+Have a look at the following classes:
+* TDiv31Inverse
+* TDiv63Inverse
+* Lehman_Fast
+* SquFoF31Preload
+* SquFoF63
+* PollardRhoBrentMontgomeryR64Mul63
+* PollardRhoBrentMontgomery64
+* PollardRhoBrent
+* CFrac63
+* CFrac
+* SIQS (single-threaded)
+* PSIQS (multi-threaded)
+* PSIQS_U (multi-threaded, using sun.misc.Unsafe)
+
 The factoring methods are used as well to implement a fast sumOfDivisors() function.
 Other noteworthy things are sqrt(), nth_root(), ln() and exp() functions for BigDecimals,
 a fast generator for the partitions of multipartite numbers, and - quite special -
@@ -23,7 +38,7 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Getting Started
 
-Clone the repository, create a plain Java project importing it, make sure that 'src' is the source folder of your project, and add the log4j- and junit-jars from the lib-folder to your classpath. 
+Clone the repository, create a plain Java project importing it, make sure that 'src' is the source folder of your project, and add the jars from the lib-folder to your classpath. 
 
 You will need Java 8 or higher for the project to compile.
 
