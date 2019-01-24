@@ -1,8 +1,11 @@
 /*
- * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * The code in this file was written by Dario Alejandro Alpern as part of his ECM/Siqs applet. See https://github.com/alpertron/calculators.
- * I (Tilman Neumann) am very thankful for his permission to redistribute it under GPL3.
- * Copyright (C) 2018  Dario Alejandro Alpern (Buenos Aires - Argentina).
+ * Self-Initializing Quadratic Sieve (SIQS) Factorization Method
+ *
+ * Written by Dario Alejandro Alpern (Buenos Aires - Argentina)
+ * Last updated May 15th, 2011. See http://www.alpertron.com.ar/ECM.HTM
+ *
+ * I (Tilman Neumann) am deeply grateful for Dario Alpern's permission
+ * to use this piece of software under the GPL3 license.
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
