@@ -119,10 +119,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		return factors.size()>0 ? factors.keySet().iterator().next() : null;
 	}
 
-	/**********************/
-	/* Auxiliary routines */
-	/**********************/
-
 	private static void GenerateSieve(int initial, byte[] sieve, byte[] sieve2310, int[] SmallPrime) {
 		int i, j, Q;
 		for (i = 0; i < 23100; i += 2310) {
