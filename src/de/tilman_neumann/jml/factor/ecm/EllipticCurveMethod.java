@@ -3,6 +3,7 @@
  *
  * Written by Dario Alejandro Alpern (Buenos Aires - Argentina)
  * Based in Yuji Kida's implementation for UBASIC interpreter.
+ * Some code "borrowed" from Paul Zimmermann's ECM4C.
  * Modified for the Symja project by Axel Kramer.
  * Further refactorings by Tilman Neumann.
  * 
@@ -73,9 +74,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		return smallPrimes;
 	}
 
-	/*********************************************************/
-	/* Start of code "borrowed" from Paul Zimmermann's ECM4C */
-	/*********************************************************/
 	private static final int ADD = 6; // number of multiplications in an addition
 	private static final int DUP = 5; //number of multiplications in a duplicate
 
@@ -468,7 +466,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		AddBigNbrModN(u, v, u); // u = (v+b*w)
 		MontgomeryMult(w, u, z2); // z2 = (w*u)
 	}
-	/* End of code "borrowed" from Paul Zimmermann's ECM4C */
 
 	/**
 	 * Factor N.
