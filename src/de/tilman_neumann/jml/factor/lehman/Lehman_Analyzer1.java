@@ -25,6 +25,7 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
+import de.tilman_neumann.jml.factor.TestNumberNature;
 
 /**
  * Analyze the moduli of a-values that help the Lehman algorithm to find factors.
@@ -100,7 +101,7 @@ public class Lehman_Analyzer1 extends FactorAlgorithmBase {
 	private void testRange(int bits) {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		// find N-set for square tests
-		ArrayList<BigInteger> NSet = TestsetGenerator.generate(bits, N_COUNT);
+		ArrayList<BigInteger> NSet = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		for (BigInteger N : NSet) {

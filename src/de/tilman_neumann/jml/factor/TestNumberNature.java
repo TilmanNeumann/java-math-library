@@ -17,7 +17,7 @@ package de.tilman_neumann.jml.factor;
  * Definition of the "nature" of test numbers.
  * @author Tilman Neumann
  */
-public enum TestsetGeneratorMode {
+public enum TestNumberNature {
 	/** 
 	 * Almost arbitrary random numbers N chosen from a certain bit length;
 	 * the only constraints are N>1 and N not prime.

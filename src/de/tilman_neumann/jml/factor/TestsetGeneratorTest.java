@@ -33,7 +33,7 @@ public class TestsetGeneratorTest {
 		int nCount = 100;
 		for (int bits = 20; ; bits+=10) {
 			long start = timer.capture();
-			ArrayList<BigInteger> list = TestsetGenerator.generate(bits, nCount);
+			ArrayList<BigInteger> list = TestsetGenerator.generate(nCount, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 			long end = timer.capture();
 			// Collect the true
 			Map<Integer, Integer> sizeCounts = new TreeMap<>();

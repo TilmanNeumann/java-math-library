@@ -61,6 +61,8 @@ public class FactorizerTest {
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
+	/** Nature of test numbers */
+	private static final TestNumberNature testNumberNature = TestNumberNature.MODERATE_SEMIPRIMES;
 	
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
@@ -160,9 +162,8 @@ public class FactorizerTest {
 	
 	private void testRange(int bits) {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
-		// find N-set for square tests
-		//ArrayList NSet = TestsetGenerator.generate(bits, N_COUNT);
-		ArrayList<BigInteger> NSet = TestsetGenerator.generate(bits, N_COUNT);
+		// Compute test set
+		ArrayList<BigInteger> NSet = TestsetGenerator.generate(N_COUNT, bits, testNumberNature);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection

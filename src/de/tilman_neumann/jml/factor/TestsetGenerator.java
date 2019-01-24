@@ -41,54 +41,70 @@ public class TestsetGenerator {
 
 	/** random generator */
 	private static final SecureRandom RNG = new SecureRandom();
-
+	
 	/**
-	 * Generate N_count random numbers of the given bit length.
-	 * @param bits
-	 * @param N_count
+	 * Generate N_count random numbers of the given size and nature.
+	 * @param N_count number of test numbers to generate
+	 * @param bits size of test numbers to generate
+	 * @param mode the nature of test numbers to generate
 	 * @return test set
 	 */
-	public static ArrayList<BigInteger> generate(int bits, int N_count) {
+	public static ArrayList<BigInteger> generate(int N_count, int bits, TestNumberNature mode) {
 		ArrayList<BigInteger> NSet = new ArrayList<BigInteger>();
-		int minBits = (bits+2)/3; // analogue to 3rd root(N)
-		int maxBits = (bits+1)/2;
-		for (int i=0; i<N_count; ) {
-			// generate random N with 2 prime factors
-			int n1bits = uniformRandomInteger(minBits, maxBits);
-			BigInteger n1 = new BigInteger(n1bits, RNG);
-			if (n1bits>0) n1 = n1.setBit(n1bits-1);
-			n1 = bpsw.nextProbablePrime(n1);
-			int n2bits = bits-n1.bitLength();
-			BigInteger n2 = new BigInteger(n2bits, RNG);
-			if (n2bits>0) n2 = n2.setBit(n2bits-1);
-			n2 = bpsw.nextProbablePrime(n2);
-			BigInteger N = n1.multiply(n2);
-		
-			// Skip cases where the construction above failed to produce the correct bit length
-			if (N.bitLength() != bits) continue;
-			
-			if (SELECT) {
-				// skip N that do not match the selection criterion
-				int k = multiplierFinder.computeMultiplier(N);
-				int kNMod = BigInteger.valueOf(k).multiply(N).mod(I_8).intValue();
-				if (kNMod == 1) continue;
+		switch (mode) {
+		case COMPOSITE: {
+			for (int i=0; i<N_count; ) {
+				BigInteger N = new BigInteger(bits, RNG);
+				if(N.compareTo(I_1) > 0) {
+					NSet.add(N);
+					i++;
+				}
 			}
-			
-			if (DEBUG) {
-				assertTrue(n1bits >= minBits);
-				assertTrue(n1bits <= maxBits);
-				LOG.debug("TestsetGenerator: minBits = " + minBits + ", maxBits = " + maxBits + ", n1.bitLength() = " + n1.bitLength());
-				assertTrue(n1.bitLength() >= minBits);
-				assertTrue(n1.bitLength() <= maxBits);
-				int resultBits = N.bitLength();
-				LOG.debug("TestsetGenerator: wanted bits = " + bits + ", result bits = " + resultBits);
-				assertTrue(resultBits >= bits-1);
-				assertTrue(resultBits <= bits+1);
-			}
-			NSet.add(N);
-			i++;
+			return NSet;
 		}
-		return NSet;
+		case MODERATE_SEMIPRIMES: {
+			int minBits = (bits+2)/3; // analogue to 3rd root(N)
+			int maxBits = (bits+1)/2;
+			for (int i=0; i<N_count; ) {
+				// generate random N with 2 prime factors
+				int n1bits = uniformRandomInteger(minBits, maxBits);
+				BigInteger n1 = new BigInteger(n1bits, RNG);
+				if (n1bits>0) n1 = n1.setBit(n1bits-1);
+				n1 = bpsw.nextProbablePrime(n1);
+				int n2bits = bits-n1.bitLength();
+				BigInteger n2 = new BigInteger(n2bits, RNG);
+				if (n2bits>0) n2 = n2.setBit(n2bits-1);
+				n2 = bpsw.nextProbablePrime(n2);
+				BigInteger N = n1.multiply(n2);
+			
+				// Skip cases where the construction above failed to produce the correct bit length
+				if (N.bitLength() != bits) continue;
+				
+				if (SELECT) {
+					// skip N that do not match the selection criterion
+					int k = multiplierFinder.computeMultiplier(N);
+					int kNMod = BigInteger.valueOf(k).multiply(N).mod(I_8).intValue();
+					if (kNMod == 1) continue;
+				}
+				
+				if (DEBUG) {
+					assertTrue(n1bits >= minBits);
+					assertTrue(n1bits <= maxBits);
+					LOG.debug("TestsetGenerator: minBits = " + minBits + ", maxBits = " + maxBits + ", n1.bitLength() = " + n1.bitLength());
+					assertTrue(n1.bitLength() >= minBits);
+					assertTrue(n1.bitLength() <= maxBits);
+					int resultBits = N.bitLength();
+					LOG.debug("TestsetGenerator: wanted bits = " + bits + ", result bits = " + resultBits);
+					assertTrue(resultBits >= bits-1);
+					assertTrue(resultBits <= bits+1);
+				}
+				NSet.add(N);
+				i++;
+			}
+			return NSet;
+		}
+		default: throw new IllegalArgumentException("TestsetGeneratorMode " + mode);
+		}
 	}
 	
 	/**
