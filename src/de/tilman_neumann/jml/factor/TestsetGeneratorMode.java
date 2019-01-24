@@ -18,8 +18,11 @@ package de.tilman_neumann.jml.factor;
  * @author Tilman Neumann
  */
 public enum TestsetGeneratorMode {
-	/** Arbitrary random numbers chosen from a certain bit length */
-	RANDOM,
+	/** 
+	 * Almost arbitrary random numbers N chosen from a certain bit length;
+	 * the only constraints are N>1 and N not prime.
+	 */
+	COMPOSITE,
 	
 	/**
 	 * Semiprimes N=a*b with bitLength(min(a,b)) >= bitLength(N)/3 bits.
