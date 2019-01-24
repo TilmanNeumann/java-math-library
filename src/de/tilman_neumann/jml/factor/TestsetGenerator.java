@@ -55,7 +55,7 @@ public class TestsetGenerator {
 		case COMPOSITE: {
 			for (int i=0; i<N_count; ) {
 				BigInteger N = new BigInteger(bits, RNG);
-				if(N.compareTo(I_1) > 0) {
+				if(N.compareTo(I_1) > 0 && !bpsw.isProbablePrime(N)) {
 					NSet.add(N);
 					i++;
 				}
