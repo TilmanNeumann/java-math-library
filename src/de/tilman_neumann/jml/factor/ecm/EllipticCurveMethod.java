@@ -496,6 +496,8 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 					incNbrFactors();
 				}
 			}
+			
+			// XXX This is the core loop, and it should be well understood what happens there
 			factor_loop: do {
 				for (i = 0; i < NbrFactors; i++) {
 					if (Typ[i] < 0) { /* Unknown */
@@ -533,8 +535,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 								map.put(PD[i], Exp[i]);
 							}
 							return PD[i];
-
-							// System.out.println(NN.toString());
 						}
 						Typ[i] = EC;
 						InsertNewFactor(NN);
@@ -543,6 +543,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 				}
 				break;
 			} while (true);
+			
 			for (i = 0; i < NbrFactors; i++) {
 				BigInteger pd = PD[i];
 				int exp = Exp[i];
