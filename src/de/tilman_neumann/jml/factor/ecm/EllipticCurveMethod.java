@@ -528,7 +528,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 
 					if (EC > 0) { /* Composite */
 						EC %= 50000000;
-						NN = fnECM(PD[i], i);
+						NN = fnECM(PD[i]);
 						if (NN.equals(I_1)) {
 							for (i = 0; i < NbrFactors - 1; i++) {
 								map.put(PD[i], Exp[i]);
@@ -570,7 +570,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		return I_1;
 	}
 
-	private BigInteger fnECM(BigInteger N, int FactorIndex) {
+	private BigInteger fnECM(BigInteger N) {
 		int I, J, Pass, Qaux;
 		long L1, L2, LS, P, IP;
 		long[] A0 = new long[NLen];
