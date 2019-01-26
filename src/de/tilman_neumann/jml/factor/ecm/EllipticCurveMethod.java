@@ -506,7 +506,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 						if (r != null) {
 							PD[i] = r.base;
 							Exp[i] *= r.exponent;
-							SortFactorsInputNbr();
 							continue factor_loop;
 						}
 						// TODO the following code is only safe if we did tdiv until 2^17 before
@@ -1198,7 +1197,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 			Typ[NbrFactors] = - EC;
 			incNbrFactors();
 		}
-		SortFactorsInputNbr();
 	}
 
 	private void LongToBigNbr(long Nbr, long Out[]) {
@@ -2279,27 +2277,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 			Rem = Divid % Divisor;
 		}
 		return Rem;
-	}
-
-	private void SortFactorsInputNbr() {
-		int g, i, j;
-		BigInteger Nbr1;
-
-		for (g = 0; g < NbrFactors - 1; g++) {
-			for (j = g + 1; j < NbrFactors; j++) {
-				if (PD[g].compareTo(PD[j]) > 0) {
-					Nbr1 = PD[g];
-					PD[g] = PD[j];
-					PD[j] = Nbr1;
-					i = Exp[g];
-					Exp[g] = Exp[j];
-					Exp[j] = i;
-					i = Typ[g];
-					Typ[g] = Typ[j];
-					Typ[j] = i;
-				}
-			}
-		}
 	}
 
 	private void SubtractBigNbr(long Nbr1[], long Nbr2[], long Diff[]) {
