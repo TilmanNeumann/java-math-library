@@ -536,7 +536,22 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 							return PD[i];
 						}
 						Typ[i] = EC;
-						InsertNewFactor(NN);
+						
+						// insert new factor NN
+						int g, exp;
+						for (g = NbrFactors - 1; g >= 0; g--) {
+							PD[NbrFactors] = PD[g].gcd(NN);
+							if (PD[NbrFactors].equals(I_1) || PD[NbrFactors].equals(PD[g])) {
+								continue;
+							}
+							for (exp = 0; PD[g].remainder(PD[NbrFactors]).signum() == 0; exp++) {
+								PD[g] = PD[g].divide(PD[NbrFactors]);
+							}
+							Exp[NbrFactors] = Exp[g] * exp;
+							Typ[g] = -EC;
+							Typ[NbrFactors] = - EC;
+							incNbrFactors();
+						}
 						continue factor_loop;
 					}
 				}
@@ -1177,25 +1192,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 			}
 		} /* end while */
 		return TestComp;
-	}
-
-	private void InsertNewFactor(BigInteger InputFactor) {
-		int g, exp;
-
-		/* Insert input factor */
-		for (g = NbrFactors - 1; g >= 0; g--) {
-			PD[NbrFactors] = PD[g].gcd(InputFactor);
-			if (PD[NbrFactors].equals(I_1) || PD[NbrFactors].equals(PD[g])) {
-				continue;
-			}
-			for (exp = 0; PD[g].remainder(PD[NbrFactors]).signum() == 0; exp++) {
-				PD[g] = PD[g].divide(PD[NbrFactors]);
-			}
-			Exp[NbrFactors] = Exp[g] * exp;
-			Typ[g] = -EC;
-			Typ[NbrFactors] = - EC;
-			incNbrFactors();
-		}
 	}
 
 	private void LongToBigNbr(long Nbr, long Out[]) {
