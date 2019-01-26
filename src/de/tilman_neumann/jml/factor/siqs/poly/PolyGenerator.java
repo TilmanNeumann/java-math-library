@@ -52,7 +52,6 @@ public interface PolyGenerator {
 
 	/**
 	 * Compute a new polynomial.
-	 * @return
 	 */
 	void nextPolynomial();
 
