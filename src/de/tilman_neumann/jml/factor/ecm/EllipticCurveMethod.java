@@ -623,7 +623,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 						}
 					}
 				}
-				Typ[FactorIndex] = EC;
 				L1 = 2000;
 				L2 = 200000;
 				LS = 45;
