@@ -506,6 +506,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 						if (r != null) {
 							PD[i] = r.base;
 							Exp[i] *= r.exponent;
+							// Typ[i] remains unknown
 							continue factor_loop;
 						}
 						// TODO the following code is only safe if we did tdiv until 2^17 before
