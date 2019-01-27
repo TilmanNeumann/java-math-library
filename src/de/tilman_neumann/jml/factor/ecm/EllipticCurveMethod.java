@@ -467,8 +467,8 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	 * Factor N.
 	 * 
 	 * @param N the number to factor
-	 * @param map the map of prime factors
-	 * @return latest factor found ? // TODO
+	 * @param map the factors that were found // TODO are they always prime?
+	 * @return unfactored composite left after stopping ECM, 1 if N has been factored completely
 	 */
 	public BigInteger factorize(BigInteger N, SortedMap<BigInteger, Integer> map) {
 		// set up new N
@@ -531,10 +531,11 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 						EC %= 50000000;
 						NN = fnECM(PD[i]);
 						if (NN.equals(I_1)) {
+							// ECM has been stopped before all prime factors have been found
 							for (i = 0; i < NbrFactors - 1; i++) {
 								map.put(PD[i], Exp[i]);
 							}
-							return PD[i];
+							return PD[i]; // unfactored composite
 						}
 						Typ[i] = EC;
 						
