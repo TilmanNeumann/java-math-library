@@ -488,15 +488,13 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 			BigNbr1[i] = 0;
 		}
 		try {
-			if (NbrFactors == 0) {
-				// System.out.println("Searching for small factors (less than 131072).");
-				TestComp = GetSmallFactors(N);
-				if (TestComp != 1) { // There are factors greater than 131071.
-					PD[NbrFactors] = BigIntToBigNbr(TestNbr);
-					Exp[NbrFactors] = 1;
-					Typ[NbrFactors] = -1; /* Unknown */
-					incNbrFactors();
-				}
+			// Do trial division by all primes < 131072
+			TestComp = GetSmallFactors(N);
+			if (TestComp != 1) { // There are factors greater than 131071.
+				PD[NbrFactors] = BigIntToBigNbr(TestNbr);
+				Exp[NbrFactors] = 1;
+				Typ[NbrFactors] = -1; /* Unknown */
+				incNbrFactors();
 			}
 			
 			// XXX Simplify factor_loop
@@ -2361,9 +2359,9 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 				new BigInteger("101546450935661953908994991437690198927080333663460351836152986526126114727314353555755712261904130976988029406423152881932996637460315302992884162068350429"),
 				
 				// errors
-				// correct: 17 * 1210508704285703 * 2568160569265616473 * 30148619026320753545829271787156467
-				// but ECM returns non-prime factor 3108780723099354807613175415185519
 				new BigInteger("1593332576170570774181606244493046197050984933692181475920784855223341")
+				// = 17 * 1210508704285703 * 2568160569265616473 * 30148619026320753545829271787156467
+				// but ECM returns non-prime factor 3108780723099354807613175415185519
 		};
 		
 		EllipticCurveMethod ecm = new EllipticCurveMethod();
@@ -2372,8 +2370,12 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		t0 = System.currentTimeMillis();
 		for (BigInteger N : testNums) {
 			SortedMap<BigInteger, Integer> factors = new TreeMap<>();
-			ecm.factorize(N, factors);
-			LOG.debug("N = " + N + " = " + factors);
+			BigInteger unfactored = ecm.factorize(N, factors);
+			if (unfactored.compareTo(I_1) > 0) {
+				LOG.debug("N = " + N + " = " + factors + " * " + unfactored);
+			} else {
+				LOG.debug("N = " + N + " = " + factors);
+			}
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("Test suite took " + (t1-t0) + "ms");
