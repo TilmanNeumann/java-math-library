@@ -483,7 +483,8 @@ public class EllipticCurveMethod_NewMainLoop extends FactorAlgorithmBase {
 		fCapacity = START_CAPACITY;
 		NextEC = -1; // First curve of new number should be 1
 		NbrFactors = 0;
-
+		EC = 1;
+		
 		// go
 		int i;
 		TreeMap<BigInteger, Integer> unresolvedComposites = new TreeMap<BigInteger, Integer>();
@@ -620,7 +621,7 @@ public class EllipticCurveMethod_NewMainLoop extends FactorAlgorithmBase {
 		for (I = 0; I < NumberLength; I++) {
 			M[I] = DX[I] = DZ[I] = W3[I] = W4[I] = GD[I] = 0;
 		}
-		EC--;
+		EC--; // XXX Should we not start with EC=0 for each composite factor to investigate?
 
 		do {
 			new_curve: do {
