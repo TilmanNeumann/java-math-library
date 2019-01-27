@@ -89,7 +89,7 @@ public class EllipticCurveMethod_NewMainLoop extends FactorAlgorithmBase {
 	private int NbrFactors;
 
 	/** Elliptic Curve number */
-	private int EC, NextEC;
+	private int EC;
 
 	private BigInteger PD[] = new BigInteger[START_CAPACITY]; // prime factors
 	private int Exp[] = new int[START_CAPACITY];
@@ -481,7 +481,6 @@ public class EllipticCurveMethod_NewMainLoop extends FactorAlgorithmBase {
 	public SortedMap<BigInteger, Integer> factorize(BigInteger N, SortedMap<BigInteger, Integer> primeFactors) {
 		// set up new N
 		fCapacity = START_CAPACITY;
-		NextEC = -1; // First curve of new number should be 1
 		NbrFactors = 0;
 		EC = 1;
 		
@@ -618,19 +617,14 @@ public class EllipticCurveMethod_NewMainLoop extends FactorAlgorithmBase {
 
 		do {
 			new_curve: do {
-				if (NextEC > 0) {
-					EC = NextEC;
-					NextEC = -1;
-				} else {
-					EC++;
-					L1 = N.toString().length(); // Get number of digits.
-					if (L1 > 30 && L1 <= 90) // If between 30 and 90 digits...
-					{
-						int limit = limits[((int) L1 - 31) / 5];
-						if (EC % 50000000 >= limit) {
-							EC += 1;
-							return I_1;
-						}
+				EC++;
+				L1 = N.toString().length(); // Get number of digits.
+				if (L1 > 30 && L1 <= 90) // If between 30 and 90 digits...
+				{
+					int limit = limits[((int) L1 - 31) / 5];
+					if (EC % 50000000 >= limit) {
+						EC += 1;
+						return I_1;
 					}
 				}
 				L1 = 2000;
