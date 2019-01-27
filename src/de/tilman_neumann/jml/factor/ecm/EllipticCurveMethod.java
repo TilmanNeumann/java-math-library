@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
  */
 public class EllipticCurveMethod extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethod.class);
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	/** Initial capacity for the arrays which store the factors. */
 	private static final int START_CAPACITY = 32;
@@ -538,7 +538,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 							// ECM has been stopped before all prime factors have been found
 							for (i = 0; i < NbrFactors - 1; i++) {
 								if (DEBUG) {
-									// assertTrue(bpsw.isProbablePrime(PD[i])); // XXX found one fail at 220 bit
+									// assertTrue(bpsw.isProbablePrime(PD[i])); // XXX rare fails for N >= 220 bit
 									if(!bpsw.isProbablePrime(PD[i])) {
 										LOG.debug("N=" + N + ": NbrFactors=" + NbrFactors + ": factor " + i + " = " + PD[i] + " is not prime");
 									}
@@ -546,7 +546,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 								map.put(PD[i], Exp[i]);
 							}
 							if (DEBUG) {
-								LOG.debug("return " + PD[i] + ", factors = " + map);
+								//LOG.debug("factors = " + map + ", unfactored = " + PD[i]);
 								assertEquals(PD[NbrFactors-1], PD[i]);
 							}
 							return PD[i]; // return unfactored composite, requires sorting in incNbrFactors()
@@ -566,13 +566,12 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 			} while (true);
 			
 			for (i = 0; i < NbrFactors; i++) {
-				BigInteger pd = PD[i];
-				if(!bpsw.isProbablePrime(PD[i])) {
-					LOG.debug("NbrFactors=" + NbrFactors + ": factor " + i + " is not prime");
+				if (DEBUG) {
+					if(!bpsw.isProbablePrime(PD[i])) {
+						LOG.debug("N=" + N + ": NbrFactors=" + NbrFactors + ": factor " + i + " is not prime");
+					}
 				}
-				int exp = Exp[i];
-				//LOG.debug("pd = " + pd + ", exp =" + exp);
-				map.put(pd, exp);
+				map.put(PD[i], Exp[i]);
 			}
 		} catch (ArithmeticException e) {
 			LOG.debug("Caught " + e, e);
@@ -2359,7 +2358,12 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 				
 				// easy for ECM
 				new BigInteger("8225267468394993133669189614204532935183709603155231863020477010700542265332938919716662623"),
-				new BigInteger("101546450935661953908994991437690198927080333663460351836152986526126114727314353555755712261904130976988029406423152881932996637460315302992884162068350429")
+				new BigInteger("101546450935661953908994991437690198927080333663460351836152986526126114727314353555755712261904130976988029406423152881932996637460315302992884162068350429"),
+				
+				// errors
+				// correct: 17 * 1210508704285703 * 2568160569265616473 * 30148619026320753545829271787156467
+				// but ECM returns non-prime factor 3108780723099354807613175415185519
+				new BigInteger("1593332576170570774181606244493046197050984933692181475920784855223341")
 		};
 		
 		EllipticCurveMethod ecm = new EllipticCurveMethod();
