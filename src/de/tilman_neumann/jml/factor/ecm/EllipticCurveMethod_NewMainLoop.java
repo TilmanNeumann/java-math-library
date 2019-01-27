@@ -496,9 +496,9 @@ public class EllipticCurveMethod_NewMainLoop extends FactorAlgorithmBase {
 			}
 			if (TestComp==1) return unresolvedComposites;
 			
-			// There are factors greater than 131071.
+			// There are factors greater than 131071, and they may be prime or composite.
 			N = BigIntToBigNbr(TestNbr);
-			if (bpsw.isProbablePrime(N)) { // TODO always composite?
+			if (bpsw.isProbablePrime(N)) {
 				addToMap(N, 1, primeFactors);
 				return unresolvedComposites;
 			}
