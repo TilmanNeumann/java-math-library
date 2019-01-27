@@ -22,7 +22,7 @@
 package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
-import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -114,7 +114,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		Map<BigInteger, Integer> factors = new TreeMap<>();
+		SortedMap<BigInteger, Integer> factors = new TreeMap<>();
 		factorize(N, factors);
 		return factors.size()>0 ? factors.keySet().iterator().next() : null;
 	}
@@ -468,9 +468,9 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	 * 
 	 * @param N the number to factor
 	 * @param map the map of prime factors
-	 * @return latest factor found ?
+	 * @return latest factor found ? // TODO
 	 */
-	private BigInteger factorize(BigInteger N, Map<BigInteger, Integer> map) {
+	public BigInteger factorize(BigInteger N, SortedMap<BigInteger, Integer> map) {
 		// set up new N
 		fCapacity = START_CAPACITY;
 		NextEC = -1; // First curve of new number should be 1
@@ -497,7 +497,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 				}
 			}
 			
-			// XXX This is the core loop, and it should be well understood what happens there
+			// XXX Simplify factor_loop
 			factor_loop: do {
 				for (i = 0; i < NbrFactors; i++) {
 					if (Typ[i] < 0) { /* Unknown */
@@ -2359,7 +2359,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		long t0, t1;
 		t0 = System.currentTimeMillis();
 		for (BigInteger N : testNums) {
-			Map<BigInteger, Integer> factors = new TreeMap<>();
+			SortedMap<BigInteger, Integer> factors = new TreeMap<>();
 			ecm.factorize(N, factors);
 			LOG.debug("N = " + N + " = " + factors);
 		}
