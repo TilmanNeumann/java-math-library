@@ -34,6 +34,7 @@ import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.*;
 
 /**
  * <p>Use Elliptic Curve Method to find the prime number factors of a given BigInteger.</p>
@@ -45,7 +46,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  */
 public class EllipticCurveMethod extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethod.class);
-
+	private static final boolean DEBUG = false;
+	
 	/** Initial capacity for the arrays which store the factors. */
 	private static final int START_CAPACITY = 32;
 
@@ -467,7 +469,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	 * Factor N.
 	 * 
 	 * @param N the number to factor
-	 * @param map the factors that were found // TODO are they always prime?
+	 * @param map the prime factors that were found
 	 * @return unfactored composite left after stopping ECM, 1 if N has been factored completely
 	 */
 	public BigInteger factorize(BigInteger N, SortedMap<BigInteger, Integer> map) {
@@ -507,8 +509,10 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 							PD[i] = r.base;
 							Exp[i] *= r.exponent;
 							// Typ[i] remains unknown
+							//SortFactorsInputNbr(); // No sorting of factors required here?
 							continue factor_loop;
 						}
+						
 						// TODO the following code is only safe if we did tdiv until 2^17 before
 						if (PD[i].bitLength() <= 33) {
 							j = 0;
@@ -533,9 +537,19 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 						if (NN.equals(I_1)) {
 							// ECM has been stopped before all prime factors have been found
 							for (i = 0; i < NbrFactors - 1; i++) {
+								if (DEBUG) {
+									// assertTrue(bpsw.isProbablePrime(PD[i])); // XXX found one fail at 220 bit
+									if(!bpsw.isProbablePrime(PD[i])) {
+										LOG.debug("N=" + N + ": NbrFactors=" + NbrFactors + ": factor " + i + " = " + PD[i] + " is not prime");
+									}
+								}
 								map.put(PD[i], Exp[i]);
 							}
-							return PD[i]; // unfactored composite
+							if (DEBUG) {
+								LOG.debug("return " + PD[i] + ", factors = " + map);
+								assertEquals(PD[NbrFactors-1], PD[i]);
+							}
+							return PD[i]; // return unfactored composite, requires sorting in incNbrFactors()
 						}
 						Typ[i] = EC;
 						
@@ -553,6 +567,9 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 			
 			for (i = 0; i < NbrFactors; i++) {
 				BigInteger pd = PD[i];
+				if(!bpsw.isProbablePrime(PD[i])) {
+					LOG.debug("NbrFactors=" + NbrFactors + ": factor " + i + " is not prime");
+				}
 				int exp = Exp[i];
 				//LOG.debug("pd = " + pd + ", exp =" + exp);
 				map.put(pd, exp);
@@ -2307,8 +2324,32 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 			System.arraycopy(Typ, 0, localTyp, 0, oldCapacity);
 			Typ = localTyp;
 		}
+		// At this point we need sorting to avoid messing up factors with the unfactored rest.
+		// XXX Possibly sorting is not required at all invocations of incNbrFactors()
+		SortFactorsInputNbr();
 	}
-	
+
+	private void SortFactorsInputNbr() {
+		int g, i, j;
+		BigInteger Nbr1;
+
+		for (g = 0; g < NbrFactors - 1; g++) {
+			for (j = g + 1; j < NbrFactors; j++) {
+				if (PD[g].compareTo(PD[j]) > 0) {
+					Nbr1 = PD[g];
+					PD[g] = PD[j];
+					PD[j] = Nbr1;
+					i = Exp[g];
+					Exp[g] = Exp[j];
+					Exp[j] = i;
+					i = Typ[g];
+					Typ[g] = Typ[j];
+					Typ[j] = i;
+				}
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		BigInteger[] testNums = new BigInteger[] {
