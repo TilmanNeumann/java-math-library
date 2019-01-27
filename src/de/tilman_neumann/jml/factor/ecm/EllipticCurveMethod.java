@@ -488,7 +488,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		try {
 			if (NbrFactors == 0) {
 				// System.out.println("Searching for small factors (less than 131072).");
-				TestComp = GetSmallFactors(N, PD, Exp);
+				TestComp = GetSmallFactors(N);
 				if (TestComp != 1) { // There are factors greater than 131071.
 					PD[NbrFactors] = BigIntToBigNbr(TestNbr);
 					Exp[NbrFactors] = 1;
@@ -1081,7 +1081,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	}
 
 	// TODO do tdiv before calling ECM and remove this method
-	private long GetSmallFactors(BigInteger NumberToFactor, BigInteger PD[], int Exp[]) {
+	private long GetSmallFactors(BigInteger NumberToFactor) {
 
 		long Div, TestComp;
 		int i;
@@ -1100,11 +1100,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 			DivBigNbrByLong(TestNbr, 2, TestNbr);
 		}
 		if (Exp[NbrFactors] != 0) {
-			Object[] temp = incNbrFactors();
-			if (temp != null) {
-				PD = (BigInteger[]) temp[0];
-				Exp = (int[]) temp[1];
-			}
+			incNbrFactors();
 		}
 		while (RemDivBigNbrByLong(TestNbr, 3) == 0) {
 			if (Exp[NbrFactors] == 0) {
@@ -1117,12 +1113,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 			return -1; /* Discard it */
 		}
 		if (Exp[NbrFactors] != 0) {
-			Object[] temp = incNbrFactors();
-			if (temp != null) {
-				PD = (BigInteger[]) temp[0];
-				Exp = (int[]) temp[1];
-				Typ = (int[]) temp[2];
-			}
+			incNbrFactors();
 		}
 		Div = 5;
 		TestComp = TestNbr[0] + (TestNbr[1] << 31);
@@ -1160,22 +1151,13 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 					return -1; /* Discard it */
 				}
 				if (Exp[NbrFactors] != 0) {
-					Object[] temp = incNbrFactors();
-					if (temp != null) {
-						PD = (BigInteger[]) temp[0];
-						Exp = (int[]) temp[1];
-						Typ = (int[]) temp[2];
-					}
+					incNbrFactors();
 				}
 			}
 			Div += 2;
 			if (TestComp < Div * Div && TestComp != 1) {
 				if (Exp[NbrFactors] != 0) {
-					Object[] temp = incNbrFactors();
-					if (temp != null) {
-						PD = (BigInteger[]) temp[0];
-						Exp = (int[]) temp[1];
-					}
+					incNbrFactors();
 				}
 				PD[NbrFactors] = BigInteger.valueOf(TestComp);
 				Exp[NbrFactors] = 1;
@@ -2307,31 +2289,24 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	/**
 	 * Increment the &quot;number of factors&quot;. Ensure that the resulting arrays have enough memory allocated.
 	 */
-	private Object[] incNbrFactors() {
+	private void incNbrFactors() {
 		NbrFactors++;
 		if (NbrFactors >= fCapacity) {
-			Object[] objects = new Object[3];
 			int oldCapacity = PD.length;
 			fCapacity += 32;
 
 			BigInteger localPD[] = new BigInteger[fCapacity];
 			System.arraycopy(PD, 0, localPD, 0, oldCapacity);
 			PD = localPD;
-			objects[0] = PD;
 
 			int localExp[] = new int[fCapacity];
 			System.arraycopy(Exp, 0, localExp, 0, oldCapacity);
 			Exp = localExp;
-			objects[1] = Exp;
 
 			int localTyp[] = new int[fCapacity];
 			System.arraycopy(Typ, 0, localTyp, 0, oldCapacity);
 			Typ = localTyp;
-			objects[2] = Typ;
-			
-			return objects;
 		}
-		return null;
 	}
 	
 	public static void main(String[] args) {
