@@ -34,7 +34,6 @@ import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * <p>Use Elliptic Curve Method to find the prime number factors of a given BigInteger.</p>
@@ -46,7 +45,6 @@ import static org.junit.Assert.*;
  */
 public class EllipticCurveMethod extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethod.class);
-	private static final boolean DEBUG = true;
 	
 	/** Initial capacity for the arrays which store the factors. */
 	private static final int START_CAPACITY = 32;
@@ -57,27 +55,20 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	private static final double dDosALa31 = DosALa31;
 	private static final double dDosALa62 = dDosALa31 * dDosALa31;
 	private static final long Mi = 1000000000;
-	
+	private static final int ADD = 6; // number of multiplications in an addition
+	private static final int DUP = 5; //number of multiplications in a duplicate
+
+	/** 1 as "BigNbr" */
+	private static final long BigNbr1[] = new long[NLen];
+
 	/** ECM limits for 30, 35, ..., 85 digits */
 	private static final int limits[] = { 5, 8, 15, 25, 27, 32, 43, 70, 150, 300, 350, 600, 1500 };
+	
+	/** Primes < 5000 */
+	private final static int SmallPrime[] = new int[670]; // p_669 = 4999;
 
 	private static final BPSWTest bpsw = new BPSWTest();
 	private static final PurePowerTest powerTest = new PurePowerTest();
-	
-	/** Primes < 5000 */
-	private final static int SmallPrime[] = getPrimesBelow5000();
-	private static final int[] getPrimesBelow5000() {
-		final AutoExpandingPrimesArray autoPrimes = AutoExpandingPrimesArray.get().ensureLimit(5000);
-		int[] smallPrimes = new int[670]; // p_669 = 4999
-		smallPrimes[0] = 2;
-		for (int indexM = 1; indexM < smallPrimes.length; indexM++) {
-			smallPrimes[indexM] = autoPrimes.getPrime(indexM);
-		}
-		return smallPrimes;
-	}
-
-	private static final int ADD = 6; // number of multiplications in an addition
-	private static final int DUP = 5; //number of multiplications in a duplicate
 
 	private final long biTmp[] = new long[NLen];
 
@@ -87,7 +78,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	private final long CalcAuxGcdT[] = new long[NLen];
 	private final long TestNbr[] = new long[NLen];
 	private final long GcdAccumulated[] = new long[NLen];
-	private final long BigNbr1[] = new long[NLen];
 	private final long MontgomeryMultR1[] = new long[NLen];
 	private final long MontgomeryMultR2[] = new long[NLen];
 	private final long MontgomeryMultAfterInv[] = new long[NLen];
@@ -108,6 +98,19 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	private long[] fieldAux1, fieldAux2, fieldAux3, fieldAux4;
 	private double dN;
 	private long MontgomeryMultN;
+
+	static {
+		BigNbr1[0] = 1;
+		for (int i = 1; i < NLen; i++) {
+			BigNbr1[i] = 0;
+		}
+		
+		final AutoExpandingPrimesArray autoPrimes = AutoExpandingPrimesArray.get().ensureLimit(5000);
+		SmallPrime[0] = 2;
+		for (int indexM = 1; indexM < SmallPrime.length; indexM++) {
+			SmallPrime[indexM] = autoPrimes.getPrime(indexM);
+		}
+	}
 
 	@Override
 	public String getName() {
@@ -466,27 +469,24 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	}
 
 	/**
-	 * Factor N.
+	 * Find small factors of some N. Returns found factors in <code>map</code> and eventually some
+	 * unfactored rest as return value.
 	 * 
 	 * @param N the number to factor
-	 * @param map the prime factors that were found
+	 * @param map the found factors. These will usually be prime factors, but can contain composites
+	 * if ECM can not resolve some composite sub-factor within the curve limit.
 	 * @return unfactored composite left after stopping ECM, 1 if N has been factored completely
 	 */
 	public BigInteger factorize(BigInteger N, SortedMap<BigInteger, Integer> map) {
 		// set up new N
 		fCapacity = START_CAPACITY;
 		NextEC = -1; // First curve of new number should be 1
-		NbrFactors = 0; // important
-		BigNbrToBigInt(N);
+		NbrFactors = 0;
 
 		// go
 		BigInteger NN;
 		long TestComp;
 		int i, j;
-		BigNbr1[0] = 1;
-		for (i = 1; i < NLen; i++) {
-			BigNbr1[i] = 0;
-		}
 		try {
 			// Do trial division by all primes < 131072
 			TestComp = GetSmallFactors(N);
@@ -535,17 +535,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 						if (NN.equals(I_1)) {
 							// ECM has been stopped before all prime factors have been found
 							for (i = 0; i < NbrFactors - 1; i++) {
-								if (DEBUG) {
-									// assertTrue(bpsw.isProbablePrime(PD[i])); // XXX rare fails for N >= 220 bit
-									if(!bpsw.isProbablePrime(PD[i])) {
-										LOG.debug("N=" + N + ": NbrFactors=" + NbrFactors + ": factor " + i + " = " + PD[i] + " is not prime");
-									}
-								}
 								map.put(PD[i], Exp[i]);
-							}
-							if (DEBUG) {
-								//LOG.debug("factors = " + map + ", unfactored = " + PD[i]);
-								assertEquals(PD[NbrFactors-1], PD[i]);
 							}
 							return PD[i]; // return unfactored composite, requires sorting in incNbrFactors()
 						}
@@ -564,11 +554,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 			} while (true);
 			
 			for (i = 0; i < NbrFactors; i++) {
-				if (DEBUG) {
-					if(!bpsw.isProbablePrime(PD[i])) {
-						LOG.debug("N=" + N + ": NbrFactors=" + NbrFactors + ": factor " + i + " is not prime");
-					}
-				}
 				map.put(PD[i], Exp[i]);
 			}
 		} catch (ArithmeticException e) {
@@ -2350,18 +2335,21 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		BigInteger[] testNums = new BigInteger[] {
-				// very hard for ECM, better suited for SIQS
-				// 1794577685365897117833870712928656282041295031283603412289229185967719140138841093599 (280 bits) = 42181796536350966453737572957846241893933 * 42543889372264778301966140913837516662044603
-				//new BigInteger("1794577685365897117833870712928656282041295031283603412289229185967719140138841093599"),
-				
 				// easy for ECM
 				new BigInteger("8225267468394993133669189614204532935183709603155231863020477010700542265332938919716662623"),
+				
+				// incomplete result, some unfactored rest is returned
 				new BigInteger("101546450935661953908994991437690198927080333663460351836152986526126114727314353555755712261904130976988029406423152881932996637460315302992884162068350429"),
 				
-				// errors
-				new BigInteger("1593332576170570774181606244493046197050984933692181475920784855223341")
+				// incomplete result, the factor map contains a composite
+				//new BigInteger("1593332576170570774181606244493046197050984933692181475920784855223341")
 				// = 17 * 1210508704285703 * 2568160569265616473 * 30148619026320753545829271787156467
-				// but ECM returns non-prime factor 3108780723099354807613175415185519
+				// but ECM fails to factor 3108780723099354807613175415185519 = 1210508704285703 * 2568160569265616473
+				// with the maximum number of curves
+				
+				// very hard for ECM, better suited for SIQS
+				//new BigInteger("1794577685365897117833870712928656282041295031283603412289229185967719140138841093599"),
+				// = 42181796536350966453737572957846241893933 * 42543889372264778301966140913837516662044603
 		};
 		
 		EllipticCurveMethod ecm = new EllipticCurveMethod();
