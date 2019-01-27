@@ -491,7 +491,7 @@ public class EllipticCurveMethod_NewMainLoop extends FactorAlgorithmBase {
 		try {
 			// Do trial division by all primes < 131072.
 			final long TestComp = GetSmallFactors(N);
-			// All found factors are prime, so we put them into the map immediately.
+			// All found factors are prime, so we put them into the primeFactors map immediately.
 			for (i=0; i<NbrFactors; i++) {
 				primeFactors.put(PD[i], Exp[i]);
 			}
@@ -504,16 +504,9 @@ public class EllipticCurveMethod_NewMainLoop extends FactorAlgorithmBase {
 				return unresolvedComposites;
 			}
 			
-			// N is composite. Re-initialize factor arrays and do ECM:
-			NbrFactors = 0;
-			PD[NbrFactors] = N;
-			Exp[NbrFactors] = 1;
-			Typ[NbrFactors] = -1; /* Unknown */
-			incNbrFactors();
-			
+			// N is composite. Do ECM:
 			TreeMap<BigInteger, Integer> compositesToTest = new TreeMap<BigInteger, Integer>();
 			compositesToTest.put(N, 1);
-			
 			while (!compositesToTest.isEmpty()) {
 				// get next composite to test
 				Entry<BigInteger, Integer> compositeEntry = compositesToTest.pollLastEntry();
