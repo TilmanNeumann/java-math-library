@@ -486,14 +486,20 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		// go
 		int i, j;
 		try {
-			// Do trial division by all primes < 131072
+			// Do trial division by all primes < 131072.
 			final long TestComp = GetSmallFactors(N);
-			if (TestComp != 1) { // There are factors greater than 131071.
-				PD[NbrFactors] = BigIntToBigNbr(TestNbr);
-				Exp[NbrFactors] = 1;
-				Typ[NbrFactors] = -1; /* Unknown */
-				incNbrFactors();
+			// All found factors are prime, so we put them into the map immediately.
+			for (i=0; i<NbrFactors; i++) {
+				map.put(PD[i], Exp[i]);
 			}
+			if (TestComp==1) return I_1;
+			
+			// There are factors greater than 131071. Re-initialize factor arrays and do ECM:
+			NbrFactors = 0;
+			PD[NbrFactors] = BigIntToBigNbr(TestNbr);
+			Exp[NbrFactors] = 1;
+			Typ[NbrFactors] = -1; /* Unknown */
+			incNbrFactors();
 			
 			// XXX Simplify factor_loop
 			factor_loop: do {
