@@ -538,21 +538,12 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 						}
 						Typ[i] = EC;
 						
-						// insert new factor NN
-						int g, exp;
-						for (g = NbrFactors - 1; g >= 0; g--) {
-							PD[NbrFactors] = PD[g].gcd(NN);
-							if (PD[NbrFactors].equals(I_1) || PD[NbrFactors].equals(PD[g])) {
-								continue;
-							}
-							for (exp = 0; PD[g].remainder(PD[NbrFactors]).signum() == 0; exp++) {
-								PD[g] = PD[g].divide(PD[NbrFactors]);
-							}
-							Exp[NbrFactors] = Exp[g] * exp;
-							Typ[g] = -EC;
-							Typ[NbrFactors] = - EC;
-							incNbrFactors();
-						}
+						// insert new factor
+						PD[NbrFactors] = NN;
+						PD[i] = PD[i].divide(NN);
+						Exp[NbrFactors] = Exp[i];
+						Typ[NbrFactors] = Typ[i] = -EC;
+						incNbrFactors();
 						continue factor_loop;
 					}
 				}
