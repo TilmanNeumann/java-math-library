@@ -484,12 +484,10 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		NbrFactors = 0;
 
 		// go
-		BigInteger NN;
-		long TestComp;
 		int i, j;
 		try {
 			// Do trial division by all primes < 131072
-			TestComp = GetSmallFactors(N);
+			final long TestComp = GetSmallFactors(N);
 			if (TestComp != 1) { // There are factors greater than 131071.
 				PD[NbrFactors] = BigIntToBigNbr(TestNbr);
 				Exp[NbrFactors] = 1;
@@ -531,7 +529,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 
 					if (EC > 0) { /* Composite */
 						EC %= 50000000;
-						NN = fnECM(PD[i]);
+						final BigInteger NN = fnECM(PD[i]);
 						if (NN.equals(I_1)) {
 							// ECM has been stopped before all prime factors have been found
 							for (i = 0; i < NbrFactors - 1; i++) {
