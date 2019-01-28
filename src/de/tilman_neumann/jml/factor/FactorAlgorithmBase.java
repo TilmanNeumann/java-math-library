@@ -79,7 +79,7 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 			// "Small" algorithms like trial division, Lehman or Pollard-Rho are very good themselves
 			// at finding small factors, but for larger N we do some trial division.
 			// This will help "big" algorithms to factor smooth numbers much faster.
-			N = tdiv.findSmallOddFactors(N, NUM_PRIMES_FOR_31_BIT_TDIV, factors);
+			N = tdiv.findSmallOddFactors(N, 65536, factors);
 			// TODO use CombinedFactorAlgorithm and random test numbers to adjust the
 			// tdiv limit given N.bitLength()
 			
