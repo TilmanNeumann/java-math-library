@@ -22,12 +22,14 @@
 package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
@@ -47,7 +49,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethod.class);
 	
 	/** Initial capacity for the arrays which store the factors. */
-	private static final int START_CAPACITY = 32;
 
 	private static final int NLen = 1200;
 	private static final long DosALa32 = (long) 1 << 32;
@@ -69,6 +70,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 
 	private static final BPSWTest bpsw = new BPSWTest();
 	private static final PurePowerTest powerTest = new PurePowerTest();
+	private static final TDiv tdiv = new TDiv();
 
 	private final long biTmp[] = new long[NLen];
 
@@ -84,15 +86,9 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 
 	/** Length of multiple precision numbers. */
 	private int NumberLength;
-	private int fCapacity;
-	private int NbrFactors;
 
 	/** Elliptic Curve number */
-	private int EC, NextEC;
-
-	private BigInteger PD[] = new BigInteger[START_CAPACITY]; // prime factors
-	private int Exp[] = new int[START_CAPACITY];
-	private int Typ[] = new int[START_CAPACITY];
+	private int EC;
 	
 	private long[] fieldAA, fieldTX, fieldTZ, fieldUX, fieldUZ;
 	private long[] fieldAux1, fieldAux2, fieldAux3, fieldAux4;
@@ -119,9 +115,10 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		SortedMap<BigInteger, Integer> factors = new TreeMap<>();
-		factorize(N, factors);
-		return factors.size()>0 ? factors.keySet().iterator().next() : null;
+		SortedMap<BigInteger, Integer> primeFactors = new TreeMap<>();
+		SortedMap<BigInteger, Integer> unfactoredComposites = factorize(N, primeFactors);
+		if (primeFactors.size()>0) return primeFactors.firstKey();
+		return unfactoredComposites.size()>0 ? unfactoredComposites.firstKey() : null;
 	}
 
 	private static void GenerateSieve(int initial, byte[] sieve, byte[] sieve2310, int[] SmallPrime) {
@@ -469,103 +466,91 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	}
 
 	/**
-	 * Find small factors of some N. Returns found factors in <code>map</code> and eventually some
-	 * unfactored rest as return value.
+	 * Find small factors of some N. Returns found factors in <code>primeFactors</code> and eventually some
+	 * unfactored composites as return value.
 	 * 
 	 * @param N the number to factor
-	 * @param map the found factors. These will usually be prime factors, but can contain composites
-	 * if ECM can not resolve some composite sub-factor within the curve limit.
-	 * @return unfactored composite left after stopping ECM, 1 if N has been factored completely
+	 * @param primeFactors the found prime factors.
+	 * @return unfactored composites left after stopping ECM, empty map if N has been factored completely
 	 */
-	public BigInteger factorize(BigInteger N, SortedMap<BigInteger, Integer> map) {
+	public SortedMap<BigInteger, Integer> factorize(BigInteger N, SortedMap<BigInteger, Integer> primeFactors) {
 		// set up new N
-		fCapacity = START_CAPACITY;
-		NextEC = -1; // First curve of new number should be 1
-		NbrFactors = 0;
-
+		EC = 1;
+		
 		// go
-		int i, j;
+		TreeMap<BigInteger, Integer> unresolvedComposites = new TreeMap<BigInteger, Integer>();
 		try {
 			// Do trial division by all primes < 131072.
-			final long TestComp = GetSmallFactors(N);
-			// All found factors are prime, so we put them into the map immediately.
-			for (i=0; i<NbrFactors; i++) {
-				map.put(PD[i], Exp[i]);
+			N = tdiv.findSmallFactors(N, 131072, primeFactors);
+			
+			if (N.equals(I_1)) {
+				return unresolvedComposites;
 			}
-			if (TestComp==1) return I_1;
 			
-			// There are factors greater than 131071. Re-initialize factor arrays and do ECM:
-			NbrFactors = 0;
-			PD[NbrFactors] = BigIntToBigNbr(TestNbr);
-			Exp[NbrFactors] = 1;
-			Typ[NbrFactors] = -1; /* Unknown */
-			incNbrFactors();
+			// There are factors greater than 131071, and they may be prime or composite.
+			if (bpsw.isProbablePrime(N)) {
+				addToMap(N, 1, primeFactors);
+				return unresolvedComposites;
+			}
 			
-			// XXX Simplify factor_loop
-			factor_loop: do {
-				for (i = 0; i < NbrFactors; i++) {
-					if (Typ[i] < 0) { /* Unknown */
-						// System.out.println("Searching for perfect power.");
-						PurePowerTest.Result r = powerTest.test(PD[i]);
-						if (r != null) {
-							PD[i] = r.base;
-							Exp[i] *= r.exponent;
-							// Typ[i] remains unknown
-							//SortFactorsInputNbr(); // No sorting of factors required here?
-							continue factor_loop;
-						}
-						
-						// TODO the following code is only safe if we did tdiv until 2^17 before
-						if (PD[i].bitLength() <= 33) {
-							j = 0;
-						} else {
-							// System.out.println("Before calling prime check routine.");
-							j = bpsw.isProbablePrime(PD[i]) ? 0 : 1;
-						}
-						if (j == 0) {
-							Typ[i] = 0; /* Prime */
-						} else {
-							Typ[i] = -Typ[i]; /* Composite */
-						}
-						continue factor_loop;
+			// N is composite. Do ECM:
+			TreeMap<BigInteger, Integer> compositesToTest = new TreeMap<BigInteger, Integer>();
+			compositesToTest.put(N, 1);
+			while (!compositesToTest.isEmpty()) {
+				// get next composite to test
+				Entry<BigInteger, Integer> compositeEntry = compositesToTest.pollLastEntry();
+				N = compositeEntry.getKey();
+				int exp = compositeEntry.getValue();
+				
+				// pure power?
+				PurePowerTest.Result r = powerTest.test(N);
+				if (r != null) {
+					// N is a pure power!
+					if (isProbablePrime(r.base)) {
+						addToMap(r.base, exp*r.exponent, primeFactors);
+					} else {
+						addToMap(r.base, exp*r.exponent, compositesToTest);
 					}
+					continue; // test next composite
 				}
-				for (i = 0; i < NbrFactors; i++) {
-					EC = Typ[i];
 
-					if (EC > 0) { /* Composite */
-						EC %= 50000000;
-						final BigInteger NN = fnECM(PD[i]);
-						if (NN.equals(I_1)) {
-							// ECM has been stopped before all prime factors have been found
-							for (i = 0; i < NbrFactors - 1; i++) {
-								map.put(PD[i], Exp[i]);
-							}
-							return PD[i]; // return unfactored composite, requires sorting in incNbrFactors()
-						}
-						Typ[i] = EC;
-						
-						// insert new factor
-						PD[NbrFactors] = NN;
-						PD[i] = PD[i].divide(NN);
-						Exp[NbrFactors] = Exp[i];
-						Typ[NbrFactors] = Typ[i] = -EC;
-						incNbrFactors();
-						continue factor_loop;
-					}
+				// ECM
+				final BigInteger NN = fnECM(N);
+				if (NN.equals(I_1)) {
+					// N is composite but could not be resolved
+					addToMap(N, exp, unresolvedComposites);
+					continue;
 				}
-				break;
-			} while (true);
-			
-			for (i = 0; i < NbrFactors; i++) {
-				map.put(PD[i], Exp[i]);
+				// NN is a factor of N
+				if (isProbablePrime(NN)) {
+					addToMap(NN, exp, primeFactors);
+				} else {
+					addToMap(NN, exp, compositesToTest);
+				}
+				BigInteger factor2 = N.divide(NN);
+				if (isProbablePrime(factor2)) {
+					addToMap(factor2, exp, primeFactors);
+				} else {
+					addToMap(factor2, exp, compositesToTest);
+				}
 			}
 		} catch (ArithmeticException e) {
 			LOG.debug("Caught " + e, e);
 		}
-		return I_1;
+		return unresolvedComposites;
 	}
 
+	private boolean isProbablePrime(BigInteger N) {
+		// TODO The 33-bit "guard" is only safe if we did tdiv until 2^17 before
+		return (N.bitLength() <= 33) ? true : bpsw.isProbablePrime(N);
+	}
+	
+	private void addToMap(BigInteger N, int exp, SortedMap<BigInteger, Integer> map) {
+		Integer oldExp = map.get(N);
+		// replaces old entry if oldExp!=null
+		map.put(N, (oldExp == null) ? exp : oldExp+exp);
+	}
+	
 	private BigInteger fnECM(BigInteger N) {
 		int I, J, Pass, Qaux;
 		long L1, L2, LS, P, IP;
@@ -615,23 +600,20 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		for (I = 0; I < NumberLength; I++) {
 			M[I] = DX[I] = DZ[I] = W3[I] = W4[I] = GD[I] = 0;
 		}
+		
+		// it seems to be faster not to repeat previously tested curves for new factors
 		EC--;
 
 		do {
 			new_curve: do {
-				if (NextEC > 0) {
-					EC = NextEC;
-					NextEC = -1;
-				} else {
-					EC++;
-					L1 = N.toString().length(); // Get number of digits.
-					if (L1 > 30 && L1 <= 90) // If between 30 and 90 digits...
-					{
-						int limit = limits[((int) L1 - 31) / 5];
-						if (EC % 50000000 >= limit) {
-							EC += 1;
-							return I_1;
-						}
+				EC++;
+				L1 = N.toString().length(); // Get number of digits.
+				if (L1 > 30 && L1 <= 90) // If between 30 and 90 digits...
+				{
+					int limit = limits[((int) L1 - 31) / 5];
+					if (EC % 50000000 >= limit) {
+						EC += 1;
+						return I_1;
 					}
 				}
 				L1 = 2000;
@@ -1081,95 +1063,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		MultBigNbrModN(MontgomeryMultR1, MontgomeryMultR1, MontgomeryMultR2);
 		MontgomeryMult(MontgomeryMultR2, MontgomeryMultR2, MontgomeryMultAfterInv);
 		AddBigNbrModN(MontgomeryMultR1, MontgomeryMultR1, MontgomeryMultR2);
-	}
-
-	// TODO do tdiv before calling ECM and remove this method
-	private long GetSmallFactors(BigInteger NumberToFactor) {
-
-		long Div, TestComp;
-		int i;
-		boolean checkExpParity = false;
-
-		BigNbrToBigInt(NumberToFactor);
-		NbrFactors = 0;
-		for (i = 0; i < Exp.length; i++) {
-			Exp[i] = Typ[i] = 0;
-		}
-		while ((TestNbr[0] & 1) == 0) { /* N even */
-			if (Exp[NbrFactors] == 0) {
-				PD[NbrFactors] = I_2;
-			}
-			Exp[NbrFactors]++;
-			DivBigNbrByLong(TestNbr, 2, TestNbr);
-		}
-		if (Exp[NbrFactors] != 0) {
-			incNbrFactors();
-		}
-		while (RemDivBigNbrByLong(TestNbr, 3) == 0) {
-			if (Exp[NbrFactors] == 0) {
-				PD[NbrFactors] = I_3;
-			}
-			Exp[NbrFactors]++;
-			DivBigNbrByLong(TestNbr, 3, TestNbr);
-		}
-		if (checkExpParity) {
-			return -1; /* Discard it */
-		}
-		if (Exp[NbrFactors] != 0) {
-			incNbrFactors();
-		}
-		Div = 5;
-		TestComp = TestNbr[0] + (TestNbr[1] << 31);
-		if (TestComp < 0) {
-			TestComp = 10000 * DosALa31;
-		} else {
-			for (i = 2; i < NumberLength; i++) {
-				if (TestNbr[i] != 0) {
-					TestComp = 10000 * DosALa31;
-					break;
-				}
-			}
-		}
-		while (Div < 131072) {
-			if (Div % 3 != 0) {
-				while (RemDivBigNbrByLong(TestNbr, Div) == 0) {
-					if (Exp[NbrFactors] == 0) {
-						PD[NbrFactors] = BigInteger.valueOf(Div);
-					}
-					Exp[NbrFactors]++;
-					DivBigNbrByLong(TestNbr, Div, TestNbr);
-					TestComp = TestNbr[0] + (TestNbr[1] << 31);
-					if (TestComp < 0) {
-						TestComp = 10000 * DosALa31;
-					} else {
-						for (i = 2; i < NumberLength; i++) {
-							if (TestNbr[i] != 0) {
-								TestComp = 10000 * DosALa31;
-								break;
-							}
-						}
-					} /* end while */
-				}
-				if (checkExpParity) {
-					return -1; /* Discard it */
-				}
-				if (Exp[NbrFactors] != 0) {
-					incNbrFactors();
-				}
-			}
-			Div += 2;
-			if (TestComp < Div * Div && TestComp != 1) {
-				if (Exp[NbrFactors] != 0) {
-					incNbrFactors();
-				}
-				PD[NbrFactors] = BigInteger.valueOf(TestComp);
-				Exp[NbrFactors] = 1;
-				TestComp = 1;
-				incNbrFactors();
-				break;
-			}
-		} /* end while */
-		return TestComp;
 	}
 
 	private void LongToBigNbr(long Nbr, long Out[]) {
@@ -2235,23 +2128,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		add3(x, z, xA, zA, xB, zB, xC, zC);
 	}
 
-	private long RemDivBigNbrByLong(long Dividend[], long Divisor) {
-		int i;
-		long Divid, Rem = 0;
-
-		if (Divisor < 0) { // If divisor is negative...
-			Divisor = -Divisor; // Convert divisor to positive.
-		}
-		if (Dividend[i = NumberLength - 1] >= 0x40000000l) { // If dividend is negative...
-			Rem = Divisor - 1;
-		}
-		for (; i >= 0; i--) {
-			Divid = Dividend[i] + (Rem << 31);
-			Rem = Divid % Divisor;
-		}
-		return Rem;
-	}
-
 	private void SubtractBigNbr(long Nbr1[], long Nbr2[], long Diff[]) {
 		int NumberLength = this.NumberLength;
 		long Cy = 0;
@@ -2289,53 +2165,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		}
 	}
 
-	/**
-	 * Increment the &quot;number of factors&quot;. Ensure that the resulting arrays have enough memory allocated.
-	 */
-	private void incNbrFactors() {
-		NbrFactors++;
-		if (NbrFactors >= fCapacity) {
-			int oldCapacity = PD.length;
-			fCapacity += 32;
-
-			BigInteger localPD[] = new BigInteger[fCapacity];
-			System.arraycopy(PD, 0, localPD, 0, oldCapacity);
-			PD = localPD;
-
-			int localExp[] = new int[fCapacity];
-			System.arraycopy(Exp, 0, localExp, 0, oldCapacity);
-			Exp = localExp;
-
-			int localTyp[] = new int[fCapacity];
-			System.arraycopy(Typ, 0, localTyp, 0, oldCapacity);
-			Typ = localTyp;
-		}
-		// At this point we need sorting to avoid messing up factors with the unfactored rest.
-		// XXX Possibly sorting is not required at all invocations of incNbrFactors()
-		SortFactorsInputNbr();
-	}
-
-	private void SortFactorsInputNbr() {
-		int g, i, j;
-		BigInteger Nbr1;
-
-		for (g = 0; g < NbrFactors - 1; g++) {
-			for (j = g + 1; j < NbrFactors; j++) {
-				if (PD[g].compareTo(PD[j]) > 0) {
-					Nbr1 = PD[g];
-					PD[g] = PD[j];
-					PD[j] = Nbr1;
-					i = Exp[g];
-					Exp[g] = Exp[j];
-					Exp[j] = i;
-					i = Typ[g];
-					Typ[g] = Typ[j];
-					Typ[j] = i;
-				}
-			}
-		}
-	}
-
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		BigInteger[] testNums = new BigInteger[] {
@@ -2345,7 +2174,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 				// incomplete result, some unfactored rest is returned
 				new BigInteger("101546450935661953908994991437690198927080333663460351836152986526126114727314353555755712261904130976988029406423152881932996637460315302992884162068350429"),
 				
-				// incomplete result, the factor map contains a composite // XXX this is a problem in this implementation
+				// incomplete result, the factor map contains a composite
 				new BigInteger("1593332576170570774181606244493046197050984933692181475920784855223341")
 				// = 17 * 1210508704285703 * 2568160569265616473 * 30148619026320753545829271787156467
 				// but ECM fails to factor 3108780723099354807613175415185519 = 1210508704285703 * 2568160569265616473
@@ -2361,12 +2190,12 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		long t0, t1;
 		t0 = System.currentTimeMillis();
 		for (BigInteger N : testNums) {
-			SortedMap<BigInteger, Integer> factors = new TreeMap<>();
-			BigInteger unfactored = ecm.factorize(N, factors);
-			if (unfactored.compareTo(I_1) > 0) {
-				LOG.debug("N = " + N + " = " + factors + " * " + unfactored);
+			SortedMap<BigInteger, Integer> primeFactors = new TreeMap<>();
+			SortedMap<BigInteger, Integer> unfactoredComposites = ecm.factorize(N, primeFactors);
+			if (!unfactoredComposites.isEmpty()) {
+				LOG.debug("N = " + N + " = " + primeFactors + " * " + unfactoredComposites);
 			} else {
-				LOG.debug("N = " + N + " = " + factors);
+				LOG.debug("N = " + N + " = " + primeFactors);
 			}
 		}
 		t1 = System.currentTimeMillis();
