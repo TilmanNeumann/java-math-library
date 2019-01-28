@@ -27,6 +27,7 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
  * @author Tilman Neumann
  */
 public class TDiv {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(TDiv.class);
 	
 	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
@@ -80,7 +81,7 @@ public class TDiv {
 					// check if we are done
 					long p_i_square = p_i *(long)p_i;
 					if (p_i_square > N.longValue()) {
-						LOG.debug("N=" + N + " < p^2=" + p_i_square);
+						//LOG.debug("N=" + N + " < p^2=" + p_i_square);
 						// the remaining N is 1 or prime
 						if (N.compareTo(I_1)>0) addToMap(N, 1, primeFactors);
 						return I_1;
