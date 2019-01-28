@@ -47,8 +47,6 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  */
 public class EllipticCurveMethod extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethod.class);
-	
-	/** Initial capacity for the arrays which store the factors. */
 
 	private static final int NLen = 1200;
 	private static final long DosALa32 = (long) 1 << 32;
@@ -66,7 +64,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	private static final int limits[] = { 5, 8, 15, 25, 27, 32, 43, 70, 150, 300, 350, 600, 1500 };
 	
 	/** Primes < 5000 */
-	private final static int SmallPrime[] = new int[670]; // p_669 = 4999;
+	private static final int SmallPrime[] = new int[670]; // p_669 = 4999;
 
 	private static final BPSWTest bpsw = new BPSWTest();
 	private static final PurePowerTest powerTest = new PurePowerTest();
