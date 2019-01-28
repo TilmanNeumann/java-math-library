@@ -557,11 +557,8 @@ public class EllipticCurveMethod_NewMainLoop extends FactorAlgorithmBase {
 	
 	private void addToMap(BigInteger N, int exp, SortedMap<BigInteger, Integer> map) {
 		Integer oldExp = map.get(N);
-		if (oldExp == null) {
-			map.put(N, exp);
-			return;
-		}
-		map.put(N, oldExp+exp); // replaces old entry
+		// replaces old entry if oldExp!=null
+		map.put(N, (oldExp == null) ? exp : oldExp+exp);
 	}
 	
 	private BigInteger fnECM(BigInteger N) {
