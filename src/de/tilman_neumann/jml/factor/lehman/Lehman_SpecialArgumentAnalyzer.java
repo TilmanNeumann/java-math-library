@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 
@@ -31,6 +32,8 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 public class Lehman_SpecialArgumentAnalyzer extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(Lehman_SpecialArgumentAnalyzer.class);
 	
+	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
+
 	private final Gcd63 gcdEngine = new Gcd63();
 
 	@Override

@@ -16,6 +16,7 @@ package de.tilman_neumann.jml.factor.tdiv;
 import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 
 /**
  * Trial division factor algorithm using the safe AutoExpandingPrimesArray class.
@@ -23,6 +24,8 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
  * @author Tilman Neumann
  */
 public class TDiv63 extends FactorAlgorithmBase {
+	
+	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
 
 	private int pLimit = Integer.MAX_VALUE;
 
