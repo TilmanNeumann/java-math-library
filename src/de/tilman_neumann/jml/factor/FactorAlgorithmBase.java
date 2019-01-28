@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.SortedMultiset;
@@ -42,7 +43,8 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 	protected static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
 
 	private BPSWTest probablePrimeTest;
-
+	private TDiv tdiv = new TDiv();
+	
 	/**
 	 * Complete constructor.
 	 */
@@ -87,29 +89,13 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 			// "Small" algorithms like trial division, Lehman or Pollard-Rho are very good themselves
 			// at finding small factors, but for larger N we do some trial division.
 			// This will help "big" algorithms to factor smooth numbers much faster.
+			N = tdiv.findSmallOddFactors(N, NUM_PRIMES_FOR_31_BIT_TDIV, factors);
+			// TODO use CombinedFactorAlgorithm and random test numbers to adjust the
+			// tdiv limit given N.bitLength()
 			
-			// We start at p[1]=3, because powers of 2 have already been removed.
-			// We run over all p_i<2^31-1 as long as N can still have a prime factor >= p_i.
-			// This would find all prime factors < 46340.
-			for (int i=1; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
-				BigInteger p_i = BigInteger.valueOf(SMALL_PRIMES.getPrime(i));
-				BigInteger[] div = N.divideAndRemainder(p_i);
-				if (div[1].equals(I_0)) {
-					// p_i divides N at least once
-					do {
-						factors.add(p_i);
-						N = div[0];
-						div = N.divideAndRemainder(p_i);
-					} while (div[1].equals(I_0));
-
-					// check if we are done
-					BigInteger p_i_square = p_i.multiply(p_i);
-					if (p_i_square.compareTo(N) > 0) {
-						// the remaining N is 1 or prime
-						if (N.compareTo(I_1)>0) factors.add(N);
-						return factors;
-					}
-				}
+			if (N.equals(I_1)) {
+				// N was "easy"
+				return factors;
 			}
 			
 			// TODO For large N with many "middle-size" prime factors, an advanced small factor test
