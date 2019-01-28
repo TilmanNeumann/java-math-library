@@ -39,15 +39,8 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 	/** the number of primes needed to factor any int <= 2^31 - 1 using trial division */
 	protected static final int NUM_PRIMES_FOR_31_BIT_TDIV = 4793;
 
-	private BPSWTest probablePrimeTest;
+	private BPSWTest bpsw = new BPSWTest();
 	private TDiv tdiv = new TDiv();
-	
-	/**
-	 * Complete constructor.
-	 */
-	public FactorAlgorithmBase() {
-		probablePrimeTest = new BPSWTest();
-	}
 	
 	/**
 	 * Factoring of composite integers.
@@ -109,7 +102,7 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 	
 	private SortedMultiset<BigInteger> factor_recurrent(BigInteger N) {
 		SortedMultiset<BigInteger> factors = new SortedMultiset_BottomUp<BigInteger>();
-		if (probablePrimeTest.isProbablePrime(N)) {
+		if (bpsw.isProbablePrime(N)) {
 			// N is probably prime. In exceptional cases this prediction
 			// may be wrong and N composed -> then we would falsely predict N to be prime.
 			//LOG.debug(N + " is probable prime.");
