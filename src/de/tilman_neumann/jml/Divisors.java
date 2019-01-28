@@ -19,8 +19,10 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -28,11 +30,9 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.combinatorics.Factorial;
 import de.tilman_neumann.jml.factor.CombinedFactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
+import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.roots.SqrtInt;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 /**
  * Implementations for finding all divisors of an integer.
@@ -42,6 +42,8 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 public class Divisors {
 	private static final Logger LOG = Logger.getLogger(Divisors.class);
 
+	private static final TDiv tdiv = new TDiv();
+	
 	/** {1} */
 	private static final SortedSet<BigInteger> ONE_AS_SET = oneAsSet();
 	private static SortedSet<BigInteger> oneAsSet() {
@@ -61,6 +63,7 @@ public class Divisors {
 	 * @param n Argument.
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
+	@SuppressWarnings("unused")
 	private static ArrayList<BigInteger> getDivisors_v1(BigInteger n) {
 		ArrayList<BigInteger> divisors = new ArrayList<BigInteger>();
 		divisors.add(I_1);
@@ -85,6 +88,7 @@ public class Divisors {
 	 * @param n Argument.
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
+	@SuppressWarnings("unused")
 	private static ArrayList<BigInteger> getDivisors_v2(BigInteger n) {
 		// all divisors <= sqrt(n)
 		ArrayList<BigInteger> smallDivisors = getSmallDivisors_v1(n);
@@ -115,7 +119,7 @@ public class Divisors {
 	 */
 	public static SortedSet<BigInteger> getDivisors/*_v3*/(BigInteger n) {
 		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
-		SortedMultiset<BigInteger> factors = factorizer.factor(n);
+		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
 		return getDivisors(factors);
 	}
 	
@@ -126,7 +130,7 @@ public class Divisors {
 	 * @param factors prime factorization
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
-	private static SortedSet<BigInteger> getDivisorsTopDown(SortedMultiset<BigInteger> factors) {
+	private static SortedSet<BigInteger> getDivisorsTopDown(SortedMap<BigInteger, Integer> factors) {
 		if (factors.size()==0) return ONE_AS_SET; // n=1 has factor set {}
 		
 		ArrayList<BigInteger> primes = new ArrayList<>();
@@ -169,9 +173,9 @@ public class Divisors {
 	/**
 	 * Bottom-up divisors construction algorithm. Slightly faster than top-down.
 	 * @param factors
-	 * @return
+	 * @return the set of divisors of the number thats prime factorization is given
 	 */
-	public static SortedSet<BigInteger> getDivisors/*BottomUp*/(SortedMultiset<BigInteger> factors) {
+	public static SortedSet<BigInteger> getDivisors/*BottomUp*/(SortedMap<BigInteger, Integer> factors) {
 		if (factors.size()==0) return ONE_AS_SET; // n=1 has factor set {}
 		
 		ArrayList<BigInteger> primes = new ArrayList<>();
@@ -240,6 +244,7 @@ public class Divisors {
 	 * Compute all positive divisors d of n with d <= lower(sqrt(n)).
 	 * Naive, slow implementation.
 	 * 
+	 * @param n
 	 * @return all divisors d of n with d <= lower(sqrt(n)).
 	 */
 	public static ArrayList<BigInteger> getSmallDivisors_v1(BigInteger n) {
@@ -257,18 +262,19 @@ public class Divisors {
 	
 	public static SortedSet<BigInteger> getSmallDivisors/*_v2*/(BigInteger n) {
 		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
-		SortedMultiset<BigInteger> factors = factorizer.factor(n);
+		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
 		return getSmallDivisors/*_v2*/(n, factors);
 	}
 
 	/**
 	 * Bottom-up divisors construction algorithm for all divisor <= sqrt(n).
 	 * 
+	 * @param n
 	 * @param factors
 	 * @return all divisor <= sqrt(n)
 	 */
 	// TODO the current algorithm creates much more duplicates of divisors than actual divisors -> use a PowerSet?
-	public static SortedSet<BigInteger> getSmallDivisors/*_v2*/(BigInteger n, SortedMultiset<BigInteger> factors) {
+	public static SortedSet<BigInteger> getSmallDivisors/*_v2*/(BigInteger n, SortedMap<BigInteger, Integer> factors) {
 		if (n.equals(I_1)) return ONE_AS_SET; // n=1 has empty factor set
 		
 		BigInteger d_max = SqrtInt.iSqrt(n)[0];
@@ -337,6 +343,7 @@ public class Divisors {
     }
 	
     /**
+     * @param x
      * @return The sum of all numbers 1<=d<=x that divide x.
      * Faster implementation for general arguments.
      * 
@@ -344,7 +351,7 @@ public class Divisors {
      */
     public static BigInteger sumOfDivisors/*_v2*/(BigInteger x) {
 		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
-		SortedMultiset<BigInteger> factors = factorizer.factor(x);
+		SortedMap<BigInteger, Integer> factors = factorizer.factor(x);
     	return sumOfDivisors(factors);
     }
 
@@ -354,7 +361,7 @@ public class Divisors {
 	 * @param factors
 	 * @return sum of divisors
 	 */
-	public static BigInteger sumOfDivisors(SortedMultiset<BigInteger> factors) {
+	public static BigInteger sumOfDivisors(SortedMap<BigInteger, Integer> factors) {
 		ArrayList<BigInteger> entrySums = new ArrayList<BigInteger>();
 		
 		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
@@ -379,20 +386,20 @@ public class Divisors {
 	/**
 	 * Computes the number of positive divisors of the given argument.
 	 * @param n
-	 * @return
+	 * @return number of divisors of n
 	 */
 	public static BigInteger getDivisorCount(BigInteger n) {
 		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
-		SortedMultiset<BigInteger> factors = factorizer.factor(n);
+		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
     	return getDivisorCount(factors);
 	}
 
 	/**
 	 * Computes the number of positive divisors given the prime factorization of a number.
 	 * @param factors
-	 * @return
+	 * @return number of divisors of n
 	 */
-	public static BigInteger getDivisorCount(SortedMultiset<BigInteger> factors) {
+	public static BigInteger getDivisorCount(SortedMap<BigInteger, Integer> factors) {
 		BigInteger count = I_1; // this is already the answer for n=1 having empty factor set
 		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
 			count = count.multiply(BigInteger.valueOf(entry.getValue()+1));
@@ -445,7 +452,7 @@ public class Divisors {
      */
     private static BigInteger getBiggestDivisorBelowSqrtN_big(BigInteger n) {
 		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
-		SortedMultiset<BigInteger> factors = factorizer.factor(n);
+		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
 		return getBiggestDivisorBelowSqrtN(n, factors);
     }
 
@@ -455,36 +462,10 @@ public class Divisors {
      * @param n
      * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
      */
-    public static BigInteger getBiggestDivisorBelowSqrtN(BigInteger n, SortedMultiset<BigInteger> factors) {
+    public static BigInteger getBiggestDivisorBelowSqrtN(BigInteger n, SortedMap<BigInteger, Integer> factors) {
     	SortedSet<BigInteger> smallDivisors = getSmallDivisors(n, factors);
     	return smallDivisors.last();
     }
-
-	/**
-	 * Find the factors of a smooth number using trial division.
-	 * @param n
-	 * @return
-	 */
-	public static SortedMultiset<BigInteger> factor(BigInteger n) {
-		SortedMultiset<BigInteger> factors = new SortedMultiset_BottomUp<>();
-		AutoExpandingPrimesArray primesArray = new AutoExpandingPrimesArray().ensureLimit(1000);
-		
-		for (int i=0; ; i++) {
-			int p_i = primesArray.getPrime(i);
-			BigInteger p_i_big = BigInteger.valueOf(p_i);
-			BigInteger[] div;
-			while (true) {
-				div = n.divideAndRemainder(p_i_big);
-				if (!div[1].equals(I_0)) break;
-				
-				// p_i divides n
-				factors.add(p_i_big);
-				n = div[0];
-			}
-			if (n.equals(I_1)) break;
-		}
-		return factors;
-	}
 
 	private static void testSumOfDivisorsForSmallIntegers() {
 		BigInteger n = I_0;
@@ -517,7 +498,8 @@ public class Divisors {
 //			LOG.info("sumOfDivisors_v2(" + n + "!) = " + sigma + " computed in " + (t2-t1) + "ms");
 			
 			// third version gives A062569 at hight speed
-			SortedMultiset<BigInteger> factors = factor(fac);
+			TreeMap<BigInteger, Integer> factors = new TreeMap<>();
+			tdiv.findSmallFactors(fac, 65536, factors); // ignore return value because fac is very smooth
 			sigma = sumOfDivisors(factors);
 			long t3 = System.currentTimeMillis();
 			LOG.info("sumOfDivisors_v3(" + n + "!) = " + sigma + " computed in " + (t3-t2) + "ms");
@@ -527,8 +509,9 @@ public class Divisors {
 	private static void testDivisors() {
 		for (int n=0; ; n++) {
 			BigInteger fac = Factorial.factorial(n);
-			SortedMultiset<BigInteger> factors;
-			
+			SortedMap<BigInteger, Integer> factors = new TreeMap<>();
+			tdiv.findSmallFactors(fac, 65536, factors); // ignore return value because fac is very smooth
+
 			// v1 is very slow...
 			//long t0 = System.currentTimeMillis();
 			//ArrayList<BigInteger> divSet1 = getDivisors_v1(fac);
@@ -541,18 +524,15 @@ public class Divisors {
 			SortedSet<BigInteger> divSet3 = getDivisors/*_v3*/(fac);
 			
 			long t3 = System.currentTimeMillis();
-			factors = factor(fac);
 			SortedSet<BigInteger> divSet4 = getDivisorsTopDown(factors);
 			
 			long t4 = System.currentTimeMillis();
-			factors = factor(fac);
 			SortedSet<BigInteger> divSet5 = getDivisors/*BottomUp*/(factors); // slightly faster than top-down
 			
 			long t5 = System.currentTimeMillis();
 			BigInteger divCount1 = getDivisorCount(fac); // very fast
 			
 			long t6 = System.currentTimeMillis();
-			factors = factor(fac);
 			BigInteger divCount2 = getDivisorCount(factors); // very fast
 			
 			long t7 = System.currentTimeMillis();
@@ -578,14 +558,14 @@ public class Divisors {
 	private static void testSmallDivisors() {
 		for (int n=0; ; n++) {
 			BigInteger fac = Factorial.factorial(n);
-			SortedMultiset<BigInteger> factors;
 			
 //			long t0 = System.currentTimeMillis();
 //			ArrayList<BigInteger> divSet1 = getSmallDivisors_v1(fac);
 			long t1 = System.currentTimeMillis();
 			
 			// Much much faster!
-			factors = factor(fac);
+			SortedMap<BigInteger, Integer> factors = new TreeMap<>();
+			tdiv.findSmallFactors(fac, 65536, factors); // ignore return value because fac is very smooth
 			SortedSet<BigInteger> divSet2 = getSmallDivisors/*_v2*/(fac, factors);
 			long t2 = System.currentTimeMillis();
 			
@@ -639,7 +619,7 @@ public class Divisors {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-//    	testDivisors();
+    	testDivisors();
 //    	testSmallDivisors();
     	testBiggestDivisorBelowSqrtN();
 //    	testSumOfDivisorsForSmallIntegers();
