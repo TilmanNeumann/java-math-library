@@ -7,8 +7,7 @@
  * Modified for the Symja project by Axel Kramer.
  * Further refactorings by Tilman Neumann.
  * 
- * I (Tilman Neumann) am deeply grateful for Dario Alpern's permission
- * to use this piece of software under the GPL3 license.
+ * Big thanks to Dario Alpern for his permission to use this piece of software under the GPL3 license.
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
