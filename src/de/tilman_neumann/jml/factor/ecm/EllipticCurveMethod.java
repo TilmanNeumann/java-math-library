@@ -69,6 +69,10 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	private static final PurePowerTest powerTest = new PurePowerTest();
 	private static final TDiv tdiv = new TDiv();
 
+	private static final double v[] =
+		{ 1.61803398875, 1.72360679775, 1.618347119656, 1.617914406529, 1.612429949509,
+		  1.632839806089, 1.620181980807, 1.580178728295, 1.617214616534, 1.38196601125 };
+
 	private final long biTmp[] = new long[NLen];
 
 	// Used inside GCD calculations in multiple precision numbers
@@ -1997,8 +2001,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		long[] xA = x, zA = z;
 		long[] xB = fieldAux1, zB = fieldAux2;
 		long[] xC = fieldAux3, zC = fieldAux4;
-		double v[] = { 1.61803398875, 1.72360679775, 1.618347119656, 1.617914406529, 1.612429949509, 1.632839806089,
-				1.620181980807, 1.580178728295, 1.617214616534, 1.38196601125 };
 
 		/* chooses the best value of v */
 		r = lucas_cost(n, v[0]);
