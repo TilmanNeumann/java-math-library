@@ -131,65 +131,46 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		// set up new N
 		EC = 1;
 		
-		// go
+		// Do trial division by all primes < 131072.
 		TreeMap<BigInteger, Integer> unresolvedComposites = new TreeMap<BigInteger, Integer>();
-		try {
-			// Do trial division by all primes < 131072.
-			N = tdiv.findSmallFactors(N, 131072, primeFactors);
+		N = tdiv.findSmallFactors(N, 131072, primeFactors);
+		if (N.equals(I_1)) {
+			return unresolvedComposites;
+		}
+		
+		// There are factors greater than 131071, and they may be prime or composite.
+		if (isProbablePrime(N)) {
+			addToMap(N, 1, primeFactors);
+			return unresolvedComposites;
+		}
+		
+		// N is composite -> do ECM
+		TreeMap<BigInteger, Integer> compositesToTest = new TreeMap<BigInteger, Integer>();
+		compositesToTest.put(N, 1);
+		while (!compositesToTest.isEmpty()) {
+			// get next composite to test
+			Entry<BigInteger, Integer> compositeEntry = compositesToTest.pollLastEntry();
+			N = compositeEntry.getKey();
+			int exp = compositeEntry.getValue();
 			
-			if (N.equals(I_1)) {
-				return unresolvedComposites;
+			// pure power?
+			PurePowerTest.Result r = powerTest.test(N);
+			if (r != null) {
+				// N is a pure power!
+				addToMapDependingOnPrimeTest(r.base, exp*r.exponent, primeFactors, compositesToTest);
+				continue; // test next composite
 			}
-			
-			// There are factors greater than 131071, and they may be prime or composite.
-			if (bpsw.isProbablePrime(N)) {
-				addToMap(N, 1, primeFactors);
-				return unresolvedComposites;
-			}
-			
-			// N is composite. Do ECM:
-			TreeMap<BigInteger, Integer> compositesToTest = new TreeMap<BigInteger, Integer>();
-			compositesToTest.put(N, 1);
-			while (!compositesToTest.isEmpty()) {
-				// get next composite to test
-				Entry<BigInteger, Integer> compositeEntry = compositesToTest.pollLastEntry();
-				N = compositeEntry.getKey();
-				int exp = compositeEntry.getValue();
-				
-				// pure power?
-				PurePowerTest.Result r = powerTest.test(N);
-				if (r != null) {
-					// N is a pure power!
-					if (isProbablePrime(r.base)) {
-						addToMap(r.base, exp*r.exponent, primeFactors);
-					} else {
-						addToMap(r.base, exp*r.exponent, compositesToTest);
-					}
-					continue; // test next composite
-				}
 
-				// ECM
-				final BigInteger NN = fnECM(N);
-				if (NN.equals(I_1)) {
-					// N is composite but could not be resolved
-					addToMap(N, exp, unresolvedComposites);
-					continue;
-				}
-				// NN is a factor of N
-				if (isProbablePrime(NN)) {
-					addToMap(NN, exp, primeFactors);
-				} else {
-					addToMap(NN, exp, compositesToTest);
-				}
-				BigInteger factor2 = N.divide(NN);
-				if (isProbablePrime(factor2)) {
-					addToMap(factor2, exp, primeFactors);
-				} else {
-					addToMap(factor2, exp, compositesToTest);
-				}
+			// ECM
+			final BigInteger NN = fnECM(N);
+			if (NN.equals(I_1)) {
+				// N is composite but could not be resolved
+				addToMap(N, exp, unresolvedComposites);
+				continue;
 			}
-		} catch (ArithmeticException e) {
-			LOG.debug("Caught " + e, e);
+			// NN is a factor of N
+			addToMapDependingOnPrimeTest(NN, exp, primeFactors, compositesToTest);
+			addToMapDependingOnPrimeTest(N.divide(NN), exp, primeFactors, compositesToTest);
 		}
 		return unresolvedComposites;
 	}
@@ -198,10 +179,14 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		// TODO The 33-bit "guard" is only safe if we did tdiv until 2^17 before
 		return (N.bitLength() <= 33) ? true : bpsw.isProbablePrime(N);
 	}
+
+	private void addToMapDependingOnPrimeTest(BigInteger factor, int exp, SortedMap<BigInteger, Integer> primeFactors, SortedMap<BigInteger, Integer> compositeFactors) {
+		addToMap(factor, exp, isProbablePrime(factor) ? primeFactors : compositeFactors);
+	}
 	
 	private void addToMap(BigInteger N, int exp, SortedMap<BigInteger, Integer> map) {
 		Integer oldExp = map.get(N);
-		// replaces old entry if oldExp!=null
+		// old entry is replaced if if oldExp!=null
 		map.put(N, (oldExp == null) ? exp : oldExp+exp);
 	}
 	
@@ -349,7 +334,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 					} else {
 						GcdBigNbr(Z, TestNbr, GD);
 						if (BigNbrAreEqual(GD, BigNbr1) == false) {
-							break new_curve;
+							break new_curve; // found factor, exit
 						}
 					}
 
@@ -366,7 +351,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 						} else {
 							GcdBigNbr(Z, TestNbr, GD);
 							if (BigNbrAreEqual(GD, BigNbr1) == false) {
-								break new_curve;
+								break new_curve; // found factor, exit
 							}
 						}
 					} while (P <= LS);
@@ -395,7 +380,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 							} else {
 								GcdBigNbr(Z, TestNbr, GD);
 								if (BigNbrAreEqual(GD, BigNbr1) == false) {
-									break new_curve;
+									break new_curve; // found factor, exit
 								}
 							}
 						}
@@ -409,7 +394,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 						}
 						GcdBigNbr(GcdAccumulated, TestNbr, GD);
 						if (BigNbrAreEqual(GD, BigNbr1) == false) {
-							break new_curve;
+							break new_curve; // found factor, exit
 						}
 						break;
 					}
@@ -480,7 +465,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 						} else {
 							GcdBigNbr(Aux1, TestNbr, GD);
 							if (BigNbrAreEqual(GD, BigNbr1) == false) {
-								break new_curve;
+								break new_curve; // found factor, exit
 							}
 						}
 						if (I == 1155) {
@@ -561,7 +546,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 							if (Pass != 0) {
 								GcdBigNbr(GcdAccumulated, TestNbr, GD);
 								if (BigNbrAreEqual(GD, BigNbr1) == false) {
-									break new_curve;
+									break new_curve; // found factor, exit
 								}
 							}
 						}
@@ -595,7 +580,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 							break;
 						}
 						if (BigNbrAreEqual(GD, BigNbr1) == false) {
-							break new_curve;
+							break new_curve; // found factor, exit
 						}
 						break;
 					}
