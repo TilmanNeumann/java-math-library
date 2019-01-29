@@ -636,6 +636,8 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		AddBigNbrModN(MontgomeryMultR1, MontgomeryMultR1, MontgomeryMultR2);
 	}
 
+	// This "kind of over-optimized" method yields a 10-20% performance gain compared
+	// to a flat j=0..NumberLength-1 loop implementation. So we keep it as it is...
 	private void MontgomeryMult(long Nbr1[], long Nbr2[], long Prod[]) {
 		int i, j;
 		long MaxUInt = 0x7FFFFFFFl;
