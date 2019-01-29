@@ -478,9 +478,8 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 							MontgomeryMult(Aux2, MontgomeryMultAfterInv, Aux1);
 							MontgomeryMult(Aux1, X, root[J]); // root[J] <- X/Z
 						}
-						System.arraycopy(WX, 0, UX, 0, NumberLength); // (UX:UZ)
-																		// <-
-						System.arraycopy(WZ, 0, UZ, 0, NumberLength); // Previous (X:Z)
+						System.arraycopy(WX, 0, UX, 0, NumberLength);
+						System.arraycopy(WZ, 0, UZ, 0, NumberLength); // (UX:UZ) <- Previous (X:Z)
 					} /* end for I */
 					AddBigNbrModN(DX, DZ, Aux1);
 					MontgomeryMult(Aux1, Aux1, W1);
