@@ -176,8 +176,8 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	}
 
 	private boolean isProbablePrime(BigInteger N) {
-		// TODO The 33-bit "guard" is only safe if we did tdiv until 2^17 before
-		return (N.bitLength() <= 33) ? true : bpsw.isProbablePrime(N);
+		// XXX The 33-bit "guard" is only safe if we did tdiv for all p <= sqrt(2^33) before
+		return N.bitLength() <= 33 || bpsw.isProbablePrime(N);
 	}
 
 	private void addToMapDependingOnPrimeTest(BigInteger factor, int exp, SortedMap<BigInteger, Integer> primeFactors, SortedMap<BigInteger, Integer> compositeFactors) {
