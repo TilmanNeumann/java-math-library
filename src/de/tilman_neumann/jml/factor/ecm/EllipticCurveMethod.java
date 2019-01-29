@@ -252,7 +252,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		BigNbrToBigInt(N);
 		GetMontgomeryParms();
 		for (I = 0; I < NumberLength; I++) {
-			M[I] = DX[I] = DZ[I] = W3[I] = W4[I] = GD[I] = 0;
+			M[I] = DX[I] = DZ[I] = W3[I] = W4[I] = GD[I] = 0; // XXX these arrays are zero-initialized anyway
 		}
 		
 		// it seems to be faster not to repeat previously tested curves for new factors
