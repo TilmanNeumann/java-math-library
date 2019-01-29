@@ -608,7 +608,6 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	}
 
 	private void GetMontgomeryParms() {
-		int NumberLength = this.NumberLength;
 		int N, x, j;
 
 		dN = TestNbr[NumberLength - 1];
