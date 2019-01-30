@@ -1591,9 +1591,11 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	}
 
 	/**
-	 * <p>Find the inverse multiplicative modulo v.</p>
+	 * <p>Find the multiplicative inverse (1/a) modulo b and return the result in inv.</p>
 	 * 
-	 * <p>The algorithm terminates with u1 = u^(-1) MOD v.</p>
+	 * <p>This implementation returns dummy values for a-values that are not invertible modulo b.
+	 * This is good for the performance of the ECM implementation because the latter  works with
+	 * accumulated gcd's and then it doesn't matter if a few of the single gcd-values are wrong.</p>
 	 */
 	private void ModInvBigNbr(long[] a, long[] inv, long[] b) {
 		int i;
