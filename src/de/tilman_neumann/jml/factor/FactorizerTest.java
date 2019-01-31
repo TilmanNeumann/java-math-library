@@ -94,7 +94,7 @@ public class FactorizerTest {
 //			new PollardRhoBrentMontgomery63(), // first long version, not optimized any further
 //			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 48 to 57 bit
 //			new PollardRhoBrentMontgomery64(), // best algorithm for N from 58 to 62 bit
-		
+			
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
@@ -140,7 +140,7 @@ public class FactorizerTest {
 //			new SIQS(0.32F, 0.385F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SingleBlockSieve(32768), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), false),
 //			new SIQS(0.32F, 0.385F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SingleBlockSieveU(32768), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), true),
 //			new SIQS(0.32F, 0.41F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new DoubleBlockSieve(32768, 131072), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), false),
-	
+			
 			// hybrid sieves:
 			// * single block hybrid is level with Sieve03g
 			// * best block size is about 32k (my processor has 16kB L1 cache, 128kB L2-cache per thread)
@@ -242,7 +242,7 @@ public class FactorizerTest {
 			rank += j;
 		}
 	}
-
+	
 	/**
 	 * Test factor algorithms for sets of factor arguments of growing size and report timings after each set.
 	 * @param args ignored
