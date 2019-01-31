@@ -42,6 +42,16 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 	private BPSWTest bpsw = new BPSWTest();
 	private TDiv tdiv = new TDiv();
 	
+	protected int tdivLimit;
+	
+	public FactorAlgorithmBase() {
+		tdivLimit = 65536;
+	}
+	
+	public FactorAlgorithmBase(int tdivLimit) {
+		this.tdivLimit = tdivLimit;
+	}
+	
 	/**
 	 * Factoring of composite integers.
 	 * 
@@ -79,7 +89,7 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 			// "Small" algorithms like trial division, Lehman or Pollard-Rho are very good themselves
 			// at finding small factors, but for larger N we do some trial division.
 			// This will help "big" algorithms to factor smooth numbers much faster.
-			N = tdiv.findSmallOddFactors(N, 65536, factors);
+			N = tdiv.findSmallOddFactors(N, tdivLimit, factors);
 			// TODO use CombinedFactorAlgorithm and random test numbers to adjust the
 			// tdiv limit given N.bitLength()
 			

@@ -65,8 +65,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	private SingleFactorFinder siqs_bigArgs;
 	
 	/**
-	 * Simple constructor using PSIQS with sun.misc.Unsafe features.
-	 * 
+	 * Simple constructor doing trial division with all p<2^16 and using PSIQS with sun.misc.Unsafe features.
 	 * @param numberOfThreads the number of parallel threads for PSIQS
 	 * @param profile if true then extended profiling information is collected
 	 */
@@ -75,13 +74,25 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	}
 	
 	/**
-	 * Complete constructor.
-	 * 
+	 * Simple constructor doing trial division with all p<2^16.
 	 * @param numberOfThreads the number of parallel threads for PSIQS
-	 * @param permitUnsafeUsage if true then PSIQS_U using sun.misc.Unsafe features is used. This may be ~10% faster.
+	 * @param permitUnsafeUsage
 	 * @param profile if true then extended profiling information is collected
 	 */
 	public CombinedFactorAlgorithm(int numberOfThreads, boolean permitUnsafeUsage, boolean profile) {
+		this(numberOfThreads, 65536, permitUnsafeUsage, profile);
+	}
+
+	/**
+	 * Full constructor.
+	 * @param numberOfThreads the number of parallel threads for PSIQS
+	 * @param tdivLimit limit of primes p for trial division
+	 * @param permitUnsafeUsage if true then PSIQS_U using sun.misc.Unsafe features is used. This may be ~10% faster.
+	 * @param profile if true then extended profiling information is collected
+	 */
+	public CombinedFactorAlgorithm(int numberOfThreads, int tdivLimit, boolean permitUnsafeUsage, boolean profile) {
+		super(tdivLimit);
+		
 		if (numberOfThreads==1) {
 			// Avoid multi-thread overhead if the requested number of threads is 1
 			Sieve sieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
@@ -99,7 +110,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 
 	@Override
 	public String getName() {
-		return "combi";
+		return "combi(" + tdivLimit + ")";
 	}
 
 	@Override
