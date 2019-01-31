@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -41,6 +42,8 @@ import de.tilman_neumann.jml.factor.squfof.*;
 import de.tilman_neumann.jml.factor.tdiv.*;
 import de.tilman_neumann.jml.sequence.*;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
+import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.util.TimeUtil;
 
 /**
@@ -64,7 +67,9 @@ public class FactorizerTest {
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
 	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
-	
+	/** Test mode */
+	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
+
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
 	 */
@@ -169,7 +174,9 @@ public class FactorizerTest {
 		// Compute test set
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TEST_NUMBER_NATURE);
 		BigInteger[] factors = new BigInteger[N_COUNT];
-		
+		@SuppressWarnings("unchecked")
+		SortedMultiset<BigInteger>[] factorSetArray = new SortedMultiset_BottomUp[N_COUNT];
+
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
@@ -189,36 +196,77 @@ public class FactorizerTest {
 				
 				System.gc(); // create equal conditions for all algorithms
 
-				// test and check performance
-				long startTimeMillis = System.currentTimeMillis();
-				for (int j=0; j<N_COUNT; j++) {
-					factors[j] = algorithm.findSingleFactor(testNumbers[j]);
-				}
-				long endTimeMillis = System.currentTimeMillis();
-				long duration = endTimeMillis - startTimeMillis; // duration in ms
-				//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
-				
-				// verify
 				int failCount = 0;
 				BigInteger failExample = null;
-				for (int j=0; j<N_COUNT; j++) {
-					BigInteger N = testNumbers[j];
-					BigInteger factor = factors[j];
-					// test correctness
-					if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {
-						//LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
-						failExample = N;
-						failCount++;
-					} else {
-						// not null, not trivial -> test division
-						BigInteger[] test = N.divideAndRemainder(factor);
-						if (!test[1].equals(I_0)) {
-							//LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
+				long duration;
+				switch (TEST_MODE) {
+				case FIRST_FACTOR: {
+					// test performance
+					long startTimeMillis = System.currentTimeMillis();
+					for (int j=0; j<N_COUNT; j++) {
+						factors[j] = algorithm.findSingleFactor(testNumbers[j]);
+					}
+					long endTimeMillis = System.currentTimeMillis();
+					duration = endTimeMillis - startTimeMillis; // duration in ms
+					//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
+					
+					// verify
+					for (int j=0; j<N_COUNT; j++) {
+						BigInteger N = testNumbers[j];
+						BigInteger factor = factors[j];
+						// test correctness
+						if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {
+							//LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
 							failExample = N;
 							failCount++;
+						} else {
+							// not null, not trivial -> test division
+							BigInteger[] test = N.divideAndRemainder(factor);
+							if (!test[1].equals(I_0)) {
+								//LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
+								failExample = N;
+								failCount++;
+							}
 						}
 					}
+					break;
 				}
+				case PRIME_FACTORIZATION: {
+					// test performance
+					long startTimeMillis = System.currentTimeMillis();
+					for (int j=0; j<N_COUNT; j++) {
+						factorSetArray[j] = algorithm.factor(testNumbers[j]);
+					}
+					long endTimeMillis = System.currentTimeMillis();
+					duration = endTimeMillis - startTimeMillis; // duration in ms
+					//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
+					
+					// verify
+					for (int j=0; j<N_COUNT; j++) {
+						BigInteger N = testNumbers[j];
+						SortedMap<BigInteger, Integer> factorSet = factorSetArray[j];
+						// test correctness
+						for (BigInteger factor : factorSet.keySet()) {
+							if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {
+								//LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
+								failExample = N;
+								failCount++;
+							} else {
+								// not null, not trivial -> test division
+								BigInteger[] test = N.divideAndRemainder(factor);
+								if (!test[1].equals(I_0)) {
+									//LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
+									failExample = N;
+									failCount++;
+								}
+							}
+						}
+					}
+					break;
+				}
+				default: throw new IllegalArgumentException("TestMode = " + TEST_MODE);
+				}
+				
 				List<SingleFactorFinder> algList = ms_2_algorithms.get(duration);
 				if (algList==null) algList = new ArrayList<SingleFactorFinder>();
 				algList.add(algorithm);

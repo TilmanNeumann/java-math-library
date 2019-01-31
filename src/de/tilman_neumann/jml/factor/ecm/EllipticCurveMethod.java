@@ -33,6 +33,8 @@ import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
+import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -122,6 +124,14 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		return unfactoredComposites.size()>0 ? unfactoredComposites.firstKey() : null;
 	}
 
+	@Override
+	public SortedMultiset<BigInteger> factor(BigInteger N) {
+		SortedMultiset<BigInteger> allFactors = new SortedMultiset_BottomUp<BigInteger>();
+		SortedMultiset<BigInteger> compositeFactors = factorize(N, allFactors);
+		allFactors.addAll(compositeFactors);
+		return allFactors;
+	}
+	
 	/**
 	 * Find small factors of some N. Returns found factors in <code>primeFactors</code> and eventually some
 	 * unfactored composites as return value.
@@ -130,12 +140,12 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 	 * @param primeFactors the found prime factors.
 	 * @return unfactored composites left after stopping ECM, empty map if N has been factored completely
 	 */
-	public SortedMap<BigInteger, Integer> factorize(BigInteger N, SortedMap<BigInteger, Integer> primeFactors) {
+	public SortedMultiset<BigInteger> factorize(BigInteger N, SortedMap<BigInteger, Integer> primeFactors) {
 		// set up new N
 		EC = 1;
 		
 		// Do trial division by all primes < 131072.
-		TreeMap<BigInteger, Integer> unresolvedComposites = new TreeMap<BigInteger, Integer>();
+		SortedMultiset<BigInteger> unresolvedComposites = new SortedMultiset_BottomUp<>();
 		N = tdiv.findSmallFactors(N, 131072, primeFactors); // TODO do outside ECM?
 		if (N.equals(I_1)) {
 			return unresolvedComposites;
