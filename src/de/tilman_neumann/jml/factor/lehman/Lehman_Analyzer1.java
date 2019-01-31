@@ -16,7 +16,6 @@ package de.tilman_neumann.jml.factor.lehman;
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -101,10 +100,10 @@ public class Lehman_Analyzer1 extends FactorAlgorithmBase {
 	private void testRange(int bits) {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		// find N-set for square tests
-		ArrayList<BigInteger> NSet = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
+		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
-		for (BigInteger N : NSet) {
+		for (BigInteger N : testNumbers) {
 			this.findSingleFactor(N);
 		}
 		

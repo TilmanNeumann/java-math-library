@@ -49,7 +49,7 @@ public class TestsetGenerator {
 	 * @param mode the nature of test numbers to generate
 	 * @return test set
 	 */
-	public static ArrayList<BigInteger> generate(int N_count, int bits, TestNumberNature mode) {
+	public static BigInteger[] generate(int N_count, int bits, TestNumberNature mode) {
 		ArrayList<BigInteger> NSet = new ArrayList<BigInteger>();
 		switch (mode) {
 		case COMPOSITE: {
@@ -60,7 +60,7 @@ public class TestsetGenerator {
 					i++;
 				}
 			}
-			return NSet;
+			return NSet.toArray(new BigInteger[NSet.size()]);
 		}
 		case MODERATE_SEMIPRIMES: {
 			int minBits = (bits+2)/3; // analogue to 3rd root(N)
@@ -101,7 +101,7 @@ public class TestsetGenerator {
 				NSet.add(N);
 				i++;
 			}
-			return NSet;
+			return NSet.toArray(new BigInteger[NSet.size()]);
 		}
 		default: throw new IllegalArgumentException("TestsetGeneratorMode " + mode);
 		}

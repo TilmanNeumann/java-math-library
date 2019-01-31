@@ -27,6 +27,7 @@ import de.tilman_neumann.jml.factor.base.congruence.*;
 import de.tilman_neumann.jml.factor.base.matrixSolver.*;
 import de.tilman_neumann.jml.factor.cfrac.*;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.*;
+import de.tilman_neumann.jml.factor.ecm.*;
 import de.tilman_neumann.jml.factor.lehman.*;
 import de.tilman_neumann.jml.factor.pollardRho.*;
 import de.tilman_neumann.jml.factor.psiqs.*;
@@ -52,17 +53,17 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 100;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 1;
+	private static final int INCR_BITS = 10;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature testNumberNature = TestNumberNature.MODERATE_SEMIPRIMES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
 	
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
@@ -74,14 +75,14 @@ public class FactorizerTest {
 
 			// Trial division
 			//new TDiv31(),
-			new TDiv31Preload(),
-			new TDiv31Inverse(), // Fastest algorithm for N <= 30 bit
-			new TDiv63Inverse(1<<21),
+//			new TDiv31Preload(),
+//			new TDiv31Inverse(), // Fastest algorithm for N <= 30 bit
+//			new TDiv63Inverse(1<<21),
 			
 			// Lehman
-			new Lehman_Simple(false),
-			new Lehman_Smith(false),
-			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
+			//new Lehman_Simple(false),
+//			new Lehman_Smith(false),
+//			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
 //			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
 			
 			// PollardRho
@@ -90,18 +91,18 @@ public class FactorizerTest {
 			//new PollardRhoBrent(),
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
-			new PollardRhoBrentMontgomery63(), // first long version, not optimized any further
-			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 48 to 57 bit
-			new PollardRhoBrentMontgomery64(), // best algorithm for N from 58 to 62 bit
+//			new PollardRhoBrentMontgomery63(), // first long version, not optimized any further
+//			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 48 to 57 bit
+//			new PollardRhoBrentMontgomery64(), // best algorithm for N from 58 to 62 bit
 		
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-			new SquFoF63(),
+//			new SquFoF63(),
 			//new SquFoF31(),
-			new SquFoF31Preload(),
+//			new SquFoF31Preload(),
 			
 			// CFrac
 			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits
@@ -112,6 +113,9 @@ public class FactorizerTest {
 			//new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5, false),
 //			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 3),
 			//new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
+
+			// ECM
+			new EllipticCurveMethod(),
 
 			// SIQS:
 			// * best until 220 bit: Sieve03gU + smallPowers + TDiv1L + Gauss
@@ -156,14 +160,14 @@ public class FactorizerTest {
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), true), // best for large N
 
 			// Combination of best algorithms for all factor argument sizes
-//			new CombinedFactorAlgorithm(4),
+			new CombinedFactorAlgorithm(4, 1<<16, true, false),
 		};
 	}
 	
 	private void testRange(int bits) {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		// Compute test set
-		ArrayList<BigInteger> NSet = TestsetGenerator.generate(N_COUNT, bits, testNumberNature);
+		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TEST_NUMBER_NATURE);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
@@ -186,7 +190,7 @@ public class FactorizerTest {
 				int failCount = 0;
 				long startTimeMillis = System.currentTimeMillis();
 				BigInteger failExample = null;
-				for (BigInteger N : NSet) {
+				for (BigInteger N : testNumbers) {
 					BigInteger factor = algorithm.findSingleFactor(N);
 					// test correctness
 					if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {

@@ -14,10 +14,9 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
@@ -35,17 +34,17 @@ public class IsSqrt_Test {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 10000000;
+	private static final int N_COUNT = 100000; // bigger values required for useful timings
 	
 	private void testRange(int bits) {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		// find N-set for square tests
-		ArrayList<BigInteger> NSet = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
+		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
+		assertEquals(N_COUNT, testNumbers.length);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
-		Iterator<BigInteger> NIter = NSet.iterator();
-		long[] NArray = new long[NSet.size()];
-		for (int i=0; i<NSet.size(); i++) {
-			NArray[i] = NIter.next().longValue();
+		long[] NArray = new long[N_COUNT];
+		for (int i=0; i<N_COUNT; i++) {
+			NArray[i] = testNumbers[i].longValue();
 		}
 		long t0, t1, sum;
 		t0 = System.currentTimeMillis();
