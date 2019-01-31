@@ -22,7 +22,7 @@ public enum TestNumberNature {
 	 * Almost arbitrary random numbers N chosen from a certain bit length;
 	 * the only constraints are N>1 and N not prime.
 	 */
-	COMPOSITE,
+	RANDOM_COMPOSITE,
 	
 	/**
 	 * Semiprimes N=a*b with bitLength(min(a,b)) >= bitLength(N)/3 bits.

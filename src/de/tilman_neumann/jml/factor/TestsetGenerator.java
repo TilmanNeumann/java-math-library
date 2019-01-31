@@ -52,7 +52,7 @@ public class TestsetGenerator {
 	public static BigInteger[] generate(int N_count, int bits, TestNumberNature mode) {
 		ArrayList<BigInteger> NSet = new ArrayList<BigInteger>();
 		switch (mode) {
-		case COMPOSITE: {
+		case RANDOM_COMPOSITE: {
 			for (int i=0; i<N_count; ) {
 				BigInteger N = new BigInteger(bits, RNG);
 				if(N.compareTo(I_1) > 0 && !bpsw.isProbablePrime(N)) {
