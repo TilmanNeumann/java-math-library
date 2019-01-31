@@ -136,7 +136,7 @@ public class EllipticCurveMethod extends FactorAlgorithmBase {
 		
 		// Do trial division by all primes < 131072.
 		TreeMap<BigInteger, Integer> unresolvedComposites = new TreeMap<BigInteger, Integer>();
-		N = tdiv.findSmallFactors(N, 131072, primeFactors);
+		N = tdiv.findSmallFactors(N, 131072, primeFactors); // TODO do outside ECM?
 		if (N.equals(I_1)) {
 			return unresolvedComposites;
 		}
