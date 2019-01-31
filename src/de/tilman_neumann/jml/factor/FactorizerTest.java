@@ -168,6 +168,8 @@ public class FactorizerTest {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		// Compute test set
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TEST_NUMBER_NATURE);
+		BigInteger[] factors = new BigInteger[N_COUNT];
+		
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
@@ -187,11 +189,21 @@ public class FactorizerTest {
 				
 				System.gc(); // create equal conditions for all algorithms
 
-				int failCount = 0;
+				// test and check performance
 				long startTimeMillis = System.currentTimeMillis();
+				for (int j=0; j<N_COUNT; j++) {
+					factors[j] = algorithm.findSingleFactor(testNumbers[j]);
+				}
+				long endTimeMillis = System.currentTimeMillis();
+				long duration = endTimeMillis - startTimeMillis; // duration in ms
+				//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
+				
+				// verify
+				int failCount = 0;
 				BigInteger failExample = null;
-				for (BigInteger N : testNumbers) {
-					BigInteger factor = algorithm.findSingleFactor(N);
+				for (int j=0; j<N_COUNT; j++) {
+					BigInteger N = testNumbers[j];
+					BigInteger factor = factors[j];
 					// test correctness
 					if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {
 						//LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
@@ -207,9 +219,6 @@ public class FactorizerTest {
 						}
 					}
 				}
-				long endTimeMillis = System.currentTimeMillis();
-				long duration = endTimeMillis - startTimeMillis; // duration in ms
-				//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
 				List<SingleFactorFinder> algList = ms_2_algorithms.get(duration);
 				if (algList==null) algList = new ArrayList<SingleFactorFinder>();
 				algList.add(algorithm);
