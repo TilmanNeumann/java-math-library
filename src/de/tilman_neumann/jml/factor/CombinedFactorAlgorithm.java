@@ -80,17 +80,17 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	 * @param profile if true then extended profiling information is collected
 	 */
 	public CombinedFactorAlgorithm(int numberOfThreads, boolean permitUnsafeUsage, boolean profile) {
-		this(numberOfThreads, 65536, permitUnsafeUsage, profile);
+		this(numberOfThreads, null, permitUnsafeUsage, profile);
 	}
 
 	/**
 	 * Full constructor.
 	 * @param numberOfThreads the number of parallel threads for PSIQS
-	 * @param tdivLimit limit of primes p for trial division
+	 * @param tdivLimit limit of primes p for trial division; if null then the value is determined by best experimental results
 	 * @param permitUnsafeUsage if true then PSIQS_U using sun.misc.Unsafe features is used. This may be ~10% faster.
 	 * @param profile if true then extended profiling information is collected
 	 */
-	public CombinedFactorAlgorithm(int numberOfThreads, int tdivLimit, boolean permitUnsafeUsage, boolean profile) {
+	public CombinedFactorAlgorithm(int numberOfThreads, Integer tdivLimit, boolean permitUnsafeUsage, boolean profile) {
 		super(tdivLimit);
 		
 		if (numberOfThreads==1) {
@@ -110,7 +110,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 
 	@Override
 	public String getName() {
-		return "combi(" + tdivLimit + ")";
+		return "combi(" + (tdivLimit!=null ? tdivLimit : "auto") + ")";
 	}
 
 	@Override

@@ -42,13 +42,13 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 	private BPSWTest bpsw = new BPSWTest();
 	private TDiv tdiv = new TDiv();
 	
-	protected int tdivLimit;
+	protected Integer tdivLimit;
 	
 	public FactorAlgorithmBase() {
-		tdivLimit = 65536;
+		tdivLimit = null; // automatic determination based on experimental results
 	}
 	
-	public FactorAlgorithmBase(int tdivLimit) {
+	public FactorAlgorithmBase(Integer tdivLimit) {
 		this.tdivLimit = tdivLimit;
 	}
 	
@@ -85,13 +85,22 @@ abstract public class FactorAlgorithmBase implements SingleFactorFinder {
 			return factors;
 		}
 
-		if (N.bitLength() > 62) {
+		int Nbits = N.bitLength();
+		if (Nbits > 62) {
 			// "Small" algorithms like trial division, Lehman or Pollard-Rho are very good themselves
 			// at finding small factors, but for larger N we do some trial division.
 			// This will help "big" algorithms to factor smooth numbers much faster.
-			N = tdiv.findSmallOddFactors(N, tdivLimit, factors);
-			// TODO use CombinedFactorAlgorithm and random test numbers to adjust the
-			// tdiv limit given N.bitLength()
+			int actualTdivLimit;
+			if (tdivLimit != null) {
+				// use "dictated" limit
+				actualTdivLimit = tdivLimit.intValue();
+			} else {
+				// adjust tdivLimit=2^e by experimental results
+				final double e = 10 + (Nbits-45)*0.07407407407; // constant 0.07.. = 10/135
+				actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
+			}
+
+			N = tdiv.findSmallOddFactors(N, actualTdivLimit, factors);
 			
 			if (N.equals(I_1)) {
 				// N was "easy"
