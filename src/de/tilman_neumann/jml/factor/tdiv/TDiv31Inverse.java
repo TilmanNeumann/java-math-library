@@ -17,6 +17,8 @@ import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
+import de.tilman_neumann.util.SortedMultiset;
+import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 /**
  * Trial division factor algorithm replacing division by multiplications.
@@ -53,6 +55,36 @@ public class TDiv31Inverse extends FactorAlgorithmBase {
 	@Override
 	public String getName() {
 		return "TDiv31Inverse";
+	}
+
+	@Override
+	public SortedMultiset<BigInteger> factor(BigInteger Nbig) {
+		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
+		int N = Nbig.intValue();
+		
+		for (int i=0; ; i++) {
+			double r = reciprocals[i];
+			int p = primes[i];
+			int exp = 0;
+			while (true) {
+				int nDivPrime = (int) (N*r + DISCRIMINATOR);
+				if (nDivPrime * p != N) break;
+				// nDivPrime is very near to an integer
+				if (N%p != 0) break;
+				// p divides N
+				exp++;
+				N /= p;
+			}
+			if (exp>0) {
+				primeFactors.add(BigInteger.valueOf(p), exp);
+			}
+			if (p*(long)p > N) {
+				if (N>1) primeFactors.add(BigInteger.valueOf(N));
+				break;
+			}
+		}
+		
+		return primeFactors;
 	}
 
 	@Override
