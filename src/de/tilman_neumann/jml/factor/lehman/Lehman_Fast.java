@@ -82,6 +82,8 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 	}
 
 	public long findSingleFactor(long N) {
+		if (N==9) return 3; // without that we'ld get a StackOverflowError
+		
 		this.N = N;
 		final int cbrt = (int) Math.cbrt(N);
 
