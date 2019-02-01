@@ -15,8 +15,12 @@ package de.tilman_neumann.jml.factor.tdiv;
 
 import java.math.BigInteger;
 
+import org.apache.log4j.Logger;
+
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
+import de.tilman_neumann.util.SortedMultiset;
+import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 /**
  * Trial division factor algorithm preloading all primes <= sqrt(Integer.MAX_VALUE).
@@ -30,7 +34,9 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
  * @author Tilman Neumann
  */
 public class TDiv31Preload extends FactorAlgorithmBase {
-	
+	@SuppressWarnings("unused")
+	private static final Logger LOG = Logger.getLogger(TDiv31Preload.class);
+
 	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
 
 	private static int[] primes;
@@ -45,6 +51,31 @@ public class TDiv31Preload extends FactorAlgorithmBase {
 	@Override
 	public String getName() {
 		return "TDiv31Preload";
+	}
+
+	@Override
+	public SortedMultiset<BigInteger> factor(BigInteger Nbig) {
+		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
+		int N = Nbig.intValue();
+		
+		for (int i=0; ; i++) {
+			//LOG.debug("N=" + N + ", i=" + i);
+			int p = primes[i];
+			if (N%p == 0) {
+				int exp = 0;
+				do {
+					exp++;
+					N = N/p;
+				} while (N%p == 0);
+				primeFactors.add(BigInteger.valueOf(p), exp);
+			}
+			if (p*(long)p > N) {
+				if (N>1) primeFactors.add(BigInteger.valueOf(N));
+				break;
+			}
+		}
+		
+		return primeFactors;
 	}
 
 	@Override
