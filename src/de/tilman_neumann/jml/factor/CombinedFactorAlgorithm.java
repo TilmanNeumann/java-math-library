@@ -65,7 +65,8 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	private SingleFactorFinder siqs_bigArgs;
 	
 	/**
-	 * Simple constructor doing trial division with all p<2^16 and using PSIQS with sun.misc.Unsafe features.
+	 * Simple constructor, computing the amount of trial division automatically 
+	 * and using PSIQS with sun.misc.Unsafe features.
 	 * @param numberOfThreads the number of parallel threads for PSIQS
 	 * @param profile if true then extended profiling information is collected
 	 */
@@ -74,7 +75,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	}
 	
 	/**
-	 * Simple constructor doing trial division with all p<2^16.
+	 * Simple constructor, computing the amount of trial division automatically.
 	 * @param numberOfThreads the number of parallel threads for PSIQS
 	 * @param permitUnsafeUsage
 	 * @param profile if true then extended profiling information is collected
