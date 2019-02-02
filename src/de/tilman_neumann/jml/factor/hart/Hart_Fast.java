@@ -72,7 +72,7 @@ public class Hart_Fast extends FactorAlgorithmBase {
 		this.N = N;
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
-		kLimit = (int) Math.pow(N, 0.4285); // XXX find minimum bound working for all N
+		kLimit = (int) Math.pow(N, 0.4303); // XXX find minimum bound working for all N
 		long factor;
 		if ((factor=testEvenK(6)) > 1) return factor;
 		if ((factor=testOddK(3)) > 1) return factor;
@@ -170,11 +170,12 @@ public class Hart_Fast extends FactorAlgorithmBase {
 				5682546780292609L,
 				
 				// Hart bound problems
-				135902052523483L, // needs kLimit > N^0.42096 : 0.42097 works
+				135902052523483L, // needs kLimit > N^0.42096; 0.42097 works
 				1454149122259871L, // needs kLimit > N^0.421
 				5963992216323061L, // needs kLimit > N^0.423
-				26071073737844227L, // needs kLimit > N^0.428 : 0.4285 works
-				
+				26071073737844227L, // needs kLimit > N^0.428; 0.4285 works
+				8296707175249091L, // kLimit >= N^0.4303 works
+				35688516583284121L, // kLimit >= N^0.43 works
 			};
 		
 		Hart_Fast holf = new Hart_Fast();
