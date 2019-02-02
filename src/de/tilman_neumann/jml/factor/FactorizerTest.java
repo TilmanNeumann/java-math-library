@@ -29,7 +29,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.*;
 import de.tilman_neumann.jml.factor.cfrac.*;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.*;
 import de.tilman_neumann.jml.factor.ecm.*;
-import de.tilman_neumann.jml.factor.holf.*;
+import de.tilman_neumann.jml.factor.hart.*;
 import de.tilman_neumann.jml.factor.lehman.*;
 import de.tilman_neumann.jml.factor.pollardRho.*;
 import de.tilman_neumann.jml.factor.psiqs.*;
@@ -42,10 +42,7 @@ import de.tilman_neumann.jml.factor.siqs.tdiv.*;
 import de.tilman_neumann.jml.factor.squfof.*;
 import de.tilman_neumann.jml.factor.tdiv.*;
 import de.tilman_neumann.jml.sequence.*;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
-import de.tilman_neumann.util.TimeUtil;
+import de.tilman_neumann.util.*;
 
 /**
  * Main class to compare the performance of factor algorithms.
@@ -86,8 +83,8 @@ public class FactorizerTest {
 //			new TDiv63Inverse(1<<21),
 			
 			// Hart's one line factorizer
-			new Holf_Simple(),
-			new Holf_Fast(),
+			new Hart_Simple(),
+			new Hart_Fast(),
 			
 			// Lehman
 			//new Lehman_Simple(false),

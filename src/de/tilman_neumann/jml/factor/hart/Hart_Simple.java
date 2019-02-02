@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.factor.holf;
+package de.tilman_neumann.jml.factor.hart;
 
 import java.math.BigInteger;
 
@@ -22,30 +22,18 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Fast implementation of Hart's one line factor algorithm.
+ * Simple implementation of Hart's one line factor algorithm.
  * @see <a href="http://wrap.warwick.ac.uk/54707/">http://wrap.warwick.ac.uk/54707/</a>
- * 
- * Not as good as the Lehman implementation Thilo Harich and me developed, but getting close.
- * Some of the improvements above the simple version:
- * -> work with 4N instead of N
- * -> adjust a-values by congruences mod 4 rsp. mod 8
- * -> sort running over k-values by mod 6 residues
- * -> correction loop
- * 
- * @authors Tilman Neumann
+ * @author Tilman Neumann
  */
-public class Holf_Fast extends FactorAlgorithmBase {
-	private static final Logger LOG = Logger.getLogger(Holf_Fast.class);
+public class Hart_Simple extends FactorAlgorithmBase {
+	private static final Logger LOG = Logger.getLogger(Hart_Simple.class);
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
 	private static double[] sqrt;
 
-	private long N, fourN;
-	private int kLimit;
-	private double sqrt4N;
-	
 	static {
 		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
 		final int kMax = 1<<25;
@@ -60,7 +48,7 @@ public class Holf_Fast extends FactorAlgorithmBase {
 
 	@Override
 	public String getName() {
-		return "Holf_Fast";
+		return "Hart_Simple";
 	}
 
 	@Override
@@ -69,62 +57,16 @@ public class Holf_Fast extends FactorAlgorithmBase {
 	}
 
 	public long findSingleFactor(long N) {
-		this.N = N;
-		fourN = N<<2;
-		sqrt4N = Math.sqrt(fourN);
-		kLimit = 1 + (int) Math.pow(N, 0.42); // bound 0.4 starts to fail for odd Nbits >= 41
-		long factor;
-		if ((factor=testEvenK(6)) > 1) return factor;
-		if ((factor=testOddK(3)) > 1) return factor;
-		if ((factor=testEvenK(2)) > 1) return factor;
-		if ((factor=testOddK(5)) > 1) return factor;
-		if ((factor=testEvenK(4)) > 1) return factor;
-		if ((factor=testOddK(1)) > 1) return factor;
-
-		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
-		// may have failed. Then we need a "correction loop":
-		for (int k=1; k <= kLimit; k++) {
-			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) - 1;
-			long test = a*a - k*fourN;
-			long b = (long) Math.sqrt(test);
-			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
-			}
-	    }
-
-		return 0; // fail
-	}
-	
-	private long testEvenK(int kStart) {
-		for (int k = kStart; k<kLimit; k+=6) {
-			// k even -> a must be odd
-			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) | 1;
-			final long test = a*a - k * fourN;
+		double sqrtN = Math.sqrt(N);
+		for (int k = 1; ; k++) {
+			final long a = (long) (sqrtN * sqrt[k] + ROUND_UP_DOUBLE);
+			final long test = a*a - k * N;
 			final long b = (long) Math.sqrt(test);
 			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
+				long gcd = gcdEngine.gcd(a+b, N);
+				if (gcd>1 && gcd<N) return gcd;
 			}
 		}
-		return 0;
-	}
-
-	private long testOddK(int kStart) {
-		for (int k = kStart; k<kLimit; k+=6) {
-			// k odd -> a-congruences depend of k+N
-			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE);
-			final long kPlusN = k + N;
-			if ((kPlusN & 3) == 0) {
-				a += ((kPlusN - a) & 7);
-			} else {
-				a += ((kPlusN - a) & 3);
-			}
-			final long test = a*a - k * fourN;
-			final long b = (long) Math.sqrt(test);
-			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
-			}
-		}
-		return 0;
 	}
 	
 	/**
@@ -170,7 +112,7 @@ public class Holf_Fast extends FactorAlgorithmBase {
 				5682546780292609L,
 			};
 		
-		Holf_Fast holf = new Holf_Fast();
+		Hart_Simple holf = new Hart_Simple();
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
