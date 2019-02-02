@@ -29,6 +29,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.*;
 import de.tilman_neumann.jml.factor.cfrac.*;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.*;
 import de.tilman_neumann.jml.factor.ecm.*;
+import de.tilman_neumann.jml.factor.holf.*;
 import de.tilman_neumann.jml.factor.lehman.*;
 import de.tilman_neumann.jml.factor.pollardRho.*;
 import de.tilman_neumann.jml.factor.psiqs.*;
@@ -56,11 +57,11 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100;
+	private static final int N_COUNT = 10000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 30;
+	private static final int START_BITS = 40;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 10;
+	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
@@ -68,7 +69,7 @@ public class FactorizerTest {
 	/** Nature of test numbers */
 	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
+	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
 
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
@@ -84,10 +85,14 @@ public class FactorizerTest {
 //			new TDiv31Inverse(), // Fastest algorithm for N <= 30 bit
 //			new TDiv63Inverse(1<<21),
 			
+			// Hart's one line factorizer
+			new Holf_Simple(),
+			new Holf_Fast(),
+			
 			// Lehman
 			//new Lehman_Simple(false),
 //			new Lehman_Smith(false),
-//			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
+			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
 //			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
 			
 			// PollardRho
@@ -120,7 +125,7 @@ public class FactorizerTest {
 			//new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
 
 			// ECM
-			new EllipticCurveMethod(),
+//			new EllipticCurveMethod(),
 
 			// SIQS:
 			// * best until 220 bit: Sieve03gU + smallPowers + TDiv1L + Gauss
@@ -165,7 +170,7 @@ public class FactorizerTest {
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), true), // best for large N
 
 			// Combination of best algorithms for all factor argument sizes
-			new CombinedFactorAlgorithm(4, 1<<16, true, false),
+//			new CombinedFactorAlgorithm(4, 1<<16, true, false),
 		};
 	}
 	
