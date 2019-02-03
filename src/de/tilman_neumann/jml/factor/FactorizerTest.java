@@ -246,7 +246,7 @@ public class FactorizerTest {
 						try {
 							factorSetArray[j] = algorithm.factor(testNumbers[j]);
 						} catch (ArithmeticException e) {
-							LOG.error("Algorithm " + algorithm + " threw Exception while factoring N=" + testNumbers[j] + ": " + e);
+							LOG.error("Algorithm " + algorithm.getName() + " threw Exception while factoring N=" + testNumbers[j] + ": " + e);
 						}
 					}
 					long endTimeMillis = System.currentTimeMillis();
