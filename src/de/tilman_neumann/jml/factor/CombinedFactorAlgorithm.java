@@ -62,7 +62,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
 	private SIQS siqs_smallArgs = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false);
 
 	// The SIQS chosen for big arguments depends on constructor parameters
-	private SingleFactorFinder siqs_bigArgs;
+	private FactorAlgorithm siqs_bigArgs;
 	
 	/**
 	 * Simple constructor, computing the amount of trial division automatically 

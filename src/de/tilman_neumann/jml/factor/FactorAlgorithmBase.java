@@ -32,7 +32,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * 
  * @author Tilman Neumann
  */
-abstract public class FactorAlgorithmBase implements SingleFactorFinder {
+abstract public class FactorAlgorithmBase implements FactorAlgorithm {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(FactorAlgorithmBase.class);
 

@@ -71,10 +71,10 @@ public class FactorizerTest {
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
 	 */
-	private SingleFactorFinder[] algorithms;
+	private FactorAlgorithm[] algorithms;
 	
 	public FactorizerTest() {
-		algorithms = new SingleFactorFinder[] {
+		algorithms = new FactorAlgorithm[] {
 
 			// Trial division
 			//new TDiv31(),
@@ -182,9 +182,9 @@ public class FactorizerTest {
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
-		TreeMap<Long, List<SingleFactorFinder>> ms_2_algorithms = new TreeMap<Long, List<SingleFactorFinder>>();
+		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<Long, List<FactorAlgorithm>>();
 		for (int i=0; i<REPEATS; i++) {
-			for (SingleFactorFinder algorithm : algorithms) {
+			for (FactorAlgorithm algorithm : algorithms) {
 				// exclude special size implementations
 				String algName = algorithm.getName();
 				if (bits<53 && algName.startsWith("SIQS")) continue; // unstable for smaller N // TODO the bound has been much smaller some time ago
@@ -269,8 +269,8 @@ public class FactorizerTest {
 				default: throw new IllegalArgumentException("TestMode = " + TEST_MODE);
 				}
 				
-				List<SingleFactorFinder> algList = ms_2_algorithms.get(duration);
-				if (algList==null) algList = new ArrayList<SingleFactorFinder>();
+				List<FactorAlgorithm> algList = ms_2_algorithms.get(duration);
+				if (algList==null) algList = new ArrayList<FactorAlgorithm>();
 				algList.add(algorithm);
 				ms_2_algorithms.put(duration, algList);
 				if (failCount>0) {
@@ -282,9 +282,9 @@ public class FactorizerTest {
 		// log best algorithms first
 		int rank=1;
 		for (long ms : ms_2_algorithms.keySet()) {
-			List<SingleFactorFinder> algList = ms_2_algorithms.get(ms);
+			List<FactorAlgorithm> algList = ms_2_algorithms.get(ms);
 			int j=0;
-			for (SingleFactorFinder algorithm : algList) {
+			for (FactorAlgorithm algorithm : algList) {
 				String durationStr = TimeUtil.timeStr(ms);
 				LOG.info("#" + rank + ": Algorithm " + algorithm.getName() + " took " + durationStr);
 				j++;

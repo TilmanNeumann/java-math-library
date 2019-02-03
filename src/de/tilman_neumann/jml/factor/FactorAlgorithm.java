@@ -27,6 +27,8 @@ public interface FactorAlgorithm {
 	/** The best available single-threaded factor algorithm. (multi-threading may not always be wanted) */
 	public static FactorAlgorithm DEFAULT = new CombinedFactorAlgorithm(1, false);
 
+	public String getName();
+
 	/**
 	 * Decomposes the argument N into prime factors.
 	 * The result is formally a multiset of BigIntegers, sorted bottom-up.
@@ -35,5 +37,10 @@ public interface FactorAlgorithm {
 	 */
 	public SortedMultiset<BigInteger> factor(BigInteger N);
 	
-	public String getName();
+	/**
+	 * Find a single factor of the given N, which is composite and odd.
+	 * @param N
+	 * @return factor
+	 */
+	public BigInteger findSingleFactor(BigInteger N);
 }

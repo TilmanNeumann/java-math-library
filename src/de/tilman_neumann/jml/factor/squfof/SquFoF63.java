@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
-import de.tilman_neumann.jml.factor.SingleFactorFinder;
 import de.tilman_neumann.jml.sequence.NumberSequence;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence;
 import de.tilman_neumann.util.ConfigUtil;
@@ -183,7 +182,7 @@ public class SquFoF63 extends FactorAlgorithmBase {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		SquFoF63 squfof63 = new SquFoF63();
-		SingleFactorFinder testFactorizer = (SingleFactorFinder) FactorAlgorithm.DEFAULT;
+		FactorAlgorithm testFactorizer = FactorAlgorithm.DEFAULT;
 		
 		// test numbers that caused problems with former versions
 		BigInteger N0 = BigInteger.valueOf(1099511627970L); // 2*3*5*7*23*227642159
