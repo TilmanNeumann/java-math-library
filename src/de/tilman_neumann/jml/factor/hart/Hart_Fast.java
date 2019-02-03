@@ -37,7 +37,16 @@ import de.tilman_neumann.util.ConfigUtil;
 public class Hart_Fast extends FactorAlgorithmBase {
 	private static final Logger LOG = Logger.getLogger(Hart_Fast.class);
 
-	/** This is a constant that is below 1 for rounding up double values to long. */
+	/**
+	 * The biggest bit length of N supported by the algorithm.
+	 * Larger values require a larger sqrt-table, which may be pretty big like 78 mio. doubles for 60 bit numbers.
+	 */
+	private static final int MAX_N_BITS = 55;
+	
+	/** This constant seems sufficient for all N to compute kLimit = N^K_LIMIT_EXP. 0.436 was not sufficient. */
+	private static final double K_LIMIT_EXP = 0.437;
+	
+	/** This constant is used for fast rounding of double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
 	private static double[] sqrt;
@@ -47,8 +56,8 @@ public class Hart_Fast extends FactorAlgorithmBase {
 	private double sqrt4N;
 	
 	static {
-		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
-		final int kMax = 1<<25;
+		// Precompute sqrts for all k required for N <= MAX_N_BITS bit.
+		final int kMax = (int) Math.pow(2, MAX_N_BITS*K_LIMIT_EXP);
 		sqrt = new double[kMax + 1];
 		for (int i = 1; i < sqrt.length; i++) {
 			final double sqrtI = Math.sqrt(i);
@@ -72,7 +81,7 @@ public class Hart_Fast extends FactorAlgorithmBase {
 		this.N = N;
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
-		kLimit = (int) Math.pow(N, 0.437); // XXX find minimum bound working for all N
+		kLimit = (int) Math.pow(N, K_LIMIT_EXP);
 		long factor;
 		if ((factor=testEvenK(6)) > 1) return factor;
 		if ((factor=testOddK(3)) > 1) return factor;
@@ -169,7 +178,7 @@ public class Hart_Fast extends FactorAlgorithmBase {
 				2815471543494793L,
 				5682546780292609L,
 				
-				// Hart bound problems
+				// test numbers that required large K_LIMIT_EXP values
 				135902052523483L, // needs kLimit > N^0.42096; 0.42097 works
 				1454149122259871L, // needs kLimit > N^0.421
 				5963992216323061L, // needs kLimit > N^0.423
