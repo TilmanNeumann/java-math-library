@@ -20,7 +20,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
  * 
  * @author Tilman Neumann
  */
-public class CFrac63 extends FactorAlgorithmBase {
+public class CFrac63 extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(CFrac63.class);
 	private static final boolean DEBUG = false;
 

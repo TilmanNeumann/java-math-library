@@ -24,7 +24,7 @@ import java.security.SecureRandom;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.base.Uint128;
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
@@ -43,7 +43,7 @@ import de.tilman_neumann.util.SortedMultiset;
  * 
  * @author Tilman Neumann
  */
-public class PollardRhoBrentMontgomery63 extends FactorAlgorithmBase {
+public class PollardRhoBrentMontgomery63 extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(PollardRhoBrentMontgomery63.class);
 	private static final boolean DEBUG = false;
 

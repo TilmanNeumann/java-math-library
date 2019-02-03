@@ -21,7 +21,6 @@ import java.security.SecureRandom;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.sequence.NumberSequence;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence;
 import de.tilman_neumann.util.ConfigUtil;
@@ -36,7 +35,7 @@ import de.tilman_neumann.util.SortedMultiset;
  * 
  * @author Tilman Neumann
  */
-public class SquFoF63 extends FactorAlgorithmBase {
+public class SquFoF63 extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(SquFoF63.class);
 
 	// input

@@ -23,7 +23,7 @@ import java.security.SecureRandom;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
@@ -32,7 +32,7 @@ import de.tilman_neumann.util.SortedMultiset;
  * 
  * @author Tilman Neumann
  */
-public class PollardRhoBrent extends FactorAlgorithmBase {
+public class PollardRhoBrent extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(PollardRhoBrent.class);
 	private static final SecureRandom RNG = new SecureRandom();
 

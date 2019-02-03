@@ -49,7 +49,7 @@ import de.tilman_neumann.util.TimeUtil;
  * 
  * @author Tilman Neumann
  */
-public class CombinedFactorAlgorithm extends FactorAlgorithmBase {
+public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
 	

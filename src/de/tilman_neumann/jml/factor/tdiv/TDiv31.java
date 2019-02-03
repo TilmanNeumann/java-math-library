@@ -15,7 +15,7 @@ package de.tilman_neumann.jml.factor.tdiv;
 
 import java.math.BigInteger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -25,7 +25,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * 
  * @author Tilman Neumann
  */
-public class TDiv31 extends FactorAlgorithmBase {
+public class TDiv31 extends FactorAlgorithm {
 
 	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
 

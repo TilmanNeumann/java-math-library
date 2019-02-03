@@ -18,7 +18,7 @@ import java.security.SecureRandom;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.squfof.SquFoF63;
 import de.tilman_neumann.jml.primes.bounds.PrimeCountUpperBounds;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
@@ -36,7 +36,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * @authors Thilo Harich + Tilman Neumann
  */
-public class TDiv63Inverse extends FactorAlgorithmBase {
+public class TDiv63Inverse extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(TDiv63Inverse.class);
 	
 	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);

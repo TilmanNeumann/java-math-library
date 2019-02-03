@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
@@ -61,7 +61,7 @@ import de.tilman_neumann.util.Timer;
  * Main class for single-threaded SIQS implementations.
  * @author Tilman Neumann
  */
-public class SIQS extends FactorAlgorithmBase {
+public class SIQS extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(SIQS.class);
 	private static final boolean DEBUG = false;
 	private static final boolean TEST_SIEVE = false;

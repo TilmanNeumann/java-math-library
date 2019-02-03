@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
@@ -50,7 +50,7 @@ import de.tilman_neumann.util.Timer;
  * 
  * @author Tilman Neumann
  */
-abstract public class PSIQSBase extends FactorAlgorithmBase {
+abstract public class PSIQSBase extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(PSIQSBase.class);
 	private static final boolean DEBUG = false;
 

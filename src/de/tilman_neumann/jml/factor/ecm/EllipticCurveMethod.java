@@ -27,7 +27,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
@@ -46,7 +46,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * factorization </a>
  * </p>
  */
-public class EllipticCurveMethod extends FactorAlgorithmBase {
+public class EllipticCurveMethod extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethod.class);
 
 	private static final int NLen = 1200;

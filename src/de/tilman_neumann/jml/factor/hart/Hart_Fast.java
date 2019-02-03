@@ -17,7 +17,7 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 
@@ -34,7 +34,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * @authors Tilman Neumann
  */
-public class Hart_Fast extends FactorAlgorithmBase {
+public class Hart_Fast extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_Fast.class);
 
 	/**

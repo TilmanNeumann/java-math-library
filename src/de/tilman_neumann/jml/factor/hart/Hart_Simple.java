@@ -17,7 +17,7 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 
@@ -26,7 +26,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * @see <a href="http://wrap.warwick.ac.uk/54707/">http://wrap.warwick.ac.uk/54707/</a>
  * @author Tilman Neumann
  */
-public class Hart_Simple extends FactorAlgorithmBase {
+public class Hart_Simple extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_Simple.class);
 
 	/** This is a constant that is below 1 for rounding up double values to long. */

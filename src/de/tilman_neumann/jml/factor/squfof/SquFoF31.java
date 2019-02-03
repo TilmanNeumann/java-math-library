@@ -19,7 +19,6 @@ import java.security.SecureRandom;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence63;
 import de.tilman_neumann.util.ConfigUtil;
@@ -31,7 +30,7 @@ import de.tilman_neumann.util.SortedMultiset;
  * 
  * @author Tilman Neumann
  */
-public class SquFoF31 extends FactorAlgorithmBase {
+public class SquFoF31 extends FactorAlgorithm {
 
 	private static final Logger LOG = Logger.getLogger(SquFoF31.class);
 

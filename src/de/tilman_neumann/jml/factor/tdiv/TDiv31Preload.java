@@ -17,7 +17,7 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -33,7 +33,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * 
  * @author Tilman Neumann
  */
-public class TDiv31Preload extends FactorAlgorithmBase {
+public class TDiv31Preload extends FactorAlgorithm {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(TDiv31Preload.class);
 

@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 
 /**
  * Lehman analyzer that finds the correct k- and a-values of inputs other algorithms can not cope with.
@@ -29,7 +29,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithmBase;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_SpecialArgumentAnalyzer extends FactorAlgorithmBase {
+public class Lehman_SpecialArgumentAnalyzer extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Lehman_SpecialArgumentAnalyzer.class);
 	
 	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
