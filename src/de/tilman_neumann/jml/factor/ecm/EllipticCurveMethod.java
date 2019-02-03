@@ -116,12 +116,16 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		return "ECM";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Note that the curve limit of this method for finding a single factor is the same as that of factor()
+	 * and factorize() for finding all prime factors of N.
+	 */
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		SortedMap<BigInteger, Integer> primeFactors = new TreeMap<>();
-		SortedMap<BigInteger, Integer> unfactoredComposites = factorize(N, primeFactors);
-		if (primeFactors.size()>0) return primeFactors.firstKey();
-		return unfactoredComposites.size()>0 ? unfactoredComposites.firstKey() : null;
+		EC = 1;
+		return fnECM(N);
 	}
 
 	@Override
