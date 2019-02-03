@@ -93,7 +93,7 @@ public class NextProbablePrimeTest {
 				bpsw.nextProbablePrime(n);
 			}
 			duration = System.currentTimeMillis() - startMillis;
-			addToMap(duration_2_algLists, duration, "BPSW_mod");
+			addToMap(duration_2_algLists, duration, "BPSW");
 
 			// test built-in method
 			startMillis = System.currentTimeMillis();
