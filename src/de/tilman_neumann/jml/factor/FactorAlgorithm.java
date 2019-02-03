@@ -120,37 +120,28 @@ abstract public class FactorAlgorithm {
 		}
 		
 		// N contains larger factors...
-		SortedMultiset<BigInteger> otherFactors = factor_recurrent(N);
-		//LOG.debug(this.factorAlg + ": pow2Factors=" + factors + ", otherFactors=" + otherFactors);
-		factors.addAll(otherFactors);
+		factor_recurrent(N, factors);
 		//LOG.debug(this.factorAlg + ": => all factors = " + factors);
 		return factors;
 	}
 	
-	private SortedMultiset<BigInteger> factor_recurrent(BigInteger N) {
-		SortedMultiset<BigInteger> factors = new SortedMultiset_BottomUp<BigInteger>();
-		if (bpsw.isProbablePrime(N)) {
-			// N is probably prime. In exceptional cases this prediction
-			// may be wrong and N composed -> then we would falsely predict N to be prime.
+	private void factor_recurrent(BigInteger N, SortedMultiset<BigInteger> primeFactors) {
+		if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
+			// N is probable prime. In exceptional cases this prediction may be wrong and N composite
+			// -> then we would falsely predict N to be prime. BPSW is known to be exact for N <= 64 bit.
 			//LOG.debug(N + " is probable prime.");
-			factors.add(N);
-			return factors;
+			primeFactors.add(N);
+			return;
 		} // else: N is surely not prime
 
-		// this is the expensive part:
-		// find a factor of N, where N is composed and has no 2s
+		// The expensive part: Find a factor of N, where N is composite and has no 2s and undergone some tdiv
 		BigInteger factor1 = findSingleFactor(N);
-		// Is it possible to further decompose the parts?
-		//LOG.debug("found factor1 = " + factor1, new Throwable());
-		SortedMultiset<BigInteger> subfactors1 = factor_recurrent(factor1);
-		//LOG.debug("subfactors of " + factor1 + " = " + subfactors1);
-		factors.addAll(subfactors1);
 		BigInteger factor2 = N.divide(factor1);
-		SortedMultiset<BigInteger> subfactors2 = factor_recurrent(factor2);
-		//LOG.debug("subfactors of " + factor2 + " = " + subfactors2);
-		factors.addAll(subfactors2);
-		//LOG.debug("result = " + factors);
-		return factors;
+		// Is it possible to further decompose the parts?
+		//LOG.debug("Found factorization of N = " + N + " = " + factor1 + " * " + factor2);
+		factor_recurrent(factor1, primeFactors);
+		factor_recurrent(factor2, primeFactors);
+		//LOG.debug("primeFactors after resolving factor1 = " + factor1 + " and factor2 = " + factor2 + " : " + primeFactors);
 	}
 	
 	/**
