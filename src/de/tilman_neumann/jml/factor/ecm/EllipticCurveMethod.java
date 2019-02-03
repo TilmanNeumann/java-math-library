@@ -203,7 +203,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	
 	private void addToMap(BigInteger N, int exp, SortedMap<BigInteger, Integer> map) {
 		Integer oldExp = map.get(N);
-		// old entry is replaced if if oldExp!=null
+		// old entry is replaced if oldExp!=null
 		map.put(N, (oldExp == null) ? exp : oldExp+exp);
 	}
 	
