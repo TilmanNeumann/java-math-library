@@ -82,7 +82,9 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 	}
 
 	public long findSingleFactor(long N) {
-		if (N==9) return 3; // without that we'ld get a StackOverflowError
+		// For N=9, lehmanEven() would return "factor" 9, resulting in a StackOverflowError in the factor() method.
+		// This is caused by the mod 6-adjustment which lets us test too big k values first.
+		if (N==9) return 3;
 		
 		this.N = N;
 		final int cbrt = (int) Math.cbrt(N);
@@ -193,8 +195,8 @@ public class Lehman_Fast extends FactorAlgorithmBase {
 		return -1;
 	}
 
-	private long lehmanEven(int kBegin, final int kEnd) {
-		for (int k = kBegin; k <= kEnd; k += 6) {
+	private long lehmanEven(int kBegin, final int kLimit) {
+		for (int k = kBegin; k <= kLimit; k += 6) {
 			// k even -> a must be odd
 			final long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) | 1L;
 			final long test = a*a - k * fourN;
