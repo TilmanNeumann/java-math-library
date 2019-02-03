@@ -85,7 +85,7 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 
 	private BPSWTest bpsw = new BPSWTest();
 	
-	private Lehman_Fast lehman = new Lehman_Fast(true);
+	private Lehman_Fast lehman = new Lehman_Fast(false);
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	// Nested SIQS is required only for approximately N>310 bit.

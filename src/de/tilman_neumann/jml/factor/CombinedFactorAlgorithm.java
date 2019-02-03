@@ -54,7 +54,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
 	
 	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
-	private Lehman_Fast lehman = new Lehman_Fast(true);
+	private Lehman_Fast lehman = new Lehman_Fast(true); // Lehman with tdiv first is faster for general numbers
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	

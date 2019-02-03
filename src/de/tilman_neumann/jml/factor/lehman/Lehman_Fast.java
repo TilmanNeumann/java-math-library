@@ -251,7 +251,7 @@ public class Lehman_Fast extends FactorAlgorithm {
 				5682546780292609L,
 			};
 		
-		Lehman_Fast lehman = new Lehman_Fast(true);
+		Lehman_Fast lehman = new Lehman_Fast(false);
 		for (long N : testNumbers) {
 			long factor = lehman.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
