@@ -45,6 +45,7 @@ public class PrimePowers_DefaultImpl extends Mpi_IntegerArrayImpl implements Pri
 	/**
 	 * Constructor from a multiset of primes.
 	 * @param primepowersMultiset
+	 * @return PrimePowers
 	 */
 	public static PrimePowers_DefaultImpl createFrom(SortedMultiset<BigInteger> primepowersMultiset) {
 		// check real size
@@ -75,7 +76,9 @@ public class PrimePowers_DefaultImpl extends Mpi_IntegerArrayImpl implements Pri
 	}
 
 	/**
-	 * Factory method to create Mpi from the prime powers of the given number.
+	 * Factory method to create Mpi from the prime powers of n.
+	 * @param n 
+	 * @return PrimePowers
 	 */
 	public static PrimePowers valueOf(BigInteger n) {
 		SortedMultiset<BigInteger> factors = FactorAlgorithm.DEFAULT.factor(n);
