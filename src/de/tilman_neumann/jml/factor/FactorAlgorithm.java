@@ -67,30 +67,30 @@ abstract public class FactorAlgorithm {
 	 * @return The prime factorization of N
 	 */
 	public SortedMultiset<BigInteger> factor(BigInteger N) {
-		SortedMultiset<BigInteger> factors = new SortedMultiset_BottomUp<BigInteger>();
+		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<BigInteger>();
 		// first get rid of case |N|<=1:
 		if (N.abs().compareTo(I_1)<=0) {
 			// https://oeis.org/wiki/Empty_product#Prime_factorization_of_1:
 			// "the set of prime factors of 1 is the empty set"
 			if (!N.equals(I_1)) {
-				factors.add(N);
+				primeFactors.add(N);
 			}
-			return factors;
+			return primeFactors;
 		}
 		// make N positive:
 		if (N.signum()<0) {
-			factors.add(I_MINUS_1);
+			primeFactors.add(I_MINUS_1);
 			N = N.abs();
 		}
 		// Remove multiples of 2:
 		int lsb = N.getLowestSetBit();
 		if (lsb > 0) {
-			factors.add(I_2, lsb);
+			primeFactors.add(I_2, lsb);
 			N = N.shiftRight(lsb);
 		}
 		if (N.equals(I_1)) {
 			// N was a power of 2
-			return factors;
+			return primeFactors;
 		}
 
 		int Nbits = N.bitLength();
@@ -108,11 +108,11 @@ abstract public class FactorAlgorithm {
 				actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
 			}
 
-			N = tdiv.findSmallOddFactors(N, actualTdivLimit, factors);
+			N = tdiv.findSmallOddFactors(N, actualTdivLimit, primeFactors);
 			
 			if (N.equals(I_1)) {
 				// N was "easy"
-				return factors;
+				return primeFactors;
 			}
 			
 			// TODO For large N with many "middle-size" prime factors, an advanced small factor test
@@ -120,9 +120,9 @@ abstract public class FactorAlgorithm {
 		}
 		
 		// N contains larger factors...
-		factor_recurrent(N, factors);
-		//LOG.debug(this.factorAlg + ": => all factors = " + factors);
-		return factors;
+		factor_recurrent(N, primeFactors);
+		//LOG.debug(this.factorAlg + ": => all factors = " + primeFactors);
+		return primeFactors;
 	}
 	
 	private void factor_recurrent(BigInteger N, SortedMultiset<BigInteger> primeFactors) {
