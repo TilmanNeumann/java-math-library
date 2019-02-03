@@ -34,6 +34,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * @authors Tilman Neumann
  */
+// TODO obviously this implementation is not fit yet for arbitrary random numbers
 public class Hart_Fast extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_Fast.class);
 
@@ -101,7 +102,7 @@ public class Hart_Fast extends FactorAlgorithm {
 			}
 	    }
 
-		return 0; // fail
+		return 1; // fail
 	}
 	
 	private long testEvenK(int kStart) {
