@@ -64,9 +64,9 @@ public class FactorizerTest {
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_COMPOSITE;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_ODD_COMPOSITES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
+	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
 
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
@@ -88,9 +88,9 @@ public class FactorizerTest {
 			
 			// Lehman
 			//new Lehman_Simple(false),
-			new Lehman_Smith(false),
+			//new Lehman_Smith(false),
 			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
-//			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
+			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
 			new LehmanHart(2),
 			new LehmanMidRange7(2),
 			

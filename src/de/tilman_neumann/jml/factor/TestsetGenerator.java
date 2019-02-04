@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -50,19 +49,30 @@ public class TestsetGenerator {
 	 * @return test set
 	 */
 	public static BigInteger[] generate(int N_count, int bits, TestNumberNature mode) {
-		ArrayList<BigInteger> NSet = new ArrayList<BigInteger>();
+		BigInteger[] NArray = new BigInteger[N_count];
 		switch (mode) {
-		case RANDOM_COMPOSITE: {
+		case RANDOM_COMPOSITES: {
+			if (bits<3) throw new IllegalArgumentException("There are no composites with " + bits + " bits.");
 			for (int i=0; i<N_count; ) {
 				BigInteger N = new BigInteger(bits, RNG);
-				if(N.compareTo(I_1) > 0 && !bpsw.isProbablePrime(N)) {
-					NSet.add(N);
-					i++;
+				if(N.bitLength()==bits && !bpsw.isProbablePrime(N)) {
+					NArray[i++] = N;
 				}
 			}
-			return NSet.toArray(new BigInteger[NSet.size()]);
+			return NArray;
 		}
-		case MODERATE_SEMIPRIMES: {
+		case RANDOM_ODD_COMPOSITES: {
+			if (bits<4) throw new IllegalArgumentException("There are no odd composites with " + bits + " bits.");
+			for (int i=0; i<N_count; ) {
+				BigInteger N = new BigInteger(bits, RNG).or(I_1); // odd random number
+				if(N.bitLength()==bits && !bpsw.isProbablePrime(N)) {
+					NArray[i++] = N;
+				}
+			}
+			return NArray;
+		}
+		case MODERATE_ODD_SEMIPRIMES: {
+			if (bits<4) throw new IllegalArgumentException("There are no odd semiprimes with " + bits + " bits.");
 			int minBits = (bits+2)/3; // analogue to 3rd root(N)
 			int maxBits = (bits+1)/2;
 			for (int i=0; i<N_count; ) {
@@ -98,10 +108,9 @@ public class TestsetGenerator {
 					assertTrue(resultBits >= bits-1);
 					assertTrue(resultBits <= bits+1);
 				}
-				NSet.add(N);
-				i++;
+				NArray[i++] = N;
 			}
-			return NSet.toArray(new BigInteger[NSet.size()]);
+			return NArray;
 		}
 		default: throw new IllegalArgumentException("TestsetGeneratorMode " + mode);
 		}

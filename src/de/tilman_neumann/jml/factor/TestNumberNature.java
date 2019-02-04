@@ -19,15 +19,22 @@ package de.tilman_neumann.jml.factor;
  */
 public enum TestNumberNature {
 	/** 
-	 * Almost arbitrary random numbers N chosen from a certain bit length;
-	 * the only constraints are N>1 and N not prime.
+	 * Arbitrary random composite numbers N chosen from a certain bit length.
+	 * Note that there are no such numbers with less than 3 bits.
 	 */
-	RANDOM_COMPOSITE,
+	RANDOM_COMPOSITES,
+	
+	/** 
+	 * Random odd composite numbers N chosen from a certain bit length.
+	 * Note that there are no such numbers with less than 4 bits.
+	 */
+	RANDOM_ODD_COMPOSITES,
 	
 	/**
-	 * Semiprimes N=a*b with bitLength(min(a,b)) >= bitLength(N)/3 bits.
-	 * Sometimes we'll get min(a,b) <= cbrt(N),
-	 * thus e.g. in the Lehman algorithm, some numbers require trial division.
+	 * Odd semiprimes N=a*b with bitLength(min(a,b)) >= bitLength(N)/3 bits. Sometimes we'll get
+	 * min(a,b) <= cbrt(N), thus e.g. in the Lehman algorithm, some numbers require trial division.
+	 * 
+	 * Note that there are no such numbers with less than 4 bits.
 	 */
-	MODERATE_SEMIPRIMES
+	MODERATE_ODD_SEMIPRIMES
 }

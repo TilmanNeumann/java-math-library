@@ -217,6 +217,7 @@ public class Lehman_Fast extends FactorAlgorithm {
 
 		// These test number were too hard for previous versions:
 		long[] testNumbers = new long[] {
+				// odd semiprimes
 				5640012124823L,
 				7336014366011L,
 				19699548984827L,
@@ -249,6 +250,9 @@ public class Lehman_Fast extends FactorAlgorithm {
 				1239671094365611L,
 				2815471543494793L,
 				5682546780292609L,
+				
+				// special case
+				9,
 			};
 		
 		Lehman_Fast lehman = new Lehman_Fast(false);
