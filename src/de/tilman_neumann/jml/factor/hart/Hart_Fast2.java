@@ -33,12 +33,13 @@ import de.tilman_neumann.util.ConfigUtil;
  * -> sort running over k-values by mod 6 residues
  * -> correction loop
  * 
- * This variant does trial division before the Hart loops.
- *
+ * This variant does trial division after the Hart loops. This requires that the gcd is checked
+ * to be 1 < gcd < N before returning it as a factor.
+ * 
  * @authors Tilman Neumann
  */
-public class Hart_Fast extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Hart_Fast.class);
+public class Hart_Fast2 extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Hart_Fast2.class);
 
 	/**
 	 * The biggest bit length of N supported by the algorithm.
@@ -73,7 +74,7 @@ public class Hart_Fast extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "Hart_Fast";
+		return "Hart_Fast2";
 	}
 
 	@Override
@@ -83,24 +84,23 @@ public class Hart_Fast extends FactorAlgorithm {
 
 	public long findSingleFactor(long N) {
 		this.N = N;
-		
-		// For some reason, this implementation needs trial division, too (Hart_Simple does not).
-		// And it _must_ be carried out before the Hart loops...
-		int tdivLimit = (int) (Math.pow(N, 1/3.0));
-		tdiv.setTestLimit(tdivLimit);
-		long factor;
-		if ((factor = tdiv.findSingleFactor(N))>1) return factor;
 
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
 		kLimit = (int) Math.pow(N, K_LIMIT_EXP);
+		long factor;
 		if ((factor=testEvenK(6)) > 1) return factor;
 		if ((factor=testOddK(3)) > 1) return factor;
 		if ((factor=testEvenK(2)) > 1) return factor;
 		if ((factor=testOddK(5)) > 1) return factor;
 		if ((factor=testEvenK(4)) > 1) return factor;
 		if ((factor=testOddK(1)) > 1) return factor;
-
+		
+		// For some reason, this implementation needs trial division, too (Hart_Simple does not).
+		// And it _must_ be carried out before the Hart loops...
+		int tdivLimit = (int) (Math.pow(N, 1/3.0));
+		tdiv.setTestLimit(tdivLimit);
+		if ((factor = tdiv.findSingleFactor(N))>1) return factor;
 
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
@@ -123,7 +123,8 @@ public class Hart_Fast extends FactorAlgorithm {
 			final long test = a*a - k * fourN;
 			final long b = (long) Math.sqrt(test);
 			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
+				long gcd = gcdEngine.gcd(a+b, N);
+				if (gcd>1 && gcd<N) return gcd;
 			}
 		}
 		return 0;
@@ -142,7 +143,8 @@ public class Hart_Fast extends FactorAlgorithm {
 			final long test = a*a - k * fourN;
 			final long b = (long) Math.sqrt(test);
 			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
+				long gcd = gcdEngine.gcd(a+b, N);
+				if (gcd>1 && gcd<N) return gcd;
 			}
 		}
 		return 0;
@@ -227,7 +229,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				197397887859L
 			};
 		
-		Hart_Fast holf = new Hart_Fast();
+		Hart_Fast2 holf = new Hart_Fast2();
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
