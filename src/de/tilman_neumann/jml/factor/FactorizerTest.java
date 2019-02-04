@@ -66,7 +66,7 @@ public class FactorizerTest {
 	/** Nature of test numbers */
 	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_ODD_COMPOSITES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
+	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
 
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
@@ -80,19 +80,18 @@ public class FactorizerTest {
 			//new TDiv31(),
 //			new TDiv31Preload(),
 			new TDiv31Inverse(), // Fastest algorithm for N <= 30 bit
-//			new TDiv63Inverse(1<<21),
+			new TDiv63Inverse(1<<21),
 			
 			// Hart's one line factorizer
-//			new Hart_Simple(),
+			//new Hart_Simple(),
 			new Hart_Fast(),
+			new Hart_Fast2(),
 			
 			// Lehman
 			//new Lehman_Simple(false),
 			//new Lehman_Smith(false),
 			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
 			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
-			new LehmanHart(2),
-			new LehmanMidRange7(2),
 			
 			// PollardRho
 			//new PollardRho(),
@@ -247,6 +246,7 @@ public class FactorizerTest {
 							factorSetArray[j] = algorithm.factor(testNumbers[j]);
 						} catch (ArithmeticException e) {
 							LOG.error("Algorithm " + algorithm.getName() + " threw Exception while factoring N=" + testNumbers[j] + ": " + e);
+							factorSetArray[j] = null; // to have correct fail count
 						}
 					}
 					long endTimeMillis = System.currentTimeMillis();
@@ -258,20 +258,24 @@ public class FactorizerTest {
 						BigInteger N = testNumbers[j];
 						SortedMap<BigInteger, Integer> factorSet = factorSetArray[j];
 						// test correctness
-						for (BigInteger factor : factorSet.keySet()) {
-							if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {
-								//LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
-								failExample = N;
-								failCount++;
-							} else {
-								// not null, not trivial -> test division
-								BigInteger[] test = N.divideAndRemainder(factor);
-								if (!test[1].equals(I_0)) {
-									//LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
+						if (factorSet!=null) {
+							for (BigInteger factor : factorSet.keySet()) {
+								if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {
+									//LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
 									failExample = N;
 									failCount++;
+								} else {
+									// not null, not trivial -> test division
+									BigInteger[] test = N.divideAndRemainder(factor);
+									if (!test[1].equals(I_0)) {
+										//LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
+										failExample = N;
+										failCount++;
+									}
 								}
 							}
+						} else {
+							failCount++;
 						}
 					}
 					break;
