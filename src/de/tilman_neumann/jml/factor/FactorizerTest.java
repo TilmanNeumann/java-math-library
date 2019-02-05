@@ -54,9 +54,9 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 200000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 20;
+	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
@@ -64,9 +64,9 @@ public class FactorizerTest {
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_ODD_COMPOSITES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_ODD_SEMIPRIMES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
+	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
 
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
@@ -80,11 +80,11 @@ public class FactorizerTest {
 			//new TDiv31(),
 //			new TDiv31Preload(),
 			new TDiv31Inverse(), // Fastest algorithm for N <= 30 bit
-			new TDiv63Inverse(1<<21),
+//			new TDiv63Inverse(1<<21),
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),
-			new Hart_Fast(),
+			//new Hart_Fast(),
 			new Hart_Fast2(),
 			
 			// Lehman
@@ -92,7 +92,8 @@ public class FactorizerTest {
 			//new Lehman_Smith(false),
 			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
 			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
-			
+			new Lehman_Fast2(false),
+		
 			// PollardRho
 			//new PollardRho(),
 			//new PollardRho_ProductGcd(),
