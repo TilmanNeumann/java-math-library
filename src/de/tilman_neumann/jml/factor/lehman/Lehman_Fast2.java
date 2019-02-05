@@ -152,12 +152,12 @@ public class Lehman_Fast2 extends FactorAlgorithm {
 		// Checking the high range for k== 0 (mod 3) improves performance
 		if ((factor = testLongTail(kLimit, kLimit << 1)) > 1) return factor;
 
+		// do trial division after Lehman loop ?
+		if (!doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
+
 		// Complete middle range
 		if ((factor = testLongTail(kTwoA + 1, kLimit)) > 1) return factor;
 		if ((factor = testLongTail(kTwoA + 2, kLimit)) > 1) return factor;
-
-		// do trial division after Lehman loop ?
-		if (!doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
 		
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
