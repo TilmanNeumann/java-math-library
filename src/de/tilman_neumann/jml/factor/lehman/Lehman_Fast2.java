@@ -175,7 +175,7 @@ public class Lehman_Fast2 extends FactorAlgorithm {
 
 	private long testLongTail(int kBegin, final int kLimit) {
 		int k = kBegin;
-		if (k%3 == 0) { // XXX This should be (k%2 == 0), but we see no performance improvement from that...
+		if ((k&1) == 0) {
 			// k even -> a must be odd
 			final long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) | 1L;
 			final long test = a*a - k * fourN;
