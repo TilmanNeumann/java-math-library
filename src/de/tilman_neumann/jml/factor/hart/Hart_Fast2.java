@@ -20,7 +20,7 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 import de.tilman_neumann.jml.gcd.Gcd63;
 
 /**
- * Very reduced albeit very fast variant of Hart's algorithm.
+ * Pretty simple yet fast variant of Hart's one line factorizer.
  * 
  * This version does not _need_ trial division, but it improves performance for test numbers having small
  * factors frequently.
@@ -29,11 +29,19 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  */
 public class Hart_Fast2 extends FactorAlgorithm {
 	/**
-	 * The biggest bit length of N supported by the algorithm.
-	 * Larger values require a larger sqrt-table, which may be pretty big like 78 mio. doubles for 60 bit numbers.
+	 * The biggest N supported by the algorithm.
+	 * Larger values need a larger sqrt-table, which may become pretty big!
+	 * Thus it is recommended to reduce this constant to the minimum required.
+	 * This may imply a small speedup because then a bigger portion of the array fits into L3 cache.
 	 */
-	private static final int MAX_N_BITS = 57;
-	// XXX reducing this value to the minimum required may yield a small speedup because then the sqrt array may fit into L3 cache
+	private static final long MAX_N = 1L<<50;
+	
+	/**
+	 * We only test k-values that are multiples of this constant.
+	 * Best values for performance are 45, 105, 15 and 3, in that order.
+	 * The size of the sqrt array depends proportionally on this constant, so do not choose it too big.
+	 */
+	private static final int K_MULT = 45;
 	
 	/** This constant seems sufficient for all N to compute kLimit = N^K_LIMIT_EXP. 0.436 was not sufficient. */
 	private static final double K_LIMIT_EXP = 0.437;
@@ -44,8 +52,8 @@ public class Hart_Fast2 extends FactorAlgorithm {
 	private static double[] sqrt;
 
 	static {
-		// Precompute sqrts for all k required for N <= MAX_N_BITS bit.
-		final int kMax = (int) Math.pow(2, MAX_N_BITS*K_LIMIT_EXP);
+		// Precompute sqrts for all k required for N <= MAX_N and multiplier K_MULT
+		final int kMax = K_MULT * (int) Math.pow(MAX_N, K_LIMIT_EXP);
 		sqrt = new double[kMax + 1];
 		for (int i = 1; i < sqrt.length; i++) {
 			final double sqrtI = Math.sqrt(i);
@@ -53,10 +61,8 @@ public class Hart_Fast2 extends FactorAlgorithm {
 		}
 	}
 
-	private static final TDiv63Inverse tdiv = new TDiv63Inverse(1<<19); // works for N until 57 bit
+	private static final TDiv63Inverse tdiv = new TDiv63Inverse((int) Math.cbrt(MAX_N));
 
-	private long fourN;
-	private double sqrt4N;
 	private boolean doTDivFirst;
 	private final Gcd63 gcdEngine = new Gcd63();
 
@@ -92,10 +98,10 @@ public class Hart_Fast2 extends FactorAlgorithm {
 			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
 		}
 		
-		fourN = N<<2;
-		sqrt4N = Math.sqrt(fourN);
+		long fourN = N<<2;
+		double sqrt4N = Math.sqrt(fourN);
 		long a,b,test;
-		int k = 3;
+		int k = K_MULT;
 		for (; ;) {
 			// odd k -> adjust a mod 8
 			a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE);
@@ -110,7 +116,7 @@ public class Hart_Fast2 extends FactorAlgorithm {
 			if (b*b == test) {
 				return gcdEngine.gcd(a+b, N);
 			}
-			k += 3;
+			k += K_MULT;
 			
 			// even k -> a must be odd
 			a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) | 1L;
@@ -119,7 +125,7 @@ public class Hart_Fast2 extends FactorAlgorithm {
 			if (b*b == test) {
 				return gcdEngine.gcd(a+b, N);
 			}
-			k += 3;
+			k += K_MULT;
 		}
 	}
 }
