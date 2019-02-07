@@ -54,7 +54,7 @@ public class FactorizerTest {
 
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 200000;
+	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
@@ -84,16 +84,16 @@ public class FactorizerTest {
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),
-			//new Hart_Fast(),
-			new Hart_Fast2(),
-			
+			new Hart_Fast(false),
+			new Hart_Fast2(false),
+
 			// Lehman
 			//new Lehman_Simple(false),
 			//new Lehman_Smith(false),
 			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
 			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
 			new Lehman_Fast2(false),
-		
+			
 			// PollardRho
 			//new PollardRho(),
 			//new PollardRho_ProductGcd(),
@@ -109,9 +109,9 @@ public class FactorizerTest {
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-//			new SquFoF63(),
+			new SquFoF63(),
 			//new SquFoF31(),
-//			new SquFoF31Preload(),
+			new SquFoF31Preload(),
 			
 			// CFrac
 			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits
