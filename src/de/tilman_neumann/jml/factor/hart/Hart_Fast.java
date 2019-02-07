@@ -33,8 +33,8 @@ import de.tilman_neumann.util.ConfigUtil;
  * -> sort running over k-values by mod 6 residues
  * -> correction loop
  * 
- * This variant does trial division before the Hart loops.
- *
+ * XXX For some reason not understood yet this implementation needs trial division.
+ * 
  * @authors Tilman Neumann
  */
 public class Hart_Fast extends FactorAlgorithm {
@@ -45,6 +45,7 @@ public class Hart_Fast extends FactorAlgorithm {
 	 * Larger values require a larger sqrt-table, which may be pretty big like 78 mio. doubles for 60 bit numbers.
 	 */
 	private static final int MAX_N_BITS = 57; // some test numbers have 57 bit
+	
 	/** This constant seems sufficient for all N to compute kLimit = N^K_LIMIT_EXP. 0.436 was not sufficient. */
 	private static final double K_LIMIT_EXP = 0.437;
 	
@@ -55,10 +56,6 @@ public class Hart_Fast extends FactorAlgorithm {
 
 	private static double[] sqrt;
 
-	private long N, fourN;
-	private int kLimit;
-	private double sqrt4N;
-	
 	static {
 		// Precompute sqrts for all k required for N <= MAX_N_BITS bit.
 		final int kMax = (int) Math.pow(2, MAX_N_BITS*K_LIMIT_EXP);
@@ -68,12 +65,25 @@ public class Hart_Fast extends FactorAlgorithm {
 			sqrt[i] = sqrtI;
 		}
 	}
-
+	
+	private long N, fourN;
+	private int kLimit;
+	private double sqrt4N;
+	private boolean doTDivFirst;
 	private final Gcd63 gcdEngine = new Gcd63();
+
+	/**
+	 * Full constructor.
+	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
+	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
+	 */
+	public Hart_Fast(boolean doTDivFirst) {
+		this.doTDivFirst = doTDivFirst;
+	}
 
 	@Override
 	public String getName() {
-		return "Hart_Fast";
+		return "Hart_Fast(" + doTDivFirst + ")";
 	}
 
 	@Override
@@ -82,15 +92,15 @@ public class Hart_Fast extends FactorAlgorithm {
 	}
 
 	public long findSingleFactor(long N) {
-		this.N = N;
-		
 		// For some reason, this implementation needs trial division, too (Hart_Simple does not).
-		// And it _must_ be carried out before the Hart loops...
-		int tdivLimit = (int) (Math.pow(N, 1/3.0));
-		tdiv.setTestLimit(tdivLimit);
+		// Do it before the Hart loop ?
 		long factor;
-		if ((factor = tdiv.findSingleFactor(N))>1) return factor;
-
+		tdiv.setTestLimit((int) Math.cbrt(N));
+		if (doTDivFirst) {
+			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
+		}
+		
+		this.N = N;
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
 		kLimit = (int) Math.pow(N, K_LIMIT_EXP);
@@ -100,7 +110,11 @@ public class Hart_Fast extends FactorAlgorithm {
 		if ((factor=testOddK(5)) > 1) return factor;
 		if ((factor=testEvenK(4)) > 1) return factor;
 		if ((factor=testOddK(1)) > 1) return factor;
-
+		
+		// Do tdiv after the Hart loop ?
+		if (!doTDivFirst) {
+			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
+		}
 
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
@@ -123,7 +137,8 @@ public class Hart_Fast extends FactorAlgorithm {
 			final long test = a*a - k * fourN;
 			final long b = (long) Math.sqrt(test);
 			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
+				long gcd = gcdEngine.gcd(a+b, N);
+				if (gcd>1 && gcd<N) return gcd;
 			}
 		}
 		return 0;
@@ -142,7 +157,8 @@ public class Hart_Fast extends FactorAlgorithm {
 			final long test = a*a - k * fourN;
 			final long b = (long) Math.sqrt(test);
 			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
+				long gcd = gcdEngine.gcd(a+b, N);
+				if (gcd>1 && gcd<N) return gcd;
 			}
 		}
 		return 0;
@@ -227,7 +243,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				197397887859L
 			};
 		
-		Hart_Fast holf = new Hart_Fast();
+		Hart_Fast holf = new Hart_Fast(false);
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
