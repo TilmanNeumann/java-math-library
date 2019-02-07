@@ -33,8 +33,6 @@ import de.tilman_neumann.util.ConfigUtil;
  * -> sort running over k-values by mod 6 residues
  * -> correction loop
  * 
- * XXX For some reason not understood yet this implementation needs trial division.
- * 
  * @authors Tilman Neumann
  */
 public class Hart_Fast extends FactorAlgorithm {
@@ -92,11 +90,10 @@ public class Hart_Fast extends FactorAlgorithm {
 	}
 
 	public long findSingleFactor(long N) {
-		// For some reason, this implementation needs trial division, too (Hart_Simple does not).
-		// Do it before the Hart loop ?
+		// Do trial division before the Hart loop ?
 		long factor;
-		tdiv.setTestLimit((int) Math.cbrt(N));
 		if (doTDivFirst) {
+			tdiv.setTestLimit((int) Math.cbrt(N));
 			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
 		}
 		
@@ -110,11 +107,6 @@ public class Hart_Fast extends FactorAlgorithm {
 		if ((factor=testOddK(5)) > 1) return factor;
 		if ((factor=testEvenK(4)) > 1) return factor;
 		if ((factor=testOddK(1)) > 1) return factor;
-		
-		// Do tdiv after the Hart loop ?
-		if (!doTDivFirst) {
-			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
-		}
 
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
