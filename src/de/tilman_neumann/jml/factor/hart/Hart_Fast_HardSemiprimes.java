@@ -138,7 +138,7 @@ public class Hart_Fast_HardSemiprimes extends FactorAlgorithm {
 				k += K_MULT;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			// this may happen if this implementation is tested with N having very small factors
+			// this may happen if this implementation is tested with N having very small factors, or if N > MAX_N
 			return 0;
 		}
 	}

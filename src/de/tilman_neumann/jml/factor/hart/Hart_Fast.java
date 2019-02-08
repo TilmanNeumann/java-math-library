@@ -144,7 +144,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				k += K_MULT;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			// should never happen in this implementation
+			// should never happen in this implementation; if it does then N > MAX_N
 			LOG.error(this.getClass().getSimpleName() + " failed to factor N=" + N + ". Cause: " + e, e);
 			return 0;
 		}
