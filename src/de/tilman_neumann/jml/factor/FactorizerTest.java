@@ -79,21 +79,23 @@ public class FactorizerTest {
 			// Trial division
 			//new TDiv31(),
 //			new TDiv31Preload(),
-//			new TDiv31Inverse(), // Fastest algorithm for N <= 30 bit
+			new TDiv31Inverse(), // Fastest algorithm for N <= 30 bit
 //			new TDiv63Inverse(1<<21),
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),
 			new Hart_Fast(false),
-			new Hart_Fast2(false),
-			new Hart_Fast3(false),
-			
+			new Hart_Fast(true),
+			new Hart_Fast_HardSemiprimes(false),
+			new Hart_Fast_HardSemiprimes(true),
+
 			// Lehman
 			//new Lehman_Simple(false),
 			//new Lehman_Smith(false),
 			//new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
 //			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
 			new Lehman_Fast2(false),
+			new Lehman_Fast2(true),
 
 			// PollardRho
 			//new PollardRho(),
@@ -183,6 +185,7 @@ public class FactorizerTest {
 		SortedMultiset<BigInteger>[] factorSetArray = new SortedMultiset_BottomUp[N_COUNT];
 
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
+		//Hart_Fast3.biggestSmallFactor = I_0;
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
 		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<Long, List<FactorAlgorithm>>();
@@ -307,6 +310,8 @@ public class FactorizerTest {
 			}
 			rank += j;
 		}
+		
+		//LOG.info("biggestSmallFactor = " + Hart_Fast3.biggestSmallFactor);
 	}
 	
 	/**

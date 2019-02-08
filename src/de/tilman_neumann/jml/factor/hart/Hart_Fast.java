@@ -23,17 +23,14 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Fast implementation of Hart's one line factor algorithm.
- * @see <a href="http://wrap.warwick.ac.uk/54707/">http://wrap.warwick.ac.uk/54707/</a>
+ * Pretty simple yet fast variant of Hart's one line factorizer.
  * 
- * Not as good as the Lehman implementation Thilo Harich and me developed, but getting close.
- * Some of the improvements above the simple version:
- * -> work with 4N instead of N
- * -> adjust a-values by congruences mod 4 rsp. mod 8
- * -> sort running over k-values by mod 6 residues
- * -> correction loop
+ * When called with doTDivFirst=false, this variant is marginally slower than Hart_Fast_HardSemiprimes
+ * for hard semiprimes, but much better on random composites.
  * 
- * @authors Tilman Neumann
+ * If test numbers are known to be random composites, then doTDivFirst=true will improve performance significantly.
+ * 
+ * @authors Thilo Harich & Tilman Neumann
  */
 public class Hart_Fast extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_Fast.class);
@@ -43,31 +40,36 @@ public class Hart_Fast extends FactorAlgorithm {
 	 * Larger values need a larger sqrt-table, which may become pretty big!
 	 * Thus it is recommended to reduce this constant to the minimum required.
 	 */
-	private static final long MAX_N = 1L<<57; // some test numbers have 57 bit
+	private static final long MAX_N = 1L<<50;
 	
-	/** This constant seems sufficient for all N to compute kLimit = N^K_LIMIT_EXP. 0.436 was not sufficient. */
-	private static final double K_LIMIT_EXP = 0.437;
+	/**
+	 * We only test k-values that are multiples of this constant.
+	 * Best values for performance are 315, 45, 105, 15 and 3, in that order.
+	 */
+	private static final int K_MULT = 315;
+	
+	/**
+	 * This constant seems sufficient for all N to compute kLimit = N^K_LIMIT_EXP for all N <= 53 bits.
+	 */
+	private static final double K_LIMIT_EXP = 0.38;
 	
 	/** This constant is used for fast rounding of double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private static final TDiv63Inverse tdiv = new TDiv63Inverse(1<<19); // some test numbers have 57 bit
-
 	private static double[] sqrt;
 
 	static {
-		// Precompute sqrts for all k required for N <= MAX_N_BITS bit.
-		final int kMax = (int) Math.pow(MAX_N, K_LIMIT_EXP);
-		sqrt = new double[kMax + 1];
-		for (int i = 1; i < sqrt.length; i++) {
-			sqrt[i] = Math.sqrt(i);
+		// Precompute sqrts for all k required for N <= MAX_N and multiplier K_MULT
+		final int iMax = (int) Math.pow(MAX_N, K_LIMIT_EXP);
+		sqrt = new double[iMax+1];
+		for (int i = 1; i <= iMax; i++) {
+			sqrt[i] = Math.sqrt(i*K_MULT);
 		}
-		System.out.println("Hart_Fast: Initialized sqrt array with " + kMax + " entries");
+		System.out.println("Hart_Fast: Initialized sqrt array with " + iMax + " entries");
 	}
-	
-	private long N, fourN;
-	private int kLimit;
-	private double sqrt4N;
+
+	private static final TDiv63Inverse tdiv = new TDiv63Inverse((int) Math.cbrt(MAX_N));
+
 	private boolean doTDivFirst;
 	private final Gcd63 gcdEngine = new Gcd63();
 
@@ -79,7 +81,7 @@ public class Hart_Fast extends FactorAlgorithm {
 	public Hart_Fast(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 	}
-
+	
 	@Override
 	public String getName() {
 		return "Hart_Fast(" + doTDivFirst + ")";
@@ -90,71 +92,60 @@ public class Hart_Fast extends FactorAlgorithm {
 		return BigInteger.valueOf(findSingleFactor(N.longValue()));
 	}
 
+	/**
+	 * Find a factor of long N.
+	 * @param N
+	 * @return factor of N
+	 */
 	public long findSingleFactor(long N) {
-		// Do trial division before the Hart loop ?
 		long factor;
 		if (doTDivFirst) {
+			// do trial division before the Hart loop until cbrt(N); great choice for random composites
 			tdiv.setTestLimit((int) Math.cbrt(N));
+			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
+		} else {
+			// Hart needs a minimum amount of tdiv for random omposites, at least up to 2^(NBits-27)/2
+			int NBits = 64-Long.numberOfLeadingZeros(N);
+			int lowTDivLimit = NBits>30 ? (int) Math.sqrt(1L<<(NBits-27)) : 0;
+			tdiv.setTestLimit(lowTDivLimit);
 			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
 		}
 		
-		this.N = N;
-		fourN = N<<2;
-		sqrt4N = Math.sqrt(fourN);
-		kLimit = (int) Math.pow(N, K_LIMIT_EXP);
-		if ((factor=testEvenK(6)) > 1) return factor;
-		if ((factor=testOddK(3)) > 1) return factor;
-		if ((factor=testEvenK(2)) > 1) return factor;
-		if ((factor=testOddK(5)) > 1) return factor;
-		if ((factor=testEvenK(4)) > 1) return factor;
-		if ((factor=testOddK(1)) > 1) return factor;
-
-		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
-		// may have failed. Then we need a "correction loop":
-		for (int k=1; k <= kLimit; k++) {
-			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) - 1;
-			long test = a*a - k*fourN;
-			long b = (long) Math.sqrt(test);
-			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
+		long fourN = N<<2;
+		double sqrt4N = Math.sqrt(fourN);
+		long a,b,test;
+		int k = K_MULT;
+		try {
+			for (int i=1; ;) {
+				// odd k -> adjust a mod 8
+				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
+				final long kPlusN = k + N;
+				if ((kPlusN & 3) == 0) {
+					a += ((kPlusN - a) & 7);
+				} else {
+					a += ((kPlusN - a) & 3);
+				}
+				test = a*a - k * fourN;
+				b = (long) Math.sqrt(test);
+				if (b*b == test) {
+					return gcdEngine.gcd(a+b, N);
+				}
+				k += K_MULT;
+				
+				// even k -> a must be odd
+				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE) | 1L;
+				test = a*a - k * fourN;
+				b = (long) Math.sqrt(test);
+				if (b*b == test) {
+					return gcdEngine.gcd(a+b, N);
+				}
+				k += K_MULT;
 			}
-	    }
-
-		return 1; // fail
-	}
-	
-	private long testEvenK(int kStart) {
-		for (int k = kStart; k<kLimit; k+=6) {
-			// k even -> a must be odd
-			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) | 1;
-			final long test = a*a - k * fourN;
-			final long b = (long) Math.sqrt(test);
-			if (b*b == test) {
-				long gcd = gcdEngine.gcd(a+b, N);
-				if (gcd>1 && gcd<N) return gcd;
-			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			// should never happen in this implementation
+			LOG.error(this.getClass().getSimpleName() + " failed to factor N=" + N + ". Cause: " + e, e);
+			return 0;
 		}
-		return 0;
-	}
-
-	private long testOddK(int kStart) {
-		for (int k = kStart; k<kLimit; k+=6) {
-			// k odd -> a-congruences depend of k+N
-			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE);
-			final long kPlusN = k + N;
-			if ((kPlusN & 3) == 0) {
-				a += ((kPlusN - a) & 7);
-			} else {
-				a += ((kPlusN - a) & 3);
-			}
-			final long test = a*a - k * fourN;
-			final long b = (long) Math.sqrt(test);
-			if (b*b == test) {
-				long gcd = gcdEngine.gcd(a+b, N);
-				if (gcd>1 && gcd<N) return gcd;
-			}
-		}
-		return 0;
 	}
 	
 	/**
@@ -200,16 +191,16 @@ public class Hart_Fast extends FactorAlgorithm {
 				5682546780292609L,
 				
 				// test numbers that required large K_LIMIT_EXP values
-				135902052523483L, // needs kLimit > N^0.42096; 0.42097 works
-				1454149122259871L, // needs kLimit > N^0.421
-				5963992216323061L, // needs kLimit > N^0.423
-				26071073737844227L, // needs kLimit > N^0.428; 0.4285 works
-				8296707175249091L, // kLimit >= N^0.4303 works
-				35688516583284121L, // kLimit >= N^0.43 works
-				35245060305489557L, // kLimit >= N^0.431 works
-				107563481071570333L, // kLimit >= N^0.434 works
-				107326406641253893L, // 0.436 works, 0.435 is not enough
-				120459770277978457L, // 0.437 works, 0.436 is not enough
+				135902052523483L,
+				1454149122259871L,
+				5963992216323061L,
+				26071073737844227L,
+				8296707175249091L,
+				35688516583284121L,
+				//35245060305489557L, // too big for MAX_N
+				//107563481071570333L, // too big for MAX_N
+				//107326406641253893L, // too big for MAX_N
+				//120459770277978457L, // too big for MAX_N
 				
 				// failures with random odd composites
 				949443, // = 3 * 11 * 28771
@@ -229,11 +220,11 @@ public class Hart_Fast extends FactorAlgorithm {
 				2017001503,
 				3084734169L,
 				6700794123L,
-				16032993843L,
+				16032993843L, // fine here
 				26036808587L,
-				41703657595L,
+				41703657595L, // fine here
 				68889614021L,
-				197397887859L,
+				197397887859L, // fine here
 				
 				2157195374713L,
 				8370014680591L,

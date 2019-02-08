@@ -25,13 +25,15 @@ import de.tilman_neumann.util.ConfigUtil;
 /**
  * Pretty simple yet fast variant of Hart's one line factorizer.
  * 
- * This version does not _need_ trial division, but it improves performance for test numbers having small
- * factors frequently.
+ * When called with doTDivFirst=false, this variant is the fastest version to factor hard semiprimes,
+ * but very very bad for N having very small factors.
+ * 
+ * If test numbers are known to be random composites, then doTDivFirst=true will improve performance significantly.
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
-public class Hart_Fast2 extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Hart_Fast2.class);
+public class Hart_Fast_HardSemiprimes extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Hart_Fast_HardSemiprimes.class);
 
 	/**
 	 * The biggest N supported by the algorithm.
@@ -42,12 +44,13 @@ public class Hart_Fast2 extends FactorAlgorithm {
 	
 	/**
 	 * We only test k-values that are multiples of this constant.
-	 * Best values for performance are 45, 105, 15 and 3, in that order.
-	 * The size of the sqrt array depends proportionally on this constant, so do not choose it too big.
+	 * Best values for performance are 315, 45, 105, 15 and 3, in that order.
 	 */
-	private static final int K_MULT = 45;
+	private static final int K_MULT = 315;
 	
-	/** This constant seems sufficient for all N to compute kLimit = N^K_LIMIT_EXP. 0.436 was not sufficient. */
+	/**
+	 * This constant seems sufficient for all N to compute kLimit = N^K_LIMIT_EXP for all N <= 53 bits.
+	 */
 	private static final double K_LIMIT_EXP = 0.38;
 	
 	/** This constant is used for fast rounding of double values to long. */
@@ -57,12 +60,12 @@ public class Hart_Fast2 extends FactorAlgorithm {
 
 	static {
 		// Precompute sqrts for all k required for N <= MAX_N and multiplier K_MULT
-		final int kMax = K_MULT * (int) Math.pow(MAX_N, K_LIMIT_EXP);
-		sqrt = new double[kMax + 1];
-		for (int i = 1; i <= kMax; i++) {
-			sqrt[i] = Math.sqrt(i);
+		final int iMax = (int) Math.pow(MAX_N, K_LIMIT_EXP);
+		sqrt = new double[iMax+1];
+		for (int i = 1; i <= iMax; i++) {
+			sqrt[i] = Math.sqrt(i*K_MULT);
 		}
-		System.out.println("Hart_Fast3: Initialized sqrt array with " + kMax + " entries");
+		System.out.println("Hart_Fast_HardSemiprimes: Initialized sqrt array with " + iMax + " entries");
 	}
 
 	private static final TDiv63Inverse tdiv = new TDiv63Inverse((int) Math.cbrt(MAX_N));
@@ -75,13 +78,13 @@ public class Hart_Fast2 extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Hart_Fast2(boolean doTDivFirst) {
+	public Hart_Fast_HardSemiprimes(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 	}
 	
 	@Override
 	public String getName() {
-		return "Hart_Fast2(" + doTDivFirst + ")";
+		return "Hart_Fast_HardSemiprimes(" + doTDivFirst + ")";
 	}
 
 	@Override
@@ -106,30 +109,35 @@ public class Hart_Fast2 extends FactorAlgorithm {
 		double sqrt4N = Math.sqrt(fourN);
 		long a,b,test;
 		int k = K_MULT;
-		for (; ;) {
-			// odd k -> adjust a mod 8
-			a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE);
-			final long kPlusN = k + N;
-			if ((kPlusN & 3) == 0) {
-				a += ((kPlusN - a) & 7);
-			} else {
-				a += ((kPlusN - a) & 3);
+		try {
+			for (int i=1; ;) {
+				// odd k -> adjust a mod 8
+				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
+				final long kPlusN = k + N;
+				if ((kPlusN & 3) == 0) {
+					a += ((kPlusN - a) & 7);
+				} else {
+					a += ((kPlusN - a) & 3);
+				}
+				test = a*a - k * fourN;
+				b = (long) Math.sqrt(test);
+				if (b*b == test) {
+					return gcdEngine.gcd(a+b, N);
+				}
+				k += K_MULT;
+				
+				// even k -> a must be odd
+				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE) | 1L;
+				test = a*a - k * fourN;
+				b = (long) Math.sqrt(test);
+				if (b*b == test) {
+					return gcdEngine.gcd(a+b, N);
+				}
+				k += K_MULT;
 			}
-			test = a*a - k * fourN;
-			b = (long) Math.sqrt(test);
-			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
-			}
-			k += K_MULT;
-			
-			// even k -> a must be odd
-			a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) | 1L;
-			test = a*a - k * fourN;
-			b = (long) Math.sqrt(test);
-			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
-			}
-			k += K_MULT;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			// this may happen if this implementation is tested with N having very small factors
+			return 0;
 		}
 	}
 	
@@ -205,11 +213,11 @@ public class Hart_Fast2 extends FactorAlgorithm {
 				2017001503,
 				3084734169L,
 				6700794123L,
-				//16032993843L, // TODO fail at 34 bit number
+				//16032993843L, // XXX fail at 34 bit number
 				26036808587L,
-				//41703657595L, // TODO fail at 36 bit number
+				//41703657595L, // XXX fail at 36 bit number
 				68889614021L,
-				//197397887859L, // TODO fail at 38 bit number
+				//197397887859L, // XXX fail at 38 bit number
 				
 				2157195374713L,
 				8370014680591L,
@@ -217,7 +225,7 @@ public class Hart_Fast2 extends FactorAlgorithm {
 				63088136564083L
 			};
 		
-		Hart_Fast2 holf = new Hart_Fast2(false);
+		Hart_Fast_HardSemiprimes holf = new Hart_Fast_HardSemiprimes(false);
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
