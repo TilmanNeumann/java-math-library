@@ -39,10 +39,11 @@ public class Hart_Fast extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_Fast.class);
 
 	/**
-	 * The biggest bit length of N supported by the algorithm.
-	 * Larger values require a larger sqrt-table, which may be pretty big like 78 mio. doubles for 60 bit numbers.
+	 * The biggest N supported by the algorithm.
+	 * Larger values need a larger sqrt-table, which may become pretty big!
+	 * Thus it is recommended to reduce this constant to the minimum required.
 	 */
-	private static final int MAX_N_BITS = 57; // some test numbers have 57 bit
+	private static final long MAX_N = 1L<<57; // some test numbers have 57 bit
 	
 	/** This constant seems sufficient for all N to compute kLimit = N^K_LIMIT_EXP. 0.436 was not sufficient. */
 	private static final double K_LIMIT_EXP = 0.437;
@@ -56,12 +57,12 @@ public class Hart_Fast extends FactorAlgorithm {
 
 	static {
 		// Precompute sqrts for all k required for N <= MAX_N_BITS bit.
-		final int kMax = (int) Math.pow(2, MAX_N_BITS*K_LIMIT_EXP);
+		final int kMax = (int) Math.pow(MAX_N, K_LIMIT_EXP);
 		sqrt = new double[kMax + 1];
 		for (int i = 1; i < sqrt.length; i++) {
-			final double sqrtI = Math.sqrt(i);
-			sqrt[i] = sqrtI;
+			sqrt[i] = Math.sqrt(i);
 		}
+		System.out.println("Hart_Fast: Initialized sqrt array with " + kMax + " entries");
 	}
 	
 	private long N, fourN;
