@@ -104,7 +104,7 @@ public class Hart_Fast extends FactorAlgorithm {
 			tdiv.setTestLimit((int) Math.cbrt(N));
 			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
 		} else {
-			// Hart needs a minimum amount of tdiv for random omposites, at least up to 2^(NBits-27)/2
+			// Hart needs a minimum amount of tdiv for random composites, at least up to primes p <= 2^(NBits-27)/2
 			int NBits = 64-Long.numberOfLeadingZeros(N);
 			int lowTDivLimit = NBits>30 ? (int) Math.sqrt(1L<<(NBits-27)) : 0;
 			tdiv.setTestLimit(lowTDivLimit);
