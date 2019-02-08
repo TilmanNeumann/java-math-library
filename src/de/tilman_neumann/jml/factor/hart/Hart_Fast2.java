@@ -32,7 +32,6 @@ public class Hart_Fast2 extends FactorAlgorithm {
 	 * The biggest N supported by the algorithm.
 	 * Larger values need a larger sqrt-table, which may become pretty big!
 	 * Thus it is recommended to reduce this constant to the minimum required.
-	 * This may imply a small speedup because then a bigger portion of the array fits into L3 cache.
 	 */
 	private static final long MAX_N = 1L<<50;
 	
@@ -44,7 +43,7 @@ public class Hart_Fast2 extends FactorAlgorithm {
 	private static final int K_MULT = 45;
 	
 	/** This constant seems sufficient for all N to compute kLimit = N^K_LIMIT_EXP. 0.436 was not sufficient. */
-	private static final double K_LIMIT_EXP = 0.437;
+	private static final double K_LIMIT_EXP = 0.38;
 	
 	/** This constant is used for fast rounding of double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
@@ -55,10 +54,10 @@ public class Hart_Fast2 extends FactorAlgorithm {
 		// Precompute sqrts for all k required for N <= MAX_N and multiplier K_MULT
 		final int kMax = K_MULT * (int) Math.pow(MAX_N, K_LIMIT_EXP);
 		sqrt = new double[kMax + 1];
-		for (int i = 1; i < sqrt.length; i++) {
-			final double sqrtI = Math.sqrt(i);
-			sqrt[i] = sqrtI;
+		for (int i = 1; i <= kMax; i++) {
+			sqrt[i] = Math.sqrt(i);
 		}
+		System.out.println("Hart_Fast3: Initialized sqrt array with " + kMax + " entries");
 	}
 
 	private static final TDiv63Inverse tdiv = new TDiv63Inverse((int) Math.cbrt(MAX_N));
