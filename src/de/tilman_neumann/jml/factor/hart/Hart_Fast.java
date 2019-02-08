@@ -233,7 +233,12 @@ public class Hart_Fast extends FactorAlgorithm {
 				26036808587L,
 				41703657595L,
 				68889614021L,
-				197397887859L
+				197397887859L,
+				
+				2157195374713L,
+				8370014680591L,
+				22568765132167L,
+				63088136564083L
 			};
 		
 		Hart_Fast holf = new Hart_Fast(false);
