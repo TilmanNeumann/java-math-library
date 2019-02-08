@@ -101,7 +101,9 @@ public class Hart_Fast_HardSemiprimes extends FactorAlgorithm {
 		// do trial division before the Hart loop ?
 		long factor;
 		if (doTDivFirst) {
-			tdiv.setTestLimit((int) Math.cbrt(N));
+			// avoid Exceptions when N > MAX_N
+			int testLimit = (int) Math.cbrt(N<MAX_N ? N : MAX_N);
+			tdiv.setTestLimit(testLimit);
 			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
 		}
 		

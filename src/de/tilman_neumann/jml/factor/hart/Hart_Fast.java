@@ -101,7 +101,9 @@ public class Hart_Fast extends FactorAlgorithm {
 		long factor;
 		if (doTDivFirst) {
 			// do trial division before the Hart loop until cbrt(N); great choice for random composites
-			tdiv.setTestLimit((int) Math.cbrt(N));
+			// avoid Exceptions when N > MAX_N
+			int testLimit = (int) Math.cbrt(N<MAX_N ? N : MAX_N);
+			tdiv.setTestLimit(testLimit);
 			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
 		} else {
 			// Hart needs a minimum amount of tdiv for random composites, at least up to primes p <= 2^(NBits-27)/2
