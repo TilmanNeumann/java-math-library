@@ -90,6 +90,7 @@ public class TDiv63Inverse extends FactorAlgorithm {
 	
 	public int findSingleFactor(long N) {
 		int i=0;
+		//LOG.debug("N=" + N);
 		int Nbits = 64-Long.numberOfLeadingZeros(N);
 		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
 		if (pMinBits>0) {
