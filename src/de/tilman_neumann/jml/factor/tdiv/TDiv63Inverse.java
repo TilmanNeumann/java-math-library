@@ -46,7 +46,7 @@ public class TDiv63Inverse extends FactorAlgorithm {
 
 	private int[] primes;
 	private double[] reciprocals;
-	private int pLimit;
+	private int pLimit, primeCountBound;
 
 	/**
 	 * Create a trial division algorithm that is capable of finding factors up to factorLimit.
@@ -54,7 +54,7 @@ public class TDiv63Inverse extends FactorAlgorithm {
 	 */
 	public TDiv63Inverse(int factorLimit) {
 		pLimit = factorLimit; // default if not set explicitly
-		int primeCountBound = (int) PrimeCountUpperBounds.combinedUpperBound(factorLimit);
+		primeCountBound = (int) PrimeCountUpperBounds.combinedUpperBound(factorLimit);
 		primes = new int[primeCountBound];
 		reciprocals = new double[primeCountBound];
 		for (int i=0; i<primeCountBound; i++) {
@@ -103,18 +103,25 @@ public class TDiv63Inverse extends FactorAlgorithm {
 		}
 		
 		// Now the primes are big enough to apply trial division by inverses
-		for (; primes[i]<=pLimit; i++) {
-			//LOG.debug("N=" + N + ": Test p=" + primes[i]);
-			long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
-			if (nDivPrime * primes[i] == N) {
-				// nDivPrime is very near to an integer
-				if (N%primes[i]==0) {
-					//LOG.debug("Found factor " + primes[i]);
-					return primes[i];
+		try {
+			for (; primes[i]<=pLimit; i++) {
+				//LOG.debug("N=" + N + ": Test p=" + primes[i]);
+				long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
+				if (nDivPrime * primes[i] == N) {
+					// nDivPrime is very near to an integer
+					if (N%primes[i]==0) {
+						//LOG.debug("Found factor " + primes[i]);
+						return primes[i];
+					}
 				}
 			}
+		} catch (Exception e) {
+			// did the primeCountBound fail?
+			LOG.error("TDiv63Inverse failed to find a factor of N=" + N);
+			LOG.error("Debug info: pLimit=" + pLimit + ", primeCountBound=" + primeCountBound + ", i=" + i);
+			LOG.error("Cause: " + e, e);
 		}
-
+		
 		// nothing found up to pLimit
 		return 0;
 	}
