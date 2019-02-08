@@ -115,11 +115,10 @@ public class TDiv63Inverse extends FactorAlgorithm {
 					}
 				}
 			}
-		} catch (Exception e) {
-			// Here an Exception occured testing Hart_Fast3 with a 51 bit number. Did the primeCountBound fail?
-			LOG.error("TDiv63Inverse failed to find a factor of N=" + N);
-			LOG.error("Debug info: pLimit=" + pLimit + ", primeCountBound=" + primeCountBound + ", i=" + i);
-			LOG.error("Cause: " + e, e);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			int pMaxIndex = primeCountBound-1;
+			int pMax = primes[pMaxIndex];
+			LOG.error("TDiv63Inverse has been set up to find factors until p[" + pMaxIndex + "] = " + pMax + ", but now you are trying to access p[" + i + "] !");
 		}
 		
 		// nothing found up to pLimit
