@@ -116,7 +116,7 @@ public class TDiv63Inverse extends FactorAlgorithm {
 				}
 			}
 		} catch (Exception e) {
-			// did the primeCountBound fail?
+			// Here an Exception occured testing Hart_Fast3 with a 51 bit number. Did the primeCountBound fail?
 			LOG.error("TDiv63Inverse failed to find a factor of N=" + N);
 			LOG.error("Debug info: pLimit=" + pLimit + ", primeCountBound=" + primeCountBound + ", i=" + i);
 			LOG.error("Cause: " + e, e);
