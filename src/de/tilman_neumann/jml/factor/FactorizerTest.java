@@ -60,7 +60,7 @@ public class FactorizerTest {
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = null;
+	private static final Integer MAX_BITS = 50;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
@@ -85,17 +85,18 @@ public class FactorizerTest {
 			// Hart's one line factorizer
 			//new Hart_Simple(),
 			new Hart_Fast(false),
-			new Hart_Fast(true),
-//			new Hart_Fast_HardSemiprimes(false),
+//			new Hart_Fast(true),
+			new Hart_Fast_HardSemiprimes(false),
 //			new Hart_Fast_HardSemiprimes(true),
+			new Hart_Fast2(false),
 
 			// Lehman
 			//new Lehman_Simple(false),
 			//new Lehman_Smith(false),
-			//new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
+			new Lehman_Fast(false), // best algorithm for hard N with 31 to 47 bits
 //			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
 			new Lehman_Fast2(false),
-			new Lehman_Fast2(true),
+//			new Lehman_Fast2(true),
 
 			// PollardRho
 			//new PollardRho(),
