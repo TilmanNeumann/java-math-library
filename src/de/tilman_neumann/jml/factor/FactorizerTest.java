@@ -86,8 +86,8 @@ public class FactorizerTest {
 			//new Hart_Simple(),
 			new Hart_Fast(false),
 			new Hart_Fast(true),
-			new Hart_Fast_HardSemiprimes(false),
-			new Hart_Fast_HardSemiprimes(true),
+//			new Hart_Fast_HardSemiprimes(false),
+//			new Hart_Fast_HardSemiprimes(true),
 
 			// Lehman
 			//new Lehman_Simple(false),
@@ -185,7 +185,6 @@ public class FactorizerTest {
 		SortedMultiset<BigInteger>[] factorSetArray = new SortedMultiset_BottomUp[N_COUNT];
 
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
-		//Hart_Fast3.biggestSmallFactor = I_0;
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
 		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<Long, List<FactorAlgorithm>>();
@@ -310,8 +309,6 @@ public class FactorizerTest {
 			}
 			rank += j;
 		}
-		
-		//LOG.info("biggestSmallFactor = " + Hart_Fast3.biggestSmallFactor);
 	}
 	
 	/**
