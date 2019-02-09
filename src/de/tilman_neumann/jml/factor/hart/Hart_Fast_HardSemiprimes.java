@@ -224,7 +224,16 @@ public class Hart_Fast_HardSemiprimes extends FactorAlgorithm {
 				2157195374713L,
 				8370014680591L,
 				22568765132167L,
-				63088136564083L
+				63088136564083L,
+								
+				// more test numbers with small factors
+				// 30 bit
+				712869263, // = 89 * 8009767
+				386575807, // = 73 * 5295559
+				569172749, // = 83 * 6857503
+				// 40 bit
+				624800360363L, // = 233 * 2681546611
+				883246601513L, // = 251 * 3518910763
 			};
 		
 		Hart_Fast_HardSemiprimes holf = new Hart_Fast_HardSemiprimes(false);
