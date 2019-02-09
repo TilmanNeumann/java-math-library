@@ -93,18 +93,18 @@ public class TDiv63Inverse extends FactorAlgorithm {
 		//LOG.debug("N=" + N);
 		int Nbits = 64-Long.numberOfLeadingZeros(N);
 		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
-		if (pMinBits>0) {
-			// for the smallest primes we must do standard trial division
-			int pMin = 1<<pMinBits;
-			for ( ; primes[i]<pMin; i++) {
-				if (N%primes[i]==0) {
-					return primes[i];
+		try {
+			if (pMinBits>0) {
+				// for the smallest primes we must do standard trial division
+				int pMin = 1<<pMinBits;
+				for ( ; primes[i]<pMin; i++) {
+					if (N%primes[i]==0) {
+						return primes[i];
+					}
 				}
 			}
-		}
-		
-		// Now the primes are big enough to apply trial division by inverses
-		try {
+			
+			// Now the primes are big enough to apply trial division by inverses
 			for (; primes[i]<=pLimit; i++) {
 				//LOG.debug("N=" + N + ": Test p=" + primes[i]);
 				long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
