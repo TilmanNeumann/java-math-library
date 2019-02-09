@@ -49,7 +49,7 @@ public class Lehman_Fast extends FactorAlgorithm {
 		final int kMax = 1<<21;
 		sqrt = new double[kMax + 1];
 		sqrtInv = new double[kMax + 1];
-		for (int i = 1; i < sqrt.length; i++) {
+		for (int i=1; i <= kMax; i++) {
 			final double sqrtI = Math.sqrt(i);
 			sqrt[i] = sqrtI;
 			sqrtInv[i] = 1.0/sqrtI;
