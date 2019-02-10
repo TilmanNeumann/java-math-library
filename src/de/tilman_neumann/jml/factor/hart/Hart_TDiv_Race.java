@@ -101,7 +101,9 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				int pMin = 1<<pMinBits;
 				for ( ; primes[i]<pMin; ) {
 					// tdiv step
+					//LOG.debug("test p[" + i + "] = " + primes[i]);
 					if (N%primes[i]==0) {
+						//LOG.debug("found factor " + primes[i]);
 						return primes[i];
 					}
 
@@ -121,7 +123,9 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					k += K_MULT;
 
 					// tdiv step
+					//LOG.debug("test p[" + i + "] = " + primes[i]);
 					if (N%primes[i]==0) {
+						//LOG.debug("found factor " + primes[i]);
 						return primes[i];
 					}
 
@@ -139,6 +143,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 			// continue with Hart and fast inverse trial division
 			for (; ;) {
 				// tdiv step
+				//LOG.debug("test p[" + i + "] = " + primes[i]);
 				long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
 				if (nDivPrime * primes[i] == N) {
 					// nDivPrime is very near to an integer
@@ -164,6 +169,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				k += K_MULT;
 
 				// tdiv step
+				//LOG.debug("test p[" + i + "] = " + primes[i]);
 				nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
 				if (nDivPrime * primes[i] == N) {
 					// nDivPrime is very near to an integer
@@ -260,11 +266,11 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				2017001503,
 				3084734169L,
 				6700794123L,
-				16032993843L, // XXX fail at 34 bit number
+				16032993843L, // fine here
 				26036808587L,
-				41703657595L, // XXX fail at 36 bit number
+				41703657595L, // fine here
 				68889614021L,
-				197397887859L, // XXX fail at 38 bit number
+				197397887859L, // fine here
 				
 				2157195374713L,
 				8370014680591L,
@@ -281,7 +287,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				883246601513L, // = 251 * 3518910763
 			};
 		
-		Hart_Fast holf = new Hart_Fast(false);
+		Hart_TDiv_Race holf = new Hart_TDiv_Race();
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
