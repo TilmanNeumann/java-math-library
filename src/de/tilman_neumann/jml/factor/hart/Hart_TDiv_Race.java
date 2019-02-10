@@ -285,6 +285,9 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				// 40 bit
 				624800360363L, // = 233 * 2681546611
 				883246601513L, // = 251 * 3518910763
+				
+				// Thilo
+				35184372094495L,
 			};
 		
 		Hart_TDiv_Race holf = new Hart_TDiv_Race();
