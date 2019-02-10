@@ -86,7 +86,7 @@ public class FactorizerTest {
 			//new Hart_Simple(),
 			new Hart_Fast(false),
 //			new Hart_Fast(true),
-			new Hart_TDiv_Race(), // best algorithm for hard N with 25 to 49 bits
+			new Hart_TDiv_Race(), // best algorithm for any N with 25 to 49 bits
 			
 			// Lehman
 			//new Lehman_Simple(false),
