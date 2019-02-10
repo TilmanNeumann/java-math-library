@@ -169,17 +169,17 @@ public class Hart_Fast extends FactorAlgorithm {
 				2815471543494793L,
 				5682546780292609L,
 				
-				// test numbers that required large K_LIMIT_EXP values
+				// test numbers that required large arrays
 				135902052523483L,
 				1454149122259871L,
 				5963992216323061L,
 				26071073737844227L,
 				8296707175249091L,
 				35688516583284121L,
-				//35245060305489557L, // too big for MAX_N
-				//107563481071570333L, // too big for MAX_N
-				//107326406641253893L, // too big for MAX_N
-				//120459770277978457L, // too big for MAX_N
+				//35245060305489557L, // too big for I_MAX
+				//107563481071570333L, // too big for I_MAX
+				//107326406641253893L, // too big for I_MAX
+				//120459770277978457L, // too big for I_MAX
 				
 				// failures with random odd composites
 				949443, // = 3 * 11 * 28771
@@ -199,11 +199,11 @@ public class Hart_Fast extends FactorAlgorithm {
 				2017001503,
 				3084734169L,
 				6700794123L,
-				//16032993843L, // XXX fail at 34 bit number
+				16032993843L, // XXX fail at 34 bit number
 				26036808587L,
-				//41703657595L, // XXX fail at 36 bit number
+				41703657595L, // XXX fail at 36 bit number
 				68889614021L,
-				//197397887859L, // XXX fail at 38 bit number
+				197397887859L, // XXX fail at 38 bit number
 				
 				2157195374713L,
 				8370014680591L,
