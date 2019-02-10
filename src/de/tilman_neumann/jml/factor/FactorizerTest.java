@@ -79,7 +79,7 @@ public class FactorizerTest {
 			// Trial division
 			//new TDiv31(),
 //			new TDiv31Preload(),
-			new TDiv31Inverse(), // Fastest algorithm for N <= 30 bit
+			new TDiv31Inverse(), // Fastest algorithm for N <= 24 bit
 //			new TDiv63Inverse(1<<21),
 			
 			// Hart's one line factorizer
@@ -87,12 +87,12 @@ public class FactorizerTest {
 			new Hart_Fast(false),
 //			new Hart_Fast(true),
 			new Hart_TDiv_Race(), // best algorithm for hard N with 25 to 49 bits
-
+			
 			// Lehman
 			//new Lehman_Simple(false),
 			//new Lehman_Smith(false),
 			new Lehman_Fast(false),
-//			new Lehman_Fast(true), // great for random composite N<60 bit having small factors frequently
+//			new Lehman_Fast(true),
 			new Lehman_Fast2(false),
 //			new Lehman_Fast2(true),
 
@@ -103,15 +103,15 @@ public class FactorizerTest {
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
 			//new PollardRhoBrentMontgomery63(), // first long version, not optimized any further
-			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 48 to 57 bit
-//			new PollardRhoBrentMontgomery64(), // best algorithm for N from 58 to 62 bit
+			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 50 to 56 bit
+//			new PollardRhoBrentMontgomery64(), // best algorithm for N from 57 to 62 bit
 			
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-//			new SquFoF63(),
+			new SquFoF63(),
 			//new SquFoF31(),
 //			new SquFoF31Preload(),
 			

@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver02_BlockLanczos;
-import de.tilman_neumann.jml.factor.lehman.Lehman_Fast;
+import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS;
@@ -54,7 +54,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
 	
 	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
-	private Lehman_Fast lehman = new Lehman_Fast(true); // Lehman with tdiv first is faster for general numbers
+	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	
@@ -117,9 +117,9 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
 		int NBits = N.bitLength();
-		if (NBits<31) return tDiv31.findSingleFactor(N);
-		if (NBits<48) return lehman.findSingleFactor(N);
-		if (NBits<58) return pollardRhoR64Mul63.findSingleFactor(N);
+		if (NBits<25) return tDiv31.findSingleFactor(N);
+		if (NBits<50) return hart.findSingleFactor(N);
+		if (NBits<57) return pollardRhoR64Mul63.findSingleFactor(N);
 		if (NBits<63) return pollardRho64.findSingleFactor(N);
 		if (NBits<97) return siqs_smallArgs.findSingleFactor(N);
 		return siqs_bigArgs.findSingleFactor(N);

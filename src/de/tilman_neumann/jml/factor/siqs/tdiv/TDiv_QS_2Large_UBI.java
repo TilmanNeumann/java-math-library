@@ -28,7 +28,7 @@ import de.tilman_neumann.jml.factor.base.congruence.Partial_2Large;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_1LargeSquare;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
-import de.tilman_neumann.jml.factor.lehman.Lehman_Fast;
+import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
@@ -85,7 +85,7 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 
 	private BPSWTest bpsw = new BPSWTest();
 	
-	private Lehman_Fast lehman = new Lehman_Fast(false);
+	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	// Nested SIQS is required only for approximately N>310 bit.
@@ -268,10 +268,10 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		// -> trial division is no help here.
 		BigInteger factor1;
 		int Q_rest_bits = Q_rest.bitLength();
-		if (Q_rest_bits<48) {
-			if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use lehman");
-			factor1 = lehman.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits<58) {
+		if (Q_rest_bits<50) {
+			if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use hart");
+			factor1 = hart.findSingleFactor(Q_rest);
+		} else if (Q_rest_bits<57) {
 			if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use pollardRhoR64Mul63");
 			factor1 = pollardRhoR64Mul63.findSingleFactor(Q_rest);
 		} else if (Q_rest_bits<63) {

@@ -25,7 +25,7 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.cfrac.CFrac63;
-import de.tilman_neumann.jml.factor.lehman.Lehman_Fast;
+import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
@@ -56,7 +56,7 @@ public class TDiv_CF02 implements TDiv_CF {
 	private double maxQRest;
 
 	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
-	private Lehman_Fast lehman = new Lehman_Fast(false);
+	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	private CFrac63 cf_internal = new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 12);
@@ -201,11 +201,11 @@ public class TDiv_CF02 implements TDiv_CF {
 		// Find a factor of Q_rest, where Q_rest is pMax < Q_rest <= maxQRest, composite and odd.
 		BigInteger factor1;
 		int Q_rest_bits = Q_rest.bitLength();
-		if (Q_rest_bits < 31) {
+		if (Q_rest_bits < 25) {
 			factor1 = tDiv31.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits < 48) {
-			factor1 = lehman.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits < 58) {
+		} else if (Q_rest_bits < 50) {
+			factor1 = hart.findSingleFactor(Q_rest);
+		} else if (Q_rest_bits < 57) {
 			factor1 = pollardRhoR64Mul63.findSingleFactor(Q_rest);
 		} else if (Q_rest_bits < 63) {
 			factor1 = pollardRho64.findSingleFactor(Q_rest);
