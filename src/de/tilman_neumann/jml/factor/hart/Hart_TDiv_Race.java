@@ -92,7 +92,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 		
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
-		long a, b, test, gcd;
+		long a,b,test;
 		int k = K_MULT;
 		try {
 			int i=1;
@@ -118,7 +118,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					test = a*a - k * fourN;
 					b = (long) Math.sqrt(test);
 					if (b*b == test) {
-						if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+						return gcdEngine.gcd(a+b, N);
 					}
 					k += K_MULT;
 
@@ -134,7 +134,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					test = a*a - k * fourN;
 					b = (long) Math.sqrt(test);
 					if (b*b == test) {
-						if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+						return gcdEngine.gcd(a+b, N);
 					}
 					k += K_MULT;
 				}
@@ -164,7 +164,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+					return gcdEngine.gcd(a+b, N);
 				}
 				k += K_MULT;
 
@@ -184,7 +184,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+					return gcdEngine.gcd(a+b, N);
 				}
 				k += K_MULT;
 			}
@@ -288,7 +288,8 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				
 				// Thilo
 				35184372094495L,
-				893,
+				893, // XXX fail
+				9
 			};
 		
 		Hart_TDiv_Race holf = new Hart_TDiv_Race();

@@ -33,8 +33,8 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
-public class Hart_Fast extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Hart_Fast.class);
+public class Hart_Fast2 extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Hart_Fast2.class);
 	
 	/**
 	 * We only test k-values that are multiples of this constant.
@@ -58,7 +58,7 @@ public class Hart_Fast extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Hart_Fast(boolean doTDivFirst) {
+	public Hart_Fast2(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// Precompute sqrts for all k < I_MAX
 		sqrt = new double[I_MAX];
@@ -69,7 +69,7 @@ public class Hart_Fast extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "Hart_Fast(" + doTDivFirst + ")";
+		return "Hart_Fast2(" + doTDivFirst + ")";
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class Hart_Fast extends FactorAlgorithm {
 		
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
-		long a,b,test;
+		long a, b, test, gcd;
 		int k = K_MULT;
 		try {
 			for (int i=1; ;) {
@@ -107,7 +107,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
 				}
 				k += K_MULT;
 				
@@ -116,7 +116,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
 				}
 				k += K_MULT;
 			}
@@ -219,10 +219,10 @@ public class Hart_Fast extends FactorAlgorithm {
 				624800360363L, // = 233 * 2681546611
 				883246601513L, // = 251 * 3518910763
 				
-				893 // XXX fail
+				893
 			};
 		
-		Hart_Fast holf = new Hart_Fast(false);
+		Hart_Fast2 holf = new Hart_Fast2(false);
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);

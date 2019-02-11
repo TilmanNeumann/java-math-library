@@ -18,23 +18,23 @@ import java.math.BigInteger;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 import de.tilman_neumann.jml.gcd.Gcd63;
+import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Pretty simple yet fast variant of Hart's one line factorizer.
+ * A factoring algorithm racing Hart's one line factorizer against trial division.
  * 
- * This implementation is pretty fast if we know the nature of test numbers in advance.
- * With doTDivFirst=false, it is pretty good to factor hard semiprimes, but very bad for random composites;
- * with doTDivFirst=true, it is good for random composites, but not as good for hard semiprimes.
+ * This is the fastest algorithm for any kind of numbers having 25 to 49 bits.
+ * Fast trial division by "multiplication of the reciprocal" is essential for the speed of the implementation;
+ * otherwise Hard_fast would be faster for hard semiprimes.
  * 
- * Hart_TDiv_Race solves that problem and is faster for any kind of test numbers.
+ * Version 2 fixes problems with small arguments but is slightly slightly slower than version 1 otherwise.
  * 
- * @authors Thilo Harich & Tilman Neumann
+ * @authors Tilman Neumann & Thilo Harich
  */
-public class Hart_Fast extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Hart_Fast.class);
+public class Hart_TDiv_Race2 extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Hart_TDiv_Race2.class);
 	
 	/**
 	 * We only test k-values that are multiples of this constant.
@@ -42,34 +42,40 @@ public class Hart_Fast extends FactorAlgorithm {
 	 */
 	private static final int K_MULT = 315;
 	
-	/** Size of arrays */
+	/** Size of arrays, sufficient to factor all numbers <= 52 bit. */
 	private static final int I_MAX = 1<<20;
+	
+	private static final int DISCRIMINATOR_BITS = 10; // experimental result
+	private static final double DISCRIMINATOR = 1.0/(1<<DISCRIMINATOR_BITS);
 	
 	/** This constant is used for fast rounding of double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private boolean doTDivFirst;
 	private double[] sqrt;
-	private final TDiv63Inverse tdiv = new TDiv63Inverse(I_MAX);
+	private int[] primes;
+	private double[] reciprocals;
+	
+	private final AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
 	private final Gcd63 gcdEngine = new Gcd63();
 
 	/**
 	 * Full constructor.
-	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
-	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Hart_Fast(boolean doTDivFirst) {
-		this.doTDivFirst = doTDivFirst;
-		// Precompute sqrts for all k < I_MAX
+	public Hart_TDiv_Race2() {
 		sqrt = new double[I_MAX];
+		primes = new int[I_MAX];
+		reciprocals = new double[I_MAX];
 		for (int i=1; i<I_MAX; i++) {
 			sqrt[i] = Math.sqrt(i*K_MULT);
+			int p = SMALL_PRIMES.getPrime(i);
+			primes[i] = p;
+			reciprocals[i] = 1.0/p;
 		}
 	}
 	
 	@Override
 	public String getName() {
-		return "Hart_Fast(" + doTDivFirst + ")";
+		return "Hart_TDiv_Race2";
 	}
 
 	@Override
@@ -83,19 +89,72 @@ public class Hart_Fast extends FactorAlgorithm {
 	 * @return factor of N
 	 */
 	public long findSingleFactor(long N) {
-		// do trial division before the Hart loop ?
-		long factor;
-		if (doTDivFirst) {
-			tdiv.setTestLimit((int) Math.cbrt(N));
-			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
-		}
+		int Nbits = 64-Long.numberOfLeadingZeros(N);
+		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
 		
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
-		long a,b,test;
+		long a, b, test, gcd;
 		int k = K_MULT;
 		try {
-			for (int i=1; ;) {
+			int i=1;
+			if (pMinBits>0) {
+				// for the smallest primes we must do standard trial division
+				int pMin = 1<<pMinBits;
+				for ( ; primes[i]<pMin; ) {
+					// tdiv step
+					//LOG.debug("test p[" + i + "] = " + primes[i]);
+					if (N%primes[i]==0) {
+						//LOG.debug("found factor " + primes[i]);
+						return primes[i];
+					}
+
+					// odd k -> adjust a mod 8
+					a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
+					final long kPlusN = k + N;
+					if ((kPlusN & 3) == 0) {
+						a += ((kPlusN - a) & 7);
+					} else {
+						a += ((kPlusN - a) & 3);
+					}
+					test = a*a - k * fourN;
+					b = (long) Math.sqrt(test);
+					if (b*b == test) {
+						if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+					}
+					k += K_MULT;
+
+					// tdiv step
+					//LOG.debug("test p[" + i + "] = " + primes[i]);
+					if (N%primes[i]==0) {
+						//LOG.debug("found factor " + primes[i]);
+						return primes[i];
+					}
+
+					// even k -> a must be odd
+					a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE) | 1L;
+					test = a*a - k * fourN;
+					b = (long) Math.sqrt(test);
+					if (b*b == test) {
+						if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+					}
+					k += K_MULT;
+				}
+			}
+			
+			// continue with Hart and fast inverse trial division
+			for (; ;) {
+				// tdiv step
+				//LOG.debug("test p[" + i + "] = " + primes[i]);
+				long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
+				if (nDivPrime * primes[i] == N) {
+					// nDivPrime is very near to an integer
+					if (N%primes[i]==0) {
+						//LOG.debug("Found factor " + primes[i]);
+						return primes[i];
+					}
+				}
+
 				// odd k -> adjust a mod 8
 				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
 				final long kPlusN = k + N;
@@ -107,22 +166,32 @@ public class Hart_Fast extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
 				}
 				k += K_MULT;
-				
+
+				// tdiv step
+				//LOG.debug("test p[" + i + "] = " + primes[i]);
+				nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
+				if (nDivPrime * primes[i] == N) {
+					// nDivPrime is very near to an integer
+					if (N%primes[i]==0) {
+						//LOG.debug("Found factor " + primes[i]);
+						return primes[i];
+					}
+				}
+
 				// even k -> a must be odd
 				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE) | 1L;
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
 				}
 				k += K_MULT;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			// this may happen if this implementation is tested with doTDivFirst==false and N having
-			// very small factors, or if N is too big
+			LOG.error("Hart_TDiv_Race: Failed to factor N=" + N + " because the arrays are too small.");
 			return 0;
 		}
 	}
@@ -199,17 +268,17 @@ public class Hart_Fast extends FactorAlgorithm {
 				2017001503,
 				3084734169L,
 				6700794123L,
-				16032993843L, // XXX fail at 34 bit number
+				16032993843L, // fine here
 				26036808587L,
-				41703657595L, // XXX fail at 36 bit number
+				41703657595L, // fine here
 				68889614021L,
-				197397887859L, // XXX fail at 38 bit number
+				197397887859L, // fine here
 				
 				2157195374713L,
 				8370014680591L,
 				22568765132167L,
 				63088136564083L,
-								
+				
 				// more test numbers with small factors
 				// 30 bit
 				712869263, // = 89 * 8009767
@@ -219,10 +288,13 @@ public class Hart_Fast extends FactorAlgorithm {
 				624800360363L, // = 233 * 2681546611
 				883246601513L, // = 251 * 3518910763
 				
-				893 // XXX fail
+				// Thilo
+				35184372094495L,
+				893,
+				9
 			};
 		
-		Hart_Fast holf = new Hart_Fast(false);
+		Hart_TDiv_Race2 holf = new Hart_TDiv_Race2();
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
