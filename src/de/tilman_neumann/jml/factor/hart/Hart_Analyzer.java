@@ -27,8 +27,7 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Simple implementation of Hart's one line factor algorithm.
- * @see <a href="http://wrap.warwick.ac.uk/54707/">http://wrap.warwick.ac.uk/54707/</a>
+ * Analyze the congruences best matching Hart's one-line factor algorithm.
  * @author Tilman Neumann
  */
 public class Hart_Analyzer extends FactorAlgorithm {
