@@ -53,7 +53,7 @@ public class Hart_Analyzer extends FactorAlgorithm {
 	private static double[] sqrt;
 
 	static {
-		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
+		// Precompute sqrts...
 		final int kMax = 1<<25;
 		sqrt = new double[kMax + 1];
 		for (int i = 1; i < sqrt.length; i++) {
