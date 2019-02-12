@@ -48,8 +48,8 @@ public class Hart_Analyzer extends FactorAlgorithm {
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 4;
-	private static final int AMOD = 4;
+	private static final int KNMOD = 8;
+	private static final int AMOD = 8;
 
 	private static double[] sqrt;
 
@@ -91,7 +91,7 @@ public class Hart_Analyzer extends FactorAlgorithm {
 				if (b*b == test) {
 					long gcd = gcdEngine.gcd(a+b, N);
 					if (gcd>1 && gcd<N) {
-						counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a%AMOD)][adjust%AMOD]++;
+						counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust%AMOD]++;
 					}
 				}
 			}
