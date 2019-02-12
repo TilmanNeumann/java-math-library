@@ -48,7 +48,7 @@ public class Hart_Analyzer extends FactorAlgorithm {
 
 	private static final int KMOD = 6;
 	private static final int KNMOD = 8;
-	private static final int AMOD = 8;
+	private static final int AMOD = 4;
 
 	private static double[] sqrt;
 
