@@ -155,6 +155,7 @@ public class TDiv63Inverse_NoDoubleCheck_Unroll extends FactorAlgorithm {
 				293851765137859L, // = 11736397 * 25037647; can not be found with factorLimit=2^21
 				67915439339311L // = 2061599 * 32943089, ok
 		};
+		
 		for (long N : specialN) {
 			long tdivFactor = tdivInv.findSingleFactor(N);
 			long testFactor = testFactorizer.findSingleFactor(N);
