@@ -92,8 +92,7 @@ public class FactorizerTest {
 //			new Hart_Fast(true),
 			new Hart_TDiv_Race(), // best algorithm for any N with 25 to 49 bits
 			new Hart_TDiv_Race2(),
-
-
+			
 			// Lehman
 			//new Lehman_Simple(false),
 			//new Lehman_Smith(false),
@@ -101,7 +100,7 @@ public class FactorizerTest {
 //			new Lehman_Fast(true),
 			new Lehman_Fast2(false),
 //			new Lehman_Fast2(true),
-
+			
 			// PollardRho
 			//new PollardRho(),
 			//new PollardRho_ProductGcd(),
