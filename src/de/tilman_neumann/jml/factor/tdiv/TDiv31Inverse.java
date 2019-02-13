@@ -33,6 +33,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  */
 public class TDiv31Inverse extends FactorAlgorithm {
 	
+	// TODO "static" leads to NPE in constructor ???
 	private AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
 
 	// The allowed discriminator bit size is d <= 53 - bitLength(N/p), thus d<=23 would be safe
