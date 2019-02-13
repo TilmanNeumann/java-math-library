@@ -80,7 +80,8 @@ public class FactorizerTest {
 			//new TDiv31(),
 			//new TDiv31Preload(),
 			new TDiv31Inverse(), // Fastest algorithm for N <= 24 bit
-			new TDiv31Inverse2(),
+			new TDiv31Inverse_NoDoubleCheck(),
+			new TDiv31Inverse_NoDoubleCheck_Unroll(),
 			new TDiv63Inverse(1<<21),
 			new TDiv63Inverse_NoDoubleCheck(1<<21),
 			new TDiv63Inverse_NoDoubleCheck_Unroll(1<<21), // very good trial division algorithm
@@ -94,32 +95,32 @@ public class FactorizerTest {
 			new Hart_TDiv_Race2(),
 
 
-			// Lehman
-			//new Lehman_Simple(false),
-			//new Lehman_Smith(false),
-			new Lehman_Fast(false),
-//			new Lehman_Fast(true),
-			new Lehman_Fast2(false),
-//			new Lehman_Fast2(true),
-
-			// PollardRho
-			//new PollardRho(),
-			//new PollardRho_ProductGcd(),
-			//new PollardRhoBrent(),
-			//new PollardRho31(),
-			//new PollardRhoBrent31(),
-			//new PollardRhoBrentMontgomery63(), // first long version, not optimized any further
-			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 50 to 56 bit
-//			new PollardRhoBrentMontgomery64(), // best algorithm for N from 57 to 62 bit
-			
-			// SquFoF variants
-			// * pretty good, but never the best algorithm
-			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
-			// * best multiplier sequence = 1680 * {squarefree sequence}
-			// * best stopping criterion = O(5.th root(N))
-			new SquFoF63(),
-			//new SquFoF31(),
-			new SquFoF31Preload(),
+//			// Lehman
+//			//new Lehman_Simple(false),
+//			//new Lehman_Smith(false),
+//			new Lehman_Fast(false),
+////			new Lehman_Fast(true),
+//			new Lehman_Fast2(false),
+////			new Lehman_Fast2(true),
+//
+//			// PollardRho
+//			//new PollardRho(),
+//			//new PollardRho_ProductGcd(),
+//			//new PollardRhoBrent(),
+//			//new PollardRho31(),
+//			//new PollardRhoBrent31(),
+//			//new PollardRhoBrentMontgomery63(), // first long version, not optimized any further
+//			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 50 to 56 bit
+////			new PollardRhoBrentMontgomery64(), // best algorithm for N from 57 to 62 bit
+//			
+//			// SquFoF variants
+//			// * pretty good, but never the best algorithm
+//			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
+//			// * best multiplier sequence = 1680 * {squarefree sequence}
+//			// * best stopping criterion = O(5.th root(N))
+//			new SquFoF63(),
+//			//new SquFoF31(),
+//			new SquFoF31Preload(),
 			
 			// CFrac
 			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits

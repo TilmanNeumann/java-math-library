@@ -27,13 +27,15 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * and multiply N by those reciprocals. Only if such a result is near to an integer we need
  * to do a division.
  * 
- * About 3 times faster than ordinary trial division.
+ * This variant abstains from testing N%primes[i] when the discriminator test indicates a neat division.
+ * 
+ * A bit faster than TDiv31Inverse.
  * 
  * @authors Thilo Harich + Tilman Neumann
  */
-public class TDiv31Inverse extends FactorAlgorithm {
+public class TDiv31Inverse_NoDoubleCheck extends FactorAlgorithm {
 	
-	private AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
+	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
 
 	// The allowed discriminator bit size is d <= 53 - bitLength(N/p), thus d<=23 would be safe
 	// for any integer N and p>=2. d=10 is the value that performs best, determined by experiment.
@@ -42,7 +44,7 @@ public class TDiv31Inverse extends FactorAlgorithm {
 	private int[] primes;
 	private double[] reciprocals;
 	
-	public TDiv31Inverse() {
+	public TDiv31Inverse_NoDoubleCheck() {
 		primes = new int[NUM_PRIMES_FOR_31_BIT_TDIV];
 		reciprocals = new double[NUM_PRIMES_FOR_31_BIT_TDIV];
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
@@ -54,7 +56,7 @@ public class TDiv31Inverse extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "TDiv31Inverse";
+		return "TDiv31Inverse_NoDoubleCheck";
 	}
 
 	@Override
@@ -69,9 +71,7 @@ public class TDiv31Inverse extends FactorAlgorithm {
 			while (true) {
 				int nDivPrime = (int) (N*r + DISCRIMINATOR);
 				if (nDivPrime * p != N) break;
-				// nDivPrime is very near to an integer
-				if (N%p != 0) break;
-				// p divides N
+				// nDivPrime is very near to an integer -> thus it is integer! // TODO conditions?
 				exp++;
 				N /= p;
 			}
@@ -98,10 +98,8 @@ public class TDiv31Inverse extends FactorAlgorithm {
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
 			int nDivPrime = (int) (N*reciprocals[i] + DISCRIMINATOR);
 			if (nDivPrime * primes[i] == N) {
-				// nDivPrime is very near to an integer
-				if (N%primes[i]==0) {
-					return primes[i];
-				}
+				// nDivPrime is very near to an integer -> thus it is integer! // TODO conditions?
+				return primes[i];
 			}
 		}
 		// otherwise N is prime!
