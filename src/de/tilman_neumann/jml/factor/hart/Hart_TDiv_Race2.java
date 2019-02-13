@@ -29,7 +29,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * Fast trial division by "multiplication of the reciprocal" is essential for the speed of the implementation;
  * otherwise Hard_fast would be faster for hard semiprimes.
  * 
- * Version 2 fixes problems with small arguments but is slightly slightly slower than version 1 otherwise.
+ * Version 2 fixes problems with small arguments but is slightly slower than version 1 otherwise.
  * 
  * @authors Tilman Neumann & Thilo Harich
  */
