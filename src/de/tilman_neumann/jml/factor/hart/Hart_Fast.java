@@ -92,7 +92,7 @@ public class Hart_Fast extends FactorAlgorithm {
 		
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
-		long a,b,test;
+		long a, b, test, gcd;
 		int k = K_MULT;
 		try {
 			for (int i=1; ;) {
@@ -107,7 +107,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
 				}
 				k += K_MULT;
 				
@@ -116,7 +116,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
 				}
 				k += K_MULT;
 			}
@@ -219,7 +219,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				624800360363L, // = 233 * 2681546611
 				883246601513L, // = 251 * 3518910763
 				
-				893 // XXX fail
+				893
 			};
 		
 		Hart_Fast holf = new Hart_Fast(false);
