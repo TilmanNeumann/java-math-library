@@ -91,6 +91,7 @@ public class Hart_Analyzer extends FactorAlgorithm {
 					long gcd = gcdEngine.gcd(a+b, N);
 					if (gcd>1 && gcd<N) {
 						counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+						return; // removes the blur at even k!
 					}
 				}
 			}
