@@ -288,9 +288,10 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 				624800360363L, // = 233 * 2681546611
 				883246601513L, // = 251 * 3518910763
 				
-				// Thilo
+				// problems found by Thilo
 				35184372094495L,
-				893,
+				893, // works
+				35, // XXX fail
 				9
 			};
 		
