@@ -34,12 +34,11 @@ public class Lehman_Smith extends FactorAlgorithm {
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private static final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
-
 	private long fourN;
 	private double sqrt4N;
 	private boolean doTDivFirst;
 	private final Gcd63 gcdEngine = new Gcd63();
+	private final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 
 	/**
 	 * Full constructor.

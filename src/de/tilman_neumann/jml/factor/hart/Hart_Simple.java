@@ -32,9 +32,11 @@ public class Hart_Simple extends FactorAlgorithm {
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private static double[] sqrt;
+	private double[] sqrt;
 
-	static {
+	private final Gcd63 gcdEngine = new Gcd63();
+
+	public Hart_Simple() {
 		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
 		final int kMax = 1<<25;
 		sqrt = new double[kMax + 1];
@@ -43,9 +45,7 @@ public class Hart_Simple extends FactorAlgorithm {
 			sqrt[i] = sqrtI;
 		}
 	}
-
-	private final Gcd63 gcdEngine = new Gcd63();
-
+	
 	@Override
 	public String getName() {
 		return "Hart_Simple";
