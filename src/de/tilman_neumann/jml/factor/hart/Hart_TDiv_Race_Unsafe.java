@@ -25,16 +25,12 @@ import de.tilman_neumann.util.ConfigUtil;
 /**
  * A factoring algorithm racing Hart's one line factorizer against trial division.
  * 
- * This is the fastest algorithm for any kind of numbers having 25 to 49 bits.
- * Fast trial division by "multiplication of the reciprocal" is essential for the speed of the implementation;
- * otherwise Hard_fast would be faster for hard semiprimes.
- * 
- * Version 2 fixes problems with small arguments but is slightly slower than version 1 otherwise.
+ * This variant is faster than Hart_TDiv_Race for N>=45 bit, but fails for a few small N.
  * 
  * @authors Tilman Neumann & Thilo Harich
  */
-public class Hart_TDiv_Race2 extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Hart_TDiv_Race2.class);
+public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Hart_TDiv_Race_Unsafe.class);
 	
 	/**
 	 * We only test k-values that are multiples of this constant.
@@ -61,7 +57,7 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 	/**
 	 * Full constructor.
 	 */
-	public Hart_TDiv_Race2() {
+	public Hart_TDiv_Race_Unsafe() {
 		sqrt = new double[I_MAX];
 		primes = new int[I_MAX];
 		reciprocals = new double[I_MAX];
@@ -75,7 +71,7 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "Hart_TDiv_Race2";
+		return "Hart_TDiv_Race_Unsafe";
 	}
 
 	@Override
@@ -94,7 +90,7 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 		
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
-		long a, b, test, gcd;
+		long a,b,test;
 		int k = K_MULT;
 		try {
 			int i=1;
@@ -120,7 +116,7 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 					test = a*a - k * fourN;
 					b = (long) Math.sqrt(test);
 					if (b*b == test) {
-						if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+						return gcdEngine.gcd(a+b, N);
 					}
 					k += K_MULT;
 
@@ -136,7 +132,7 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 					test = a*a - k * fourN;
 					b = (long) Math.sqrt(test);
 					if (b*b == test) {
-						if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+						return gcdEngine.gcd(a+b, N);
 					}
 					k += K_MULT;
 				}
@@ -148,11 +144,9 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 				//LOG.debug("test p[" + i + "] = " + primes[i]);
 				long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
 				if (nDivPrime * primes[i] == N) {
-					// nDivPrime is very near to an integer
-					if (N%primes[i]==0) {
-						//LOG.debug("Found factor " + primes[i]);
-						return primes[i];
-					}
+					// nDivPrime is very near to an integer, thus it is integer!
+					//LOG.debug("Found factor " + primes[i]);
+					return primes[i];
 				}
 
 				// odd k -> adjust a mod 8
@@ -166,7 +160,7 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+					return gcdEngine.gcd(a+b, N);
 				}
 				k += K_MULT;
 
@@ -174,11 +168,9 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 				//LOG.debug("test p[" + i + "] = " + primes[i]);
 				nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
 				if (nDivPrime * primes[i] == N) {
-					// nDivPrime is very near to an integer
-					if (N%primes[i]==0) {
-						//LOG.debug("Found factor " + primes[i]);
-						return primes[i];
-					}
+					// nDivPrime is very near to an integer, thus it is integer!
+					//LOG.debug("Found factor " + primes[i]);
+					return primes[i];
 				}
 
 				// even k -> a must be odd
@@ -186,7 +178,7 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+					return gcdEngine.gcd(a+b, N);
 				}
 				k += K_MULT;
 			}
@@ -290,12 +282,12 @@ public class Hart_TDiv_Race2 extends FactorAlgorithm {
 				
 				// problems found by Thilo
 				35184372094495L,
-				893, // works
+				893, // XXX fail
 				35, // XXX fail
 				9
 			};
 		
-		Hart_TDiv_Race2 holf = new Hart_TDiv_Race2();
+		Hart_TDiv_Race_Unsafe holf = new Hart_TDiv_Race_Unsafe();
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);

@@ -29,6 +29,8 @@ import de.tilman_neumann.util.ConfigUtil;
  * Fast trial division by "multiplication of the reciprocal" is essential for the speed of the implementation;
  * otherwise Hard_fast would be faster for hard semiprimes.
  * 
+ * This is the safe version. Hart_TDiv_Race_Unsafe is faster for N>=45 bit, but fails for a few small N.
+ * 
  * @authors Tilman Neumann & Thilo Harich
  */
 public class Hart_TDiv_Race extends FactorAlgorithm {
@@ -92,7 +94,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 		
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
-		long a,b,test;
+		long a, b, test, gcd;
 		int k = K_MULT;
 		try {
 			int i=1;
@@ -118,7 +120,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					test = a*a - k * fourN;
 					b = (long) Math.sqrt(test);
 					if (b*b == test) {
-						return gcdEngine.gcd(a+b, N);
+						if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
 					}
 					k += K_MULT;
 
@@ -134,7 +136,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					test = a*a - k * fourN;
 					b = (long) Math.sqrt(test);
 					if (b*b == test) {
-						return gcdEngine.gcd(a+b, N);
+						if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
 					}
 					k += K_MULT;
 				}
@@ -164,7 +166,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+					if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
 				}
 				k += K_MULT;
 
@@ -184,7 +186,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+					if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
 				}
 				k += K_MULT;
 			}
@@ -288,8 +290,8 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				
 				// problems found by Thilo
 				35184372094495L,
-				893, // XXX fail
-				35, // XXX fail
+				893, // works
+				35, // works
 				9
 			};
 		
