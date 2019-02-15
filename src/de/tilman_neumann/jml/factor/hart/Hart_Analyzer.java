@@ -50,9 +50,14 @@ public class Hart_Analyzer extends FactorAlgorithm {
 	private static final int KNMOD = 8;
 	private static final int AMOD = 4;
 
-	private static double[] sqrt;
+	private double[] sqrt;
 
-	static {
+	private final Gcd63 gcdEngine = new Gcd63();
+	
+	// dimensions: k%KMOD, (N+k)%KNMOD, a%AMOD, adjust%AMOD
+	private int[][][][] counts;
+	
+	public Hart_Analyzer() {
 		// Precompute sqrts...
 		final int kMax = 1<<25;
 		sqrt = new double[kMax + 1];
@@ -61,11 +66,6 @@ public class Hart_Analyzer extends FactorAlgorithm {
 			sqrt[i] = sqrtI;
 		}
 	}
-
-	private final Gcd63 gcdEngine = new Gcd63();
-	
-	// dimensions: k%KMOD, (N+k)%KNMOD, a%AMOD, adjust%AMOD
-	private int[][][][] counts;
 	
 	@Override
 	public String getName() {
