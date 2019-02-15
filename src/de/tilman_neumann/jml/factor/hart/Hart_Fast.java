@@ -107,7 +107,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+					if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
 				}
 				k += K_MULT;
 				
@@ -116,7 +116,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
-					if ((gcd = gcdEngine.gcd(a+b, N))>1) return gcd;
+					if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
 				}
 				k += K_MULT;
 			}
@@ -219,7 +219,11 @@ public class Hart_Fast extends FactorAlgorithm {
 				624800360363L, // = 233 * 2681546611
 				883246601513L, // = 251 * 3518910763
 				
-				893
+				// problems found by Thilo
+				35184372094495L,
+				893, // works
+				35, // works
+				9 // works
 			};
 		
 		Hart_Fast holf = new Hart_Fast(false);
