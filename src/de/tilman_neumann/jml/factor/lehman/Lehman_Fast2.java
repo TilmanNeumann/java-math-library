@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
+import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse_NoDoubleCheck_Unroll;
 
 /**
  * Fast implementation of Lehman's factor algorithm.
@@ -40,7 +40,7 @@ public class Lehman_Fast2 extends FactorAlgorithm {
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private static final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
+	private static final TDiv63Inverse_NoDoubleCheck_Unroll tdiv = new TDiv63Inverse_NoDoubleCheck_Unroll(1<<21);
 
 	private static double[] sqrt, sqrtInv;
 
