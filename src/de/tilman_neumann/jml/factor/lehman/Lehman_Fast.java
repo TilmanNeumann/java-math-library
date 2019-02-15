@@ -40,11 +40,21 @@ public class Lehman_Fast extends FactorAlgorithm {
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private static final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
+	private long N;
+	private long fourN;
+	private double sqrt4N;
+	private boolean doTDivFirst;
+	private double[] sqrt, sqrtInv;
+	private final Gcd63 gcdEngine = new Gcd63();
+	private final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 
-	private static double[] sqrt, sqrtInv;
-
-	static {
+	/**
+	 * Full constructor.
+	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
+	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
+	 */
+	public Lehman_Fast(boolean doTDivFirst) {
+		this.doTDivFirst = doTDivFirst;
 		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
 		final int kMax = 1<<21;
 		sqrt = new double[kMax + 1];
@@ -54,21 +64,6 @@ public class Lehman_Fast extends FactorAlgorithm {
 			sqrt[i] = sqrtI;
 			sqrtInv[i] = 1.0/sqrtI;
 		}
-	}
-
-	private long N;
-	private long fourN;
-	private double sqrt4N;
-	private boolean doTDivFirst;
-	private final Gcd63 gcdEngine = new Gcd63();
-
-	/**
-	 * Full constructor.
-	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
-	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
-	 */
-	public Lehman_Fast(boolean doTDivFirst) {
-		this.doTDivFirst = doTDivFirst;
 	}
 
 	@Override
