@@ -46,7 +46,7 @@ public class Lehman_Fast2 extends FactorAlgorithm {
 	private boolean doTDivFirst;
 	private double[] sqrt, sqrtInv;
 	private final Gcd63 gcdEngine = new Gcd63();
-	private final TDiv63Inverse_NoDoubleCheck_Unroll tdiv = new TDiv63Inverse_NoDoubleCheck_Unroll(1<<21);
+	private final TDiv63Inverse_NoDoubleCheck_Unroll tdiv = new TDiv63Inverse_NoDoubleCheck_Unroll(1<<20);
 
 	/**
 	 * Full constructor.
@@ -55,8 +55,8 @@ public class Lehman_Fast2 extends FactorAlgorithm {
 	 */
 	public Lehman_Fast2(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
-		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
-		final int kMax = 1<<21;
+		// Precompute sqrts for all possible k. 2^20 entries are enough for N~2^60.
+		final int kMax = 1<<20;
 		sqrt = new double[kMax + 1];
 		sqrtInv = new double[kMax + 1];
 		for (int i=1; i <= kMax; i++) {
@@ -112,8 +112,7 @@ public class Lehman_Fast2 extends FactorAlgorithm {
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k < kTwoA; k++) {
 			final double sqrt4kN = sqrt4N * sqrt[k];
-			// only use long values
-			final long aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
+			final long aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil()
 			long aLimit = (long) (sqrt4kN + sixthRootTerm * sqrtInv[k]);
 			long aStep;
 			if ((k & 1) == 0) {
@@ -178,7 +177,7 @@ public class Lehman_Fast2 extends FactorAlgorithm {
 			if (b*b == test) {
 				return gcdEngine.gcd(a+b, N);
 			}
-			k +=3;
+			k += 3;
 		}
 		for (; k <= kLimit; k += 3) {
 			// k odd

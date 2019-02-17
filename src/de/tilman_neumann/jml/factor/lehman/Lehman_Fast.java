@@ -46,7 +46,7 @@ public class Lehman_Fast extends FactorAlgorithm {
 	private boolean doTDivFirst;
 	private double[] sqrt, sqrtInv;
 	private final Gcd63 gcdEngine = new Gcd63();
-	private final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
+	private final TDiv63Inverse tdiv = new TDiv63Inverse(1<<20);
 
 	/**
 	 * Full constructor.
@@ -55,8 +55,8 @@ public class Lehman_Fast extends FactorAlgorithm {
 	 */
 	public Lehman_Fast(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
-		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
-		final int kMax = 1<<21;
+		// Precompute sqrts for all possible k. 2^20 entries are enough for N~2^60.
+		final int kMax = 1<<20;
 		sqrt = new double[kMax + 1];
 		sqrtInv = new double[kMax + 1];
 		for (int i=1; i <= kMax; i++) {
