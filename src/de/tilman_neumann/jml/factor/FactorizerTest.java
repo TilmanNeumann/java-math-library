@@ -90,14 +90,19 @@ public class FactorizerTest {
 			//new Hart_Simple(),
 			new Hart_Fast(false),
 //			new Hart_Fast(true),
+			new Hart_Fast2(false),
 			new Hart_TDiv_Race(), // best safe algorithm for any N with 25 to 49 bits
+			new Hart_TDiv_Race2(), // best safe algorithm for any N with 25 to 49 bits
 			new Hart_TDiv_Race_Unsafe(), // slightly faster for N>=45 bit, but fails for a few small N
-			
+			new Hart_TDiv_Race_Unsafe2(), // slightly faster for N>=45 bit, but fails for a few small N
+	
 			// Lehman
 			//new Lehman_Simple(false),
 			//new Lehman_Smith(false),
 			new Lehman_Fast(false),
 //			new Lehman_Fast(true),
+			new Lehman_Fast2(false),
+			new Lehman_Fast3(false),
 
 			// PollardRho
 			//new PollardRho(),
@@ -114,9 +119,9 @@ public class FactorizerTest {
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-			new SquFoF63(),
+//			new SquFoF63(),
 			//new SquFoF31(),
-			new SquFoF31Preload(),
+//			new SquFoF31Preload(),
 			
 			// CFrac
 			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits
