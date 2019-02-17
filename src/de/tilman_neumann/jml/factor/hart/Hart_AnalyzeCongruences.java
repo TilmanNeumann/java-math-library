@@ -116,6 +116,7 @@ public class Hart_AnalyzeCongruences extends FactorAlgorithm {
 				for (int a=0; a<AMOD; a++) {
 					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (N+k)%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
 				}
+				LOG.info("");
 			}
 		}
 		LOG.info("");

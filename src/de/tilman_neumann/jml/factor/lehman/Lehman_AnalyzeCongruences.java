@@ -103,18 +103,14 @@ public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 			this.findSingleFactor(N);
 		}
 		
-		int totalCount = 0;
 		for (int k=0; k<KMOD; k++) {
 			for (int Nk=0; Nk<KNMOD; Nk++) {
 				for (int a=0; a<AMOD; a++) {
 					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (N+k)%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
-					for (int adjust=0; adjust<AMOD; adjust++) {
-						totalCount+=counts[k][Nk][a][adjust];
-					}
 				}
+				LOG.info("");
 			}
 		}
-		LOG.info("totalCount = " + totalCount);
 		LOG.info("");
 	}
 
