@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.factor.hart;
+package de.tilman_neumann.jml.factor.lehman;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 
@@ -20,18 +20,20 @@ import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.factor.TestNumberNature;
-import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
+import de.tilman_neumann.jml.factor.TestsetGenerator;
+import de.tilman_neumann.jml.factor.TestNumberNature;
 
 /**
- * Analyze the congruences best matching Hart's one-line factor algorithm.
+ * Analyze the moduli of a-values that help the Lehman algorithm to find factors.
+ * Version 2 reproduces exactly the conditions implemented in Lehman_Fast.
+ * 
  * @author Tilman Neumann
  */
-public class Hart_Analyzer extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Hart_Analyzer.class);
+public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeCongruences.class);
 
 	// algorithm options
 	/** number of test numbers */
@@ -43,59 +45,50 @@ public class Hart_Analyzer extends FactorAlgorithm {
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = 63;
 
-	/** This is a constant that is below 1 for rounding up double values to long. */
-	private static final double ROUND_UP_DOUBLE = 0.9999999665;
-
 	private static final int KMOD = 6;
 	private static final int KNMOD = 8;
-	private static final int AMOD = 4;
-
-	private double[] sqrt;
+	private static final int AMOD = 8;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
 	// dimensions: k%KMOD, (N+k)%KNMOD, a%AMOD, adjust%AMOD
 	private int[][][][] counts;
 	
-	public Hart_Analyzer() {
-		// Precompute sqrts...
-		final int kMax = 1<<25;
-		sqrt = new double[kMax + 1];
-		for (int i = 1; i < sqrt.length; i++) {
-			final double sqrtI = Math.sqrt(i);
-			sqrt[i] = sqrtI;
-		}
-	}
-	
 	@Override
 	public String getName() {
-		return "Hart_Analyzer";
+		return "Lehman_Analyzer3";
 	}
 
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		findSingleFactor(N.longValue());
-		return null; // dummy
+		return BigInteger.valueOf(findSingleFactor(N.longValue()));
 	}
-
-	public void findSingleFactor(long N) {
-		double sqrtN = Math.sqrt(N);
-		int kLimit = (int) Math.cbrt(N);
-		for (int k = 1; k<kLimit; k++) {
-			final long a0 = (long) (sqrtN * sqrt[k] + ROUND_UP_DOUBLE);
-			for (int adjust=0; adjust<AMOD; adjust++) {
-				long a = a0 + adjust;
-				final long test = a*a - k * N;
-				final long b = (long) Math.sqrt(test);
-				if (b*b == test) {
-					long gcd = gcdEngine.gcd(a+b, N);
-					if (gcd>1 && gcd<N) {
-						counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
-						return; // removes the blur at even k!
+	
+	public long findSingleFactor(long N) {
+		int cbrt = (int) Math.ceil(Math.cbrt(N));
+		double sixthRoot = Math.pow(N, 1/6.0); // double precision is required for stability
+		for (int k=1; k <= cbrt; k++) {
+			long fourKN = k*N<<2;
+			double fourSqrtK = Math.sqrt(k<<4);
+			long sqrt4kN = (long) Math.ceil(Math.sqrt(fourKN));
+			long limit = (long) (sqrt4kN + sixthRoot / fourSqrtK);
+			for (long a0 = sqrt4kN; a0 <= limit; a0++) {
+				for (int adjust=0; adjust<AMOD; adjust++) {
+					long a = a0 + adjust;
+					final long test = a*a - fourKN;
+					final long b = (long) Math.sqrt(test);
+					if (b*b == test) {
+						long gcd = gcdEngine.gcd(a+b, N);
+						if (gcd>1 && gcd<N) {
+							counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+							return gcd; // removes the blur at even k!
+						}
 					}
 				}
 			}
-		}
+	    }
+		
+		return 0; // Fail
 	}
 	
 	private void testRange(int bits) {
@@ -110,13 +103,18 @@ public class Hart_Analyzer extends FactorAlgorithm {
 			this.findSingleFactor(N);
 		}
 		
+		int totalCount = 0;
 		for (int k=0; k<KMOD; k++) {
 			for (int Nk=0; Nk<KNMOD; Nk++) {
 				for (int a=0; a<AMOD; a++) {
 					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (N+k)%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
+					for (int adjust=0; adjust<AMOD; adjust++) {
+						totalCount+=counts[k][Nk][a][adjust];
+					}
 				}
 			}
 		}
+		LOG.info("totalCount = " + totalCount);
 		LOG.info("");
 	}
 
@@ -125,7 +123,7 @@ public class Hart_Analyzer extends FactorAlgorithm {
 		int bits = START_BITS;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
-	    	Hart_Analyzer testEngine = new Hart_Analyzer();
+	    	Lehman_AnalyzeCongruences testEngine = new Lehman_AnalyzeCongruences();
 			testEngine.testRange(bits);
 			bits += INCR_BITS;
 			if (MAX_BITS!=null && bits > MAX_BITS) break;

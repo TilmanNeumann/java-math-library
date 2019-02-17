@@ -29,8 +29,8 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_SpecialArgumentAnalyzer extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Lehman_SpecialArgumentAnalyzer.class);
+public class Lehman_AnalyzeSpecialArguments extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeSpecialArguments.class);
 	
 	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
 
@@ -38,7 +38,7 @@ public class Lehman_SpecialArgumentAnalyzer extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "Lehman_SpecialArgumentAnalyzer";
+		return "Lehman_AnalyzeSpecialArguments";
 	}
 
 	@Override
@@ -130,7 +130,7 @@ public class Lehman_SpecialArgumentAnalyzer extends FactorAlgorithm {
 				5682546780292609L,
 			};
 		
-		Lehman_SpecialArgumentAnalyzer lehman = new Lehman_SpecialArgumentAnalyzer();
+		Lehman_AnalyzeSpecialArguments lehman = new Lehman_AnalyzeSpecialArguments();
 		for (long testNumber : testNumbers) {
 			lehman.findSingleFactor(testNumber);
 		}

@@ -28,8 +28,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_Analyzer3 extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Lehman_Analyzer3.class);
+public class Lehman_AnalyzeKMods extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeKMods.class);
 
 	// algorithm options
 	/** number of test numbers */
@@ -49,13 +49,13 @@ public class Lehman_Analyzer3 extends FactorAlgorithm {
 
 	private int[] kFactorCounts;
 	
-	public Lehman_Analyzer3(int m) {
+	public Lehman_AnalyzeKMods(int m) {
 		this.MOD = m;
 	}
 	
 	@Override
 	public String getName() {
-		return "Lehman_Analyzer3";
+		return "Lehman_AnalyzeKMods";
 	}
 
 	@Override
@@ -165,7 +165,7 @@ public class Lehman_Analyzer3 extends FactorAlgorithm {
     	ConfigUtil.initProject();
 		for (int m=2; ; m++) {
 			// test N with BITS bits and mod m
-	    	Lehman_Analyzer3 testEngine = new Lehman_Analyzer3(m);
+	    	Lehman_AnalyzeKMods testEngine = new Lehman_AnalyzeKMods(m);
 			testEngine.testRange(BITS);
 		}
 	}
