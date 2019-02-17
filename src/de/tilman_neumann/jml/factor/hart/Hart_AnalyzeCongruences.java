@@ -47,8 +47,8 @@ public class Hart_AnalyzeCongruences extends FactorAlgorithm {
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 8;
-	private static final int AMOD = 8;
+	private static final int KNMOD = 16;
+	private static final int AMOD = 16;
 
 	private double[] sqrt;
 

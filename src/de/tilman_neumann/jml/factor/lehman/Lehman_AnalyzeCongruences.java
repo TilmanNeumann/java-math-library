@@ -46,8 +46,8 @@ public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 	private static final Integer MAX_BITS = 63;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 8;
-	private static final int AMOD = 8;
+	private static final int KNMOD = 16;
+	private static final int AMOD = 16;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
