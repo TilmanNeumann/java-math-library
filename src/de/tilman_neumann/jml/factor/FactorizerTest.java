@@ -84,7 +84,7 @@ public class FactorizerTest {
 //			new TDiv31Inverse_NoDoubleCheck_Unroll(),
 //			new TDiv63Inverse(1<<21),
 //			new TDiv63Inverse_NoDoubleCheck(1<<21),
-			new TDiv63Inverse_NoDoubleCheck_Unroll(1<<21), // very good trial division algorithm
+//			new TDiv63Inverse_NoDoubleCheck_Unroll(1<<21), // very good trial division algorithm
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),
@@ -98,9 +98,7 @@ public class FactorizerTest {
 			//new Lehman_Smith(false),
 			new Lehman_Fast(false),
 //			new Lehman_Fast(true),
-			new Lehman_Fast2(false),
-//			new Lehman_Fast2(true),
-			
+
 			// PollardRho
 			//new PollardRho(),
 			//new PollardRho_ProductGcd(),

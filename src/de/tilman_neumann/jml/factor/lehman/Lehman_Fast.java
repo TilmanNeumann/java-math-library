@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
+import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse_NoDoubleCheck_Unroll;
 
 /**
  * Fast implementation of Lehman's factor algorithm.
@@ -39,14 +39,14 @@ public class Lehman_Fast extends FactorAlgorithm {
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
-
+	
 	private long N;
 	private long fourN;
 	private double sqrt4N;
 	private boolean doTDivFirst;
 	private double[] sqrt, sqrtInv;
 	private final Gcd63 gcdEngine = new Gcd63();
-	private final TDiv63Inverse tdiv = new TDiv63Inverse(1<<20);
+	private final TDiv63Inverse_NoDoubleCheck_Unroll tdiv = new TDiv63Inverse_NoDoubleCheck_Unroll(1<<20);
 
 	/**
 	 * Full constructor.
@@ -91,9 +91,11 @@ public class Lehman_Fast extends FactorAlgorithm {
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
 
-		// kLimit must be 0 mod 6, since we also want to search above of it
+		// k%3 is a very good discriminator for the number of factors found by different k.
+		// k with k%3==0 have the biggest probability to find a factor, so we want to test them first.
+		// Adjusting kTwoA and kLimit to 0 (mod 6) allows us to start with even k in testLongTail(kTwoA).
 		final int kLimit = ((cbrt + 6) / 6) * 6;
-		// For kTwoA = kLimit / 64 the range for a is at most 2. We make it 0 mod 6, too.
+		// For kTwoA = kLimit / 64 the a-range is <= 2. The congruences mod 4 imply that then there is only 1 choice for a.
 		final int kTwoA = (((cbrt >> 6) + 6) / 6) * 6;
 
 		// We are investigating solutions of a^2 - sqrt(k*n) = y^2 in three k-ranges:
@@ -101,19 +103,16 @@ public class Lehman_Fast extends FactorAlgorithm {
 		//   Thus, an inner 'a'-loop is required.
 		// * The "middle range" is kTwoA <= k < kLimit, where we have at most two possible 'a' values per k.
 		// * The "high range" is kLimit <= k < 2*kLimit. This range is not required for the correctness
-		//   of the algorithm, but investigating it for some k==0 (mod 6) improves performance.
+		//   of the algorithm, but investigating it for some k==0 (mod 3) improves performance.
 		
-		// We start with the middle range cases k == 0 (mod 6) and k == 3 (mod 6),
-		// which have the highest chance to find a factor.
-		if ((factor = lehmanEven(kTwoA, kLimit)) > 1) return factor;
-		if ((factor = lehmanOdd(kTwoA + 3, kLimit)) > 1) return factor;
+		// We start with the middle range case k == 0 (mod 3), which has the highest chance to find a factor.
+		if ((factor = testLongTail(kTwoA, kLimit)) > 1) return factor;
 
 		// Now investigate the small range
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k < kTwoA; k++) {
 			final double sqrt4kN = sqrt4N * sqrt[k];
-			// only use long values
-			final long aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
+			final long aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil()
 			long aLimit = (long) (sqrt4kN + sixthRootTerm * sqrtInv[k]);
 			long aStep;
 			if ((k & 1) == 0) {
@@ -144,17 +143,15 @@ public class Lehman_Fast extends FactorAlgorithm {
 			}
 		}
 
-		// k == 0 (mod 6) has the highest chance to find a factor; checking it in the high range boosts performance
-		if ((factor = lehmanEven(kLimit, kLimit << 1)) > 1) return factor;
-
-		// Complete middle range
-		if ((factor = lehmanOdd(kTwoA + 1, kLimit)) > 1) return factor;
-		if ((factor = lehmanEven(kTwoA + 2, kLimit)) > 1) return factor;
-		if ((factor = lehmanEven(kTwoA + 4, kLimit)) > 1) return factor;
-		if ((factor = lehmanOdd(kTwoA + 5, kLimit)) > 1) return factor;
+		// Checking the high range for k== 0 (mod 3) improves performance
+		if ((factor = testLongTail(kLimit, kLimit << 1)) > 1) return factor;
 
 		// do trial division after Lehman loop ?
 		if (!doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
+
+		// Complete middle range
+		if ((factor = testLongTail(kTwoA + 1, kLimit)) > 1) return factor;
+		if ((factor = testLongTail(kTwoA + 2, kLimit)) > 1) return factor;
 		
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
@@ -170,8 +167,20 @@ public class Lehman_Fast extends FactorAlgorithm {
 		return 0; // fail
 	}
 
-	private long lehmanOdd(int kBegin, final int kLimit) {
-		for (int k = kBegin; k <= kLimit; k += 6) {
+	private long testLongTail(int kBegin, final int kLimit) {
+		int k = kBegin;
+		if ((k&1) == 0) {
+			// k even -> a must be odd
+			final long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) | 1L;
+			final long test = a*a - k * fourN;
+			final long b = (long) Math.sqrt(test);
+			if (b*b == test) {
+				return gcdEngine.gcd(a+b, N);
+			}
+			k += 3;
+		}
+		for (; k <= kLimit; k += 3) {
+			// k odd
 			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE);
 			// make a == (k+N) (mod 4)
 			final long kPlusN = k + N;
@@ -180,21 +189,17 @@ public class Lehman_Fast extends FactorAlgorithm {
 			} else {
 				a += ((kPlusN - a) & 3);
 			}
-			final long test = a*a - k * fourN;
-			final long b = (long) Math.sqrt(test);
+			long test = a*a - k * fourN;
+			long b = (long) Math.sqrt(test);
 			if (b*b == test) {
 				return gcdEngine.gcd(a+b, N);
 			}
-		}
-		return -1;
-	}
-
-	private long lehmanEven(int kBegin, final int kLimit) {
-		for (int k = kBegin; k <= kLimit; k += 6) {
+			k += 3;
+			
 			// k even -> a must be odd
-			final long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) | 1L;
-			final long test = a*a - k * fourN;
-			final long b = (long) Math.sqrt(test);
+			a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) | 1L;
+			test = a*a - k * fourN;
+			b = (long) Math.sqrt(test);
 			if (b*b == test) {
 				return gcdEngine.gcd(a+b, N);
 			}
