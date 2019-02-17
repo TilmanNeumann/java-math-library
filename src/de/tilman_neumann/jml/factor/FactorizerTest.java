@@ -103,6 +103,7 @@ public class FactorizerTest {
 //			new Lehman_Fast(true),
 			new Lehman_Fast2(false),
 			new Lehman_Fast3(false),
+			new Lehman_Fast4(false),
 
 			// PollardRho
 			//new PollardRho(),
