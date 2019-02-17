@@ -84,14 +84,14 @@ public class FactorizerTest {
 //			new TDiv31Inverse_NoDoubleCheck_Unroll(),
 //			new TDiv63Inverse(1<<21),
 //			new TDiv63Inverse_NoDoubleCheck(1<<21),
-//			new TDiv63Inverse_NoDoubleCheck_Unroll(1<<21), // very good trial division algorithm
+			new TDiv63Inverse_NoDoubleCheck_Unroll(1<<21), // very good trial division algorithm
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),
 			new Hart_Fast(false),
 //			new Hart_Fast(true),
 			new Hart_TDiv_Race(), // best safe algorithm for any N with 25 to 49 bits
-			new Hart_TDiv_Race_Unsafe(), // slightly faster for N>=45 bit, bur fails for a few small N
+			new Hart_TDiv_Race_Unsafe(), // slightly faster for N>=45 bit, but fails for a few small N
 			
 			// Lehman
 			//new Lehman_Simple(false),
