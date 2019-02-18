@@ -40,7 +40,7 @@ public class Hart_Fast extends FactorAlgorithm {
 	 * We only test k-values that are multiples of this constant.
 	 * Best values for performance are 315, 45, 105, 15 and 3, in that order.
 	 */
-	private static final int K_MULT = 315;
+	private static final int K_MULT = 3*3*5*7; // 315
 	
 	/** Size of arrays */
 	private static final int I_MAX = 1<<20;
@@ -88,6 +88,11 @@ public class Hart_Fast extends FactorAlgorithm {
 		if (doTDivFirst) {
 			tdiv.setTestLimit((int) Math.cbrt(N));
 			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
+		} else {
+			// at least do trial division by multiplier factors
+			if ((N%3)==0) return 3;
+			if ((N%5)==0) return 5;
+			if ((N%7)==0) return 7;
 		}
 		
 		long fourN = N<<2;
@@ -201,11 +206,11 @@ public class Hart_Fast extends FactorAlgorithm {
 				2017001503,
 				3084734169L,
 				6700794123L,
-				16032993843L, // XXX fail at 34 bit number
+				16032993843L, // = 3 * 5344331281, 34 bit number
 				26036808587L,
-				41703657595L, // XXX fail at 36 bit number
+				41703657595L, // = 5 * 8340731519, 36 bit number
 				68889614021L,
-				197397887859L, // XXX fail at 38 bit number
+				197397887859L, // = 3^2 * 21933098651, 38 bit number
 				
 				2157195374713L,
 				8370014680591L,
