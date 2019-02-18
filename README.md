@@ -3,9 +3,11 @@
 This library is focused on number theory, but not necessarily limited to it.
 Its intention is to collect basic math routines that may be of value to others.
 It is based on PSIQS 4.0 and as such provides some pretty good methods for integer factorization.
-Have a look at the following classes:
+If you are interested in factoring then have a look at the following classes:
 * TDiv31Inverse
 * TDiv63Inverse
+* Hart_Fast
+* Hart\_TDiv\_Race
 * Lehman_Fast
 * SquFoF31Preload
 * SquFoF63
@@ -19,8 +21,8 @@ Have a look at the following classes:
 * PSIQS_U (multi-threaded, using sun.misc.Unsafe)
 
 The factoring methods are used as well to implement a fast sumOfDivisors() function.
-Other noteworthy things are sqrt(), nth_root(), ln() and exp() functions for BigDecimals,
-a fast generator for the partitions of multipartite numbers, and - quite special -
+Other noteworthy parts of this library are sqrt(), nth_root(), ln() and exp() functions for BigDecimals.
+More special contents are a fast generator for the partitions of multipartite numbers and 
 implementations of smooth number sequences like CANs (colossally abundant numbers) and SHCNs (superior highly composite numbers).
 
 
