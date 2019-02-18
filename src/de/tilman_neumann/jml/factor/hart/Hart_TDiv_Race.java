@@ -115,7 +115,9 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					if ((kPlusN & 3) == 0) {
 						a += ((kPlusN - a) & 7);
 					} else {
-						a += ((kPlusN - a) & 3);
+						final long adjust1 = (kPlusN - a) & 15;
+						final long adjust2 = (-kPlusN - a) & 15;
+						a += adjust1<adjust2 ? adjust1 : adjust2;
 					}
 					test = a*a - k * fourN;
 					b = (long) Math.sqrt(test);
@@ -161,7 +163,9 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				if ((kPlusN & 3) == 0) {
 					a += ((kPlusN - a) & 7);
 				} else {
-					a += ((kPlusN - a) & 3);
+					final long adjust1 = (kPlusN - a) & 15;
+					final long adjust2 = (-kPlusN - a) & 15;
+					a += adjust1<adjust2 ? adjust1 : adjust2;
 				}
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
