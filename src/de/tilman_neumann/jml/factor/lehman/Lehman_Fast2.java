@@ -125,7 +125,7 @@ public class Lehman_Fast2 extends FactorAlgorithm {
 					aStep = 8;
 					aLimit += ((kPlusN - aLimit) & 7);
 				} else {
-					aStep = 4; // XXX Lehman_Fast3 uses step 16
+					aStep = 4; // XXX use step 8 or 16 ?
 					final long adjust1 = (kPlusN - aLimit) & 15;
 					final long adjust2 = (-kPlusN - aLimit) & 15;
 					aLimit += adjust1<adjust2 ? adjust1 : adjust2;
@@ -184,7 +184,7 @@ public class Lehman_Fast2 extends FactorAlgorithm {
 		for (; k <= kLimit; k += 3) {
 			// k odd
 			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE);
-			// make a == (k+N) (mod 4)
+			// make a == (k+N) (mod 4, 8, 16)
 			final long kPlusN = k + N;
 			if ((kPlusN & 3) == 0) {
 				a += ((kPlusN - a) & 7);

@@ -40,13 +40,34 @@ public class Lehman_Fast3 extends FactorAlgorithm {
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 	
-	private long N, fourN, fourkN;
+	private long N;
+	private long fourN;
 	private double sqrt4N;
 	private boolean doTDivFirst;
 	private double[] sqrt, sqrtInv;
 	private final Gcd63 gcdEngine = new Gcd63();
 	private final TDiv63Inverse_NoDoubleCheck_Unroll tdiv = new TDiv63Inverse_NoDoubleCheck_Unroll(1<<20);
 
+	/** adjust tables for odd k. dimensions: (N+k)%16 x a%16 */
+	private static final int[][] adjustTables = new int[][] {
+		/** (N+k)== 0 (mod 16) */ {0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1},
+		/** (N+k)== 1 (mod 16) */ {}, // dummy
+		/** (N+k)== 2 (mod 16) */ {2, 1, 0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 3},
+		/** (N+k)== 3 (mod 16) */ {}, // dummy
+		/** (N+k)== 4 (mod 16) */ {4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5},
+		/** (N+k)== 5 (mod 16) */ {}, // dummy
+		/** (N+k)== 6 (mod 16) */ {6, 5, 4, 3, 2, 1, 0, 3, 2, 1, 0, 11, 10, 9, 8, 7},
+		/** (N+k)== 7 (mod 16) */ {}, // dummy
+		/** (N+k)== 8 (mod 16) */ {0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1},
+		/** (N+k)== 9 (mod 16) */ {}, // dummy
+		/** (N+k)==10 (mod 16) */ {6, 5, 4, 3, 2, 1, 0, 3, 2, 1, 0, 11, 10, 9, 8, 7},
+		/** (N+k)==11 (mod 16) */ {}, // dummy
+		/** (N+k)==12 (mod 16) */ {4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5},
+		/** (N+k)==13 (mod 16) */ {}, // dummy
+		/** (N+k)==14 (mod 16) */ {2, 1, 0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 3},
+		/** (N+k)==15 (mod 16) */ {}, // dummy
+	};
+	
 	/**
 	 * Full constructor.
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
@@ -110,20 +131,36 @@ public class Lehman_Fast3 extends FactorAlgorithm {
 		// Now investigate the small range
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k < kTwoA; k++) {
-			fourkN = k * fourN;
 			final double sqrt4kN = sqrt4N * sqrt[k];
 			final long aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil()
 			long aLimit = (long) (sqrt4kN + sixthRootTerm * sqrtInv[k]);
+			long aStep;
 			if ((k & 1) == 0) {
 				// k even -> make sure aLimit is odd
-				if ((factor = testSmallK(aStart, aLimit |= 1L, 2)) > 1) return factor;
+				aLimit |= 1L;
+				aStep = 2;
 			} else {
 				final long kPlusN = k + N;
 				if ((kPlusN & 3) == 0) {
-					if ((factor = testSmallK(aStart, aLimit + ((kPlusN - aLimit) & 7), 8)) > 1) return factor;
+					aStep = 8;
+					aLimit += ((kPlusN - aLimit) & 7);
 				} else {
-					if ((factor = testSmallK(aStart, aLimit + (( kPlusN - aLimit) & 15), 16)) > 1) return factor;
-					if ((factor = testSmallK(aStart, aLimit + ((-kPlusN - aLimit) & 15), 16)) > 1) return factor;
+					aStep = 4; // XXX use step 8 or 16 ?
+					final long adjust1 = (kPlusN - aLimit) & 15;
+					final long adjust2 = (-kPlusN - aLimit) & 15;
+					aLimit += adjust1<adjust2 ? adjust1 : adjust2;
+				}
+			}
+
+			// processing the a-loop top-down is faster than bottom-up
+			final long fourkN = k * fourN;
+			for (long a=aLimit; a >= aStart; a-=aStep) {
+				final long test = a*a - fourkN;
+				// Here test<0 is possible because of double to long cast errors in the 'a'-computation.
+				// But then b = Math.sqrt(test) gives 0 (sic!) => 0*0 != test => no errors.
+				final long b = (long) Math.sqrt(test);
+				if (b*b == test) {
+					return gcdEngine.gcd(a+b, N);
 				}
 			}
 		}
@@ -152,19 +189,6 @@ public class Lehman_Fast3 extends FactorAlgorithm {
 		return 0; // fail
 	}
 
-	private long testSmallK(long aStart, long aLimit, long aStep) {
-		for (long a=aLimit; a >= aStart; a-=aStep) {
-			final long test = a*a - fourkN;
-			// Here test<0 is possible because of double to long cast errors in the 'a'-computation.
-			// But then b = Math.sqrt(test) gives 0 (sic!) => 0*0 != test => no errors.
-			final long b = (long) Math.sqrt(test);
-			if (b*b == test) {
-				return gcdEngine.gcd(a+b, N);
-			}
-		}
-		return 1;
-	}
-	
 	private long testLongTail(int kBegin, final int kLimit) {
 		int k = kBegin;
 		if ((k&1) == 0) {
@@ -181,14 +205,7 @@ public class Lehman_Fast3 extends FactorAlgorithm {
 			// k odd
 			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE);
 			// make a == (k+N) (mod 4)
-			final long kPlusN = k + N;
-			if ((kPlusN & 3) == 0) {
-				a += ((kPlusN - a) & 7);
-			} else {
-				final long adjust1 = (kPlusN - a) & 15;
-				final long adjust2 = (-kPlusN - a) & 15;
-				a += adjust1<adjust2 ? adjust1 : adjust2;
-			}
+			a += adjustTables[(int) (k + N) & 15][(int) a & 15];
 			long test = a*a - k * fourN;
 			long b = (long) Math.sqrt(test);
 			if (b*b == test) {
