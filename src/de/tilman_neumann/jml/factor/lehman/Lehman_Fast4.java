@@ -203,8 +203,7 @@ public class Lehman_Fast4 extends FactorAlgorithm {
 			// k odd
 			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE);
 			// make a == (k+N) (mod 4)
-			final long kPlusN = k + N;
-			a += adjustTables[(int) (kPlusN & 15)][(int) (a & 15)];
+			a += adjustTables[(int) (k + N) & 15][(int) a & 15];
 			long test = a*a - k * fourN;
 			long b = (long) Math.sqrt(test);
 			if (b*b == test) {
