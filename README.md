@@ -1,7 +1,6 @@
 # java-math-library
 
 This library is focused on number theory, but not necessarily limited to it.
-Its intention is to collect basic math routines that may be of value to others.
 It is based on PSIQS 4.0 and as such provides some pretty good methods for integer factorization.
 If you are interested in factoring then have a look at the following classes:
 * TDiv31Inverse
