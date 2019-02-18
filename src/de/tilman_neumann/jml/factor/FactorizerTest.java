@@ -90,6 +90,7 @@ public class FactorizerTest {
 			//new Hart_Simple(),
 			new Hart_Fast(false),
 //			new Hart_Fast(true),
+			new Hart_Fast_Unsafe(false),
 			new Hart_TDiv_Race(), // best safe algorithm for any N with 25 to 49 bits
 			new Hart_TDiv_Race_Unsafe(), // slightly faster for N>=45 bit, but fails for a few small N
 	
