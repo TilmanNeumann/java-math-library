@@ -96,7 +96,7 @@ public class FactorizerTest {
 			// Lehman
 			//new Lehman_Simple(false),
 			//new Lehman_Smith(false),
-			new Lehman_Fast(false),
+			new Lehman_Fast(false), // the variant implemented by bsquared
 //			new Lehman_Fast(true),
 			new Lehman_Fast2(false),
 			new Lehman_Fast3(false),
