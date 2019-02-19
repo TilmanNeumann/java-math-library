@@ -31,6 +31,8 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * Hart_TDiv_Race solves that problem and is faster for any kind of test numbers.
  * 
+ * This variant is faster than Hart_Fast for N>=45 bit, but fails for a few small N.
+ * 
  * @authors Thilo Harich & Tilman Neumann
  */
 public class Hart_Fast_Unsafe extends FactorAlgorithm {
@@ -224,7 +226,7 @@ public class Hart_Fast_Unsafe extends FactorAlgorithm {
 				
 				// problems found by Thilo
 				35184372094495L,
-				893, // works
+				893, // XXX fail
 				35, // works
 				9 // works
 			};
