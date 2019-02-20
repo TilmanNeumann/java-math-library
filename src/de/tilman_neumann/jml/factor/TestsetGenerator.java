@@ -112,6 +112,27 @@ public class TestsetGenerator {
 			}
 			return NArray;
 		}
+		case QUITE_HARD_ODD_SEMIPRIMES: {
+			if (bits<4) throw new IllegalArgumentException("There are no odd semiprimes with " + bits + " bits.");
+			int minBits = (bits-1)/2;
+			for (int i=0; i<N_count; ) {
+				// generate random N with 2 prime factors
+				BigInteger n1 = new BigInteger(minBits, RNG);
+				n1 = n1.setBit(minBits-1);
+				n1 = bpsw.nextProbablePrime(n1);
+				int n2bits = bits-n1.bitLength();
+				BigInteger n2 = new BigInteger(n2bits, RNG);
+				n2 = n2.setBit(n2bits-1);
+				n2 = bpsw.nextProbablePrime(n2);
+				BigInteger N = n1.multiply(n2);
+				if (DEBUG) LOG.debug("bits=" + bits + ", N1Bits=" + n1.bitLength() + ", N2Bits=" + n2.bitLength());
+				
+				// Skip cases where the construction above failed to produce the correct bit length
+				if (N.bitLength() != bits) continue;
+				NArray[i++] = N;
+			}
+			return NArray;
+		}
 		default: throw new IllegalArgumentException("TestsetGeneratorMode " + mode);
 		}
 	}
