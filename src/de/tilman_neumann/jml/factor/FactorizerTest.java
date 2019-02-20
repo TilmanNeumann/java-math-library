@@ -64,7 +64,7 @@ public class FactorizerTest {
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_ODD_SEMIPRIMES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.QUITE_HARD_SEMIPRIMES;
 	/** Test mode */
 	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
 
