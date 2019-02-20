@@ -104,7 +104,7 @@ public class Hart_AnalyzeCongruences extends FactorAlgorithm {
 		
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		// find N-set for square tests
-		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_ODD_SEMIPRIMES);
+		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		for (BigInteger N : testNumbers) {

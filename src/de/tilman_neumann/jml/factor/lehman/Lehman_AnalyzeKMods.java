@@ -129,7 +129,7 @@ public class Lehman_AnalyzeKMods extends FactorAlgorithm {
 		kFactorCounts = new int[MOD];
 		
 		// find N-set for square tests
-		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_ODD_SEMIPRIMES);
+		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 		LOG.info("Test MOD " + MOD + " with N having " + bits + " bit");
 		
 		for (BigInteger N : testNumbers) {

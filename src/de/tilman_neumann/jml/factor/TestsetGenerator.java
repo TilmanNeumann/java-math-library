@@ -71,7 +71,7 @@ public class TestsetGenerator {
 			}
 			return NArray;
 		}
-		case MODERATE_ODD_SEMIPRIMES: {
+		case MODERATE_SEMIPRIMES: {
 			if (bits<4) throw new IllegalArgumentException("There are no odd semiprimes with " + bits + " bits.");
 			int minBits = (bits+2)/3; // analogue to 3rd root(N)
 			int maxBits = (bits+1)/2;
@@ -112,7 +112,7 @@ public class TestsetGenerator {
 			}
 			return NArray;
 		}
-		case QUITE_HARD_ODD_SEMIPRIMES: {
+		case QUITE_HARD_SEMIPRIMES: {
 			if (bits<4) throw new IllegalArgumentException("There are no odd semiprimes with " + bits + " bits.");
 			int minBits = (bits-1)/2;
 			for (int i=0; i<N_count; ) {

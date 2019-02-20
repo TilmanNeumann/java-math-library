@@ -39,7 +39,7 @@ public class IsSqrt_Test {
 	private void testRange(int bits) {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		// find N-set for square tests
-		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_ODD_SEMIPRIMES);
+		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 		assertEquals(N_COUNT, testNumbers.length);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		long[] NArray = new long[N_COUNT];
