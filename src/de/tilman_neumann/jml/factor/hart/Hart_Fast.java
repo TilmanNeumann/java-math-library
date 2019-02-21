@@ -29,7 +29,6 @@ import de.tilman_neumann.util.ConfigUtil;
  * But the smaller possible factors get, it will become slower and slower.
  * 
  * For any kind of test numbers except very hard semiprimes, Hart_TDiv_Race will be faster.
- * Hart_Fast_Unsafe may be faster for hard semiprimes.
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
