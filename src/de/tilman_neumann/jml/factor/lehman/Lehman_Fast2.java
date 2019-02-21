@@ -30,7 +30,9 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse_NoDoubleCheck_Unroll;
  * At that size, both a^2 and 4kN start to overflow Long.MAX_VALUE.
  * But the error - comparing correct results vs. long results - is just the same for both a^2 and 4kN
  * (and a multiple of 2^64).
- *  Thus <code>test</code> is correct and <code>b</code> is correct, too. <code>a</code> is correct anyway.
+ * Thus <code>test</code> is correct and <code>b</code> is correct, too. <code>a</code> is correct anyway.
+ * 
+ * This variant is our fastest Lehman implementation for "moderate semiprimes". The Hart-variants are faster, though.
  * 
  * @authors Tilman Neumann + Thilo Harich
  */
