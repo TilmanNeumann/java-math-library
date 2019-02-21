@@ -25,11 +25,11 @@ import de.tilman_neumann.util.ConfigUtil;
 /**
  * Pretty simple yet fast variant of Hart's one line factorizer.
  * 
- * This implementation is pretty fast if we know the nature of test numbers in advance.
- * With doTDivFirst=false, it is pretty good to factor hard semiprimes, but very bad for random composites;
- * with doTDivFirst=true, it is good for random composites, but not as good for hard semiprimes.
+ * With doTDivFirst=false, this implementation is pretty fast for hard semiprimes.
+ * But the smaller possible factors get, it will become slower and slower.
  * 
- * Hart_TDiv_Race solves that problem and is faster for any kind of test numbers.
+ * For any kind of test numbers except very hard semiprimes, Hart_TDiv_Race will be faster.
+ * Hart_Fast_Unsafe may be faster for hard semiprimes.
  * 
  * @authors Thilo Harich & Tilman Neumann
  */

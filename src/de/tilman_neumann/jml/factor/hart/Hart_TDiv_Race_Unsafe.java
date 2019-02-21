@@ -25,9 +25,10 @@ import de.tilman_neumann.util.ConfigUtil;
 /**
  * A factoring algorithm racing Hart's one line factorizer against trial division.
  * 
- * This variant is faster than Hart_TDiv_Race for N>=45 bit, but fails for a few small N.
+ * This variant is faster than Hart_TDiv_Race for N >= 45 bits, but will fail for some N having small factors.
+ * Hart_Fast and Hard_Fast_Unsafe are faster for hard semiprimes.
  * 
- * @authors Tilman Neumann & Thilo Harich
+ * @authors Thilo Harich & Tilman Neumann
  */
 public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_TDiv_Race_Unsafe.class);

@@ -25,13 +25,11 @@ import de.tilman_neumann.util.ConfigUtil;
 /**
  * A factoring algorithm racing Hart's one line factorizer against trial division.
  * 
- * This is the fastest algorithm for any kind of numbers having 25 to 49 bits.
- * Fast trial division by "multiplication of the reciprocal" is essential for the speed of the implementation;
- * otherwise Hard_fast would be faster for hard semiprimes.
+ * This is the fastest algorithm for test numbers <= 44 bit when their nature is unknown.
+ * Hart_TDiv_Race_Unsafe is faster for moderate semiprimes N >= 45 bit.
+ * Hart_Fast and Hard_Fast_Unsafe are faster for hard semiprimes.
  * 
- * This is the safe version. Hart_TDiv_Race_Unsafe is faster for N>=45 bit, but fails for a few small N.
- * 
- * @authors Tilman Neumann & Thilo Harich
+ * @authors Thilo Harich & Tilman Neumann
  */
 public class Hart_TDiv_Race extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_TDiv_Race.class);
