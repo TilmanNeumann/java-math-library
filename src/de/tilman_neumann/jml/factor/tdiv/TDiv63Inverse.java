@@ -89,12 +89,7 @@ public class TDiv63Inverse extends FactorAlgorithm {
 			double r = reciprocals[i];
 			int p = primes[i];
 			int exp = 0;
-			while (true) {
-				long nDivPrime = (int) (N*r + DISCRIMINATOR);
-				if (nDivPrime * p != N) break;
-				// nDivPrime is very near to an integer
-				if (N%p != 0) break;
-				// p divides N
+			while ((long) (N*r + DISCRIMINATOR) * p == N) {
 				exp++;
 				N /= p;
 			}
@@ -136,17 +131,17 @@ public class TDiv63Inverse extends FactorAlgorithm {
 				}
 			}
 			
-			// Now the primes are big enough to apply trial division by inverses
+			// Now the primes are big enough to apply trial division by inverses; unroll the loop
 			for (; primes[i]<=pLimit; i++) {
 				//LOG.debug("N=" + N + ": Test p=" + primes[i]);
-				long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
-				if (nDivPrime * primes[i] == N) {
-					// nDivPrime is very near to an integer
-					if (N%primes[i]==0) {
-						//LOG.debug("Found factor " + primes[i]);
-						return primes[i];
-					}
-				}
+				if (((long) (N*reciprocals[i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
+				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
+				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
+				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
+				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
+				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
+				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
+				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			int pMaxIndex = primeCountBound-1;

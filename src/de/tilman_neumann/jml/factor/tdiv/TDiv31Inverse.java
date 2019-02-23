@@ -27,7 +27,10 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * and multiply N by those reciprocals. Only if such a result is near to an integer we need
  * to do a division.
  * 
- * About 3 times faster than ordinary trial division.
+ * This variant abstains from testing N%primes[i] when the discriminator test indicates a neat division,
+ * and unrolls the loop in findSingleFactor().
+ * 
+ * Another bit faster than TDiv31Inverse_NoDoubleCheck.
  * 
  * @authors Thilo Harich + Tilman Neumann
  */
@@ -67,12 +70,7 @@ public class TDiv31Inverse extends FactorAlgorithm {
 			double r = reciprocals[i];
 			int p = primes[i];
 			int exp = 0;
-			while (true) {
-				int nDivPrime = (int) (N*r + DISCRIMINATOR);
-				if (nDivPrime * p != N) break;
-				// nDivPrime is very near to an integer
-				if (N%p != 0) break;
-				// p divides N
+			while ((int) (N*r + DISCRIMINATOR) * p == N) {
 				exp++;
 				N /= p;
 			}
@@ -96,14 +94,16 @@ public class TDiv31Inverse extends FactorAlgorithm {
 	
 	public int findSingleFactor(int N) {
 		// if N is odd and composite then the loop runs maximally up to prime = floor(sqrt(N))
+		// unroll the loop
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
-			int nDivPrime = (int) (N*reciprocals[i] + DISCRIMINATOR);
-			if (nDivPrime * primes[i] == N) {
-				// nDivPrime is very near to an integer
-				if (N%primes[i]==0) {
-					return primes[i];
-				}
-			}
+			if ((int) (N*reciprocals[i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
+			if ((int) (N*reciprocals[++i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
+			if ((int) (N*reciprocals[++i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
+			if ((int) (N*reciprocals[++i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
+			if ((int) (N*reciprocals[++i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
+			if ((int) (N*reciprocals[++i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
+			if ((int) (N*reciprocals[++i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
+			if ((int) (N*reciprocals[++i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
 		}
 		// otherwise N is prime!
 		throw new IllegalArgumentException("N = " + N + " is prime!");
