@@ -23,6 +23,8 @@ import de.tilman_neumann.jml.factor.squfof.SquFoF63;
 import de.tilman_neumann.jml.primes.bounds.PrimeCountUpperBounds;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
+import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 /**
  * Trial division factor algorithm replacing division by multiplications.
@@ -77,7 +79,37 @@ public class TDiv63Inverse_NoDoubleCheck_Unroll extends FactorAlgorithm {
 	public void setTestLimit(int pLimit) {
 		this.pLimit = pLimit;
 	}
-	
+
+	@Override
+	public SortedMultiset<BigInteger> factor(BigInteger Nbig) {
+		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
+		long N = Nbig.longValue();
+		
+		for (int i=0; ; i++) {
+			double r = reciprocals[i];
+			int p = primes[i];
+			int exp = 0;
+			while (true) {
+				long nDivPrime = (int) (N*r + DISCRIMINATOR);
+				if (nDivPrime * p != N) break;
+				// nDivPrime is very near to an integer
+				if (N%p != 0) break;
+				// p divides N
+				exp++;
+				N /= p;
+			}
+			if (exp>0) {
+				primeFactors.add(BigInteger.valueOf(p), exp);
+			}
+			if (p*(long)p > N) {
+				if (N>1) primeFactors.add(BigInteger.valueOf(N));
+				break;
+			}
+		}
+		
+		return primeFactors;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * 
