@@ -96,7 +96,7 @@ public class Lehman_Fast3 extends FactorAlgorithm {
 		// k%3 is a very good discriminator for the number of factors found by different k.
 		// k with k%3==0 have the biggest probability to find a factor, so we want to test them first.
 		// Adjusting kTwoA and kLimit to 0 (mod 6) allows us to start with even k in testLongTail(kTwoA).
-		final int kLimit0 = ((cbrt/2 + 6) / 6) * 6;
+		final int kLimit = ((cbrt/2 + 6) / 6) * 6;
 		
 		// For kTwoA = kLimit / 64 the a-range is <= 2. The congruences mod 4 imply that then there is only 1 choice for a.
 		final int kTwoA = (((cbrt >> 6) + 6) / 6) * 6;
@@ -109,7 +109,7 @@ public class Lehman_Fast3 extends FactorAlgorithm {
 		//   of the algorithm, but investigating it for some k==0 (mod 3) improves performance.
 		
 		// We start with the middle range case k == 0 (mod 3), which has the highest chance to find a factor.
-		if ((factor = testLongTail(kTwoA, kLimit0)) > 1) return factor;
+		if ((factor = testLongTail(kTwoA, kLimit)) > 1) return factor;
 
 		// Now investigate the small range
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
@@ -128,7 +128,7 @@ public class Lehman_Fast3 extends FactorAlgorithm {
 					aStep = 8;
 					aLimit += ((kPlusN - aLimit) & 7);
 				} else {
-					aStep = 4; // XXX use step 8 or 16 ?
+					aStep = 4; // stepping over both adjusts with step width 16 would be more exact but is not faster
 					final long adjust1 = (kPlusN - aLimit) & 15;
 					final long adjust2 = (-kPlusN - aLimit) & 15;
 					aLimit += adjust1<adjust2 ? adjust1 : adjust2;
@@ -149,18 +149,18 @@ public class Lehman_Fast3 extends FactorAlgorithm {
 		}
 
 		// Checking the high range for k== 0 (mod 3) improves performance
-		if ((factor = testLongTail(kLimit0, kLimit0 << 2)) > 1) return factor;
+		if ((factor = testLongTail(kLimit, kLimit << 2)) > 1) return factor;
 
 		// do trial division after Lehman loop ?
 		if (!doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
 
 		// Complete middle range
-		if ((factor = testLongTail(kTwoA + 1, kLimit0 << 1)) > 1) return factor;
-		if ((factor = testLongTail(kTwoA + 2, kLimit0 << 1)) > 1) return factor;
+		if ((factor = testLongTail(kTwoA + 1, kLimit << 1)) > 1) return factor;
+		if ((factor = testLongTail(kTwoA + 2, kLimit << 1)) > 1) return factor;
 		
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
-		for (int k=kTwoA + 1; k <= kLimit0 << 1; k++) {
+		for (int k=kTwoA + 1; k <= kLimit << 1; k++) {
 			long a = (long) (sqrt4N * sqrt[k] + ROUND_UP_DOUBLE) - 1;
 			long test = a*a - k*fourN;
 			long b = (long) Math.sqrt(test);
