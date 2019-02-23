@@ -28,7 +28,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * to do a division.
  * 
  * This variant abstains from testing N%primes[i] when the discriminator test indicates a neat division,
- * and unrolls the lopp in findSingleFactor().
+ * and unrolls the loop in findSingleFactor().
  * 
  * Another bit faster than TDiv31Inverse_NoDoubleCheck.
  * 
