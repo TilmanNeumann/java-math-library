@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse_NoDoubleCheck_Unroll;
+import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
 /**
  * Fast implementation of Lehman's factor algorithm.
@@ -48,7 +48,7 @@ public class Lehman_Fast2 extends FactorAlgorithm {
 	private boolean doTDivFirst;
 	private double[] sqrt, sqrtInv;
 	private final Gcd63 gcdEngine = new Gcd63();
-	private final TDiv63Inverse_NoDoubleCheck_Unroll tdiv = new TDiv63Inverse_NoDoubleCheck_Unroll(1<<20);
+	private final TDiv63Inverse tdiv = new TDiv63Inverse(1<<20);
 
 	/**
 	 * Full constructor.
