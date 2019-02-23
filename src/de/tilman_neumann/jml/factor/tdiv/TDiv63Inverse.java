@@ -85,7 +85,25 @@ public class TDiv63Inverse extends FactorAlgorithm {
 		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
 		long N = Nbig.longValue();
 		
-		for (int i=0; ; i++) {
+		int i=0;
+		int Nbits = 64-Long.numberOfLeadingZeros(N);
+		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
+		if (pMinBits>0) {
+			// for the smallest primes we must do standard trial division
+			int pMin = 1<<pMinBits, p;
+			for (; (p=primes[i])<pMin; i++) {
+				int exp = 0;
+				while (N%p == 0) {
+					exp++;
+					N /= p;
+				}
+				if (exp>0) {
+					primeFactors.add(BigInteger.valueOf(p), exp);
+				}
+			}
+		}
+
+		for (; ; i++) {
 			double r = reciprocals[i];
 			int p = primes[i];
 			int exp = 0;
