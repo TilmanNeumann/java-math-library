@@ -176,7 +176,7 @@ public class TDiv63Inverse extends FactorAlgorithm {
 		}
 		
 		// nothing found up to pLimit
-		return 0;
+		return 1;
 	}
 
 	/**
@@ -212,8 +212,9 @@ public class TDiv63Inverse extends FactorAlgorithm {
 		for (long N : specialN) {
 			long tdivFactor = tdivInv.findSingleFactor(N);
 			long testFactor = testFactorizer.findSingleFactor(N);
-			LOG.info("tdivFactor=" + tdivFactor);
-			LOG.info("testFactor=" + testFactor);
+			if (tdivFactor<=1 || tdivFactor==N) {
+				LOG.debug("TDiv63Inverse failed to factor N=" + N + " = " + testFactor + " * " + (N/testFactor));
+			}
 		}
 		
 		// test random N
