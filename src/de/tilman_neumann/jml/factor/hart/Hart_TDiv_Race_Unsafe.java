@@ -26,7 +26,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * A factoring algorithm racing Hart's one line factorizer against trial division.
  * 
  * This variant is faster than Hart_TDiv_Race for N >= 45 bits, but will fail for some N having small factors.
- * Hart_Fast and Hard_Fast_Unsafe are faster for hard semiprimes.
+ * Hart_Fast is faster for hard semiprimes.
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
