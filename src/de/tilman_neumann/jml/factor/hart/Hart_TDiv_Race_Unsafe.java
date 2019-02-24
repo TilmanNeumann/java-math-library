@@ -100,13 +100,9 @@ public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 				int pMin = 1<<pMinBits;
 				for ( ; primes[i]<pMin; ) {
 					// tdiv step
-					//LOG.debug("test p[" + i + "] = " + primes[i]);
-					if (N%primes[i]==0) {
-						//LOG.debug("found factor " + primes[i]);
-						return primes[i];
-					}
+					if (N%primes[i]==0) return primes[i];
 
-					// odd k -> adjust a mod 8
+					// odd k -> adjust a mod 8, 16
 					a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
 					final long kPlusN = k + N;
 					if ((kPlusN & 3) == 0) {
@@ -124,11 +120,7 @@ public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 					k += K_MULT;
 
 					// tdiv step
-					//LOG.debug("test p[" + i + "] = " + primes[i]);
-					if (N%primes[i]==0) {
-						//LOG.debug("found factor " + primes[i]);
-						return primes[i];
-					}
+					if (N%primes[i]==0) return primes[i];
 
 					// even k -> a must be odd
 					a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE) | 1L;
@@ -144,15 +136,9 @@ public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 			// continue with Hart and fast inverse trial division
 			for (; ;) {
 				// tdiv step
-				//LOG.debug("test p[" + i + "] = " + primes[i]);
-				long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
-				if (nDivPrime * primes[i] == N) {
-					// nDivPrime is very near to an integer, thus it is integer!
-					//LOG.debug("Found factor " + primes[i]);
-					return primes[i];
-				}
+				if ((long) (N*reciprocals[i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
 
-				// odd k -> adjust a mod 8
+				// odd k -> adjust a mod 8, 16
 				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
 				final long kPlusN = k + N;
 				if ((kPlusN & 3) == 0) {
@@ -170,13 +156,7 @@ public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 				k += K_MULT;
 
 				// tdiv step
-				//LOG.debug("test p[" + i + "] = " + primes[i]);
-				nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
-				if (nDivPrime * primes[i] == N) {
-					// nDivPrime is very near to an integer, thus it is integer!
-					//LOG.debug("Found factor " + primes[i]);
-					return primes[i];
-				}
+				if ((long) (N*reciprocals[i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
 
 				// even k -> a must be odd
 				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE) | 1L;
@@ -189,7 +169,7 @@ public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			LOG.error("Hart_TDiv_Race_Unsafe: Failed to factor N=" + N + " because the arrays are too small.");
-			return 0;
+			return 1;
 		}
 	}
 	

@@ -101,11 +101,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				int pMin = 1<<pMinBits;
 				for ( ; primes[i]<pMin; ) {
 					// tdiv step
-					//LOG.debug("test p[" + i + "] = " + primes[i]);
-					if (N%primes[i]==0) {
-						//LOG.debug("found factor " + primes[i]);
-						return primes[i];
-					}
+					if (N%primes[i]==0) return primes[i];
 
 					// odd k -> adjust a mod 8
 					a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
@@ -125,11 +121,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					k += K_MULT;
 
 					// tdiv step
-					//LOG.debug("test p[" + i + "] = " + primes[i]);
-					if (N%primes[i]==0) {
-						//LOG.debug("found factor " + primes[i]);
-						return primes[i];
-					}
+					if (N%primes[i]==0) return primes[i];
 
 					// even k -> a must be odd
 					a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE) | 1L;
@@ -145,12 +137,8 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 			// continue with Hart and fast inverse trial division
 			for (; ;) {
 				// tdiv step
-				//LOG.debug("test p[" + i + "] = " + primes[i]);
-				long nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
-				if (nDivPrime * primes[i] == N) {
-					// nDivPrime is very near to an integer
-					if (N%primes[i]==0) {
-						//LOG.debug("Found factor " + primes[i]);
+				if ((long) (N*reciprocals[i] + DISCRIMINATOR) * primes[i] == N) {
+					if (N%primes[i]==0) { // not required anymore?
 						return primes[i];
 					}
 				}
@@ -173,12 +161,8 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				k += K_MULT;
 
 				// tdiv step
-				//LOG.debug("test p[" + i + "] = " + primes[i]);
-				nDivPrime = (long) (N*reciprocals[i] + DISCRIMINATOR);
-				if (nDivPrime * primes[i] == N) {
-					// nDivPrime is very near to an integer
-					if (N%primes[i]==0) {
-						//LOG.debug("Found factor " + primes[i]);
+				if ((long) (N*reciprocals[i] + DISCRIMINATOR) * primes[i] == N) {
+					if (N%primes[i]==0) { // not required anymore?
 						return primes[i];
 					}
 				}
@@ -194,7 +178,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			LOG.error("Hart_TDiv_Race: Failed to factor N=" + N + " because the arrays are too small.");
-			return 0;
+			return 1;
 		}
 	}
 	
