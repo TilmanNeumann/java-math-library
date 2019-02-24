@@ -52,9 +52,11 @@ import de.tilman_neumann.util.*;
 public class FactorizerTest {
 	private static final Logger LOG = Logger.getLogger(FactorizerTest.class);
 
+	private static final boolean DEBUG = false;
+	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1000000;
+	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 20;
 	/** the increment in bit size from test set to test set */
@@ -64,9 +66,9 @@ public class FactorizerTest {
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_ODD_COMPOSITES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
+	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
 
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
@@ -260,25 +262,12 @@ public class FactorizerTest {
 					// verify
 					for (int j=0; j<N_COUNT; j++) {
 						BigInteger N = testNumbers[j];
-						SortedMap<BigInteger, Integer> factorSet = factorSetArray[j];
+						SortedMultiset<BigInteger> factorSet = factorSetArray[j];
 						// test correctness
-						if (factorSet!=null) {
-							for (BigInteger factor : factorSet.keySet()) {
-								if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {
-									//LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
-									failExample = N;
-									failCount++;
-								} else {
-									// not null, not trivial -> test division
-									BigInteger[] test = N.divideAndRemainder(factor);
-									if (!test[1].equals(I_0)) {
-										//LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
-										failExample = N;
-										failCount++;
-									}
-								}
-							}
-						} else {
+						SortedMultiset<BigInteger> correctFactors = FactorAlgorithm.DEFAULT.factor(N);
+						if (!correctFactors.equals(factorSet)) {
+							if (DEBUG) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find all factors of N=" + N + ". Correct factors=" + correctFactors + ", found factors=" + factorSet);
+							failExample = N;
 							failCount++;
 						}
 					}
