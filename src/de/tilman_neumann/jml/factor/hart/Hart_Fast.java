@@ -25,10 +25,12 @@ import de.tilman_neumann.util.ConfigUtil;
 /**
  * Pretty simple yet fast variant of Hart's one line factorizer.
  * 
- * With doTDivFirst=false, this implementation is pretty fast for hard semiprimes.
- * But the smaller possible factors get, it will become slower and slower.
+ * The main problem with this implementation is that we need to know to nature of test numbers.
+ * With doTDivFirst=false it is the fastest algorithm for hard semiprimes,
+ * but if the test numbers contain factors < cbrt(N), it will fail to find some of them.
+ * Hart_TDiv_Race fixes that problem and will be faster for any kind of test numbers except hard semiprimes.
  * 
- * For any kind of test numbers except very hard semiprimes, Hart_TDiv_Race will be faster.
+ * With doTDivFirst=true it will find all factors of any kind of numbers but not extraordinarily fast.
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
@@ -87,12 +89,7 @@ public class Hart_Fast extends FactorAlgorithm {
 		if (doTDivFirst) {
 			tdiv.setTestLimit((int) Math.cbrt(N));
 			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
-		} else {
-			// at least do trial division by multiplier factors
-			if ((N%3)==0) return 3;
-			if ((N%5)==0) return 5;
-			if ((N%7)==0) return 7;
-		}
+		} // else: some factors < cbrt(N) may not be found
 		
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
@@ -100,7 +97,7 @@ public class Hart_Fast extends FactorAlgorithm {
 		int k = K_MULT;
 		try {
 			for (int i=1; ;) {
-				// odd k -> adjust a mod 8
+				// odd k -> adjust a mod 8, 16
 				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
 				final long kPlusN = k + N;
 				if ((kPlusN & 3) == 0) {
