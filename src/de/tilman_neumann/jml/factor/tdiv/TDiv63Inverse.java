@@ -120,13 +120,12 @@ public class TDiv63Inverse extends FactorAlgorithm {
 				primeFactors.add(BigInteger.valueOf(p), exp);
 			}
 			if (p*(long)p > N) {
-				if (N>1) primeFactors.add(BigInteger.valueOf(N));
-				return primeFactors;
+				break; // the remaining N is prime
 			}
 		}
 		
 		if (N>1) {
-			// could not find all factors with p<=pLimit -> add the rest to the result
+			// either N is prime, or we could not find all factors with p<=pLimit -> add the rest to the result
 			primeFactors.add(BigInteger.valueOf(N));
 		}
 		return primeFactors;
