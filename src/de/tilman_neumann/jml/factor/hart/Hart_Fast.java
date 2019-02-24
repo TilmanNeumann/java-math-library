@@ -84,12 +84,12 @@ public class Hart_Fast extends FactorAlgorithm {
 	 * @return factor of N
 	 */
 	public long findSingleFactor(long N) {
-		// do trial division before the Hart loop ?
-		long factor;
 		if (doTDivFirst) {
+			// do trial division before the Hart loop
 			tdiv.setTestLimit((int) Math.cbrt(N));
-			if ((factor = tdiv.findSingleFactor(N))>1) return factor;
-		} // else: some factors < cbrt(N) may not be found
+			final long factor = tdiv.findSingleFactor(N);
+			if (factor > 1) return factor;
+		} // else: if there are factors < cbrt(N) then some of them may not be found
 		
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
@@ -125,8 +125,8 @@ public class Hart_Fast extends FactorAlgorithm {
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// this may happen if this implementation is tested with doTDivFirst==false and N having
-			// very small factors, or if N is too big
-			return 0;
+			// factors < cbrt(N), or if N is too big
+			return 1;
 		}
 	}
 	
@@ -202,11 +202,11 @@ public class Hart_Fast extends FactorAlgorithm {
 				2017001503,
 				3084734169L,
 				6700794123L,
-				16032993843L, // = 3 * 5344331281, 34 bit number
+				16032993843L, // = 3 * 5344331281 (34 bit number), fail with doTDivFirst==false
 				26036808587L,
-				41703657595L, // = 5 * 8340731519, 36 bit number
+				41703657595L, // = 5 * 8340731519 (36 bit number), fail with doTDivFirst==false
 				68889614021L,
-				197397887859L, // = 3^2 * 21933098651, 38 bit number
+				197397887859L, // = 3^2 * 21933098651 (38 bit number), fail with doTDivFirst==false
 				
 				2157195374713L,
 				8370014680591L,
