@@ -122,7 +122,7 @@ abstract public class FactorAlgorithm {
 		}
 		
 		// N contains larger factors...
-		ArrayList<BigInteger> untestedFactors = new ArrayList<BigInteger>(); // TODO use SortedMultiset
+		ArrayList<BigInteger> untestedFactors = new ArrayList<BigInteger>(); // faster than SortedMultiset
 		untestedFactors.add(N);
 		while (untestedFactors.size()>0) {
 			N = untestedFactors.remove(untestedFactors.size()-1);
