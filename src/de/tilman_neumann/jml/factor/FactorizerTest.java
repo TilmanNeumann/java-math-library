@@ -89,7 +89,7 @@ public class FactorizerTest {
 			new Hart_Fast(false), // best algorithm for hard semiprimes
 //			new Hart_Fast(true),
 			new Hart_TDiv_Race(), // best safe algorithm for any N with 25 to 49 bits, best for moderate semiprimes <= 44 bit
-			new Hart_TDiv_Race_Unsafe(), // best algorithm for moderate semiprimes >= 45 bit (but fails for some N having small factors)
+			new Hart_TDiv_Race_Unsafe(), // best algorithm for moderate semiprimes >= 45 bit, but fails for some N having small factors
 			
 			// Lehman
 			//new Lehman_Simple(false),
