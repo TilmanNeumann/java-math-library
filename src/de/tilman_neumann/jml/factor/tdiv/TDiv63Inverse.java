@@ -41,7 +41,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 public class TDiv63Inverse extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(TDiv63Inverse.class);
 	
-	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
+	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
 
 	private static final int DISCRIMINATOR_BITS = 10; // experimental result
 	private static final double DISCRIMINATOR = 1.0/(1<<DISCRIMINATOR_BITS);
@@ -87,12 +87,16 @@ public class TDiv63Inverse extends FactorAlgorithm {
 
 	@Override
 	public SortedMultiset<BigInteger> factor(BigInteger Nbig) {
+		int NBits = Nbig.bitLength();
+		if (NBits>63) {
+			throw new IllegalArgumentException("Argument N=" + Nbig  + " (" + NBits + " bit) is too large for algorithm " + getName());
+		}
+		
 		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
 		long N = Nbig.longValue();
 		
 		int i=0;
-		int Nbits = 64-Long.numberOfLeadingZeros(N);
-		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
+		int pMinBits = NBits - 53 + DISCRIMINATOR_BITS;
 		if (pMinBits>0) {
 			// for the smallest primes we must do standard trial division
 			int pMin = 1<<pMinBits, p;
@@ -134,10 +138,13 @@ public class TDiv63Inverse extends FactorAlgorithm {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * This implementation will return 0 if the smallest factor of N is greater than pLimit.
+	 * This implementation will return 1 if the smallest factor of N is greater than pLimit.
 	 */
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
+		if (N.bitLength()>63) {
+			throw new IllegalArgumentException("Argument N=" + N  + " (" + N.bitLength() + " bit) is too large for algorithm " + getName());
+		}
 		return BigInteger.valueOf(findSingleFactor(N.longValue()));
 	}
 	
@@ -220,7 +227,7 @@ public class TDiv63Inverse extends FactorAlgorithm {
 		// test random N
 		SecureRandom RNG = new SecureRandom();
 		int count = 100000;
-		for (int bits=10; bits<63; bits++) {
+		for (int bits=10; bits<64; bits++) {
 			LOG.info("Testing " + count + " random numbers with " + bits + " bits...");
 			tdivInv.setTestLimit(1<<Math.min(21, (bits+1)/2));
 			int failCount = 0;
