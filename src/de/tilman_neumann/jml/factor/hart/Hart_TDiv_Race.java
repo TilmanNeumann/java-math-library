@@ -103,7 +103,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					// tdiv step
 					if (N%primes[i]==0) return primes[i];
 
-					// odd k -> adjust a mod 8
+					// odd k -> adjust a mod 8, 16
 					a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
 					final long kPlusN = k + N;
 					if ((kPlusN & 3) == 0) {
@@ -143,7 +143,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					}
 				}
 
-				// odd k -> adjust a mod 8
+				// odd k -> adjust a mod 8, 16
 				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
 				final long kPlusN = k + N;
 				if ((kPlusN & 3) == 0) {
