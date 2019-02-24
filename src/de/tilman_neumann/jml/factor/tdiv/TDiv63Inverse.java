@@ -48,13 +48,14 @@ public class TDiv63Inverse extends FactorAlgorithm {
 
 	private int[] primes;
 	private double[] reciprocals;
-	private int pLimit, primeCountBound;
+	private int factorLimit, pLimit, primeCountBound;
 
 	/**
 	 * Create a trial division algorithm that is capable of finding factors up to factorLimit.
 	 * @param factorLimit
 	 */
 	public TDiv63Inverse(int factorLimit) {
+		this.factorLimit = factorLimit;
 		pLimit = factorLimit; // default if not set explicitly
 		primeCountBound = (int) PrimeCountUpperBounds.combinedUpperBound(factorLimit);
 		primes = new int[primeCountBound];
@@ -75,8 +76,12 @@ public class TDiv63Inverse extends FactorAlgorithm {
 	 * Set the upper limit of primes to be tested in the next findSingleFactor() run.
 	 * pLimit must be smaller than the factorLimit parameter passed to the constructor.
 	 * @param pLimit
+	 * @throws IllegalStateException if pLimit > factorLimit
 	 */
 	public void setTestLimit(int pLimit) {
+		if (pLimit > factorLimit) {
+			throw new IllegalStateException("Requested pLimit=" + pLimit + " exceeds the factorLimit=" + factorLimit + " passed to the constructor!");
+		}
 		this.pLimit = pLimit;
 	}
 
@@ -103,10 +108,10 @@ public class TDiv63Inverse extends FactorAlgorithm {
 			}
 		}
 
-		for (; ; i++) {
+		int p, exp;
+		for (; (p=primes[i])<=pLimit; i++) {
+			exp = 0;
 			double r = reciprocals[i];
-			int p = primes[i];
-			int exp = 0;
 			while ((long) (N*r + DISCRIMINATOR) * p == N) {
 				exp++;
 				N /= p;
@@ -116,10 +121,14 @@ public class TDiv63Inverse extends FactorAlgorithm {
 			}
 			if (p*(long)p > N) {
 				if (N>1) primeFactors.add(BigInteger.valueOf(N));
-				break;
+				return primeFactors;
 			}
 		}
 		
+		if (N>1) {
+			// could not find all factors with p<=pLimit -> add the rest to the result
+			primeFactors.add(BigInteger.valueOf(N));
+		}
 		return primeFactors;
 	}
 
