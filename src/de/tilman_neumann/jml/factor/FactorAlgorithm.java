@@ -16,6 +16,7 @@ package de.tilman_neumann.jml.factor;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -33,8 +34,9 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * @author Tilman Neumann
  */
 abstract public class FactorAlgorithm {
-	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(FactorAlgorithm.class);
+	
+	private static final boolean DEBUG = false;
 	
 	/** The best available single-threaded factor algorithm. (multi-threading may not always be wanted) */
 	public static FactorAlgorithm DEFAULT = new CombinedFactorAlgorithm(1, false);
@@ -120,28 +122,31 @@ abstract public class FactorAlgorithm {
 		}
 		
 		// N contains larger factors...
-		factor_recurrent(N, primeFactors);
+		ArrayList<BigInteger> untestedFactors = new ArrayList<BigInteger>(); // TODO use SortedMultiset
+		untestedFactors.add(N);
+		while (untestedFactors.size()>0) {
+			N = untestedFactors.remove(untestedFactors.size()-1);
+			if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
+				// N is probable prime. In exceptional cases this prediction may be wrong and N composite
+				// -> then we would falsely predict N to be prime. BPSW is known to be exact for N <= 64 bit.
+				//LOG.debug(N + " is probable prime.");
+				primeFactors.add(N);
+				continue;
+			}
+			BigInteger factor1 = findSingleFactor(N);
+			if (factor1.compareTo(I_1) > 0 && factor1.compareTo(N) < 0) {
+				// found factor
+				untestedFactors.add(factor1);
+				untestedFactors.add(N.divide(factor1));
+			} else {
+				// findSingleFactor() failed to find a factor of the composite N
+				if (DEBUG) LOG.error("Factor algorithm " + getName() + " failed to find a factor of composite " + N);
+				primeFactors.add(N);
+			}
+
+		}
 		//LOG.debug(this.factorAlg + ": => all factors = " + primeFactors);
 		return primeFactors;
-	}
-	
-	private void factor_recurrent(BigInteger N, SortedMultiset<BigInteger> primeFactors) {
-		if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
-			// N is probable prime. In exceptional cases this prediction may be wrong and N composite
-			// -> then we would falsely predict N to be prime. BPSW is known to be exact for N <= 64 bit.
-			//LOG.debug(N + " is probable prime.");
-			primeFactors.add(N);
-			return;
-		} // else: N is surely not prime
-
-		// The expensive part: Find a factor of N, where N is composite and has no 2s and undergone some tdiv
-		BigInteger factor1 = findSingleFactor(N);
-		BigInteger factor2 = N.divide(factor1);
-		// Is it possible to further decompose the parts?
-		//LOG.debug("Found factorization of N = " + N + " = " + factor1 + " * " + factor2);
-		factor_recurrent(factor1, primeFactors);
-		factor_recurrent(factor2, primeFactors);
-		//LOG.debug("primeFactors after resolving factor1 = " + factor1 + " and factor2 = " + factor2 + " : " + primeFactors);
 	}
 	
 	/**
