@@ -181,13 +181,34 @@ public class FactorizerTest {
 		};
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void testRange(int bits) {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		// Compute test set
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TEST_NUMBER_NATURE);
-		BigInteger[] factors = new BigInteger[N_COUNT];
-		@SuppressWarnings("unchecked")
-		SortedMultiset<BigInteger>[] factorSetArray = new SortedMultiset_BottomUp[N_COUNT];
+
+		// TEST_MODE=FIRST_FACTOR needs factors, TEST_MODE=PRIME_FACTORIZATION needs factorSetArray
+		BigInteger[] factors = null;
+		SortedMultiset<BigInteger>[] factorSetArray = null;
+		SortedMultiset<BigInteger>[] correctFactorSets = null;
+		if (TEST_MODE==TestMode.FIRST_FACTOR) {
+			factors = new BigInteger[N_COUNT];
+		} else {
+			// TEST_MODE==TestMode.PRIME_FACTORIZATION
+			correctFactorSets = new SortedMultiset_BottomUp[N_COUNT];
+			for (int j=0; j<N_COUNT; j++) {
+				BigInteger N = testNumbers[j];
+				// get factors from verification factorizer and test them for absolute correctness
+				SortedMultiset<BigInteger> correctFactors = FactorAlgorithm.DEFAULT.factor(N);
+				for (BigInteger factor : correctFactors.keySet()) {
+					if (!bpsw.isProbablePrime(factor)) {
+						LOG.error("The verification factor algorithm failed to factor N=" + N + " = " + correctFactors + " correctly! Factor " + factor + " is not prime.");
+					}
+				}
+				correctFactorSets[j] = correctFactors;
+			}
+			factorSetArray = new SortedMultiset_BottomUp[N_COUNT];
+		}
 
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
@@ -261,17 +282,10 @@ public class FactorizerTest {
 					duration = endTimeMillis - startTimeMillis; // duration in ms
 					//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
 					
-					// verify
+					// compare results of current algorithm with verification factorizer
 					for (int j=0; j<N_COUNT; j++) {
 						BigInteger N = testNumbers[j];
-						// get factors from verification factorizer and test them for absolute correctness
-						SortedMultiset<BigInteger> correctFactors = FactorAlgorithm.DEFAULT.factor(N);
-						for (BigInteger factor : correctFactors.keySet()) {
-							if (!bpsw.isProbablePrime(factor)) {
-								LOG.error("The verification factor algorithm failed to factor N=" + N + " = " + correctFactors + " correctly! Factor " + factor + " is not prime.");
-							}
-						}
-						// test correctness of current algorithm
+						SortedMultiset<BigInteger> correctFactors = correctFactorSets[j];
 						SortedMultiset<BigInteger> factorSet = factorSetArray[j];
 						if (!correctFactors.equals(factorSet)) {
 							if (DEBUG) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find all factors of N=" + N + ". Correct factors=" + correctFactors + ", found factors=" + factorSet);
