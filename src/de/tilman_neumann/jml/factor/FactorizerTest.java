@@ -41,6 +41,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.*;
 import de.tilman_neumann.jml.factor.siqs.tdiv.*;
 import de.tilman_neumann.jml.factor.squfof.*;
 import de.tilman_neumann.jml.factor.tdiv.*;
+import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.jml.sequence.*;
 import de.tilman_neumann.util.*;
 
@@ -56,7 +57,7 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 10000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
@@ -66,10 +67,12 @@ public class FactorizerTest {
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_ODD_COMPOSITES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
+	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
 
+	private BPSWTest bpsw = new BPSWTest();
+	
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
 	 */
@@ -86,7 +89,7 @@ public class FactorizerTest {
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),
-			new Hart_Fast(false), // best algorithm for hard semiprimes
+//			new Hart_Fast(false), // best algorithm for hard semiprimes
 //			new Hart_Fast(true),
 			new Hart_TDiv_Race(), // best safe algorithm for any N with 25 to 49 bits, best for moderate semiprimes <= 44 bit
 			new Hart_TDiv_Race_Unsafe(), // best algorithm for moderate semiprimes >= 45 bit, but fails for some N having small factors
@@ -261,9 +264,15 @@ public class FactorizerTest {
 					// verify
 					for (int j=0; j<N_COUNT; j++) {
 						BigInteger N = testNumbers[j];
-						SortedMultiset<BigInteger> factorSet = factorSetArray[j];
-						// test correctness
+						// get factors from verification factorizer and test them for absolute correctness
 						SortedMultiset<BigInteger> correctFactors = FactorAlgorithm.DEFAULT.factor(N);
+						for (BigInteger factor : correctFactors.keySet()) {
+							if (!bpsw.isProbablePrime(factor)) {
+								LOG.error("The verification factor algorithm failed to factor N=" + N + " = " + correctFactors + " correctly! Factor " + factor + " is not prime.");
+							}
+						}
+						// test correctness of current algorithm
+						SortedMultiset<BigInteger> factorSet = factorSetArray[j];
 						if (!correctFactors.equals(factorSet)) {
 							if (DEBUG) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find all factors of N=" + N + ". Correct factors=" + correctFactors + ", found factors=" + factorSet);
 							failExample = N;
