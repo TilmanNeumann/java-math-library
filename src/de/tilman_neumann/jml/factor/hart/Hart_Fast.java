@@ -49,8 +49,8 @@ public class Hart_Fast extends FactorAlgorithm {
 	/** This constant is used for fast rounding of double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private boolean doTDivFirst;
-	private double[] sqrt;
+	private final boolean doTDivFirst;
+	private final double[] sqrt;
 	private final TDiv63Inverse tdiv = new TDiv63Inverse(I_MAX);
 	private final Gcd63 gcdEngine = new Gcd63();
 
@@ -91,37 +91,20 @@ public class Hart_Fast extends FactorAlgorithm {
 			if (factor > 1) return factor;
 		} // else: if there are factors < cbrt(N) then some of them may not be found
 		
-		long fourN = N<<2;
-		double sqrt4N = Math.sqrt(fourN);
+		final long fourN = N<<2;
+		final double sqrt4N = Math.sqrt(fourN);
 		long a, b, test, gcd;
 		int k = K_MULT;
 		try {
-			for (int i=1; ;) {
-				// odd k -> adjust a mod 8, 16
-				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
-				final long kPlusN = k + N;
-				if ((kPlusN & 3) == 0) {
-					a += ((kPlusN - a) & 7);
-				} else {
-					final long adjust1 = (kPlusN - a) & 15;
-					final long adjust2 = (-kPlusN - a) & 15;
-					a += adjust1<adjust2 ? adjust1 : adjust2;
-				}
+			for (int i=1; ; i++, k += K_MULT) {
+				// odd k -> adjust a mod 8
+				a = (long) (sqrt4N * sqrt[i] + ROUND_UP_DOUBLE);
+				a = adjustA(N, a, k, i);
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
 					if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
 				}
-				k += K_MULT;
-				
-				// even k -> a must be odd
-				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE) | 1L;
-				test = a*a - k * fourN;
-				b = (long) Math.sqrt(test);
-				if (b*b == test) {
-					if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
-				}
-				k += K_MULT;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// this may happen if this implementation is tested with doTDivFirst==false and N having
@@ -129,7 +112,23 @@ public class Hart_Fast extends FactorAlgorithm {
 			return 1;
 		}
 	}
-	
+
+	private long adjustA(long N, long a, int k, int i) {
+		if ((i & 1) == 0)
+			a |= 1;
+		else {
+			final long kPlusN = k + N;
+			if ((kPlusN & 3) == 0) {
+				a += ((kPlusN - a) & 7);
+			} else {
+				final long adjust1 = (kPlusN - a) & 15;
+				final long adjust2 = (-kPlusN - a) & 15;
+				a += adjust1<adjust2 ? adjust1 : adjust2;
+			}
+		}
+		return a;
+	}
+
 	/**
 	 * Test.
 	 * @param args ignored
