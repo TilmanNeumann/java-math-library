@@ -250,7 +250,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		} else if (result.totalCount()==2 && result.keySet().contains(I_MINUS_1)) {
 			System.out.println(N + " is probable prime");
 		} else {
-			System.out.println(N + " (" + N_bits + " bits) = " + factorizer.getPrettyFactorString(result) + " (factored in " + durationStr + ")");
+			System.out.println(N + " (" + N_bits + " bits) = " + FactorUtil.getPrettyFactorString(result) + " (factored in " + durationStr + ")");
 		}
 		return 0;
 	}
