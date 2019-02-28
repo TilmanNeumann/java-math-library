@@ -118,7 +118,6 @@ public class Hart_AnalyzeCongruencesWithMultiplier extends FactorAlgorithm {
 		counts = new int[KMOD][KNMOD][AMOD][AMOD];
 		
 		BigInteger N_min = I_1.shiftLeft(bits-1);
-		// find N-set for square tests
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		

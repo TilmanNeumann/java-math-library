@@ -14,48 +14,53 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import java.math.BigInteger;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
+import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 
+//import static de.tilman_neumann.jml.base.BigIntConstants.*;
+
 /**
- * Analyze the frequency with which different k-moduli % MOD find a factor.
+ * Analyze the frequency with which different k find a factor.
+ * 
+ * Some results:
+ * -> k prime or k=2*prime are very bad
+ * -> very smooth k are pretty good but the influence of the power of 2 in such k is strange and not well understood
+ * -> N that are factored by many k are typically factored by k=k_base*{1^2, 3^2, 5^2, 7^2, ...}
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeKMods extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeKMods.class);
+public class Lehman_AnalyzeKFactoringSameN extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeKFactoringSameN.class);
 
 	// algorithm options
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
 	/** the bit size of N */
-	private static final int BITS = 35;
+	private static final int BITS = 40;
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
-	
-	/** We are investigating k % MOD */
-	private int MOD;
 
 	private long fourN;
 	private double sqrt4N;
 	private final Gcd63 gcdEngine = new Gcd63();
+	private final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 
-	private int[] kFactorCounts;
-	
-	public Lehman_AnalyzeKMods(int m) {
-		this.MOD = m;
-	}
+	/** Counts of how often we had 0, 1, 2, 3, ... successful k per N */
+	private int[] numberOfSuccessfulKCounts;
 	
 	@Override
 	public String getName() {
-		return "Lehman_AnalyzeKMods";
+		return "Lehman_AnalyzeKFactoringSameN";
 	}
 
 	@Override
@@ -64,18 +69,20 @@ public class Lehman_AnalyzeKMods extends FactorAlgorithm {
 	}
 	
 	public long findSingleFactor(long N) {
+		int successfulKCount = 0;
+		TreeMap<Integer, SortedMultiset<BigInteger>> successfulKToFactorsMap = new TreeMap<>();
+		
 		final int cbrt = (int) Math.cbrt(N);
-
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
-
+		
 		final int kLimit = cbrt;
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k <= kLimit; k++) {
 			double sqrtK = Math.sqrt(k);
 			final double sqrt4kN = sqrt4N * sqrtK;
 			// only use long values
-			final long aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
+			final long aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil()
 			long aLimit = (long) (sqrt4kN + sixthRootTerm / sqrtK);
 			long aStep;
 			if ((k & 1) == 0) {
@@ -88,8 +95,10 @@ public class Lehman_AnalyzeKMods extends FactorAlgorithm {
 					aStep = 8;
 					aLimit += ((kPlusN - aLimit) & 7);
 				} else {
-					aStep = 4;
-					aLimit += ((kPlusN - aLimit) & 3);
+					aStep = 4; // stepping over both adjusts with step width 16 would be more exact but is not faster
+					final long adjust1 = (kPlusN - aLimit) & 15;
+					final long adjust2 = (-kPlusN - aLimit) & 15;
+					aLimit += adjust1<adjust2 ? adjust1 : adjust2;
 				}
 			}
 
@@ -103,12 +112,18 @@ public class Lehman_AnalyzeKMods extends FactorAlgorithm {
 				if (b*b == test) {
 					long gcd = gcdEngine.gcd(a+b, N);
 					if (gcd>1 && gcd<N) {
-						kFactorCounts[k % MOD]++;
+						successfulKCount++;
+						successfulKToFactorsMap.put(k, tdiv.factor(BigInteger.valueOf(k)));
 					}
 				}
 			}
 		}
-	
+
+		numberOfSuccessfulKCounts[successfulKCount]++;
+		if (successfulKToFactorsMap.size()>8) {
+			LOG.info("Successful k for N=" + N + ": " + successfulKToFactorsMap);
+		}
+		
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
 		final int kTwoA = (((cbrt >> 6) + 6) / 6) * 6;
@@ -121,51 +136,23 @@ public class Lehman_AnalyzeKMods extends FactorAlgorithm {
 			}
 	    }
 
-		return 0; // fail
+		return 1; // fail
 	}
 	
 	private void testRange(int bits) {
-		// zero-init count arrays
-		kFactorCounts = new int[MOD];
-		
+		numberOfSuccessfulKCounts = new int[1000];
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
-		LOG.info("Test MOD " + MOD + " with N having " + bits + " bit");
+		LOG.info("Test N having " + bits + " bit");
 		
 		for (BigInteger N : testNumbers) {
 			this.findSingleFactor(N);
 		}
-		
-		int sum = 0;
-		for (int k=0; k<MOD; k++) {
-			LOG.info("k%" + MOD + " = " + k + ": " + kFactorCounts[k]);
-			sum += kFactorCounts[k];
-		}
-
-		// compute entropy
-		double[] probs = new double[MOD];
-		double entropy=0;
-		for (int k=0; k<MOD; k++) {
-			double p = probs[k] = kFactorCounts[k]/(double)sum;
-			entropy -= p*Math.log(p);
-		}
-		LOG.info("entropy = " + entropy + " nats");
-		
-		// compute cross-entropy
-		double divergence = 0;
-		for (int k=0; k<MOD; k++) {
-			//divergence += probs[k] * Math.abs(Math.log(probs[k]/entropy));
-			divergence += probs[k] * Math.abs(-Math.log(probs[k]) - entropy);
-		}
-		LOG.info("divergence = " + divergence + " nats");
-		LOG.info("");
 	}
 
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		for (int m=2; ; m++) {
-			// test N with BITS bits and mod m
-	    	Lehman_AnalyzeKMods testEngine = new Lehman_AnalyzeKMods(m);
-			testEngine.testRange(BITS);
-		}
+		// test N with BITS bits
+    	Lehman_AnalyzeKFactoringSameN testEngine = new Lehman_AnalyzeKFactoringSameN();
+		testEngine.testRange(BITS);
 	}
 }

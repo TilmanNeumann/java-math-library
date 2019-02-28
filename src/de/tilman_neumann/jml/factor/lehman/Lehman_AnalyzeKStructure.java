@@ -14,8 +14,6 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
@@ -59,8 +57,6 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 
 	/** The number of N's factored by the individual k values */
 	private int[] kFactorCounts;
-	/** Counts of how often we had 0, 1, 2, 3, ... successful k per N */
-	private int[] numberOfSuccessfulKCounts;
 	
 	@Override
 	public String getName() {
@@ -73,9 +69,6 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 	}
 	
 	public long findSingleFactor(long N) {
-		int successfulKCount = 0;
-		ArrayList<Integer> successfulKList = new ArrayList<>();
-		
 		final int cbrt = (int) Math.cbrt(N);
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
@@ -117,16 +110,9 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 					long gcd = gcdEngine.gcd(a+b, N);
 					if (gcd>1 && gcd<N) {
 						kFactorCounts[k]++;
-						successfulKCount++;
-						successfulKList.add(k);
 					}
 				}
 			}
-		}
-
-		numberOfSuccessfulKCounts[successfulKCount]++;
-		if (successfulKList.size()>11) {
-			LOG.info("Successful k for N=" + N + ": " + successfulKList);
 		}
 		
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
@@ -148,9 +134,7 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 		// zero-init count arrays
 		int kMax = (int) Math.cbrt(1L<<(bits+1));
 		kFactorCounts = new int[kMax];
-		numberOfSuccessfulKCounts = new int[1000];
 		
-		// find N-set for square tests
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 		LOG.info("Test N having " + bits + " bit");
 		
@@ -169,8 +153,6 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 			LOG.info("k = " + k + ": successes=" + kFactorCounts[k] + ", factors = " + factors + ", abundance=" + abundance);
 			sum += kFactorCounts[k];
 		}
-
-		LOG.info("counts of successful k per N = " + Arrays.toString(numberOfSuccessfulKCounts));
 
 		// compute entropy
 		double[] probs = new double[kMax];
