@@ -57,7 +57,7 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 10000;
+	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
@@ -67,9 +67,9 @@ public class FactorizerTest {
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_ODD_COMPOSITES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
+	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
 
 	private BPSWTest bpsw = new BPSWTest();
 	
@@ -85,7 +85,7 @@ public class FactorizerTest {
 			//new TDiv31(),
 			//new TDiv31Preload(),
 			new TDiv31Inverse(), // Fastest algorithm for N <= 24 bit
-			new TDiv63Inverse(1<<21),
+//			new TDiv63Inverse(1<<21),
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),
@@ -101,6 +101,7 @@ public class FactorizerTest {
 //			new Lehman_Fast(true),
 			new Lehman_Fast2(false), // best Lehman for moderate semiprimes
 			new Lehman_Fast3(false), // best Lehman for hard semiprimes
+			new Lehman_CustomKOrder(false),
 			
 			// PollardRho
 			//new PollardRho(),
