@@ -99,9 +99,10 @@ public class FactorizerTest {
 			//new Lehman_Smith(false),
 			new Lehman_Fast(false), // the variant implemented by bsquared
 //			new Lehman_Fast(true),
-			new Lehman_Fast2(false), // best Lehman for moderate semiprimes
-			new Lehman_Fast3(false), // best Lehman for hard semiprimes
-			new Lehman_CustomKOrder(false),
+			new Lehman_Fast2(false),
+			new Lehman_Fast3(false),
+			new Lehman_CustomKOrder_2Ranges(false),
+			new Lehman_CustomKOrder(false), // best Lehman
 			
 			// PollardRho
 			//new PollardRho(),

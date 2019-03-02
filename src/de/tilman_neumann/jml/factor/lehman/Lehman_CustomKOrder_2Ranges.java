@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.BinarySearch;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
@@ -28,12 +29,14 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * A variant of Lehman's algorithm that allows to arrange the k's in arrays of different priorities.
- * Testing multiples of 15 first, followed by multiples of 3, then the rest works not so bad...
+ * Testing (multiples of 15 first, followed by multiples of 3, then the rest) works not so bad...
+ * 
+ * Here we differentiate small and big k-range, which may be a small penalty.
  * 
  * @authors Tilman Neumann + Thilo Harich
  */
-public class Lehman_CustomKOrder extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Lehman_CustomKOrder.class);
+public class Lehman_CustomKOrder_2Ranges extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Lehman_CustomKOrder_2Ranges.class);
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
@@ -41,27 +44,24 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	private static final int K_MAX = 1<<20;
 	
 	private static final TDiv63Inverse tdiv = new TDiv63Inverse(K_MAX);
+	private static final BinarySearch binarySearch = new BinarySearch();
 
-	private static final double[][] sqrts = new double[4][K_MAX+1];
-	private static final double[][] sqrtInvs = new double[4][K_MAX+1];
-	private static final int[][] kArrays = new int[4][K_MAX+1];
-	private static int[] counts = new int[4];
+	private static final double[][] sqrts = new double[3][K_MAX+1];
+	private static final double[][] sqrtInvs = new double[3][K_MAX+1];
+	private static final int[][] kArrays = new int[3][K_MAX+1];
+	private static int[] counts = new int[3];
 
 	static {
-		addToArray(1, 3);
+		addToArray(1, 2);
 		for (int k = 2; k <= K_MAX; k++) {
 			SortedMultiset<BigInteger> factors = tdiv.factor(BigInteger.valueOf(k));
-			Integer pow3 = factors.get(I_3);
-			if (pow3!=null && pow3>1 && factors.get(I_5)!=null) {
-				// multiples of 45
-				addToArray(k, 0);
-			} else if (pow3!=null && factors.get(I_5)!=null) {
+			if (factors.get(I_3)!=null && factors.get(I_5)!=null) {
 				// multiples of 15
-				addToArray(k, 1);
+				addToArray(k, 0);
 			} else if (factors.get(I_3)!=null) {
-				addToArray(k, 2);
+				addToArray(k, 1);
 			} else {
-				addToArray(k, 3);
+				addToArray(k, 2);
 			}
 		}
 	}
@@ -102,13 +102,13 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Lehman_CustomKOrder(boolean doTDivFirst) {
+	public Lehman_CustomKOrder_2Ranges(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 	}
 
 	@Override
 	public String getName() {
-		return "Lehman_CustomKOrder(" + doTDivFirst + ")";
+		return "Lehman_CustomKOrder_2Ranges(" + doTDivFirst + ")";
 	}
 
 	@Override
@@ -140,33 +140,45 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		// * The "small range" is 1 <= k < kTwoA, where we may have more than two 'a'-solutions per k.
 		//   Thus, an inner 'a'-loop is required.
 		// * The "big range" is kTwoA <= k < kLimit, where we have at most two possible 'a' values per k.
+
+		int[] iTwoAs = new int[3];
+		int[] iLimits = new int[3];
+		for (int i=0; i<3; i++) {
+			iTwoAs[i] = binarySearch.getInsertPosition(kArrays[i], counts[i], kTwoA);
+			iLimits[i] = binarySearch.getInsertPosition(kArrays[i], counts[i], kLimit);
+			if (counts[i]<iLimits[i]) iLimits[i] = counts[i];
+		}
+
+		// start with big range for multiples of 15 and 3
+		if ((factor = testBig(iTwoAs[0], iLimits[0], kArrays[0], sqrts[0])) > 1) return factor;
+		if ((factor = testBig(iTwoAs[1], iLimits[1], kArrays[1], sqrts[1])) > 1) return factor;
 		
 		// small range for multiples of 15 and 3
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
-		if ((factor = test(kTwoA, kLimit, kArrays[0], sqrts[0], sqrtInvs[0], sixthRootTerm)) > 1) return factor;
-		if ((factor = test(kTwoA, kLimit, kArrays[1], sqrts[1], sqrtInvs[1], sixthRootTerm)) > 1) return factor;
-		if ((factor = test(kTwoA, kLimit, kArrays[2], sqrts[2], sqrtInvs[2], sixthRootTerm)) > 1) return factor;
+		if ((factor = testSmall(iTwoAs[0], kArrays[0], sqrts[0], sqrtInvs[0], sixthRootTerm)) > 1) return factor;
+		if ((factor = testSmall(iTwoAs[1], kArrays[1], sqrts[1], sqrtInvs[1], sixthRootTerm)) > 1) return factor;
 
 		// do trial division now?
 		if (!doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
 
 		// finish Lehman loops
-		if ((factor = test(kTwoA, kLimit, kArrays[3], sqrts[3], sqrtInvs[3], sixthRootTerm)) > 1) return factor;
+		if ((factor = testBig(iTwoAs[2], iLimits[2], kArrays[2], sqrts[2])) > 1) return factor;
+		if ((factor = testSmall(iTwoAs[2], kArrays[2], sqrts[2], sqrtInvs[2], sixthRootTerm)) > 1) return factor;
 		
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
-		if ((factor = correctionLoop(kLimit, kArrays[0], sqrts[0])) > 1) return factor;
-		if ((factor = correctionLoop(kLimit, kArrays[1], sqrts[1])) > 1) return factor;
-		if ((factor = correctionLoop(kLimit, kArrays[2], sqrts[2])) > 1) return factor;
-		if ((factor = correctionLoop(kLimit, kArrays[3], sqrts[3])) > 1) return factor;
+		if ((factor = correctionLoop(iLimits[0], kArrays[0], sqrts[0])) > 1) return factor;
+		if ((factor = correctionLoop(iLimits[1], kArrays[1], sqrts[1])) > 1) return factor;
+		if ((factor = correctionLoop(iLimits[2], kArrays[2], sqrts[2])) > 1) return factor;
 		
 		return 1; // fail
 	}
 
-	private long test(int kTwoA, int kLimit, int[] kArray, double[] sqrts, double[] sqrtInvs, double sixthRootTerm) {
+	private long testSmall(int iTwoA, int[] kArray, double[] sqrts, double[] sqrtInvs, double sixthRootTerm) {
 		long aLimit, aStart, aStep;
-		int i, k;
-		for (i=0; (k = kArray[i])<kTwoA; i++) {
+		int k;
+		for (int i=0; i<iTwoA; i++) {
+			k = kArray[i];
 			final double sqrt4kN = sqrt4N * sqrts[i];
 			aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
 			aLimit = (long) (sqrt4kN + sixthRootTerm * sqrtInvs[i]);
@@ -199,8 +211,13 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 				}
 			}
 		}
+		return 1;
+	}
 
-		for ( ; (k = kArray[i])<kLimit; i++) {
+	private long testBig(int iTwoA, int iLimit, int[] kArray, double[] sqrts) {
+		int k;
+		for (int i=iTwoA; i<iLimit; i++) {
+			k = kArray[i];
 			long a = (long) (sqrt4N * sqrts[i] + ROUND_UP_DOUBLE);
 			if ((k & 1) == 0) {
 				// k even -> make sure aLimit is odd
@@ -224,9 +241,10 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		return 1;
 	}
 	
-	private long correctionLoop(int kLimit, int[] kArray, double[] sqrts) {
+	private long correctionLoop(int iLimit, int[] kArray, double[] sqrts) {
 		int i=0, k;
-		for (; (k = kArray[i])<kLimit; i++) {
+		for (; i<iLimit; i++) {
+			k = kArray[i];
 			long a = (long) (sqrt4N * sqrts[i] + ROUND_UP_DOUBLE) - 1;
 			long test = a*a - k*fourN;
 			long b = (long) Math.sqrt(test);
@@ -284,7 +302,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 				9,
 			};
 		
-		Lehman_CustomKOrder lehman = new Lehman_CustomKOrder(false);
+		Lehman_CustomKOrder_2Ranges lehman = new Lehman_CustomKOrder_2Ranges(false);
 		for (long N : testNumbers) {
 			long factor = lehman.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
