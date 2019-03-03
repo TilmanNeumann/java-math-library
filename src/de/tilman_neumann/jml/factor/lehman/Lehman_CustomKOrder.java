@@ -24,8 +24,6 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-
 /**
  * A variant of Lehman's algorithm that allows to arrange the k's in arrays of different priorities.
  * Testing multiples of 15 first, followed by multiples of 3, then the rest works not so bad...
@@ -67,15 +65,11 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		counts = new int[4];
 		addToArray(1, 3);
 		for (int k = 2; k <= K_MAX; k++) {
-			SortedMultiset<BigInteger> factors = tdiv.factor(BigInteger.valueOf(k));
-			Integer pow3 = factors.get(I_3);
-			if (pow3!=null && pow3>1 && factors.get(I_5)!=null) {
-				// multiples of 45
+			if (k%45==0 || k%63==0 || k%105==0) {
 				addToArray(k, 0);
-			} else if (pow3!=null && factors.get(I_5)!=null) {
-				// multiples of 15
+			} else if (k%15==0 || k%21==0) {
 				addToArray(k, 1);
-			} else if (factors.get(I_3)!=null) {
+			} else if (k%3==0) {
 				addToArray(k, 2);
 			} else {
 				addToArray(k, 3);
