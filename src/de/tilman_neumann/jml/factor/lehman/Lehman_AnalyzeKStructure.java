@@ -144,7 +144,7 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 		// test from 30 to 39 bits
 		for (arrayIndex=0; arrayIndex<10; arrayIndex++) {
 			int bits = arrayIndex+30;
-			BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.RANDOM_ODD_COMPOSITES);
+			BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 			LOG.info("Test N having " + bits + " bit");
 			for (BigInteger N : testNumbers) {
 				this.findSingleFactor(N);
