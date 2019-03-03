@@ -142,17 +142,10 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		fourN = N<<2;
 		sqrt4N = Math.sqrt(fourN);
 
-		// kLimit must be 0 mod 6, since we also want to search above of it
-		final int kLimit = ((cbrt + 6) / 6) * 6;
-		// For kTwoA = kLimit / 64 the range for a is at most 2. We make it 0 mod 6, too.
-		final int kTwoA = (((cbrt >> 6) + 6) / 6) * 6;
+		final int kLimit = cbrt;
+		// For kTwoA = kLimit / 64 the range for a is at most 2. kLimit / 128 seems to work as well...
+		final int kTwoA = (cbrt + 127) >> 7;
 		
-		// We are investigating solutions of a^2 - sqrt(k*n) = y^2 in two k-ranges:
-		// * The "small range" is 1 <= k < kTwoA, where we may have more than two 'a'-solutions per k.
-		//   Thus, an inner 'a'-loop is required.
-		// * The "big range" is kTwoA <= k < kLimit, where we have at most two possible 'a' values per k.
-		
-		// small range for multiples of 15 and 3
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
 		if ((factor = test(kTwoA, kLimit<<1, kArrays[0], sqrts[0], sqrtInvs[0], sixthRootTerm)) > 1) return factor;
 		if ((factor = test(kTwoA, kLimit*3/2, kArrays[1], sqrts[1], sqrtInvs[1], sixthRootTerm)) > 1) return factor;
