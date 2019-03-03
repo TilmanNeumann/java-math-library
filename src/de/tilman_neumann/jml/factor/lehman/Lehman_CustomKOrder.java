@@ -154,8 +154,8 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		
 		// small range for multiples of 15 and 3
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
-		if ((factor = test(kTwoA, kLimit, kArrays[0], sqrts[0], sqrtInvs[0], sixthRootTerm)) > 1) return factor;
-		if ((factor = test(kTwoA, kLimit, kArrays[1], sqrts[1], sqrtInvs[1], sixthRootTerm)) > 1) return factor;
+		if ((factor = test(kTwoA, kLimit<<1, kArrays[0], sqrts[0], sqrtInvs[0], sixthRootTerm)) > 1) return factor;
+		if ((factor = test(kTwoA, kLimit*3/2, kArrays[1], sqrts[1], sqrtInvs[1], sixthRootTerm)) > 1) return factor;
 		if ((factor = test(kTwoA, kLimit, kArrays[2], sqrts[2], sqrtInvs[2], sixthRootTerm)) > 1) return factor;
 		if ((factor = test(kTwoA, kLimit, kArrays[3], sqrts[3], sqrtInvs[3], sixthRootTerm)) > 1) return factor;
 
