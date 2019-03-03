@@ -14,13 +14,12 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
+import de.tilman_neumann.util.StringUtil;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
@@ -31,8 +30,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * Some results:
  * -> k prime or k=2*prime are very bad
- * -> very smooth k are pretty good but the influence of the power of 2 in such k is strange and not well understood
- * -> N that are factored by many k are typically factored by k=k_base*{1^2, 3^2, 5^2, 7^2, ...}
+ * -> very smooth k are pretty good
+ * -> success counts behave very different for N with even bitlength vs. N with odd bitlength!
  * 
  * @author Tilman Neumann
  */
@@ -131,19 +130,39 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 		// zero-init count arrays
 		int kMax = (int) Math.cbrt(1L<<(39+1));
 		kFactorCounts = new int[kMax][10];
+		String[] kFactorStrings = new String[kMax];
+		int maxFactorStrLength = 0;
+		for (int k=1; k<kMax; k++) {
+			String factorString = tdiv.factor(BigInteger.valueOf(k)).toString();
+			kFactorStrings[k] = factorString;
+			int len = factorString.length();
+			if (len > maxFactorStrLength) {
+				maxFactorStrLength = len;
+			}
+		}
+
 		// test from 30 to 39 bits
 		for (arrayIndex=0; arrayIndex<10; arrayIndex++) {
 			int bits = arrayIndex+30;
-			BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES2);
+			BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.RANDOM_ODD_COMPOSITES);
 			LOG.info("Test N having " + bits + " bit");
 			for (BigInteger N : testNumbers) {
 				this.findSingleFactor(N);
 			}
 		}
 		
+		String factorStringMask = StringUtil.repeat(" ", maxFactorStrLength);
 		for (int k=1; k<kMax; k++) {
-			SortedMultiset<BigInteger> factors = tdiv.factor(BigInteger.valueOf(k));
-			LOG.info("k = " + k + " = " + factors + ": successes=" + Arrays.toString(kFactorCounts[k]));
+			String kStr = StringUtil.formatLeft(String.valueOf(k), "     ");
+			String factorStr = StringUtil.formatLeft(kFactorStrings[k], factorStringMask);
+			String countsStr = "";
+			int[] successes = kFactorCounts[k];
+			for (int i=0; i<10; i++) {
+				String countStr = StringUtil.formatRight(String.valueOf(successes[i]), "    ");
+				countsStr += countStr + ", ";
+			}
+			countsStr = countsStr.substring(0, countsStr.length()-2);
+			LOG.info("k = " + kStr + " = " + factorStr + ": successes = " + countsStr);
 		}
 	}
 
