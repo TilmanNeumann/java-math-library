@@ -14,19 +14,17 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.jml.Divisors;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 import de.tilman_neumann.jml.factor.TestNumberNature;
-
-//import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Analyze the frequency with which different k find a factor.
@@ -44,8 +42,6 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 	// algorithm options
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
-	/** the bit size of N */
-	private static final int BITS = 40;
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
@@ -56,7 +52,8 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 	private final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 
 	/** The number of N's factored by the individual k values */
-	private int[] kFactorCounts;
+	private int[][] kFactorCounts;
+	private int arrayIndex;
 	
 	@Override
 	public String getName() {
@@ -109,7 +106,7 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 				if (b*b == test) {
 					long gcd = gcdEngine.gcd(a+b, N);
 					if (gcd>1 && gcd<N) {
-						kFactorCounts[k]++;
+						kFactorCounts[k][arrayIndex]++;
 					}
 				}
 			}
@@ -130,57 +127,30 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 		return 1; // fail
 	}
 	
-	private void testRange(int bits) {
+	private void test() {
 		// zero-init count arrays
-		int kMax = (int) Math.cbrt(1L<<(bits+1));
-		kFactorCounts = new int[kMax];
-		
-		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
-		LOG.info("Test N having " + bits + " bit");
-		
-		for (BigInteger N : testNumbers) {
-			this.findSingleFactor(N);
+		int kMax = (int) Math.cbrt(1L<<(39+1));
+		kFactorCounts = new int[kMax][10];
+		// test from 30 to 39 bits
+		for (arrayIndex=0; arrayIndex<10; arrayIndex++) {
+			int bits = arrayIndex+30;
+			BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.RANDOM_ODD_COMPOSITES);
+			LOG.info("Test N having " + bits + " bit");
+			for (BigInteger N : testNumbers) {
+				this.findSingleFactor(N);
+			}
 		}
 		
-		int sum = 0;
 		for (int k=1; k<kMax; k++) {
 			SortedMultiset<BigInteger> factors = tdiv.factor(BigInteger.valueOf(k));
-			// correct 2-exponent ?
-			//Integer expOf2 = factors.get(I_2);
-			//if (expOf2!=null && expOf2>1) factors.put(I_2, 1);
-			long sigma = Divisors.sumOfDivisors(factors).longValue();
-			float abundance = sigma/(float)k;
-			LOG.info("k = " + k + ": successes=" + kFactorCounts[k] + ", factors = " + factors + ", abundance=" + abundance);
-			sum += kFactorCounts[k];
+			LOG.info("k = " + k + " = " + factors + ": successes=" + Arrays.toString(kFactorCounts[k]));
 		}
-
-		// compute entropy
-		double[] probs = new double[kMax];
-		double entropy=0;
-		for (int k=0; k<kMax; k++) {
-			if (kFactorCounts[k]>0) {
-				double p = probs[k] = kFactorCounts[k]/(double)sum;
-				entropy -= p*Math.log(p);
-			}
-		}
-		LOG.info("entropy = " + entropy + " nats");
-		
-		// compute cross-entropy
-		double divergence = 0;
-		for (int k=0; k<kMax; k++) {
-			if (probs[k]>0) {
-				//divergence += probs[k] * Math.abs(Math.log(probs[k]/entropy));
-				divergence += probs[k] * Math.abs(-Math.log(probs[k]) - entropy);
-			}
-		}
-		LOG.info("divergence = " + divergence + " nats");
-		LOG.info("");
 	}
 
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		// test N with BITS bits
     	Lehman_AnalyzeKStructure testEngine = new Lehman_AnalyzeKStructure();
-		testEngine.testRange(BITS);
+		testEngine.test();
 	}
 }
