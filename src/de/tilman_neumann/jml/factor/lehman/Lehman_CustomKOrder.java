@@ -59,24 +59,26 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	public Lehman_CustomKOrder(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// arrange k in different arrays
-		sqrts = new double[4][K_MAX+1];
-		sqrtInvs = new double[4][K_MAX+1];
-		kArrays = new int[4][K_MAX+1];
-		counts = new int[4];
-		addToArray(1, 3);
+		sqrts = new double[5][K_MAX+1];
+		sqrtInvs = new double[5][K_MAX+1];
+		kArrays = new int[5][K_MAX+1];
+		counts = new int[5];
+		addToArray(1, 4);
 		for (int k = 2; k <= K_MAX; k++) {
 			if (k%45==0 || k%63==0 || k%105==0) {
 				addToArray(k, 0);
-			} else if (k%15==0 || k%21==0) {
+			} else if (k%15==0) {
 				addToArray(k, 1);
-			} else if (k%3==0) {
+			} else if (k%9==0 || k%21==0) {
 				addToArray(k, 2);
-			} else {
+			} else if (k%3==0) {
 				addToArray(k, 3);
+			} else {
+				addToArray(k, 4);
 			}
 		}
 		// shrink arrays to counts
-		for (int i=0; i<4; i++) {
+		for (int i=0; i<5; i++) {
 			int count = counts[i];
 			int[] kArrayTmp = new int[count];
 			System.arraycopy(kArrays[i], 0, kArrayTmp, 0, count);
@@ -155,12 +157,13 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		if ((factor = test(kTwoA, kLimit, kArrays[0], sqrts[0], sqrtInvs[0], sixthRootTerm)) > 1) return factor;
 		if ((factor = test(kTwoA, kLimit, kArrays[1], sqrts[1], sqrtInvs[1], sixthRootTerm)) > 1) return factor;
 		if ((factor = test(kTwoA, kLimit, kArrays[2], sqrts[2], sqrtInvs[2], sixthRootTerm)) > 1) return factor;
+		if ((factor = test(kTwoA, kLimit, kArrays[3], sqrts[3], sqrtInvs[3], sixthRootTerm)) > 1) return factor;
 
 		// do trial division now?
 		if (!doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
 
 		// finish Lehman loops
-		if ((factor = test(kTwoA, kLimit, kArrays[3], sqrts[3], sqrtInvs[3], sixthRootTerm)) > 1) return factor;
+		if ((factor = test(kTwoA, kLimit, kArrays[4], sqrts[4], sqrtInvs[4], sixthRootTerm)) > 1) return factor;
 		
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
@@ -168,6 +171,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		if ((factor = correctionLoop(kLimit, kArrays[1], sqrts[1])) > 1) return factor;
 		if ((factor = correctionLoop(kLimit, kArrays[2], sqrts[2])) > 1) return factor;
 		if ((factor = correctionLoop(kLimit, kArrays[3], sqrts[3])) > 1) return factor;
+		if ((factor = correctionLoop(kLimit, kArrays[4], sqrts[4])) > 1) return factor;
 		
 		return 1; // fail
 	}
