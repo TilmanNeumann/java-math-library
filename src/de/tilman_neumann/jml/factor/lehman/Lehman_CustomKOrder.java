@@ -40,14 +40,31 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 
 	private static final int K_MAX = 1<<20;
 	
-	private static final TDiv63Inverse tdiv = new TDiv63Inverse(K_MAX);
+	private final TDiv63Inverse tdiv = new TDiv63Inverse(K_MAX);
 
-	private static final double[][] sqrts = new double[4][K_MAX+1];
-	private static final double[][] sqrtInvs = new double[4][K_MAX+1];
-	private static final int[][] kArrays = new int[4][K_MAX+1];
-	private static int[] counts = new int[4];
+	private double[][] sqrts;
+	private double[][] sqrtInvs;
+	private int[][] kArrays;
+	private int[] counts;
 
-	static {
+	private long N;
+	private long fourN;
+	private double sqrt4N;
+	private boolean doTDivFirst;
+	private final Gcd63 gcdEngine = new Gcd63();
+	
+	/**
+	 * Full constructor.
+	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
+	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
+	 */
+	public Lehman_CustomKOrder(boolean doTDivFirst) {
+		this.doTDivFirst = doTDivFirst;
+		// arrange k in different arrays
+		sqrts = new double[4][K_MAX+1];
+		sqrtInvs = new double[4][K_MAX+1];
+		kArrays = new int[4][K_MAX+1];
+		counts = new int[4];
 		addToArray(1, 3);
 		for (int k = 2; k <= K_MAX; k++) {
 			SortedMultiset<BigInteger> factors = tdiv.factor(BigInteger.valueOf(k));
@@ -64,9 +81,22 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 				addToArray(k, 3);
 			}
 		}
+		// shrink arrays to counts
+		for (int i=0; i<4; i++) {
+			int count = counts[i];
+			int[] kArrayTmp = new int[count];
+			System.arraycopy(kArrays[i], 0, kArrayTmp, 0, count);
+			kArrays[i] = kArrayTmp;
+			double[] sqrtsTmp = new double[count];
+			System.arraycopy(sqrts[i], 0, sqrtsTmp, 0, count);
+			sqrts[i] = sqrtsTmp;
+			double[] sqrtInvsTmp = new double[count];
+			System.arraycopy(sqrtInvs[i], 0, sqrtInvsTmp, 0, count);
+			sqrtInvs[i] = sqrtInvsTmp;
+		}
 	}
 
-	private static void addToArray(int k, int arrayIndex) {
+	private void addToArray(int k, int arrayIndex) {
 		final double sqrtK = Math.sqrt(k);
 		int count = counts[arrayIndex];
 		kArrays[arrayIndex][count] = k;
@@ -89,21 +119,6 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 			if ((mul&1)==0) return false;
 		}
 		return true;
-	}
-
-	private long N;
-	private long fourN;
-	private double sqrt4N;
-	private boolean doTDivFirst;
-	private final Gcd63 gcdEngine = new Gcd63();
-	
-	/**
-	 * Full constructor.
-	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
-	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
-	 */
-	public Lehman_CustomKOrder(boolean doTDivFirst) {
-		this.doTDivFirst = doTDivFirst;
 	}
 
 	@Override
