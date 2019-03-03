@@ -38,6 +38,9 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
 public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeKStructure.class);
 
+	/** Analyze data accumulated over some progressions? Not successful yet... */
+	private static final boolean ANALYZE_PROGRESSIONS = false;
+	
 	// algorithm options
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
@@ -164,8 +167,56 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 			countsStr = countsStr.substring(0, countsStr.length()-2);
 			LOG.info("k = " + kStr + " = " + factorStr + ": successes = " + countsStr);
 		}
+		
+		if (ANALYZE_PROGRESSIONS) {
+			LOG.info("");
+			for (int i=0; i<10; i++) {
+				LOG.info("Analyze progressions for " + (30+i) + " bit numbers:");
+				analyzeProgression(1, 4, i);
+				analyzeProgression(2, 4, i);
+				analyzeProgression(3, 4, i);
+				analyzeProgression(4, 4, i);
+				analyzeProgression(3, 12, i);
+				analyzeProgression(6, 12, i);
+				analyzeProgression(9, 12, i);
+				analyzeProgression(12, 12, i);
+				analyzeProgression(5, 20, i);
+				analyzeProgression(10, 20, i);
+				analyzeProgression(15, 20, i);
+				analyzeProgression(20, 20, i);
+				analyzeProgression(7, 28, i);
+				analyzeProgression(14, 28, i);
+				analyzeProgression(21, 28, i);
+				analyzeProgression(28, 28, i);
+				analyzeProgression(9, 36, i);
+				analyzeProgression(18, 36, i);
+				analyzeProgression(27, 36, i);
+				analyzeProgression(36, 36, i);
+				analyzeProgression(15, 60, i);
+				analyzeProgression(30, 60, i);
+				analyzeProgression(45, 60, i);
+				analyzeProgression(60, 60, i);
+				analyzeProgression(45, 180, i);
+				analyzeProgression(90, 180, i);
+				analyzeProgression(135, 180, i);
+				analyzeProgression(180, 180, i);
+			}
+		}
 	}
 
+	private void analyzeProgression(int start, int step, int arrayIndex) {
+		int successSum = 0;
+		int numCount = 0;
+		final int kLimit = (int) Math.cbrt(1L<<(30+arrayIndex+1));
+		for (int k=start; k<kLimit; k+=step) {
+			int successCount = kFactorCounts[k][arrayIndex];
+			successSum += successCount;
+			numCount++;
+		}
+		int avgSuccessCount = (int) (successSum / (float) numCount);
+		LOG.info("    Progression " + step + "*m + " + start + ": Avg. successes = " + avgSuccessCount + ", #tests = " + numCount);
+	}
+	
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		// test N with BITS bits
