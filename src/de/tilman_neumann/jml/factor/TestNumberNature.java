@@ -37,6 +37,7 @@ public enum TestNumberNature {
 	 * Note that there are no such numbers with less than 4 bits.
 	 */
 	MODERATE_SEMIPRIMES,
+	MODERATE_SEMIPRIMES2,
 	
 	/**
 	 * Odd semiprimes N=a*b with bitLength(min(a,b)) == bitLength(N)/2 - 1 bits.

@@ -79,6 +79,24 @@ public class TestsetGenerator {
 				// generate random N with 2 prime factors
 				int n1bits = uniformRandomInteger(minBits, maxBits);
 				BigInteger n1 = new BigInteger(n1bits, RNG);
+				n1 = bpsw.nextProbablePrime(n1);
+				if (n1.bitLength()!=n1bits) continue;
+				BigInteger Nrand = new BigInteger(bits, RNG);
+				BigInteger n2 = bpsw.nextProbablePrime(Nrand.divide(n1));
+				BigInteger N = n1.multiply(n2);
+				if (N.bitLength() != bits) continue;
+				NArray[i++] = N;
+			}
+			return NArray;
+		}
+		case MODERATE_SEMIPRIMES2: {
+			if (bits<4) throw new IllegalArgumentException("There are no odd semiprimes with " + bits + " bits.");
+			int minBits = (bits+2)/3; // analogue to 3rd root(N)
+			int maxBits = (bits+1)/2;
+			for (int i=0; i<N_count; ) {
+				// generate random N with 2 prime factors
+				int n1bits = uniformRandomInteger(minBits, maxBits);
+				BigInteger n1 = new BigInteger(n1bits, RNG);
 				if (n1bits>0) n1 = n1.setBit(n1bits-1);
 				n1 = bpsw.nextProbablePrime(n1);
 				int n2bits = bits-n1.bitLength();
