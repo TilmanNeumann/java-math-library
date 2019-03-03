@@ -22,7 +22,6 @@ import de.tilman_neumann.jml.factor.siqs.KnuthSchroeppel;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * Generation of random N that are not too easy to factor.
@@ -97,17 +96,7 @@ public class TestsetGenerator {
 					if (kNMod == 1) continue;
 				}
 				
-				if (DEBUG) {
-					assertTrue(n1bits >= minBits);
-					assertTrue(n1bits <= maxBits);
-					LOG.debug("TestsetGenerator: minBits = " + minBits + ", maxBits = " + maxBits + ", n1.bitLength() = " + n1.bitLength());
-					assertTrue(n1.bitLength() >= minBits);
-					assertTrue(n1.bitLength() <= maxBits);
-					int resultBits = N.bitLength();
-					LOG.debug("TestsetGenerator: wanted bits = " + bits + ", result bits = " + resultBits);
-					assertTrue(resultBits >= bits-1);
-					assertTrue(resultBits <= bits+1);
-				}
+				//LOG.debug("n1Bits = " + n1.bitLength() + ", n2Bits = " + n2.bitLength() + ", NBits = " + N.bitLength());
 				NArray[i++] = N;
 			}
 			return NArray;
@@ -126,6 +115,7 @@ public class TestsetGenerator {
 				BigInteger n2 = bpsw.nextProbablePrime(Nrand.divide(n1));
 				BigInteger N = n1.multiply(n2);
 				if (N.bitLength() != bits) continue;
+				//LOG.debug("n1Bits = " + n1.bitLength() + ", n2Bits = " + n2.bitLength() + ", NBits = " + N.bitLength());
 				NArray[i++] = N;
 			}
 			return NArray;
