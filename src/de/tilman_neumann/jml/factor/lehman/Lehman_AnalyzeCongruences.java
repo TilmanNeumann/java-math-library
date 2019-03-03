@@ -56,7 +56,7 @@ public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "Lehman_Analyzer3";
+		return "Lehman_AnalyzeCongruences";
 	}
 
 	@Override
