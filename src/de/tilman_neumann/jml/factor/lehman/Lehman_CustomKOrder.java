@@ -43,7 +43,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	private double[][] sqrts;
 	private double[][] sqrtInvs;
 	private int[][] kArrays;
-	private int[] counts;
+	private int[] kArraySizes;
 
 	private long N;
 	private long fourN;
@@ -59,27 +59,29 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	public Lehman_CustomKOrder(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// arrange k in different arrays
-		sqrts = new double[5][K_MAX+1];
-		sqrtInvs = new double[5][K_MAX+1];
-		kArrays = new int[5][K_MAX+1];
-		counts = new int[5];
-		addToArray(1, 4);
+		sqrts = new double[6][K_MAX+1];
+		sqrtInvs = new double[6][K_MAX+1];
+		kArrays = new int[6][K_MAX+1];
+		kArraySizes = new int[6];
+		addToArray(1, 5);
 		for (int k = 2; k <= K_MAX; k++) {
-			if (k%45==0 || k%63==0 || k%105==0) {
+			if (k%315==0) {
 				addToArray(k, 0);
-			} else if (k%15==0) {
+			} else if (k%45==0 || k%63==0 || k%105==0) {
 				addToArray(k, 1);
-			} else if (k%9==0 || k%21==0) {
+			} else if (k%15==0) {
 				addToArray(k, 2);
-			} else if (k%3==0) {
+			} else if (k%9==0 || k%21==0) {
 				addToArray(k, 3);
-			} else {
+			} else if (k%3==0) {
 				addToArray(k, 4);
+			} else {
+				addToArray(k, 5);
 			}
 		}
 		// shrink arrays to counts
-		for (int i=0; i<5; i++) {
-			int count = counts[i];
+		for (int i=0; i<6; i++) {
+			int count = kArraySizes[i];
 			int[] kArrayTmp = new int[count];
 			System.arraycopy(kArrays[i], 0, kArrayTmp, 0, count);
 			kArrays[i] = kArrayTmp;
@@ -94,11 +96,11 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 
 	private void addToArray(int k, int arrayIndex) {
 		final double sqrtK = Math.sqrt(k);
-		int count = counts[arrayIndex];
+		int count = kArraySizes[arrayIndex];
 		kArrays[arrayIndex][count] = k;
 		sqrts[arrayIndex][count] = sqrtK;
 		sqrtInvs[arrayIndex][count] = 1.0/sqrtK;
-		counts[arrayIndex]++;
+		kArraySizes[arrayIndex]++;
 	}
 
 	private static boolean isSquare(SortedMultiset<BigInteger> factors) {
@@ -147,16 +149,17 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		final int kTwoA = (cbrt + 127) >> 7;
 		
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
-		if ((factor = test(kTwoA, kLimit<<1, kArrays[0], sqrts[0], sqrtInvs[0], sixthRootTerm)) > 1) return factor;
-		if ((factor = test(kTwoA, kLimit*3/2, kArrays[1], sqrts[1], sqrtInvs[1], sixthRootTerm)) > 1) return factor;
-		if ((factor = test(kTwoA, kLimit, kArrays[2], sqrts[2], sqrtInvs[2], sixthRootTerm)) > 1) return factor;
+		if ((factor = test(kTwoA, kLimit<<2, kArrays[0], sqrts[0], sqrtInvs[0], sixthRootTerm)) > 1) return factor;
+		if ((factor = test(kTwoA, kLimit<<1, kArrays[1], sqrts[1], sqrtInvs[1], sixthRootTerm)) > 1) return factor;
+		if ((factor = test(kTwoA, kLimit*3/2, kArrays[2], sqrts[2], sqrtInvs[2], sixthRootTerm)) > 1) return factor;
 		if ((factor = test(kTwoA, kLimit, kArrays[3], sqrts[3], sqrtInvs[3], sixthRootTerm)) > 1) return factor;
+		if ((factor = test(kTwoA, kLimit, kArrays[4], sqrts[4], sqrtInvs[4], sixthRootTerm)) > 1) return factor;
 
 		// do trial division now?
 		if (!doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
 
 		// finish Lehman loops
-		if ((factor = test(kTwoA, kLimit, kArrays[4], sqrts[4], sqrtInvs[4], sixthRootTerm)) > 1) return factor;
+		if ((factor = test(kTwoA, kLimit, kArrays[5], sqrts[5], sqrtInvs[5], sixthRootTerm)) > 1) return factor;
 		
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
@@ -165,6 +168,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		if ((factor = correctionLoop(kLimit, kArrays[2], sqrts[2])) > 1) return factor;
 		if ((factor = correctionLoop(kLimit, kArrays[3], sqrts[3])) > 1) return factor;
 		if ((factor = correctionLoop(kLimit, kArrays[4], sqrts[4])) > 1) return factor;
+		if ((factor = correctionLoop(kLimit, kArrays[5], sqrts[5])) > 1) return factor;
 		
 		return 1; // fail
 	}
