@@ -89,7 +89,7 @@ public class FactorizerTest {
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),
-//			new Hart_Fast(false), // best algorithm for hard semiprimes
+			new Hart_Fast(false), // best algorithm for hard semiprimes
 //			new Hart_Fast(true),
 			new Hart_TDiv_Race(), // best safe algorithm for any N with 25 to 49 bits, best for moderate semiprimes <= 44 bit
 			new Hart_TDiv_Race_Unsafe(), // best algorithm for moderate semiprimes >= 45 bit, but fails for some N having small factors
@@ -101,7 +101,6 @@ public class FactorizerTest {
 //			new Lehman_Fast(true),
 			new Lehman_Fast2(false),
 			new Lehman_Fast3(false),
-			new Lehman_CustomKOrder_2Ranges(false),
 			new Lehman_CustomKOrder(false), // best Lehman
 			
 			// PollardRho
