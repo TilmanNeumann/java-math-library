@@ -96,7 +96,8 @@ public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 		try {
 			int i=1;
 			if (pMinBits>0) {
-				// for the smallest primes we must do standard trial division
+				// For the smallest primes we must do standard trial division.
+				// This seems to be not necessary for correctness, but to give a small speedup.
 				int pMin = 1<<pMinBits;
 				for ( ; primes[i]<pMin; ) {
 					// tdiv step
