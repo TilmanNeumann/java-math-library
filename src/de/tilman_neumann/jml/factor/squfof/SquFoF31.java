@@ -90,15 +90,11 @@ public class SquFoF31 extends FactorAlgorithm {
 				this.kN = k*N;
 				if (bitLength(kN) > 60) break; // use next smaller base multiplier; the inner loops need 3 bit tolerance
 				
-				// return immediately if kN is square
+				// The cast may be wrong for some bigger kN, but fixing the cast would mean a small performance
+				// penalty, so we ignore it. Return immediately if kN is square.
 				floor_sqrt_kN = (int) Math.sqrt(kN);
 				int diff = (int) (kN - floor_sqrt_kN*(long)floor_sqrt_kN);
 				if (diff==0) return gcdEngine.gcd(N, floor_sqrt_kN);
-				if (diff<0) {
-					// floor_sqrt_kN was too big, diff too small -> compute correction
-					floor_sqrt_kN--;
-					diff += (floor_sqrt_kN<<1) + 1;
-				}
 				
 				// search square Q_i
 				Long factor = test(diff);
