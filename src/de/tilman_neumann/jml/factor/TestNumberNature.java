@@ -38,10 +38,10 @@ public enum TestNumberNature {
 	 */
 	MODERATE_SEMIPRIMES,
 	
-	/** Similar to MODERATE_SEMIPRIMES, but with more test numbers < cbrt(N) */
+	/** Similar to MODERATE_SEMIPRIMES, but with more test numbers having factors < cbrt(N) */
 	MODERATE_SEMIPRIMES2,
 	
-	/** Similar to MODERATE_SEMIPRIMES, but without test numbers < cbrt(N) */
+	/** Similar to MODERATE_SEMIPRIMES, but without factors < cbrt(N) */
 	MODERATE_SEMIPRIMES3,
 	
 	/**
