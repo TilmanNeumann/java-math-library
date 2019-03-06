@@ -85,7 +85,7 @@ public class TestsetGenerator {
 				if (n2bits>0) n2 = n2.setBit(n2bits-1);
 				n2 = bpsw.nextProbablePrime(n2);
 				BigInteger N = n1.multiply(n2);
-			
+
 				// Skip cases where the construction above failed to produce the correct bit length
 				if (N.bitLength() != bits) continue;
 				
@@ -115,6 +115,31 @@ public class TestsetGenerator {
 				BigInteger n2 = bpsw.nextProbablePrime(Nrand.divide(n1));
 				BigInteger N = n1.multiply(n2);
 				if (N.bitLength() != bits) continue;
+				//LOG.debug("n1Bits = " + n1.bitLength() + ", n2Bits = " + n2.bitLength() + ", NBits = " + N.bitLength());
+				NArray[i++] = N;
+			}
+			return NArray;
+		}
+		case MODERATE_SEMIPRIMES3: {
+			if (bits<4) throw new IllegalArgumentException("There are no odd semiprimes with " + bits + " bits.");
+			int minBits = (bits+2)/3; // analogue to 3rd root(N)
+			int maxBits = (bits+1)/2;
+			for (int i=0; i<N_count; ) {
+				// generate random N with 2 prime factors
+				int n1bits = uniformRandomInteger(minBits, maxBits);
+				BigInteger n1 = new BigInteger(n1bits, RNG);
+				if (n1bits>0) n1 = n1.setBit(n1bits-1);
+				n1 = bpsw.nextProbablePrime(n1);
+				int n2bits = bits-n1.bitLength();
+				BigInteger n2 = new BigInteger(n2bits, RNG);
+				if (n2bits>0) n2 = n2.setBit(n2bits-1);
+				n2 = bpsw.nextProbablePrime(n2);
+				BigInteger N = n1.multiply(n2);
+				if (n1.pow(3).compareTo(N) < 0) continue; // needs tdiv
+
+				// Skip cases where the construction above failed to produce the correct bit length
+				if (N.bitLength() != bits) continue;
+				
 				//LOG.debug("n1Bits = " + n1.bitLength() + ", n2Bits = " + n2.bitLength() + ", NBits = " + N.bitLength());
 				NArray[i++] = N;
 			}
