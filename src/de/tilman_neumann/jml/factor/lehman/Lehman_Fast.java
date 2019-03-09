@@ -30,7 +30,11 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  * At that size, both a^2 and 4kN start to overflow Long.MAX_VALUE.
  * But the error - comparing correct results vs. long results - is just the same for both a^2 and 4kN
  * (and a multiple of 2^64).
- *  Thus <code>test</code> is correct and <code>b</code> is correct, too. <code>a</code> is correct anyway.
+ * Thus <code>test</code> is correct and <code>b</code> is correct, too. <code>a</code> is correct anyway.
+ * 
+ * Lehman_CustomKOrder is considerably faster for any kind of test numbers.
+ * This class is kept for reference as it was implemented by bSquare,
+ * see https://www.mersenneforum.org/showpost.php?p=506294&postcount=7
  * 
  * @authors Tilman Neumann + Thilo Harich
  */
