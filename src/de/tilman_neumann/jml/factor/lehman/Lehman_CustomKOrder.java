@@ -306,7 +306,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 				9,
 			};
 		
-		Lehman_CustomKOrder2 lehman = new Lehman_CustomKOrder2(false);
+		Lehman_CustomKOrder lehman = new Lehman_CustomKOrder(false);
 		for (long N : testNumbers) {
 			long factor = lehman.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
