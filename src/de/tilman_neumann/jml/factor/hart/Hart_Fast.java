@@ -97,7 +97,6 @@ public class Hart_Fast extends FactorAlgorithm {
 		int k = K_MULT;
 		try {
 			for (int i=1; ; i++, k += K_MULT) {
-				// odd k -> adjust a mod 8
 				a = (long) (sqrt4N * sqrt[i] + ROUND_UP_DOUBLE);
 				a = adjustA(N, a, k, i);
 				test = a*a - k * fourN;
