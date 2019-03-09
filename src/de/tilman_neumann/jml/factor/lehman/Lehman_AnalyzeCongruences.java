@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -28,7 +28,9 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
 
 /**
  * Analyze the moduli of a-values that help the Lehman algorithm to find factors.
- * Version 2 reproduces exactly the conditions implemented in Lehman_Fast.
+ * 
+ * Congruences a == kN (mod 2^s) are slightly more discriminative
+ * than Lehman's original congruences a == (k+N) (mod 2^s), s = 1, 2, 3, ...
  * 
  * @author Tilman Neumann
  */
@@ -46,12 +48,12 @@ public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 	private static final Integer MAX_BITS = 63;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 16;
-	private static final int AMOD = 16;
+	private static final int KNMOD = 32;
+	private static final int AMOD = 32;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
-	// dimensions: k%KMOD, (N+k)%KNMOD, a%AMOD, adjust%AMOD
+	// dimensions: k%KMOD, kN%KNMOD, a%AMOD, adjust%AMOD
 	private int[][][][] counts;
 	
 	@Override
@@ -80,7 +82,7 @@ public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 					if (b*b == test) {
 						long gcd = gcdEngine.gcd(a+b, N);
 						if (gcd>1 && gcd<N) {
-							counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+							counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
 							return gcd; // removes the blur at even k!
 						}
 					}
@@ -99,13 +101,14 @@ public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		for (BigInteger N : testNumbers) {
+			if (N.mod(I_6).equals(I_1))
 			this.findSingleFactor(N);
 		}
 		
 		for (int k=0; k<KMOD; k++) {
 			for (int Nk=0; Nk<KNMOD; Nk++) {
 				for (int a=0; a<AMOD; a++) {
-					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (N+k)%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
+					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (kN)%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
 				}
 				LOG.info("");
 			}
