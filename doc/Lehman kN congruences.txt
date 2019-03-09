@@ -1,0 +1,120 @@
+Congruences a==kN (mod 2^s)
+(c) Tilman Neumann 2019-03-09
+evaluating results of class Lehman_AnalyzeCongruences
+--------------------------------------------------------------------
+
+MOD=4:
+	(kN+1)%2==1 (k even):
+		number of diagonals = 2
+		distances = {2, 2}
+		adjust = (kN+1-a)%2
+	(kN+1)%2==0 (k odd):
+		number of diagonals = 1
+		distances = {4}
+		adjust = (kN+1-a)%4
+	avg. number of diagonals = 1.5
+	avg. number of diagonals / MOD = 0.375
+	
+MOD=8:
+	(kN+1)%2==1 (k even):
+		number of diagonals = 4
+		distances = {2, 2, ...}
+		adjust = (kN+1-a)%2
+	(kN+1)%4==0:
+		number of diagonals = 1
+		distances = {8}
+		adjust = (kN+1-a)%8
+	(kN+1)%4==2:
+		number of diagonals = 2
+		distances = {4, 4}
+		adjust = (kN+1-a)%4
+	avg. number of diagonals = 0.5*4 + 0.25*1 + 0.25*2 = 2.75
+	avg. number of diagonals / MOD = 0.34375
+	
+MOD=16:
+	(kN+1)%2==1 (k even):
+		number of diagonals = 8
+		distances = {2, 2, ...}
+		adjust = (kN+1-a)%2
+	(kN+1)%4==0:
+		number of diagonals = 2
+		distances = {8, 8}
+		adjust = (kN+1-a)%8
+	(kN+1)%4==2:
+		number of diagonals = 2
+		distances = {4, 12}
+		adjust = min[(kN+1-a)%16, (-kN-1-a)%16]
+	avg. number of diagonals = 0.5*8 + 0.25*2 + 0.25*2 = 5
+	avg. number of diagonals / MOD = 0.3125
+
+MOD=32:
+	(kN+1)%2==1 (k even):
+		number of diagonals = 16
+		distances = {2, 2, ...}
+		adjust = (kN+1-a)%2
+	(kN+1)%4==0:
+		number of diagonals = 4
+		distances = {8, 8, ...}
+		adjust = (kN+1-a)%8
+	(kN+1)%8==6:
+		number of diagonals = 2
+		distances = {12, 20}, {4, 28}
+		adjust = min[(kN+1-a)%32, (-kN-1-a)%32]
+	(kN+1)%8==2:
+		number of diagonals = 4
+		distances = {12, 4, 12, 4}
+		adjust = min[(kN+1-a)%16, (-kN-1-a)%16]
+	avg. number of diagonals = 0.5*16 + 0.25*4 + 0.125*4 + 0.125*2 = 9.75
+	avg. number of diagonals / MOD = 0.3046875
+
+MOD=64:
+	(kN+1)%2==1 (k even):
+		number of diagonals = 32
+		distances = {2, 2, ...}
+		adjust = (kN+1-a)%2
+	(kN+1)%4==0:
+		number of diagonals = 8
+		distances = {8, 8, ...}
+		adjust = (kN+1-a)%8
+	(kN+1)%8==6:
+		number of diagonals = 4
+		distances = {20, 12, 20, 12}, {4, 28, 4, 28}
+		adjust = min[(kN+1-a)%32, (-kN-1-a)%32]
+	(kN+1)%16==2:
+		number of diagonals = 4
+		distances = {16, 28, 16, 4}, {12, 4, 12, 36}
+		adjust = min[(kN+1-a)%64, (-kN-1-a)%64, (kN+17-a)%64, (-kN-17-a)%64]
+	(kN+1)%16==10:
+		number of diagonals = 4
+		distances = {4, 44, 4, 12}, {16, 12, 16, 20}
+		adjust = min[(kN+1-a)%64, (-kN-1-a)%64, (kN+49-a)%64, (-kN-49-a)%64]
+	avg. number of diagonals = 0.5*32 + 0.25*8 + 0.125*4 + 0.0625*4 + 0.0625*4 = 19
+	avg. number of diagonals / MOD = 0.296875
+
+MOD=128:
+	(kN+1)%2==1 (k even):
+		number of diagonals = 64
+		distances = {2, 2, ...}
+		adjust = (kN+1-a)%2
+	(kN+1)%4==0:
+		number of diagonals = 16
+		distances = {8, 8, ...}
+		adjust = (kN+1-a)%8
+	(kN+1)%8==6:
+		number of diagonals = 8
+		distances = {20, 12, 20, 12, 20, 12, 20, 12}, {4, 28, 4, 28, 4, 28, 4, 28}
+		adjust = min[(kN+1-a)%32, (-kN-1-a)%32]
+	(kN+1)%16==2:
+		number of diagonals = 6
+		distances = {44, 16, 4, 16, 44, 4}, {16, 12, 36, 12, 16, 36}, {16, 4, 60, 4, 16, 28}, {36, 12, 4, 12, 36, 28}
+		adjust = min[(kN+1-a)%64, (-kN-1-a)%64, (kN+17-a)%64, (-kN-17-a)%64]
+	(kN+1)%16==10:
+		number of diagonals = 6
+		distances = {4, 48, 12, 48, 4, 12}, {16, 28, 20, 28, 16, 20}, {12, 4, 44, 4, 12, 52}, {20, 16, 12, 16, 20, 44}
+		adjust = min[(kN+1-a)%64, (-kN-1-a)%64, (kN+49-a)%64, (-kN-49-a)%64]
+	avg. number of diagonals = 0.5*64 + 0.25*16 + 0.125*8 + 0.0625*6 + 0.0625*6 = 37.75
+	avg. number of diagonals / MOD = 0.294921875
+	
+	The adjusts are the same as for MOD=64! The only thing that changed is the resolution of the analysis.
+	
+	
