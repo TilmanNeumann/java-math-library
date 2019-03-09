@@ -26,7 +26,10 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
 /**
  * A variant of Lehman's algorithm that allows to arrange the k's in arrays of different priorities.
- * Testing multiples of 15 first, followed by multiples of 3, then the rest works not so bad...
+ * Some multiples of k that work very well are 315, 45, 105, ..., 15, 9, 3, and are tested in that order.
+ * 
+ * For large k we also use congruences of a == kN (mod 2^s) instead of Lehman's a == (k+N) (mod 2^s),
+ * which seem to be slightly more discriminative.
  * 
  * @authors Tilman Neumann + Thilo Harich
  */
@@ -176,6 +179,8 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	private long test(int kTwoA, int kLimit, int[] kArray, double[] sqrts, double[] sqrtInvs, double sixthRootTerm) {
 		long aLimit, aStart, aStep;
 		int i, k;
+		
+		// small k: we use Lehman's congruences a == (k+N) (mod 2^s)
 		for (i=0; (k = kArray[i])<kTwoA; i++) {
 			final double sqrt4kN = sqrt4N * sqrts[i];
 			aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
@@ -210,22 +215,29 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 			}
 		}
 
+		// big k: use improved congruences congruences a == (k*N) (mod 2^s)
 		for ( ; (k = kArray[i])<kLimit; i++) {
+			long kN = k*N;
 			long a = (long) (sqrt4N * sqrts[i] + ROUND_UP_DOUBLE);
 			if ((k & 1) == 0) {
 				// k even -> make sure aLimit is odd
 				a |= 1L;
 			} else {
-				final long kPlusN = k + N;
-				if ((kPlusN & 3) == 0) {
-					a += ((kPlusN - a) & 7);
-				} else {
-					final long adjust1 = (kPlusN - a) & 15;
-					final long adjust2 = (-kPlusN - a) & 15;
+				final long kNp1 = kN + 1;
+				if ((kNp1 & 3) == 0) {
+					a += (kNp1 - a) & 7;
+				} else if ((kNp1 & 7) == 6) {
+					final long adjust1 = (kNp1 - a) & 31;
+					final long adjust2 = (-kNp1 - a) & 31;
+					a += adjust1<adjust2 ? adjust1 : adjust2;
+				} else { // (kN+1) == 2 (mod 8)
+					final long adjust1 = (kNp1 - a) & 15;
+					final long adjust2 = (-kNp1 - a) & 15;
 					a += adjust1<adjust2 ? adjust1 : adjust2;
 				}
 			}
-			final long test = a*a - k * fourN;
+			
+			final long test = a*a - (kN << 2);
 			final long b = (long) Math.sqrt(test);
 			if (b*b == test) {
 				return gcdEngine.gcd(a+b, N);
@@ -294,7 +306,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 				9,
 			};
 		
-		Lehman_CustomKOrder lehman = new Lehman_CustomKOrder(false);
+		Lehman_CustomKOrder2 lehman = new Lehman_CustomKOrder2(false);
 		for (long N : testNumbers) {
 			long factor = lehman.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
