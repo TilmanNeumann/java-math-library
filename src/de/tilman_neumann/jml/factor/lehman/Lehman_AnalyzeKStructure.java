@@ -14,6 +14,11 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
@@ -34,8 +39,18 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
 public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeKStructure.class);
 
+	private static class Progression {
+		public int offset;
+		public int step;
+		
+		public Progression(int offset, int step) {
+			this.offset = offset;
+			this.step = step;
+		}
+	}
+	
 	/** Analyze data accumulated over some progressions? Not successful yet... */
-	private static final boolean ANALYZE_PROGRESSIONS = false;
+	private static final boolean ANALYZE_PROGRESSIONS = true;
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
@@ -196,39 +211,26 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 			LOG.info("");
 			for (int i=0; i<10; i++) {
 				LOG.info("Analyze progressions for " + (30+i) + " bit numbers:");
-				analyzeProgression(1, 4, i);
-				analyzeProgression(2, 4, i);
-				analyzeProgression(3, 4, i);
-				analyzeProgression(4, 4, i);
-				analyzeProgression(3, 12, i);
-				analyzeProgression(6, 12, i);
-				analyzeProgression(9, 12, i);
-				analyzeProgression(12, 12, i);
-				analyzeProgression(5, 20, i);
-				analyzeProgression(10, 20, i);
-				analyzeProgression(15, 20, i);
-				analyzeProgression(20, 20, i);
-				analyzeProgression(7, 28, i);
-				analyzeProgression(14, 28, i);
-				analyzeProgression(21, 28, i);
-				analyzeProgression(28, 28, i);
-				analyzeProgression(9, 36, i);
-				analyzeProgression(18, 36, i);
-				analyzeProgression(27, 36, i);
-				analyzeProgression(36, 36, i);
-				analyzeProgression(15, 60, i);
-				analyzeProgression(30, 60, i);
-				analyzeProgression(45, 60, i);
-				analyzeProgression(60, 60, i);
-				analyzeProgression(45, 180, i);
-				analyzeProgression(90, 180, i);
-				analyzeProgression(135, 180, i);
-				analyzeProgression(180, 180, i);
+				TreeMap<Integer, List<Progression>> successRate2Progressions = new TreeMap<Integer, List<Progression>>(Collections.reverseOrder());
+				for (int j=1; j<1000; j++) {
+					analyzeProgression(j, 2*j, i, successRate2Progressions);
+					analyzeProgression(2*j, 2*j, i, successRate2Progressions);
+				}
+				int j=0;
+				for (Map.Entry<Integer, List<Progression>> entry : successRate2Progressions.entrySet()) {
+					int successRate = entry.getKey();
+					List<Progression> progressions = entry.getValue();
+					for (Progression progression : progressions) {
+						LOG.info("    #" + j + ": Progression (" + progression.offset + ", " +  progression.step + ") has successRate " + successRate);
+						j++;
+					}
+					if (j>=100) break;
+				}
 			}
 		}
 	}
 
-	private void analyzeProgression(int start, int step, int arrayIndex) {
+	private void analyzeProgression(int start, int step, int arrayIndex, TreeMap<Integer, List<Progression>> successRate2Progressions) {
 		int successSum = 0;
 		int numCount = 0;
 		final int kLimit = (int) Math.cbrt(1L<<(30+arrayIndex+1));
@@ -238,7 +240,12 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 			numCount++;
 		}
 		int avgSuccessCount = (int) (successSum / (float) numCount);
-		LOG.info("    Progression " + step + "*m + " + start + ": Avg. successes = " + avgSuccessCount + ", #tests = " + numCount);
+		//LOG.info("    Progression " + step + "*m + " + start + ": Avg. successes = " + avgSuccessCount + ", #tests = " + numCount);
+		
+		List<Progression> progressions = successRate2Progressions.get(avgSuccessCount);
+		if (progressions == null) progressions = new ArrayList<Progression>();
+		progressions.add(new Progression(start, step));
+		successRate2Progressions.put(avgSuccessCount, progressions);
 	}
 	
 	public static void main(String[] args) {
