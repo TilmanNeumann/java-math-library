@@ -96,14 +96,25 @@ public class Hart_Fast extends FactorAlgorithm {
 		long a, b, test, gcd;
 		int k = K_MULT;
 		try {
-			for (int i=1; ; i++, k += K_MULT) {
-				a = (long) (sqrt4N * sqrt[i] + ROUND_UP_DOUBLE);
-				a = adjustA(N, a, k, i);
+			for (int i=1; ; ) {
+				// odd k -> adjust a mod 8, 16, 32
+				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
+				a = adjustAForOddK(a, k*N+1);
 				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
 					if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
 				}
+				k += K_MULT;
+
+				// even k -> a must be odd
+				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE) | 1L;
+				test = a*a - k * fourN;
+				b = (long) Math.sqrt(test);
+				if (b*b == test) {
+					if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
+				}
+				k += K_MULT;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// this may happen if this implementation is tested with doTDivFirst==false and N having
@@ -111,19 +122,18 @@ public class Hart_Fast extends FactorAlgorithm {
 			return 1;
 		}
 	}
-
-	private long adjustA(long N, long a, int k, int i) {
-		if ((i & 1) == 0)
-			a |= 1;
-		else {
-			final long kPlusN = k + N;
-			if ((kPlusN & 3) == 0) {
-				a += ((kPlusN - a) & 7);
-			} else {
-				final long adjust1 = (kPlusN - a) & 15;
-				final long adjust2 = (-kPlusN - a) & 15;
-				a += adjust1<adjust2 ? adjust1 : adjust2;
-			}
+	
+	private long adjustAForOddK(long a, long kNp1) {
+		if ((kNp1 & 3) == 0) {
+			a += (kNp1 - a) & 7;
+		} else if ((kNp1 & 7) == 6) {
+			final long adjust1 = (kNp1 - a) & 31;
+			final long adjust2 = (-kNp1 - a) & 31;
+			a += adjust1<adjust2 ? adjust1 : adjust2;
+		} else { // (kN+1) == 2 (mod 8)
+			final long adjust1 = (kNp1 - a) & 15;
+			final long adjust2 = (-kNp1 - a) & 15;
+			a += adjust1<adjust2 ? adjust1 : adjust2;
 		}
 		return a;
 	}

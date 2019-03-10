@@ -27,7 +27,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * This is the fastest algorithm for test numbers <= 44 bit when their nature is unknown.
  * Hart_TDiv_Race_Unsafe is faster for moderate semiprimes N >= 45 bit.
- * Hart_Fast and Hard_Fast_Unsafe are faster for hard semiprimes.
+ * Hart_Fast is faster for hard semiprimes.
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
@@ -73,7 +73,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "Hart_TDiv_Race";
+		return "Hart_TDiv_Race2";
 	}
 
 	@Override
@@ -103,17 +103,23 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					// tdiv step
 					if (N%primes[i]==0) return primes[i];
 
-					// odd k -> adjust a mod 8, 16
+					// odd k -> adjust a mod 8, 16, 32
+					final long kN = k*N;
 					a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
-					final long kPlusN = k + N;
-					if ((kPlusN & 3) == 0) {
-						a += ((kPlusN - a) & 7);
-					} else {
-						final long adjust1 = (kPlusN - a) & 15;
-						final long adjust2 = (-kPlusN - a) & 15;
+					final long kNp1 = kN + 1;
+					if ((kNp1 & 3) == 0) {
+						a += (kNp1 - a) & 7;
+					} else if ((kNp1 & 7) == 6) {
+						final long adjust1 = (kNp1 - a) & 31;
+						final long adjust2 = (-kNp1 - a) & 31;
+						a += adjust1<adjust2 ? adjust1 : adjust2;
+					} else { // (kN+1) == 2 (mod 8)
+						final long adjust1 = (kNp1 - a) & 15;
+						final long adjust2 = (-kNp1 - a) & 15;
 						a += adjust1<adjust2 ? adjust1 : adjust2;
 					}
-					test = a*a - k * fourN;
+					
+					test = a*a - (kN << 2);
 					b = (long) Math.sqrt(test);
 					if (b*b == test) {
 						if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
@@ -143,17 +149,23 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 					}
 				}
 
-				// odd k -> adjust a mod 8, 16
+				// odd k -> adjust a mod 8, 16, 32
+				final long kN = k*N;
 				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE);
-				final long kPlusN = k + N;
-				if ((kPlusN & 3) == 0) {
-					a += ((kPlusN - a) & 7);
-				} else {
-					final long adjust1 = (kPlusN - a) & 15;
-					final long adjust2 = (-kPlusN - a) & 15;
+				final long kNp1 = kN + 1;
+				if ((kNp1 & 3) == 0) {
+					a += (kNp1 - a) & 7;
+				} else if ((kNp1 & 7) == 6) {
+					final long adjust1 = (kNp1 - a) & 31;
+					final long adjust2 = (-kNp1 - a) & 31;
+					a += adjust1<adjust2 ? adjust1 : adjust2;
+				} else { // (kN+1) == 2 (mod 8)
+					final long adjust1 = (kNp1 - a) & 15;
+					final long adjust2 = (-kNp1 - a) & 15;
 					a += adjust1<adjust2 ? adjust1 : adjust2;
 				}
-				test = a*a - k * fourN;
+				
+				test = a*a - (kN << 2);
 				b = (long) Math.sqrt(test);
 				if (b*b == test) {
 					if ((gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) return gcd;
