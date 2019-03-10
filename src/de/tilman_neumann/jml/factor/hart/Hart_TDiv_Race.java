@@ -73,7 +73,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "Hart_TDiv_Race2";
+		return "Hart_TDiv_Race";
 	}
 
 	@Override
