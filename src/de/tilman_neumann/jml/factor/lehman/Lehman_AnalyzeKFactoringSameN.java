@@ -26,24 +26,20 @@ import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 
-//import static de.tilman_neumann.jml.base.BigIntConstants.*;
-
 /**
  * Analyze the frequency with which different k find a factor.
- * 
- * Some results:
- * -> k prime or k=2*prime are very bad
- * -> very smooth k are pretty good but the influence of the power of 2 in such k is strange and not well understood
- * -> N that are factored by many k are typically factored by k=k_base*{1^2, 3^2, 5^2, 7^2, ...}
  * 
  * @author Tilman Neumann
  */
 public class Lehman_AnalyzeKFactoringSameN extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeKFactoringSameN.class);
+	
+	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
+	private static final boolean USE_kN_CONGRUENCES = true;
 
-	// algorithm options
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
+	
 	/** the bit size of N */
 	private static final int BITS = 40;
 
@@ -85,20 +81,45 @@ public class Lehman_AnalyzeKFactoringSameN extends FactorAlgorithm {
 			final long aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil()
 			long aLimit = (long) (sqrt4kN + sixthRootTerm / sqrtK);
 			long aStep;
-			if ((k & 1) == 0) {
-				// k even -> make sure aLimit is odd
-				aLimit |= 1L;
-				aStep = 2;
-			} else {
-				final long kPlusN = k + N;
-				if ((kPlusN & 3) == 0) {
-					aStep = 8;
-					aLimit += ((kPlusN - aLimit) & 7);
+			if (USE_kN_CONGRUENCES) {
+				long kN = k*N;
+				if ((k & 1) == 0) {
+					// k even -> make sure aLimit is odd
+					aLimit |= 1L;
+					aStep = 2;
 				} else {
-					aStep = 4; // stepping over both adjusts with step width 16 would be more exact but is not faster
-					final long adjust1 = (kPlusN - aLimit) & 15;
-					final long adjust2 = (-kPlusN - aLimit) & 15;
-					aLimit += adjust1<adjust2 ? adjust1 : adjust2;
+					final long kNp1 = kN + 1;
+					if ((kNp1 & 3) == 0) {
+						aLimit += (kNp1 - aLimit) & 7;
+						aStep = 8;
+					} else if ((kNp1 & 7) == 6) {
+						final long adjust1 = (kNp1 - aLimit) & 31;
+						final long adjust2 = (-kNp1 - aLimit) & 31;
+						aLimit += adjust1<adjust2 ? adjust1 : adjust2;
+						aStep = 4;
+					} else { // (kN+1) == 2 (mod 8)
+						final long adjust1 = (kNp1 - aLimit) & 15;
+						final long adjust2 = (-kNp1 - aLimit) & 15;
+						aLimit += adjust1<adjust2 ? adjust1 : adjust2;
+						aStep = 4;
+					}
+				}
+			} else {
+				if ((k & 1) == 0) {
+					// k even -> make sure aLimit is odd
+					aLimit |= 1L;
+					aStep = 2;
+				} else {
+					final long kPlusN = k + N;
+					if ((kPlusN & 3) == 0) {
+						aLimit += ((kPlusN - aLimit) & 7);
+						aStep = 8;
+					} else {
+						final long adjust1 = (kPlusN - aLimit) & 15;
+						final long adjust2 = (-kPlusN - aLimit) & 15;
+						aLimit += adjust1<adjust2 ? adjust1 : adjust2;
+						aStep = 4; // stepping over both adjusts with step width 16 would be more exact but is not faster
+					}
 				}
 			}
 

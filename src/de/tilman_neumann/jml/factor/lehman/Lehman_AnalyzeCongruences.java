@@ -36,8 +36,10 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  */
 public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeCongruences.class);
+	
+	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
+	private static final boolean USE_kN_CONGRUENCES = true;
 
-	// algorithm options
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
@@ -82,7 +84,11 @@ public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 					if (b*b == test) {
 						long gcd = gcdEngine.gcd(a+b, N);
 						if (gcd>1 && gcd<N) {
-							counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+							if (USE_kN_CONGRUENCES) {
+								counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+							} else {
+								counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+							}
 							return gcd; // removes the blur at even k!
 						}
 					}
@@ -105,10 +111,11 @@ public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 			this.findSingleFactor(N);
 		}
 		
+		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
 		for (int k=0; k<KMOD; k++) {
 			for (int Nk=0; Nk<KNMOD; Nk++) {
 				for (int a=0; a<AMOD; a++) {
-					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (kN)%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
+					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
 				}
 				LOG.info("");
 			}
