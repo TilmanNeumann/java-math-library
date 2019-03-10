@@ -27,11 +27,7 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
 
 /**
  * Analyze the frequency with which different k find a factor.
- * 
- * Some results:
- * -> k prime or k=2*prime are very bad
- * -> very smooth k are pretty good
- * -> success counts behave very different for N with even bitlength vs. N with odd bitlength!
+ * k that are multiples of 315, 45, 15, 3 perform best.
  * 
  * @author Tilman Neumann
  */
@@ -40,6 +36,9 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 
 	/** Analyze data accumulated over some progressions? Not successful yet... */
 	private static final boolean ANALYZE_PROGRESSIONS = false;
+	
+	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
+	private static final boolean USE_kN_CONGRUENCES = true;
 	
 	// algorithm options
 	/** number of test numbers */
@@ -81,23 +80,48 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 			final long aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil()
 			long aLimit = (long) (sqrt4kN + sixthRootTerm / sqrtK);
 			long aStep;
-			if ((k & 1) == 0) {
-				// k even -> make sure aLimit is odd
-				aLimit |= 1L;
-				aStep = 2;
-			} else {
-				final long kPlusN = k + N;
-				if ((kPlusN & 3) == 0) {
-					aStep = 8;
-					aLimit += ((kPlusN - aLimit) & 7);
+			if (USE_kN_CONGRUENCES) {
+				long kN = k*N;
+				if ((k & 1) == 0) {
+					// k even -> make sure aLimit is odd
+					aLimit |= 1L;
+					aStep = 2;
 				} else {
-					aStep = 4; // stepping over both adjusts with step width 16 would be more exact but is not faster
-					final long adjust1 = (kPlusN - aLimit) & 15;
-					final long adjust2 = (-kPlusN - aLimit) & 15;
-					aLimit += adjust1<adjust2 ? adjust1 : adjust2;
+					final long kNp1 = kN + 1;
+					if ((kNp1 & 3) == 0) {
+						aLimit += (kNp1 - aLimit) & 7;
+						aStep = 8;
+					} else if ((kNp1 & 7) == 6) {
+						final long adjust1 = (kNp1 - aLimit) & 31;
+						final long adjust2 = (-kNp1 - aLimit) & 31;
+						aLimit += adjust1<adjust2 ? adjust1 : adjust2;
+						aStep = 4;
+					} else { // (kN+1) == 2 (mod 8)
+						final long adjust1 = (kNp1 - aLimit) & 15;
+						final long adjust2 = (-kNp1 - aLimit) & 15;
+						aLimit += adjust1<adjust2 ? adjust1 : adjust2;
+						aStep = 4;
+					}
+				}
+			} else {
+				if ((k & 1) == 0) {
+					// k even -> make sure aLimit is odd
+					aLimit |= 1L;
+					aStep = 2;
+				} else {
+					final long kPlusN = k + N;
+					if ((kPlusN & 3) == 0) {
+						aLimit += ((kPlusN - aLimit) & 7);
+						aStep = 8;
+					} else {
+						final long adjust1 = (kPlusN - aLimit) & 15;
+						final long adjust2 = (-kPlusN - aLimit) & 15;
+						aLimit += adjust1<adjust2 ? adjust1 : adjust2;
+						aStep = 4; // stepping over both adjusts with step width 16 would be more exact but is not faster
+					}
 				}
 			}
-
+			
 			// processing the a-loop top-down is faster than bottom-up
 			final long fourkN = k * fourN;
 			for (long a=aLimit; a >= aStart; a-=aStep) {
