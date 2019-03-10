@@ -31,18 +31,10 @@ public enum TestNumberNature {
 	RANDOM_ODD_COMPOSITES,
 	
 	/**
-	 * Odd semiprimes N=a*b with bitLength(min(a,b)) >= bitLength(N)/3 bits. Sometimes we'll get
-	 * min(a,b) <= cbrt(N), thus e.g. in the Lehman algorithm, some numbers require trial division.
-	 * 
+	 * Odd semiprimes N=a*b with min(a,b) >= cbrt(N).
 	 * Note that there are no such numbers with less than 4 bits.
 	 */
 	MODERATE_SEMIPRIMES,
-	
-	/** Similar to MODERATE_SEMIPRIMES, but with more test numbers having factors < cbrt(N) */
-	MODERATE_SEMIPRIMES2,
-	
-	/** Similar to MODERATE_SEMIPRIMES, but without factors < cbrt(N) */
-	MODERATE_SEMIPRIMES3,
 	
 	/**
 	 * Odd semiprimes N=a*b with bitLength(min(a,b)) == bitLength(N)/2 - 1 bits.

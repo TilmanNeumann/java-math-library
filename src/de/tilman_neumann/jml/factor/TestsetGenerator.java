@@ -18,7 +18,6 @@ import java.security.SecureRandom;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.siqs.KnuthSchroeppel;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -32,12 +31,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 public class TestsetGenerator {
 	private static final Logger LOG = Logger.getLogger(TestsetGenerator.class);
 	private static final boolean DEBUG = false;
-	private static final boolean SELECT = false;
 	
 	private static final BPSWTest bpsw = new BPSWTest();
-	private static final KnuthSchroeppel multiplierFinder = new KnuthSchroeppel(); // used to compute the multiplier k
-
-	/** random generator */
 	private static final SecureRandom RNG = new SecureRandom();
 	
 	/**
@@ -72,75 +67,22 @@ public class TestsetGenerator {
 		}
 		case MODERATE_SEMIPRIMES: {
 			if (bits<4) throw new IllegalArgumentException("There are no odd semiprimes with " + bits + " bits.");
-			int minBits = (bits+2)/3; // analogue to 3rd root(N)
+			int minBits = (bits+2)/3;
 			int maxBits = (bits+1)/2;
 			for (int i=0; i<N_count; ) {
-				// generate random N with 2 prime factors
+				// Generate random N with 2 prime factors > cbrt(N). This implementation achieves a high degree
+				// of randomness while still being reasonably fast for large bit sizes.
 				int n1bits = uniformRandomInteger(minBits, maxBits);
 				BigInteger n1 = new BigInteger(n1bits, RNG);
-				if (n1bits>0) n1 = n1.setBit(n1bits-1);
 				n1 = bpsw.nextProbablePrime(n1);
-				int n2bits = bits-n1.bitLength();
-				BigInteger n2 = new BigInteger(n2bits, RNG);
-				if (n2bits>0) n2 = n2.setBit(n2bits-1);
-				n2 = bpsw.nextProbablePrime(n2);
-				BigInteger N = n1.multiply(n2);
+				if (n1.bitLength()<minBits) continue;
+				
+				BigInteger N = new BigInteger(bits, RNG);
+				BigInteger n2 = bpsw.nextProbablePrime(N.divide(n1));
+				N = n1.multiply(n2);
+				if (N.bitLength() != bits) continue;
+				if (n1.pow(3).compareTo(N) < 0) continue;
 
-				// Skip cases where the construction above failed to produce the correct bit length
-				if (N.bitLength() != bits) continue;
-				
-				if (SELECT) {
-					// skip N that do not match the selection criterion
-					int k = multiplierFinder.computeMultiplier(N);
-					int kNMod = BigInteger.valueOf(k).multiply(N).mod(I_8).intValue();
-					if (kNMod == 1) continue;
-				}
-				
-				//LOG.debug("n1Bits = " + n1.bitLength() + ", n2Bits = " + n2.bitLength() + ", NBits = " + N.bitLength());
-				NArray[i++] = N;
-			}
-			return NArray;
-		}
-		case MODERATE_SEMIPRIMES2: {
-			if (bits<4) throw new IllegalArgumentException("There are no odd semiprimes with " + bits + " bits.");
-			int minBits = (bits+2)/3; // analogue to 3rd root(N)
-			int maxBits = (bits+1)/2;
-			for (int i=0; i<N_count; ) {
-				// generate random N with 2 prime factors
-				int n1bits = uniformRandomInteger(minBits, maxBits);
-				BigInteger n1 = new BigInteger(n1bits, RNG);
-				n1 = bpsw.nextProbablePrime(n1);
-				if (n1.bitLength()!=n1bits) continue;
-				BigInteger Nrand = new BigInteger(bits, RNG);
-				BigInteger n2 = bpsw.nextProbablePrime(Nrand.divide(n1));
-				BigInteger N = n1.multiply(n2);
-				if (N.bitLength() != bits) continue;
-				//LOG.debug("n1Bits = " + n1.bitLength() + ", n2Bits = " + n2.bitLength() + ", NBits = " + N.bitLength());
-				NArray[i++] = N;
-			}
-			return NArray;
-		}
-		case MODERATE_SEMIPRIMES3: {
-			if (bits<4) throw new IllegalArgumentException("There are no odd semiprimes with " + bits + " bits.");
-			int minBits = (bits+2)/3; // analogue to 3rd root(N)
-			int maxBits = (bits+1)/2;
-			for (int i=0; i<N_count; ) {
-				// generate random N with 2 prime factors
-				int n1bits = uniformRandomInteger(minBits, maxBits);
-				BigInteger n1 = new BigInteger(n1bits, RNG);
-				if (n1bits>0) n1 = n1.setBit(n1bits-1);
-				n1 = bpsw.nextProbablePrime(n1);
-				int n2bits = bits-n1.bitLength();
-				BigInteger n2 = new BigInteger(n2bits, RNG);
-				if (n2bits>0) n2 = n2.setBit(n2bits-1);
-				n2 = bpsw.nextProbablePrime(n2);
-				BigInteger N = n1.multiply(n2);
-				if (n1.pow(3).compareTo(N) < 0) continue; // needs tdiv
-
-				// Skip cases where the construction above failed to produce the correct bit length
-				if (N.bitLength() != bits) continue;
-				
-				//LOG.debug("n1Bits = " + n1.bitLength() + ", n2Bits = " + n2.bitLength() + ", NBits = " + N.bitLength());
 				NArray[i++] = N;
 			}
 			return NArray;
@@ -179,6 +121,7 @@ public class TestsetGenerator {
 	 */
 	private static int uniformRandomInteger(int minValue, int maxValue) {
 		int normedMaxValue = Math.max(1, maxValue - minValue);
-		return RNG.nextInt(normedMaxValue) + minValue;
+		return RNG.nextInt() % (normedMaxValue+1) + minValue;
+		// the above has more entropy than RNG.nextInt(normedMaxValue) + minValue
 	}
 }
