@@ -69,15 +69,15 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		addToArray(1, 5);
 		for (int k = 2; k <= K_MAX; k++) {
 			if (k%315==0) {
-				addToArray(k, 0);
+				if ((k%2)==0) addToArray(k, 1); else addToArray(k, 0);
 			} else if (k%45==0 || k%63==0 || k%105==0) {
-				addToArray(k, 1);
+				if ((k%2)==0) addToArray(k, 2); else addToArray(k, 1);
 			} else if (k%15==0) {
-				addToArray(k, 2);
+				if ((k%2)==0) addToArray(k, 3); else addToArray(k, 2);
 			} else if (k%9==0 || k%21==0) {
-				addToArray(k, 3);
+				if ((k%2)==0) addToArray(k, 4); else addToArray(k, 3);
 			} else if (k%3==0) {
-				addToArray(k, 4);
+				if ((k%2)==0) addToArray(k, 5); else addToArray(k, 4);
 			} else {
 				addToArray(k, 5);
 			}
