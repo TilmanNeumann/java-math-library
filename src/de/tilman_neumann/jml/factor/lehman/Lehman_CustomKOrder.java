@@ -14,14 +14,12 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import java.math.BigInteger;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
 /**
@@ -40,13 +38,15 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
 	private static final int K_MAX = 1<<20;
-	
+	private static final int ARRAY_COUNT = 6;
+
 	private final TDiv63Inverse tdiv = new TDiv63Inverse(K_MAX);
 
 	private double[][] sqrts;
 	private double[][] sqrtInvs;
 	private int[][] kArrays;
 	private int[] kArraySizes;
+	private static final float[] kLimitMultipliers = new float[] {4, 2, 1.5f, 1, 1, 1};
 
 	private long N;
 	private long fourN;
@@ -62,12 +62,11 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	public Lehman_CustomKOrder(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// arrange k in different arrays
-		sqrts = new double[6][K_MAX+1];
-		sqrtInvs = new double[6][K_MAX+1];
-		kArrays = new int[6][K_MAX+1];
-		kArraySizes = new int[6];
-		addToArray(1, 5);
-		for (int k = 2; k <= K_MAX; k++) {
+		sqrts = new double[ARRAY_COUNT][K_MAX+1];
+		sqrtInvs = new double[ARRAY_COUNT][K_MAX+1];
+		kArrays = new int[ARRAY_COUNT][K_MAX+1];
+		kArraySizes = new int[ARRAY_COUNT];
+		for (int k = 1; k <= K_MAX; k++) {
 			if (k%315==0) {
 				if ((k%2)==0) addToArray(k, 1); else addToArray(k, 0);
 			} else if (k%45==0 || k%63==0 || k%105==0) {
@@ -83,7 +82,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 			}
 		}
 		// shrink arrays to counts
-		for (int i=0; i<6; i++) {
+		for (int i=0; i<ARRAY_COUNT; i++) {
 			int count = kArraySizes[i];
 			int[] kArrayTmp = new int[count];
 			System.arraycopy(kArrays[i], 0, kArrayTmp, 0, count);
@@ -104,22 +103,6 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		sqrts[arrayIndex][count] = sqrtK;
 		sqrtInvs[arrayIndex][count] = 1.0/sqrtK;
 		kArraySizes[arrayIndex]++;
-	}
-
-	private static boolean isSquare(SortedMultiset<BigInteger> factors) {
-		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
-			int mul = entry.getValue();
-			if ((mul&1)==1) return false;
-		}
-		return true;
-	}
-
-	private static boolean isSquareFree(SortedMultiset<BigInteger> factors) {
-		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
-			int mul = entry.getValue();
-			if ((mul&1)==0) return false;
-		}
-		return true;
 	}
 
 	@Override
@@ -152,26 +135,19 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		final int kTwoA = (cbrt + 127) >> 7;
 		
 		final double sixthRootTerm = 0.25 * Math.pow(N, 1/6.0); // double precision is required for stability
-		if ((factor = test(kTwoA, kLimit<<2, kArrays[0], sqrts[0], sqrtInvs[0], sixthRootTerm)) > 1) return factor;
-		if ((factor = test(kTwoA, kLimit<<1, kArrays[1], sqrts[1], sqrtInvs[1], sixthRootTerm)) > 1) return factor;
-		if ((factor = test(kTwoA, kLimit*3/2, kArrays[2], sqrts[2], sqrtInvs[2], sixthRootTerm)) > 1) return factor;
-		if ((factor = test(kTwoA, kLimit, kArrays[3], sqrts[3], sqrtInvs[3], sixthRootTerm)) > 1) return factor;
-		if ((factor = test(kTwoA, kLimit, kArrays[4], sqrts[4], sqrtInvs[4], sixthRootTerm)) > 1) return factor;
+		for (int i=0; i<ARRAY_COUNT; i++) {
+			int kLimit2 = (int) (kLimit * kLimitMultipliers[i]);
+			if ((factor = test(kTwoA, kLimit2, kArrays[i], sqrts[i], sqrtInvs[i], sixthRootTerm)) > 1) return factor;
+		}
 
 		// do trial division now?
 		if (!doTDivFirst && (factor = tdiv.findSingleFactor(N))>1) return factor;
-
-		// finish Lehman loops
-		if ((factor = test(kTwoA, kLimit, kArrays[5], sqrts[5], sqrtInvs[5], sixthRootTerm)) > 1) return factor;
 		
 		// If sqrt(4kN) is very near to an exact integer then the fast ceil() in the 'aStart'-computation
 		// may have failed. Then we need a "correction loop":
-		if ((factor = correctionLoop(kLimit, kArrays[0], sqrts[0])) > 1) return factor;
-		if ((factor = correctionLoop(kLimit, kArrays[1], sqrts[1])) > 1) return factor;
-		if ((factor = correctionLoop(kLimit, kArrays[2], sqrts[2])) > 1) return factor;
-		if ((factor = correctionLoop(kLimit, kArrays[3], sqrts[3])) > 1) return factor;
-		if ((factor = correctionLoop(kLimit, kArrays[4], sqrts[4])) > 1) return factor;
-		if ((factor = correctionLoop(kLimit, kArrays[5], sqrts[5])) > 1) return factor;
+		for (int i=0; i<ARRAY_COUNT; i++) {
+			if ((factor = correctionLoop(kLimit, kArrays[i], sqrts[i])) > 1) return factor;
+		}
 		
 		return 1; // fail
 	}
