@@ -46,7 +46,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	private double[][] sqrtInvs;
 	private int[][] kArrays;
 	private int[] kArraySizes;
-	private static final float[] kLimitMultipliers = new float[] {4, 2, 1.5f, 1, 1, 1};
+	private static final float[] kLimitMultipliers = new float[] {8, 1, 1, 1, 1, 1};
 
 	private long N;
 	private long fourN;
