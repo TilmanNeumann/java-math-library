@@ -46,7 +46,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	private double[][] sqrtInvs;
 	private int[][] kArrays;
 	private int[] kArraySizes;
-	private static final float[] kLimitMultipliers = new float[] {8, 1, 1, 1, 1, 1};
+	private static final float[] kLimitMultipliers = new float[] {16, 1, 1, 1, 1, 1};
 
 	private long N;
 	private long fourN;
@@ -66,21 +66,30 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		sqrtInvs = new double[ARRAY_COUNT][K_MAX+1];
 		kArrays = new int[ARRAY_COUNT][K_MAX+1];
 		kArraySizes = new int[ARRAY_COUNT];
-		for (int k = 1; k <= K_MAX; k++) {
+		int k = 1;
+		for ( ; k <= K_MAX; k++) {
 			if (k%315==0) {
-				if ((k%2)==0) addToArray(k, 1); else addToArray(k, 0);
+				if (k%2==0) addToArray(k, 1); else addToArray(k, 0);
 			} else if (k%45==0 || k%63==0 || k%105==0) {
-				if ((k%2)==0) addToArray(k, 2); else addToArray(k, 1);
+				if (k%2==0) addToArray(k, 2); else addToArray(k, 1);
 			} else if (k%15==0) {
-				if ((k%2)==0) addToArray(k, 3); else addToArray(k, 2);
+				if (k%2==0) addToArray(k, 3); else addToArray(k, 2);
 			} else if (k%9==0 || k%21==0) {
-				if ((k%2)==0) addToArray(k, 4); else addToArray(k, 3);
+				if (k%2==0) addToArray(k, 4); else addToArray(k, 3);
 			} else if (k%3==0) {
-				if ((k%2)==0) addToArray(k, 5); else addToArray(k, 4);
+				if (k%2==0) addToArray(k, 5); else addToArray(k, 4);
 			} else {
 				addToArray(k, 5);
 			}
 		}
+		// very big multipliers need more k-values
+		int kMaxWithMultiplier = (int)(kLimitMultipliers[0]*K_MAX);
+		for (; k <=kMaxWithMultiplier; k++) {
+			if (k%315==0 & k%2==0) {
+				addToArray(k, 0);
+			}
+		}
+			
 		// shrink arrays to counts
 		for (int i=0; i<ARRAY_COUNT; i++) {
 			int count = kArraySizes[i];
@@ -192,7 +201,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		}
 
 		// big k: use improved congruences congruences a == (k*N) (mod 2^s)
-		for ( ; (k = kArray[i])<kLimit; i++) { // XXX may throw ArrayIndexOutOfBoundsException if N is too big
+		for ( ; (k = kArray[i])<kLimit; i++) { // XXX may throw ArrayIndexOutOfBoundsException if N or kLimit are too big
 			long kN = k*N;
 			long a = (long) (sqrt4N * sqrts[i] + ROUND_UP_DOUBLE);
 			if ((k & 1) == 0) {
