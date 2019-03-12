@@ -31,8 +31,8 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  * 
  * @authors Tilman Neumann + Thilo Harich
  */
-public class Lehman_CustomKOrder extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Lehman_CustomKOrder.class);
+public class Lehman_CustomKOrder2 extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Lehman_CustomKOrder2.class);
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
@@ -59,7 +59,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Lehman_CustomKOrder(boolean doTDivFirst) {
+	public Lehman_CustomKOrder2(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// arrange k in different arrays
 		sqrts = new double[ARRAY_COUNT][K_MAX+1];
@@ -116,7 +116,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "Lehman_CustomKOrder(" + doTDivFirst + ")";
+		return "Lehman_CustomKOrder2(" + doTDivFirst + ")";
 	}
 
 	@Override
@@ -162,48 +162,79 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	}
 
 	private long test(int kTwoA, int kLimit, int[] kArray, double[] sqrts, double[] sqrtInvs, double sixthRootTerm) {
-		long aLimit, aStart, aStep;
+		long a, aStart, aLimit;
 		int i, k;
 		
-		// small k: we use Lehman's congruences a == (k+N) (mod 2^s)
+		// small k
 		for (i=0; (k = kArray[i])<kTwoA; i++) {
 			final double sqrt4kN = sqrt4N * sqrts[i];
 			aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
 			aLimit = (long) (sqrt4kN + sixthRootTerm * sqrtInvs[i]);
+			final long kN = k*N;
+			final long fourkN = kN << 2;
+			final long kNp1 = kN + 1;
 			if ((k & 1) == 0) {
 				// k even -> make sure aLimit is odd
-				aLimit |= 1L;
-				aStep = 2;
-			} else {
-				final long kPlusN = k + N;
-				if ((kPlusN & 3) == 0) {
-					aStep = 8;
-					aLimit += ((kPlusN - aLimit) & 7);
-				} else {
-					aStep = 4; // stepping over both adjusts with step width 16 would be more exact but is not faster
-					final long adjust1 = (kPlusN - aLimit) & 15;
-					final long adjust2 = (-kPlusN - aLimit) & 15;
-					aLimit += adjust1<adjust2 ? adjust1 : adjust2;
+				a = aLimit | 1;
+				for (; a >= aStart; a-=2) {
+					final long test = a*a - fourkN;
+					final long b = (long) Math.sqrt(test);
+					if (b*b == test) {
+						return gcdEngine.gcd(a+b, N);
+					}
 				}
-			}
-
-			// processing the a-loop top-down is faster than bottom-up
-			final long fourkN = k * fourN;
-			for (long a=aLimit; a >= aStart; a-=aStep) {
-				final long test = a*a - fourkN;
-				// Here test<0 is possible because of double to long cast errors in the 'a'-computation.
-				// But then b = Math.sqrt(test) gives 0 (sic!) => 0*0 != test => no errors.
-				final long b = (long) Math.sqrt(test);
-				if (b*b == test) {
-					return gcdEngine.gcd(a+b, N);
+			} else {
+				if ((kNp1 & 3) == 0) {
+					a = aLimit +((kNp1 - aLimit) & 7);
+					for (; a >= aStart; a-=8) {
+						final long test = a*a - fourkN;
+						final long b = (long) Math.sqrt(test);
+						if (b*b == test) {
+							return gcdEngine.gcd(a+b, N);
+						}
+					}
+				} else if ((kNp1 & 7) == 6) {
+					a = aLimit + ((kNp1 - aLimit) & 31);
+					for (; a >= aStart; a-=32) {
+						final long test = a*a - fourkN;
+						final long b = (long) Math.sqrt(test);
+						if (b*b == test) {
+							return gcdEngine.gcd(a+b, N);
+						}
+					}
+					a = aLimit + ((-kNp1 - aLimit) & 31);
+					for (; a >= aStart; a-=32) {
+						final long test = a*a - fourkN;
+						final long b = (long) Math.sqrt(test);
+						if (b*b == test) {
+							return gcdEngine.gcd(a+b, N);
+						}
+					}
+				} else { // (kN+1) == 2 (mod 8)
+					a = aLimit + ((kNp1 - aLimit) & 15);
+					for (; a >= aStart; a-=16) {
+						final long test = a*a - fourkN;
+						final long b = (long) Math.sqrt(test);
+						if (b*b == test) {
+							return gcdEngine.gcd(a+b, N);
+						}
+					}
+					a = aLimit + ((-kNp1 - aLimit) & 15);
+					for (; a >= aStart; a-=16) {
+						final long test = a*a - fourkN;
+						final long b = (long) Math.sqrt(test);
+						if (b*b == test) {
+							return gcdEngine.gcd(a+b, N);
+						}
+					}
 				}
 			}
 		}
 
-		// big k: use improved congruences congruences a == (k*N) (mod 2^s)
+		// big k
 		for ( ; (k = kArray[i])<kLimit; i++) { // XXX may throw ArrayIndexOutOfBoundsException if N or kLimit are too big
 			long kN = k*N;
-			long a = (long) (sqrt4N * sqrts[i] + ROUND_UP_DOUBLE);
+			a = (long) (sqrt4N * sqrts[i] + ROUND_UP_DOUBLE);
 			if ((k & 1) == 0) {
 				// k even -> make sure aLimit is odd
 				a |= 1L;
@@ -291,7 +322,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 				9,
 			};
 		
-		Lehman_CustomKOrder lehman = new Lehman_CustomKOrder(false);
+		Lehman_CustomKOrder2 lehman = new Lehman_CustomKOrder2(false);
 		for (long N : testNumbers) {
 			long factor = lehman.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);
