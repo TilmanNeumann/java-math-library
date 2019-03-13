@@ -170,12 +170,10 @@ public class Lehman_CustomKOrder2 extends FactorAlgorithm {
 			final double sqrt4kN = sqrt4N * sqrts[i];
 			aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
 			aLimit = (long) (sqrt4kN + sixthRootTerm * sqrtInvs[i]);
-			final long kN = k*N;
-			final long fourkN = kN << 2;
-			final long kNp1 = kN + 1;
 			if ((k & 1) == 0) {
 				// k even -> make sure aLimit is odd
 				a = aLimit | 1;
+				final long fourkN = k * fourN;
 				for (; a >= aStart; a-=2) {
 					final long test = a*a - fourkN;
 					final long b = (long) Math.sqrt(test);
@@ -184,8 +182,11 @@ public class Lehman_CustomKOrder2 extends FactorAlgorithm {
 					}
 				}
 			} else {
+				final long kN = k*N;
+				final long fourkN = kN << 2;
+				final long kNp1 = kN + 1;
 				if ((kNp1 & 3) == 0) {
-					a = aLimit +((kNp1 - aLimit) & 7);
+					a = aLimit + ((kNp1 - aLimit) & 7);
 					for (; a >= aStart; a-=8) {
 						final long test = a*a - fourkN;
 						final long b = (long) Math.sqrt(test);
