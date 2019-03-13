@@ -70,9 +70,9 @@ public class Lehman_CustomKOrder2 extends FactorAlgorithm {
 		for ( ; k <= K_MAX; k++) {
 			if (k%315==0) {
 				if (k%2==0) addToArray(k, 1); else addToArray(k, 0);
-			} else if (k%45==0 || k%63==0 || k%105==0) {
+			} else if (k%45==0 || k%105==0) {
 				if (k%2==0) addToArray(k, 2); else addToArray(k, 1);
-			} else if (k%15==0) {
+			} else if (k%15==0 || k%63==0) {
 				if (k%2==0) addToArray(k, 3); else addToArray(k, 2);
 			} else if (k%9==0 || k%21==0) {
 				if (k%2==0) addToArray(k, 4); else addToArray(k, 3);
