@@ -71,7 +71,7 @@ public class Lehman_CustomKOrder2 extends FactorAlgorithm {
 		for ( ; k <= K_MAX; k++) {
 			if (k%315==0 || k%495==0) {
 				addToArray(k, 0);
-			} else if (k%45==0 || k%105==0) {
+			} else if (k%45==0 || k%105==0) { // 75 is bad here
 				addToArray(k, 1);
 			} else if (k%15==0 || k%63==0) { // 27, 35, 99 are bad here
 				addToArray(k, 2);
