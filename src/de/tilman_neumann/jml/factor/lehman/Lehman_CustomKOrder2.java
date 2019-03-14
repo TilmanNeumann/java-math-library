@@ -86,7 +86,7 @@ public class Lehman_CustomKOrder2 extends FactorAlgorithm {
 		// very big multipliers need more k-values
 		int kMaxWithMultiplier = (int)(kLimitMultipliers[0]*K_MAX);
 		for (; k <=kMaxWithMultiplier; k++) {
-			if ((k%315==0 || k%495==0) && k%2==1) {
+			if (k%315==0 || k%495==0) {
 				addToArray(k, 0);
 			}
 		}
