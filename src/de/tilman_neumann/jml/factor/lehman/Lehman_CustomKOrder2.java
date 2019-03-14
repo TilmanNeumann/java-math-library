@@ -39,6 +39,7 @@ public class Lehman_CustomKOrder2 extends FactorAlgorithm {
 
 	private static final int K_MAX = 1<<20;
 	private static final int ARRAY_COUNT = 6;
+	private static final int MAX_ARRAY_INDEX = ARRAY_COUNT-1;
 
 	private final TDiv63Inverse tdiv = new TDiv63Inverse(K_MAX);
 
@@ -69,23 +70,23 @@ public class Lehman_CustomKOrder2 extends FactorAlgorithm {
 		int k = 1;
 		for ( ; k <= K_MAX; k++) {
 			if (k%315==0 || k%495==0) {
-				if (k%2==0) addToArray(k, 1); else addToArray(k, 0);
+				addToArray(k, refineArrayIndex(k, 0));
 			} else if (k%45==0 || k%105==0) {
-				if (k%2==0) addToArray(k, 2); else addToArray(k, 1);
+				addToArray(k, refineArrayIndex(k, 1));
 			} else if (k%15==0 || k%63==0) {
-				if (k%2==0) addToArray(k, 3); else addToArray(k, 2);
+				addToArray(k, refineArrayIndex(k, 2));
 			} else if (k%9==0 || k%21==0) {
-				if (k%2==0) addToArray(k, 4); else addToArray(k, 3);
+				addToArray(k, refineArrayIndex(k, 3));
 			} else if (k%3==0) {
-				if (k%2==0) addToArray(k, 5); else addToArray(k, 4);
+				addToArray(k, refineArrayIndex(k, 4));
 			} else {
-				addToArray(k, 5);
+				addToArray(k, refineArrayIndex(k, 5));
 			}
 		}
 		// very big multipliers need more k-values
 		int kMaxWithMultiplier = (int)(kLimitMultipliers[0]*K_MAX);
 		for (; k <=kMaxWithMultiplier; k++) {
-			if (k%315==0 & k%2==1) {
+			if ((k%315==0 || k%495==0) && k%2==1) {
 				addToArray(k, 0);
 			}
 		}
@@ -103,6 +104,12 @@ public class Lehman_CustomKOrder2 extends FactorAlgorithm {
 			System.arraycopy(sqrtInvs[i], 0, sqrtInvsTmp, 0, count);
 			sqrtInvs[i] = sqrtInvsTmp;
 		}
+	}
+
+	private int refineArrayIndex(int k, int baseIndex) {
+		int refinedIndex = baseIndex;
+		if (k%2==0) refinedIndex++; // even k perform slightly worse
+		return refinedIndex<MAX_ARRAY_INDEX ? refinedIndex : MAX_ARRAY_INDEX;
 	}
 
 	private void addToArray(int k, int arrayIndex) {
