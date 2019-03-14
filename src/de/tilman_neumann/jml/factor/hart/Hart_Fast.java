@@ -117,8 +117,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				k += K_MULT;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			// this may happen if this implementation is tested with doTDivFirst==false and N having
-			// factors < cbrt(N), or if N is too big
+			LOG.error("Hart_Fast: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
 			return 1;
 		}
 	}
