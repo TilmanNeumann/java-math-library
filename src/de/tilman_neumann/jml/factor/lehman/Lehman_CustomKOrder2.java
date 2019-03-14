@@ -68,7 +68,7 @@ public class Lehman_CustomKOrder2 extends FactorAlgorithm {
 		kArraySizes = new int[ARRAY_COUNT];
 		int k = 1;
 		for ( ; k <= K_MAX; k++) {
-			if (k%315==0) {
+			if (k%315==0 || k%495==0) {
 				if (k%2==0) addToArray(k, 1); else addToArray(k, 0);
 			} else if (k%45==0 || k%105==0) {
 				if (k%2==0) addToArray(k, 2); else addToArray(k, 1);
