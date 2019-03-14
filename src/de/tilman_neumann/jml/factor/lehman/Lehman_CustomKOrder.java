@@ -73,9 +73,9 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 				addToArray(k, refineArrayIndex(k, 0));
 			} else if (k%45==0 || k%105==0) {
 				addToArray(k, refineArrayIndex(k, 1));
-			} else if (k%15==0 || k%63==0) {
+			} else if (k%15==0 || k%63==0) { // 27, 35, 99 are bad here
 				addToArray(k, refineArrayIndex(k, 2));
-			} else if (k%9==0 || k%21==0) {
+			} else if (k%9==0 || k%21==0) { // 33 is bad here
 				addToArray(k, refineArrayIndex(k, 3));
 			} else if (k%3==0) {
 				addToArray(k, refineArrayIndex(k, 4));
