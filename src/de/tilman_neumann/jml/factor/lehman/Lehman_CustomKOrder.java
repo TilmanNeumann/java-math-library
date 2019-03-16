@@ -23,8 +23,8 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
 /**
- * A variant of Lehman's algorithm that allows to arrange the k's in arrays of different priorities.
- * Some multiples of k that work very well are 315, 45, 105, ..., 15, 9, 3, and are tested in that order.
+ * A variant of Lehman's algorithm that allows to arrange the k's in arrays of different "performance levels".
+ * k-values that perform very well like those divisible by 315 are tested before others that do not perform that well.
  * 
  * For large k we also use congruences of a == kN (mod 2^s) instead of Lehman's a == (k+N) (mod 2^s),
  * which seem to be slightly more discriminative.
