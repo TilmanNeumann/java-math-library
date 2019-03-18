@@ -36,6 +36,12 @@ import de.tilman_neumann.util.SortedMultiset;
  * PollardRhoBrentMontgomery64 for N < 58 bits, because until that size the performance advantage of 
  * mul63() vs. mul64() predominates the performance loss caused by errors in Montgomery multiplication.
  * 
+ * Another small performance gain stems from the choice of polynomials:
+ * x_(n+1) = x_n*(x_n + 1) is slightly faster than x_(n+1) = (x_n)^2 - c
+ *     because it does not need another Montgomery reduction after subtracting c.
+ * x_(n+1) = x_n*(x_n - 315) is another bit faster than x_(n+1) = x_n*(x_n + 1).
+ *     No idea why, except that 315=3^2*5*7 is very smooth and seems quite magic...
+ * 
  * @see [Richard P. Brent: An improved Monte Carlo Factorization Algorithm, 1980]
  * @see [http://projecteuler.chat/viewtopic.php?t=3776]
  * @see [http://coliru.stacked-crooked.com/a/f57f11426d06acd8]
@@ -90,14 +96,14 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
         	do {
 	    	    x = y;
 	    	    for (int i=r; i>0; i--) {
-	    	        y = montgomeryMult(y, y+1);
+	    	        y = montgomeryMult(y, y-315);
 	    	    }
 	    	    int k = 0;
 	    	    do {
 	    	        ys = y;
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=iMax; i>0; i--) {
-	    	            y = montgomeryMult(y, y+1);
+	    	            y = montgomeryMult(y, y-315);
 	    	            final long diff = x<y ? y-x : x-y;
 	    	            q = montgomeryMult(diff, q);
 	    	        }
@@ -111,7 +117,7 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 	    	} while (G==1);
 	    	if (G==N) {
 	    	    do {
-	    	        ys = montgomeryMult(ys, ys+1);
+	    	        ys = montgomeryMult(ys, ys-315);
     	            final long diff = x<ys ? ys-x : x-ys;
 	    	        G = gcd.gcd(diff, N);
 	    	    } while (G==1);
