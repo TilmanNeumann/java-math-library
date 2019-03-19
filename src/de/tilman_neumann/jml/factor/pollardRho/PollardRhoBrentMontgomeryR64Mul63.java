@@ -38,7 +38,7 @@ import de.tilman_neumann.util.SortedMultiset;
  * 
  * Another small performance gain stems from the choice of polynomials:
  * x_(n+1) = x_n*(x_n + 1) is slightly faster than x_(n+1) = (x_n)^2 - c
- * because it does not need another Montgomery reduction after subtracting c.
+ * because it does not need another reduction (mod N) after subtracting c.
  * 
  * @see [Richard P. Brent: An improved Monte Carlo Factorization Algorithm, 1980]
  * @see [http://projecteuler.chat/viewtopic.php?t=3776]
