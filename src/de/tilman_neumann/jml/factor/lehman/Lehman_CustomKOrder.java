@@ -205,7 +205,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 			}
 		}
 
-		// big k: use improved congruences congruences a == (k*N) (mod 2^s)
+		// big k: use improved congruences a == (k*N) (mod 2^s)
 		for ( ; (k = kArray[i])<kLimit; i++) { // XXX may throw ArrayIndexOutOfBoundsException if N or kLimit are too big
 			long kN = k*N;
 			long a = (long) (sqrt4N * sqrts[i] + ROUND_UP_DOUBLE);
