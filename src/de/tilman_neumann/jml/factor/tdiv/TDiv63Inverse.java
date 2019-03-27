@@ -36,6 +36,9 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * Assuming that we want to identify "near integers" with a precision of 2^-d.
  * Then the approach works for primes p if bitLength(p) >= bitLength(N) - 53 + d.
  * 
+ * For some unknown reason, storing and reusing the quotient q = (long) (N*r + DISCRIMINATOR)
+ * only helps in TDiv31Inverse but not in TDiv63Inverse.
+ * 
  * @authors Thilo Harich + Tilman Neumann
  */
 public class TDiv63Inverse extends FactorAlgorithm {
