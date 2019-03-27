@@ -189,7 +189,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				k += K_MULT;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			LOG.error("Hart_TDiv_Race: Failed to factor N=" + N + " because the arrays are too small.");
+			//LOG.error("Hart_TDiv_Race: Failed to factor N=" + N + " because the arrays are too small.");
 			return 1;
 		}
 	}
