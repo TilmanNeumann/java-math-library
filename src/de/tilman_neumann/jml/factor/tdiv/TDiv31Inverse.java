@@ -66,13 +66,14 @@ public class TDiv31Inverse extends FactorAlgorithm {
 		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
 		int N = Nbig.intValue();
 		
+		int q;
 		for (int i=0; ; i++) {
 			double r = reciprocals[i];
 			int p = primes[i];
 			int exp = 0;
-			while ((int) (N*r + DISCRIMINATOR) * p == N) {
+			while ((q = (int) (N*r + DISCRIMINATOR)) * p == N) {
 				exp++;
-				N /= p;
+				N = q; // avoiding a division here by storing q benefits the int version but not the long version
 			}
 			if (exp>0) {
 				primeFactors.add(BigInteger.valueOf(p), exp);
