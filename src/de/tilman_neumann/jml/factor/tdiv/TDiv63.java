@@ -17,6 +17,8 @@ import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
+import de.tilman_neumann.util.SortedMultiset;
+import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 /**
  * Trial division factor algorithm using the safe AutoExpandingPrimesArray class.
@@ -41,6 +43,32 @@ public class TDiv63 extends FactorAlgorithm {
 	 */
 	public void setTestLimit(int pLimit) {
 		this.pLimit = pLimit;
+	}
+
+	@Override
+	public SortedMultiset<BigInteger> factor(BigInteger Nbig) {
+		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
+		long N = Nbig.longValue();
+		
+		for (int i=0; ; i++) {
+			int p = SMALL_PRIMES.getPrime(i);
+			if (N%p == 0) {
+				int exp = 0;
+				do {
+					exp++;
+					N = N/p;
+				} while (N%p == 0);
+				primeFactors.add(BigInteger.valueOf(p), exp);
+			}
+			if (p*(long)p > N) {
+				break;
+			}
+		}
+		
+		if (N>1) {
+			primeFactors.add(BigInteger.valueOf(N));
+		}
+		return primeFactors;
 	}
 
 	@Override
