@@ -1,26 +1,19 @@
 # java-math-library
 
-This library is focused on number theory, but not necessarily limited to it.
+This library is quite focused on number theory, but not necessarily limited to it.
 It is based on PSIQS 4.0 and as such provides some pretty good methods for integer factorization.
 If you are interested in factoring then have a look at the following classes:
-* TDiv31Inverse
-* TDiv63Inverse
-* Hart_Fast
-* Hart\_TDiv\_Race
-* Lehman_Fast
-* SquFoF31Preload
-* SquFoF63
-* PollardRhoBrentMontgomeryR64Mul63
-* PollardRhoBrentMontgomery64
-* PollardRhoBrent
-* CFrac63
-* CFrac
-* SIQS (single-threaded)
-* PSIQS (multi-threaded)
-* PSIQS_U (multi-threaded, using sun.misc.Unsafe)
+* TDiv31Inverse, TDiv63Inverse
+* Hart_Fast, Hart\_TDiv\_Race
+* Lehman_CustomKOrder
+* SquFoF31Preload, SquFoF63
+* PollardRhoBrentMontgomeryR64Mul63, PollardRhoBrentMontgomery64, PollardRhoBrent
+* CFrac63, CFrac
+* SIQS (single-threaded), PSIQS (multi-threaded), PSIQS_U (multi-threaded, using sun.misc.Unsafe)
 
 The factoring methods are used as well to implement a fast sumOfDivisors() function.
 Other noteworthy parts of this library are sqrt(), nth_root(), ln() and exp() functions for BigDecimals.
+
 More special contents are a fast generator for the partitions of multipartite numbers and 
 implementations of smooth number sequences like CANs (colossally abundant numbers) and SHCNs (superior highly composite numbers).
 
@@ -49,14 +42,14 @@ There is no documentation and no support, so you should be ready to start explor
 
 ## Remarks
 
-The quadratic sieve is still missing a good small factor test algorithm like ECM.
-So it will be quite efficient for inputs having few small factors (in particular semiprimes),
+The quadratic sieve is still lacking the integration of ECM when it would be useful.
+So it will be quite efficient only for inputs having few small factors (in particular semiprimes),
 but not when the number of small prime factors is large.
 
 
 ## Authors
 
- **Tilman Neumann** - *Initial work*
+ **Tilman Neumann**
 
 
 ## License
