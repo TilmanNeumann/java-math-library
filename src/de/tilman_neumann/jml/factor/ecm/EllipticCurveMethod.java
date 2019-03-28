@@ -214,10 +214,10 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		long[] A02 = new long[NLen];
 		long[] A03 = new long[NLen];
 		long[] AA = new long[NLen];
-		long[] DX = new long[NLen];
-		long[] DZ = new long[NLen];
-		long[] GD = new long[NLen];
-		long[] M = new long[NLen];
+		long[] DX = new long[NLen]; // zero-init required
+		long[] DZ = new long[NLen]; // zero-init required
+		long[] GD = new long[NLen]; // zero-init required
+		long[] M = new long[NLen]; // zero-init required
 		long[] TX = new long[NLen];
 		fieldTX = TX;
 		long[] TZ = new long[NLen];
@@ -228,8 +228,8 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		fieldUZ = UZ;
 		long[] W1 = new long[NLen];
 		long[] W2 = new long[NLen];
-		long[] W3 = new long[NLen];
-		long[] W4 = new long[NLen];
+		long[] W3 = new long[NLen]; // zero-init required
+		long[] W4 = new long[NLen]; // zero-init required
 		long[] WX = new long[NLen];
 		long[] WZ = new long[NLen];
 		long[] X = new long[NLen];
@@ -253,9 +253,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		fieldAA = AA;
 		BigNbrToBigInt(N); // converts BigInteger N into TestNbr and NumberLength
 		GetMontgomeryParms();
-		for (I = 0; I < NumberLength; I++) {
-			M[I] = DX[I] = DZ[I] = W3[I] = W4[I] = GD[I] = 0; // XXX these arrays are zero-initialized anyway
-		}
 		
 		// it seems to be faster not to repeat previously tested curves for new factors
 		EC--;
