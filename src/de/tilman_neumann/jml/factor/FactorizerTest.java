@@ -34,7 +34,7 @@ import de.tilman_neumann.jml.factor.lehman.*;
 import de.tilman_neumann.jml.factor.pollardRho.*;
 import de.tilman_neumann.jml.factor.psiqs.*;
 import de.tilman_neumann.jml.factor.siqs.*;
-import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
+import de.tilman_neumann.jml.factor.siqs.poly.*;
 import de.tilman_neumann.jml.factor.siqs.poly.baseFilter.*;
 import de.tilman_neumann.jml.factor.siqs.powers.*;
 import de.tilman_neumann.jml.factor.siqs.sieve.*;
@@ -223,6 +223,7 @@ public class FactorizerTest {
 				if (bits>60 && algName.startsWith("Lehman")) continue;
 				if (bits>31 && algName.startsWith("TDiv31")) continue; // int implementation
 				if (bits>31 && algName.startsWith("PollardRho31")) continue; // long implementation
+				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
 				
 				System.gc(); // create equal conditions for all algorithms
 
