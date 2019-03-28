@@ -20,7 +20,7 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Releases
 
-* v0.9.9.3: Added Hart's "on line factorizer"; simplified FactorAlgorithm type hierarchy.
+* v0.9.9.3: Added Hart's "one line factorizer"; simplified FactorAlgorithm type hierarchy.
 * v0.9.9: Significantly faster trial division and Pollard-Rho.
 * v0.9.8: Fixed bug in SquFoF for N not coprime with multipliers.
 * v0.9.6: New Pollard-Rho-Brent implementation with Montgomery multiplication in longs;
