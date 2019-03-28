@@ -83,7 +83,6 @@ public class FactorizerTest {
 
 			// Trial division
 			//new TDiv31(),
-			//new TDiv31Preload(),
 			new TDiv31Inverse(), // Fastest algorithm for N <= 24 bit
 //			new TDiv63Inverse(1<<21),
 			
@@ -99,7 +98,7 @@ public class FactorizerTest {
 			//new Lehman_Smith(false),
 			new Lehman_Fast(false), // the variant implemented by bsquared
 //			new Lehman_Fast(true),
-			new Lehman_CustomKOrder(false), // best for moderate semiprimes from 40 to 50 bit
+			new Lehman_CustomKOrder(false), // best algorithm for semiprimes not having factors < cbrt(N) at 40 to 50 bit
 
 			// PollardRho
 			//new PollardRho(),
