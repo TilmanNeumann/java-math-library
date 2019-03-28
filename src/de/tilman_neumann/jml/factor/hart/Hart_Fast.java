@@ -28,9 +28,9 @@ import de.tilman_neumann.util.ConfigUtil;
  * The main problem with this implementation is that we need to know to nature of test numbers.
  * With doTDivFirst=false it is the fastest algorithm for hard semiprimes,
  * but if the test numbers contain factors < cbrt(N), it will fail to find some of them.
- * Hart_TDiv_Race fixes that problem and will be faster for any kind of test numbers except hard semiprimes.
+ * With doTDivFirst=true it will find all factors of any kind of numbers, but not extraordinarily fast.
  * 
- * With doTDivFirst=true it will find all factors of any kind of numbers but not extraordinarily fast.
+ * Hart_TDiv_Race fixes that problem and is faster for test numbers that contain factors < cbrt(N).
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
