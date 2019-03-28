@@ -251,7 +251,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		int i, j, u;
 
 		fieldAA = AA;
-		BigNbrToBigInt(N);
+		BigNbrToBigInt(N); // converts BigInteger N into TestNbr and NumberLength
 		GetMontgomeryParms();
 		for (I = 0; I < NumberLength; I++) {
 			M[I] = DX[I] = DZ[I] = W3[I] = W4[I] = GD[I] = 0; // XXX these arrays are zero-initialized anyway
@@ -1393,6 +1393,10 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		return true;
 	}
 
+	/**
+	 * Converts BigInteger N into {TestNbr, NumberLength}.
+	 * @param N
+	 */
 	private void BigNbrToBigInt(BigInteger N) {
 		byte[] Result;
 		long[] Temp;
