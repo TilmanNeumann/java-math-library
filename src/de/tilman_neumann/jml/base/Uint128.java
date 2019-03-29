@@ -92,18 +92,10 @@ public class Uint128 {
 		final long med_term = med_prod1 + med_prod2;
 		final long hi_prod = x_hi * y_hi;
 		
-		// the medium term could overflow
-		boolean carry = (med_prod1<0) && (med_prod2<0);
-		if (!carry) {
-			boolean checkCarry = (med_prod1<0) || (med_prod2<0);
-			if (checkCarry && med_term>=0) {
-				carry = true;
-			}
-		}
-		
+		// the medium term could overflow		
 		long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
-		if (carry) r_hi += 1L<<32;
-		long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		if ((med_prod1<0 && med_prod2<0) || ((med_prod1<0 || med_prod2<0) && med_term>=0)) r_hi += 1L<<32;
+		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
 		return new Uint128(r_hi, r_lo);
 	}
 
