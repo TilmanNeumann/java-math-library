@@ -23,16 +23,9 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Pretty simple yet fast variant of Hart's one line factorizer.
+ * Analyze until which s we obtain test == "some square" (mod 2^s).
  * 
- * The main problem with this implementation is that we need to know to nature of test numbers.
- * With doTDivFirst=false it is the fastest algorithm for hard semiprimes,
- * but if the test numbers contain factors < cbrt(N), it will fail to find some of them.
- * Hart_TDiv_Race fixes that problem and will be faster for any kind of test numbers except hard semiprimes.
- * 
- * With doTDivFirst=true it will find all factors of any kind of numbers but not extraordinarily fast.
- * 
- * @authors Thilo Harich & Tilman Neumann
+ * @author Tilman Neumann
  */
 public class Hart_AnalyzeSquareCongruences extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_AnalyzeSquareCongruences.class);
