@@ -137,22 +137,14 @@ public class Uint128 {
 		// We know for sure that low overflows if both low and o_lo are 64 bit.
 		// If only one of the input 'low's is 64 bit, then we can recognize an overflow
 		// if the result.lo is not 64 bit.
-		long o_lo = other.getLow();
-		long o_hi = other.getHigh();
-		boolean sureCarry = (low<0) && (o_lo<0);
+		final long o_lo = other.getLow();
+		final long o_hi = other.getHigh();
+		final long r_lo = low + o_lo;
 		long r_hi = high + o_hi;
-		long r_lo = low + o_lo;
-		if (sureCarry) {
-			r_hi++;
-		} else {
-			boolean checkCarry = (low<0) || (o_lo<0);
-			if (checkCarry && r_lo >= 0) {
-				r_hi++;
-			}
-		}
+		if ((low<0 && o_lo<0) || ((low<0 || o_lo<0) && (r_lo >= 0))) r_hi++;
 		return new Uint128(r_hi, r_lo);
 	}
-	
+
 	/**
 	 * Compute the sum of this and other, return the high part.
 	 * @param other
@@ -162,20 +154,10 @@ public class Uint128 {
 		// We know for sure that low overflows if both low and o_lo are 64 bit.
 		// If only one of the input 'low's is 64 bit, then we can recognize an overflow
 		// if the result.lo is not 64 bit.
-		long o_lo = other.getLow();
-		long o_hi = other.getHigh();
-		boolean sureCarry = (low<0) && (o_lo<0);
-		long r_hi = high + o_hi;
-		if (sureCarry) {
-			r_hi++;
-		} else {
-			boolean checkCarry = (low<0) || (o_lo<0);
-			long r_lo = low + o_lo;
-			if (checkCarry && r_lo >= 0) {
-				r_hi++;
-			}
-		}
-		return r_hi;
+		final long o_lo = other.getLow();
+		final long o_hi = other.getHigh();
+		final long r_hi = high + o_hi;
+		return ((low<0 && o_lo<0) || ((low<0 || o_lo<0) && (low + o_lo >= 0))) ? r_hi+1 : r_hi;
 	}
 
 	/**
