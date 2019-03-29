@@ -3,13 +3,21 @@
 This library is quite focused on number theory, but not necessarily limited to it.
 It is based on PSIQS 4.0 and as such provides some pretty good methods for integer factorization.
 If you are interested in factoring then have a look at the following classes:
-* TDiv31Inverse, TDiv63Inverse
-* Hart_Fast, Hart\_TDiv\_Race
+* TDiv31Inverse
+* TDiv63Inverse
+* Hart\_Fast
+* Hart\_TDiv\_Race
 * Lehman_CustomKOrder
-* SquFoF31Preload, SquFoF63
-* PollardRhoBrentMontgomeryR64Mul63, PollardRhoBrentMontgomery64, PollardRhoBrent
-* CFrac63, CFrac
-* SIQS (single-threaded), PSIQS (multi-threaded), PSIQS_U (multi-threaded, using sun.misc.Unsafe)
+* SquFoF31Preload
+* SquFoF63
+* PollardRhoBrentMontgomeryR64Mul63
+* PollardRhoBrentMontgomery64
+* PollardRhoBrent
+* CFrac63
+* CFrac
+* SIQS (single-threaded)
+* PSIQS (multi-threaded)
+* PSIQS_U (multi-threaded, using sun.misc.Unsafe)
 
 The factoring methods are used as well to implement a fast sumOfDivisors() function.
 Other noteworthy parts of this library are sqrt(), nth_root(), ln() and exp() functions for BigDecimals.
