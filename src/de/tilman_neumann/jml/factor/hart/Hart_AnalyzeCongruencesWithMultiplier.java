@@ -27,7 +27,9 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Analyze the congruences best matching Hart's one-line factor algorithm when tested with 4kN values.
+ * Analyze the congruences best matching Hart's one-line factor algorithm when tested with 4kN values,
+ * where k are multiples of some K_MULT.
+ * 
  * @author Tilman Neumann
  */
 public class Hart_AnalyzeCongruencesWithMultiplier extends FactorAlgorithm {
