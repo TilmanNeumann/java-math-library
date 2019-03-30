@@ -83,10 +83,12 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 				addToArray(k, 5);
 			}
 		}
-		// very big multipliers need more k-values
+		
+		// Add more k-values for the best multiplier.
+		// Including k%495==0 or k%1155==0 seems to be a performance penalty.
 		int kMaxWithMultiplier = (int)(kLimitMultipliers[0]*K_MAX);
 		for (; k <=kMaxWithMultiplier; k++) {
-			if (k%315==0 || k%495==0) {
+			if (k%315==0) {
 				addToArray(k, 0);
 			}
 		}
