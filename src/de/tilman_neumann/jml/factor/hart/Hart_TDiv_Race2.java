@@ -25,13 +25,13 @@ import de.tilman_neumann.util.ConfigUtil;
 /**
  * A factoring algorithm racing Hart's one line factorizer against trial division.
  * 
- * This variant is faster than Hart_TDiv_Race for N >= 45 bits, but will fail for some N having small factors.
+ * This variant is slightly faster than Hart_TDiv_Race for N >= 45 bits, but will fail for some N having small factors.
  * Hart_Fast is faster for hard semiprimes.
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
-public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Hart_TDiv_Race_Unsafe.class);
+public class Hart_TDiv_Race2 extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Hart_TDiv_Race2.class);
 	
 	/**
 	 * We only test k-values that are multiples of this constant.
@@ -58,7 +58,7 @@ public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 	/**
 	 * Full constructor.
 	 */
-	public Hart_TDiv_Race_Unsafe() {
+	public Hart_TDiv_Race2() {
 		sqrt = new double[I_MAX];
 		primes = new int[I_MAX];
 		reciprocals = new double[I_MAX];
@@ -72,7 +72,7 @@ public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "Hart_TDiv_Race_Unsafe";
+		return "Hart_TDiv_Race2";
 	}
 
 	@Override
@@ -89,14 +89,19 @@ public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 		int Nbits = 64-Long.numberOfLeadingZeros(N);
 		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
 		
-		long fourN = N<<2;
-		double sqrt4N = Math.sqrt(fourN);
-		long a,b,test;
+		// test for exact squares
+		final double sqrtN = Math.sqrt(N);
+		final long floorSqrtN = (long) sqrtN;
+		if (floorSqrtN*floorSqrtN == N) return floorSqrtN;
+		
+		final long fourN = N<<2;
+		final double sqrt4N = sqrtN*2;
+		long a, b, test;
 		int k = K_MULT;
 		try {
 			int i=1;
 			if (pMinBits>0) {
-				// For the smallest primes we must do standard trial division.
+				// For the smallest primes we do standard trial division.
 				// This seems to be not necessary for correctness, but to give a small speedup.
 				int pMin = 1<<pMinBits;
 				for ( ; primes[i]<pMin; ) {
@@ -280,12 +285,25 @@ public class Hart_TDiv_Race_Unsafe extends FactorAlgorithm {
 				
 				// problems found by Thilo
 				35184372094495L,
-				893, // XXX fail
-				35, // XXX fail
-				9
+				893, // FAILS with doTDivFirst==false
+				35, // FAILS with doTDivFirst==false
+				9,
+				
+				// squares
+				100140049,
+				10000600009L,
+				1000006000009L,
+				6250045000081L,
+				10890006600001L,
+				14062507500001L,
+				25000110000121L,
+				100000380000361L,
+				// the following N require an explicit square test
+				10000001400000049L,
+				1000000014000000049L,
 			};
 		
-		Hart_TDiv_Race_Unsafe holf = new Hart_TDiv_Race_Unsafe();
+		Hart_TDiv_Race2 holf = new Hart_TDiv_Race2();
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);

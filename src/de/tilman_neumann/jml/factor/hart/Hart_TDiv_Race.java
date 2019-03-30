@@ -26,8 +26,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * A factoring algorithm racing Hart's one line factorizer against trial division.
  * 
  * This is the fastest algorithm for test numbers <= 44 bit when their nature is unknown.
- * Hart_TDiv_Race_Unsafe is faster for moderate semiprimes N >= 45 bit.
- * Hart_Fast is faster for hard semiprimes.
+ * Hart_Fast is faster for semiprimes that do not have factors < cbrt(N).
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
@@ -90,8 +89,13 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 		int Nbits = 64-Long.numberOfLeadingZeros(N);
 		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
 		
-		long fourN = N<<2;
-		double sqrt4N = Math.sqrt(fourN);
+		// test for exact squares
+		final double sqrtN = Math.sqrt(N);
+		final long floorSqrtN = (long) sqrtN;
+		if (floorSqrtN*floorSqrtN == N) return floorSqrtN;
+		
+		final long fourN = N<<2;
+		final double sqrt4N = sqrtN*2;
 		long a, b, test, gcd;
 		int k = K_MULT;
 		try {
@@ -290,7 +294,20 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				35184372094495L,
 				893, // works
 				35, // works
-				9
+				9,
+				
+				// squares
+				100140049,
+				10000600009L,
+				1000006000009L,
+				6250045000081L,
+				10890006600001L,
+				14062507500001L,
+				25000110000121L,
+				100000380000361L,
+				// the following N require an explicit square test
+				10000001400000049L,
+				1000000014000000049L,
 			};
 		
 		Hart_TDiv_Race holf = new Hart_TDiv_Race();

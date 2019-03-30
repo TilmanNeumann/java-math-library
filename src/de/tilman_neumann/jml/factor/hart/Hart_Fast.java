@@ -91,8 +91,13 @@ public class Hart_Fast extends FactorAlgorithm {
 			if (factor > 1) return factor;
 		} // else: if there are factors < cbrt(N) then some of them may not be found
 		
+		// test for exact squares
+		final double sqrtN = Math.sqrt(N);
+		final long floorSqrtN = (long) sqrtN;
+		if (floorSqrtN*floorSqrtN == N) return floorSqrtN;
+		
 		final long fourN = N<<2;
-		final double sqrt4N = Math.sqrt(fourN);
+		final double sqrt4N = sqrtN*2;
 		long a, b, test, gcd;
 		int k = K_MULT;
 		try {
@@ -118,7 +123,6 @@ public class Hart_Fast extends FactorAlgorithm {
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			//LOG.error("Hart_Fast: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
-			// TODO Or N is square
 			return 1;
 		}
 	}
@@ -210,11 +214,11 @@ public class Hart_Fast extends FactorAlgorithm {
 				2017001503,
 				3084734169L,
 				6700794123L,
-				16032993843L, // = 3 * 5344331281 (34 bit number), fail with doTDivFirst==false
+				16032993843L, // = 3 * 5344331281 (34 bit number), FAILS with doTDivFirst==false
 				26036808587L,
-				41703657595L, // = 5 * 8340731519 (36 bit number), fail with doTDivFirst==false
+				41703657595L, // = 5 * 8340731519 (36 bit number), FAILS with doTDivFirst==false
 				68889614021L,
-				197397887859L, // = 3^2 * 21933098651 (38 bit number), fail with doTDivFirst==false
+				197397887859L, // = 3^2 * 21933098651 (38 bit number), FAILS with doTDivFirst==false
 				
 				2157195374713L,
 				8370014680591L,
@@ -234,7 +238,20 @@ public class Hart_Fast extends FactorAlgorithm {
 				35184372094495L,
 				893, // works
 				35, // works
-				9 // works
+				9, // works
+				
+				// squares
+				100140049,
+				10000600009L,
+				1000006000009L,
+				6250045000081L,
+				// with doTDivFirst==false, the following N require an explicit square test
+				10890006600001L,
+				14062507500001L,
+				25000110000121L,
+				100000380000361L,
+				10000001400000049L,
+				1000000014000000049L,
 			};
 		
 		Hart_Fast holf = new Hart_Fast(false);
