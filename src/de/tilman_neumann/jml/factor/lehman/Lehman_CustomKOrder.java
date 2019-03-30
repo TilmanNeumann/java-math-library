@@ -38,7 +38,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
 	private static final int K_MAX = 1<<20;
-	private static final int ARRAY_COUNT = 6;
+	private static final int ARRAY_COUNT = 7;
 	private static final int MAX_ARRAY_INDEX = ARRAY_COUNT-1;
 
 	private final TDiv63Inverse tdiv = new TDiv63Inverse(K_MAX);
@@ -47,7 +47,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	private double[][] sqrtInvs;
 	private int[][] kArrays;
 	private int[] kArraySizes;
-	private static final float[] kLimitMultipliers = new float[] {16, 1, 1, 1, 1, 1};
+	private static final float[] kLimitMultipliers = new float[] {16, 1, 1, 1, 1, 1, 1};
 
 	private long N;
 	private long fourN;
@@ -79,8 +79,10 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 				addToArray(k, 3);
 			} else if (k%3==0) {
 				addToArray(k, 4);
-			} else {
+			} else if (k%5==0) {
 				addToArray(k, 5);
+			} else {
+				addToArray(k, 6);
 			}
 		}
 		
