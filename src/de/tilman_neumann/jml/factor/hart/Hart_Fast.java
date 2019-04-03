@@ -61,7 +61,7 @@ public class Hart_Fast extends FactorAlgorithm {
 	 */
 	public Hart_Fast(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
-		// Precompute sqrts for all k < I_MAX
+		// Precompute sqrt(i*K_MULT) for all i < I_MAX
 		sqrt = new double[I_MAX];
 		for (int i=1; i<I_MAX; i++) {
 			sqrt[i] = Math.sqrt(i*K_MULT);
