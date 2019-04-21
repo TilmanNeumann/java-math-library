@@ -35,7 +35,6 @@ import de.tilman_neumann.jml.factor.siqs.KnuthSchroeppel;
 import de.tilman_neumann.jml.factor.siqs.ModularSqrtsEngine;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
-import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
 import de.tilman_neumann.jml.factor.siqs.poly.PolyReport;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
@@ -93,18 +92,18 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	 * Standard constructor.
 	 * @param Cmult multiplier for prime base size
 	 * @param Mmult multiplier for sieve array size
-	 * @param wantedQCount hypercube dimension (null for automatic selection)
 	 * @param maxQRestExponent A Q with unfactored rest QRest is considered smooth if QRest <= N^maxQRestExponent.
 	 *                         Good values are 0.16..0.19; null means that it is determined automatically.
 	 * @param numberOfThreads
 	 * @param d the d-parameter of quadratic polynomials Q(x) = (d*a*x + b)^2 - kN; may be null for automatic derivation
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param matrixSolver solver for smooth congruences matrix
+	 * @param apg a-parameter generator
 	 * @param profile
 	 */
 	public PSIQSBase(
-			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, int numberOfThreads, Integer d,
-			PowerFinder powerFinder, MatrixSolver matrixSolver, boolean profile) {
+			float Cmult, float Mmult, Float maxQRestExponent, int numberOfThreads, Integer d,
+			PowerFinder powerFinder, MatrixSolver matrixSolver, AParamGenerator apg, boolean profile) {
 		
 		this.Cmult = Cmult;
 		this.Mmult = Mmult;
@@ -115,7 +114,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		this.congruenceCollector = new CongruenceCollector();
 		this.extraCongruences = 10;
 		this.solverController = new SmoothSolverController(matrixSolver);
-		this.apg = new AParamGenerator01(wantedQCount);
+		this.apg = apg;
 		this.multiplierFinder = new KnuthSchroeppel();
 		this.profile = profile;
 	}

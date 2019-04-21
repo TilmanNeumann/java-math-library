@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
+import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 
@@ -44,7 +45,7 @@ public class PSIQS_U extends PSIQSBase {
 			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, int numberOfThreads,
 			PowerFinder powerFinder, MatrixSolver matrixSolver, boolean profile) {
 		
-		super(Cmult, Mmult, wantedQCount, maxQRestExponent, numberOfThreads, null, powerFinder, matrixSolver, profile);
+		super(Cmult, Mmult, maxQRestExponent, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount), profile);
 	}
 
 	@Override
