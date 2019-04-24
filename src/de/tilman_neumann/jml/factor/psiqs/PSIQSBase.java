@@ -129,6 +129,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		Timer timer = new Timer(); // start timer
 		long powerTestDuration = 0;
 		long initNDuration = 0;
+		long createThreadDuration = 0;
 		long ccDuration = 0;
 		long solverDuration = 0;
 		long solverRunCount = 0;
@@ -221,14 +222,16 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 		// Find and add powers to the prime base
 		BaseArrays baseArrays = powerFinder.addPowers(kN, primesArray, tArray, logPArray, primeBaseSize, sieveParams);
-		
-		// create and run threads
+		if (profile) initNDuration += timer.capture();
+
+		// Create and run threads: This is among the most expensive parts for N<=180 bit,
+		// much more expensive than all the other initializations for a new N.
 		PSIQSThreadBase[] threadArray = new PSIQSThreadBase[numberOfThreads];
 		for (int threadIndex=0; threadIndex<numberOfThreads; threadIndex++) {
 			threadArray[threadIndex] = createThread(k, N, kN, d, sieveParams, baseArrays, apg, aqPairBuffer, threadIndex, profile);
 			threadArray[threadIndex].start();
 		}
-		if (profile) initNDuration += timer.capture();
+		if (profile) createThreadDuration += timer.capture();
 
 		try {
 			while (true) { // as long as we didn't find a factor
@@ -301,7 +304,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 					LOG.info("        " + ccReport.getSmoothQSignCounts());
 				}
 				LOG.info("    #solverRuns = " + solverRunCount + ", #tested null vectors = " + solverController.getTestedNullVectorCount());
-				LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + ccDuration + "ms, solver=" + solverDuration + "ms");
+				LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, createThreads=" + createThreadDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + ccDuration + "ms, solver=" + solverDuration + "ms");
 				LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(numberOfThreads));
 				LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(numberOfThreads));
 				// TDiv, CC and solver have no sub-timings yet
