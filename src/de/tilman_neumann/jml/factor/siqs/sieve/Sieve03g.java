@@ -99,7 +99,7 @@ public class Sieve03g implements Sieve {
 		int pMax = sieveParams.pMax;
 		initializer = sieveParams.getInitializerBlock();
 
-		// Allocate sieve array: Typically SIQS adjusts such that 2.75 * sieveArraySize ~ pMax.
+		// Allocate sieve array: Typically SIQS adjusts such that pMax/sieveArraySize = 2.5 to 5.0.
 		// For large primes with 0 or 1 sieve locations we need to allocate pMax+1 entries;
 		// For primes p[i], i<p1Index, we need p[i]+sieveArraySize = 2*sieveArraySize entries.
 		this.sieveArraySize = sieveParams.sieveArraySize;
