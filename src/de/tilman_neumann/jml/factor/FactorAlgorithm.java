@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.SortedMultiset;
@@ -118,6 +119,12 @@ abstract public class FactorAlgorithm {
 			
 			// TODO For large N with many "middle-size" prime factors, an advanced small factor test
 			// like ECM or parallel Pollard-Rho would be nice here.
+			EllipticCurveMethod ecm = new EllipticCurveMethod();
+			BigInteger factor = ecm.findSingleFactor(N); // TODO limit computation time
+			if (factor.compareTo(I_1)>0 && factor.compareTo(N)<0) {
+				LOG.debug("Ecm found factor " + factor + " of N=" + N);
+				// TODO
+			}
 		}
 		
 		// N contains larger factors...
