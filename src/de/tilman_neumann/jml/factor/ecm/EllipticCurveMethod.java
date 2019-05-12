@@ -264,7 +264,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				if (L1 > 30 && L1 <= 90) // If between 30 and 90 digits...
 				{
 					int limit = limits[((int) L1 - 31) / 5];
-					if (EC % 50000000 >= limit) {
+					if (EC >= limit) {
 						EC += 1;
 						return I_1;
 					}
