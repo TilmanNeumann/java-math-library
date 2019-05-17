@@ -37,6 +37,7 @@ import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.assertFalse;
 
 /**
  * <p>Use Elliptic Curve Method to find the prime number factors of a given BigInteger.</p>
@@ -61,7 +62,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	/** 1 as "BigNbr" */
 	private static final long BigNbr1[] = new long[NLen];
 
-	/** ECM limits for 30, 35, ..., 85 digits */
+	/** maximum number of elliptic curves tested for 30, 35, ..., 85, 90 digits */
 	private static final int limits[] = { 5, 8, 15, 25, 27, 32, 43, 70, 150, 300, 350, 600, 1500 };
 	
 	/** Primes < 5000 */
@@ -260,13 +261,12 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		do {
 			new_curve: do {
 				EC++;
-				L1 = N.toString().length(); // Get number of digits.
-				if (L1 > 30 && L1 <= 90) // If between 30 and 90 digits...
-				{
-					int limit = limits[((int) L1 - 31) / 5];
+				int digitsOfN = N.toString().length(); // Get number of digits.
+				if (digitsOfN > 30 && digitsOfN <= 90) { // If between 30 and 90 digits...
+					int limit = limits[((int) digitsOfN - 31) / 5];
 					if (EC >= limit) {
 						EC += 1;
-						return I_1;
+						return I_1; // stop ECM
 					}
 				}
 				L1 = 2000;
@@ -599,6 +599,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 					}
 				} /* end for Pass */
 			} while (true); /* end curve calculation */
+			assertFalse(BigNbrAreEqual(GD, TestNbr));
 		} while (BigNbrAreEqual(GD, TestNbr) == true);
 		// System.out.println("");
 		// StepECM = 0; /* do not show pass number on screen */
