@@ -264,6 +264,8 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			if (DEBUG) {
 				LOG.debug("qArray = " + Arrays.toString(qArray));
 				LOG.debug("t = " + t + ", ql = " + ql + ", a_div_ql_modInv_ql = " + a_div_ql_modInv_ql + ", gamma = " + gamma + ", Bl = " + Bl);
+				assertTrue(gamma >= 0);
+				assertTrue(gamma <= ql/2);
 				assertEquals(a_div_ql.modInverse(ql_big).longValue(), a_div_ql_modInv_ql);
 				assertTrue(Bl.compareTo(I_0) >= 0);
 				assertEquals(I_0, Bl.multiply(Bl).subtract(kN).mod(ql_big));
