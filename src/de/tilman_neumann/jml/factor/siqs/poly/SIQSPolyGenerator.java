@@ -421,25 +421,20 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				x2Array[pIndex] = x2>=p ? x2-p : x2;
 			} // end for (primes)
 		}
-		if (DEBUG) debugNextXArrays(v);
-	}
-
-	private void debugNextXArrays(int v) {
-		int[] filteredPowers = solutionArrays.powers;
-		int[][] Bainv2Array = solutionArrays.Bainv2Array;
-		int[] x1Array = solutionArrays.x1Array;
-		int[] x2Array = solutionArrays.x2Array;
-		for (int pIndex=filteredBaseSize-1; pIndex>0; pIndex--) {
-			int p = filteredPowers[pIndex];
-			int Bainv2 = Bainv2Array[v-1][pIndex];
-			int x1 = x1Array[pIndex];
-			int x2 = x2Array[pIndex];
-			assertTrue(0 <= x1 && x1 < p);
-			assertTrue(0 <= x2 && x2 < p);
-			BigInteger p_big = BigInteger.valueOf(p);
-			assertEquals(kN.mod(p_big), da.multiply(BigInteger.valueOf(x1)).add(b).pow(2).mod(p_big));
-			assertEquals(kN.mod(p_big), da.multiply(BigInteger.valueOf(x2)).add(b).pow(2).mod(p_big));
-			if (x1<0 || x2<0) LOG.debug("p=" + p + ", Bainv2=" + Bainv2 + ": x1 = " + x1 + ", x2 = " + x2);
+		
+		if (DEBUG) {
+			for (int pIndex=filteredBaseSize-1; pIndex>0; pIndex--) {
+				int p = filteredPowers[pIndex];
+				int Bainv2 = Bainv2Row[pIndex];
+				int x1 = x1Array[pIndex];
+				int x2 = x2Array[pIndex];
+				assertTrue(0 <= x1 && x1 < p);
+				assertTrue(0 <= x2 && x2 < p);
+				BigInteger p_big = BigInteger.valueOf(p);
+				assertEquals(kN.mod(p_big), da.multiply(BigInteger.valueOf(x1)).add(b).pow(2).mod(p_big));
+				assertEquals(kN.mod(p_big), da.multiply(BigInteger.valueOf(x2)).add(b).pow(2).mod(p_big));
+				if (x1<0 || x2<0) LOG.debug("p=" + p + ", Bainv2=" + Bainv2 + ": x1 = " + x1 + ", x2 = " + x2);
+			}
 		}
 	}
 
