@@ -288,7 +288,9 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			if (d == 2) {
 				// b is odd
 				assertEquals(I_1, b.and(I_1));
-				// with Kechlibars polynomial and multiplier k with kN == 1 (mod 8) we have b^2 == kN (mod 4a)
+				// With Kechlibars polynomial Q(x) = (2ax+b)^2 - kN and multiplier k with kN == 1 (mod 8)
+				// we have b^2 == kN (mod 4a). The same could be achieved for kN == 5 (mod 8),
+				// but in that case there is no notable performance gain.
 				assertEquals(I_0, b.multiply(b).subtract(kN).mod(a.multiply(I_4)));
 			} else {
 				// we have b^2 == kN (mod a)
