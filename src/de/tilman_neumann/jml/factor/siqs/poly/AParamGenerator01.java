@@ -54,7 +54,7 @@ import de.tilman_neumann.jml.BinarySearch;
  * which number of factors of <code>a</code> and thus which average factor size is most appropriate for 
  * given magnitudes of kN. A minimum value of qCount==4 gives best stability at small N, down to 53 bits.
  * 
- * Since 2016-12-15, entries of qArray and qIndexArray are sorted bottom-up now.
+ * Since 2016-12-15, entries of qArray and qIndexArray are sorted bottom-up.
  * Since 2018-02-13, the d-parameter was introduced.
  * 
  * @author Tilman Neumann
