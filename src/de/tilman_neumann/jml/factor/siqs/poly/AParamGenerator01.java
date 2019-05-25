@@ -50,12 +50,12 @@ import de.tilman_neumann.jml.BinarySearch;
  * Therefore the algorithm is not stable for N < 50 bit, but faster for bigger N.
  * The expected best a-value is approximated quite accurately.
  * 
- * Since 2016-12-15, entries of qArray and qIndexArray are sorted bottom-up now.
- * Since 2018-02-13, the d-parameter was introduced.
- * 
  * A very important parameter is <code>qCount</code. Having it configurable via the constructor lets us test
  * which number of factors of <code>a</code> and thus which average factor size is most appropriate for 
  * given magnitudes of kN. A minimum value of qCount==4 gives best stability at small N, down to 53 bits.
+ * 
+ * Since 2016-12-15, entries of qArray and qIndexArray are sorted bottom-up now.
+ * Since 2018-02-13, the d-parameter was introduced.
  * 
  * @author Tilman Neumann
  */
