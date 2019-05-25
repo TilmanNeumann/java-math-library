@@ -39,9 +39,6 @@ import static org.junit.Assert.*;
  * which number of factors of <code>a</code> and thus which average factor size is most appropriate for 
  * given magnitudes of kN.
  * 
- * Since t^2 == N (mod p) equals t^2 == (N%p) (mod p), we can compute Tonelli-Shanks in all-integer arguments.
- * For SIQS this is no big improvement though, because Tonelli-Shanks is not time-critical anyway.
- * 
  * @author Tilman Neumann
  */
 public class SIQSPolyGenerator implements PolyGenerator {
@@ -50,7 +47,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 
 	/** the a paramater */
 	private BigInteger a;
-	/** the a-term of the polynomial, i.e. 2a for kN == 1 mod 8), a else */
+	/** the a-term of the polynomial, i.e. 2a for kN == 1 (mod 8), a else */
 	private BigInteger da;
 	private UnsignedBigInt da_UBI;
 	/** the b-parameter */
@@ -292,7 +289,6 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				// b is odd
 				assertEquals(I_1, b.and(I_1));
 				// with Kechlibars polynomial and multiplier k with kN == 1 (mod 8) we have b^2 == kN (mod 4a)
-				//assertEquals(ZERO, b.multiply(b).subtract(kN).mod(a.multiply(TWO)));
 				assertEquals(I_0, b.multiply(b).subtract(kN).mod(a.multiply(I_4)));
 			} else {
 				// we have b^2 == kN (mod a)
