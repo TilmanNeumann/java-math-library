@@ -35,10 +35,6 @@ import static org.junit.Assert.*;
 /**
  * A generator for SIQS polynomials.
  * 
- * A very important parameter is <code>qCount</code. Having it configurable via the constructor lets us test
- * which number of factors of <code>a</code> and thus which average factor size is most appropriate for 
- * given magnitudes of kN.
- * 
  * @author Tilman Neumann
  */
 public class SIQSPolyGenerator implements PolyGenerator {
