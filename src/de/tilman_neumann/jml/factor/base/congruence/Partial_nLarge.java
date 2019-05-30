@@ -56,7 +56,7 @@ public class Partial_nLarge extends Partial {
 	}
 
 	@Override
-	public Integer[] getMatrixElements() {
+	public Integer[] getLargeFactorsAppearingWithOddExponent() {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		for (int i=0; i<bigFactors.length; i++) {
 			if ((bigFactorExponents[i]&1)==1) result.add(bigFactors[i]);

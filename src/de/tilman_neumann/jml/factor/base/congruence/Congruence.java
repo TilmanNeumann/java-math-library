@@ -16,16 +16,14 @@ package de.tilman_neumann.jml.factor.base.congruence;
 import java.util.Set;
 
 /**
- * A congruence from 1 or more AQ-pairs.
+ * A smooth congruence from 1 or more partials.
  * 
  * @author Tilman Neumann
  */
 public interface Congruence {
 	
 	/**
-	 * @return set matrix elements.
-	 * For a smooth congruence these are the small factors appearing with odd exponent,
-	 * and for a partial congruence the large factors with odd exponent,
+	 * @return set matrix elements. For a smooth relation these are the small factors appearing with odd exponent.
 	 */
 	Integer[] getMatrixElements();
 	

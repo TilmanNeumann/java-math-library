@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.IndexSet;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixRow;
 
@@ -47,9 +46,8 @@ public class PartialSolver {
 	 * Solve a partial congruence equation system.
 	 * @param congruences the partial congruence equation system
 	 * @return list of smooth congruences found
-	 * @throws FactorException if a factor of N was found
 	 */
-	public ArrayList<Smooth> solve(Collection<? extends Congruence> congruences) throws FactorException {
+	public ArrayList<Smooth> solve(Collection<? extends Partial> congruences) {
 		foundSmoothCongruences = new ArrayList<Smooth>();
 		
 		// 1. Create
@@ -58,14 +56,14 @@ public class PartialSolver {
 		//    small primes get small indices in step 4, but experiments showed that HashMap is faster.
 		//LOG.debug("#congruences = " + congruences.size());
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		ArrayList<Congruence> congruencesCopy = new ArrayList(congruences.size());
-		Map<Integer, ArrayList<Congruence>> oddExpFactors_2_congruences = new HashMap<Integer, ArrayList<Congruence>>();
-		for (Congruence congruence : congruences) {
+		ArrayList<Partial> congruencesCopy = new ArrayList(congruences.size());
+		Map<Integer, ArrayList<Partial>> oddExpFactors_2_congruences = new HashMap<Integer, ArrayList<Partial>>();
+		for (Partial congruence : congruences) {
 			congruencesCopy.add(congruence);
-			for (Integer factor : congruence.getMatrixElements()) {
-				ArrayList<Congruence> congruenceList = oddExpFactors_2_congruences.get(factor);
+			for (Integer factor : congruence.getLargeFactorsAppearingWithOddExponent()) {
+				ArrayList<Partial> congruenceList = oddExpFactors_2_congruences.get(factor);
 				if (congruenceList == null) {
-					congruenceList = new ArrayList<Congruence>();
+					congruenceList = new ArrayList<Partial>();
 					oddExpFactors_2_congruences.put(factor, congruenceList);
 				}
 				congruenceList.add(congruence);
@@ -89,15 +87,15 @@ public class PartialSolver {
 	 * @param congruences 
 	 * @param oddExpFactors_2_congruences 
 	 */
-	protected void removeSingletons(List<Congruence> congruences, Map<Integer, ArrayList<Congruence>> oddExpFactors_2_congruences) {
+	protected void removeSingletons(List<Partial> congruences, Map<Integer, ArrayList<Partial>> oddExpFactors_2_congruences) {
 		// Parse all congruences as long as we find a singleton in a complete pass
 		boolean foundSingleton;
 		do {
 			foundSingleton = false;
-			Iterator<? extends Congruence> congruenceIter = congruences.iterator();
+			Iterator<? extends Partial> congruenceIter = congruences.iterator();
 			while (congruenceIter.hasNext()) {
-				Congruence congruence = congruenceIter.next();
-				Integer[] oddExpFactors = congruence.getMatrixElements();
+				Partial congruence = congruenceIter.next();
+				Integer[] oddExpFactors = congruence.getLargeFactorsAppearingWithOddExponent();
 				for (Integer oddExpFactor : oddExpFactors) {
 					if (oddExpFactors_2_congruences.get(oddExpFactor).size()==1) {
 						// found singleton -> remove from list
@@ -105,7 +103,7 @@ public class PartialSolver {
 						congruenceIter.remove();
 						// remove from oddExpFactors_2_congruences so we can detect further singletons
 						for (Integer factor : oddExpFactors) {
-							ArrayList<Congruence> congruenceList = oddExpFactors_2_congruences.get(factor);
+							ArrayList<Partial> congruenceList = oddExpFactors_2_congruences.get(factor);
 							congruenceList.remove(congruence);
 							if (congruenceList.size()==0) {
 								// there are no more congruences with the current factor
@@ -128,7 +126,7 @@ public class PartialSolver {
 	 * @param oddExpFactors_2_congruences unsorted map from factors to the congruences in which they appear with odd exponent
 	 * @return map from factors to column indices
 	 */
-	protected Map<Integer, Integer> createFactor2ColumnIndexMap(Map<Integer, ArrayList<Congruence>> oddExpFactors_2_congruences) {
+	protected Map<Integer, Integer> createFactor2ColumnIndexMap(Map<Integer, ArrayList<Partial>> oddExpFactors_2_congruences) {
 		int index = 0;
 		Map<Integer, Integer> factors_2_columnIndices = new HashMap<Integer, Integer>();
 		for (Integer factor : oddExpFactors_2_congruences.keySet()) {
@@ -141,9 +139,8 @@ public class PartialSolver {
 	 * Create the matrix from the pre-processed congruences and solve it.
 	 * @param congruences
 	 * @param factors_2_columnIndices map from factors to matrix column indices
-	 * @throws FactorException 
 	 */
-	protected void solve(List<Congruence> congruences, Map<Integer, Integer> factors_2_columnIndices) throws FactorException {
+	protected void solve(List<Partial> congruences, Map<Integer, Integer> factors_2_columnIndices) {
 		// create matrix
 		List<MatrixRow> rows = createMatrix(congruences, factors_2_columnIndices);
 		// solve
@@ -185,9 +182,9 @@ public class PartialSolver {
 						// Found null vector -> recover the set of AQ-pairs from its row index history
 						HashSet<AQPair> totalAQPairs = new HashSet<AQPair>(); // Set required for the "xor"-operation below
 						for (int rowIndex : row.getRowIndexHistoryAsList()) {
-							Congruence congruence = congruences.get(rowIndex);
-							// add the new AQ-pairs via "xor"
-							congruence.addMyAQPairsViaXor(totalAQPairs);
+							Partial congruence = congruences.get(rowIndex);
+							// add the new partial via "xor"
+							if (!totalAQPairs.remove(congruence)) totalAQPairs.add(congruence);
 						}
 						// We found a smooth congruence from partials.
 						// Checking for exact squares is done in CongruenceCollector.addSmooth(), no need to do it here again...
@@ -207,11 +204,11 @@ public class PartialSolver {
 	 * @param factors_2_columnIndices
 	 * @return
 	 */
-	private List<MatrixRow> createMatrix(List<Congruence> congruences, Map<Integer, Integer> factors_2_columnIndices) {
+	private List<MatrixRow> createMatrix(List<Partial> congruences, Map<Integer, Integer> factors_2_columnIndices) {
 		ArrayList<MatrixRow> matrixRows = new ArrayList<MatrixRow>(congruences.size()); // ArrayList is faster than LinkedList, even with many remove() operations
 		int rowIndex = 0;
 		int numberOfRows = congruences.size();
-		for (Congruence congruence : congruences) {
+		for (Partial congruence : congruences) {
 			// row entries = set of column indices where the congruence has a factor with odd exponent
 			IndexSet columnIndicesFromOddExpFactors = createColumnIndexSetFromCongruence(congruence, factors_2_columnIndices);
 			// initial row history = the current row index
@@ -229,8 +226,8 @@ public class PartialSolver {
 	 * @param factors_2_columnIndices
 	 * @return set of column indices
 	 */
-	private IndexSet createColumnIndexSetFromCongruence(Congruence congruence, Map<Integer, Integer> factors_2_columnIndices) {
-		Integer[] oddExpFactors = congruence.getMatrixElements();
+	private IndexSet createColumnIndexSetFromCongruence(Partial congruence, Map<Integer, Integer> factors_2_columnIndices) {
+		Integer[] oddExpFactors = congruence.getLargeFactorsAppearingWithOddExponent();
 		IndexSet columnIndexBitset = new IndexSet(factors_2_columnIndices.size());
 		for (Integer oddExpFactor : oddExpFactors) {
 			columnIndexBitset.add(factors_2_columnIndices.get(oddExpFactor));

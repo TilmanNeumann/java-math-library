@@ -107,7 +107,7 @@ public class CongruenceCollector {
 		
 		// otherwise aqPair must be a partial with at least one large factor.
 		Partial partial = (Partial) aqPair;
-		Integer[] oddExpBigFactors = partial.getMatrixElements();
+		Integer[] oddExpBigFactors = partial.getLargeFactorsAppearingWithOddExponent();
 		int oddExpBigFactorsCount = oddExpBigFactors.length;
 		if (DEBUG) assertTrue(oddExpBigFactorsCount > 0);
 		
@@ -188,7 +188,7 @@ public class CongruenceCollector {
 				if (partialList!=null && partialList.size()>0) {
 					for (Partial relatedPartial : partialList) {
 						relatedPartials.add(relatedPartial);
-						for (Integer nextFactor : relatedPartial.getMatrixElements()) {
+						for (Integer nextFactor : relatedPartial.getLargeFactorsAppearingWithOddExponent()) {
 							if (!bigFactorsAlreadyUsed.contains(nextFactor)) nextFactors.add(nextFactor);
 						}
 					}

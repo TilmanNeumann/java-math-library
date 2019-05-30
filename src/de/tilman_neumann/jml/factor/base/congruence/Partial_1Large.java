@@ -49,7 +49,7 @@ public class Partial_1Large extends Partial {
 	}
 
 	@Override
-	public Integer[] getMatrixElements() {
+	public Integer[] getLargeFactorsAppearingWithOddExponent() {
 		return new Integer[] {bigFactor};
 	}
 
