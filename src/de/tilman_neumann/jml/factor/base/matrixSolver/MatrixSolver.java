@@ -45,6 +45,11 @@ abstract public class MatrixSolver {
 	
 	public abstract String getName();
 	
+	/**
+	 * Initialize for a new N.
+	 * @param N
+	 * @param factorTest
+	 */
 	public void initialize(BigInteger N, FactorTest factorTest) {
 		this.factorTest = factorTest;
 		this.testedNullVectorCount = 0;
