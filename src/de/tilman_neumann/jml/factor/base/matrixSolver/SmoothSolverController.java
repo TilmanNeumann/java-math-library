@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.jml.factor.base.congruence.Congruence;
+import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 
 /**
  * A controller for the matrix solver used for smooth congruence equations systems.
@@ -64,7 +64,7 @@ public class SmoothSolverController implements NullVectorProcessor {
 	 * @param rawCongruences the smooth congruence equation system
 	 * @throws FactorException if a factor of N was found
 	 */
-	public void solve(Collection<? extends Congruence> rawCongruences) throws FactorException {
+	public void solve(Collection<? extends Smooth> rawCongruences) throws FactorException {
 		matrixSolver.solve(rawCongruences);
 	}
 

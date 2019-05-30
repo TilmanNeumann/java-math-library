@@ -23,7 +23,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
-import de.tilman_neumann.jml.factor.base.congruence.Congruence;
+import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 
 /**
  * Base implementation for a congruence equation system (the "LinAlg phase matrix") solver.
@@ -47,21 +47,21 @@ abstract public class MatrixSolver {
 	 * @param congruences the congruences forming the equation system
 	 * @throws FactorException if a factor of N was found
 	 */
-	public void solve(Collection<? extends Congruence> congruences) throws FactorException {
+	public void solve(Collection<? extends Smooth> congruences) throws FactorException {
 		// 1. Create
 		// a) a copy of the congruences list, to avoid that the original list is modified during singleton removal.
 		// b) a map from (primes with odd power) to congruences. A sorted TreeMap would be nice because then
 		//    small primes get small indices in step 4, but experiments showed that HashMap is faster.
 		//LOG.debug("#congruences = " + congruences.size());
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		ArrayList<Congruence> congruencesCopy = new ArrayList(congruences.size());
-		Map<Integer, ArrayList<Congruence>> oddExpFactors_2_congruences = new HashMap<Integer, ArrayList<Congruence>>();
-		for (Congruence congruence : congruences) {
+		ArrayList<Smooth> congruencesCopy = new ArrayList(congruences.size());
+		Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences = new HashMap<Integer, ArrayList<Smooth>>();
+		for (Smooth congruence : congruences) {
 			congruencesCopy.add(congruence);
 			for (Integer factor : congruence.getMatrixElements()) {
-				ArrayList<Congruence> congruenceList = oddExpFactors_2_congruences.get(factor);
+				ArrayList<Smooth> congruenceList = oddExpFactors_2_congruences.get(factor);
 				if (congruenceList == null) {
-					congruenceList = new ArrayList<Congruence>();
+					congruenceList = new ArrayList<Smooth>();
 					oddExpFactors_2_congruences.put(factor, congruenceList);
 				}
 				congruenceList.add(congruence);
@@ -83,14 +83,14 @@ abstract public class MatrixSolver {
 	 * @param congruences 
 	 * @param oddExpFactors_2_congruences 
 	 */
-	protected void removeSingletons(List<Congruence> congruences, Map<Integer, ArrayList<Congruence>> oddExpFactors_2_congruences) {
+	protected void removeSingletons(List<Smooth> congruences, Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
 		// Parse all congruences as long as we find a singleton in a complete pass
 		boolean foundSingleton;
 		do {
 			foundSingleton = false;
-			Iterator<? extends Congruence> congruenceIter = congruences.iterator();
+			Iterator<? extends Smooth> congruenceIter = congruences.iterator();
 			while (congruenceIter.hasNext()) {
-				Congruence congruence = congruenceIter.next();
+				Smooth congruence = congruenceIter.next();
 				Integer[] oddExpFactors = congruence.getMatrixElements();
 				for (Integer oddExpFactor : oddExpFactors) {
 					if (oddExpFactors_2_congruences.get(oddExpFactor).size()==1) {
@@ -99,7 +99,7 @@ abstract public class MatrixSolver {
 						congruenceIter.remove();
 						// remove from oddExpFactors_2_congruences so we can detect further singletons
 						for (Integer factor : oddExpFactors) {
-							ArrayList<Congruence> congruenceList = oddExpFactors_2_congruences.get(factor);
+							ArrayList<Smooth> congruenceList = oddExpFactors_2_congruences.get(factor);
 							congruenceList.remove(congruence);
 							if (congruenceList.size()==0) {
 								// there are no more congruences with the current factor
@@ -122,7 +122,7 @@ abstract public class MatrixSolver {
 	 * @param oddExpFactors_2_congruences unsorted map from factors to the congruences in which they appear with odd exponent
 	 * @return map from factors to column indices
 	 */
-	protected Map<Integer, Integer> createFactor2ColumnIndexMap(Map<Integer, ArrayList<Congruence>> oddExpFactors_2_congruences) {
+	protected Map<Integer, Integer> createFactor2ColumnIndexMap(Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
 		int index = 0;
 		Map<Integer, Integer> factors_2_columnIndices = new HashMap<Integer, Integer>();
 		for (Integer factor : oddExpFactors_2_congruences.keySet()) {
@@ -137,5 +137,5 @@ abstract public class MatrixSolver {
 	 * @param factors_2_columnIndices map from factors to matrix column indices
 	 * @throws FactorException 
 	 */
-	abstract protected void solve(List<Congruence> congruences, Map<Integer, Integer> factors_2_columnIndices) throws FactorException;
+	abstract protected void solve(List<Smooth> congruences, Map<Integer, Integer> factors_2_columnIndices) throws FactorException;
 }
