@@ -34,11 +34,11 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth_Composite;
  */
 public class PartialSolverController implements NullVectorProcessor {
 	
-	private MatrixSolver matrixSolver;
+	private PartialSolver matrixSolver;
 
 	private ArrayList<Smooth> foundSmoothCongruences;
 
-	public PartialSolverController(MatrixSolver matrixSolver) {
+	public PartialSolverController(PartialSolver matrixSolver) {
 		// this hook would be a memory leak if we'ld create many pairs of controller and solver objects;
 		// but we have only 1 object pair in the whole application run time
 		matrixSolver.setNullVectorProcessor(this);

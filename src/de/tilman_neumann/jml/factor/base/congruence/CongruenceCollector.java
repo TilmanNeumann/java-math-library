@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
+import de.tilman_neumann.jml.factor.base.matrixSolver.PartialSolver;
 import de.tilman_neumann.jml.factor.base.matrixSolver.PartialSolverController;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -66,7 +66,7 @@ public class CongruenceCollector {
 	 * Unique constructor.
 	 */
 	public CongruenceCollector() {
-		partialSolverController = new PartialSolverController(new MatrixSolver01_Gauss());
+		partialSolverController = new PartialSolverController(new PartialSolver());
 	}
 	
 	/**
