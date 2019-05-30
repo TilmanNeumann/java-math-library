@@ -87,7 +87,7 @@ public class MatrixSolver01_Gauss extends MatrixSolver {
 							congruence.addMyAQPairsViaXor(totalAQPairs);
 						}
 						// "return" the AQ-pairs of the null vector
-						nullVectorProcessor.processNullVector(totalAQPairs);
+						processNullVector(totalAQPairs);
 						// no factor exception -> drop improper null vector
 						rowIter.remove(); 
 					} // else: current row is not a null-vector -> just keep it

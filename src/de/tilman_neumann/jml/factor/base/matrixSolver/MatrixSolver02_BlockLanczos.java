@@ -87,7 +87,7 @@ public class MatrixSolver02_BlockLanczos extends MatrixSolver {
   				// Sometimes the BlockLanczos() method returns non-null-vectors (having q-factors with odd exponent),
   				// but it did not seem beneficial to test the exponents before calling processNullVector(.)
 	  			// So just "return" the AQ-pairs of the null vector:
-	  			nullVectorProcessor.processNullVector(totalAQPairs);
+	  			processNullVector(totalAQPairs);
   			}
   		}
 	}

@@ -13,16 +13,19 @@
  */
 package de.tilman_neumann.jml.factor.base.matrixSolver;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
+import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 
 /**
@@ -34,12 +37,17 @@ abstract public class MatrixSolver {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(MatrixSolver.class);
 
-	protected NullVectorProcessor nullVectorProcessor;
+	/** factor tester */
+	private FactorTest factorTest;
+
+	// for debugging only
+	private int testedNullVectorCount;
 	
 	public abstract String getName();
-
-	public void setNullVectorProcessor(NullVectorProcessor nullVectorProcessor) {
-		this.nullVectorProcessor = nullVectorProcessor;
+	
+	public void initialize(BigInteger N, FactorTest factorTest) {
+		this.factorTest = factorTest;
+		this.testedNullVectorCount = 0;
 	}
 
 	/**
@@ -138,4 +146,22 @@ abstract public class MatrixSolver {
 	 * @throws FactorException 
 	 */
 	abstract protected void solve(List<Smooth> congruences, Map<Integer, Integer> factors_2_columnIndices) throws FactorException;
+
+	public void processNullVector(Set<AQPair> aqPairs) throws FactorException {
+		// found square congruence -> check for factor
+		testedNullVectorCount++;
+		factorTest.testForFactor(aqPairs);
+		// no factor exception -> drop improper square congruence
+	}
+	
+	public int getTestedNullVectorCount() {
+		return testedNullVectorCount;
+	}
+	
+	/**
+	 * Release memory after a factorization.
+	 */
+	public void cleanUp() {
+		factorTest = null;
+	}
 }

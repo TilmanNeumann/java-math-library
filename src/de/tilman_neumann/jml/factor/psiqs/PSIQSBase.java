@@ -30,7 +30,6 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.jml.factor.base.matrixSolver.SmoothSolverController;
 import de.tilman_neumann.jml.factor.siqs.KnuthSchroeppel;
 import de.tilman_neumann.jml.factor.siqs.ModularSqrtsEngine;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
@@ -83,8 +82,8 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	private CongruenceCollector congruenceCollector;
 	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^(extraCongruences+1)
 	private int extraCongruences;
-	// A controller for the solver used for smooth congruence equation systems
-	protected SmoothSolverController solverController;
+	/** The solver used for smooth congruence equation systems. */
+	protected MatrixSolver matrixSolver;
 
 	protected PowerFinder powerFinder;
 	
@@ -113,7 +112,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		this.powerFinder = powerFinder;
 		this.congruenceCollector = new CongruenceCollector();
 		this.extraCongruences = 10;
-		this.solverController = new SmoothSolverController(matrixSolver);
+		this.matrixSolver = matrixSolver;
 		this.apg = apg;
 		this.multiplierFinder = new KnuthSchroeppel();
 		this.profile = profile;
@@ -210,7 +209,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		apg.initialize(k, N, kN, d, primeBaseSize, primesArray, tArray, adjustedSieveArraySize); // must be done before polyGenerator initialization where qCount is required
 		FactorTest factorTest = new FactorTest01(N);
 		congruenceCollector.initialize(N, factorTest, profile);
-		solverController.initialize(N, factorTest);
+		matrixSolver.initialize(N, factorTest);
 
 		// create empty synchronized AQ-pair buffer, used to pass AQ-pairs from "sieve threads" to the main thread
 		AQPairBuffer aqPairBuffer = new AQPairBuffer();
@@ -254,7 +253,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 							if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
 							ArrayList<Smooth> congruences = congruenceCollector.getSmoothCongruences();
 							synchronized (aqPairBuffer) {
-								solverController.solve(congruences); // throws FactorException
+								matrixSolver.solve(congruences); // throws FactorException
 							}
 								
 							if (profile) solverDuration += timer.capture();
@@ -303,7 +302,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 					LOG.info("        " + ccReport.getPartialQSignCounts());
 					LOG.info("        " + ccReport.getSmoothQSignCounts());
 				}
-				LOG.info("    #solverRuns = " + solverRunCount + ", #tested null vectors = " + solverController.getTestedNullVectorCount());
+				LOG.info("    #solverRuns = " + solverRunCount + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
 				LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, createThreads=" + createThreadDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + ccDuration + "ms, solver=" + solverDuration + "ms");
 				LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(numberOfThreads));
 				LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(numberOfThreads));
@@ -320,7 +319,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			if (DEBUG) LOG.debug("Killing threads took " + (System.currentTimeMillis()-killStart) + "ms"); // usually 0-16 ms, no problem
 			apg.cleanUp();
 			congruenceCollector.cleanUp();
-			solverController.cleanUp();
+			matrixSolver.cleanUp();
 			// done
 			return factor;
 		}

@@ -32,7 +32,6 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
-import de.tilman_neumann.jml.factor.base.matrixSolver.SmoothSolverController;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF02;
 import de.tilman_neumann.jml.roots.SqrtExact;
@@ -94,8 +93,8 @@ public class CFrac extends FactorAlgorithm {
 	private int requiredSmoothCongruenceCount;
 	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^(extraCongruences+1)
 	private int extraCongruences;
-	/** A controller for the solver used for smooth congruence equation systems. */
-	private SmoothSolverController smoothSolverController;
+	/** The solver used for smooth congruence equation systems. */
+	private MatrixSolver matrixSolver;
 
 	// profiling
 	private boolean profile;
@@ -125,7 +124,7 @@ public class CFrac extends FactorAlgorithm {
 		this.auxFactorizer = auxFactorizer;
 		this.congruenceCollector = new CongruenceCollector();
 		this.extraCongruences = extraCongruences;
-		this.smoothSolverController = new SmoothSolverController(matrixSolver);
+		this.matrixSolver = matrixSolver;
 		this.ks_adjust = ks_adjust;
 		this.profile = profile;
 	}
@@ -162,7 +161,7 @@ public class CFrac extends FactorAlgorithm {
 		FactorTest factorTest = new FactorTest01(N);
 		this.congruenceCollector.initialize(N, factorTest, profile);
 		this.combinedPrimesSet = new HashSet<Integer>();
-		this.smoothSolverController.initialize(N, factorTest);
+		this.matrixSolver.initialize(N, factorTest);
 
 		// max iterations: there is no need to account for k, because expansions of smooth kN are typically not longer than those for N.
 		// long maxI is sufficient to hold any practicable number of iteration steps (~9.22*10^18);
@@ -259,7 +258,7 @@ public class CFrac extends FactorAlgorithm {
 						if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
 							// try to solve equation system
 							if (DEBUG) LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
-							smoothSolverController.solve(congruenceCollector.getSmoothCongruences()); // throws FactorException
+							matrixSolver.solve(congruenceCollector.getSmoothCongruences()); // throws FactorException
 							// no factor exception -> extend equation system and continue searching smooth congruences
 							requiredSmoothCongruenceCount += extraCongruences;
 						}

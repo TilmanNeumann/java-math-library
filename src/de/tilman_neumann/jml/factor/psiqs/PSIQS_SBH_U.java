@@ -54,7 +54,7 @@ public class PSIQS_SBH_U extends PSIQSBase {
 	@Override
 	public String getName() {
 		String maxQRestExponentStr = "maxQRestExponent=" + String.format("%.3f", maxQRestExponent);
-		return "PSIQS_SBH_U(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + maxQRestExponentStr + ", blockSize=" + blockSize + ", " + powerFinder.getName() + ", " + solverController.getName() + ", " + numberOfThreads + " threads)";
+		return "PSIQS_SBH_U(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + maxQRestExponentStr + ", blockSize=" + blockSize + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
 	}
 
 	protected PSIQSThreadBase createThread(
