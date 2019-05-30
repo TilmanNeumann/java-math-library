@@ -24,8 +24,6 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
-import de.tilman_neumann.jml.factor.base.matrixSolver.PartialSolver;
-import de.tilman_neumann.jml.factor.base.matrixSolver.PartialSolverController;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -50,8 +48,8 @@ public class CongruenceCollector {
 	 * thus one big factor may be contained in many distinct partials.
 	 */
 	private HashMap<Integer, ArrayList<Partial>> oddExpBigFactors_2_partialCongruences; // here HashMap is faster than TreeMap or LinkedHashMap
-	/** A controller for the solver used to create smooth congruences from partials */
-	private PartialSolverController partialSolverController;
+	/** A solver used to create smooth congruences from partials */
+	private PartialSolver partialSolver = new PartialSolver();
 	/** factor tester */
 	private FactorTest factorTest;
 
@@ -63,13 +61,6 @@ public class CongruenceCollector {
 	private int partialWithPositiveQCount, smoothWithPositiveQCount;
 	
 	/**
-	 * Unique constructor.
-	 */
-	public CongruenceCollector() {
-		partialSolverController = new PartialSolverController(new PartialSolver());
-	}
-	
-	/**
 	 * Initialize congruence collector for a new N.
 	 * @param N
 	 * @param factorTest
@@ -78,7 +69,6 @@ public class CongruenceCollector {
 	public void initialize(BigInteger N, FactorTest factorTest, boolean analyzeBigFactorCounts) {
 		smoothCongruences = new ArrayList<Smooth>();
 		oddExpBigFactors_2_partialCongruences = new HashMap<Integer, ArrayList<Partial>>();
-		partialSolverController.initialize(N, factorTest);
 		this.factorTest = factorTest;
 		this.analyzeBigFactorCounts = analyzeBigFactorCounts;
 		
@@ -130,7 +120,7 @@ public class CongruenceCollector {
 			// Since relatedPartials is a set, we can not get duplicate AQ-pairs.
 			relatedPartials.add(partial);
 			// Solve partial congruence equation system
-			ArrayList<Smooth> foundSmooths = partialSolverController.solve(relatedPartials); // throws FactorException
+			ArrayList<Smooth> foundSmooths = partialSolver.solve(relatedPartials); // throws FactorException
 			if (foundSmooths.size()>0) {
 				// We found one or more smooths from the new partial
 				int addedCount = 0;
@@ -302,7 +292,7 @@ public class CongruenceCollector {
 	public void cleanUp() {
 		smoothCongruences = null;
 		oddExpBigFactors_2_partialCongruences = null;
-		partialSolverController.cleanUp();
 		factorTest = null;
+		partialSolver.cleanUp();
 	}
 }

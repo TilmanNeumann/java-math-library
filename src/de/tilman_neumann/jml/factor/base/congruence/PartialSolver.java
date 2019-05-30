@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.factor.base.matrixSolver;
+package de.tilman_neumann.jml.factor.base.congruence;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,8 +24,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
-import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.jml.factor.base.congruence.Congruence;
+import de.tilman_neumann.jml.factor.base.matrixSolver.IndexSet;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixRow;
 
 /**
  * A Gaussian solver used to find smooth from partial relations.
@@ -37,22 +37,21 @@ public class PartialSolver {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(PartialSolver.class);
 
-	protected NullVectorProcessor nullVectorProcessor;
+	private ArrayList<Smooth> foundSmoothCongruences;
 	
 	public String getName() {
 		return "PartialSolver";
 	}
 
-	public void setNullVectorProcessor(NullVectorProcessor nullVectorProcessor) {
-		this.nullVectorProcessor = nullVectorProcessor;
-	}
-
 	/**
-	 * Main method to solve a congruence equation system.
-	 * @param congruences the congruences forming the equation system
+	 * Solve a partial congruence equation system.
+	 * @param congruences the partial congruence equation system
+	 * @return list of smooth congruences found
 	 * @throws FactorException if a factor of N was found
 	 */
-	public void solve(Collection<? extends Congruence> congruences) throws FactorException {
+	public ArrayList<Smooth> solve(Collection<? extends Congruence> congruences) throws FactorException {
+		foundSmoothCongruences = new ArrayList<Smooth>();
+		
 		// 1. Create
 		// a) a copy of the congruences list, to avoid that the original list is modified during singleton removal.
 		// b) a map from (primes with odd power) to congruences. A sorted TreeMap would be nice because then
@@ -78,6 +77,8 @@ public class PartialSolver {
 		Map<Integer, Integer> factors_2_indices = createFactor2ColumnIndexMap(oddExpFactors_2_congruences);
 		// 4+5. Create & solve matrix
 		solve(congruencesCopy, factors_2_indices);
+		// Done
+		return foundSmoothCongruences;
 	}
 	
 	/**
@@ -188,8 +189,10 @@ public class PartialSolver {
 							// add the new AQ-pairs via "xor"
 							congruence.addMyAQPairsViaXor(totalAQPairs);
 						}
-						// "return" the AQ-pairs of the null vector
-						nullVectorProcessor.processNullVector(totalAQPairs);
+						// We found a smooth congruence from partials.
+						// Checking for exact squares is done in CongruenceCollector.addSmooth(), no need to do it here again...
+						Smooth smoothCongruence = new Smooth_Composite(totalAQPairs);
+						foundSmoothCongruences.add(smoothCongruence);
 						// no factor exception -> drop improper null vector
 						rowIter.remove(); 
 					} // else: current row is not a null-vector -> just keep it
@@ -197,7 +200,7 @@ public class PartialSolver {
 			}
 		}
 	}
-	
+
 	/**
 	 * Create the matrix.
 	 * @param congruences
@@ -240,5 +243,12 @@ public class PartialSolver {
 		rowIndexHistory.add(rowIndex);
 		//LOG.debug("numberOfRows=" + numberOfRows + ", rowIndex=" + rowIndex + " -> rowIndexHistory = " + rowIndexHistory);
 		return rowIndexHistory;
+	}
+	
+	/**
+	 * Release memory after a factorization.
+	 */
+	public void cleanUp() {
+		foundSmoothCongruences = null;
 	}
 }
