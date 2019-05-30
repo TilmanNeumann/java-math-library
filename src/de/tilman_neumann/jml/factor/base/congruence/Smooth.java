@@ -37,6 +37,11 @@ public interface Smooth {
 	Integer[] getMatrixElements();
 
 	/**
+	 * @return the set of AQPairs this smooth relation consists of
+	 */
+	Set<AQPair> getAQPairs();
+	
+	/**
 	 * Add <code>this</code>'s AQPairs to the target set via xor.
 	 * This operation permits to get around without creating new array objects
 	 * for all those congruence sub-classes that represent just a single AQPair.

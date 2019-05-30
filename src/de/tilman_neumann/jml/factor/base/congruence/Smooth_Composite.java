@@ -55,6 +55,15 @@ public class Smooth_Composite implements Smooth {
 	}
 
 	@Override
+	public Set<AQPair> getAQPairs() {
+		Set<AQPair> set = new HashSet<>();
+		for (AQPair aqPair : aqPairs) {
+			set.add(aqPair);
+		}
+		return set;
+	}
+
+	@Override
 	public void addMyAQPairsViaXor(Set<AQPair> targetSet) {
 		for (AQPair aqPair : aqPairs) {
 			if (!targetSet.remove(aqPair)) targetSet.add(aqPair);

@@ -129,9 +129,7 @@ public class CongruenceCollector {
 						if (analyzeBigFactorCounts) {
 							// count kind of partials that helped to find smooths
 							int maxLargeFactorCount = 0;
-							HashSet<AQPair> aqPairsFromSmooth = new HashSet<AQPair>();
-							foundSmooth.addMyAQPairsViaXor(aqPairsFromSmooth);
-							for (AQPair aqPairFromSmooth : aqPairsFromSmooth) {
+							for (AQPair aqPairFromSmooth : foundSmooth.getAQPairs()) {
 								int largeFactorCount = aqPairFromSmooth.getNumberOfLargeQFactors();
 								if (largeFactorCount > maxLargeFactorCount) maxLargeFactorCount = largeFactorCount;
 							}
@@ -208,9 +206,7 @@ public class CongruenceCollector {
 	protected boolean addSmooth(Smooth smoothCongruence) throws FactorException {
 		if (smoothCongruence.isExactSquare()) {
 			// We found a square congruence!
-			HashSet<AQPair> totalAQPairs = new HashSet<AQPair>();
-			smoothCongruence.addMyAQPairsViaXor(totalAQPairs);
-			factorTest.testForFactor(totalAQPairs);
+			factorTest.testForFactor(smoothCongruence.getAQPairs());
 			// no FactorException -> the square congruence was improper -> drop it
 			return false;
 		}
