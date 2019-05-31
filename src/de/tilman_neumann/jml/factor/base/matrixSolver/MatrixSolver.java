@@ -71,14 +71,7 @@ abstract public class MatrixSolver {
 		Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences = new HashMap<Integer, ArrayList<Smooth>>();
 		for (Smooth congruence : congruences) {
 			congruencesCopy.add(congruence);
-			for (Integer factor : congruence.getMatrixElements()) {
-				ArrayList<Smooth> congruenceList = oddExpFactors_2_congruences.get(factor);
-				if (congruenceList == null) {
-					congruenceList = new ArrayList<Smooth>();
-					oddExpFactors_2_congruences.put(factor, congruenceList);
-				}
-				congruenceList.add(congruence);
-			}
+			addToColumn2RowMap(congruence, oddExpFactors_2_congruences);
 		}
 		// 2. remove singletons
 		removeSingletons(congruencesCopy, oddExpFactors_2_congruences);
@@ -111,14 +104,7 @@ abstract public class MatrixSolver {
 						//LOG.debug("Found singleton -> remove " + congruence);
 						congruenceIter.remove();
 						// remove from oddExpFactors_2_congruences so we can detect further singletons
-						for (Integer factor : oddExpFactors) {
-							ArrayList<Smooth> congruenceList = oddExpFactors_2_congruences.get(factor);
-							congruenceList.remove(congruence);
-							if (congruenceList.size()==0) {
-								// there are no more congruences with the current factor
-								oddExpFactors_2_congruences.remove(factor);
-							}
-						}
+						removeFromColumn2RowMap(congruence, oddExpFactors_2_congruences);
 						foundSingleton = true;
 						break;
 					}
@@ -129,6 +115,28 @@ abstract public class MatrixSolver {
 		//LOG.debug("#congruences after removing singletons: " + congruences.size());
 	}
 	
+	private void addToColumn2RowMap(Smooth congruence, Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
+		for (Integer factor : congruence.getMatrixElements()) {
+			ArrayList<Smooth> congruenceList = oddExpFactors_2_congruences.get(factor);
+			if (congruenceList == null) {
+				congruenceList = new ArrayList<Smooth>();
+				oddExpFactors_2_congruences.put(factor, congruenceList);
+			}
+			congruenceList.add(congruence);
+		}
+	}
+	
+	private void removeFromColumn2RowMap(Smooth congruence, Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
+		for (Integer factor : congruence.getMatrixElements()) {
+			ArrayList<Smooth> congruenceList = oddExpFactors_2_congruences.get(factor);
+			congruenceList.remove(congruence);
+			if (congruenceList.size()==0) {
+				// there are no more congruences with the current factor
+				oddExpFactors_2_congruences.remove(factor);
+			}
+		}
+	}
+
 	/**
 	 * Create a map from odd-exp-elements to matrix column indices.
 	 * 

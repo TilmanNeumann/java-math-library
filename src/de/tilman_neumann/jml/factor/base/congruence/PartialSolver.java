@@ -60,14 +60,7 @@ public class PartialSolver {
 		Map<Integer, ArrayList<Partial>> oddExpFactors_2_congruences = new HashMap<Integer, ArrayList<Partial>>();
 		for (Partial congruence : congruences) {
 			congruencesCopy.add(congruence);
-			for (Integer factor : congruence.getLargeFactorsWithOddExponent()) {
-				ArrayList<Partial> congruenceList = oddExpFactors_2_congruences.get(factor);
-				if (congruenceList == null) {
-					congruenceList = new ArrayList<Partial>();
-					oddExpFactors_2_congruences.put(factor, congruenceList);
-				}
-				congruenceList.add(congruence);
-			}
+			addToColumn2RowMap(congruence, oddExpFactors_2_congruences);
 		}
 		// 2. remove singletons
 		removeSingletons(congruencesCopy, oddExpFactors_2_congruences);
@@ -102,14 +95,7 @@ public class PartialSolver {
 						//LOG.debug("Found singleton -> remove " + congruence);
 						congruenceIter.remove();
 						// remove from oddExpFactors_2_congruences so we can detect further singletons
-						for (Integer factor : oddExpFactors) {
-							ArrayList<Partial> congruenceList = oddExpFactors_2_congruences.get(factor);
-							congruenceList.remove(congruence);
-							if (congruenceList.size()==0) {
-								// there are no more congruences with the current factor
-								oddExpFactors_2_congruences.remove(factor);
-							}
-						}
+						removeFromColumn2RowMap(congruence, oddExpFactors_2_congruences);
 						foundSingleton = true;
 						break;
 					}
@@ -118,6 +104,28 @@ public class PartialSolver {
 		} while (foundSingleton && congruences.size()>0);
 		// now all singletons have been removed from congruences.
 		//LOG.debug("#congruences after removing singletons: " + congruences.size());
+	}
+	
+	private void addToColumn2RowMap(Partial congruence, Map<Integer, ArrayList<Partial>> oddExpFactors_2_congruences) {
+		for (Integer factor : congruence.getLargeFactorsWithOddExponent()) {
+			ArrayList<Partial> congruenceList = oddExpFactors_2_congruences.get(factor);
+			if (congruenceList == null) {
+				congruenceList = new ArrayList<Partial>();
+				oddExpFactors_2_congruences.put(factor, congruenceList);
+			}
+			congruenceList.add(congruence);
+		}
+	}
+	
+	private void removeFromColumn2RowMap(Partial congruence, Map<Integer, ArrayList<Partial>> oddExpFactors_2_congruences) {
+		for (Integer factor : congruence.getLargeFactorsWithOddExponent()) {
+			ArrayList<Partial> congruenceList = oddExpFactors_2_congruences.get(factor);
+			congruenceList.remove(congruence);
+			if (congruenceList.size()==0) {
+				// there are no more congruences with the current factor
+				oddExpFactors_2_congruences.remove(factor);
+			}
+		}
 	}
 	
 	/**
