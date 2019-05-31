@@ -60,7 +60,7 @@ public class PartialSolver {
 		Map<Integer, ArrayList<Partial>> oddExpFactors_2_congruences = new HashMap<Integer, ArrayList<Partial>>();
 		for (Partial congruence : congruences) {
 			congruencesCopy.add(congruence);
-			for (Integer factor : congruence.getLargeFactorsAppearingWithOddExponent()) {
+			for (Integer factor : congruence.getLargeFactorsWithOddExponent()) {
 				ArrayList<Partial> congruenceList = oddExpFactors_2_congruences.get(factor);
 				if (congruenceList == null) {
 					congruenceList = new ArrayList<Partial>();
@@ -95,7 +95,7 @@ public class PartialSolver {
 			Iterator<? extends Partial> congruenceIter = congruences.iterator();
 			while (congruenceIter.hasNext()) {
 				Partial congruence = congruenceIter.next();
-				Integer[] oddExpFactors = congruence.getLargeFactorsAppearingWithOddExponent();
+				Integer[] oddExpFactors = congruence.getLargeFactorsWithOddExponent();
 				for (Integer oddExpFactor : oddExpFactors) {
 					if (oddExpFactors_2_congruences.get(oddExpFactor).size()==1) {
 						// found singleton -> remove from list
@@ -227,7 +227,7 @@ public class PartialSolver {
 	 * @return set of column indices
 	 */
 	private IndexSet createColumnIndexSetFromCongruence(Partial congruence, Map<Integer, Integer> factors_2_columnIndices) {
-		Integer[] oddExpFactors = congruence.getLargeFactorsAppearingWithOddExponent();
+		Integer[] oddExpFactors = congruence.getLargeFactorsWithOddExponent();
 		IndexSet columnIndexBitset = new IndexSet(factors_2_columnIndices.size());
 		for (Integer oddExpFactor : oddExpFactors) {
 			columnIndexBitset.add(factors_2_columnIndices.get(oddExpFactor));

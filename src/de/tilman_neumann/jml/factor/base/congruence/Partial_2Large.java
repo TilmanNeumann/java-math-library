@@ -52,7 +52,7 @@ public class Partial_2Large extends Partial {
 	}
 
 	@Override
-	public Integer[] getLargeFactorsAppearingWithOddExponent() {
+	public Integer[] getLargeFactorsWithOddExponent() {
 		return new Integer[] {bigFactor1, bigFactor2};
 	}
 

@@ -29,7 +29,6 @@ import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
-import de.tilman_neumann.jml.factor.base.congruence.Partial;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
@@ -360,7 +359,7 @@ public class SIQS extends FactorAlgorithm {
 	
 	private void testSieve(List<AQPair> foundAQPairs, int sieveArraySize) {
 		for (AQPair aqPair : foundAQPairs) {
-			if ((aqPair instanceof Smooth) || (aqPair instanceof Partial && ((Partial)aqPair).getLargeFactorsAppearingWithOddExponent().length==0)) foundPerfectSmoothCount++;
+			if (aqPair instanceof Smooth) foundPerfectSmoothCount++;
 		}
 		foundAQPairsCount += foundAQPairs.size();
 		ArrayList<Integer> allXList = new ArrayList<Integer>();
@@ -371,7 +370,7 @@ public class SIQS extends FactorAlgorithm {
 		}
 		List<AQPair> allAQPairs = this.auxFactorizer.testList(allXList);
 		for (AQPair aqPair : allAQPairs) {
-			if ((aqPair instanceof Smooth) || (aqPair instanceof Partial && ((Partial)aqPair).getLargeFactorsAppearingWithOddExponent().length==0)) allPerfectSmoothCount++;
+			if (aqPair instanceof Smooth) allPerfectSmoothCount++;
 		}
 		allAQPairsCount += allAQPairs.size();
 	}
