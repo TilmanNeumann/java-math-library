@@ -25,7 +25,7 @@ import de.tilman_neumann.util.StringUtil;
  * 
  * @author Tilman Neumann
  *
-* @param <U> element class
+ * @param <U> element class
  */
 public class NumberGrid<U> implements Serializable {
 
