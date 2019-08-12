@@ -132,6 +132,7 @@ public class FactorizerTest {
 			//new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
 
 			// ECM
+			new TinyEcm(),
 //			new EllipticCurveMethod(),
 
 			// SIQS:
