@@ -57,9 +57,9 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 10000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 20;
+	private static final int START_BITS = 40;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */

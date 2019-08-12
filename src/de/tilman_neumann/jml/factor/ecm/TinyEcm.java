@@ -1093,7 +1093,7 @@ public class TinyEcm extends FactorAlgorithm {
 
 		}
 
-		LOG.warn("Failed to find a factor of N=" + n);
+		if (DEBUG) LOG.warn("Failed to find a factor of N=" + n);
 		return new EcmResult(1, curve);
 	}
 
@@ -1380,7 +1380,7 @@ public class TinyEcm extends FactorAlgorithm {
 			b = barray[i];
 			// accumulate the cross product  (zimmerman syntax).
 			// page 342 in C&P
-			work.tt1 = submod(Pa.X, Pb[map[b]].X, work.n);
+			work.tt1 = submod(Pa.X, Pb[map[b]].X, work.n); // TODO ArrayIndexOutOfBoundsException: 61 at 51 bit
 			work.tt2 = addmod(Pa.Z, Pb[map[b]].Z, work.n);
 			work.tt3 = mulredcx(work.tt1, work.tt2, work.n, rho);
 			work.tt1 = addmod(work.tt3, work.Pbprod[map[b]], work.n);
@@ -1442,7 +1442,7 @@ public class TinyEcm extends FactorAlgorithm {
 		}
 		if (DEBUG) LOG.debug("B1=" + B1 + ", curves=" + curves);
 		
-		LOG.debug("Try to factor N=" + N);
+		if (DEBUG) LOG.debug("Try to factor N=" + N);
 		EcmResult result = tinyecm(N.longValue(), B1, curves);
 		return BigInteger.valueOf(result.f);
 	}
