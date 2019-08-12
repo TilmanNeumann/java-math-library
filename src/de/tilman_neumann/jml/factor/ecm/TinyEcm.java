@@ -734,7 +734,6 @@ public class TinyEcm extends FactorAlgorithm {
 			else if (prac70Steps[i] == 6)
 			{
 				P = add(rho, work, work.pt1, work.pt2, work.pt3, P);		// A = A + B (C)
-				// TODO assign changes to P.X, P.Z?
 			}
 		}
 
@@ -800,11 +799,9 @@ public class TinyEcm extends FactorAlgorithm {
 			{
 				P = add(rho, work, work.pt1, work.pt2, work.pt3, P);		// A = A + B (C)
 			}
-
 		}
 
 		return;
-
 	}
 
 	// TODO return updated P ?
@@ -1060,7 +1057,7 @@ public class TinyEcm extends FactorAlgorithm {
 		x *= 2 - n * x;               // here x*a==1 mod 2**16
 		x *= 2 - n * x;               // here x*a==1 mod 2**32         
 		x *= 2 - n * x;               // here x*a==1 mod 2**64
-		rho = (long)0 - x; // XXX some kind of complement of n mod 2^64 ?
+		rho = (long)0 - x;
 		if (DEBUG) LOG.debug("rho = " + rho); // this is correct, the unsigned 64 bit value - 2^64
 		
 		work.n = n;
@@ -1069,7 +1066,6 @@ public class TinyEcm extends FactorAlgorithm {
 		// pre-paired sequences have been prepared for this B2, so it is not an input
 		//work.stg2_max = 25 * B1; // unused in original C program
 
-//		*f = 1;
 		for (curve = 0; curve < curves; curve++)
 		{
 			if (DEBUG) LOG.debug("curve=" + curve);
@@ -1083,7 +1079,7 @@ public class TinyEcm extends FactorAlgorithm {
 			P = ecm_stage1(rho, work, P);
 			if (DEBUG) LOG.debug("curve=" + curve + ": stage1 finished");
 			if (DEBUG) LOG.debug("3: P.X=" + P.X + ", P.Z=" + P.Z);
-			result = check_factor(P.Z, n); // OK!
+			result = check_factor(P.Z, n);
 
 			if (result > 1)
 			{
