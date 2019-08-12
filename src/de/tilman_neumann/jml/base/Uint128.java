@@ -49,7 +49,7 @@ public class Uint128 {
 	}
 	
 	/**
-	 * Montgomery multiplication of a*b mod n. 
+	 * Montgomery multiplication of a*b mod n. ("mulredx" in Yafu)
 	 * @param a
 	 * @param b
 	 * @param N
