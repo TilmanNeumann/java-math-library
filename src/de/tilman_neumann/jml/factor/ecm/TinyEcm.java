@@ -533,10 +533,10 @@ public class TinyEcm extends FactorAlgorithm {
 	// TODO check old version again
 	long[] mul(long a, long b)
 	{
-		long a_lo = a & 0x00000000FFFFFFFF;
+		long a_lo = a & 0x00000000FFFFFFFFL;
 		long a_hi = a >>> 32;
 
-		long b_lo = b & 0x00000000FFFFFFFF;
+		long b_lo = b & 0x00000000FFFFFFFFL;
 		long b_hi = b >>> 32;
 
 		long c0 = a_lo * b_lo;
@@ -544,12 +544,14 @@ public class TinyEcm extends FactorAlgorithm {
 		long c2 = a_hi * b_hi;
 
 		long u1 = c1 + (a_lo * b_hi);
-	    if(u1 < c1){
+		//if (u1 < c1) { // seems to work, too
+	    if(Long.compareUnsigned(u1, c1) < 0){ // works
 	        c2 += 1L << 32;
 	    }
 
 	    long u0 = c0 + (u1 << 32);
-	    if(u0 < c0){
+		//if (u0 < c0) { // y may be 1 too big
+	    if(Long.compareUnsigned(u0, c0) < 0){ // works
 	        ++c2;
 	    }
 
@@ -557,9 +559,9 @@ public class TinyEcm extends FactorAlgorithm {
 
 	    // test
 	    Uint128 prod = Uint128.mul64(a, b);
-	    //LOG.debug("correct: " + a + "*" + b + " = " + prod.getLow() + ", " + prod.getHigh());
-	    //LOG.debug("new    : " + a + "*" + b + " = " + u0 + ", " + y);
-	    //return new long[] {u0, y};
+	    //LOG.debug("correct: " + Long.toUnsignedString(a) + "*" + Long.toUnsignedString(b) + " = " + Long.toUnsignedString(prod.getLow()) + ", " + Long.toUnsignedString(prod.getHigh()));
+	    //LOG.debug("new    : " + Long.toUnsignedString(a) + "*" + Long.toUnsignedString(b) + " = " + Long.toUnsignedString(u0) + ", " + Long.toUnsignedString(y));
+//	    return new long[] {u0, y};
 	    return new long[] {prod.getLow(), prod.getHigh()};
 	}
 	
