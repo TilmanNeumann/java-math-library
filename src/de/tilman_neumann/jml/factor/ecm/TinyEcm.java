@@ -425,9 +425,9 @@ public class TinyEcm extends FactorAlgorithm {
 	    long q_hat = Long.divideUnsigned(r_hi, b_hi);
 	    if (DEBUG) LOG.debug("q_hat=" + Long.toUnsignedString(q_hat));
 	    
-	    long[] mulResult = mul(b, q_hat); // p_lo = mul(b, q_hat, p_hi);
-	    p_lo = mulResult[0];
-	    p_hi = mulResult[1];
+	    Uint128 mulResult = Uint128.mul64(b, q_hat); // p_lo = mul(b, q_hat, p_hi);
+	    p_lo = mulResult.getLow();
+	    p_hi = mulResult.getHigh();
 	    if (DEBUG) LOG.debug("p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
 	    
 	    long u_hi = r_hi >>> 32;
@@ -478,9 +478,9 @@ public class TinyEcm extends FactorAlgorithm {
 	    q_hat = Long.divideUnsigned((r_hi << 32)|(r_lo >>> 32), b_hi);
 	    if (DEBUG) LOG.debug("b=" + Long.toUnsignedString(b) + ", q_hat=" + Long.toUnsignedString(q_hat));
 	    
-	    mulResult = mul(b, q_hat); // p_lo = mul(b, q_hat, p_hi);
-	    p_lo = mulResult[0];
-	    p_hi = mulResult[1];
+	    mulResult = Uint128.mul64(b, q_hat); // p_lo = mul(b, q_hat, p_hi);
+	    p_lo = mulResult.getLow();
+	    p_hi = mulResult.getHigh();
 	    if (DEBUG) LOG.debug("2: p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
 
 	    // r -= b*q_hat
@@ -535,12 +535,6 @@ public class TinyEcm extends FactorAlgorithm {
 	    x >>>= y; r |= y;
 
 	    return (int) (r | (x >>> 1));
-	}
-
-	long[] mul(long a, long b)
-	{
-	    Uint128 prod = Uint128.mul64(a, b);
-	    return new long[] {prod.getLow(), prod.getHigh()};
 	}
 	
 	/**
