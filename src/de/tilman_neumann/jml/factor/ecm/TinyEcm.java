@@ -537,7 +537,6 @@ public class TinyEcm extends FactorAlgorithm {
 	    return (int) (r | (x >>> 1));
 	}
 
-	// TODO check old version again
 	long[] mul(long a, long b)
 	{
 	    Uint128 prod = Uint128.mul64(a, b);
