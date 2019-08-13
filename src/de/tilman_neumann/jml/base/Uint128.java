@@ -208,7 +208,7 @@ public class Uint128 {
 		// Since R=2^64, "x mod R" just means to get the low part of x.
 		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
 		// but even better, the long product just gives the low part -> we can get rid of one expensive mul64().
-		long t = ab.getLow() * /*minusNInvModR*/ Nhat;
+		long t = ab.getLow() * /*minusNInvModR*/ Nhat; // TODO
 		// Step 3: Compute r = (a*b + t*N) / R
 		// Since R=2^64, "x / R" just means to get the high part of x.
 		long r = ab.add_getHigh(Uint128.mul64(t, N));
