@@ -28,8 +28,6 @@
 */
 package de.tilman_neumann.jml.factor.ecm;
 
-import static org.junit.Assert.assertEquals;
-
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -388,13 +386,7 @@ public class TinyEcm extends FactorAlgorithm {
 	        // r_hi at this point, the result would
 	        // overflow.
 
-	    	int bsr = 63-Long.numberOfLeadingZeros(b); // bsr(b);
-	        if (DEBUG) {
-	        	int bsr2 = bsr(b);
-	        	LOG.debug("bsr=" + bsr + ", bsr2=" + bsr2);
-		    	assertEquals(bsr, bsr2);
-	        }
-	        s = 63 - bsr;
+	        s = Long.numberOfLeadingZeros(b);
 	        int t = 64 - s;
 
 	        b <<= s;
@@ -505,36 +497,6 @@ public class TinyEcm extends FactorAlgorithm {
 	    r = r_lo >>> s;
 
 	    return new long[] {q, r};
-	}
-	
-	int bsr(long x)
-	{
-	    long y;
-	    long r;
-
-//	    r = (x > 0xFFFFFFFF) << 5; x >>= r;
-//	    y = (x > 0xFFFF    ) << 4; x >>= y; r |= y;
-//	    y = (x > 0xFF      ) << 3; x >>= y; r |= y;
-//	    y = (x > 0xF       ) << 2; x >>= y; r |= y;
-//	    y = (x > 0x3       ) << 1; x >>= y; r |= y;
-	    
-	    //r = (x > 0xFFFFFFFF) << 5; 
-	    r = (x > 0xFFFFFFFFL) ? 32 : 0;
-	    x >>>= r;
-	    //y = (x > 0xFFFF    ) << 4; 
-	    y = (x > 0xFFFFL) ? 16 : 0;
-	    x >>>= y; r |= y;
-	    //y = (x > 0xFF      ) << 3; 
-	    y = (x > 0xFFL) ? 8 : 0;
-	    x >>>= y; r |= y;
-	    //y = (x > 0xF       ) << 2;
-	    y = (x > 0xFL) ? 4 : 0;
-	    x >>>= y; r |= y;
-	    //y = (x > 0x3       ) << 1;
-	    y = (x > 0x3L) ? 2 : 0;
-	    x >>>= y; r |= y;
-
-	    return (int) (r | (x >>> 1));
 	}
 	
 	/**
