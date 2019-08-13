@@ -279,12 +279,7 @@ public class Uint128 {
 		return toBigInteger().toString();
 	}
 	
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
+	private static void testCorrectness() {
 		SecureRandom RNG = new SecureRandom();
 		
 		for (int i=0; i<100000; i++) {
@@ -324,5 +319,45 @@ public class Uint128 {
 			}
 			assertEquals(prodBig, prod128Big);
 		}
+	}
+	
+	private static void testPerformance() {
+		SecureRandom RNG = new SecureRandom();
+		int NCOUNT = 40000000;
+		
+		// set up test numbers
+		long[] a_arr = new long[NCOUNT];
+		long[] b_arr = new long[NCOUNT];
+		for (int i=0; i<NCOUNT; i++) {
+			a_arr[i] = RNG.nextLong();
+			b_arr[i] = RNG.nextLong();
+		}
+		
+		// test performance of mul64 implementations
+		long t0 = System.currentTimeMillis();
+		for (int i=0; i<NCOUNT; i++) {
+			mul64(a_arr[i], b_arr[i]);
+		}
+		long t1 = System.currentTimeMillis();
+		LOG.info("mul64 took " + (t1-t0) + "ms");
+		
+		t0 = System.currentTimeMillis();
+		for (int i=0; i<NCOUNT; i++) {
+			mul64_v2(a_arr[i], b_arr[i]);
+		}
+		t1 = System.currentTimeMillis();
+		LOG.info("mul64_v2 took " + (t1-t0) + "ms");
+		
+		// Result: mul64 looks much faster than mul64_v2
+	}
+
+	/**
+	 * Test.
+	 * @param args ignored
+	 */
+	public static void main(String[] args) {
+		ConfigUtil.initProject();
+		testCorrectness();
+		testPerformance();
 	}
 }
