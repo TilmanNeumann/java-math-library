@@ -572,7 +572,7 @@ public class TinyEcm extends FactorAlgorithm {
 		work.tt2 = sqrredcx(work.tt4, work.n, rho);	//(U - V)^2
 
 		ecm_pt Pout = new ecm_pt();
-		if (Pin == lastPout)
+		if (Pin.X == lastPout.X && Pin.Z == lastPout.Z) // Pin == lastPout
 		{
 			long tmp;
 			Pout.Z = mulredcx(work.tt1, Pin.Z, work.n, rho);		//Z * (U + V)^2
@@ -1383,8 +1383,12 @@ public class TinyEcm extends FactorAlgorithm {
 		ConfigUtil.initProject();
 		
 		TinyEcm factorizer = new TinyEcm();
-		int numTestNumbers = 1;
-		long[] testNumbers = new long[] { 1234577*12345701L };
+		int numTestNumbers = 2;
+		long[] testNumbers = new long[] { 
+				1234577*12345701L, 
+				930705057210221L // TODO fail
+		};
+		
 		for (int i=0; i<numTestNumbers; i++) {
 			long N = testNumbers[i];
 			BigInteger factor = factorizer.findSingleFactor(BigInteger.valueOf(N));
