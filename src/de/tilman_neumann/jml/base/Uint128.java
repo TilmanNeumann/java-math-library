@@ -47,6 +47,151 @@ public class Uint128 {
 	public long getLow() {
 		return low;
 	}
+
+	/**
+	 * Add two unsigned 128 bit integers.
+	 * @param other
+	 * @return this + other
+	 */
+	public Uint128 add(Uint128 other) {
+		// We know for sure that low overflows if both low and o_lo are 64 bit.
+		// If only one of the input 'low's is 64 bit, then we can recognize an overflow
+		// if the result.lo is not 64 bit.
+		final long o_lo = other.getLow();
+		final long o_hi = other.getHigh();
+		final long r_lo = low + o_lo;
+		long r_hi = high + o_hi;
+		if ((low<0 && o_lo<0) || ((low<0 || o_lo<0) && (r_lo >= 0))) r_hi++;
+		return new Uint128(r_hi, r_lo);
+	}
+
+	/**
+	 * Compute the sum of this and other, return the high part.
+	 * @param other
+	 * @return high part of this + other
+	 */
+	public long add_getHigh(Uint128 other) {
+		// We know for sure that low overflows if both low and o_lo are 64 bit.
+		// If only one of the input 'low's is 64 bit, then we can recognize an overflow
+		// if the result.lo is not 64 bit.
+		final long o_lo = other.getLow();
+		final long o_hi = other.getHigh();
+		final long r_hi = high + o_hi;
+		return ((low<0 && o_lo<0) || ((low<0 || o_lo<0) && (low + o_lo >= 0))) ? r_hi+1 : r_hi;
+	}
+
+	/**
+	 * Multiplication of unsigned 63 bit integers,
+	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
+	 * 
+	 * This method ignores overflows of the "middle term".
+	 * As such it won't work for 64 bit inputs but is otherwise faster than mul64().
+	 * 
+	 * @param a
+	 * @param b
+	 * @return a*b accurate for inputs <= 63 bit
+	 */
+	public static Uint128 mul63(long a, long b) {
+		final long a_hi = a >>> 32;
+		final long b_hi = b >>> 32;
+		final long a_lo = a & 0xFFFFFFFFL;
+		final long b_lo = b & 0xFFFFFFFFL;
+		final long lo_prod = a_lo * b_lo;
+		final long med_term = a_hi * b_lo + a_lo * b_hi; // possible overflow here
+		final long hi_prod = a_hi * b_hi;
+		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
+		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		return new Uint128(r_hi, r_lo);
+	}
+
+	/**
+	 * Multiplication of unsigned 64 bit integers,
+	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
+	 * 
+	 * This method takes notice of overflows of the "middle term".
+	 * As such it works for 64 bit inputs but is slightly slower than mul63().
+	 * 
+	 * @param a unsigned long
+	 * @param b unsigned long
+	 * @return a*b
+	 */
+	public static Uint128 mul64(long a, long b) {
+		final long a_hi = a >>> 32;
+		final long b_hi = b >>> 32;
+		final long a_lo = a & 0xFFFFFFFFL;
+		final long b_lo = b & 0xFFFFFFFFL;
+		
+		final long lo_prod = a_lo * b_lo;
+		final long med_prod1 = a_hi * b_lo;
+		final long med_prod2 = a_lo * b_hi;
+		final long med_term = med_prod1 + med_prod2;
+		final long hi_prod = a_hi * b_hi;
+		
+		// the medium term could overflow		
+		long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
+		if ((med_prod1<0 && med_prod2<0) || ((med_prod1<0 || med_prod2<0) && med_term>=0)) r_hi += 1L<<32;
+		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		return new Uint128(r_hi, r_lo);
+	}
+
+	/**
+	 * Multiplication of unsigned 64 bit integers,
+	 * following https://codereview.stackexchange.com/questions/67962/mostly-portable-128-by-64-bit-division.
+	 * 
+	 * This method takes notice of overflows of the "middle term".
+	 * As such it works for 64 bit inputs but is slightly slower than mul63().
+	 * 
+	 * @param a unsigned long
+	 * @param b unsigned long
+	 * @return a*b
+	 */
+	public static Uint128 mul64_v2(long a, long b) {
+		long a_lo = a & 0xFFFFFFFFL;
+		long a_hi = a >>> 32;
+
+		long b_lo = b & 0xFFFFFFFFL;
+		long b_hi = b >>> 32;
+
+		long c0 = a_lo * b_lo;
+		long c1 = a_hi * b_lo;
+		long c2 = a_hi * b_hi;
+
+		long u1 = c1 + (a_lo * b_hi);
+		//if (u1 < c1) { // seems to work, too
+	    if(Long.compareUnsigned(u1, c1) < 0){ // works
+	        c2 += 1L << 32;
+	    }
+
+	    long u0 = c0 + (u1 << 32);
+		//if (u0 < c0) { // y may be 1 too big
+	    if(Long.compareUnsigned(u0, c0) < 0){ // works
+	        ++c2;
+	    }
+
+	    long y = c2 + (u1 >>> 32);
+		return new Uint128(y, u0);
+	}
+
+	/**
+	 * Computes the low part of the product of two unsigned 64 bit integers.
+	 * 
+	 * Overflows of the "middle term" are not interesting here because they'ld only
+	 * affect the high part of the multiplication result.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return (a*b) & 0xFFFFFFFFL
+	 */
+	public static long mul64_getLow(long a, long b) {
+		final long a_hi = a >>> 32;
+		final long b_hi = b >>> 32;
+		final long a_lo = a & 0xFFFFFFFFL;
+		final long b_lo = b & 0xFFFFFFFFL;
+		final long lo_prod = a_lo * b_lo;
+		final long med_term = a_hi * b_lo + a_lo * b_hi;
+		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		return r_lo;
+	}
 	
 	/**
 	 * Montgomery multiplication of a*b mod n. ("mulredx" in Yafu)
@@ -82,113 +227,6 @@ public class Uint128 {
 		}
 		
 		return r;
-	}
-	
-	/**
-	 * Multiplication of unsigned 63 bit integers,
-	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
-	 * 
-	 * This method ignores overflows of the "middle term".
-	 * As such it won't work for 64 bit inputs but is otherwise faster than mul64().
-	 * 
-	 * @param x
-	 * @param y
-	 * @return x*y accurate for inputs <= 63 bit
-	 */
-	public static Uint128 mul63(long x, long y) {
-		final long x_hi = x >>> 32;
-		final long y_hi = y >>> 32;
-		final long x_lo = x & 0xFFFFFFFFL;
-		final long y_lo = y & 0xFFFFFFFFL;
-		final long lo_prod = x_lo * y_lo;
-		final long med_term = x_hi * y_lo + x_lo * y_hi; // possible overflow here
-		final long hi_prod = x_hi * y_hi;
-		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
-		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
-		return new Uint128(r_hi, r_lo);
-	}
-
-	/**
-	 * Multiplication of unsigned 64 bit integers,
-	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
-	 * 
-	 * This method takes notice of overflows of the "middle term".
-	 * As such it works for 64 bit inputs but is slightly slower than mul63().
-	 * 
-	 * @param x
-	 * @param y
-	 * @return x*y
-	 */
-	public static Uint128 mul64(long x, long y) {
-		final long x_hi = x >>> 32;
-		final long y_hi = y >>> 32;
-		final long x_lo = x & 0xFFFFFFFFL;
-		final long y_lo = y & 0xFFFFFFFFL;
-		
-		final long lo_prod = x_lo * y_lo;
-		final long med_prod1 = x_hi * y_lo;
-		final long med_prod2 = x_lo * y_hi;
-		final long med_term = med_prod1 + med_prod2;
-		final long hi_prod = x_hi * y_hi;
-		
-		// the medium term could overflow		
-		long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
-		if ((med_prod1<0 && med_prod2<0) || ((med_prod1<0 || med_prod2<0) && med_term>=0)) r_hi += 1L<<32;
-		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
-		return new Uint128(r_hi, r_lo);
-	}
-
-	/**
-	 * Computes the low part of the product of two unsigned 64 bit integers.
-	 * 
-	 * Overflows of the "middle term" are not interesting here because they'ld only
-	 * affect the high part of the multiplication result.
-	 * 
-	 * @param x
-	 * @param y
-	 * @return (x*y) & 0xFFFFFFFFL
-	 */
-	public static long mul64_getLow(long x, long y) {
-		final long x_hi = x >>> 32;
-		final long y_hi = y >>> 32;
-		final long x_lo = x & 0xFFFFFFFFL;
-		final long y_lo = y & 0xFFFFFFFFL;
-		final long lo_prod = x_lo * y_lo;
-		final long med_term = x_hi * y_lo + x_lo * y_hi;
-		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
-		return r_lo;
-	}
-
-	/**
-	 * Add two unsigned 128 bit integers.
-	 * @param other
-	 * @return this + other
-	 */
-	public Uint128 add(Uint128 other) {
-		// We know for sure that low overflows if both low and o_lo are 64 bit.
-		// If only one of the input 'low's is 64 bit, then we can recognize an overflow
-		// if the result.lo is not 64 bit.
-		final long o_lo = other.getLow();
-		final long o_hi = other.getHigh();
-		final long r_lo = low + o_lo;
-		long r_hi = high + o_hi;
-		if ((low<0 && o_lo<0) || ((low<0 || o_lo<0) && (r_lo >= 0))) r_hi++;
-		return new Uint128(r_hi, r_lo);
-	}
-
-	/**
-	 * Compute the sum of this and other, return the high part.
-	 * @param other
-	 * @return high part of this + other
-	 */
-	public long add_getHigh(Uint128 other) {
-		// We know for sure that low overflows if both low and o_lo are 64 bit.
-		// If only one of the input 'low's is 64 bit, then we can recognize an overflow
-		// if the result.lo is not 64 bit.
-		final long o_lo = other.getLow();
-		final long o_hi = other.getHigh();
-		final long r_hi = high + o_hi;
-		return ((low<0 && o_lo<0) || ((low<0 || o_lo<0) && (low + o_lo >= 0))) ? r_hi+1 : r_hi;
 	}
 
 	/**
