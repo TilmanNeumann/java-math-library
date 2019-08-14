@@ -317,14 +317,8 @@ public class TinyEcm extends FactorAlgorithm {
 
 	    int s = 0;
 	    if(0 == (b >>> 63)){
-
-	        // Normalize so quotient estimates are
-	        // no more than 2 in error.
-
-	        // Note: If any bits get shifted out of
-	        // r_hi at this point, the result would
-	        // overflow.
-
+	        // Normalize so quotient estimates are no more than 2 in error.
+	        // Note: If any bits get shifted out of r_hi at this point, the result would overflow.
 	        s = Long.numberOfLeadingZeros(b);
 	        int t = 64 - s;
 
