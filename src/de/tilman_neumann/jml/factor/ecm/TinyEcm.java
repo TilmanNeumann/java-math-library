@@ -273,7 +273,10 @@ public class TinyEcm extends FactorAlgorithm {
 	}
 
 	/**
-	 * Compute the remainder u mod v.
+	 * Compute the remainder of u mod v,
+	 * where U is a 128 bit unsigned integer and v an unsigned 64 bit integer.
+	 * The quotient will be correct only if it is <= 64 bit.
+	 * 
 	 * @param u 128 bit unsigned integer
 	 * @param v 64 bit unsigned integer
 	 * @return [quotient, remainder] of u mod v
