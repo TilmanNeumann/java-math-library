@@ -357,10 +357,16 @@ public class TinyEcm extends FactorAlgorithm {
 		return;
 	}
 
-	ecm_pt dup(long rho, ecm_work work,
-		long insum, long indiff)
+	/**
+	 * 
+	 * @param rho
+	 * @param work
+	 * @param insum
+	 * @param indiff
+	 * @param P input/output
+	 */
+	void dup(long rho, ecm_work work, long insum, long indiff, ecm_pt P)
 	{
-		ecm_pt P = new ecm_pt();
 		work.tt1 = Uint128.montMul64(indiff, indiff, work.n, rho);			// U=(x1 - z1)^2
 		work.tt2 = Uint128.montMul64(insum, insum, work.n, rho);			// V=(x1 + z1)^2
 		P.X = Uint128.montMul64(work.tt1, work.tt2, work.n, rho);			// x=U*V
@@ -369,7 +375,7 @@ public class TinyEcm extends FactorAlgorithm {
 		work.tt2 = Uint128.montMul64(work.tt3, work.s, work.n, rho);		// w = (A+2)/4 * w
 		work.tt2 = addmod(work.tt2, work.tt1, work.n);			// w = w + U
 		P.Z = Uint128.montMul64(work.tt2, work.tt3, work.n, rho);			// Z = w*(V-U)
-		return P;
+		return;
 	}
 
 	void prac70(long rho, ecm_work work, ecm_pt P)
@@ -387,7 +393,7 @@ public class TinyEcm extends FactorAlgorithm {
 
 				d1 = submod(work.pt1.X, work.pt1.Z, work.n);
 				s1 = addmod(work.pt1.X, work.pt1.Z, work.n);
-				work.pt1 = dup(rho, work, s1, d1);
+				dup(rho, work, s1, d1, work.pt1);
 			}
 			else if (prac70Steps[i] == 3)
 			{
@@ -424,7 +430,7 @@ public class TinyEcm extends FactorAlgorithm {
 				s2 = addmod(work.pt1.X, work.pt1.Z, work.n);
 
 				add(rho, work, work.pt2, work.pt1, work.pt3, work.pt2);		// B = B + A (C)
-				work.pt1 = dup(rho, work, s2, d2);		// A = 2A
+				dup(rho, work, s2, d2, work.pt1);		// A = 2A
 			}
 			else if (prac70Steps[i] == 6)
 			{
@@ -451,7 +457,7 @@ public class TinyEcm extends FactorAlgorithm {
 
 				d1 = submod(work.pt1.X, work.pt1.Z, work.n);
 				s1 = addmod(work.pt1.X, work.pt1.Z, work.n);
-				work.pt1 = dup(rho, work, s1, d1);
+				dup(rho, work, s1, d1, work.pt1);
 			}
 			else if (prac85Steps[i] == 3)
 			{
@@ -488,7 +494,7 @@ public class TinyEcm extends FactorAlgorithm {
 				s2 = addmod(work.pt1.X, work.pt1.Z, work.n);
 
 				add(rho, work, work.pt2, work.pt1, work.pt3, work.pt2);		// B = B + A (C)
-				work.pt1 = dup(rho, work, s2, d2);		// A = 2A
+				dup(rho, work, s2, d2, work.pt1);		// A = 2A
 			}
 			else if (prac85Steps[i] == 6)
 			{
@@ -526,7 +532,7 @@ public class TinyEcm extends FactorAlgorithm {
 		s1 = addmod(work.pt1.X, work.pt1.Z, work.n);
 
 		// point2 is [2]P
-		work.pt1 = dup(rho, work, s1, d1);
+		dup(rho, work, s1, d1, work.pt1);
 
 		while (d != e)
 		{
@@ -567,7 +573,7 @@ public class TinyEcm extends FactorAlgorithm {
 				s2 = addmod(work.pt1.X, work.pt1.Z, work.n);
 
 				add(rho, work, work.pt2, work.pt1, work.pt3, work.pt2);		// B = B + A (C)
-				work.pt1 = dup(rho, work, s2, d2);		// A = 2A
+				dup(rho, work, s2, d2, work.pt1);		// A = 2A
 			}
 			else
 			{
@@ -810,7 +816,7 @@ public class TinyEcm extends FactorAlgorithm {
 		{
 			work.diff1 = submod(P.X, P.Z, work.n);
 			work.sum1 = addmod(P.X, P.Z, work.n);
-			P = dup(rho, work, work.sum1, work.diff1);
+			dup(rho, work, work.sum1, work.diff1, P);
 			if (DEBUG) LOG.debug("q=" + q + ": P.X=" + P.X + ", P.Z=" + P.Z);
 			q *= 2;
 		}
@@ -917,7 +923,7 @@ public class TinyEcm extends FactorAlgorithm {
 		Pb[2].X = P.X;
 		work.diff1 = submod(P.X, P.Z, work.n);
 		work.sum1 = addmod(P.X, P.Z, work.n);
-		Pb[2] = dup(rho, work, work.sum1, work.diff1);
+		dup(rho, work, work.sum1, work.diff1, Pb[2]);
 		work.Pbprod[2] = Uint128.montMul64(Pb[2].X, Pb[2].Z, work.n, rho);
 
 		// Calculate all Pb: the following is specialized for D=60
@@ -927,7 +933,7 @@ public class TinyEcm extends FactorAlgorithm {
 		// 2*[3]Q = [6]Q
 		work.diff1 = submod(Pb[3].X, Pb[3].Z, work.n);
 		work.sum1 = addmod(Pb[3].X, Pb[3].Z, work.n);
-		work.pt3 = dup(rho, work, work.sum1, work.diff1);	// pt3 = [6]Q
+		dup(rho, work, work.sum1, work.diff1, work.pt3);	// pt3 = [6]Q
 
 		// [3]Q + [2]Q([1]Q) = [5]Q
 		add(rho, work, Pb[3], Pb[2], Pb[1], work.pt1);	// <-- pt1 = [5]Q
@@ -977,7 +983,7 @@ public class TinyEcm extends FactorAlgorithm {
 		// temporary - make [4]Q
 		work.diff1 = submod(Pb[2].X, Pb[2].Z, work.n);
 		work.sum1 = addmod(Pb[2].X, Pb[2].Z, work.n);
-		work.pt3 = dup(rho, work, work.sum1, work.diff1);	// pt3 = [4]Q
+		dup(rho, work, work.sum1, work.diff1, work.pt3);	// pt3 = [4]Q
 
 		// Pd = [w]Q
 		// [17]Q + [13]Q([4]Q) = [30]Q
@@ -1006,7 +1012,7 @@ public class TinyEcm extends FactorAlgorithm {
 
 			work.diff1 = submod(work.Pad.X, work.Pad.Z, work.n);
 			work.sum1 = addmod(work.Pad.X, work.Pad.Z, work.n);
-			work.Pad = dup(rho, work, work.sum1, work.diff1);	// Pad = [60]Q
+			dup(rho, work, work.sum1, work.diff1, work.Pad);	// Pad = [60]Q
 		}
 		else if (work.stg1_max == 205)
 		{
@@ -1015,7 +1021,7 @@ public class TinyEcm extends FactorAlgorithm {
 
 			work.diff1 = submod(work.Pad.X, work.Pad.Z, work.n);
 			work.sum1 = addmod(work.Pad.X, work.Pad.Z, work.n);
-			work.Pad = dup(rho, work, work.sum1, work.diff1);	// Pad = [60]Q
+			dup(rho, work, work.sum1, work.diff1, work.Pad);	// Pad = [60]Q
 
 			// [150]Q + [60]Q([90]Q) = [210]Q
 			add(rho, work, Pa, work.Pad, work.pt1, Pa);
