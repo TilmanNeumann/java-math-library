@@ -269,30 +269,18 @@ public class TinyEcm extends FactorAlgorithm {
 	 */
 	long u64div(long c, long n)
 	{
-//		__asm__("divq %4"
-//			: "=a"(c), "=d"(n) // outputs: c = quotient, n=remainder
-//			: "1"(c), "0"(0), "r"(n)); // inputs: [0, c], n
-//
-//		return n;
-		return spDivide(new long[] {0, c}, n);
+		return spDivide(new Uint128(c, 0L), n);
 	}
 
 	/**
 	 * Compute the remainder u mod v.
 	 * @param u 128 bit unsigned integer
 	 * @param v 64 bit unsigned integer
-	 * @return u mod v
+	 * @return the remainder u mod v
 	 */
-	long spDivide(long[/*2*/] u, long v)
-	// _s_imple _p_recision divide (and remainder) -- all that remains here is the remainder
+	long spDivide(Uint128 u, long v)
 	{
-//		*r = u[1];
-//		*q = u[0];
-//		__asm__("divq %4"
-//			: "=a"(*q), "=d"(*r) // outputs: a = quotient, r=remainder
-//			: "1"(*r), "0"(*q), "r"(v)); // inputs: [q, r], v
-
-		long[] divRem = div(u[0], u[1], v);
+		long[] divRem = div(u, v);
 		return divRem[1];
 	}
 
@@ -305,15 +293,15 @@ public class TinyEcm extends FactorAlgorithm {
 	 * @return [quotient, remainder]
 	 */
 	// XXX The quotient can not be correct if it has more than 64 bit
-	long[] div(long a_lo, long a_hi, long b)
+	long[] div(Uint128 a, long b)
 	{
 	    long p_lo;
 	    long p_hi;
 	    long q = 0;
 	    long r;
 	    
-	    long r_hi = a_hi;
-	    long r_lo = a_lo;
+	    long r_hi = a.getHigh();
+	    long r_lo = a.getLow();
 
 	    int s = 0;
 	    if(0 == (b >>> 63)){
@@ -441,12 +429,8 @@ public class TinyEcm extends FactorAlgorithm {
 	 */
 	long spMulMod(long u, long v, long m)
 	{
-		long w;
-
 		Uint128 prod128 = Uint128.mul64(u, v);
-		long[] p = new long[] {prod128.getLow(), prod128.getHigh()};
-		w = spDivide(p, m); // w = p mod m
-
+		long w = spDivide(prod128, m); // w = p mod m
 		return w;
 	}
 
