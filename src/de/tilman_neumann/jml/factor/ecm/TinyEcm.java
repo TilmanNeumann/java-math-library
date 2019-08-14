@@ -269,26 +269,24 @@ public class TinyEcm extends FactorAlgorithm {
 	 */
 	long u64div(long c, long n)
 	{
-		return spDivide(new Uint128(c, 0L), n);
+		return spDivide(new Uint128(c, 0L), n)[1];
 	}
 
 	/**
 	 * Compute the remainder u mod v.
 	 * @param u 128 bit unsigned integer
 	 * @param v 64 bit unsigned integer
-	 * @return the remainder u mod v
+	 * @return [quotient, remainder] of u mod v
 	 */
-	long spDivide(Uint128 u, long v)
+	long[] spDivide(Uint128 u, long v)
 	{
-		long[] divRem = div(u, v);
-		return divRem[1];
+		return div(u, v);
 	}
 
 	/**
 	 * Unsigned 128 by 64 bit division and remainder, adapted from
 	 * https://codereview.stackexchange.com/questions/67962/mostly-portable-128-by-64-bit-division.
-	 * @param a_lo
-	 * @param a_hi
+	 * @param a unsigned 128 bit integer
 	 * @param b
 	 * @return [quotient, remainder]
 	 */
@@ -429,8 +427,8 @@ public class TinyEcm extends FactorAlgorithm {
 	 */
 	long spMulMod(long u, long v, long m)
 	{
-		Uint128 prod128 = Uint128.mul64(u, v);
-		long w = spDivide(prod128, m); // w = p mod m
+		Uint128 p = Uint128.mul64(u, v);
+		long w = spDivide(p, m)[1]; // w = p mod m
 		return w;
 	}
 
