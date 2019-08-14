@@ -280,144 +280,131 @@ public class TinyEcm extends FactorAlgorithm {
 	 */
 	long[] spDivide(Uint128 u, long v)
 	{
-		return div(u, v);
-	}
-
-	/**
-	 * Unsigned 128 by 64 bit division and remainder, adapted from
-	 * https://codereview.stackexchange.com/questions/67962/mostly-portable-128-by-64-bit-division.
-	 * @param a unsigned 128 bit integer
-	 * @param b
-	 * @return [quotient, remainder]
-	 */
-	// XXX The quotient can not be correct if it has more than 64 bit
-	long[] div(Uint128 a, long b)
-	{
-	    long p_lo;
-	    long p_hi;
-	    long q = 0;
-	    long r;
-	    
-	    long r_hi = a.getHigh();
-	    long r_lo = a.getLow();
-
-	    int s = 0;
-	    if(0 == (b >>> 63)){
-	        // Normalize so quotient estimates are no more than 2 in error.
-	        // Note: If any bits get shifted out of r_hi at this point, the result would overflow.
-	        s = Long.numberOfLeadingZeros(b);
-	        int t = 64 - s;
-
-	        b <<= s;
-	        r_hi = (r_hi << s)|(r_lo >>> t);
-	        r_lo <<= s;
-	    }
-	    if (DEBUG) LOG.debug("s=" + s + ", b=" + b + ", r_lo=" + r_lo + ", r_hi=" + r_hi);
-	    
-	    long b_hi = b >>> 32;
-
-	    /*
-	    The first full-by-half division places b
-	    across r_hi and r_lo, making the reduction
-	    step a little complicated.
-
-	    To make this easier, u_hi and u_lo will hold
-	    a shifted image of the remainder.
-
-	    [u_hi||    ][u_lo||    ]
-	          [r_hi||    ][r_lo||    ]
-	                [ b  ||    ]
-	    [p_hi||    ][p_lo||    ]
-	                  |
-	                  V
-	                [q_hi||    ]
-	    */
-
-	    long q_hat = Long.divideUnsigned(r_hi, b_hi);
-	    if (DEBUG) LOG.debug("q_hat=" + Long.toUnsignedString(q_hat));
-	    
-	    Uint128 mulResult = Uint128.mul64(b, q_hat); // p_lo = mul(b, q_hat, p_hi);
-	    p_lo = mulResult.getLow();
-	    p_hi = mulResult.getHigh();
-	    if (DEBUG) LOG.debug("p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
-	    
-	    long u_hi = r_hi >>> 32;
-	    long u_lo = (r_hi << 32)|(r_lo >>> 32);
-
-	    // r -= b*q_hat
-	    //
-	    // At most 2 iterations of this...
-	    // In Java we must be careful in the comparisons of longs with the sign bit set!
-	    //while( (p_hi > u_hi) || ((p_hi == u_hi) && (p_lo > u_lo)) )
-	    while( (Long.compareUnsigned(p_hi, u_hi) > 0) || ((p_hi == u_hi) && (Long.compareUnsigned(p_lo, u_lo) > 0)) )
-	    {
-	        //if(p_lo < b){
-	        if (Long.compareUnsigned(p_lo, b) < 0) {
-	            --p_hi;
-	        }
-	        p_lo -= b;
-	        --q_hat;
-	    }
-
-	    long w_lo = (p_lo << 32);
-	    long w_hi = (p_hi << 32)|(p_lo >>> 32);
-	    if (DEBUG) LOG.debug("w_lo=" + Long.toUnsignedString(w_lo) + ", w_hi=" + Long.toUnsignedString(w_hi));
-
-	    if (Long.compareUnsigned(w_lo, r_lo) > 0) {
-	    	if (DEBUG) LOG.debug("increment w_hi!");
-	        ++w_hi;
-	    }
-
-	    r_lo -= w_lo;
-	    r_hi -= w_hi;
-	    if (DEBUG) LOG.debug("r_lo=" + Long.toUnsignedString(r_lo) + ", r_hi=" + Long.toUnsignedString(r_hi));
-	    
-	    q = q_hat << 32;
-
-	    /*
-	    The lower half of the quotient is easier,
-	    as b is now aligned with r_lo.
-
-	          |r_hi][r_lo||    ]
-	                [ b  ||    ]
-	    [p_hi||    ][p_lo||    ]
-	                        |
-	                        V
-	                [q_hi||q_lo]
-	    */
-
-	    q_hat = Long.divideUnsigned((r_hi << 32)|(r_lo >>> 32), b_hi);
-	    if (DEBUG) LOG.debug("b=" + Long.toUnsignedString(b) + ", q_hat=" + Long.toUnsignedString(q_hat));
-	    
-	    mulResult = Uint128.mul64(b, q_hat); // p_lo = mul(b, q_hat, p_hi);
-	    p_lo = mulResult.getLow();
-	    p_hi = mulResult.getHigh();
-	    if (DEBUG) LOG.debug("2: p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
-
-	    // r -= b*q_hat
-	    //
-	    // ...and at most 2 iterations of this.
-	    // In Java we must be careful in the comparisons of longs with the sign bit set!
-	    //while( (p_hi > r_hi) || ((p_hi == r_hi) && (p_lo > r_lo)) )
+		long p_lo;
+		long p_hi;
+		long q = 0;
+		long r;
+		
+		long r_hi = u.getHigh();
+		long r_lo = u.getLow();
+		
+		int s = 0;
+		if(0 == (v >>> 63)){
+		    // Normalize so quotient estimates are no more than 2 in error.
+		    // Note: If any bits get shifted out of r_hi at this point, the result would overflow.
+		    s = Long.numberOfLeadingZeros(v);
+		    int t = 64 - s;
+		
+		    v <<= s;
+		    r_hi = (r_hi << s)|(r_lo >>> t);
+		    r_lo <<= s;
+		}
+		if (DEBUG) LOG.debug("s=" + s + ", b=" + v + ", r_lo=" + r_lo + ", r_hi=" + r_hi);
+		
+		long b_hi = v >>> 32;
+		
+		/*
+		The first full-by-half division places b
+		across r_hi and r_lo, making the reduction
+		step a little complicated.
+		
+		To make this easier, u_hi and u_lo will hold
+		a shifted image of the remainder.
+		
+		[u_hi||    ][u_lo||    ]
+		      [r_hi||    ][r_lo||    ]
+		            [ b  ||    ]
+		[p_hi||    ][p_lo||    ]
+		              |
+		              V
+		            [q_hi||    ]
+		*/
+		
+		long q_hat = Long.divideUnsigned(r_hi, b_hi);
+		if (DEBUG) LOG.debug("q_hat=" + Long.toUnsignedString(q_hat));
+		
+		Uint128 mulResult = Uint128.mul64(v, q_hat); // p_lo = mul(b, q_hat, p_hi);
+		p_lo = mulResult.getLow();
+		p_hi = mulResult.getHigh();
+		if (DEBUG) LOG.debug("p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
+		
+		long u_hi = r_hi >>> 32;
+		long u_lo = (r_hi << 32)|(r_lo >>> 32);
+		
+		// r -= b*q_hat
+		//
+		// At most 2 iterations of this...
+		// In Java we must be careful in the comparisons of longs with the sign bit set!
+		//while( (p_hi > u_hi) || ((p_hi == u_hi) && (p_lo > u_lo)) )
+		while( (Long.compareUnsigned(p_hi, u_hi) > 0) || ((p_hi == u_hi) && (Long.compareUnsigned(p_lo, u_lo) > 0)) )
+		{
+		    //if(p_lo < b){
+		    if (Long.compareUnsigned(p_lo, v) < 0) {
+		        --p_hi;
+		    }
+		    p_lo -= v;
+		    --q_hat;
+		}
+		
+		long w_lo = (p_lo << 32);
+		long w_hi = (p_hi << 32)|(p_lo >>> 32);
+		if (DEBUG) LOG.debug("w_lo=" + Long.toUnsignedString(w_lo) + ", w_hi=" + Long.toUnsignedString(w_hi));
+		
+		if (Long.compareUnsigned(w_lo, r_lo) > 0) {
+			if (DEBUG) LOG.debug("increment w_hi!");
+		    ++w_hi;
+		}
+		
+		r_lo -= w_lo;
+		r_hi -= w_hi;
+		if (DEBUG) LOG.debug("r_lo=" + Long.toUnsignedString(r_lo) + ", r_hi=" + Long.toUnsignedString(r_hi));
+		
+		q = q_hat << 32;
+		
+		/*
+		The lower half of the quotient is easier,
+		as b is now aligned with r_lo.
+		
+		      |r_hi][r_lo||    ]
+		            [ b  ||    ]
+		[p_hi||    ][p_lo||    ]
+		                    |
+		                    V
+		            [q_hi||q_lo]
+		*/
+		
+		q_hat = Long.divideUnsigned((r_hi << 32)|(r_lo >>> 32), b_hi);
+		if (DEBUG) LOG.debug("b=" + Long.toUnsignedString(v) + ", q_hat=" + Long.toUnsignedString(q_hat));
+		
+		mulResult = Uint128.mul64(v, q_hat); // p_lo = mul(b, q_hat, p_hi);
+		p_lo = mulResult.getLow();
+		p_hi = mulResult.getHigh();
+		if (DEBUG) LOG.debug("2: p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
+		
+		// r -= b*q_hat
+		//
+		// ...and at most 2 iterations of this.
+		// In Java we must be careful in the comparisons of longs with the sign bit set!
+		//while( (p_hi > r_hi) || ((p_hi == r_hi) && (p_lo > r_lo)) )
 		while( (Long.compareUnsigned(p_hi, r_hi) > 0) || ((p_hi == r_hi) && (Long.compareUnsigned(p_lo, r_lo) > 0)) )
-	    {
-	        //if(p_lo < b){
-	        if(Long.compareUnsigned(p_lo, b) < 0){
-	            --p_hi;
-	        }
-	        p_lo -= b;
-	        --q_hat;
-	    }
-
-	    r_lo -= p_lo;
-
-	    q |= q_hat;
-
-	    r = r_lo >>> s;
-
-	    return new long[] {q, r};
+		{
+		    //if(p_lo < b){
+		    if(Long.compareUnsigned(p_lo, v) < 0){
+		        --p_hi;
+		    }
+		    p_lo -= v;
+		    --q_hat;
+		}
+		
+		r_lo -= p_lo;
+		
+		q |= q_hat;
+		
+		r = r_lo >>> s;
+		
+		return new long[] {q, r};
 	}
-	
+
 	/**
 	 * Compute u*v mod m.
 	 * @param u
