@@ -269,143 +269,8 @@ public class TinyEcm extends FactorAlgorithm {
 	 */
 	long u64div(long c, long n)
 	{
-		return spDivide(new Uint128(c, 0L), n)[1];
-	}
-
-	/**
-	 * Compute quotient and remainder of u / v,
-	 * where U is a 128 bit unsigned integer and v an unsigned 64 bit integer.
-	 * The quotient will be correct only if it is <= 64 bit.
-	 * 
-	 * @param u 128 bit unsigned integer
-	 * @param v 64 bit unsigned integer
-	 * @return [quotient, remainder] of u mod v
-	 */
-	long[] spDivide(Uint128 u, long v)
-	{
-		long p_lo;
-		long p_hi;
-		long q = 0;
-		long r;
-		
-		long r_hi = u.getHigh();
-		long r_lo = u.getLow();
-		
-		int s = 0;
-		if(0 == (v >>> 63)){
-		    // Normalize so quotient estimates are no more than 2 in error.
-		    // Note: If any bits get shifted out of r_hi at this point, the result would overflow.
-		    s = Long.numberOfLeadingZeros(v);
-		    int t = 64 - s;
-		
-		    v <<= s;
-		    r_hi = (r_hi << s)|(r_lo >>> t);
-		    r_lo <<= s;
-		}
-		if (DEBUG) LOG.debug("s=" + s + ", b=" + v + ", r_lo=" + r_lo + ", r_hi=" + r_hi);
-		
-		long b_hi = v >>> 32;
-		
-		/*
-		The first full-by-half division places b
-		across r_hi and r_lo, making the reduction
-		step a little complicated.
-		
-		To make this easier, u_hi and u_lo will hold
-		a shifted image of the remainder.
-		
-		[u_hi||    ][u_lo||    ]
-		      [r_hi||    ][r_lo||    ]
-		            [ b  ||    ]
-		[p_hi||    ][p_lo||    ]
-		              |
-		              V
-		            [q_hi||    ]
-		*/
-		
-		long q_hat = Long.divideUnsigned(r_hi, b_hi);
-		if (DEBUG) LOG.debug("q_hat=" + Long.toUnsignedString(q_hat));
-		
-		Uint128 mulResult = Uint128.mul64(v, q_hat); // p_lo = mul(b, q_hat, p_hi);
-		p_lo = mulResult.getLow();
-		p_hi = mulResult.getHigh();
-		if (DEBUG) LOG.debug("p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
-		
-		long u_hi = r_hi >>> 32;
-		long u_lo = (r_hi << 32)|(r_lo >>> 32);
-		
-		// r -= b*q_hat
-		//
-		// At most 2 iterations of this...
-		// In Java we must be careful in the comparisons of longs with the sign bit set!
-		//while( (p_hi > u_hi) || ((p_hi == u_hi) && (p_lo > u_lo)) )
-		while( (Long.compareUnsigned(p_hi, u_hi) > 0) || ((p_hi == u_hi) && (Long.compareUnsigned(p_lo, u_lo) > 0)) )
-		{
-		    //if(p_lo < b){
-		    if (Long.compareUnsigned(p_lo, v) < 0) {
-		        --p_hi;
-		    }
-		    p_lo -= v;
-		    --q_hat;
-		}
-		
-		long w_lo = (p_lo << 32);
-		long w_hi = (p_hi << 32)|(p_lo >>> 32);
-		if (DEBUG) LOG.debug("w_lo=" + Long.toUnsignedString(w_lo) + ", w_hi=" + Long.toUnsignedString(w_hi));
-		
-		if (Long.compareUnsigned(w_lo, r_lo) > 0) {
-			if (DEBUG) LOG.debug("increment w_hi!");
-		    ++w_hi;
-		}
-		
-		r_lo -= w_lo;
-		r_hi -= w_hi;
-		if (DEBUG) LOG.debug("r_lo=" + Long.toUnsignedString(r_lo) + ", r_hi=" + Long.toUnsignedString(r_hi));
-		
-		q = q_hat << 32;
-		
-		/*
-		The lower half of the quotient is easier,
-		as b is now aligned with r_lo.
-		
-		      |r_hi][r_lo||    ]
-		            [ b  ||    ]
-		[p_hi||    ][p_lo||    ]
-		                    |
-		                    V
-		            [q_hi||q_lo]
-		*/
-		
-		q_hat = Long.divideUnsigned((r_hi << 32)|(r_lo >>> 32), b_hi);
-		if (DEBUG) LOG.debug("b=" + Long.toUnsignedString(v) + ", q_hat=" + Long.toUnsignedString(q_hat));
-		
-		mulResult = Uint128.mul64(v, q_hat); // p_lo = mul(b, q_hat, p_hi);
-		p_lo = mulResult.getLow();
-		p_hi = mulResult.getHigh();
-		if (DEBUG) LOG.debug("2: p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
-		
-		// r -= b*q_hat
-		//
-		// ...and at most 2 iterations of this.
-		// In Java we must be careful in the comparisons of longs with the sign bit set!
-		//while( (p_hi > r_hi) || ((p_hi == r_hi) && (p_lo > r_lo)) )
-		while( (Long.compareUnsigned(p_hi, r_hi) > 0) || ((p_hi == r_hi) && (Long.compareUnsigned(p_lo, r_lo) > 0)) )
-		{
-		    //if(p_lo < b){
-		    if(Long.compareUnsigned(p_lo, v) < 0){
-		        --p_hi;
-		    }
-		    p_lo -= v;
-		    --q_hat;
-		}
-		
-		r_lo -= p_lo;
-		
-		q |= q_hat;
-		
-		r = r_lo >>> s;
-		
-		return new long[] {q, r};
+		return new Uint128(c, 0L).spDivide(n)[1];
+		// TODO lo=0 may yield some simplifications
 	}
 
 	/**
@@ -417,9 +282,7 @@ public class TinyEcm extends FactorAlgorithm {
 	 */
 	long spMulMod(long u, long v, long m)
 	{
-		Uint128 p = Uint128.mul64(u, v);
-		long w = spDivide(p, m)[1]; // w = p mod m
-		return w;
+		return Uint128.mul64(u, v).spDivide(m)[1];
 	}
 
 	long spGCD(long x, long y)
