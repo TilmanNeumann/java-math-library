@@ -203,7 +203,7 @@ public class TinyEcm extends FactorAlgorithm {
 		a = x; b = y;
 		while (b != 0)
 		{
-			c = a % b;
+			c = Long.remainderUnsigned(a, b);
 			a = b;
 			b = c;
 		}
