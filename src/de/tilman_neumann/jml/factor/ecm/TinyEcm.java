@@ -1073,20 +1073,19 @@ public class TinyEcm extends FactorAlgorithm {
 		TinyEcm factorizer = new TinyEcm();
 		long[] testNumbers = new long[] { 
 //				1234577*12345701L,
-//				// TODO failures
-//				930705057210221L,
-//				1067332898136023L,
-				// TODO ArrayIndexOutOfBoundsException: 61 at TinyEcm.ecm_stage2(TinyEcm.java:999)
-				1253586675305333L,
+				// fixed
+//				1253586675305333L,
 //				1139151196120601L,
 //				1553712951089947L,
 //				2235885271339597L,
 //				1586929215386303L,
-				// TODO more failures
-				8311092540494299L,
-				23603982383629381L,
-				58725827789610857L,
-				369313815090910177L,
+//				// TODO failures
+				930705057210221L,
+//				1067332898136023L,
+//				8311092540494299L,
+//				23603982383629381L,
+//				58725827789610857L,
+//				369313815090910177L,
 		};
 		
 		for (int i=0; i<testNumbers.length; i++) {
