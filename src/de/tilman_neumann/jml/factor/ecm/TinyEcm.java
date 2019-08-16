@@ -972,7 +972,7 @@ public class TinyEcm extends FactorAlgorithm {
 		if (DEBUG) LOG.debug("numb = " + numb);
 		for (i = 0; i < numb; i++)
 		{
-			if (DEBUG) LOG.debug("i=" + i + ", barray[i]=" + barray[i]);
+			//LOG.debug("i=" + i + ", barray[i]=" + barray[i]);
 			if (barray[i] == 0)
 			{
 				//giant step - use the addition formula for ECM
