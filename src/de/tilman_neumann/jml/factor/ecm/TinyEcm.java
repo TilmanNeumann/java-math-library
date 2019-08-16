@@ -41,7 +41,7 @@ public class TinyEcm extends FactorAlgorithm {
 
 	private static final Logger LOG = Logger.getLogger(TinyEcm.class);
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	private static final byte[] prac70Steps = new byte[] { 
 			0,6,0,6,0,6,0,4,6,0,4,6,0,4,4,6,
@@ -1001,7 +1001,7 @@ public class TinyEcm extends FactorAlgorithm {
 			
 			// accumulate the cross product  (zimmerman syntax).
 			// page 342 in C&P
-			work.tt1 = submod(Pa.X, Pb[map[b]].X, work.n); // TODO ArrayIndexOutOfBoundsException: 61 at 51 bit
+			work.tt1 = submod(Pa.X, Pb[map[b]].X, work.n);
 			work.tt2 = addmod(Pa.Z, Pb[map[b]].Z, work.n);
 			work.tt3 = Uint128.montMul64(work.tt1, work.tt2, work.n, rho);
 			work.tt1 = addmod(work.tt3, work.Pbprod[map[b]], work.n);
