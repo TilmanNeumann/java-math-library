@@ -141,7 +141,7 @@ public class TinyEcm extends FactorAlgorithm {
 		0, 10, 0, 0, 0, 0, 0, 11, 0, 0,
 		0, 12, 0, 13, 0, 0, 0, 14, 0, 15,
 		0, 0, 0, 16, 0, 0, 0, 0, 0, 17,
-		18 };
+		18, /*NEW XXX correct?*/ 0 };
 
 	/**
 	 * Compute (y-x) mod n.
@@ -942,6 +942,7 @@ public class TinyEcm extends FactorAlgorithm {
 		acc = u64div(1, work.n);
 		work.Paprod = Uint128.montMul64(Pa.X, Pa.Z, work.n, rho);
 
+		if (DEBUG) LOG.debug("stg1_max = " + work.stg1_max);
 		if (work.stg1_max == 70)
 		{
 			barray = b1_70;
@@ -968,8 +969,10 @@ public class TinyEcm extends FactorAlgorithm {
 			numb = numb1_205;
 		}
 
+		if (DEBUG) LOG.debug("numb = " + numb);
 		for (i = 0; i < numb; i++)
 		{
+			if (DEBUG) LOG.debug("i=" + i + ", barray[i]=" + barray[i]);
 			if (barray[i] == 0)
 			{
 				//giant step - use the addition formula for ECM
@@ -982,7 +985,8 @@ public class TinyEcm extends FactorAlgorithm {
 				//Pad holds the previous Pa
 				work.Pad.X = work.pt1.X;
 				work.Pad.Z = work.pt1.Z;
-
+				if (DEBUG) LOG.debug("Pad.X=" + work.Pad.X + ", Pad.Z=" + work.Pad.Z);
+				
 				//and Paprod
 				work.Paprod = Uint128.montMul64(Pa.X, Pa.Z, work.n, rho);
 
@@ -993,6 +997,8 @@ public class TinyEcm extends FactorAlgorithm {
 			//in CP notation, Pa -> (Xr,Zr), Pb -> (Xd,Zd)
 
 			b = barray[i];
+			if (DEBUG) if (b==61) LOG.debug("b=" + b + ", map[b]=" + map[b]);
+			
 			// accumulate the cross product  (zimmerman syntax).
 			// page 342 in C&P
 			work.tt1 = submod(Pa.X, Pb[map[b]].X, work.n); // TODO ArrayIndexOutOfBoundsException: 61 at 51 bit
@@ -1001,7 +1007,6 @@ public class TinyEcm extends FactorAlgorithm {
 			work.tt1 = addmod(work.tt3, work.Pbprod[map[b]], work.n);
 			work.tt2 = submod(work.tt1, work.Paprod, work.n);
 			acc = Uint128.montMul64(acc, work.tt2, work.n, rho);
-
 		}
 
 		work.stg2acc = acc;
@@ -1066,15 +1071,25 @@ public class TinyEcm extends FactorAlgorithm {
 		ConfigUtil.initProject();
 		
 		TinyEcm factorizer = new TinyEcm();
-		int numTestNumbers = 3;
 		long[] testNumbers = new long[] { 
-				1234577*12345701L,
-				// TODO failures
-				930705057210221L,
-				1067332898136023L
+//				1234577*12345701L,
+//				// TODO failures
+//				930705057210221L,
+//				1067332898136023L,
+				// TODO ArrayIndexOutOfBoundsException: 61 at TinyEcm.ecm_stage2(TinyEcm.java:999)
+				1253586675305333L,
+//				1139151196120601L,
+//				1553712951089947L,
+//				2235885271339597L,
+//				1586929215386303L,
+				// TODO more failures
+				8311092540494299L,
+				23603982383629381L,
+				58725827789610857L,
+				369313815090910177L,
 		};
 		
-		for (int i=0; i<numTestNumbers; i++) {
+		for (int i=0; i<testNumbers.length; i++) {
 			long N = testNumbers[i];
 			BigInteger factor = factorizer.findSingleFactor(BigInteger.valueOf(N));
 			LOG.info("Found factor " + factor + " of N=" + N);
