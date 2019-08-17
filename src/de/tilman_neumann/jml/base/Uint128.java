@@ -220,7 +220,7 @@ public class Uint128 {
 		r = r<N ? r : r-N;
 
 		if (DEBUG) {
-			LOG.debug(a + " * " + b + " = " + r);
+			//LOG.debug(a + " * " + b + " = " + r);
 			assertTrue(a >= 0 && a<N);
 			assertTrue(b >= 0 && b<N);
 			assertTrue(r >= 0 && r < N);
@@ -245,6 +245,7 @@ public class Uint128 {
 		
 		long r_hi = getHigh();
 		long r_lo = getLow();
+		if (DEBUG) LOG.debug("r_hi=" + Long.toUnsignedString(r_hi) + ", r_lo=" + Long.toUnsignedString(r_lo));
 		
 		int s = 0;
 		if(0 == (v >>> 63)){
@@ -257,7 +258,7 @@ public class Uint128 {
 		    r_hi = (r_hi << s)|(r_lo >>> t);
 		    r_lo <<= s;
 		}
-		if (DEBUG) LOG.debug("s=" + s + ", b=" + v + ", r_lo=" + r_lo + ", r_hi=" + r_hi);
+		if (DEBUG) LOG.debug("s=" + s + ", b=" + Long.toUnsignedString(v) + ", r_lo=" + r_lo + ", r_hi=" + r_hi);
 		
 		long b_hi = v >>> 32;
 		

@@ -573,41 +573,44 @@ public class TinyEcm extends FactorAlgorithm {
 		long u, v, n;
 		n = work.n;
 
+		if (DEBUG) LOG.debug("Pin=" + P.X + ", " + P.Z);
+		
 		if (sigma == 0)
 		{
 			work.sigma = spRand(7, (int)-1);
-			//LOG.debug("random sigma=" + work.sigma);
+			if (DEBUG) LOG.debug("random sigma=" + work.sigma);
 		}
 		else
 		{
 			work.sigma = sigma;
-			//LOG.debug("use existing sigma=" + work.sigma);
+			if (DEBUG) LOG.debug("use existing sigma=" + work.sigma);
 		}
 		sigma = work.sigma;
 
-		u = sigma;
+		if (DEBUG) LOG.debug("n=" + n);
+		u = Integer.toUnsignedLong(sigma); //sigma; // implicit cast goes wrong for sigma being negative signed int
 		u = u64div(u, n);
-		//LOG.debug("u=" + u);
+		if (DEBUG) LOG.debug("u=" + u);
 		
 		t1 = 4;
 		t1 = u64div(t1, n);
-		//LOG.debug("t1=" + t1);
+		if (DEBUG) LOG.debug("t1=" + t1);
 
 		v = Uint128.montMul64(u, t1, n, rho);		// v = 4*sigma
-		//LOG.debug("v=" + v);
+		if (DEBUG) LOG.debug("v=" + v);
 
 		u = Uint128.montMul64(u, u, n, rho);
-		//LOG.debug("u=" + u);
+		if (DEBUG) LOG.debug("u=" + u);
 		
 		t1 = 5;
 		t1 = u64div(t1, n);
-		//LOG.debug("t1=" + t1);
+		if (DEBUG) LOG.debug("t1=" + t1);
 		
 		u = submod(u, t1, n);			// u = sigma^2 - 5
-		//LOG.debug("u=" + u);
+		if (DEBUG) LOG.debug("u=" + u);
 
 		t1 = Uint128.montMul64(u, u, n, rho);
-		//LOG.debug("t1=" + t1);
+		if (DEBUG) LOG.debug("t1=" + t1);
 		P.X = Uint128.montMul64(t1, u, n, rho);	// x = u^3
 		if (DEBUG) LOG.debug("P.X=" + P.X);
 
@@ -1078,20 +1081,30 @@ public class TinyEcm extends FactorAlgorithm {
 		
 		TinyEcm factorizer = new TinyEcm();
 		long[] testNumbers = new long[] { 
-				1234577*12345701L,
-				// Failures before map[] fix
-				1253586675305333L,
-				1139151196120601L,
-				1553712951089947L,
-				2235885271339597L,
-				1586929215386303L,
-				// Failures before spRand() fix
-				930705057210221L,
-				1067332898136023L,
-				8311092540494299L,
-				23603982383629381L,
-				58725827789610857L,
-				369313815090910177L,
+//				1234577*12345701L,
+//				// Failures before map[] fix
+//				1253586675305333L,
+//				1139151196120601L,
+//				1553712951089947L,
+//				2235885271339597L,
+//				1586929215386303L,
+//				// Failures before spRand() fix
+//				930705057210221L,
+//				1067332898136023L,
+//				8311092540494299L,
+//				23603982383629381L,
+//				58725827789610857L,
+//				369313815090910177L,
+//				// Failures before int to long cast fix
+//				41382606407163353L,
+//				306358296309770459L,
+				// TODO new fails
+				474315852287951L,
+				9400170223537253L,
+				35239016917581299L,
+				37915240075398767L,
+				459926431465210403L,
+				752882545886305349L,
 		};
 		
 		for (int i=0; i<testNumbers.length; i++) {
