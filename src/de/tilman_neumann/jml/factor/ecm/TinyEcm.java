@@ -213,18 +213,24 @@ public class TinyEcm extends FactorAlgorithm {
 	long LCGSTATE;
 	int spRand(int lower, int upper)
 	{
+		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE);
+		
 		// fix rng for negative upper values;
 		long upperl = (long) upper;
 		if (upperl<0) upperl += (1L<<32);
-		if (DEBUG) LOG.debug("lower=" + lower + ", upper=" + upperl);
+		long diff = upperl - lower;
+		if (DEBUG) LOG.debug("lower=" + lower + ", upper=" + upperl + ", diff=" + diff);
 		
 		// advance the state of the LCG and return the appropriate result
 		LCGSTATE = 6364136223846793005L * LCGSTATE + 1442695040888963407L;
-		if (DEBUG) LOG.debug("LCGSTATE = " + LCGSTATE);
-		long diff = upperl - lower;
-		int rand = (int)(diff * (double)(LCGSTATE >> 32) / 4294967296.0); // dividend is 2^32
+		long LCGSTATE_shifted = LCGSTATE >>> 32;
+		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE + ", LCGSTATE_shifted=" + LCGSTATE_shifted);
+		
+		double quot = (double)LCGSTATE_shifted / 4294967296.0; // dividend is 2^32
+		double prod = diff * quot;
+		int rand = (int)prod; // TODO result differs from C
 		int result = lower + rand;
-		if (DEBUG) LOG.debug("diff=" + diff + ", rand=" + rand + ", result=" + result);
+		if (DEBUG) LOG.debug("quot=" + quot + ", prod=" + prod + ", rand=" + rand + ", result=" + result);
 		return result;
 	}
 
