@@ -1030,8 +1030,8 @@ public class TinyEcm extends FactorAlgorithm {
 	public BigInteger findSingleFactor(BigInteger N) {
 		Random rng = new Random();
 		rng.setSeed(42);
-//		LCGSTATE = 65537 * rng.nextInt();
-		LCGSTATE = 4295098403L;
+		LCGSTATE = 65537 * rng.nextInt(); // original
+		//LCGSTATE = 4295098403L; // rng seed 2
 		if (DEBUG) LOG.debug("LCGSTATE = " + LCGSTATE);
 		
 		int NBits = N.bitLength();
@@ -1089,13 +1089,20 @@ public class TinyEcm extends FactorAlgorithm {
 				// Failures before int to long cast fix
 				41382606407163353L,
 				306358296309770459L,
-				// Failures because the number of curves is too small
+				// Failures with "rng seed 2"
 				474315852287951L,
 				9400170223537253L,
 				35239016917581299L,
 				37915240075398767L,
 				459926431465210403L,
 				752882545886305349L,
+				// Failures with original rng
+				74003384967329L,
+				426414508794943L,
+				564980767226363L,
+				1538765965380499L,
+				12726549719013233L,
+				551072454991444801L,
 		};
 		
 		for (int i=0; i<testNumbers.length; i++) {
