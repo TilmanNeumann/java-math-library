@@ -1036,7 +1036,8 @@ public class TinyEcm extends FactorAlgorithm {
 		if (DEBUG) LOG.debug("LCGSTATE = " + LCGSTATE);
 		
 		int NBits = N.bitLength();
-		if (NBits > 63) throw new IllegalArgumentException("N=" + N + " has " + NBits + " bit, but tinyEcm supports arguments up to 63 bit only.");
+		if (NBits > 62) throw new IllegalArgumentException("N=" + N + " has " + NBits + " bit, but tinyEcm supports arguments up to 63 bit only.");
+		// TODO Try to make it work for 63, 64 bit numbers
 		if (DEBUG) LOG.debug("N=" + N + " has " + NBits + " bits");
 		
 		// parameters for N <= 50 bit
