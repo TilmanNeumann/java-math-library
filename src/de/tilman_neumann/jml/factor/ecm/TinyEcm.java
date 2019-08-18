@@ -46,6 +46,44 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class TinyEcm extends FactorAlgorithm {
+	
+	private static class ecm_pt {
+		long X;
+		long Z;
+	}
+
+	private static class ecm_work {
+		long sum1;
+		long diff1;
+		long sum2;
+		long diff2;
+		long tt1;
+		long tt2;
+		long tt3;
+		long tt4;
+		long s;
+		long n;
+		ecm_pt pt1 = new ecm_pt();
+		ecm_pt pt2 = new ecm_pt();
+		ecm_pt pt3 = new ecm_pt();
+		ecm_pt pt4 = new ecm_pt();
+		int sigma;
+
+		ecm_pt Pa = new ecm_pt();
+		ecm_pt Pad = new ecm_pt();
+		ecm_pt[] Pb = new ecm_pt[20];
+		long Paprod;
+		long[] Pbprod = new long[20];
+
+		long stg2acc;
+		int stg1_max;
+		
+		public ecm_work() {
+			for (int i=0; i<20; i++) {
+				Pb[i] = new ecm_pt();
+			}
+		}
+	}
 
 	private static final Logger LOG = Logger.getLogger(TinyEcm.class);
 
@@ -94,48 +132,6 @@ public class TinyEcm extends FactorAlgorithm {
 	private static final int numb1_205 = 511;
 	private static final byte[] b1_205 = new byte[] { 1,23,41,0,59,53,49,47,37,23,19,17,13,1,7,29,43,0,53,49,41,31,29,19,17,11,7,1,13,37,59,0,49,47,29,23,13,7,1,17,31,37,43,0,59,49,47,43,37,31,29,17,13,7,1,11,19,53,0,59,53,49,41,37,23,13,1,11,17,19,29,43,47,0,53,49,47,43,23,19,11,1,7,17,37,41,0,59,53,41,37,31,29,19,17,11,1,13,43,47,0,53,47,41,19,17,7,1,11,23,31,43,59,0,59,53,41,31,13,11,7,1,17,29,37,0,49,43,37,29,11,1,13,17,19,23,41,0,59,49,47,43,41,37,31,19,7,1,13,23,29,53,0,53,49,43,41,37,31,29,23,13,7,17,19,47,59,0,49,47,37,29,23,17,11,7,13,19,31,41,53,0,59,43,29,23,19,17,13,11,1,41,0,59,37,31,23,17,13,11,7,1,19,29,43,53,0,49,47,43,41,31,19,17,1,7,11,13,23,0,47,43,37,29,13,11,7,1,17,19,23,31,59,0,59,37,31,29,23,19,13,1,7,11,41,47,53,0,53,49,43,31,23,17,13,41,59,0,59,53,31,19,17,1,7,11,23,37,47,49,0,59,53,47,43,41,37,31,23,19,17,11,1,0,59,53,49,47,31,17,13,7,1,11,29,37,0,53,43,31,17,13,7,1,29,41,49,0,53,49,41,29,23,11,7,1,19,31,47,0,47,43,41,29,23,19,7,1,11,49,0,59,31,29,23,17,11,7,1,13,41,43,0,59,43,37,17,1,7,11,13,19,41,49,0,59,53,43,41,37,31,29,23,13,11,1,47,0,59,53,47,31,19,17,13,1,7,11,29,37,43,49,0,49,43,41,31,17,13,7,11,23,37,53,0,53,49,41,23,19,13,11,7,1,17,37,59,0,49,47,43,37,31,29,23,1,7,41,0,59,43,41,37,31,17,13,11,7,47,49,0,59,49,47,37,31,29,19,17,7,1,0,53,47,37,19,13,1,11,31,41,0,49,47,37,23,17,13,11,7,19,31,53,0,59,53,47,29,13,11,7,1,23,41,0,49,47,41,37,19,11,13,17,23,29,31,43,0,59,29,19,13,1,41,43,47,53,0,59,53,43,41,37,23,17,11,7,1,13,29,49 };
 
-	public String getName() {
-		return "TinyEcm";
-	}
-	
-	private static class ecm_pt {
-		long X;
-		long Z;
-	}
-
-	private static class ecm_work {
-		long sum1;
-		long diff1;
-		long sum2;
-		long diff2;
-		long tt1;
-		long tt2;
-		long tt3;
-		long tt4;
-		long s;
-		long n;
-		ecm_pt pt1 = new ecm_pt();
-		ecm_pt pt2 = new ecm_pt();
-		ecm_pt pt3 = new ecm_pt();
-		ecm_pt pt4 = new ecm_pt();
-		int sigma;
-
-		ecm_pt Pa = new ecm_pt();
-		ecm_pt Pad = new ecm_pt();
-		ecm_pt[] Pb = new ecm_pt[20];
-		long Paprod;
-		long[] Pbprod = new long[20];
-
-		long stg2acc;
-		int stg1_max;
-		
-		public ecm_work() {
-			for (int i=0; i<20; i++) {
-				Pb[i] = new ecm_pt();
-			}
-		}
-	}
-
 	private static final int[] map = {
 		0, 1, 2, 0, 0, 0, 0, 3, 0, 0,
 		0, 4, 0, 5, 0, 0, 0, 6, 0, 7,
@@ -144,6 +140,12 @@ public class TinyEcm extends FactorAlgorithm {
 		0, 12, 0, 13, 0, 0, 0, 14, 0, 15,
 		0, 0, 0, 16, 0, 0, 0, 0, 0, 17,
 		18, 0 };
+
+	long LCGSTATE;
+
+	public String getName() {
+		return "TinyEcm";
+	}
 
 	/**
 	 * Compute (y-x) mod n.
@@ -212,7 +214,6 @@ public class TinyEcm extends FactorAlgorithm {
 		return a;
 	}
 
-	long LCGSTATE;
 	int spRand(int lower, int upper)
 	{
 		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE);
