@@ -139,7 +139,9 @@ public class Uint128 {
 	 * following https://codereview.stackexchange.com/questions/67962/mostly-portable-128-by-64-bit-division.
 	 * 
 	 * This method takes notice of overflows of the "middle term".
-	 * As such it works for 64 bit inputs but is slightly slower than mul63().
+	 * As such it works for 64 bit inputs.
+	 * 
+	 * Slower than the first version of mul64().
 	 * 
 	 * @param a unsigned long
 	 * @param b unsigned long
@@ -157,14 +159,12 @@ public class Uint128 {
 		long c2 = a_hi * b_hi;
 
 		long u1 = c1 + (a_lo * b_hi);
-		//if (u1 < c1) { // seems to work, too
-	    if(Long.compareUnsigned(u1, c1) < 0){ // works
+	    if(Long.compareUnsigned(u1, c1) < 0){
 	        c2 += 1L << 32;
 	    }
 
 	    long u0 = c0 + (u1 << 32);
-		//if (u0 < c0) { // y may be 1 too big
-	    if(Long.compareUnsigned(u0, c0) < 0){ // works
+	    if(Long.compareUnsigned(u0, c0) < 0){
 	        ++c2;
 	    }
 
