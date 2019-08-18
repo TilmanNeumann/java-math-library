@@ -26,6 +26,10 @@
 	of the authors and should not be interpreted as representing official policies,
 	either expressed or implied, of the FreeBSD Project.
 */
+/*
+ * From https://www.mersenneforum.org/showthread.php?t=22525&page=11:
+ * "The code for the 64-bit version is posted back in post 84, if you are interested; it's open source."
+ */
 package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
@@ -37,6 +41,10 @@ import de.tilman_neumann.jml.base.Uint128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.util.ConfigUtil;
 
+/**
+ * A port of Ben Buhrow's tinyecm.c, an ECM implementation for unsigned 64 bit integers.
+ * @author Tilman Neumann
+ */
 public class TinyEcm extends FactorAlgorithm {
 
 	private static final Logger LOG = Logger.getLogger(TinyEcm.class);
@@ -104,28 +112,22 @@ public class TinyEcm extends FactorAlgorithm {
 		long tt2;
 		long tt3;
 		long tt4;
-		//long tt5; // unused in original C program
 		long s;
 		long n;
 		ecm_pt pt1 = new ecm_pt();
 		ecm_pt pt2 = new ecm_pt();
 		ecm_pt pt3 = new ecm_pt();
 		ecm_pt pt4 = new ecm_pt();
-		//ecm_pt pt5 = new ecm_pt(); // unused in original C program
 		int sigma;
 
 		ecm_pt Pa = new ecm_pt();
-		//ecm_pt Pd = new ecm_pt(); // unused in original C program
 		ecm_pt Pad = new ecm_pt();
 		ecm_pt[] Pb = new ecm_pt[20];
 		long Paprod;
 		long[] Pbprod = new long[20];
 
 		long stg2acc;
-		//long A; // unused in original C program
-		//int last_pid; // unused in original C program
 		int stg1_max;
-		//int stg2_max; // unused in original C program
 		
 		public ecm_work() {
 			for (int i=0; i<20; i++) {
@@ -141,7 +143,7 @@ public class TinyEcm extends FactorAlgorithm {
 		0, 10, 0, 0, 0, 0, 0, 11, 0, 0,
 		0, 12, 0, 13, 0, 0, 0, 14, 0, 15,
 		0, 0, 0, 16, 0, 0, 0, 0, 0, 17,
-		18, /*NEW XXX correct?*/ 0 };
+		18, 0 };
 
 	/**
 	 * Compute (y-x) mod n.
@@ -482,7 +484,6 @@ public class TinyEcm extends FactorAlgorithm {
 			}
 			else if ((d + e) % 2 == 0)
 			{
-				//d = (d - e) / 2;
 				d = (d - e) >>> 1;
 
 				d2 = submod(work.pt1.X, work.pt1.Z, work.n);
@@ -588,7 +589,7 @@ public class TinyEcm extends FactorAlgorithm {
 		sigma = work.sigma;
 
 		if (DEBUG) LOG.debug("n=" + n);
-		u = Integer.toUnsignedLong(sigma); //sigma; // implicit cast goes wrong for sigma being negative signed int
+		u = Integer.toUnsignedLong(sigma); // a simple cast would go wrong for sigma having negative signed int values
 		u = u64div(u, n);
 		if (DEBUG) LOG.debug("u=" + u);
 		
@@ -678,18 +679,16 @@ public class TinyEcm extends FactorAlgorithm {
 		x *= 2 - n * x;               // here x*a==1 mod 2**32         
 		x *= 2 - n * x;               // here x*a==1 mod 2**64
 		rho = (long)0 - x;
-		if (DEBUG) LOG.debug("rho = " + rho); // this is correct, the unsigned 64 bit value - 2^64
+		if (DEBUG) LOG.debug("rho = " + Long.toUnsignedString(rho));
 		
 		work.n = n;
 
 		work.stg1_max = B1;
 		// pre-paired sequences have been prepared for this B2, so it is not an input
-		//work.stg2_max = 25 * B1; // unused in original C program
 
 		for (curve = 0; curve < curves; curve++)
 		{
 			if (DEBUG) LOG.debug("curve=" + curve);
-			//work.last_pid = 0; // unused in original C program
 			sigma = 0;
 			if (DEBUG) LOG.debug("1: P.X=" + P.X + ", P.Z=" + P.Z);
 			build(P, rho, work, sigma);
@@ -724,7 +723,6 @@ public class TinyEcm extends FactorAlgorithm {
 
 	ecm_pt ecm_stage1(long rho, ecm_work work, ecm_pt P)
 	{
-		//int i=10; // guess for small n // unused in original C program
 		long q;
 		long stg1 = (long)work.stg1_max;
 
@@ -745,7 +743,6 @@ public class TinyEcm extends FactorAlgorithm {
 		if (stg1 == 70)
 		{
 			prac70(rho, work, P);
-			//i = 19; // unused in original C program
 		}
 		else if (Long.compareUnsigned(stg1, 85) >= 0)
 		{
@@ -757,7 +754,6 @@ public class TinyEcm extends FactorAlgorithm {
 				// paired into a composite for larger bounds
 				prac(rho, work, P, 61, 0.522786351415446049);
 			}
-			//i = 23; // unused in original C program
 
 			if (Long.compareUnsigned(stg1, 125) >= 0)
 			{
@@ -776,8 +772,6 @@ public class TinyEcm extends FactorAlgorithm {
 					prac(rho, work, P, 103, 0.632839806088706269);
 					
 				}
-				
-				//i = 30; // unused in original C program
 			}
 			
 			if (Long.compareUnsigned(stg1, 165) >= 0)
@@ -793,7 +787,6 @@ public class TinyEcm extends FactorAlgorithm {
 				{
 					prac(rho, work, P, 149, 0.580178728295464130);
 				}
-				//i = 38; // unused in original C program
 			}
 			
 			if (Long.compareUnsigned(stg1, 205) >= 0)
@@ -807,11 +800,9 @@ public class TinyEcm extends FactorAlgorithm {
 				prac(rho, work, P, 193, 0.618033988749894903);
 				prac(rho, work, P, 29353, 0.580178728295464);	// 149 x 197
 				prac(rho, work, P, 199, 0.551390822543526449);
-				//i = 46; // unused in original C program
 			}
 		}
 
-		//work.last_pid = i; // unused in original C program
 		return P;
 	}
 
@@ -823,8 +814,8 @@ public class TinyEcm extends FactorAlgorithm {
 		ecm_pt[] Pb = work.Pb;
 		ecm_pt Pd;
 		long acc = work.stg2acc;
-		byte[] barray = null; // I needed some initialization
-		int numb = 0; // I needed some initialization
+		byte[] barray = null;
+		int numb = 0;
 
 		//stage 2 init
 		//Q = P = result of stage 1
@@ -1081,24 +1072,24 @@ public class TinyEcm extends FactorAlgorithm {
 		
 		TinyEcm factorizer = new TinyEcm();
 		long[] testNumbers = new long[] { 
-//				1234577*12345701L,
-//				// Failures before map[] fix
-//				1253586675305333L,
-//				1139151196120601L,
-//				1553712951089947L,
-//				2235885271339597L,
-//				1586929215386303L,
-//				// Failures before spRand() fix
-//				930705057210221L,
-//				1067332898136023L,
-//				8311092540494299L,
-//				23603982383629381L,
-//				58725827789610857L,
-//				369313815090910177L,
-//				// Failures before int to long cast fix
-//				41382606407163353L,
-//				306358296309770459L,
-				// TODO new fails
+				1234577*12345701L,
+				// Failures before map[] fix
+				1253586675305333L,
+				1139151196120601L,
+				1553712951089947L,
+				2235885271339597L,
+				1586929215386303L,
+				// Failures before spRand() fix
+				930705057210221L,
+				1067332898136023L,
+				8311092540494299L,
+				23603982383629381L,
+				58725827789610857L,
+				369313815090910177L,
+				// Failures before int to long cast fix
+				41382606407163353L,
+				306358296309770459L,
+				// Failures because the number of curves is too small
 				474315852287951L,
 				9400170223537253L,
 				35239016917581299L,
