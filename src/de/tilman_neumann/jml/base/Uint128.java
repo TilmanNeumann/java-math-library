@@ -213,10 +213,6 @@ public class Uint128 {
 		// Since R=2^64, "x / R" just means to get the high part of x.
 		long r = ab.add_getHigh(Uint128.mul64(t, N));
 		// If the correct result is c, then now r==c or r==c+N.
-//		// This is fine for this factoring algorithm, because r will 
-//		// * either be subjected to another Montgomery multiplication mod N,
-//		// * or to a gcd(r, N), where it doesn't matter if we test gcd(c, N) or gcd(c+N, N).
-//		// In a general Montgomery multiplication we would still have to check
 		r = r<N ? r : r-N;
 
 		if (DEBUG) {
@@ -282,7 +278,7 @@ public class Uint128 {
 		long q_hat = Long.divideUnsigned(r_hi, b_hi);
 		if (DEBUG) LOG.debug("q_hat=" + Long.toUnsignedString(q_hat));
 		
-		Uint128 mulResult = Uint128.mul64(v, q_hat); // p_lo = mul(b, q_hat, p_hi);
+		Uint128 mulResult = mul64(v, q_hat);
 		p_lo = mulResult.getLow();
 		p_hi = mulResult.getHigh();
 		if (DEBUG) LOG.debug("p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
@@ -293,11 +289,8 @@ public class Uint128 {
 		// r -= b*q_hat
 		//
 		// At most 2 iterations of this...
-		// In Java we must be careful in the comparisons of longs with the sign bit set!
-		//while( (p_hi > u_hi) || ((p_hi == u_hi) && (p_lo > u_lo)) )
 		while( (Long.compareUnsigned(p_hi, u_hi) > 0) || ((p_hi == u_hi) && (Long.compareUnsigned(p_lo, u_lo) > 0)) )
 		{
-		    //if(p_lo < b){
 		    if (Long.compareUnsigned(p_lo, v) < 0) {
 		        --p_hi;
 		    }
@@ -335,7 +328,7 @@ public class Uint128 {
 		q_hat = Long.divideUnsigned((r_hi << 32)|(r_lo >>> 32), b_hi);
 		if (DEBUG) LOG.debug("b=" + Long.toUnsignedString(v) + ", q_hat=" + Long.toUnsignedString(q_hat));
 		
-		mulResult = Uint128.mul64(v, q_hat); // p_lo = mul(b, q_hat, p_hi);
+		mulResult = mul64(v, q_hat);
 		p_lo = mulResult.getLow();
 		p_hi = mulResult.getHigh();
 		if (DEBUG) LOG.debug("2: p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
@@ -343,11 +336,8 @@ public class Uint128 {
 		// r -= b*q_hat
 		//
 		// ...and at most 2 iterations of this.
-		// In Java we must be careful in the comparisons of longs with the sign bit set!
-		//while( (p_hi > r_hi) || ((p_hi == r_hi) && (p_lo > r_lo)) )
 		while( (Long.compareUnsigned(p_hi, r_hi) > 0) || ((p_hi == r_hi) && (Long.compareUnsigned(p_lo, r_lo) > 0)) )
 		{
-		    //if(p_lo < b){
 		    if(Long.compareUnsigned(p_lo, v) < 0){
 		        --p_hi;
 		    }
