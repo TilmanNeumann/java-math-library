@@ -128,9 +128,14 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 			final long factor = tdiv.findSingleFactor(N);
 			if (factor > 1) return factor;
 		}
+		
+		// test for exact squares
+		final double sqrtN = Math.sqrt(N);
+		final long floorSqrtN = (long) sqrtN;
+		if (floorSqrtN*floorSqrtN == N) return floorSqrtN;
 
 		final long fourN = N<<2;
-		final double sqrt4N = Math.sqrt(fourN);
+		final double sqrt4N = sqrtN*2;
 		long a, b, test, gcd;
 		int k1 = K_MULT1;
 		int k2 = K_MULT2;
@@ -160,8 +165,7 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 				}
 			}
 		} catch (final ArrayIndexOutOfBoundsException e) {
-			LOG.error("Hart_Fast: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
-			// TODO Or N is square
+			LOG.error("Hart_Fast2Mult: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
 			return 1;
 		}
 	}
