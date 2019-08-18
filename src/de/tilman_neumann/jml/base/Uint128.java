@@ -141,8 +141,6 @@ public class Uint128 {
 	 * This method takes notice of overflows of the "middle term".
 	 * As such it works for 64 bit inputs.
 	 * 
-	 * Slower than the first version of mul64().
-	 * 
 	 * @param a unsigned long
 	 * @param b unsigned long
 	 * @return a*b
@@ -473,7 +471,8 @@ public class Uint128 {
 		t1 = System.currentTimeMillis();
 		LOG.info("mul64_v2 took " + (t1-t0) + "ms");
 		
-		// Result: mul64 looks much faster than mul64_v2
+		// Result: mul64 looks much faster than mul64_v2.
+		// TODO But is that correct? Profiling TinyEcm with jvisualvm shows no difference...
 	}
 
 	/**
