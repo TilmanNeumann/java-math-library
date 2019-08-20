@@ -142,7 +142,7 @@ public class TinyEcm extends FactorAlgorithm {
 		0, 10, 0, 0, 0, 0, 0, 11, 0, 0,
 		0, 12, 0, 13, 0, 0, 0, 14, 0, 15,
 		0, 0, 0, 16, 0, 0, 0, 0, 0, 17,
-		18, 0 };
+		18, 0 }; // last entry 0 or 1 makes no performance difference
 
 	long LCGSTATE;
 
