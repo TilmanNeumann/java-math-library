@@ -61,9 +61,9 @@ public class FactorizerTest {
 	/** the bit size of N to start with */
 	private static final int START_BITS = 40;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 1;
+	private static final int INCR_BITS = 2;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = null;
+	private static final Integer MAX_BITS = 62;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
@@ -109,7 +109,7 @@ public class FactorizerTest {
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
 			//new PollardRhoBrentMontgomery63(), // first long version, not optimized any further
-//			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 50 to 57 bit
+			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 50 to 57 bit
 			new PollardRhoBrentMontgomery64(), // best algorithm for N from 58 to 62 bit
 			
 			// SquFoF variants
@@ -223,11 +223,11 @@ public class FactorizerTest {
 				if (bits<57 && algName.startsWith("PSIQS")) continue; // unstable for smaller N
 				if (bits>98 && algName.startsWith("CFrac63")) continue; // unstable for N>98 bits
 				if (bits>52 && algName.startsWith("SquFoF31")) continue; // int implementation
-				if (bits>60 && algName.startsWith("Lehman")) continue;
+				if (bits>59 && algName.startsWith("Lehman")) continue; // TODO make it work again for 60 bit?
 				if (bits>31 && algName.startsWith("TDiv31")) continue; // int implementation
 				if (bits>31 && algName.startsWith("PollardRho31")) continue; // long implementation
 				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
-				
+				if (bits>57 && algName.equals("PollardRhoBrentMontgomeryR64Mul63")) continue; // very slow above
 				System.gc(); // create equal conditions for all algorithms
 
 				int failCount = 0;
