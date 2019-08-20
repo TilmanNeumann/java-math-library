@@ -188,8 +188,8 @@ public class TinyEcm extends FactorAlgorithm {
 	 */
 	long u64div(long c, long n)
 	{
+		// optimizing on lo=0 does not yield any notable performance gain
 		return new Uint128(c, 0L).spDivide(n)[1];
-		// TODO lo=0 may yield some simplifications
 	}
 
 	/**
