@@ -158,14 +158,11 @@ public class TinyEcm extends FactorAlgorithm {
 	 * @return (y-x) mod n
 	 */
 	long submod(long x, long y, long n) {
-		long r0;
-		if (Long.compareUnsigned(x, y) > 0) {
-			r0 = (x-y)%n;
-		} else {
-			r0 = n + (x-y)%n;
-		}
-		//LOG.debug("submod: (" + x + " - " + y + ") mod " + n + " = " + r0);
-		return r0;
+	    long r0 = x-y;
+		if (Long.compareUnsigned(r0, y) > 0) {
+	        r0 += n;
+	    }
+	    return r0;
 	}
 
 	/**
