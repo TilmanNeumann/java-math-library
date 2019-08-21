@@ -177,7 +177,11 @@ public class TinyEcm extends FactorAlgorithm {
 	 */
 	long addmod(long x, long y, long n)
 	{
-		return (x+y)%n;
+	    long r0 = x+y;
+	    if (r0 >= n) {
+	        r0 -= n;
+	    }
+		return r0;
 	}
 
 	/**
