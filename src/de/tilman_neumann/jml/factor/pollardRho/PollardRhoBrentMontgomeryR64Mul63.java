@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.pollardRho;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -48,7 +46,6 @@ import de.tilman_neumann.util.SortedMultiset;
  */
 public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(PollardRhoBrentMontgomeryR64Mul63.class);
-	private static final boolean DEBUG = false;
 
 	private static final SecureRandom RNG = new SecureRandom();
 
@@ -94,16 +91,16 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
         	do {
 	    	    x = y;
 	    	    for (int i=r; i>0; i--) {
-	    	        y = montgomeryMult(y, y+1);
+	    	        y = Uint128.montMul63(y, y+1, N, minusNInvModR);
 	    	    }
 	    	    int k = 0;
 	    	    do {
 	    	        ys = y;
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=iMax; i>0; i--) {
-	    	            y = montgomeryMult(y, y+1);
+	    	            y = Uint128.montMul63(y, y+1, N, minusNInvModR);
 	    	            final long diff = x<y ? y-x : x-y;
-	    	            q = montgomeryMult(diff, q);
+	    	            q = Uint128.montMul63(diff, q, N, minusNInvModR);
 	    	        }
 	    	        G = gcd.gcd(q, N);
 	    	        // if q==0 then G==N -> the loop will be left and restarted with new y
@@ -115,7 +112,7 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 	    	} while (G==1);
 	    	if (G==N) {
 	    	    do {
-	    	        ys = montgomeryMult(ys, ys+1);
+	    	        ys = Uint128.montMul63(ys, ys+1, N, minusNInvModR);
     	            final long diff = x<ys ? ys-x : x-ys;
 	    	        G = gcd.gcd(diff, N);
 	    	    } while (G==1);
@@ -152,44 +149,6 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 
 	    // u = (1/R) mod N and v = (-1/N) mod R. We only need the latter.
 	    minusNInvModR = v;
-	}
-
-	/**
-	 * Montgomery multiplication modulo N, using reducer R=2^64.
-	 * Inputs and output are in Montgomery form and in the range [0, N).
-	 * 
-	 * @param a
-	 * @param b
-	 * @return
-	 */
-	private long montgomeryMult(final long a, final long b) {
-		// Step 1: Compute a*b
-		Uint128 ab = Uint128.mul63(a, b);
-		// Step 2: Compute t = ab * (-1/N) mod R
-		// Since R=2^64, "x mod R" just means to get the low part of x.
-		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
-		// but even better, the long product just gives the low part -> we can get rid of one expensive mul64().
-		long t = ab.getLow() * minusNInvModR;
-		// Step 3: Compute r = (a*b + t*N) / R
-		// Since R=2^64, "x / R" just means to get the high part of x.
-		long r = ab.add_getHigh(Uint128.mul63(t, N));
-		// If the correct result is c, then now r==c or r==c+N.
-		// This is fine for this factoring algorithm, because r will 
-		// * either be subjected to another Montgomery multiplication mod N,
-		// * or to a gcd(r, N), where it doesn't matter if we test gcd(c, N) or gcd(c+N, N).
-		
-		if (DEBUG) {
-			//LOG.debug(a + " * " + b + " = " + r);
-			assertTrue(a >= 0 && a<N);
-			assertTrue(b >= 0 && b<N);
-			
-			// In a general Montgomery multiplication we would still have to check
-			r = r<N ? r : r-N;
-			// to satisfy
-			assertTrue(r >= 0 && r < N);
-		}
-		
-		return r;
 	}
 	
 	/**

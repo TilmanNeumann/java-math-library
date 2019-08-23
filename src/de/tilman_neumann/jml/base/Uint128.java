@@ -54,9 +54,8 @@ public class Uint128 {
 	 * @return this + other
 	 */
 	public Uint128 add(Uint128 other) {
-		// We know for sure that low overflows if both low and o_lo are 64 bit.
-		// If only one of the input 'low's is 64 bit, then we can recognize an overflow
-		// if the result.lo is not 64 bit.
+		// We know for sure that low overflows if both low and o_lo are 64 bit. If only one of the input 'low's
+		// is 64 bit, then we can recognize an overflow if the result.lo is not 64 bit.
 		final long o_lo = other.getLow();
 		final long o_hi = other.getHigh();
 		final long r_lo = low + o_lo;
@@ -71,13 +70,13 @@ public class Uint128 {
 	 * @return high part of this + other
 	 */
 	public long add_getHigh(Uint128 other) {
-		// We know for sure that low overflows if both low and o_lo are 64 bit.
-		// If only one of the input 'low's is 64 bit, then we can recognize an overflow
-		// if the result.lo is not 64 bit.
-		final long o_lo = other.getLow();
-		final long o_hi = other.getHigh();
-		final long r_hi = high + o_hi;
-		return ((low<0 && o_lo<0) || ((low<0 || o_lo<0) && (low + o_lo >= 0))) ? r_hi+1 : r_hi;
+		// We know for sure that low overflows if both low and o_lo are 64 bit. If only one of the input 'low's
+		// is 64 bit, then we can recognize an overflow if the result.lo is not 64 bit.
+		// Thanks to Ben for a big performance boost (both for TinyEcm and PollardRho variants),
+		// see https://www.mersenneforum.org/showpost.php?p=524300&postcount=173
+		long a = low + other.getLow();
+		long b = high + other.getHigh();
+		return (Long.compareUnsigned(a, low) < 0) ? b + 1 : b;
 	}
 
 	/**
@@ -192,7 +191,45 @@ public class Uint128 {
 	}
 	
 	/**
-	 * Montgomery multiplication of a*b mod n. ("mulredx" in Yafu)
+	 * Montgomery multiplication of a*b mod n with regard to R=2^63. ("mulredc63x" in Yafu)
+	 * @param a
+	 * @param b
+	 * @param N
+	 * @param Nhat complement of N mod 2^63
+	 * @return Montgomery multiplication of a*b mod n
+	 */
+	public static long montMul63(long a, long b, long N, long Nhat) {
+		// Step 1: Compute a*b
+		Uint128 ab = Uint128.mul63(a, b);
+		// Step 2: Compute t = ab * (-1/N) mod R
+		// Since R=2^64, "x mod R" just means to get the low part of x.
+		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
+		// but even better, the long product just gives the low part -> we can get rid of one expensive mul64().
+		long t = ab.getLow() * Nhat;
+		// Step 3: Compute r = (a*b + t*N) / R
+		// Since R=2^64, "x / R" just means to get the high part of x.
+		long r = ab.add_getHigh(Uint128.mul63(t, N));
+		// If the correct result is c, then now r==c or r==c+N.
+		// This is fine for this factoring algorithm, because r will 
+		// * either be subjected to another Montgomery multiplication mod N,
+		// * or to a gcd(r, N), where it doesn't matter if we test gcd(c, N) or gcd(c+N, N).
+		
+		if (DEBUG) {
+			//LOG.debug(a + " * " + b + " = " + r);
+			assertTrue(a >= 0 && a<N);
+			assertTrue(b >= 0 && b<N);
+			
+			// In a general Montgomery multiplication we would still have to check
+			r = r<N ? r : r-N;
+			// to satisfy
+			assertTrue(r >= 0 && r < N);
+		}
+		
+		return r;
+	}
+
+	/**
+	 * Montgomery multiplication of a*b mod n. ("mulredcx" in Yafu)
 	 * @param a
 	 * @param b
 	 * @param N
@@ -206,12 +243,12 @@ public class Uint128 {
 		// Since R=2^64, "x mod R" just means to get the low part of x.
 		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
 		// but even better, the long product just gives the low part -> we can get rid of one expensive mul64().
-		long t = ab.getLow() * /*minusNInvModR*/ Nhat; // TODO
+		long t = ab.getLow() * Nhat;
 		// Step 3: Compute r = (a*b + t*N) / R
 		// Since R=2^64, "x / R" just means to get the high part of x.
 		long r = ab.add_getHigh(Uint128.mul64(t, N));
 		// If the correct result is c, then now r==c or r==c+N.
-		r = r<N ? r : r-N;
+		r = r<N ? r : r-N; // TODO remove this instruction?
 
 		if (DEBUG) {
 			//LOG.debug(a + " * " + b + " = " + r);
