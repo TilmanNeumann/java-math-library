@@ -161,10 +161,7 @@ public class TinyEcm extends FactorAlgorithm {
 		// Compared to my previous version, this implementation does not only improve performance
 		// but also reduces the number of factoring failures!
 	    long r0 = x-y;
-		if (Long.compareUnsigned(r0, y) > 0) {
-	        r0 += n;
-	    }
-	    return r0;
+		return (Long.compareUnsigned(r0, y) > 0) ? r0+n : r0;
 	}
 
 	/**
@@ -177,10 +174,7 @@ public class TinyEcm extends FactorAlgorithm {
 	long addmod(long x, long y, long n)
 	{
 	    long r0 = x+y;
-	    if (r0 >= n) {
-	        r0 -= n;
-	    }
-		return r0;
+	    return (r0 >= n) ? r0-n : r0;
 	}
 
 	/**
