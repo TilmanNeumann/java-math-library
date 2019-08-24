@@ -57,7 +57,7 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 10000;
+	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 40;
 	/** the increment in bit size from test set to test set */
@@ -132,7 +132,8 @@ public class FactorizerTest {
 			//new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
 
 			// ECM
-			new TinyEcm(),
+			new TinyEcm63(),
+			new TinyEcm64(),
 //			new EllipticCurveMethod(),
 
 			// SIQS:

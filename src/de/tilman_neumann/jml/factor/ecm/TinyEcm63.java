@@ -32,6 +32,8 @@
  */
 package de.tilman_neumann.jml.factor.ecm;
 
+import static org.junit.Assert.assertTrue;
+
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -46,9 +48,11 @@ import de.tilman_neumann.util.ConfigUtil;
  * So far it works for inputs up to 62 bit, albeit not as fast as the C original.
  * The (lack of an) assembler instruction to multiply two 64 bit integers seems to make a big impact here...
  * 
+ * This variant ignores carry-bits in the multiplication of 64 bit integers.
+ * 
  * @author Tilman Neumann
  */
-public class TinyEcm extends FactorAlgorithm {
+public class TinyEcm63 extends FactorAlgorithm {
 	
 	private static class ecm_pt {
 		long X;
@@ -88,7 +92,7 @@ public class TinyEcm extends FactorAlgorithm {
 		}
 	}
 
-	private static final Logger LOG = Logger.getLogger(TinyEcm.class);
+	private static final Logger LOG = Logger.getLogger(TinyEcm63.class);
 
 	private static final boolean DEBUG = false;
 	
@@ -147,7 +151,7 @@ public class TinyEcm extends FactorAlgorithm {
 	long LCGSTATE;
 
 	public String getName() {
-		return "TinyEcm";
+		return "TinyEcm63";
 	}
 
 	/**
@@ -251,29 +255,29 @@ public class TinyEcm extends FactorAlgorithm {
 		work.diff2 = submod(P2.X, P2.Z, work.n);
 		work.sum2 = addmod(P2.X, P2.Z, work.n);
 
-		work.tt1 = Uint128.montMul64(work.diff1, work.sum2, work.n, rho);	//U
-		work.tt2 = Uint128.montMul64(work.sum1, work.diff2, work.n, rho);	//V
+		work.tt1 = montMul63(work.diff1, work.sum2, work.n, rho);	//U
+		work.tt2 = montMul63(work.sum1, work.diff2, work.n, rho);	//V
 
 		work.tt3 = addmod(work.tt1, work.tt2, work.n);
 		work.tt4 = submod(work.tt1, work.tt2, work.n);
 		long x = work.tt3;
-		work.tt1 = Uint128.montMul64(x, x, work.n, rho);
+		work.tt1 = montMul63(x, x, work.n, rho);
 		long x1 = work.tt4;	//(U + V)^2
-		work.tt2 = Uint128.montMul64(x1, x1, work.n, rho);	//(U - V)^2
+		work.tt2 = montMul63(x1, x1, work.n, rho);	//(U - V)^2
 
 		if (Pin == Pout) // Object.equals() seems to be wanted here
 		{
 			long tmp;
-			Pout.Z = Uint128.montMul64(work.tt1, Pin.Z, work.n, rho);		//Z * (U + V)^2
-			Pout.X = Uint128.montMul64(work.tt2, Pin.X, work.n, rho);		//x * (U - V)^2
+			Pout.Z = montMul63(work.tt1, Pin.Z, work.n, rho);		//Z * (U + V)^2
+			Pout.X = montMul63(work.tt2, Pin.X, work.n, rho);		//x * (U - V)^2
 			tmp = Pout.Z;
 			Pout.Z = Pout.X;
 			Pout.X = tmp;
 		}
 		else
 		{
-			Pout.X = Uint128.montMul64(work.tt1, Pin.Z, work.n, rho);		//Z * (U + V)^2
-			Pout.Z = Uint128.montMul64(work.tt2, Pin.X, work.n, rho);		//x * (U - V)^2
+			Pout.X = montMul63(work.tt1, Pin.Z, work.n, rho);		//Z * (U + V)^2
+			Pout.Z = montMul63(work.tt2, Pin.X, work.n, rho);		//x * (U - V)^2
 		}
 		return;
 	}
@@ -288,14 +292,14 @@ public class TinyEcm extends FactorAlgorithm {
 	 */
 	void dup(long rho, ecm_work work, long insum, long indiff, ecm_pt P)
 	{
-		work.tt1 = Uint128.montMul64(indiff, indiff, work.n, rho);			// U=(x1 - z1)^2
-		work.tt2 = Uint128.montMul64(insum, insum, work.n, rho);			// V=(x1 + z1)^2
-		P.X = Uint128.montMul64(work.tt1, work.tt2, work.n, rho);			// x=U*V
+		work.tt1 = montMul63(indiff, indiff, work.n, rho);			// U=(x1 - z1)^2
+		work.tt2 = montMul63(insum, insum, work.n, rho);			// V=(x1 + z1)^2
+		P.X = montMul63(work.tt1, work.tt2, work.n, rho);			// x=U*V
 
 		work.tt3 = submod(work.tt2, work.tt1, work.n);			// w = V-U
-		work.tt2 = Uint128.montMul64(work.tt3, work.s, work.n, rho);		// w = (A+2)/4 * w
+		work.tt2 = montMul63(work.tt3, work.s, work.n, rho);		// w = (A+2)/4 * w
 		work.tt2 = addmod(work.tt2, work.tt1, work.n);			// w = w + U
-		P.Z = Uint128.montMul64(work.tt2, work.tt3, work.n, rho);			// Z = w*(V-U)
+		P.Z = montMul63(work.tt2, work.tt3, work.n, rho);			// Z = w*(V-U)
 		return;
 	}
 
@@ -598,10 +602,10 @@ public class TinyEcm extends FactorAlgorithm {
 		t1 = u64div(t1, n);
 		if (DEBUG) LOG.debug("t1=" + t1);
 
-		v = Uint128.montMul64(u, t1, n, rho);		// v = 4*sigma
+		v = montMul63(u, t1, n, rho);		// v = 4*sigma
 		if (DEBUG) LOG.debug("v=" + v);
 
-		u = Uint128.montMul64(u, u, n, rho);
+		u = montMul63(u, u, n, rho);
 		if (DEBUG) LOG.debug("u=" + u);
 		
 		t1 = 5;
@@ -611,37 +615,37 @@ public class TinyEcm extends FactorAlgorithm {
 		u = submod(u, t1, n);			// u = sigma^2 - 5
 		if (DEBUG) LOG.debug("u=" + u);
 
-		t1 = Uint128.montMul64(u, u, n, rho);
+		t1 = montMul63(u, u, n, rho);
 		if (DEBUG) LOG.debug("t1=" + t1);
-		P.X = Uint128.montMul64(t1, u, n, rho);	// x = u^3
+		P.X = montMul63(t1, u, n, rho);	// x = u^3
 		if (DEBUG) LOG.debug("P.X=" + P.X);
 
-		t1 = Uint128.montMul64(v, v, n, rho);
-		P.Z = Uint128.montMul64(t1, v, n, rho);	// z = v^3
+		t1 = montMul63(v, v, n, rho);
+		P.Z = montMul63(t1, v, n, rho);	// z = v^3
 		if (DEBUG) LOG.debug("P.Z=" + P.Z);
 
 		//compute parameter A
 		t1 = submod(v, u, n);			// (v - u)
-		t2 = Uint128.montMul64(t1, t1, n, rho);
-		t4 = Uint128.montMul64(t2, t1, n, rho);	// (v - u)^3
+		t2 = montMul63(t1, t1, n, rho);
+		t4 = montMul63(t2, t1, n, rho);	// (v - u)^3
 
 		t1 = 3;
 		t1 = u64div(t1, n);
-		t2 = Uint128.montMul64(t1, u, n, rho);	// 3u
+		t2 = montMul63(t1, u, n, rho);	// 3u
 		t3 = addmod(t2, v, n);			// 3u + v
 
-		t1 = Uint128.montMul64(t3, t4, n, rho);	// a = (v-u)^3 * (3u + v)
+		t1 = montMul63(t3, t4, n, rho);	// a = (v-u)^3 * (3u + v)
 
 		t2 = 16;
 		t2 = u64div(t2, n);
-		t3 = Uint128.montMul64(P.X, t2, n, rho);	// 16*u^3
-		t4 = Uint128.montMul64(t3, v, n, rho);	// 16*u^3*v
+		t3 = montMul63(P.X, t2, n, rho);	// 16*u^3
+		t4 = montMul63(t3, v, n, rho);	// 16*u^3*v
 
 		// u holds the denom, t1 holds the numer
 		// accomplish the division by multiplying by the modular inverse
 		t2 = 1;
-		t4 = Uint128.montMul64(t4, t2, n, rho);	// take t4 out of monty rep
-		t1 = Uint128.montMul64(t1, t2, n, rho);	// take t1 out of monty rep
+		t4 = montMul63(t4, t2, n, rho);	// take t4 out of monty rep
+		t1 = montMul63(t1, t2, n, rho);	// take t1 out of monty rep
 
 		t3 = modinv_64(t4, n);
 		if (DEBUG) LOG.debug("t4=" + t4 + ", modinv t3 =" + t3);
@@ -826,7 +830,7 @@ public class TinyEcm extends FactorAlgorithm {
 		// [1]Q
 		Pb[1].Z = P.Z;
 		Pb[1].X = P.X;
-		work.Pbprod[1] = Uint128.montMul64(Pb[1].X, Pb[1].Z, work.n, rho);
+		work.Pbprod[1] = montMul63(Pb[1].X, Pb[1].Z, work.n, rho);
 
 		// [2]Q
 		Pb[2].Z = P.Z;
@@ -834,7 +838,7 @@ public class TinyEcm extends FactorAlgorithm {
 		work.diff1 = submod(P.X, P.Z, work.n);
 		work.sum1 = addmod(P.X, P.Z, work.n);
 		dup(rho, work, work.sum1, work.diff1, Pb[2]);
-		work.Pbprod[2] = Uint128.montMul64(Pb[2].X, Pb[2].Z, work.n, rho);
+		work.Pbprod[2] = montMul63(Pb[2].X, Pb[2].Z, work.n, rho);
 
 		// Calculate all Pb: the following is specialized for D=60
 		// [2]Q + [1]Q([1]Q) = [3]Q
@@ -886,7 +890,7 @@ public class TinyEcm extends FactorAlgorithm {
 		// make all of the Pbprod's
 		for (i = 3; i < 19; i++)
 		{
-			work.Pbprod[i] = Uint128.montMul64(Pb[i].X, Pb[i].Z, work.n, rho);
+			work.Pbprod[i] = montMul63(Pb[i].X, Pb[i].Z, work.n, rho);
 		}
 
 		//initialize info needed for giant step
@@ -941,7 +945,7 @@ public class TinyEcm extends FactorAlgorithm {
 
 		//initialize accumulator and Paprod
 		acc = u64div(1, work.n);
-		work.Paprod = Uint128.montMul64(Pa.X, Pa.Z, work.n, rho);
+		work.Paprod = montMul63(Pa.X, Pa.Z, work.n, rho);
 
 		if (DEBUG) LOG.debug("stg1_max = " + work.stg1_max);
 		if (work.stg1_max == 70)
@@ -989,7 +993,7 @@ public class TinyEcm extends FactorAlgorithm {
 				if (DEBUG) LOG.debug("Pad.X=" + work.Pad.X + ", Pad.Z=" + work.Pad.Z);
 				
 				//and Paprod
-				work.Paprod = Uint128.montMul64(Pa.X, Pa.Z, work.n, rho);
+				work.Paprod = montMul63(Pa.X, Pa.Z, work.n, rho);
 
 				i++;
 			}
@@ -1004,15 +1008,47 @@ public class TinyEcm extends FactorAlgorithm {
 			// page 342 in C&P
 			work.tt1 = submod(Pa.X, Pb[map[b]].X, work.n);
 			work.tt2 = addmod(Pa.Z, Pb[map[b]].Z, work.n);
-			work.tt3 = Uint128.montMul64(work.tt1, work.tt2, work.n, rho);
+			work.tt3 = montMul63(work.tt1, work.tt2, work.n, rho);
 			work.tt1 = addmod(work.tt3, work.Pbprod[map[b]], work.n);
 			work.tt2 = submod(work.tt1, work.Paprod, work.n);
-			acc = Uint128.montMul64(acc, work.tt2, work.n, rho);
+			acc = montMul63(acc, work.tt2, work.n, rho);
 		}
 
 		work.stg2acc = acc;
 
 		return;
+	}
+	
+	/**
+	 * Montgomery multiplication of a*b mod n with regard to R=2^63. ("mulredc63x" in Yafu)
+	 * @param a
+	 * @param b
+	 * @param N
+	 * @param Nhat complement of N mod 2^63
+	 * @return Montgomery multiplication of a*b mod n
+	 */
+	public static long montMul63(long a, long b, long N, long Nhat) {
+		// Step 1: Compute a*b
+		Uint128 ab = Uint128.mul63(a, b);
+		// Step 2: Compute t = ab * (-1/N) mod R
+		// Since R=2^64, "x mod R" just means to get the low part of x.
+		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
+		// but even better, the long product just gives the low part -> we can get rid of one expensive mul64().
+		long t = ab.getLow() * Nhat;
+		// Step 3: Compute r = (a*b + t*N) / R
+		// Since R=2^64, "x / R" just means to get the high part of x.
+		long r = ab.add_getHigh(Uint128.mul63(t, N));
+		// If the correct result is c, then now r==c or r==c+N.
+		r = r<N ? r : r-N; // required at ecm
+
+		if (DEBUG) {
+			//LOG.debug(a + " * " + b + " = " + r);
+			assertTrue(a >= 0 && a<N);
+			assertTrue(b >= 0 && b<N);
+			assertTrue(r >= 0 && r < N);
+		}
+		
+		return r;
 	}
 
 	/**
@@ -1072,7 +1108,7 @@ public class TinyEcm extends FactorAlgorithm {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		
-		TinyEcm factorizer = new TinyEcm();
+		TinyEcm63 factorizer = new TinyEcm63();
 		long[] testNumbers = new long[] { 
 				1234577*12345701L,
 				// Failures before map[] fix
