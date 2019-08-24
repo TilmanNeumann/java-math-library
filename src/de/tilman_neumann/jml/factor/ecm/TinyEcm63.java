@@ -155,17 +155,19 @@ public class TinyEcm63 extends FactorAlgorithm {
 	}
 
 	/**
-	 * Compute (y-x) mod n.
+	 * Compute (x-y) mod n.
 	 * @param x
 	 * @param y
 	 * @param n
-	 * @return (y-x) mod n
+	 * @return (x-y) mod n
 	 */
 	long submod(long x, long y, long n) {
-		// Compared to my previous version, this implementation does not only improve performance
-		// but also reduces the number of factoring failures!
 	    long r0 = x-y;
-		return (Long.compareUnsigned(r0, y) > 0) ? r0+n : r0;
+		// Suggestion by Ben Buhrow, https://www.mersenneforum.org/showpost.php?p=524038&postcount=158:
+		//return (Long.compareUnsigned(r0, x) > 0) ? r0+n : r0;
+		// Ben's proposition was already much better than my previous attempt.
+	    // Afterwards I found the even faster
+		return (Long.compareUnsigned(x, y) < 0) ? r0+n : r0;
 	}
 
 	/**
