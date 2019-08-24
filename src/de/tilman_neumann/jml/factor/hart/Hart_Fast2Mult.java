@@ -61,6 +61,7 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  *
  * @authors Thilo Harich & Tilman Neumann
  */
+// TODO fails for 17977882519205951
 public class Hart_Fast2Mult extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_Fast2Mult.class);
 
