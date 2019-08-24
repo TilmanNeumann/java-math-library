@@ -153,7 +153,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	}
 
 	/**
-	 * Compute (x-y) mod n.
+	 * Compute (x-y) mod n, with 0 <= x, y < n.
 	 * @param x
 	 * @param y
 	 * @param n
@@ -169,7 +169,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	}
 
 	/**
-	 * Compute x+y mod n.
+	 * Compute x+y mod n, with 0 <= x, y < n.
 	 * @param x
 	 * @param y
 	 * @param n
