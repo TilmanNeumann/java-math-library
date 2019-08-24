@@ -179,6 +179,12 @@ public class TinyEcm64 extends FactorAlgorithm {
 	{
 	    long r0 = x+y;
 	    return (r0 >= n) ? r0-n : r0;
+	    // From https://www.mersenneforum.org/showpost.php?p=524038&postcount=158:
+	    // "With 64 bit operands you'd also have to check if (r0 < x), and trigger the subtract in that case as well.
+	    // In fact, this might be one reason why it isn't working for you now with 64 bit inputs... 
+	    // the addition will often overflow and the "%n" will incorrectly do nothing in that case."
+	    // Unfortunately, this would slow down the overall performance by 5-10%...
+	    //return (r0 >= n || Long.compareUnsigned(r0, x) < 0) ? r0-n : r0;
 	}
 
 	/**
