@@ -52,7 +52,7 @@ public class Uint128 {
 	 * @param other
 	 * @return this + other
 	 */
-	public Uint128 add(Uint128 other) {
+	public Uint128 add_v1(Uint128 other) {
 		// We know for sure that low overflows if both low and o_lo are 64 bit. If only one of the input 'low's
 		// is 64 bit, then we can recognize an overflow if the result.lo is not 64 bit.
 		final long o_lo = other.getLow();
@@ -60,8 +60,23 @@ public class Uint128 {
 		final long r_lo = low + o_lo;
 		long r_hi = high + o_hi;
 		if ((low<0 && o_lo<0) || ((low<0 || o_lo<0) && (r_lo >= 0))) r_hi++;
-		// TODO Can we speed up this similarly like add_getHigh()
 		return new Uint128(r_hi, r_lo);
+	}
+
+	/**
+	 * Add two unsigned 128 bit integers.
+	 * 
+	 * Simpler carry recognition and thus much faster than the first version,
+	 * thanks to Ben, see https://www.mersenneforum.org/showpost.php?p=524300&postcount=173.
+	 * 
+	 * @param other
+	 * @return this + other
+	 */
+	public Uint128 add/*_v2*/(Uint128 other) {
+		long a = low + other.getLow();
+		long b = high + other.getHigh();
+		if (Long.compareUnsigned(a, low) < 0) b++;
+		return new Uint128(b, a);
 	}
 
 	/**
@@ -70,10 +85,6 @@ public class Uint128 {
 	 * @return high part of this + other
 	 */
 	public long add_getHigh(Uint128 other) {
-		// We know for sure that low overflows if both low and o_lo are 64 bit. If only one of the input 'low's
-		// is 64 bit, then we can recognize an overflow if the result.lo is not 64 bit.
-		// Thanks to Ben for a big performance boost (both for TinyEcm and PollardRho variants),
-		// see https://www.mersenneforum.org/showpost.php?p=524300&postcount=173
 		long a = low + other.getLow();
 		long b = high + other.getHigh();
 		return (Long.compareUnsigned(a, low) < 0) ? b + 1 : b;
@@ -114,7 +125,7 @@ public class Uint128 {
 	 * @param b unsigned long
 	 * @return a*b
 	 */
-	public static Uint128 mul64(long a, long b) {
+	public static Uint128 mul64/*_v1*/(long a, long b) {
 		final long a_hi = a >>> 32;
 		final long b_hi = b >>> 32;
 		final long a_lo = a & 0xFFFFFFFFL;
@@ -386,10 +397,14 @@ public class Uint128 {
 			// test addition
 			Uint128 a128 = new Uint128(a_hi, a_lo);
 			Uint128 b128 = new Uint128(b_hi, b_lo);
-			Uint128 sum128 = a128.add(b128);
+			Uint128 sum128 = a128.add_v1(b128);
 			BigInteger sum128Big = sum128.toBigInteger();
 			BigInteger sumBig = a128.toBigInteger().add(b128.toBigInteger());
 			assertEquals(sumBig, sum128Big);
+
+			Uint128 sum128_v2 = a128.add/*_v2*/(b128);
+			BigInteger sum128Big_v2 = sum128_v2.toBigInteger();
+			assertEquals(sumBig, sum128Big_v2);
 
 			// test multiplication with 63 bit numbers
 			Uint128 prod128 = mul63(a_hi, b_hi);
@@ -413,23 +428,45 @@ public class Uint128 {
 	
 	private static void testPerformance() {
 		SecureRandom RNG = new SecureRandom();
-		int NCOUNT = 40000000;
+		int NCOUNT = 10000000;
 		
 		// set up test numbers
 		long[] a_arr = new long[NCOUNT];
 		long[] b_arr = new long[NCOUNT];
+		Uint128[] a128_arr =  new Uint128[NCOUNT];
+		Uint128[] b128_arr =  new Uint128[NCOUNT];
+		
 		for (int i=0; i<NCOUNT; i++) {
 			a_arr[i] = RNG.nextLong();
 			b_arr[i] = RNG.nextLong();
+			a128_arr[i] = new Uint128(a_arr[i], RNG.nextLong());
+			b128_arr[i] = new Uint128(b_arr[i], RNG.nextLong());
 		}
 		
-		// test performance of mul64 implementations
+		// test performance of add implementations
 		long t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
-			mul64(a_arr[i], b_arr[i]);
+			a128_arr[i].add_v1(b128_arr[i]);
 		}
 		long t1 = System.currentTimeMillis();
-		LOG.info("mul64 took " + (t1-t0) + "ms");
+		LOG.info("add_v1 took " + (t1-t0) + "ms");
+
+		t0 = System.currentTimeMillis();
+		for (int i=0; i<NCOUNT; i++) {
+			a128_arr[i].add/*_v2*/(b128_arr[i]);
+		}
+		t1 = System.currentTimeMillis();
+		LOG.info("add_v2 took " + (t1-t0) + "ms");
+		// This performance test shows that v1 is faster than v2, but if we compare them
+		// in different PollardRhoBrentMontgomery63 variants than v2 is much faster...
+		
+		// test performance of mul64 implementations
+		t0 = System.currentTimeMillis();
+		for (int i=0; i<NCOUNT; i++) {
+			mul64/*_v1*/(a_arr[i], b_arr[i]);
+		}
+		t1 = System.currentTimeMillis();
+		LOG.info("mul64_v1 took " + (t1-t0) + "ms");
 		
 		t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
@@ -437,9 +474,8 @@ public class Uint128 {
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("mul64_v2 took " + (t1-t0) + "ms");
-		
-		// Result: mul64 looks much faster than mul64_v2.
-		// TODO But is that correct? Profiling TinyEcm with jvisualvm shows no difference...
+		// This performance test shows that v1 is slower than v2, but if we compare them
+		// in different PollardRhoBrentMontgomery variants than v1 is much faster...
 	}
 
 	/**
