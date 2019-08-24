@@ -125,7 +125,7 @@ public class Uint128 {
 	 * @param b unsigned long
 	 * @return a*b
 	 */
-	public static Uint128 mul64/*_v1*/(long a, long b) {
+	public static Uint128 mul64_v1(long a, long b) {
 		final long a_hi = a >>> 32;
 		final long b_hi = b >>> 32;
 		final long a_lo = a & 0xFFFFFFFFL;
@@ -178,6 +178,35 @@ public class Uint128 {
 
 	    long y = c2 + (u1 >>> 32);
 		return new Uint128(y, u0);
+	}
+
+	/**
+	 * Multiplication of unsigned 64 bit integers with simplified carry recognition.
+	 * 
+	 * This is the fastest version so far, with the strange exception that it falls behind version 1
+	 * for N>=52 bit in PollardRhoBrentMontgomery64.
+	 * 
+	 * @param a unsigned long
+	 * @param b unsigned long
+	 * @return a*b
+	 */
+	public static Uint128 mul64/*_v3*/(long a, long b) {
+		final long a_hi = a >>> 32;
+		final long b_hi = b >>> 32;
+		final long a_lo = a & 0xFFFFFFFFL;
+		final long b_lo = b & 0xFFFFFFFFL;
+		
+		final long lo_prod = a_lo * b_lo;
+		final long med_prod1 = a_hi * b_lo;
+		final long med_prod2 = a_lo * b_hi;
+		final long med_term = med_prod1 + med_prod2;
+		final long hi_prod = a_hi * b_hi;
+		
+		// the medium term could overflow
+		final long carry = Long.compareUnsigned(med_term, med_prod1) < 0 ? 1L<<32 : 0;
+		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
+		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		return new Uint128(r_hi, r_lo);
 	}
 
 	/**
@@ -409,20 +438,32 @@ public class Uint128 {
 			// test multiplication with 63 bit numbers
 			Uint128 prod128 = mul63(a_hi, b_hi);
 			BigInteger prod128Big = prod128.toBigInteger();
-			BigInteger prodBig = a_hi_big.multiply(b_hi_big);
-			assertEquals(prodBig, prod128Big);
+			BigInteger correctProd = a_hi_big.multiply(b_hi_big);
+			assertEquals(correctProd, prod128Big);
 
 			// test multiplication with 64 bit numbers
-			prod128 = mul64(a_lo, b_lo);
+			correctProd = a_lo_big.multiply(b_lo_big);
+			
+			prod128 = mul64_v1(a_lo, b_lo);
 			prod128Big = prod128.toBigInteger();
-			prodBig = a_lo_big.multiply(b_lo_big);
-			//LOG.debug("Test " + a_lo_big + "*" + b_lo_big + ":");
-			//LOG.debug("BigInt result = " + prodBig);
-			//LOG.debug("int127 result = " + prod128Big);
-			if (!prodBig.equals(prod128Big)) {
-				LOG.debug("error! diff = " + prodBig.subtract(prod128Big));
+			if (!correctProd.equals(prod128Big)) {
+				LOG.error("mul64_v1: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
 			}
-			assertEquals(prodBig, prod128Big);
+			assertEquals(correctProd, prod128Big);
+			
+			prod128 = mul64_v2(a_lo, b_lo);
+			prod128Big = prod128.toBigInteger();
+			if (!correctProd.equals(prod128Big)) {
+				LOG.error("mul64_v2: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
+			}
+			assertEquals(correctProd, prod128Big);
+			
+			prod128 = mul64/*_v3*/(a_lo, b_lo);
+			prod128Big = prod128.toBigInteger();
+			if (!correctProd.equals(prod128Big)) {
+				LOG.error("mul64_v3: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
+			}
+			assertEquals(correctProd, prod128Big);
 		}
 	}
 	
@@ -463,7 +504,7 @@ public class Uint128 {
 		// test performance of mul64 implementations
 		t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
-			mul64/*_v1*/(a_arr[i], b_arr[i]);
+			mul64_v1(a_arr[i], b_arr[i]);
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("mul64_v1 took " + (t1-t0) + "ms");
@@ -474,6 +515,13 @@ public class Uint128 {
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("mul64_v2 took " + (t1-t0) + "ms");
+		
+		t0 = System.currentTimeMillis();
+		for (int i=0; i<NCOUNT; i++) {
+			mul64/*_v3*/(a_arr[i], b_arr[i]);
+		}
+		t1 = System.currentTimeMillis();
+		LOG.info("mul64_v3 took " + (t1-t0) + "ms");
 		// This performance test shows that v1 is slower than v2, but if we compare them
 		// in different PollardRhoBrentMontgomery variants than v1 is much faster...
 	}
