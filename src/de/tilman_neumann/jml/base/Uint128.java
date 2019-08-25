@@ -385,6 +385,10 @@ public class Uint128 {
 		return low & other;
 	}
 
+	public double doubleValue() {
+		return toBigInteger().doubleValue(); // TODO more efficient solution
+	}
+	
 	/**
 	 * Convert this to BigInteger.
 	 * @return this unsigned 128 bit integer converted to BigInteger
