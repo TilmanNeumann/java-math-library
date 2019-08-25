@@ -166,8 +166,8 @@ public class TinyEcm63 extends FactorAlgorithm {
 		// Suggestion by Ben Buhrow, https://www.mersenneforum.org/showpost.php?p=524038&postcount=158:
 		//return (Long.compareUnsigned(r0, x) > 0) ? r0+n : r0;
 		// Ben's proposition was already much better than my previous attempt.
-	    // Afterwards I found the even faster
-		return (Long.compareUnsigned(x, y) < 0) ? r0+n : r0;
+	    // Afterwards I found the even faster variant using inlined compareUnsigned(x, y) < 0:
+		return (x+Long.MIN_VALUE < y+Long.MIN_VALUE) ? r0+n : r0;
 	}
 
 	/**

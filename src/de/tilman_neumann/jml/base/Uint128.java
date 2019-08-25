@@ -23,7 +23,10 @@ import de.tilman_neumann.util.ConfigUtil;
 import static org.junit.Assert.*;
 
 /**
- * Rudimentary 128 bit unsigned int implementation.
+ * An incomplete 128 bit unsigned int implementation.
+ * 
+ * Implementation notes:
+ * * a+Long.MIN_VALUE <> b+Long-MIN_VALUE is an inlined compareUnsigned(a, b) <> 0.
  * 
  * @author Tilman Neumann
  */
@@ -75,7 +78,7 @@ public class Uint128 {
 	public Uint128 add/*_v2*/(Uint128 other) {
 		long a = low + other.getLow();
 		long b = high + other.getHigh();
-		if (Long.compareUnsigned(a, low) < 0) b++;
+		if (a+Long.MIN_VALUE < low+Long.MIN_VALUE) b++;
 		return new Uint128(b, a);
 	}
 
@@ -87,7 +90,7 @@ public class Uint128 {
 	public long add_getHigh(Uint128 other) {
 		long a = low + other.getLow();
 		long b = high + other.getHigh();
-		return (Long.compareUnsigned(a, low) < 0) ? b + 1 : b;
+		return (a+Long.MIN_VALUE < low+Long.MIN_VALUE) ? b + 1 : b;
 	}
 
 	/**
@@ -167,12 +170,12 @@ public class Uint128 {
 		long c2 = a_hi * b_hi;
 
 		long u1 = c1 + (a_lo * b_hi);
-	    if(Long.compareUnsigned(u1, c1) < 0){
+	    if(u1+Long.MIN_VALUE < c1+Long.MIN_VALUE){
 	        c2 += 1L << 32;
 	    }
 
 	    long u0 = c0 + (u1 << 32);
-	    if(Long.compareUnsigned(u0, c0) < 0){
+	    if(u0+Long.MIN_VALUE < c0+Long.MIN_VALUE){
 	        ++c2;
 	    }
 
@@ -203,7 +206,7 @@ public class Uint128 {
 		final long hi_prod = a_hi * b_hi;
 		
 		// the medium term could overflow
-		final long carry = Long.compareUnsigned(med_term, med_prod1) < 0 ? 1L<<32 : 0;
+		final long carry = (med_term+Long.MIN_VALUE < med_prod1+Long.MIN_VALUE) ? 1L<<32 : 0;
 		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
 		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
 		return new Uint128(r_hi, r_lo);
@@ -294,9 +297,9 @@ public class Uint128 {
 		// r -= b*q_hat
 		//
 		// At most 2 iterations of this...
-		while( (Long.compareUnsigned(p_hi, u_hi) > 0) || ((p_hi == u_hi) && (Long.compareUnsigned(p_lo, u_lo) > 0)) )
+		while( (p_hi+Long.MIN_VALUE > u_hi+Long.MIN_VALUE) || ((p_hi == u_hi) && (p_lo+Long.MIN_VALUE > u_lo+Long.MIN_VALUE)) )
 		{
-		    if (Long.compareUnsigned(p_lo, v) < 0) {
+		    if (p_lo+Long.MIN_VALUE < v+Long.MIN_VALUE) {
 		        --p_hi;
 		    }
 		    p_lo -= v;
@@ -307,7 +310,7 @@ public class Uint128 {
 		long w_hi = (p_hi << 32)|(p_lo >>> 32);
 		if (DEBUG) LOG.debug("w_lo=" + Long.toUnsignedString(w_lo) + ", w_hi=" + Long.toUnsignedString(w_hi));
 		
-		if (Long.compareUnsigned(w_lo, r_lo) > 0) {
+		if (w_lo+Long.MIN_VALUE > r_lo+Long.MIN_VALUE) {
 			if (DEBUG) LOG.debug("increment w_hi!");
 		    ++w_hi;
 		}
@@ -341,9 +344,9 @@ public class Uint128 {
 		// r -= b*q_hat
 		//
 		// ...and at most 2 iterations of this.
-		while( (Long.compareUnsigned(p_hi, r_hi) > 0) || ((p_hi == r_hi) && (Long.compareUnsigned(p_lo, r_lo) > 0)) )
+		while( (p_hi+Long.MIN_VALUE > r_hi+Long.MIN_VALUE) || ((p_hi == r_hi) && (p_lo+Long.MIN_VALUE > r_lo+Long.MIN_VALUE)) )
 		{
-		    if(Long.compareUnsigned(p_lo, v) < 0){
+		    if(p_lo+Long.MIN_VALUE < v+Long.MIN_VALUE){
 		        --p_hi;
 		    }
 		    p_lo -= v;
