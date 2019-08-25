@@ -32,7 +32,7 @@
  */
 package de.tilman_neumann.jml.factor.ecm;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -93,7 +93,10 @@ public class TinyEcm64 extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(TinyEcm64.class);
 
 	private static final boolean DEBUG = false;
-	
+
+	// The reducer R is 2^64, but the only constant still required is the half of it.
+	private static final long R_HALF = 1L << 63;
+
 	private static final byte[] prac70Steps = new byte[] { 
 			0,6,0,6,0,6,0,4,6,0,4,6,0,4,4,6,
 			0,4,4,6,0,5,4,6,0,3,3,4,6,0,3,5,
@@ -682,15 +685,12 @@ public class TinyEcm64 extends FactorAlgorithm {
 		ecm_work work = new ecm_work();
 		ecm_pt P = new ecm_pt();
 		int sigma;
-		long rho, x;
-
-		x = (((n + 2) & 4) << 1) + n; // here x*a==1 mod 2**4
-		x *= 2 - n * x;               // here x*a==1 mod 2**8
-		x *= 2 - n * x;               // here x*a==1 mod 2**16
-		x *= 2 - n * x;               // here x*a==1 mod 2**32         
-		x *= 2 - n * x;               // here x*a==1 mod 2**64
-		rho = (long)0 - x;
-		if (DEBUG) LOG.debug("rho = " + Long.toUnsignedString(rho));
+		long rho = setUpMontgomeryMult_v1(n);
+		if (DEBUG) {
+			LOG.debug("rho = " + Long.toUnsignedString(rho));
+			long rho2 = setUpMontgomeryMult_v2(n);
+			assertEquals(rho2, rho);
+		}
 		
 		work.n = n;
 
@@ -1023,6 +1023,42 @@ public class TinyEcm64 extends FactorAlgorithm {
 		work.stg2acc = acc;
 
 		return;
+	}
+	
+	private long setUpMontgomeryMult_v1(long n) {
+		long x = (((n + 2) & 4) << 1) + n; // here x*a==1 mod 2**4
+		x *= 2 - n * x;         	       // here x*a==1 mod 2**8
+		x *= 2 - n * x;               	   // here x*a==1 mod 2**16
+		x *= 2 - n * x;              	   // here x*a==1 mod 2**32         
+		x *= 2 - n * x;           	       // here x*a==1 mod 2**64
+		return (long)0 - x;
+	}
+
+	/**
+	 * Finds (1/R) mod N and (-1/N) mod R for odd N and R=2^64.
+	 * 
+	 * With a minor modification the algorithm from http://coliru.stacked-crooked.com/a/f57f11426d06acd8
+	 * still works for R=2^64.
+	 */
+	private long setUpMontgomeryMult_v2(long n) {
+		// initialization
+	    long a = R_HALF;
+	    long u = 1;
+	    long v = 0;
+	    
+	    while (a != 0) { // modification
+	        a >>>= 1;
+	        if ((u & 1) == 0) {
+	            u >>>= 1;
+	    	    v >>>= 1;
+	        } else {
+	            u = ((u ^ n) >>> 1) + (u & n);
+	            v = (v >>> 1) + R_HALF;
+	        }
+	    }
+
+	    // u = (1/R) mod N and v = (-1/N) mod R. We only need the latter.
+	    return v;
 	}
 
 	/**
