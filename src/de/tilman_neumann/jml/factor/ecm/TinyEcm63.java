@@ -45,10 +45,9 @@ import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * A port of Ben Buhrow's tinyecm.c, an ECM implementation for unsigned 64 bit integers.
- * So far it works for inputs up to 62 bit, albeit not as fast as the C original.
- * The (lack of an) assembler instruction to multiply two 64 bit integers seems to make a big impact here...
  * 
  * This variant ignores carry-bits in the multiplication of 64 bit integers.
+ * Fails for more N than TinyEcm64 when N>54 bit.
  * 
  * @author Tilman Neumann
  */
