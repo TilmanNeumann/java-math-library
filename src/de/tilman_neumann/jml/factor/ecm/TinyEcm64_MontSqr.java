@@ -48,11 +48,9 @@ import de.tilman_neumann.util.ConfigUtil;
  * So far it works for inputs up to 62 bit, albeit not as fast as the C original.
  * The (lack of an) assembler instruction to multiply two 64 bit integers seems to make a big impact here...
  * 
- * This variant has inlined all methods called within montMul64().
- * 
  * @author Tilman Neumann
  */
-public class TinyEcm64_Fast extends FactorAlgorithm {
+public class TinyEcm64_MontSqr extends FactorAlgorithm {
 	
 	private static class ecm_pt {
 		long X;
@@ -92,7 +90,7 @@ public class TinyEcm64_Fast extends FactorAlgorithm {
 		}
 	}
 
-	private static final Logger LOG = Logger.getLogger(TinyEcm64_Fast.class);
+	private static final Logger LOG = Logger.getLogger(TinyEcm64_MontSqr.class);
 
 	private static final boolean DEBUG = false;
 	
@@ -151,7 +149,7 @@ public class TinyEcm64_Fast extends FactorAlgorithm {
 	long LCGSTATE;
 
 	public String getName() {
-		return "TinyEcm64_Fast";
+		return "TinyEcm64_MontSqr";
 	}
 
 	/**
@@ -269,9 +267,9 @@ public class TinyEcm64_Fast extends FactorAlgorithm {
 		work.tt3 = addmod(work.tt1, work.tt2, work.n);
 		work.tt4 = submod(work.tt1, work.tt2, work.n);
 		long x = work.tt3;
-		work.tt1 = montMul64(x, x, work.n, rho);
+		work.tt1 = montSqr64(x, work.n, rho);
 		long x1 = work.tt4;	//(U + V)^2
-		work.tt2 = montMul64(x1, x1, work.n, rho);	//(U - V)^2
+		work.tt2 = montSqr64(x1, work.n, rho);	//(U - V)^2
 
 		if (Pin == Pout) // Object.equals() seems to be wanted here
 		{
@@ -300,8 +298,8 @@ public class TinyEcm64_Fast extends FactorAlgorithm {
 	 */
 	void dup(long rho, ecm_work work, long insum, long indiff, ecm_pt P)
 	{
-		work.tt1 = montMul64(indiff, indiff, work.n, rho);			// U=(x1 - z1)^2
-		work.tt2 = montMul64(insum, insum, work.n, rho);			// V=(x1 + z1)^2
+		work.tt1 = montSqr64(indiff, work.n, rho);			// U=(x1 - z1)^2
+		work.tt2 = montSqr64(insum, work.n, rho);			// V=(x1 + z1)^2
 		P.X = montMul64(work.tt1, work.tt2, work.n, rho);			// x=U*V
 
 		work.tt3 = submod(work.tt2, work.tt1, work.n);			// w = V-U
@@ -613,7 +611,7 @@ public class TinyEcm64_Fast extends FactorAlgorithm {
 		v = montMul64(u, t1, n, rho);		// v = 4*sigma
 		if (DEBUG) LOG.debug("v=" + v);
 
-		u = montMul64(u, u, n, rho);
+		u = montSqr64(u, n, rho);
 		if (DEBUG) LOG.debug("u=" + u);
 		
 		t1 = 5;
@@ -623,18 +621,18 @@ public class TinyEcm64_Fast extends FactorAlgorithm {
 		u = submod(u, t1, n);			// u = sigma^2 - 5
 		if (DEBUG) LOG.debug("u=" + u);
 
-		t1 = montMul64(u, u, n, rho);
+		t1 = montSqr64(u, n, rho);
 		if (DEBUG) LOG.debug("t1=" + t1);
 		P.X = montMul64(t1, u, n, rho);	// x = u^3
 		if (DEBUG) LOG.debug("P.X=" + P.X);
 
-		t1 = montMul64(v, v, n, rho);
+		t1 = montSqr64(v, n, rho);
 		P.Z = montMul64(t1, v, n, rho);	// z = v^3
 		if (DEBUG) LOG.debug("P.Z=" + P.Z);
 
 		//compute parameter A
 		t1 = submod(v, u, n);			// (v - u)
-		t2 = montMul64(t1, t1, n, rho);
+		t2 = montSqr64(t1, n, rho);
 		t4 = montMul64(t2, t1, n, rho);	// (v - u)^3
 
 		t1 = 3;
@@ -1037,49 +1035,15 @@ public class TinyEcm64_Fast extends FactorAlgorithm {
 	 */
 	public static long montMul64(long a, long b, long N, long Nhat) {
 		// Step 1: Compute a*b
-		final long a_hi = a >>> 32;
-		final long b_hi = b >>> 32;
-		final long a_lo = a & 0xFFFFFFFFL;
-		final long b_lo = b & 0xFFFFFFFFL;
-		
-		final long ab_lo_prod = a_lo * b_lo;
-		final long ab_med_prod1 = a_hi * b_lo;
-		final long ab_med_prod2 = a_lo * b_hi;
-		final long ab_med_term = ab_med_prod1 + ab_med_prod2;
-		final long ab_hi_prod = a_hi * b_hi;
-		
-		// the medium term could overflow
-		final long ab_carry = ab_med_term+Long.MIN_VALUE < ab_med_prod1+Long.MIN_VALUE ? 1L<<32 : 0; // inlined compareUnsigned()
-		final long ab_hi = (((ab_lo_prod >>> 32) + ab_med_term) >>> 32) + ab_hi_prod + ab_carry;
-		final long ab_lo = ((ab_med_term & 0xFFFFFFFFL) << 32) + ab_lo_prod;
-		
+		Uint128 ab = Uint128.mul64(a, b);
 		// Step 2: Compute t = ab * (-1/N) mod R
 		// Since R=2^64, "x mod R" just means to get the low part of x.
 		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
 		// but even better, the long product just gives the low part -> we can get rid of one expensive mul64().
-		final long t = ab_lo * Nhat;
+		long t = ab.getLow() * Nhat;
 		// Step 3: Compute r = (a*b + t*N) / R
 		// Since R=2^64, "x / R" just means to get the high part of x.
-		final long t_hi = t >>> 32;
-		final long N_hi = N >>> 32;
-		final long t_lo = t & 0xFFFFFFFFL;
-		final long N_lo = N & 0xFFFFFFFFL;
-		
-		final long tN_lo_prod = t_lo * N_lo;
-		final long tN_med_prod1 = t_hi * N_lo;
-		final long tN_med_prod2 = t_lo * N_hi;
-		final long tN_med_term = tN_med_prod1 + tN_med_prod2;
-		final long tN_hi_prod = t_hi * N_hi;
-		
-		// the medium term could overflow
-		final long tN_carry = tN_med_term+Long.MIN_VALUE < tN_med_prod1+Long.MIN_VALUE ? 1L<<32 : 0; // inlined compareUnsigned()
-		final long tN_hi = (((tN_lo_prod >>> 32) + tN_med_term) >>> 32) + tN_hi_prod + tN_carry;
-		final long tN_lo = ((tN_med_term & 0xFFFFFFFFL) << 32) + tN_lo_prod;
-		
-		// get hi of ab+tN
-		long r_lo = ab_lo + tN_lo;
-		long r_hi = ab_hi + tN_hi;
-		long r = r_lo+Long.MIN_VALUE < ab_lo+Long.MIN_VALUE ? r_hi + 1 : r_hi; // inlined compareUnsigned()
+		long r = ab.add_getHigh(Uint128.mul64(t, N));
 		// If the correct result is c, then now r==c or r==c+N.
 		r = r<N ? r : r-N; // required at ecm
 
@@ -1087,6 +1051,36 @@ public class TinyEcm64_Fast extends FactorAlgorithm {
 			//LOG.debug(a + " * " + b + " = " + r);
 			assertTrue(a >= 0 && a<N);
 			assertTrue(b >= 0 && b<N);
+			assertTrue(r >= 0 && r < N);
+		}
+		
+		return r;
+	}
+
+	/**
+	 * Montgomery square of a mod n.
+	 * @param a
+	 * @param N
+	 * @param Nhat complement of N mod 2^64
+	 * @return Montgomery square of a mod n
+	 */
+	public static long montSqr64(long a, long N, long Nhat) {
+		// Step 1: Compute a^2
+		Uint128 aa = Uint128.square64(a);
+		// Step 2: Compute t = a^2 * (-1/N) mod R
+		// Since R=2^64, "x mod R" just means to get the low part of x.
+		// That would give t = Uint128.mul64(aa.getLow(), minusNInvModR).getLow();
+		// but even better, the long product just gives the low part -> we can get rid of one expensive mul64().
+		long t = aa.getLow() * Nhat;
+		// Step 3: Compute r = (a*b + t*N) / R
+		// Since R=2^64, "x / R" just means to get the high part of x.
+		long r = aa.add_getHigh(Uint128.mul64(t, N));
+		// If the correct result is c, then now r==c or r==c+N.
+		r = r<N ? r : r-N; // required at ecm
+
+		if (DEBUG) {
+			//LOG.debug(a + " * " + b + " = " + r);
+			assertTrue(a >= 0 && a<N);
 			assertTrue(r >= 0 && r < N);
 		}
 		
@@ -1150,7 +1144,7 @@ public class TinyEcm64_Fast extends FactorAlgorithm {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		
-		TinyEcm64_Fast factorizer = new TinyEcm64_Fast();
+		TinyEcm64 factorizer = new TinyEcm64();
 		long[] testNumbers = new long[] { 
 				1234577*12345701L,
 				// Failures before map[] fix

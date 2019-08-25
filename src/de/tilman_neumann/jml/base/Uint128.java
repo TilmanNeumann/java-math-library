@@ -148,42 +148,6 @@ public class Uint128 {
 	}
 
 	/**
-	 * Multiplication of unsigned 64 bit integers,
-	 * following https://codereview.stackexchange.com/questions/67962/mostly-portable-128-by-64-bit-division.
-	 * 
-	 * This method takes notice of overflows of the "middle term".
-	 * As such it works for 64 bit inputs.
-	 * 
-	 * @param a unsigned long
-	 * @param b unsigned long
-	 * @return a*b
-	 */
-	public static Uint128 mul64_v2(long a, long b) {
-		long a_lo = a & 0xFFFFFFFFL;
-		long a_hi = a >>> 32;
-
-		long b_lo = b & 0xFFFFFFFFL;
-		long b_hi = b >>> 32;
-
-		long c0 = a_lo * b_lo;
-		long c1 = a_hi * b_lo;
-		long c2 = a_hi * b_hi;
-
-		long u1 = c1 + (a_lo * b_hi);
-	    if(u1+Long.MIN_VALUE < c1+Long.MIN_VALUE){
-	        c2 += 1L << 32;
-	    }
-
-	    long u0 = c0 + (u1 << 32);
-	    if(u0+Long.MIN_VALUE < c0+Long.MIN_VALUE){
-	        ++c2;
-	    }
-
-	    long y = c2 + (u1 >>> 32);
-		return new Uint128(y, u0);
-	}
-
-	/**
 	 * Multiplication of unsigned 64 bit integers with simplified carry recognition.
 	 * 
 	 * This is the fastest version so far, with the strange exception that it falls behind version 1
@@ -193,7 +157,7 @@ public class Uint128 {
 	 * @param b unsigned long
 	 * @return a*b
 	 */
-	public static Uint128 mul64/*_v3*/(long a, long b) {
+	public static Uint128 mul64/*_v2*/(long a, long b) {
 		final long a_hi = a >>> 32;
 		final long b_hi = b >>> 32;
 		final long a_lo = a & 0xFFFFFFFFL;
@@ -207,6 +171,28 @@ public class Uint128 {
 		
 		// the medium term could overflow
 		final long carry = (med_term+Long.MIN_VALUE < med_prod1+Long.MIN_VALUE) ? 1L<<32 : 0;
+		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
+		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		return new Uint128(r_hi, r_lo);
+	}
+
+	/**
+	 * The square of an unsigned 64 bit integer.
+	 * 
+	 * @param a unsigned long
+	 * @return a^2
+	 */
+	public static Uint128 square64(long a) {
+		final long a_hi = a >>> 32;
+		final long a_lo = a & 0xFFFFFFFFL;
+		
+		final long lo_prod = a_lo * a_lo;
+		final long med_prod = a_hi * a_lo;
+		final long med_term = med_prod<<1;
+		final long hi_prod = a_hi * a_hi;
+		
+		// the medium term could overflow
+		final long carry = (med_term+Long.MIN_VALUE < med_prod+Long.MIN_VALUE) ? 1L<<32 : 0;
 		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
 		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
 		return new Uint128(r_hi, r_lo);
@@ -454,17 +440,10 @@ public class Uint128 {
 			}
 			assertEquals(correctProd, prod128Big);
 			
-			prod128 = mul64_v2(a_lo, b_lo);
+			prod128 = mul64/*_v2*/(a_lo, b_lo);
 			prod128Big = prod128.toBigInteger();
 			if (!correctProd.equals(prod128Big)) {
 				LOG.error("mul64_v2: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
-			}
-			assertEquals(correctProd, prod128Big);
-			
-			prod128 = mul64/*_v3*/(a_lo, b_lo);
-			prod128Big = prod128.toBigInteger();
-			if (!correctProd.equals(prod128Big)) {
-				LOG.error("mul64_v3: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
 			}
 			assertEquals(correctProd, prod128Big);
 		}
@@ -501,7 +480,7 @@ public class Uint128 {
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("add_v2 took " + (t1-t0) + "ms");
-		// This performance test shows that v1 is faster than v2, but if we compare them
+		// The results of this comparison seem to be misleading. If we compare the two implementations
 		// in different PollardRhoBrentMontgomery63 variants than v2 is much faster...
 		
 		// test performance of mul64 implementations
@@ -514,19 +493,10 @@ public class Uint128 {
 		
 		t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
-			mul64_v2(a_arr[i], b_arr[i]);
+			mul64/*_v2*/(a_arr[i], b_arr[i]);
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("mul64_v2 took " + (t1-t0) + "ms");
-		
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			mul64/*_v3*/(a_arr[i], b_arr[i]);
-		}
-		t1 = System.currentTimeMillis();
-		LOG.info("mul64_v3 took " + (t1-t0) + "ms");
-		// This performance test shows that v1 is slower than v2, but if we compare them
-		// in different PollardRhoBrentMontgomery variants than v1 is much faster...
 	}
 
 	/**
