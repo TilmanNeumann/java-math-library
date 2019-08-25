@@ -465,7 +465,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 
 		while (d != e)
 		{
-			if (Long.compareUnsigned(d, e) < 0)
+			if (d+Long.MIN_VALUE < e+Long.MIN_VALUE)
 			{
 				r = d;
 				d = e;
@@ -478,7 +478,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 				work.pt2.Z = swp;
 			}
 
-			if (Long.compareUnsigned((d + 3) / 4, e) <= 0)
+			if ((d + 3)/4 + Long.MIN_VALUE <= e+Long.MIN_VALUE)
 			{
 				d -= e;
 
@@ -740,7 +740,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		// handle the only even case 
 		if (DEBUG) LOG.debug("P.X=" + P.X + ", P.Z=" + P.Z);
 		q = 2;
-		while (Long.compareUnsigned(q, stg1) < 0)
+		while (q+Long.MIN_VALUE < stg1+Long.MIN_VALUE)
 		{
 			work.diff1 = submod(P.X, P.Z, work.n);
 			work.sum1 = addmod(P.X, P.Z, work.n);
@@ -755,18 +755,18 @@ public class TinyEcm64 extends FactorAlgorithm {
 		{
 			prac70(rho, work, P);
 		}
-		else if (Long.compareUnsigned(stg1, 85) >= 0)
+		else if (stg1+Long.MIN_VALUE >= 85+Long.MIN_VALUE)
 		{
 			// call prac with best ratios found by a deep search.
 			// some composites are cheaper than their constituent primes.
 			prac85(rho, work, P);
-			if (Long.compareUnsigned(stg1, 100) < 0)
+			if (stg1+Long.MIN_VALUE < 100+Long.MIN_VALUE)
 			{
 				// paired into a composite for larger bounds
 				prac(rho, work, P, 61, 0.522786351415446049);
 			}
 
-			if (Long.compareUnsigned(stg1, 125) >= 0)
+			if (stg1+Long.MIN_VALUE >= 125+Long.MIN_VALUE)
 			{
 				prac(rho, work, P, 5, 0.618033988749894903);
 				prac(rho, work, P, 11, 0.580178728295464130);
@@ -778,14 +778,14 @@ public class TinyEcm64 extends FactorAlgorithm {
 				prac(rho, work, P, 109, 0.548409048446403258);
 				prac(rho, work, P, 113, 0.618033988749894903);
 
-				if (Long.compareUnsigned(stg1, 130) < 0)
+				if (stg1+Long.MIN_VALUE < 130+Long.MIN_VALUE)
 				{
 					prac(rho, work, P, 103, 0.632839806088706269);
 					
 				}
 			}
 			
-			if (Long.compareUnsigned(stg1, 165) >= 0)
+			if (stg1+Long.MIN_VALUE >= 165+Long.MIN_VALUE)
 			{
 				prac(rho, work, P, 7747, 0.552188778811121); // 61 x 127
 				prac(rho, work, P, 131, 0.618033988749894903);
@@ -794,13 +794,13 @@ public class TinyEcm64 extends FactorAlgorithm {
 				prac(rho, work, P, 157, 0.640157392785047019);
 				prac(rho, work, P, 163, 0.551390822543526449);
 
-				if (Long.compareUnsigned(stg1, 200) < 0)
+				if (stg1+Long.MIN_VALUE < 200+Long.MIN_VALUE)
 				{
 					prac(rho, work, P, 149, 0.580178728295464130);
 				}
 			}
 			
-			if (Long.compareUnsigned(stg1, 205) >= 0)
+			if (stg1+Long.MIN_VALUE >= 205+Long.MIN_VALUE)
 			{
 				prac(rho, work, P, 13, 0.618033988749894903);
 				prac(rho, work, P, 167, 0.580178728295464130);
