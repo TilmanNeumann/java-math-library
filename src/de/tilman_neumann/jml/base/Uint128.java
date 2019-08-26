@@ -94,6 +94,23 @@ public class Uint128 {
 	}
 
 	/**
+	 * Subtract two unsigned 128 bit integers.
+	 * XXX experimental, probably wrong...
+	 * 
+	 * @param other
+	 * @return this - other
+	 */
+	public Uint128 subtract(Uint128 other) {
+		long r_lo = low - other.getLow();
+		long r_hi = high - other.getHigh();
+        // check for underflow of low 64 bits, subtract carry to high
+        if (Long.compareUnsigned(r_lo, low) > 0) {
+            --r_hi;
+        }
+        return new Uint128(r_hi, r_lo);
+	}
+
+	/**
 	 * Multiplication of unsigned 63 bit integers,
 	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
 	 * 
