@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 import de.tilman_neumann.jml.gcd.Gcd63;
+import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Pretty simple yet fast variant of Hart's one line factorizer.
@@ -61,9 +62,6 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  *
  * @authors Thilo Harich & Tilman Neumann
  */
-// TODO fails for
-// 17977882519205951
-// 708198179721093877
 public class Hart_Fast2Mult extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_Fast2Mult.class);
 
@@ -204,5 +202,132 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 		final long adjust1 = ( kNp1 - x) & 31;
 		final long adjust2 = (-kNp1 - x) & 31;
 		return x + (adjust1 < adjust2 ? adjust1 : adjust2);
+	}
+
+	/**
+	 * Test.
+	 * @param args ignored
+	 */
+	public static void main(String[] args) {
+		ConfigUtil.initProject();
+
+		// These test number were too hard for previous versions:
+		long[] testNumbers = new long[] {
+				5640012124823L,
+				7336014366011L,
+				19699548984827L,
+				52199161732031L,
+				73891306919159L,
+				112454098638991L,
+				
+				32427229648727L,
+				87008511088033L,
+				92295512906873L,
+				338719143795073L,
+				346425669865991L,
+				1058244082458461L,
+				1773019201473077L,
+				6150742154616377L,
+
+				44843649362329L,
+				67954151927287L,
+				134170056884573L,
+				198589283218993L,
+				737091621253457L,
+				1112268234497993L,
+				2986396307326613L,
+				
+				26275638086419L,
+				62246008190941L,
+				209195243701823L,
+				290236682491211L,
+				485069046631849L,
+				1239671094365611L,
+				2815471543494793L,
+				5682546780292609L,
+				
+				// test numbers that required large arrays
+				135902052523483L,
+				1454149122259871L,
+				5963992216323061L,
+				26071073737844227L,
+				8296707175249091L,
+				35688516583284121L,
+				//35245060305489557L, // too big for I_MAX
+				//107563481071570333L, // too big for I_MAX
+				//107326406641253893L, // too big for I_MAX
+				//120459770277978457L, // too big for I_MAX
+				
+				// failures with random odd composites
+				949443, // = 3 * 11 * 28771
+				996433, // = 31 * 32143
+				1340465, // = 5 * 7 * 38299
+				1979435, // = 5 * 395887
+				2514615, // = 3 * 5 * 167641
+				5226867, // =  3^2 * 580763
+				10518047, // = 61 * 172427
+				30783267, // = 3^3 * 1140121
+				62230739, // = 67 * 928817
+				84836647, // = 7 * 17 * 712913
+				94602505,
+				258555555,
+				436396385,
+				612066705,
+				2017001503,
+				3084734169L,
+				6700794123L,
+				16032993843L, // = 3 * 5344331281 (34 bit number), FAILS with doTDivFirst==false
+				26036808587L,
+				41703657595L, // = 5 * 8340731519 (36 bit number), FAILS with doTDivFirst==false
+				68889614021L,
+				197397887859L, // = 3^2 * 21933098651 (38 bit number), FAILS with doTDivFirst==false
+				
+				2157195374713L,
+				8370014680591L,
+				22568765132167L,
+				63088136564083L,
+								
+				// more test numbers with small factors
+				// 30 bit
+				712869263, // = 89 * 8009767
+				386575807, // = 73 * 5295559
+				569172749, // = 83 * 6857503
+				// 40 bit
+				624800360363L, // = 233 * 2681546611
+				883246601513L, // = 251 * 3518910763
+				
+				// problems found by Thilo
+				35184372094495L,
+				893, // works
+				35, // works
+				9, // works
+				
+				// squares
+				100140049,
+				10000600009L,
+				1000006000009L,
+				6250045000081L,
+				// with doTDivFirst==false, the following N require an explicit square test
+				10890006600001L,
+				14062507500001L,
+				25000110000121L,
+				100000380000361L,
+				10000001400000049L,
+				1000000014000000049L,
+				
+				// TODO specific fails for Hart_Fast2Mult
+				17977882519205951L,
+				708198179721093877L,
+				57410188984551071L,
+				3608228875180849937L,
+				4085731848127832849L,
+				873351084013120721L,
+			};
+		
+		Hart_Fast2Mult holf = new Hart_Fast2Mult(false);
+		for (long N : testNumbers) {
+			long factor = holf.findSingleFactor(N);
+			LOG.info("N=" + N + " has factor " + factor);
+		}
 	}
 }
