@@ -319,9 +319,11 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 				17977882519205951L,
 				708198179721093877L,
 				57410188984551071L,
-				3608228875180849937L,
 				4085731848127832849L,
+				// TODO can not be cured by larger arrays
+				3608228875180849937L,
 				873351084013120721L,
+
 			};
 		
 		Hart_Fast2Mult holf = new Hart_Fast2Mult(false);
