@@ -160,12 +160,16 @@ public class TinyEcm64_MontSqr extends FactorAlgorithm {
 	 * @return (x-y) mod n
 	 */
 	long submod(long x, long y, long n) {
-	    long r0 = x-y;
-		// Suggestion by Ben Buhrow, https://www.mersenneforum.org/showpost.php?p=524038&postcount=158:
+	    final long r0 = x-y;
+		// This method's implementation history is quite an odyssey:
+		// * My first version was quite bad
+		// * Suggestion by Ben Buhrow, https://www.mersenneforum.org/showpost.php?p=524038&postcount=158: Much better
 		//return (Long.compareUnsigned(r0, x) > 0) ? r0+n : r0;
-		// Ben's proposition was already much better than my previous attempt.
-	    // Afterwards I found the even faster variant using inlined compareUnsigned(x, y) < 0:
-		return (x+Long.MIN_VALUE < y+Long.MIN_VALUE) ? r0+n : r0;
+		// * An idea of mine using inlined compareUnsigned(x, y) < 0 that made quite a difference:
+		//return (x+Long.MIN_VALUE < y+Long.MIN_VALUE) ? r0+n : r0;
+		// * A suggestion of xilman, https://www.mersenneforum.org/showpost.php?p=524662&postcount=205,
+	    //   which seems to be a another bit faster, at least for n>=52 bit:
+		return r0 + (n & (r0 >> 63));
 	}
 
 	/**
