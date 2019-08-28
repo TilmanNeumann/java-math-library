@@ -732,7 +732,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 
 		}
 
-		if (DEBUG) LOG.warn("Failed to find a factor of N=" + n);
+		/*if (DEBUG)*/ LOG.warn("Failed to find a factor of N=" + n);
 		return new EcmResult(1, curve);
 	}
 
@@ -1187,6 +1187,13 @@ public class TinyEcm64 extends FactorAlgorithm {
 				1538765965380499L,
 				12726549719013233L,
 				551072454991444801L,
+				// latest failures with original rng
+				169510104402019L, // works now
+				806053758228791L, // works now
+				2418779379104663L, // works now
+				13125494049894563L, // works now
+				51177293409566201L, // works now
+				2584893623714318663L, // TODO still failing
 		};
 		
 		for (int i=0; i<testNumbers.length; i++) {
