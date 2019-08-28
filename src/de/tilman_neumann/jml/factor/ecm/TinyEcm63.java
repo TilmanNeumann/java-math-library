@@ -1078,8 +1078,8 @@ public class TinyEcm63 extends FactorAlgorithm {
 	public BigInteger findSingleFactor(BigInteger N) {
 		Random rng = new Random();
 		rng.setSeed(42);
-		LCGSTATE = 65537 * rng.nextInt(); // original
-		//LCGSTATE = 4295098403L; // rng seed 2
+//		LCGSTATE = 65537 * rng.nextInt(); // original rng is not comparable with C version
+		LCGSTATE = 4295098403L; // rng comparable with C version
 		if (DEBUG) LOG.debug("LCGSTATE = " + LCGSTATE);
 		
 		int NBits = N.bitLength();
@@ -1138,27 +1138,26 @@ public class TinyEcm63 extends FactorAlgorithm {
 				// Failures before int to long cast fix
 				41382606407163353L,
 				306358296309770459L,
-				// Failures with "rng seed 2"
+				// Failures because #curves is too small
 				474315852287951L,
 				9400170223537253L,
 				35239016917581299L,
 				37915240075398767L,
 				459926431465210403L,
 				752882545886305349L,
-				// Failures with original rng
-				74003384967329L,
-				426414508794943L,
-				564980767226363L,
-				1538765965380499L,
-				12726549719013233L,
-				551072454991444801L,
-				// latest failures with original rng
-				265759492096499L, // works now
-				769291807100039L, // works now
-				2418779379104663L, // works now
-				13125494049894563L, // works now
-				67122055882882709L, // works now
-				3986056106111176267L, // TODO still failing
+				179503729521451L,
+				1059150637518581L,
+				3209190314462729L,
+				17586811742837503L,
+				13745855671622359L,
+				15727038894518533L,
+				66804960995707271L,
+				38704493646912997L,
+				56025872236672099L,
+				57675022504187287L,
+				69916262762899909L,
+				51113648728234999L,
+				55878279398722441L,
 		};
 		
 		for (int i=0; i<testNumbers.length; i++) {
