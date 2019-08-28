@@ -252,7 +252,16 @@ public class Hart_Fast extends FactorAlgorithm {
 				100000380000361L,
 				10000001400000049L,
 				1000000014000000049L,
-			};
+				
+				// TODO New fails that can be cured with larger arrays
+				17977882519205951L, // 54 bit
+				57410188984551071L, // 56 bit
+				708198179721093877L, // 60 bit
+				4085731848127832849L, // 62 bit
+				// TODO New fails that can not be cured with larger arrays
+				873351084013120721L, // 60 bit
+				3608228875180849937L, // 62 bit
+		};
 		
 		Hart_Fast holf = new Hart_Fast(false);
 		for (long N : testNumbers) {

@@ -37,7 +37,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private static final int K_MAX = 1<<20;
+	private static final int K_MAX = 1<<22;
 	private static final int ARRAY_COUNT = 7;
 	private static final int MAX_ARRAY_INDEX = ARRAY_COUNT-1;
 
@@ -298,7 +298,16 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 				
 				// special case
 				9,
-			};
+				
+				// New fails of Hart working here
+				17977882519205951L, // 54 bit
+				57410188984551071L, // 56 bit
+				708198179721093877L, // 60 bit
+				873351084013120721L, // 60 bit
+				// New fails of Hart failing here as well; the numbers are just too big for our Lehman implementation
+				4085731848127832849L, // 62 bit
+				3608228875180849937L, // 62 bit
+		};
 		
 		Lehman_CustomKOrder lehman = new Lehman_CustomKOrder(false);
 		for (long N : testNumbers) {
