@@ -239,6 +239,7 @@ public class Uint128 {
 	/**
 	 * Compute quotient and remainder of this / v.
 	 * The quotient will be correct only if it is <= 64 bit.
+	 * Ported from https://codereview.stackexchange.com/questions/67962/mostly-portable-128-by-64-bit-division.
 	 * 
 	 * @param v 64 bit unsigned integer
 	 * @return [quotient, remainder] of this / v
