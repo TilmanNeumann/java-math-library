@@ -523,6 +523,12 @@ public class TinyEcm64_MontInline extends FactorAlgorithm {
 		return;
 	}
 
+	/**
+	 * Compute the modular inverse x of a mod p, i.e. x = (1/a) mod p.
+	 * @param a
+	 * @param p modulus
+	 * @return (1/a) mod p
+	 */
 	// TODO Compare with my implementations
 	long modinv_64(long a, long p) {
 
