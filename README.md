@@ -5,14 +5,14 @@ It is based on PSIQS 4.0 and as such provides some pretty good methods for integ
 If you are interested in factoring then have a look at the following classes:
 * TDiv31Inverse
 * TDiv63Inverse
-* Hart\_Fast
-* Hart\_TDiv\_Race
+* Hart\_Fast2Mult
 * Lehman_CustomKOrder
 * SquFoF31Preload
 * SquFoF63
 * PollardRhoBrentMontgomeryR64Mul63
 * PollardRhoBrentMontgomery64
 * PollardRhoBrent
+* TinyEcm64
 * CFrac63
 * CFrac
 * SIQS (single-threaded)
@@ -28,6 +28,7 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Releases
 
+* v0.9.10: Added port of Ben Buhrow's tinyecm.c.
 * v0.9.9.3: Added Hart's "one line factorizer"; simplified FactorAlgorithm type hierarchy.
 * v0.9.9: Significantly faster trial division and Pollard-Rho.
 * v0.9.8: Fixed bug in SquFoF for N not coprime with multipliers.
@@ -71,4 +72,5 @@ Big thanks to
 * Dario Alpern for the permission to use his Block-Lanczos solver under GPL 3
 * Graeme Willoughby for his great comments on the BigInteger algorithms in the SqrtInt, SqrtExact, Root and PurePowerTest classes
 * Thilo Harich for a great collaboration and his immense improvements on the Lehman factoring method
+* Ben Buhrow for his free, open source tinyecm.c and his comments on mersenneforum.org that helped a lot to improve the performance of my Java port
 
