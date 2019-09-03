@@ -94,6 +94,7 @@ public class FactorizerTest {
 			new Hart_TDiv_Race2(), // good for semiprimes >= 45 bit, but fails for some N having small factors
 			new Hart_Squarefree(false),
 			new Hart_Fast2Mult(false),
+			new Hart_Fast2Mult2(false),
 			
 			// Lehman
 			//new Lehman_Simple(false),
@@ -134,6 +135,8 @@ public class FactorizerTest {
 			// ECM
 			new TinyEcm63(),
 			new TinyEcm64(),
+			new TinyEcm64_MontSqr(),
+			new TinyEcm64_MontInline(),
 //			new EllipticCurveMethod(),
 
 			// SIQS:
