@@ -275,19 +275,19 @@ public class TinyEcm64_MontSqr extends FactorAlgorithm {
 		long x1 = work.tt4;	//(U + V)^2
 		work.tt2 = montSqr64(x1, work.n, rho);	//(U - V)^2
 
-		if (Pin == Pout) // Object.equals() seems to be wanted here
+		if (Pin == Pout)
 		{
-			long tmp;
+			// Pin and Pout are the same object. Avoid changing X before it is used in the second operation...
 			Pout.Z = montMul64(work.tt1, Pin.Z, work.n, rho);		//Z * (U + V)^2
-			Pout.X = montMul64(work.tt2, Pin.X, work.n, rho);		//x * (U - V)^2
-			tmp = Pout.Z;
+			Pout.X = montMul64(work.tt2, Pin.X, work.n, rho);		//X * (U - V)^2
+			final long tmp = Pout.Z;
 			Pout.Z = Pout.X;
 			Pout.X = tmp;
 		}
 		else
 		{
 			Pout.X = montMul64(work.tt1, Pin.Z, work.n, rho);		//Z * (U + V)^2
-			Pout.Z = montMul64(work.tt2, Pin.X, work.n, rho);		//x * (U - V)^2
+			Pout.Z = montMul64(work.tt2, Pin.X, work.n, rho);		//X * (U - V)^2
 		}
 		return;
 	}
