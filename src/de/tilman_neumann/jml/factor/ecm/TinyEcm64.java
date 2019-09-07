@@ -530,7 +530,6 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * @param p modulus
 	 * @return (1/a) mod p
 	 */
-	// TODO Compare with my implementations
 	long modinv_64(long a, long p) {
 
 		/* thanks to the folks at www.mersenneforum.org */
