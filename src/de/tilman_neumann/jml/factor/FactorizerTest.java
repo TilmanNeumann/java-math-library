@@ -83,7 +83,8 @@ public class FactorizerTest {
 
 			// Trial division
 			//new TDiv31(),
-			new TDiv31Inverse(), // Fastest algorithm for N <= 24 bit
+			new TDiv31Inverse(),
+			new TDiv31Barrett(), // Fastest algorithm for N <= 26 bit
 //			new TDiv63Inverse(1<<21),
 			
 			// Hart's one line factorizer
