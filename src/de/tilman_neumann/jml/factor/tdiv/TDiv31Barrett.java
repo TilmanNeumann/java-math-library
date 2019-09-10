@@ -62,12 +62,12 @@ public class TDiv31Barrett extends FactorAlgorithm {
 		
 		int q;
 		for (int i=0; ; i++) {
-			long r = pinv[i];
-			int p = primes[i];
+			final long r = pinv[i];
+			final int p = primes[i];
 			int exp = 0;
-			while (N - (q = (int) ((N*r)>>32)) * p == p) { // q may be 1 too small...
+			while ((q = (1 + (int) ((N*r)>>32))) * p == N) {
 				exp++;
-				N = q+1; // +1 fixes the qotient computation above.
+				N = q;
 			}
 			if (exp>0) {
 				primeFactors.add(BigInteger.valueOf(p), exp);
@@ -93,16 +93,15 @@ public class TDiv31Barrett extends FactorAlgorithm {
 	public int findSingleFactor(int N) {
 		// if N is odd and composite then the loop runs maximally up to prime = floor(sqrt(N))
 		// unroll the loop
-		int p;
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
-			if (N - (int) ((N*pinv[i])>>32) * (p = primes[i]) == p) return p;
-			if (N - (int) ((N*pinv[++i])>>32) * (p = primes[i]) == p) return p;
-			if (N - (int) ((N*pinv[++i])>>32) * (p = primes[i]) == p) return p;
-			if (N - (int) ((N*pinv[++i])>>32) * (p = primes[i]) == p) return p;
-			if (N - (int) ((N*pinv[++i])>>32) * (p = primes[i]) == p) return p;
-			if (N - (int) ((N*pinv[++i])>>32) * (p = primes[i]) == p) return p;
-			if (N - (int) ((N*pinv[++i])>>32) * (p = primes[i]) == p) return p;
-			if (N - (int) ((N*pinv[++i])>>32) * (p = primes[i]) == p) return p;
+			if ((1 + (int) ((N*pinv[i])>>32)) * primes[i] == N) return primes[i];
+			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
+			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
+			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
+			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
+			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
+			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
+			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
 		}
 		// otherwise N is prime!
 		throw new IllegalArgumentException("N = " + N + " is prime!");

@@ -68,8 +68,8 @@ public class TDiv31Inverse extends FactorAlgorithm {
 		
 		int q;
 		for (int i=0; ; i++) {
-			double r = reciprocals[i];
-			int p = primes[i];
+			final double r = reciprocals[i];
+			final int p = primes[i];
 			int exp = 0;
 			while ((q = (int) (N*r + DISCRIMINATOR)) * p == N) {
 				exp++;
