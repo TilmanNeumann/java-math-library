@@ -197,7 +197,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 		// Starting at the biggest prime base elements is faster because then Q_rest is reduced quicker in pass 2.
 		// IMPORTANT: Java gives x % p = x for |x| < p, and we have many p bigger than any sieve array entry.
 		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
-		int xAbs = Math.abs(x);
+		final int xAbs = x<0 ? -x : x;
 		for (int pIndex = baseSize-1; pIndex > 0; pIndex--) { // p[0]=2 was already tested
 			int p = powers[pIndex];
 			int xModP = xAbs<p ? x : x % p;
