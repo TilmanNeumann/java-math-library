@@ -71,7 +71,7 @@ public class SimpleSieve implements Sieve {
 		this.initializeSieveArray(sieveArraySize);
 		if (profile) initDuration += timer.capture();
 
-		final int[] powers = solutionArrays.powers;
+		final int[] pArray = solutionArrays.pArray;
 		final int[] x1Array = solutionArrays.x1Array;
 		final int[] x2Array = solutionArrays.x2Array;
 		final byte[] logPArray = solutionArrays.logPArray;
@@ -91,7 +91,7 @@ public class SimpleSieve implements Sieve {
 		for (int i=1; i<primeBaseSize; i++) {
 			// solution x1
 			x1min = x1Array[i];
-			int p = powers[i];
+			int p = pArray[i];
 			logP = logPArray[i];
 			for (int x1=x1min; x1<sieveArraySize; x1+=p) {
 				sieveArray_pos[x1] += logP;

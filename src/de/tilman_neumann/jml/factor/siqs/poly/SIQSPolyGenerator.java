@@ -308,8 +308,8 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		// the first b is always positive, so we can use UnsignedBigInt here
 		UnsignedBigInt b_UBI = new UnsignedBigInt(b);
 		
-		int[] filteredPowers = solutionArrays.powers;
-		int[] filteredTArray = solutionArrays.tArray;
+		int[] pArray = solutionArrays.pArray;
+		int[] tArray = solutionArrays.tArray;
 		int[][] Bainv2Array = solutionArrays.Bainv2Array;
 		int[] x1Array = solutionArrays.x1Array;
 		int[] x2Array = solutionArrays.x2Array;
@@ -318,7 +318,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			// All modular inverses 1/a % p exist because the q's whose product gives the a-parameter have been filtered out before.
 			// Since 1/a % p = 1/(a%p) % p, we can compute the modular inverse in ints, which is much faster than with BigIntegers.
 			// ainvp needs long precision in the products below.
-			final int p = filteredPowers[pIndex];
+			final int p = pArray[pIndex];
 			final long ainvp = eea.modularInverse(da_UBI.mod(p), p);
 			
 			// 2. compute Bainv2[] -----------------------------------------------------------
@@ -328,7 +328,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			}
 			
 			// 3. compute first x-array entries -----------------------------------------------
-			final int t = filteredTArray[pIndex];
+			final int t = tArray[pIndex];
 			final int bModP = b_UBI.mod(p);
 			// x1 = (1/a)* (+t - b) (mod p)
 			int t_minus_b_modP = t - bModP;
@@ -390,7 +390,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		// update solution arrays:
 		// Note that trial division needs the solutions for all primes p,
 		// even if the sieve leaves out the smallest p[i] with i < pMinIndex.
-		int[] filteredPowers = solutionArrays.powers;
+		int[] filteredPowers = solutionArrays.pArray;
 		int[] Bainv2Row = solutionArrays.Bainv2Array[v-1];
 		int[] x1Array = solutionArrays.x1Array;
 		int[] x2Array = solutionArrays.x2Array;

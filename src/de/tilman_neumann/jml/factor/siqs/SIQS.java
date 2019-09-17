@@ -224,9 +224,16 @@ public class SIQS extends FactorAlgorithm {
 		SieveParams sieveParams = new SieveParams(kN, primesArray, primeBaseSize, adjustedSieveArraySize, maxQRest, 127);
 		// compute logP array
 		byte[] logPArray = computeLogPArray(primesArray, primeBaseSize, sieveParams.lnPMultiplier);
+		// compute reciprocals of primes
+		double[] pinvArrayD = new double[primeBaseSize];
+		long[] pinvArrayL = new long[primeBaseSize];
+		for (int i=0; i<primeBaseSize; i++) {
+			pinvArrayD[i] = 1.0 / primesArray[i];
+			pinvArrayL[i] = (1L<<32) / primesArray[i];
+		}
 
 		// Find and add powers to the prime base
-		BaseArrays baseArrays = powerFinder.addPowers(kN, primesArray, tArray, logPArray, primeBaseSize, sieveParams);
+		BaseArrays baseArrays = powerFinder.addPowers(kN, primesArray, tArray, logPArray, pinvArrayD, pinvArrayL, primeBaseSize, sieveParams);
 
 		// initialize polynomial generator and sub-engines
 		polyGenerator.initializeForN(k, N, kN, d, sieveParams, baseArrays, apg, sieve, auxFactorizer, profile);

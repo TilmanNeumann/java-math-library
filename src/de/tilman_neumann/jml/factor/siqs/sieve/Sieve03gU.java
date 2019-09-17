@@ -89,12 +89,12 @@ public class Sieve03gU implements Sieve {
 	@Override
 	public void initializeForAParameter(SolutionArrays solutionArrays, int filteredBaseSize) {
 		this.solutionArrays = solutionArrays;
-		int[] powers = solutionArrays.powers;
+		int[] pArray = solutionArrays.pArray;
 		this.primeBaseSize = filteredBaseSize;
 		
-		this.p1Index = binarySearch.getInsertPosition(powers, primeBaseSize, sieveArraySize);
-		this.p2Index = binarySearch.getInsertPosition(powers, p1Index, (sieveArraySize+1)/2);
-		this.p3Index = binarySearch.getInsertPosition(powers, p2Index, (sieveArraySize+2)/3);
+		this.p1Index = binarySearch.getInsertPosition(pArray, primeBaseSize, sieveArraySize);
+		this.p2Index = binarySearch.getInsertPosition(pArray, p1Index, (sieveArraySize+1)/2);
+		this.p3Index = binarySearch.getInsertPosition(pArray, p2Index, (sieveArraySize+2)/3);
 		if (DEBUG) LOG.debug("primeBaseSize=" + primeBaseSize + ", p1Index=" + p1Index + ", p2Index=" + p2Index + ", p3Index=" + p3Index);
 		
 		// The minimum number of x-solutions in the sieve array is floor(sieveArraySize/p).
@@ -103,9 +103,9 @@ public class Sieve03gU implements Sieve {
 		this.minSolutionCounts_m3 = new int[p3Index];
 		for (int i=p3Index-1; i>=pMinIndex; i--) {
 			try { // entering a try-catch-block has no time cost
-				minSolutionCounts_m3[i] = sieveArraySize/powers[i] - 3;
+				minSolutionCounts_m3[i] = sieveArraySize/pArray[i] - 3;
 			} catch (Exception e) {
-				LOG.error("p3Index = " + p3Index + ", pMinIndex = " + pMinIndex + ", i = " + i + ", primesArray[i] = " + powers[i]);
+				LOG.error("p3Index = " + p3Index + ", pMinIndex = " + pMinIndex + ", i = " + i + ", pArray[i] = " + pArray[i]);
 				throw e;
 			}
 			//LOG.debug("p=" + primesArray[i] + ": minSolutionCount = " + minSolutionCounts_m3[i]);
@@ -119,7 +119,7 @@ public class Sieve03gU implements Sieve {
 		if (profile) initDuration += timer.capture();
 		
 		// Sieve with positive x, large primes:
-		final int[] powers = solutionArrays.powers;
+		final int[] pArray = solutionArrays.pArray;
 		final int[] x1Array = solutionArrays.x1Array;
 		final int[] x2Array = solutionArrays.x2Array;
 		final byte[] logPArray = solutionArrays.logPArray;
@@ -135,7 +135,7 @@ public class Sieve03gU implements Sieve {
 			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
 		}
 		for ( ; i>=p2Index; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1Addr = sieveArrayAddress + x1Array[i];
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
@@ -147,7 +147,7 @@ public class Sieve03gU implements Sieve {
 			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
 		}
 		for ( ; i>=p3Index; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1Addr = sieveArrayAddress + x1Array[i];
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
@@ -164,7 +164,7 @@ public class Sieve03gU implements Sieve {
 		}
 		// Positive x, small primes:
 		for ( ; i>=pMinIndex; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1Addr = sieveArrayAddress + x1Array[i];
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
@@ -228,7 +228,7 @@ public class Sieve03gU implements Sieve {
 
 		// negative x, large primes:
 		for (i=primeBaseSize-1; i>=p1Index; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1Addr = sieveArrayAddress + p - x1Array[i];
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
@@ -236,7 +236,7 @@ public class Sieve03gU implements Sieve {
 			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
 		}
 		for (; i>=p2Index; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1Addr = sieveArrayAddress + p - x1Array[i];
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
@@ -248,7 +248,7 @@ public class Sieve03gU implements Sieve {
 			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
 		}
 		for (; i>=p3Index; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1Addr = sieveArrayAddress + p - x1Array[i];
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
@@ -265,7 +265,7 @@ public class Sieve03gU implements Sieve {
 		}
 		// negative x, small primes:
 		for (; i>=pMinIndex; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1Addr = sieveArrayAddress + p - x1Array[i];
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));

@@ -134,8 +134,8 @@ public class SingleBlockSieveU implements Sieve {
 		if (profile) timer.capture();
 
 		// preprocessing
-		final int[] powers = solutionArrays.powers;
-		int r_s = binarySearch.getInsertPosition(powers, filteredBaseSize, effectiveBlockSize);
+		final int[] pArray = solutionArrays.pArray;
+		int r_s = binarySearch.getInsertPosition(pArray, filteredBaseSize, effectiveBlockSize);
 
 		final int[] x1Array = solutionArrays.x1Array;
 		final int[] x2Array = solutionArrays.x2Array;
@@ -146,11 +146,11 @@ public class SingleBlockSieveU implements Sieve {
 			x2 = x2Array[i];
 			if (x1<x2) {
 				xPosArray[i] = sieveBlockAddress + x1;
-				xNegArray[i] = sieveBlockAddress + powers[i] - x2;
+				xNegArray[i] = sieveBlockAddress + pArray[i] - x2;
 				dNegArray[i] = dPosArray[i] = x2 - x1;
 			} else {
 				xPosArray[i] = sieveBlockAddress + x2;
-				xNegArray[i] = sieveBlockAddress + powers[i] - x1;
+				xNegArray[i] = sieveBlockAddress + pArray[i] - x1;
 				dNegArray[i] = dPosArray[i] = x1 - x2;
 			}
 		}
@@ -163,7 +163,7 @@ public class SingleBlockSieveU implements Sieve {
 			
 			// positive x: sieve block [b*B, (b+1)*B] with prime index ranges 0...r_s-1 and r_s...max
 			long nextBlockAddress = sieveBlockAddress + effectiveBlockSize;
-			sievePositiveXBlock(powers, logPArray, effectiveBlockSize, pMinIndex, r_s, filteredBaseSize);
+			sievePositiveXBlock(pArray, logPArray, effectiveBlockSize, pMinIndex, r_s, filteredBaseSize);
 			if (profile) sieveDuration += timer.capture();
 			
 			// collect block
@@ -207,7 +207,7 @@ public class SingleBlockSieveU implements Sieve {
 			if (profile) initDuration += timer.capture();
 			
 			// sieve block [b*B, (b+1)*B] with prime index ranges 0...r_s-1 and r_s...max
-			sieveNegativeXBlock(powers, logPArray, effectiveBlockSize, pMinIndex, r_s, filteredBaseSize);
+			sieveNegativeXBlock(pArray, logPArray, effectiveBlockSize, pMinIndex, r_s, filteredBaseSize);
 			if (profile) sieveDuration += timer.capture();
 			
 			// collect block

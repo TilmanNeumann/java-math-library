@@ -65,7 +65,8 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	// prime base
 	private int[] primes;
 	private int[] exponents;
-	private int[] powers;
+	private int[] pArray;
+	private long[] pinvArrayL;
 	private int baseSize;
 	private int pMax;
 	private BigInteger pMaxSquare;
@@ -127,7 +128,8 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 		bParam = b;
 		primes = solutionArrays.primes;
 		exponents = solutionArrays.exponents;
-		powers = solutionArrays.powers;
+		pArray = solutionArrays.pArray;
+		pinvArrayL = solutionArrays.pinvArrayL;
 		baseSize = filteredBaseSize;
 		x1Array = solutionArrays.x1Array;
 		x2Array = solutionArrays.x2Array;
@@ -206,12 +208,25 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
 		final int xAbs = x<0 ? -x : x;
 		for (int pIndex = baseSize-1; pIndex > 0; pIndex--) { // p[0]=2 was already tested
-			int p = powers[pIndex];
-			int xModP = xAbs<p ? x : x % p;
-			if (xModP<0) xModP += p; // make remainder non-negative for negative x
-			if (DEBUG) {
-				if (xModP<0) LOG.debug("x=" + x + ", p=" + p + " -> x % p = " + xModP + ", x1 = " + x1Array[pIndex] + ", x2 = " + x2Array[pIndex]);
-				assertTrue(0<=xModP && xModP<p);
+			int p = pArray[pIndex];
+			int xModP;
+			if (xAbs<p) {
+				xModP = x<0 ? x+p : x;
+			} else {
+				// Compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
+				// We can use the long-variant here because x*m will never overflow positive long values.
+				final long m = pinvArrayL[pIndex];
+				final long q = ((x*m)>>>32);
+				xModP = (int) (x - q * p);
+				if (xModP==p) xModP = 0;
+				if (DEBUG) {
+					assertTrue(0<=xModP && xModP<p);
+					final long q2 = x / p;
+					int xModP2 = (int) (x - q2 * p);
+					if (xModP2<0) xModP2 += p;
+					assertEquals(xModP2, xModP);
+					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP);
+				}
 			}
 			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
 				pass2Primes[pass2Count] = primes[pIndex];

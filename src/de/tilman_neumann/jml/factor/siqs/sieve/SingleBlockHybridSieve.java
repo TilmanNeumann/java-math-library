@@ -126,14 +126,14 @@ public class SingleBlockHybridSieve implements Sieve {
 	@Override
 	public void initializeForAParameter(SolutionArrays solutionArrays, int filteredBaseSize) {
 		this.solutionArrays = solutionArrays;
-		int[] powers = solutionArrays.powers;
+		int[] pArray = solutionArrays.pArray;
 		this.primeBaseSize = filteredBaseSize;
 		
-		p1Index = binarySearch.getInsertPosition(powers, primeBaseSize, sieveArraySize);
-		p2Index = binarySearch.getInsertPosition(powers, p1Index, (sieveArraySize+1)/2);
-		p3Index = binarySearch.getInsertPosition(powers, p2Index, (sieveArraySize+2)/3);
+		p1Index = binarySearch.getInsertPosition(pArray, primeBaseSize, sieveArraySize);
+		p2Index = binarySearch.getInsertPosition(pArray, p1Index, (sieveArraySize+1)/2);
+		p3Index = binarySearch.getInsertPosition(pArray, p2Index, (sieveArraySize+2)/3);
 		// find the index of the largest prime < p3 fitting into a block
-		r_s = binarySearch.getInsertPosition(powers, p3Index, effectiveBlockSize);
+		r_s = binarySearch.getInsertPosition(pArray, p3Index, effectiveBlockSize);
 		if (DEBUG) LOG.debug("primeBaseSize=" + primeBaseSize + ", p1Index=" + p1Index + ", p2Index=" + p2Index + ", p3Index=" + p3Index + ", r_s = " + r_s);
 
 		xPosArray = new int[p3Index];
@@ -149,7 +149,7 @@ public class SingleBlockHybridSieve implements Sieve {
 		
 		// prepare single-block data for smallish primes:
 		// this needs to be done in sieve(), because it depends on the the x-arrays
-		final int[] powers = solutionArrays.powers;
+		final int[] pArray = solutionArrays.pArray;
 		final int[] x1Array = solutionArrays.x1Array;
 		final int[] x2Array = solutionArrays.x2Array;
 		int x1, x2;
@@ -158,11 +158,11 @@ public class SingleBlockHybridSieve implements Sieve {
 			x2 = x2Array[i];
 			if (x1<x2) {
 				xPosArray[i] = x1;
-				xNegArray[i] = powers[i] - x2;
+				xNegArray[i] = pArray[i] - x2;
 				dNegArray[i] = dPosArray[i] = x2 - x1;
 			} else {
 				xPosArray[i] = x2;
-				xNegArray[i] = powers[i] - x1;
+				xNegArray[i] = pArray[i] - x1;
 				dNegArray[i] = dPosArray[i] = x1 - x2;
 			}
 		}
@@ -180,7 +180,7 @@ public class SingleBlockHybridSieve implements Sieve {
 			sieveArray[x2Array[i]] += logP;
 		}
 		for ( ; i>=p2Index; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1 = x1Array[i];
 			x2 = x2Array[i];
@@ -190,7 +190,7 @@ public class SingleBlockHybridSieve implements Sieve {
 			sieveArray[x2+p] += logP;
 		}
 		for ( ; i>=p3Index; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1 = x1Array[i];
 			x2 = x2Array[i];
@@ -213,7 +213,7 @@ public class SingleBlockHybridSieve implements Sieve {
 			
 			// positive x: sieve block [b*B, (b+1)*B] with prime index ranges 0...r_s-1 and r_s...max
 			//LOG.debug("sieve pos. block " + b + " (" + effectiveBlockSize + " bytes) with primes " + pMinIndex + " ... " + r_s + " ... " + p3Index);
-			sievePositiveXBlock(powers, logPArray, effectiveBlockSize, pMinIndex, r_s, p3Index);
+			sievePositiveXBlock(pArray, logPArray, effectiveBlockSize, pMinIndex, r_s, p3Index);
 			if (profile) sieveDuration += timer.capture();
 			
 			// collect block
@@ -242,13 +242,13 @@ public class SingleBlockHybridSieve implements Sieve {
 
 		// negative x, large primes:
 		for (i=primeBaseSize-1; i>=p1Index; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			sieveArray[p-x1Array[i]] += logP;
 			sieveArray[p-x2Array[i]] += logP;
 		}
 		for (; i>=p2Index; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1 = p-x1Array[i];
 			x2 = p-x2Array[i];
@@ -258,7 +258,7 @@ public class SingleBlockHybridSieve implements Sieve {
 			sieveArray[x2+p] += logP;
 		}
 		for (; i>=p3Index; i--) {
-			final int p = powers[i];
+			final int p = pArray[i];
 			final byte logP = logPArray[i];
 			x1 = p-x1Array[i];
 			x2 = p-x2Array[i];
@@ -281,7 +281,7 @@ public class SingleBlockHybridSieve implements Sieve {
 			
 			// negative x: sieve block [b*B, (b+1)*B] with prime index ranges 0...r_s-1 and r_s...max
 			//LOG.debug("sieve neg. block " + b + " (" + effectiveBlockSize + " bytes) with primes " + pMinIndex + " ... " + r_s + " ... " + p3Index);
-			sieveNegativeXBlock(powers, logPArray, effectiveBlockSize, pMinIndex, r_s, p3Index);
+			sieveNegativeXBlock(pArray, logPArray, effectiveBlockSize, pMinIndex, r_s, p3Index);
 			if (profile) sieveDuration += timer.capture();
 			
 			// Collect block: We collect 4 bytes at once, thus we need 4 | effectiveBlockSize -> see initialize()

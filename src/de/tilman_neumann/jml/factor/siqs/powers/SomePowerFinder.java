@@ -33,9 +33,9 @@ abstract public class SomePowerFinder implements PowerFinder {
 	private static final boolean DEBUG = false;
 
 	@Override
-	public BaseArrays addPowers(BigInteger kN, int[] primes, int[] tArray, byte[] logPArray, int primeBaseSize, SieveParams sieveParams) {
+	public BaseArrays addPowers(BigInteger kN, int[] primes, int[] tArray, byte[] logPArray, double[] reciprocals, long[] pinvs, int primeBaseSize, SieveParams sieveParams) {
 		TreeSet<PowerEntry> powers = findPowers(kN, primes, tArray, primeBaseSize, sieveParams);
-		return mergePrimesAndPowers(primes, tArray, logPArray, primeBaseSize, powers);
+		return mergePrimesAndPowers(primes, tArray, logPArray, reciprocals, pinvs, primeBaseSize, powers);
 	}
 
 	/**
@@ -59,15 +59,17 @@ abstract public class SomePowerFinder implements PowerFinder {
 	 * @param powerEntries
 	 * @return
 	 */
-	private BaseArrays mergePrimesAndPowers(int[] primesArray, int[] tArray, byte[] logPArray, int primeBaseSize, TreeSet<PowerEntry> powerEntries) {
+	private BaseArrays mergePrimesAndPowers(int[] primesArray, int[] tArray, byte[] logPArray, double[] pinvArrayD, long[] pinvArrayL, int primeBaseSize, TreeSet<PowerEntry> powerEntries) {
 		int powerCount = powerEntries.size();
 		BaseArrays baseArrays = new BaseArrays(primeBaseSize + powerCount);
 		int[] mergedPrimes = baseArrays.primes;
 		int[] mergedExponents = baseArrays.exponents;
-		int[] mergedPowers = baseArrays.powers;
+		int[] mergedPowers = baseArrays.pArray;
 		int[] mergedTArray = baseArrays.tArray;
 		byte[] mergedlogPArray = baseArrays.logPArray;
-		
+		double[] mergedPinvArrayD = baseArrays.pinvArrayD;
+		long[] mergedPinvArrayL = baseArrays.pinvArrayL;
+
 		int mergedIndex = 0;
 		int pIndex = 0;
 		int p = primesArray[0];
@@ -82,6 +84,8 @@ abstract public class SomePowerFinder implements PowerFinder {
 					mergedPowers[mergedIndex] = primesArray[pIndex];
 					mergedTArray[mergedIndex] = tArray[pIndex];
 					mergedlogPArray[mergedIndex] = logPArray[pIndex];
+					mergedPinvArrayD[mergedIndex] = pinvArrayD[pIndex];
+					mergedPinvArrayL[mergedIndex] = pinvArrayL[pIndex];
 					mergedIndex++;
 					// get next p
 					pIndex++;
@@ -98,6 +102,8 @@ abstract public class SomePowerFinder implements PowerFinder {
 					mergedPowers[mergedIndex] = powerEntry.power;
 					mergedTArray[mergedIndex] = powerEntry.t;
 					mergedlogPArray[mergedIndex] = powerEntry.logPower;
+					mergedPinvArrayD[mergedIndex] = powerEntry.pinvD;
+					mergedPinvArrayL[mergedIndex] = pinvArrayL[pIndex];
 					mergedIndex++;
 					// get next power
 					if (powerIter.hasNext()) {
