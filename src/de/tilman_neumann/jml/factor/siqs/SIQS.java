@@ -51,6 +51,7 @@ import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_nLarge_UBI;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
@@ -318,6 +319,10 @@ public class SIQS extends FactorAlgorithm {
 				LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
 				LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 				LOG.info("    tDiv: " + tdivReport.getOperationDetails());
+				String qRestSizes = tdivReport.getQRestSizes();
+				if (qRestSizes != null) {
+					LOG.info("        " + qRestSizes);
+				}
 				LOG.info("    cc: " + ccReport.getOperationDetails());
 				if (CongruenceCollector.ANALYZE_BIG_FACTOR_SIZES) {
 					LOG.info("        " + ccReport.getPartialBigFactorSizes());

@@ -35,7 +35,9 @@ import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerOfSmallPrimesFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03g;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset;
+import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.util.Timer;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -99,6 +101,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 	private long pass1Duration;
 	private long pass2Duration;
 	private long factorDuration;
+	private Multiset<Integer> qRestSizes;
 
 	@Override
 	public String getName() {
@@ -119,6 +122,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 		this.pass1Duration = 0;
 		this.pass2Duration = 0;
 		this.factorDuration = 0;
+		this.qRestSizes = new SortedMultiset_BottomUp<>();
 	}
 
 	@Override
@@ -287,6 +291,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 		// -> trial division is no help here.
 		BigInteger factor1;
 		int Q_rest_bits = Q_rest.bitLength();
+		if (ANALYZE_Q_REST_SIZES) qRestSizes.add(Q_rest_bits);
 		if (Q_rest_bits<50) {
 			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use hart");
 			factor1 = hart.findSingleFactor(Q_rest);
@@ -308,7 +313,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 
 	@Override
 	public TDivReport getReport() {
-		return new TDivReport(testCount, sufficientSmoothCount, aqDuration, pass1Duration, pass2Duration, factorDuration);
+		return new TDivReport(testCount, sufficientSmoothCount, aqDuration, pass1Duration, pass2Duration, factorDuration, qRestSizes);
 	}
 	
 	@Override

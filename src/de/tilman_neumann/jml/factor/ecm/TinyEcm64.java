@@ -706,7 +706,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		work.stg1_max = B1;
 		// pre-paired sequences have been prepared for this B2, so it is not an input
 
-		for (curve = 0; curve < curves; curve++)
+		for (curve = 0; /*curve < curves*/; curve++)
 		{
 			if (DEBUG) LOG.debug("curve=" + curve);
 			sigma = 0;
@@ -737,8 +737,8 @@ public class TinyEcm64 extends FactorAlgorithm {
 
 		}
 
-		/*if (DEBUG)*/ LOG.warn("No factor of N=" + n + " found after " + curves + " curves...");
-		return new EcmResult(1, curve);
+//		/*if (DEBUG)*/ LOG.warn("No factor of N=" + n + " found after " + curves + " curves...");
+//		return new EcmResult(1, curve);
 	}
 
 	ecm_pt ecm_stage1(long rho, ecm_work work, ecm_pt P)

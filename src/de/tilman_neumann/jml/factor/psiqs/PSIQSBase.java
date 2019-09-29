@@ -299,6 +299,10 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
 				LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 				LOG.info("    tDiv: " + tdivReport.getOperationDetails());
+				String qRestSizes = tdivReport.getQRestSizes();
+				if (qRestSizes != null) {
+					LOG.info("        " + qRestSizes);
+				}
 				LOG.info("    cc: " + ccReport.getOperationDetails());
 				if (CongruenceCollector.ANALYZE_BIG_FACTOR_SIZES) {
 					LOG.info("        " + ccReport.getPartialBigFactorSizes());

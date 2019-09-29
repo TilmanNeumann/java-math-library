@@ -253,7 +253,7 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 	
 	@Override
 	public TDivReport getReport() {
-		return new TDivReport(testCount, sufficientSmoothCount, aqDuration, pass1Duration, pass2Duration, factorDuration);
+		return new TDivReport(testCount, sufficientSmoothCount, aqDuration, pass1Duration, pass2Duration, factorDuration, null);
 	}
 	
 	@Override

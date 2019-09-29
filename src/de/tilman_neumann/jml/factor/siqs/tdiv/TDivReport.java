@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.siqs.tdiv;
 
+import de.tilman_neumann.util.Multiset;
+
 public class TDivReport {
 	private long testCount;
 	private long sufficientSmoothCount;
@@ -20,14 +22,16 @@ public class TDivReport {
 	private long pass1Duration;
 	private long pass2Duration;
 	private long factorDuration;
+	private Multiset<Integer> qRestSizes;
 	
-	public TDivReport(long testCount, long sufficientSmoothCount, long aqDuration, long pass1Duration, long pass2Duration, long factorDuration) {
+	public TDivReport(long testCount, long sufficientSmoothCount, long aqDuration, long pass1Duration, long pass2Duration, long factorDuration, Multiset<Integer> qRestSizes) {
 		this.testCount = testCount;
 		this.sufficientSmoothCount = sufficientSmoothCount;
 		this.aqDuration = aqDuration;
 		this.pass1Duration = pass1Duration;
 		this.pass2Duration = pass2Duration;
 		this.factorDuration = factorDuration;
+		this.qRestSizes = qRestSizes;
 	}
 	
 	/**
@@ -41,6 +45,7 @@ public class TDivReport {
 		this.pass1Duration += other.pass1Duration;
 		this.pass2Duration += other.pass2Duration;
 		this.factorDuration += other.factorDuration;
+		this.qRestSizes.addAll(other.qRestSizes);
 	}
 
 	public String getOperationDetails() {
@@ -54,5 +59,10 @@ public class TDivReport {
 	
 	public String getPhaseTimings(int numberOfThreads) {
 		return "AQ=" + aqDuration/numberOfThreads + "ms, pass1=" + pass1Duration/numberOfThreads + "ms, pass2=" + pass2Duration/numberOfThreads + "ms, factor=" + factorDuration/numberOfThreads + "ms";
+	}
+	
+	public String getQRestSizes() {
+		if (qRestSizes==null || qRestSizes.size()==0) return null;
+		return "Q_rest sizes in bits: " + qRestSizes;
 	}
 }
