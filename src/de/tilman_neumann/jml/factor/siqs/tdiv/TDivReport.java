@@ -16,13 +16,20 @@ package de.tilman_neumann.jml.factor.siqs.tdiv;
 public class TDivReport {
 	private long testCount;
 	private long sufficientSmoothCount;
-	private long duration;
+	private long aqDuration;
+	private long pass1Duration;
+	private long pass2Duration;
+	private long factorDuration;
 	
-	public TDivReport(long testCount, long sufficientSmoothCount, long duration) {
+	public TDivReport(long testCount, long sufficientSmoothCount, long aqDuration, long pass1Duration, long pass2Duration, long factorDuration) {
 		this.testCount = testCount;
 		this.sufficientSmoothCount = sufficientSmoothCount;
-		this.duration = duration;
+		this.aqDuration = aqDuration;
+		this.pass1Duration = pass1Duration;
+		this.pass2Duration = pass2Duration;
+		this.factorDuration = factorDuration;
 	}
+	
 	/**
 	 * Add two reports.
 	 * @param other another report added to this
@@ -30,7 +37,10 @@ public class TDivReport {
 	public void add(TDivReport other) {
 		this.testCount += other.testCount;
 		this.sufficientSmoothCount += other.sufficientSmoothCount;
-		this.duration += other.duration;
+		this.aqDuration += other.aqDuration;
+		this.pass1Duration += other.pass1Duration;
+		this.pass2Duration += other.pass2Duration;
+		this.factorDuration += other.factorDuration;
 	}
 
 	public String getOperationDetails() {
@@ -39,6 +49,10 @@ public class TDivReport {
 	}
 	
 	public long getTotalDuration(int numberOfThreads) {
-		return duration/numberOfThreads;
+		return (aqDuration+pass1Duration+pass2Duration+factorDuration)/numberOfThreads;
+	}
+	
+	public String getPhaseTimings(int numberOfThreads) {
+		return "AQ=" + aqDuration/numberOfThreads + "ms, pass1=" + pass1Duration/numberOfThreads + "ms, pass2=" + pass2Duration/numberOfThreads + "ms, factor=" + factorDuration/numberOfThreads + "ms";
 	}
 }

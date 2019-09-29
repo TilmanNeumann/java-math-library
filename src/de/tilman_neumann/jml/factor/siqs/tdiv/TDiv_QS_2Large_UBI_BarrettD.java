@@ -105,7 +105,10 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 	private boolean profile;
 	private Timer timer = new Timer();
 	private long testCount, sufficientSmoothCount;
-	private long duration;
+	private long aqDuration;
+	private long pass1Duration;
+	private long pass2Duration;
+	private long factorDuration;
 
 	@Override
 	public String getName() {
@@ -122,7 +125,10 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 		this.profile = profile;
 		this.testCount = 0;
 		this.sufficientSmoothCount = 0;
-		this.duration = 0;
+		this.aqDuration = 0;
+		this.pass1Duration = 0;
+		this.pass2Duration = 0;
+		this.factorDuration = 0;
 	}
 
 	@Override
@@ -148,7 +154,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 
 	@Override
 	public List<AQPair> testList(List<Integer> xList) {
-		timer.capture();
+		if (profile) timer.capture();
 
 		// do trial division with sieve result
 		ArrayList<AQPair> aqPairs = new ArrayList<AQPair>();
@@ -157,7 +163,9 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 			testCount++;
 			BigInteger A = da.multiply(BigInteger.valueOf(x)).add(bParam); // A(x) = d*a*x+b, with d = 1 or 2 depending on kN % 8
 			BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
+			if (profile) aqDuration += timer.capture();
 			AQPair aqPair = test(A, Q, x);
+			if (profile) factorDuration += timer.capture();
 			if (aqPair != null) {
 				// Q(x) was found sufficiently smooth to be considered a (partial) congruence
 				aqPairs.add(aqPair);
@@ -177,7 +185,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 				}
 			}
 		}
-		if (profile) duration += timer.capture();
+		if (profile) aqDuration += timer.capture();
 		return aqPairs;
 	}
 	
@@ -238,7 +246,8 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 				// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
 			}
 		}
-	
+		if (profile) pass1Duration += timer.capture();
+
 		// Pass 2: Reduce Q by the pass2Primes and collect small factors
 		Q_rest_UBI.set(Q_rest);
 		for (int pass2Index = 0; pass2Index < pass2Count; pass2Index++) {
@@ -259,6 +268,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 				}
 			}
 		}
+		if (profile) pass2Duration += timer.capture();
 		if (Q_rest_UBI.isOne()) return new Smooth_Perfect(A, smallFactors);
 		Q_rest = Q_rest_UBI.toBigInteger();
 		
@@ -274,7 +284,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 			if (Q_rest.bitLength() > 31) return null;
 			return new Partial_1Large(A, smallFactors, Q_rest.intValue());
 		}
-		// now we need isProbablePrime(), because calling findSingleFactor() may not return when called with a prime argument
+		// now we need isProbablePrime(), because factor algorithms may not return when called with a prime argument
 		if (bpsw.isProbablePrime(Q_rest)) {
 			// Q_rest is a (probable) prime >= pMax^2. Such big factors do not help to find smooth congruences, so we ignore the partial.
 			if (DEBUG) LOG.debug("factor_recurrent(): Q_rest = " + Q_rest + " is probable prime > pMax^2 -> ignore");
@@ -311,7 +321,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 
 	@Override
 	public TDivReport getReport() {
-		return new TDivReport(testCount, sufficientSmoothCount, duration);
+		return new TDivReport(testCount, sufficientSmoothCount, aqDuration, pass1Duration, pass2Duration, factorDuration);
 	}
 	
 	@Override

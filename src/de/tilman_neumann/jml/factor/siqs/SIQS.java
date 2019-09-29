@@ -332,7 +332,8 @@ public class SIQS extends FactorAlgorithm {
 				LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + ccDuration + "ms, solver=" + solverDuration + "ms");
 				LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(1));
 				LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(1));
-				// TDiv, CC and solver have no sub-timings yet
+				LOG.info("    -> tdiv sub-timings: " + tdivReport.getPhaseTimings(1));
+				// CC and solver have no sub-timings yet
 			}
 			if (TEST_SIEVE) {
 				float perfectSmoothPercentage = foundPerfectSmoothCount*100 / (float) allPerfectSmoothCount;
