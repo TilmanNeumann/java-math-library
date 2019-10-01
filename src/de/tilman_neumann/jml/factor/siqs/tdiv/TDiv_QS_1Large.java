@@ -192,14 +192,14 @@ public class TDiv_QS_1Large implements TDiv_QS {
 				final long m = pinvArrayL[pIndex];
 				final long q = ((x*m)>>>32);
 				xModP = (int) (x - q * p);
-				if (xModP==p) xModP = 0;
+				if (xModP<0) xModP += p;
+				else if (xModP>=p) xModP -= p;
 				if (DEBUG) {
 					assertTrue(0<=xModP && xModP<p);
-					final long q2 = x / p;
-					int xModP2 = (int) (x - q2 * p);
+					int xModP2 = x % p;
 					if (xModP2<0) xModP2 += p;
+					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
 					assertEquals(xModP2, xModP);
-					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP);
 				}
 			}
 			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {

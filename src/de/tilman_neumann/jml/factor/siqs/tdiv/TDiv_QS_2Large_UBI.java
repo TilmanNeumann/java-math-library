@@ -230,14 +230,14 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 				final long m = pinvArrayL[pIndex];
 				final long q = ((x*m)>>>32);
 				xModP = (int) (x - q * p);
-				if (xModP==p) xModP = 0;
+				if (xModP<0) xModP += p;
+				else if (xModP>=p) xModP -= p;
 				if (DEBUG) {
 					assertTrue(0<=xModP && xModP<p);
-					final long q2 = x / p;
-					int xModP2 = (int) (x - q2 * p);
+					int xModP2 = x % p;
 					if (xModP2<0) xModP2 += p;
+					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
 					assertEquals(xModP2, xModP);
-					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP);
 				}
 			}
 			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
@@ -280,11 +280,19 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		// now we consider Q as sufficiently smooth. then we want to know all prime factors, as long as we do not find one that is too big to be useful.
 		if (DEBUG) LOG.debug("test(): pMax=" + pMax + " < Q_rest=" + Q_rest + " < maxQRest=" + maxQRest + " -> resolve all factors");
 		if (Q_rest.compareTo(pMaxSquare)<0) {
-			// we divided Q_rest by all primes <= pMax and we have Q_rest < pMax^2 -> it must be prime
-			if (DEBUG) assertTrue(bpsw.isProbablePrime(Q_rest));
 			if (Q_rest.bitLength() > 31) return null;
+			
+			// we divided Q_rest by all primes <= pMax and we have Q_rest < pMax^2 -> it must be prime
+			if (DEBUG) {
+				assertTrue(bpsw.isProbablePrime(Q_rest));
+				if (Q_rest.intValue() < pMax) {
+					LOG.error("kN=" + kN + ", Q=" + Q + ": Q_rest = " + Q_rest + ", but we have done tdiv until " + pMax + "?");
+				}
+			}
+			
 			return new Partial_1Large(A, smallFactors, Q_rest.intValue());
 		}
+		
 		// now we need isProbablePrime(), because factor algorithms may not return when called with a prime argument
 		if (bpsw.isProbablePrime(Q_rest)) {
 			// Q_rest is a (probable) prime >= pMax^2. Such big factors do not help to find smooth congruences, so we ignore the partial.
@@ -314,13 +322,23 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		if (factor1.bitLength() > 31) return null;
 		BigInteger factor2 = Q_rest.divide(factor1);
 		if (factor2.bitLength() > 31) return null;
-		if (DEBUG) LOG.debug("test(): Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) = " + factor1 + " * " + factor2);
+		
+		if (DEBUG) {
+			LOG.debug("test(): Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) = " + factor1 + " * " + factor2);
+			if (factor1.intValue() < pMax) {
+				LOG.error("kN=" + kN + ", Q=" + Q + ": factor1 = " + factor1 + ", but we have done tdiv until " + pMax + "?");
+			}
+			if (factor2.intValue() < pMax) {
+				LOG.error("kN=" + kN + ", Q=" + Q + ": factor2 = " + factor2 + ", but we have done tdiv until " + pMax + "?");
+			}
+		}
+		
 		if (factor1.equals(factor2)) {
 			return new Smooth_1LargeSquare(A, smallFactors, factor1.intValue());
 		}
 		return new Partial_2Large(A, smallFactors, factor1.intValue(), factor2.intValue());
 	}
-
+	
 	@Override
 	public TDivReport getReport() {
 		return new TDivReport(testCount, sufficientSmoothCount, aqDuration, pass1Duration, pass2Duration, factorDuration, qRestSizes);
