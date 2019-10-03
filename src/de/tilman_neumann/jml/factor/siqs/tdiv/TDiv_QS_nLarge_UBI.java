@@ -214,8 +214,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 			pass2Exponents[pass2Count] = 1;
 		}
 		
-		// Pass 1: Test solution arrays ("re-sieving").
-		// Starting at the biggest prime base elements is faster because then Q_rest is reduced quicker in pass 2.
+		// Pass 1: Test solution arrays.
 		// IMPORTANT: Java gives x % p = x for |x| < p, and we have many p bigger than any sieve array entry.
 		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
 		final int xAbs = x<0 ? -x : x;
