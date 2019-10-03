@@ -386,7 +386,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			if (DEBUG) {
 				for (int pIndex=filteredBaseSize-1; pIndex>0; pIndex--) {
 					final int p = pArray[pIndex];
-					assertTrue(0<=Bainv2Array[j][pIndex] && Bainv2Array[j][pIndex]<p);
+					assertTrue(0<=Bainv2Row[pIndex] && Bainv2Row[pIndex]<p);
 				}
 			}
 		}
