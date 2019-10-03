@@ -296,8 +296,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 	}
 
 	/**
-	 * Compute the ainvp[] required for Bainv2[][], the Bainv2[][] required to compute next b's and next x-arrays,
-	 * and the first x-arrays.
+	 * Compute ainvp[], the first x-arrays, and the Bainv2[][] required to compute next x-arrays.
 	 * 
 	 * The x-arrays contain the smallest non-negative solutions x_1,2 of (ax+b)^2-kN == 0 (mod p)
 	 * for the first b-parameter and for all p in the prime base.
@@ -306,28 +305,24 @@ public class SIQSPolyGenerator implements PolyGenerator {
 	 */
 	private void computeFirstXArrays() { // performance-critical !
 		// the first b is always positive, so we can use UnsignedBigInt here
-		UnsignedBigInt b_UBI = new UnsignedBigInt(b);
+		final UnsignedBigInt b_UBI = new UnsignedBigInt(b);
 		
-		int[] pArray = solutionArrays.pArray;
-		int[] tArray = solutionArrays.tArray;
-		int[][] Bainv2Array = solutionArrays.Bainv2Array;
-		int[] x1Array = solutionArrays.x1Array;
-		int[] x2Array = solutionArrays.x2Array;
+		final int[] pArray = solutionArrays.pArray;
+		final int[] tArray = solutionArrays.tArray;
+		final int[][] Bainv2Array = solutionArrays.Bainv2Array;
+		final int[] x1Array = solutionArrays.x1Array;
+		final int[] x2Array = solutionArrays.x2Array;
+		final long[] ainvpArray = new long[filteredBaseSize];
+		
 		for (int pIndex=filteredBaseSize-1; pIndex>0; pIndex--) { // we do not need solutions for p[0]=2
 			// 1. compute ainvp ------------------------------------------------------------------
 			// All modular inverses 1/a % p exist because the q's whose product gives the a-parameter have been filtered out before.
 			// Since 1/a % p = 1/(a%p) % p, we can compute the modular inverse in ints, which is much faster than with BigIntegers.
 			// ainvp needs long precision in the products below.
 			final int p = pArray[pIndex];
-			final long ainvp = eea.modularInverse(da_UBI.mod(p), p);
+			final long ainvp = ainvpArray[pIndex] = eea.modularInverse(da_UBI.mod(p), p);
 			
-			// 2. compute Bainv2[] -----------------------------------------------------------
-			for (int j=qCount-2; j>=0; j--) { // Contini's j=1...s-1. The maximum value of v is qCount-2 == s-1.
-				// Bainv2 = 2 * B_j * (1/a) mod p.
-				Bainv2Array[j][pIndex] = (int) ((B2Array_UBI[j].mod(p) * ainvp) % p); // much faster than BigInteger.mod(BigInteger)
-			}
-			
-			// 3. compute first x-array entries -----------------------------------------------
+			// 2. compute first x-array entries --------------------------------------------------
 			final int t = tArray[pIndex];
 			final int bModP = b_UBI.mod(p);
 			// x1 = (1/a)* (+t - b) (mod p)
@@ -354,10 +349,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 					LOG.debug("p = " + p + ", ainvp = " + ainvp + ", da = " + da + ": " + ae, ae);
 				}
 
-				for (int j=qCount-2; j>=0; j--) { // Contini's j=1...s-1. The maximum value of v is qCount-2 == s-1.
-					assertTrue(0<=Bainv2Array[j][pIndex] && Bainv2Array[j][pIndex]<p);
-				}
-				assertEquals(b.mod(BigInteger.valueOf(p)).intValue(), bModP);
+				assertEquals(b.mod(p_big).intValue(), bModP);
 				assertTrue(0 <= bModP & bModP < p);
 				assertTrue(0 <= t & t < p);
 
@@ -379,6 +371,25 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				if (x1<0 || x2<0) LOG.debug("p=" + p + ", ainvp=" + ainvp + ": x1 = " + x1 + ", x2 = " + x2);
 			}
 		} // end_for (primes)
+		
+		// 3. compute Bainv2[] required for next x-arrays --------------------------------------------------
+		for (int j=qCount-2; j>=0; j--) { // Contini's j=1...s-1. The maximum value of v is qCount-2 == s-1.
+			final int[] Bainv2Row = Bainv2Array[j];
+			final UnsignedBigInt B2 = B2Array_UBI[j];
+			for (int pIndex=filteredBaseSize-1; pIndex>0; pIndex--) { // we do not need solutions for p[0]=2
+				final int p = pArray[pIndex];
+				final long ainvp = ainvpArray[pIndex];
+				// Bainv2 = 2 * B_j * (1/a) mod p.
+				Bainv2Row[pIndex] = (int) ((B2.mod(p) * ainvp) % p); // much faster than BigInteger.mod(BigInteger)
+			}
+			
+			if (DEBUG) {
+				for (int pIndex=filteredBaseSize-1; pIndex>0; pIndex--) {
+					final int p = pArray[pIndex];
+					assertTrue(0<=Bainv2Array[j][pIndex] && Bainv2Array[j][pIndex]<p);
+				}
+			}
+		}
 	}
 
 	/**
