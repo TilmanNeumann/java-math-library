@@ -307,6 +307,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				if (CongruenceCollector.ANALYZE_BIG_FACTOR_SIZES) {
 					LOG.info("        " + ccReport.getPartialBigFactorSizes());
 					LOG.info("        " + ccReport.getSmoothBigFactorSizes());
+					LOG.info("        " + ccReport.getSmoothBigFactorPercentiles());
 					LOG.info("        " + ccReport.getNonIntFactorPercentages());
 				}
 				if (CongruenceCollector.ANALYZE_Q_SIGNS) {
