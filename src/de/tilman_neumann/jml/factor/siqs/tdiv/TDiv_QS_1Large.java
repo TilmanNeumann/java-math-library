@@ -232,7 +232,7 @@ public class TDiv_QS_1Large implements TDiv_QS {
 	
 		// Q is sufficiently smooth
 		if (DEBUG) LOG.debug("Sufficient smooth big factor = " + Q_rest);
-		return new Partial_1Large(A, smallFactors, Q_rest.intValue());
+		return new Partial_1Large(A, smallFactors, Q_rest.longValue());
 	}
 	
 	@Override

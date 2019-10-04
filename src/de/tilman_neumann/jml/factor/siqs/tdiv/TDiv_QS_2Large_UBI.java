@@ -289,7 +289,7 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 				}
 			}
 			
-			return new Partial_1Large(A, smallFactors, Q_rest.intValue());
+			return new Partial_1Large(A, smallFactors, Q_rest.longValue());
 		}
 		
 		// now we need isProbablePrime(), because factor algorithms may not return when called with a prime argument
@@ -333,9 +333,9 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		}
 		
 		if (factor1.equals(factor2)) {
-			return new Smooth_1LargeSquare(A, smallFactors, factor1.intValue());
+			return new Smooth_1LargeSquare(A, smallFactors, factor1.longValue());
 		}
-		return new Partial_2Large(A, smallFactors, factor1.intValue(), factor2.intValue());
+		return new Partial_2Large(A, smallFactors, factor1.longValue(), factor2.longValue());
 	}
 	
 	@Override

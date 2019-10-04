@@ -275,7 +275,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 				assertTrue(bpsw.isProbablePrime(Q_rest));
 			}
 			if (Q_rest.bitLength() > 31) return false;
-			bigFactors.add(Q_rest.intValue());
+			bigFactors.add(Q_rest.longValue());
 			return true;
 		}
 		// now we need isProbablePrime(), because factor algorithms may not return when called with a prime argument

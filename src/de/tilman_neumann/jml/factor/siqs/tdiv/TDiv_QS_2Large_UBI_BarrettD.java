@@ -285,7 +285,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 			// we divided Q_rest by all primes <= pMax and we have Q_rest < pMax^2 -> it must be prime
 			if (DEBUG) assertTrue(bpsw.isProbablePrime(Q_rest));
 			if (Q_rest.bitLength() > 31) return null;
-			return new Partial_1Large(A, smallFactors, Q_rest.intValue());
+			return new Partial_1Large(A, smallFactors, Q_rest.longValue());
 		}
 		// now we need isProbablePrime(), because factor algorithms may not return when called with a prime argument
 		if (bpsw.isProbablePrime(Q_rest)) {
@@ -318,9 +318,9 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 		if (factor2.bitLength() > 31) return null;
 		if (DEBUG) LOG.debug("test(): Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) = " + factor1 + " * " + factor2);
 		if (factor1.equals(factor2)) {
-			return new Smooth_1LargeSquare(A, smallFactors, factor1.intValue());
+			return new Smooth_1LargeSquare(A, smallFactors, factor1.longValue());
 		}
-		return new Partial_2Large(A, smallFactors, factor1.intValue(), factor2.intValue());
+		return new Partial_2Large(A, smallFactors, factor1.longValue(), factor2.longValue());
 	}
 
 	@Override
