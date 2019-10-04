@@ -51,7 +51,6 @@ import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_nLarge_UBI;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
