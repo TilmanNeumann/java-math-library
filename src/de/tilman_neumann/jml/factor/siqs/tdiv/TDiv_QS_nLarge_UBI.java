@@ -176,9 +176,9 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 					LOG.debug("Found congruence " + aqPair);
 					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
-					SortedMultiset<Integer> allQFactors = aqPair.getAllQFactors();
+					SortedMultiset<Long> allQFactors = aqPair.getAllQFactors();
 					BigInteger testProduct = I_1;
-					for (Map.Entry<Integer, Integer> entry : allQFactors.entrySet()) {
+					for (Map.Entry<Long, Integer> entry : allQFactors.entrySet()) {
 						BigInteger prime = BigInteger.valueOf(entry.getKey());
 						int exponent = entry.getValue();
 						testProduct = testProduct.multiply(prime.pow(exponent));

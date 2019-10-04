@@ -37,5 +37,5 @@ abstract public class Partial extends AQPair {
 	/**
 	 * @return the large factors appearing with odd exponent.
 	 */
-	abstract public Integer[] getLargeFactorsWithOddExponent(); // TODO use int[] ?
+	abstract public Long[] getLargeFactorsWithOddExponent();
 }

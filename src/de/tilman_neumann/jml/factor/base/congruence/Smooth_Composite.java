@@ -99,7 +99,7 @@ public class Smooth_Composite implements Smooth {
 	@Override
 	public String toString() {
 		SortedMultiset<BigInteger> allA = new SortedMultiset_BottomUp<BigInteger>();
-		SortedMultiset<Integer> allQ = new SortedMultiset_BottomUp<Integer>();
+		SortedMultiset<Long> allQ = new SortedMultiset_BottomUp<Long>();
 		for (AQPair aqPair : aqPairs) {
 			allA.add(aqPair.getA());
 			allQ.addAll(aqPair.getAllQFactors());

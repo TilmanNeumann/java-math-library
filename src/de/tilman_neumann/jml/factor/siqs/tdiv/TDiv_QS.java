@@ -25,7 +25,7 @@ import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
  * @author Tilman Neumann
  */
 public interface TDiv_QS {
-	public static final boolean ANALYZE_Q_REST_SIZES = true;
+	public static final boolean ANALYZE_Q_REST_SIZES = false;
 	
 	/**
 	 * @return the name of this algorithm
