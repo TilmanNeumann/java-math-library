@@ -664,7 +664,16 @@ public class TinyEcm63 extends FactorAlgorithm {
 		t1 = montMul63(t1, t2, n, rho);	// take t1 out of monty rep
 
 		t3 = modinv_64(t4, n);
-		if (DEBUG) LOG.debug("t4=" + t4 + ", modinv t3 =" + t3);
+		if (DEBUG) {
+			LOG.debug("t4=" + t4 + ", modinv t3 =" + t3);
+			BigInteger t4Big = new BigInteger(Long.toUnsignedString(t4));
+			BigInteger nBig = new BigInteger(Long.toUnsignedString(n));
+			BigInteger t3Big = new BigInteger(Long.toUnsignedString(t3));
+			BigInteger t3Correct = t4Big.modInverse(nBig);
+			if (!t3Big.equals(t3Correct)) {
+				LOG.debug("1/" + t4Big + " mod " + nBig + " gave " + t3Big + ", but correct is " + t3Correct + "!");
+			}
+		}
 		
 		work.s = spMulMod(t3, t1, n);
 		if (DEBUG) LOG.debug("work.s=" + work.s);
