@@ -202,8 +202,8 @@ public class EEA63 {
 	/**
 	 * Compute the modular inverse x of a mod p, i.e. x = (1/a) mod p.
 	 * 
-	 * Taken from Ben Buhrow's tinyecm.c and fixed for p<a and a<0.
-	 * In Java, 6 "if's" achieve peak performance, compared to 9 "if's" in C.
+	 * Taken from Ben Buhrow's tinyecm.c and modified to work for a<0 and a>=p, too.
+	 * Optimal performance is achieved by 6 "if's" in Java, compared to 9 "if's" in C.
 	 * 
 	 * Significantly faster than the versions above.
 	 * 
