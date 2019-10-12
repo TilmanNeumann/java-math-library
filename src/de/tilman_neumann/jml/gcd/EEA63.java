@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.gcd;
 
+import java.math.BigInteger;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -51,7 +53,7 @@ public class EEA63 {
 	 * Computes gcd, a = (1/x) mod y and b = (1/y) mod x.
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return {a, b, gcd}
 	 */
 	public Result computeAll(long x, long y) {
 		// initialize
@@ -74,13 +76,15 @@ public class EEA63 {
 			parity = -parity;
 		}
 		
-//		LOG.debug("correctResult = " + BigInteger.valueOf(x).modInverse(BigInteger.valueOf(y)));
-//		LOG.debug("a = " + a);
-//		LOG.debug("y-a = " + (y-a));
-//		LOG.debug("y+a = " + (y+a));
-//		LOG.debug("parity = " + parity);
-//		LOG.debug("sign of x = " + Long.signum(x));
-
+		if (DEBUG) {
+			LOG.debug("correctResult = " + BigInteger.valueOf(x).modInverse(BigInteger.valueOf(y)));
+			LOG.debug("a = " + a);
+			LOG.debug("y-a = " + (y-a));
+			LOG.debug("y+a = " + (y+a));
+			LOG.debug("parity = " + parity);
+			LOG.debug("sign of x = " + Long.signum(x));
+		}
+		
 		if (Long.signum(x)==parity) {
 			a = (parity==1) ? y+a : y-a; // TODO: What about b?
 		}
@@ -91,7 +95,7 @@ public class EEA63 {
 	 * Computes only gcd and a = (1/x) mod y.
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return {a, gcd}
 	 */
 	public Result computeHalf(long x, long y) {
 		// initialize
@@ -125,7 +129,7 @@ public class EEA63 {
 	 * @param y
 	 * @return (1/x) mod y
 	 */
-	public long modularInverse1(long x, long y) {
+	public long modularInverse_v1(long x, long y) {
 		// initialize
 		long a = 1;
 		long g = x;
@@ -162,7 +166,7 @@ public class EEA63 {
 	 * @param modulus
 	 * @return (1/a) mod modulus
 	 */
-	public long modularInverse/*2*/(long a, long modulus) {
+	public long modularInverse_v2(long a, long modulus) {
 		long ps, ps1, ps2, dividend, divisor, rem, q, aPos;
 		int parity, sign;
 		
@@ -197,12 +201,17 @@ public class EEA63 {
 
 	/**
 	 * Compute the modular inverse x of a mod p, i.e. x = (1/a) mod p.
-	 * Ported from Ben Buhrow's tinyecm.c, fixed for p<a and extended to a<0.
+	 * 
+	 * Taken from Ben Buhrow's tinyecm.c and fixed for p<a and a<0.
+	 * In Java, 6 "if's" achieve peak performance, compared to 9 "if's" in C.
+	 * 
+	 * Significantly faster than the versions above.
+	 * 
 	 * @param a
 	 * @param p modulus
 	 * @return (1/a) mod p
 	 */
-	long modinv_64_v1(long a, long p) {
+	public long modularInverse/*_v3*/(long a, long p) {
 
 		/* thanks to the folks at www.mersenneforum.org */
 
@@ -217,22 +226,22 @@ public class EEA63 {
 			sign = 1;
 		}
 		
-		q = 1;
-		rem = aPos;
-		dividend = p;
-		divisor = aPos;
-		ps1 = 1;
-		ps2 = 0;
-		parity = -1;
-
-		if (dividend < divisor) {
+		if (p < aPos) {
 			q = 0;
 			ps1 = 0;
 			ps2 = 1;
-			rem = dividend;
-			dividend = divisor;
-			divisor = rem;
-			parity = -parity;
+			rem = p;
+			dividend = aPos;
+			divisor = p;
+			parity = 1;
+		} else {
+			q = 1;
+			ps1 = 1;
+			ps2 = 0;
+			rem = aPos;
+			dividend = p;
+			divisor = aPos;
+			parity = -1;
 		}
 		
 		while (divisor > 1) {
@@ -247,20 +256,11 @@ public class EEA63 {
 						if (rem >= divisor) {
 							q += ps1; rem = t; t -= divisor;
 							if (rem >= divisor) {
-								q += ps1; rem = t; t -= divisor;
+								q += ps1; rem = t;
 								if (rem >= divisor) {
-									q += ps1; rem = t; t -= divisor;
-									if (rem >= divisor) {
-										q += ps1; rem = t; t -= divisor;
-										if (rem >= divisor) {
-											q += ps1; rem = t;
-											if (rem >= divisor) {
-												q = dividend / divisor;
-												rem = dividend % divisor;
-												q *= ps1;
-											}
-										}
-									}
+									q = dividend / divisor;
+									rem = dividend % divisor;
+									q *= ps1;
 								}
 							}
 						}
