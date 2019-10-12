@@ -664,7 +664,8 @@ public class TinyEcm64_MontSqr extends FactorAlgorithm {
 
 		t3 = modinv_64(t4, n);
 		if (DEBUG) {
-			LOG.debug("t4=" + t4 + ", modinv t3 =" + t3);
+			LOG.debug("t4=" + t4 + ", n=" + n + ", modinv t3 =" + t3);
+			assertTrue(t4 < n);
 			BigInteger t4Big = new BigInteger(Long.toUnsignedString(t4));
 			BigInteger nBig = new BigInteger(Long.toUnsignedString(n));
 			BigInteger t3Big = new BigInteger(Long.toUnsignedString(t3));
