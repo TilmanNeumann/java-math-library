@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
+import de.tilman_neumann.jml.factor.siqs.GlobalParameters;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -37,7 +38,6 @@ public class CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	
-	public static final boolean ANALYZE_BIG_FACTOR_SIZES = false;
 	public static final boolean ANALYZE_Q_SIGNS = false;
 
 	/** smooth congruences */
@@ -140,7 +140,7 @@ public class CongruenceCollector {
 					}
 				}
 				if (addedCount>0) {
-					if (ANALYZE_BIG_FACTOR_SIZES) {
+					if (GlobalParameters.ANALYZE_LARGE_FACTOR_SIZES) {
 						// register size of large factors that helped to find smooths
 						for (Long oddExpBigFactor : oddExpBigFactors) {
 							int oddExpBigFactorBits = 64 - Long.numberOfLeadingZeros(oddExpBigFactor);
@@ -232,7 +232,7 @@ public class CongruenceCollector {
 			largeFactors_2_partials.put(oddExpBigFactor, partialCongruenceList);
 		}
 		
-		if (ANALYZE_BIG_FACTOR_SIZES) {
+		if (GlobalParameters.ANALYZE_LARGE_FACTOR_SIZES) {
 			for (Long oddExpBigFactor : oddExpBigFactors) {
 				int oddExpBigFactorBits = 64 - Long.numberOfLeadingZeros(oddExpBigFactor);
 				oddExpBigFactorSizes.add(oddExpBigFactorBits);

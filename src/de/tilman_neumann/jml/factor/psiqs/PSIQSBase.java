@@ -30,6 +30,7 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
+import de.tilman_neumann.jml.factor.siqs.GlobalParameters;
 import de.tilman_neumann.jml.factor.siqs.KnuthSchroeppel;
 import de.tilman_neumann.jml.factor.siqs.ModularSqrtsEngine;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
@@ -304,7 +305,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 					LOG.info("        " + qRestSizes);
 				}
 				LOG.info("    cc: " + ccReport.getOperationDetails());
-				if (CongruenceCollector.ANALYZE_BIG_FACTOR_SIZES) {
+				if (GlobalParameters.ANALYZE_LARGE_FACTOR_SIZES) {
 					LOG.info("        " + ccReport.getPartialBigFactorSizes());
 					LOG.info("        " + ccReport.getSmoothBigFactorSizes());
 					LOG.info("        " + ccReport.getSmoothBigFactorPercentiles());

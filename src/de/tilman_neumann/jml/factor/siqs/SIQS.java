@@ -323,7 +323,7 @@ public class SIQS extends FactorAlgorithm {
 					LOG.info("        " + qRestSizes);
 				}
 				LOG.info("    cc: " + ccReport.getOperationDetails());
-				if (CongruenceCollector.ANALYZE_BIG_FACTOR_SIZES) {
+				if (GlobalParameters.ANALYZE_LARGE_FACTOR_SIZES) {
 					LOG.info("        " + ccReport.getPartialBigFactorSizes());
 					LOG.info("        " + ccReport.getSmoothBigFactorSizes());
 					LOG.info("        " + ccReport.getSmoothBigFactorPercentiles());

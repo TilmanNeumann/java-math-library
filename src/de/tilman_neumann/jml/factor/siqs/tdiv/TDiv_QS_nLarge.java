@@ -29,6 +29,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
+import de.tilman_neumann.jml.factor.siqs.GlobalParameters;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
@@ -290,7 +291,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 		// -> trial division is no help here.
 		BigInteger factor1;
 		int Q_rest_bits = Q_rest.bitLength();
-		if (ANALYZE_Q_REST_SIZES) qRestSizes.add(Q_rest_bits);
+		if (GlobalParameters.ANALYZE_LARGE_FACTOR_SIZES) qRestSizes.add(Q_rest_bits);
 		if (Q_rest_bits<50) {
 			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use hart");
 			factor1 = hart.findSingleFactor(Q_rest);
