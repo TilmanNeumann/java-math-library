@@ -34,6 +34,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF02;
+import de.tilman_neumann.jml.factor.siqs.GlobalParameters;
 import de.tilman_neumann.jml.roots.SqrtExact;
 import de.tilman_neumann.jml.roots.SqrtInt;
 import de.tilman_neumann.util.ConfigUtil;
@@ -199,7 +200,7 @@ public class CFrac extends FactorAlgorithm {
 					LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
 					CongruenceCollectorReport ccReport = congruenceCollector.getReport();
 					LOG.info("    cc: " + ccReport.getOperationDetails());
-					if (CongruenceCollector.ANALYZE_BIG_FACTOR_SIZES) {
+					if (GlobalParameters.ANALYZE_LARGE_FACTOR_SIZES) {
 						LOG.info("        " + ccReport.getPartialBigFactorSizes());
 						LOG.info("        " + ccReport.getSmoothBigFactorSizes());
 						LOG.info("        " + ccReport.getNonIntFactorPercentages());
