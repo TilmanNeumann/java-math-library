@@ -31,8 +31,8 @@ public class PowerEntry implements Comparable<PowerEntry> {
 		this.power = power;
 		this.t = t;
 		this.logPower = logPower;
-		this.pinvD = 1.0 / p;
-		this.pinvL = (1L<<32) / p;
+		this.pinvD = 1.0 / power;
+		this.pinvL = (1L<<32) / power;
 	}
 	
 	@Override
