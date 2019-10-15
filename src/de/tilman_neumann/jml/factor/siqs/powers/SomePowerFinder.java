@@ -103,7 +103,7 @@ abstract public class SomePowerFinder implements PowerFinder {
 					mergedTArray[mergedIndex] = powerEntry.t;
 					mergedlogPArray[mergedIndex] = powerEntry.logPower;
 					mergedPinvArrayD[mergedIndex] = powerEntry.pinvD;
-					mergedPinvArrayL[mergedIndex] = pinvArrayL[pIndex];
+					mergedPinvArrayL[mergedIndex] = powerEntry.pinvL;
 					mergedIndex++;
 					// get next power
 					if (powerIter.hasNext()) {
@@ -122,6 +122,8 @@ abstract public class SomePowerFinder implements PowerFinder {
 			mergedPowers[mergedIndex] = primesArray[pIndex];
 			mergedTArray[mergedIndex] = tArray[pIndex];
 			mergedlogPArray[mergedIndex] = logPArray[pIndex];
+			mergedPinvArrayD[mergedIndex] = pinvArrayD[pIndex];
+			mergedPinvArrayL[mergedIndex] = pinvArrayL[pIndex];
 		}
 		if (DEBUG) {
 			LOG.debug("#primes = " + primeBaseSize + ", #powers = " + powerCount);
