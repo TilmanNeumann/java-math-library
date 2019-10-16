@@ -23,8 +23,8 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
+import de.tilman_neumann.jml.factor.base.GlobalParameters;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
-import de.tilman_neumann.jml.factor.siqs.GlobalParameters;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
