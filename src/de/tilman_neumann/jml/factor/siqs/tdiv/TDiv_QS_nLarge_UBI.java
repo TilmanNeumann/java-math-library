@@ -26,6 +26,7 @@ import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
+import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
@@ -108,6 +109,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	private long aqDuration;
 	private long pass1Duration;
 	private long pass2Duration;
+	private long primeTestDuration;
 	private long factorDuration;
 	private Multiset<Integer> qRestSizes;
 
@@ -129,6 +131,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 		this.aqDuration = 0;
 		this.pass1Duration = 0;
 		this.pass2Duration = 0;
+		this.primeTestDuration = 0;
 		this.factorDuration = 0;
 		this.qRestSizes = new SortedMultiset_BottomUp<>();
 	}
@@ -285,21 +288,15 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	}
 
 	private boolean factor_recurrent(BigInteger Q_rest) {
-		if (Q_rest.compareTo(pMaxSquare)<0) {
-			// we divided Q_rest by all primes <= pMax and we have Q_rest < pMax^2 -> it must be prime
-			if (DEBUG) {
-				LOG.debug("factor_recurrent(): Q_rest = " + Q_rest + " < pMax^2 -> Q_rest is prime");
-				assertTrue(bpsw.isProbablePrime(Q_rest));
-			}
+		// Here we need a prime test, because factor algorithms may not return when called with a prime argument.
+		boolean restIsPrime = Q_rest.compareTo(pMaxSquare)<0 || bpsw.isProbablePrime(Q_rest);
+		if (profile) primeTestDuration += timer.capture();
+		if (restIsPrime) {
+			// Check that the simple prime test using pMaxSquare is correct
+			if (DEBUG) assertTrue(bpsw.isProbablePrime(Q_rest));
 			if (Q_rest.bitLength() > 31) return false;
 			bigFactors.add(Q_rest.longValue());
 			return true;
-		}
-		// now we need isProbablePrime(), because factor algorithms may not return when called with a prime argument
-		if (bpsw.isProbablePrime(Q_rest)) {
-			// Q_rest is a (probable) prime >= pMax^2. Such big factors do not help to find smooth congruences, so we ignore the partial.
-			if (DEBUG) LOG.debug("factor_recurrent(): Q_rest = " + Q_rest + " is probable prime > pMax^2 -> ignore");
-			return false;
 		} // else: Q_rest is surely not prime
 		
 		// Find a factor of Q_rest, where Q_rest is odd and has two+ factors, each greater than pMax.
@@ -321,6 +318,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use qsInternal");
 			factor1 = qsInternal.findSingleFactor(Q_rest);
 		}
+		if (profile) factorDuration += timer.capture();
 		// Here we can not exclude factors > 31 bit because they may have 2 prime factors themselves.
 		BigInteger factor2 = Q_rest.divide(factor1);
 		if (DEBUG) LOG.debug("factor_recurrent(): Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) = " + factor1 + " * " + factor2);
@@ -329,7 +327,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 
 	@Override
 	public TDivReport getReport() {
-		return new TDivReport(testCount, sufficientSmoothCount, aqDuration, pass1Duration, pass2Duration, factorDuration, qRestSizes);
+		return new TDivReport(testCount, sufficientSmoothCount, aqDuration, pass1Duration, pass2Duration, primeTestDuration, factorDuration, qRestSizes);
 	}
 	
 	@Override

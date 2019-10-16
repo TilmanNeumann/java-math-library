@@ -21,15 +21,17 @@ public class TDivReport {
 	private long aqDuration;
 	private long pass1Duration;
 	private long pass2Duration;
+	private long bpswDuration;
 	private long factorDuration;
 	private Multiset<Integer> qRestSizes;
 	
-	public TDivReport(long testCount, long sufficientSmoothCount, long aqDuration, long pass1Duration, long pass2Duration, long factorDuration, Multiset<Integer> qRestSizes) {
+	public TDivReport(long testCount, long sufficientSmoothCount, long aqDuration, long pass1Duration, long pass2Duration, long bpswDuration, long factorDuration, Multiset<Integer> qRestSizes) {
 		this.testCount = testCount;
 		this.sufficientSmoothCount = sufficientSmoothCount;
 		this.aqDuration = aqDuration;
 		this.pass1Duration = pass1Duration;
 		this.pass2Duration = pass2Duration;
+		this.bpswDuration = bpswDuration;
 		this.factorDuration = factorDuration;
 		this.qRestSizes = qRestSizes;
 	}
@@ -44,6 +46,7 @@ public class TDivReport {
 		this.aqDuration += other.aqDuration;
 		this.pass1Duration += other.pass1Duration;
 		this.pass2Duration += other.pass2Duration;
+		this.bpswDuration += other.bpswDuration;
 		this.factorDuration += other.factorDuration;
 		this.qRestSizes.addAll(other.qRestSizes);
 	}
@@ -58,7 +61,7 @@ public class TDivReport {
 	}
 	
 	public String getPhaseTimings(int numberOfThreads) {
-		return "AQ=" + aqDuration/numberOfThreads + "ms, pass1=" + pass1Duration/numberOfThreads + "ms, pass2=" + pass2Duration/numberOfThreads + "ms, factor=" + factorDuration/numberOfThreads + "ms";
+		return "AQ=" + aqDuration/numberOfThreads + "ms, pass1=" + pass1Duration/numberOfThreads + "ms, pass2=" + pass2Duration/numberOfThreads + "ms, primeTest=" + bpswDuration/numberOfThreads + "ms, factor=" + factorDuration/numberOfThreads + "ms";
 	}
 	
 	public String getQRestSizes() {
