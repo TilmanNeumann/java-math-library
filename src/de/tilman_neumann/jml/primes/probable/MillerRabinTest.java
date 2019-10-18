@@ -75,17 +75,17 @@ public class MillerRabinTest {
 		BigInteger N_m1 = N.subtract(I_1);
         int lsb = N_m1.getLowestSetBit();
         BigInteger N_m1_without2s = N_m1.shiftRight(lsb);
-        
+
 		// test base x
-        int l = 0;
         BigInteger test = x.modPow(N_m1_without2s, N);
-        if ((!test.equals(I_1)) && !test.equals(N_m1)) {
-            if (++l == lsb) return false;
+        if ((test.equals(I_1)) || test.equals(N_m1)) return true;
+        if (lsb == 1) return false;
+        
+        int l = 1;
+        test = test.multiply(test).mod(N);
+        while (!test.equals(N_m1)) {
+            if (test.equals(I_1) || ++l == lsb) return false;
             test = test.multiply(test).mod(N);
-            while (!test.equals(N_m1)) {
-                if (test.equals(I_1) || ++l == lsb) return false;
-                test = test.multiply(test).mod(N);
-            }
         }
         return true;
 	}
