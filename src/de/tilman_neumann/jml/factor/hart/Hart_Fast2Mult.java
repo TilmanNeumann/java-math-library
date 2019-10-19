@@ -65,12 +65,9 @@ import de.tilman_neumann.util.ConfigUtil;
 public class Hart_Fast2Mult extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_Fast2Mult.class);
 
-	/**
-	 * We only test k-values that are multiples of this constant.
-	 * Best values for performance are 315, 45, 105, 15 and 3, in that order.
-	 */
-	private static final int K_MULT1 = 3*3*5*7;  // 315
-	private static final int K_MULT2 = 3*3*5;    //  45
+	// k multipliers.
+	private static final long K_MULT1 = 3465;
+	private static final long K_MULT2 = 315;
 
 	/** 
 	 * Size of arrays: this is around 4*n^1/3.
@@ -101,7 +98,7 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 		sqrt2 = new double[I_MAX];
 		for (int i=1; i<I_MAX; i++) {
 			sqrt1[i] = Math.sqrt(i*K_MULT1);
-			if (i%7 != 0) {
+			if ((i*K_MULT2) % K_MULT1 != 0) {
 				sqrt2[i] = Math.sqrt(i*K_MULT2);
 			}
 		}
@@ -138,8 +135,8 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 		final long fourN = N<<2;
 		final double sqrt4N = sqrtN*2;
 		long a, b, test, gcd;
-		int k1 = K_MULT1;
-		int k2 = K_MULT2;
+		long k1 = K_MULT1;
+		long k2 = K_MULT2;
 		try {
 			for (int i=1; ; i++, k1 += K_MULT1, k2 += K_MULT2) {
 				// using the fusedMultiplyAdd operation defined in IEEE 754-2008 gives ~ 4-8 % speedup
@@ -187,7 +184,7 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 	 * @param k
 	 * @return
 	 */
-	private long adjustA(long N, long x, int k) {
+	private long adjustA(long N, long x, long k) {
 		if ((k&1)==0) return x | 1;
 		
 		final long kNp1 = k*N+1;

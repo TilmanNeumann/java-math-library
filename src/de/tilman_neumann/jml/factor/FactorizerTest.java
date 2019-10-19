@@ -57,11 +57,11 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1;
+	private static final int N_COUNT = 1000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 100;
+	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 10;
+	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
@@ -95,8 +95,8 @@ public class FactorizerTest {
 			//new Hart_TDiv_Race2(), // good for semiprimes >= 45 bit, but fails for some N having small factors
 			//new Hart_Squarefree(false),
 //			new Hart_Fast2Mult(false),
-//			new Hart_Fast2Mult2(false),
-			
+			new HartLA63(0.2F, 0.4F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss()),
+
 			// Lehman
 			//new Lehman_Simple(false),
 			//new Lehman_Smith(false),
@@ -119,7 +119,7 @@ public class FactorizerTest {
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-			//new SquFoF63(),
+			new SquFoF63(),
 			//new SquFoF31(),
 			//new SquFoF31Preload(),
 			
@@ -130,7 +130,7 @@ public class FactorizerTest {
 			// * ksAdjust: Must be <=3 for N=20bit, <=6 for N=30 bit etc. // TODO this implies some optimization potential
 			//new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF01(), 10, new MatrixSolver01_Gauss(), 5, false),
 			//new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5, false),
-//			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 3),
+			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 3),
 			//new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
 
 			// ECM
@@ -152,7 +152,7 @@ public class FactorizerTest {
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), false),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_nLarge(), 10, new MatrixSolver02_BlockLanczos(), true),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), true),
-			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), true),
+//			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), true),
 
 			// sieving with prime powers: best sieve for small N!
 //			new SIQS(0.32F, 0.37F, null, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false),
