@@ -71,22 +71,22 @@ public class MillerRabinTest {
 	 * @return true if N passes the test to base x, false if N is composite
 	 */
 	public boolean testSingleBase(BigInteger N, BigInteger x) {
-		// init
-		BigInteger N_m1 = N.subtract(I_1);
-        int lsb = N_m1.getLowestSetBit();
-        BigInteger N_m1_without2s = N_m1.shiftRight(lsb);
+		// init: N-1 = 2^lsb * d
+		BigInteger Nm1 = N.subtract(I_1);
+        int lsb = Nm1.getLowestSetBit();
+        BigInteger d = Nm1.shiftRight(lsb);
 
 		// test base x
-        BigInteger test = x.modPow(N_m1_without2s, N);
-        if ((test.equals(I_1)) || test.equals(N_m1)) return true;
-        if (lsb == 1) return false;
-        
-        int l = 1;
-        test = test.multiply(test).mod(N);
-        while (!test.equals(N_m1)) {
-            if (test.equals(I_1) || ++l == lsb) return false;
-            test = test.multiply(test).mod(N);
-        }
-        return true;
+        //if (x.compareTo(N) >= 0) x = x.mod(N); // not required
+        BigInteger test = x.modPow(d, N);
+        if ((test.equals(I_1)) || test.equals(Nm1)) return true;
+
+		for (int i=1; i<lsb; i++) {
+	        test = test.multiply(test).mod(N);
+            if (test.equals(I_1)) return false;
+            if (test.equals(Nm1)) return true;
+		}
+
+		return false;
 	}
 }
