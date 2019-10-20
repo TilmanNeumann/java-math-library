@@ -175,7 +175,7 @@ public class CFrac extends FactorAlgorithm {
 		TreeMap<Double, Integer> kMap = ks.computeMultiplier(N, ks_adjust);
 		Iterator<Integer> kIter = kMap.values().iterator();
 		
-		while (true) {
+		while (kIter.hasNext()) {
 			// get a new k, return immediately if kN is square
 			this.kN = BigInteger.valueOf(kIter.next()).multiply(N);
 			BigInteger[] iSqrt = SqrtInt.iSqrt(kN);
@@ -214,6 +214,8 @@ public class CFrac extends FactorAlgorithm {
 			} finally {
 			}
 		}
+		
+		return I_1; // fail, too few Knuth-Schroeppel multipliers
 	}
 
 	protected void test() throws FactorException {

@@ -28,7 +28,7 @@ import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 
 /**
  * Auxiliary factor algorithm to find smooth decompositions of Q's.
@@ -55,7 +55,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	
-	private BPSWTest bpsw = new BPSWTest();
+	private PrPTest prpTest = new PrPTest();
 
 	// result: two arrays that are reused, their content is _copied_ to AQ-pairs
 	private SortedIntegerArray smallFactors = new SortedIntegerArray();
@@ -149,13 +149,13 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 	private boolean factor_recurrent(long Q_rest) {
 		if (Q_rest < pMaxSquare) {
 			// we divided Q_rest by all primes <= pMax and the rest is < pMax^2 -> it must be prime
-			if (DEBUG) assertTrue(bpsw.isProbablePrime(Q_rest));
+			if (DEBUG) assertTrue(prpTest.isProbablePrime(Q_rest));
 			if (bitLength(Q_rest) > 31) return false;
 			bigFactors.add((int)Q_rest);
 			return true;
 		}
 		// here we can not do without isProbablePrime(), because calling findSingleFactor() may not return when called with a prime argument
-		if (bpsw.isProbablePrime(Q_rest)) {
+		if (prpTest.isProbablePrime(Q_rest)) {
 			// Q_rest is (probable) prime -> end of recurrence
 			if (bitLength(Q_rest) > 31) return false;
 			bigFactors.add((int)Q_rest);

@@ -153,7 +153,7 @@ public class CFrac63 extends FactorAlgorithm {
 		TreeMap<Double, Integer> kMap = ks.computeMultiplier(N, ks_adjust);
 		Iterator<Integer> kIter = kMap.values().iterator();
 		
-		while (true) {
+		while (kIter.hasNext()) {
 			// get a new k, return immediately if kN is square
 			this.kN = BigInteger.valueOf(kIter.next()).multiply(N);
 			floor_sqrt_kN = (long) Math.sqrt(kN.doubleValue()); // faster than BigInteger sqrt; but the type conversion may give ceil(sqrt(kN)) for some N >= 54 bit
@@ -184,6 +184,8 @@ public class CFrac63 extends FactorAlgorithm {
 				return fe.getFactor();
 			}
 		}
+		
+		return I_1; // fail, too few Knuth-Schroeppel multipliers
 	}
 
 	protected void test(long Q_ip1) throws FactorException {

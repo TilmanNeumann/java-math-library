@@ -29,7 +29,7 @@ import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.*;
@@ -61,7 +61,7 @@ public class TDiv_CF02 implements TDiv_CF {
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	private CFrac63 cf_internal = new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 12);
 
-	private BPSWTest bpsw = new BPSWTest();
+	private PrPTest prpTest = new PrPTest();
 
 	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
 
@@ -185,13 +185,13 @@ public class TDiv_CF02 implements TDiv_CF {
 	private boolean factor_recurrent(BigInteger Q_rest) {
 		if (Q_rest.compareTo(pMaxSquare)<0) {
 			// we divided Q_rest by all primes <= pMax and the rest is < pMax^2 -> it must be prime
-			if (DEBUG) assertTrue(bpsw.isProbablePrime(Q_rest));
+			if (DEBUG) assertTrue(prpTest.isProbablePrime(Q_rest));
 			if (Q_rest.bitLength() > 31) return false;
 			bigFactors.add(Q_rest.intValue());
 			return true;
 		}
 		// here we can not do without isProbablePrime(), because calling findSingleFactor() may not return when called with a prime argument
-		if (bpsw.isProbablePrime(Q_rest)) {
+		if (prpTest.isProbablePrime(Q_rest)) {
 			// Q_rest is (probable) prime -> end of recurrence
 			if (Q_rest.bitLength() > 31) return false;
 			bigFactors.add(Q_rest.intValue());
