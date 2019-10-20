@@ -26,7 +26,6 @@ import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
-import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
@@ -37,7 +36,7 @@ import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerOfSmallPrimesFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03g;
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -85,7 +84,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	private int[] pass2Powers = new int[100];
 	private int[] pass2Exponents = new int[100];
 
-	private BPSWTest bpsw = new BPSWTest();
+	private PrPTest prpTest = new PrPTest();
 	
 	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
@@ -289,11 +288,11 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 
 	private boolean factor_recurrent(BigInteger Q_rest) {
 		// Here we need a prime test, because factor algorithms may not return when called with a prime argument.
-		boolean restIsPrime = Q_rest.compareTo(pMaxSquare)<0 || bpsw.isProbablePrime(Q_rest);
+		boolean restIsPrime = Q_rest.compareTo(pMaxSquare)<0 || prpTest.isProbablePrime(Q_rest);
 		if (profile) primeTestDuration += timer.capture();
 		if (restIsPrime) {
 			// Check that the simple prime test using pMaxSquare is correct
-			if (DEBUG) assertTrue(bpsw.isProbablePrime(Q_rest));
+			if (DEBUG) assertTrue(prpTest.isProbablePrime(Q_rest));
 			if (Q_rest.bitLength() > 31) return false;
 			bigFactors.add(Q_rest.longValue());
 			return true;
