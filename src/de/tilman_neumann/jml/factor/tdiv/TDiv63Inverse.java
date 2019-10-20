@@ -169,9 +169,9 @@ public class TDiv63Inverse extends FactorAlgorithm {
 				}
 			}
 			
-			// Now the primes are big enough to apply trial division by inverses; unroll the loop
-			int unrolledLimit = primeCountBound-8;
-			for ( ; i<unrolledLimit; i++) {
+			// Now the primes are big enough to apply trial division by inverses; unroll the loop.
+			// We stop when pLimit is reached, which may have been set before via setTestLimit().
+			for (; primes[i]<=pLimit; i++) {
 				//LOG.debug("N=" + N + ": Test p=" + primes[i]);
 				if (((long) (N*reciprocals[i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
 				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
@@ -181,9 +181,6 @@ public class TDiv63Inverse extends FactorAlgorithm {
 				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
 				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
 				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
-			}
-			for ( ; i<primeCountBound; i++) {
-				if (((long) (N*reciprocals[i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			int pMaxIndex = primeCountBound-1;
