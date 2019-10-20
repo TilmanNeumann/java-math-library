@@ -85,15 +85,21 @@ public class TDiv31Barrett extends FactorAlgorithm {
 	}
 
 	@Override
-	// TODO will not work for N > 31 bit having smallest factor > 15 bit
 	public BigInteger findSingleFactor(BigInteger N) {
+		if (N.bitLength() > 31) throw new IllegalArgumentException("TDiv31Barrett.findSingleFactor() does not work for N>31 bit, but N=" + N);
 		return BigInteger.valueOf(findSingleFactor(N.intValue()));
 	}
 	
 	public int findSingleFactor(int N) {
+		if (N<0) N = -N; // sign does not matter
+		if (N<4) return 1; // prime
+		if ((N&1)==0) return 2; // N even
+
 		// if N is odd and composite then the loop runs maximally up to prime = floor(sqrt(N))
 		// unroll the loop
-		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
+		int i=1;
+		int unrolledLimit = NUM_PRIMES_FOR_31_BIT_TDIV-8;
+		for ( ; i<unrolledLimit; i++) {
 			if ((1 + (int) ((N*pinv[i])>>32)) * primes[i] == N) return primes[i];
 			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
 			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
@@ -103,7 +109,10 @@ public class TDiv31Barrett extends FactorAlgorithm {
 			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
 			if ((1 + (int) ((N*pinv[++i])>>32)) * primes[i] == N) return primes[i];
 		}
-		// otherwise N is prime!
-		throw new IllegalArgumentException("N = " + N + " is prime!");
+		for ( ; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
+			if ((1 + (int) ((N*pinv[i])>>32)) * primes[i] == N) return primes[i];
+		}
+		// otherwise N is prime
+		return 1;
 	}
 }

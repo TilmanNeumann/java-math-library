@@ -145,14 +145,16 @@ public class TDiv63Inverse extends FactorAlgorithm {
 	 */
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		if (N.bitLength()>63) {
-			throw new IllegalArgumentException("Argument N=" + N  + " (" + N.bitLength() + " bit) is too large for algorithm " + getName());
-		}
+		if (N.bitLength() > 63) throw new IllegalArgumentException("TDiv63Inverse.findSingleFactor() does not work for N>63 bit, but N=" + N);
 		return BigInteger.valueOf(findSingleFactor(N.longValue()));
 	}
 	
 	public int findSingleFactor(long N) {
-		int i=0;
+		if (N<0) N = -N; // sign does not matter
+		if (N<4) return 1; // prime
+		if ((N&1)==0) return 2; // N even
+		
+		int i=1;
 		//LOG.debug("N=" + N);
 		int Nbits = 64-Long.numberOfLeadingZeros(N);
 		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
@@ -168,7 +170,8 @@ public class TDiv63Inverse extends FactorAlgorithm {
 			}
 			
 			// Now the primes are big enough to apply trial division by inverses; unroll the loop
-			for (; primes[i]<=pLimit; i++) {
+			int unrolledLimit = primeCountBound-8;
+			for ( ; i<unrolledLimit; i++) {
 				//LOG.debug("N=" + N + ": Test p=" + primes[i]);
 				if (((long) (N*reciprocals[i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
 				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
@@ -178,6 +181,9 @@ public class TDiv63Inverse extends FactorAlgorithm {
 				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
 				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
 				if (((long) (N*reciprocals[++i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
+			}
+			for ( ; i<primeCountBound; i++) {
+				if (((long) (N*reciprocals[i] + DISCRIMINATOR)) * primes[i] == N) return primes[i];
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			int pMaxIndex = primeCountBound-1;

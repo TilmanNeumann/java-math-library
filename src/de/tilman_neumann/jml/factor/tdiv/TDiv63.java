@@ -73,16 +73,21 @@ public class TDiv63 extends FactorAlgorithm {
 
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
+		if (N.bitLength() > 63) throw new IllegalArgumentException("TDiv63.findSingleFactor() does not work for N>63 bit, but N=" + N);
 		return BigInteger.valueOf(findSingleFactor(N.longValue()));
 	}
 	
 	public int findSingleFactor(long N) {
-		int i=0, p;
+		if (N<0) N = -N; // sign does not matter
+		if (N<4) return 1; // prime
+		if ((N&1)==0) return 2; // N even
+		
+		int i=1, p;
 		while ((p = SMALL_PRIMES.getPrime(i++)) <= pLimit) { // upper bound avoids positive int overflow
 			if (N%p==0) return p;
 		}
 		
 		// nothing found up to pLimit
-		return 0;
+		return 1;
 	}
 }
