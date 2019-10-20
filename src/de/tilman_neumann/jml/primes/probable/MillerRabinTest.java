@@ -23,6 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Miller-Rabin probable prime test.
  * @author Tilman Neumann
  */
+// TODO use Montgomery multiplication/exponentiation
 public class MillerRabinTest {
 	
 	private Random rng = ThreadLocalRandom.current();
