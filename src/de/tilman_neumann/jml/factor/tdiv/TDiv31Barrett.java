@@ -34,8 +34,7 @@ public class TDiv31Barrett extends FactorAlgorithm {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(TDiv31Barrett.class);
 
-	// TODO "static" leads to NPE in constructor ???
-	private AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
+	private AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();	// "static" would be slightly slower
 
 	private int[] primes;
 	private long[] pinv;
