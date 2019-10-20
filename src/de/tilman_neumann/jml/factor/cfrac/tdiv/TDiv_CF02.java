@@ -61,7 +61,7 @@ public class TDiv_CF02 implements TDiv_CF {
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	private CFrac63 cf_internal = new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 12);
 
-	private BPSWTest bpsw = new BPSWTest(1<<20);
+	private BPSWTest bpsw = new BPSWTest();
 
 	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
 

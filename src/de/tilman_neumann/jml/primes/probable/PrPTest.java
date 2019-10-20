@@ -19,14 +19,22 @@ import java.math.BigInteger;
 import java.util.HashSet;
 
 /**
- * BPSW probable prime test. The implementation starts checking the moduli of N % 30030 and then follows
- * [http://en.wikipedia.org/wiki/Baillie-PSW_primality_test] and references therein.
+ * A probable prime test for arbitrary precision numbers.
  * 
- * Note that BPSW may be considered a deterministic prime test for N < 2^64.
+ * For N<32 bit it does trial division. Otherwise it checks the residues of N % 30030, and then 
+ * does a Miller-Rabin test with Sinclairs bases for N<64 bit, or a BPSW test for larger N.
+ * 
+ * Note that both the Sinclair-Miller-Rabin and BPSW test are considered deterministic prime tests for N<=2^64.
+ * 
+ * See http://en.wikipedia.org/wiki/Baillie-PSW_primality_test
+ * and http://miller-rabin.appspot.com/.
  * 
  * @author Tilman Neumann
  */
-public class BPSWTest {
+public class PrPTest {
+	/** The 7 Miller-Rabin bases found by Jim Sinclair */
+	private static final BigInteger[] SINCLAIR_BASES = new BigInteger[] {I_2, BigInteger.valueOf(325), BigInteger.valueOf(9375), BigInteger.valueOf(28178), BigInteger.valueOf(450775), BigInteger.valueOf(9780504), BigInteger.valueOf(1795265022)};
+
 	/** 2*3*5*7*11*13 = 30030 */
 	private static final BigInteger BIG_30030 = BigInteger.valueOf(30030);
 
@@ -52,14 +60,23 @@ public class BPSWTest {
         if (!N.testBit(0)) return N.equals(I_2); // even N>2 is not prime
 
         // For small N, trial division is much faster than BPSW
-        if (N.bitLength() < 32) {
+        int Nbits = N.bitLength();
+        if (Nbits < 32) {
         	return tdiv.isPrime(N.intValue());
         }
         
 		// Test residues % 30030. Note that N<30030 have been exclude by trial division above.
 		if (!primeRestsMod30030.contains(N.mod(BIG_30030).intValue())) return false;
 
-		// The Lucas test is not carried out if N fails the base 2 Miller-Rabin test.
+        if (Nbits < 64) {
+        	// For N<64 bit, a deterministic Miller-Rabin test is faster than BPSW.
+        	// Note that the algorithm would fail for N = 3, 5, 13, 19, 73, 193, 407521, 299210837, 
+        	// which are the factors of the bases. But all these N < 32 bit are tested by tdiv above,
+        	// so no problem here...
+    		return millerRabinTest.testBases(N, SINCLAIR_BASES);
+        }
+
+		// Do BPSW test: The Lucas test is not carried out if N fails the base 2 Miller-Rabin test.
         return millerRabinTest.testSingleBase(N, I_2) && lucasTest.isStrongProbablePrime(N);
     }
     

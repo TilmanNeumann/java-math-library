@@ -55,7 +55,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	
-	private BPSWTest bpsw = new BPSWTest(1<<20);
+	private BPSWTest bpsw = new BPSWTest();
 
 	// result: two arrays that are reused, their content is _copied_ to AQ-pairs
 	private SortedIntegerArray smallFactors = new SortedIntegerArray();
