@@ -246,10 +246,39 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 		byte[] sieve2310 = new byte[2310];
 		int[] sieveidx = new int[480];
 		fieldAA = AA;
-		int i, j, u;
 		
-		// convert BigInteger N into TestNbr and NumberLength
-		BigNbrToBigInt(N);
+		// convert BigInteger N into TestNbr and NumberLength >>>>>>>>>>>>>>>>>>>>>>>
+		{
+			byte[] Result;
+			long[] Temp;
+			int i, j;
+			long mask, p;
+
+			Result = N.toByteArray();
+			NumberLength = (Result.length * 8 + 30) / 31;
+			Temp = new long[NumberLength + 1];
+			j = 0;
+			mask = 1;
+			p = 0;
+			for (i = Result.length - 1; i >= 0; i--) {
+				p += mask * (Result[i] >= 0 ? Result[i] : Result[i] + 256);
+				mask *= 0x100;
+				if (mask == DosALa32) {
+					Temp[j++] = p;
+					mask = 1;
+					p = 0;
+				}
+			}
+			Temp[j] = p;
+			Convert32To31Bits(Temp, TestNbr);
+			if (TestNbr[NumberLength - 1] > Mi) {
+				TestNbr[NumberLength] = 0;
+				NumberLength++;
+			}
+			TestNbr[NumberLength] = 0;
+
+		}
+		// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		
 		// set up Montgomery multiplication
 		this.monty = new MontgomeryMult(TestNbr, NumberLength);
@@ -397,8 +426,8 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 					P += 2;
 
 					/* Initialize sieve2310[n]: 1 if gcd(P+2n,2310) > 1, 0 otherwise */
-					u = (int) P;
-					for (i = 0; i < 2310; i++) {
+					int u = (int) P;
+					for (int i = 0; i < 2310; i++) {
 						sieve2310[i] = (u % 3 == 0 || u % 5 == 0 || u % 7 == 0 || u % 11 == 0 ? (byte) 1 : (byte) 0);
 						u += 2;
 					}
@@ -407,7 +436,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 						GenerateSieve((int) P, sieve, sieve2310, SmallPrime);
 
 						/* Walk through sieve */
-						for (i = 0; i < 23100; i++) {
+						for (int i = 0; i < 23100; i++) {
 							if (sieve[i] != 0)
 								continue; /* Do not process composites */
 							if (P + 2 * i > L1)
@@ -442,8 +471,8 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 				/******************************************************/
 				/* Second step (using improved standard continuation) */
 				/******************************************************/
-				j = 0;
-				for (u = 1; u < 2310; u += 2) {
+				int j = 0;
+				for (int u = 1; u < 2310; u += 2) {
 					if (u % 3 == 0 || u % 5 == 0 || u % 7 == 0 || u % 11 == 0) {
 						sieve2310[u / 2] = (byte) 1;
 					} else {
@@ -572,7 +601,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 							}
 							/* Walk through sieve */
 							J = 1155 + (indexM % 10) * 2310;
-							for (i = 0; i < 480; i++) {
+							for (int i = 0; i < 480; i++) {
 								j = sieveidx[i]; // 0 < J < 1155
 								if (sieve[J + j] != 0 && sieve[J - 1 - j] != 0) {
 									continue; // Do not process if both are composite numbers.
@@ -857,39 +886,6 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 		return true;
 	}
 
-	/**
-	 * Converts BigInteger N into {TestNbr, NumberLength}.
-	 * @param N
-	 */
-	private void BigNbrToBigInt(BigInteger N) {
-		byte[] Result;
-		long[] Temp;
-		int i, j;
-		long mask, p;
-
-		Result = N.toByteArray();
-		NumberLength = (Result.length * 8 + 30) / 31;
-		Temp = new long[NumberLength + 1];
-		j = 0;
-		mask = 1;
-		p = 0;
-		for (i = Result.length - 1; i >= 0; i--) {
-			p += mask * (Result[i] >= 0 ? Result[i] : Result[i] + 256);
-			mask *= 0x100;
-			if (mask == DosALa32) {
-				Temp[j++] = p;
-				mask = 1;
-				p = 0;
-			}
-		}
-		Temp[j] = p;
-		Convert32To31Bits(Temp, TestNbr);
-		if (TestNbr[NumberLength - 1] > Mi) {
-			TestNbr[NumberLength] = 0;
-			NumberLength++;
-		}
-		TestNbr[NumberLength] = 0;
-	}
 
 	private void ChSignBigNbr(long Nbr[]) {
 		int NumberLength = this.NumberLength;
