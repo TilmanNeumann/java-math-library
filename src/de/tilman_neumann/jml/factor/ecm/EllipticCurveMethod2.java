@@ -247,43 +247,13 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 		int[] sieveidx = new int[480];
 		fieldAA = AA;
 		
-		// convert BigInteger N into TestNbr and NumberLength >>>>>>>>>>>>>>>>>>>>>>>
-		{
-			byte[] Result;
-			long[] Temp;
-			int i, j;
-			long mask, p;
-
-			Result = N.toByteArray();
-			NumberLength = (Result.length * 8 + 30) / 31;
-			Temp = new long[NumberLength + 1];
-			j = 0;
-			mask = 1;
-			p = 0;
-			for (i = Result.length - 1; i >= 0; i--) {
-				p += mask * (Result[i] >= 0 ? Result[i] : Result[i] + 256);
-				mask *= 0x100;
-				if (mask == DosALa32) {
-					Temp[j++] = p;
-					mask = 1;
-					p = 0;
-				}
-			}
-			Temp[j] = p;
-			Convert32To31Bits(Temp, TestNbr);
-			if (TestNbr[NumberLength - 1] > Mi) {
-				TestNbr[NumberLength] = 0;
-				NumberLength++;
-			}
-			TestNbr[NumberLength] = 0;
-
-		}
-		// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		// convert BigInteger N into TestNbr and NumberLength
+		this.NumberLength = BigNbrToBigInt(N, TestNbr);
 		
 		// set up Montgomery multiplication
 		this.monty = new MontgomeryMult(TestNbr, NumberLength);
 		
-		// more initializations >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		// More initializations
 		double dN = TestNbr[NumberLength - 1];
 		if (NumberLength > 1) {
 			dN += TestNbr[NumberLength - 2] / dDosALa31;
@@ -306,12 +276,9 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 		MultBigNbrModN(MontgomeryMultR1, MontgomeryMultR1, MontgomeryMultR2, dN);
 		monty.mul(MontgomeryMultR2, MontgomeryMultR2, MontgomeryMultAfterInv);
 		AddBigNbrModN(MontgomeryMultR1, MontgomeryMultR1, MontgomeryMultR2);
-		// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		
-		
-		// it seems to be faster not to repeat previously tested curves for new factors
+		// Modular curve loop: It seems to be faster not to repeat previously tested curves for new factors
 		EC--;
-
 		do {
 			new_curve: do {
 				EC++;
@@ -660,6 +627,44 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 		return BigIntToBigNbr(GD);
 	}
 	
+
+	/**
+	 * Converts BigInteger N into {TestNbr, NumberLength}.
+	 * @param N input
+	 * @param TestNbr output
+	 * @return size of TestNbr in 31-bit units
+	 */
+	private int BigNbrToBigInt(BigInteger N, long[] TestNbr) {
+		byte[] Result;
+		long[] Temp;
+		int i, j;
+		long mask, p;
+
+		Result = N.toByteArray();
+		int NumberLength = (Result.length * 8 + 30) / 31;
+		Temp = new long[NumberLength + 1];
+		j = 0;
+		mask = 1;
+		p = 0;
+		for (i = Result.length - 1; i >= 0; i--) {
+			p += mask * (Result[i] >= 0 ? Result[i] : Result[i] + 256);
+			mask *= 0x100;
+			if (mask == DosALa32) {
+				Temp[j++] = p;
+				mask = 1;
+				p = 0;
+			}
+		}
+		Temp[j] = p;
+		Convert32To31Bits(Temp, NumberLength, TestNbr);
+		if (TestNbr[NumberLength - 1] > Mi) {
+			TestNbr[NumberLength] = 0;
+			NumberLength++;
+		}
+		TestNbr[NumberLength] = 0;
+		return NumberLength;
+	}
+
 	private static void GenerateSieve(int initial, byte[] sieve, byte[] sieve2310, int[] SmallPrime) {
 		int i, j, Q;
 		for (i = 0; i < 23100; i += 2310) {
@@ -919,7 +924,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 		}
 	}
 
-	private void Convert32To31Bits(long[] nbr32bits, long[] nbr31bits) {
+	private void Convert32To31Bits(long[] nbr32bits, int NumberLength, long[] nbr31bits) {
 		int i, j, k;
 		j = 0;
 		nbr32bits[NumberLength] = 0;
@@ -1417,7 +1422,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 		if (i < 0 || B[i] < CalcAuxModInvMu[i]) { // If B < Mu
 			SubtractBigNbr32(CalcAuxModInvMu, B, CalcAuxModInvMu); // Mu <- Mu - B
 		}
-		Convert32To31Bits(CalcAuxModInvMu, inv);
+		Convert32To31Bits(CalcAuxModInvMu, NumberLength, inv);
 	}
 
 	private void MultBigNbrByLongModN(long Nbr1[], long Nbr2, long Prod[], double dN) {
