@@ -72,7 +72,6 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	private static final PurePowerTest powerTest = new PurePowerTest();
 	private static final TDiv tdiv = new TDiv();
 	private MontgomeryMult monty;
-	private BigNbrProcessor bnp = new BigNbrProcessor();
 
 	private static final double v[] =
 		{ 1.61803398875, 1.72360679775, 1.618347119656, 1.617914406529, 1.612429949509,
