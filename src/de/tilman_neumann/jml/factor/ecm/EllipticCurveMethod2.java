@@ -31,7 +31,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -68,7 +68,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	/** Primes < 5000 */
 	private static final int SmallPrime[] = new int[670]; // p_669 = 4999;
 
-	private static final BPSWTest bpsw = new BPSWTest();
+	private static final PrPTest prp = new PrPTest();
 	private static final PurePowerTest powerTest = new PurePowerTest();
 	private static final TDiv tdiv = new TDiv();
 	private MontgomeryMult montgomery;
@@ -198,7 +198,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 
 	private boolean isProbablePrime(BigInteger N) {
 		// XXX The 33-bit "guard" is only safe if we did tdiv for all p <= sqrt(2^33) before
-		return N.bitLength() <= 33 || bpsw.isProbablePrime(N);
+		return N.bitLength() <= 33 || prp.isProbablePrime(N);
 	}
 
 	private void addToMapDependingOnPrimeTest(BigInteger factor, int exp, SortedMap<BigInteger, Integer> primeFactors, SortedMap<BigInteger, Integer> compositeFactors) {
