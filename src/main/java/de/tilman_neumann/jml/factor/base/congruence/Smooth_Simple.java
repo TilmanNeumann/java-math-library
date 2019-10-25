@@ -35,7 +35,7 @@ abstract public class Smooth_Simple extends AQPair implements Smooth {
 			if ((smallFactorExponents[i]&1)==1) result.add(this.smallFactors[i]);
 		}
 		// convert to array
-		this.oddExpElements = result.toArray(new Integer[result.size()]);
+		this.oddExpElements = result.toArray(new Integer[0]); // result.toArray(new Integer[result.size()]);
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -174,9 +175,7 @@ public class CongruenceCollector {
 		HashSet<Long> processedLargeFactors = new HashSet<>();
 		HashSet<Partial> relatedPartials = new HashSet<>(); // we need a set to avoid adding the same partial more than once
 		ArrayList<Long> currentLargeFactors = new ArrayList<>();
-		for (Long largeFactor : largeFactorsOfPartial) {
-			currentLargeFactors.add(largeFactor);
-		}
+		currentLargeFactors.addAll(Arrays.asList(largeFactorsOfPartial));
 		while (currentLargeFactors.size()>0) {
 			if (DEBUG) LOG.debug("currentLargeFactors = " + currentLargeFactors);
 			ArrayList<Long> nextLargeFactors = new ArrayList<>(); // no Set required, ArrayList has faster iteration

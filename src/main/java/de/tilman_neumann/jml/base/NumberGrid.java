@@ -15,6 +15,7 @@ package de.tilman_neumann.jml.base;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -113,9 +114,10 @@ public class NumberGrid<U> implements Serializable {
 	public String toString() {
 		int numberOfColumns = this.getNumberOfColumns();
 		int[] columnWidths = new int[numberOfColumns];
-		for (int j=0; j<columnWidths.length; j++) {
-			columnWidths[j] = 0;
-		}
+		Arrays.fill(columnWidths, 0);
+//		for (int j=0; j<columnWidths.length; j++) {
+//			columnWidths[j] = 0;
+//		}
 		// Determine maximal lengths of strings in the several columns:
 		for (List<U> row : this.rows) {
 			if (row != null) {

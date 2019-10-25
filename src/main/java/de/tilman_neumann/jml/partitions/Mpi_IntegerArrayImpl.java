@@ -41,9 +41,10 @@ public class Mpi_IntegerArrayImpl implements Mpi {
 	 */
 	public Mpi_IntegerArrayImpl(int[] values) {
 		this.values = new int[values.length];
-		for (int i=0; i<values.length; i++) {
-			this.values[i] = values[i];
-		}
+		System.arraycopy(values, 0, this.values, 0, values.length);
+//for (int i=0; i<values.length; i++) {
+//			this.values[i] = values[i];
+//		}
 	}
 	
 	/**
@@ -131,9 +132,11 @@ public class Mpi_IntegerArrayImpl implements Mpi {
 					// decrement the last non null value before the negative one:
 					lower.values[lastNonNull]--;
 					// set all the other entries to those of this.
-					for (int j=lastNonNull+1; j<dim; j++) {
-						lower.values[j] = values[j];
-					}
+					if (dim - lastNonNull + 1 >= 0)
+						System.arraycopy(values, lastNonNull + 1, lower.values, lastNonNull + 1, dim - lastNonNull + 1);
+				//for (int j=lastNonNull+1; j<dim; j++) {
+				//						lower.values[j] = values[j];
+				//					}
 				}
 				// else we had a negative value but all entries before are zero. so what is lower?
 				// e.g. [0,0,0,0, -1, ???) -> I think the result must be the null vector.
@@ -207,9 +210,11 @@ public class Mpi_IntegerArrayImpl implements Mpi {
 					// decrement the last non null value before the negative one:
 					restMinusFirstPart.values[lastNonNull]--;
 					// set all the other entries to those of this.
-					for (int j=lastNonNull+1; j<dim; j++) {
-						restMinusFirstPart.values[j] = values[j];
-					}
+					if (dim - lastNonNull + 1 >= 0)
+						System.arraycopy(values, lastNonNull + 1, restMinusFirstPart.values, lastNonNull + 1, dim - lastNonNull + 1);
+				//	for (int j=lastNonNull+1; j<dim; j++) {
+				//		restMinusFirstPart.values[j] = values[j];
+				//	}
 				}
 				// else we had a negative value but all entries before are zero. so what is lower?
 				// e.g. [0,0,0,0, -1, ???) -> I think the result must be the null vector.

@@ -61,7 +61,7 @@ public class Partial_nLarge extends Partial {
 		for (int i=0; i<bigFactors.length; i++) {
 			if ((bigFactorExponents[i]&1)==1) result.add(bigFactors[i]);
 		}
-		return result.toArray(new Long[result.size()]);
+		return result.toArray(new Long[0]); // result.toArray(new Long[result.size()]);
 	}
 
 	@Override

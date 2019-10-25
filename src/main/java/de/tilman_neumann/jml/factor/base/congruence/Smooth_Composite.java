@@ -49,7 +49,7 @@ public class Smooth_Composite implements Smooth {
 				}
 			}
 		}
-		this.oddExpElements = smallFactorsWithOddExp.toArray(new Integer[smallFactorsWithOddExp.size()]);
+		this.oddExpElements = smallFactorsWithOddExp.toArray(new Integer[0]); // smallFactorsWithOddExp.toArray(new Integer[smallFactorsWithOddExp.size()]);
 		
 		this.hashCode = aqPairs.hashCode();
 	}
@@ -57,9 +57,7 @@ public class Smooth_Composite implements Smooth {
 	@Override
 	public Set<AQPair> getAQPairs() {
 		Set<AQPair> set = new HashSet<>();
-		for (AQPair aqPair : aqPairs) {
-			set.add(aqPair);
-		}
+		set.addAll(Arrays.asList(aqPairs));
 		return set;
 	}
 
