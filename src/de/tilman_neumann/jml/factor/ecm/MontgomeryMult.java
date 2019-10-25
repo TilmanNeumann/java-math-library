@@ -27,11 +27,11 @@ package de.tilman_neumann.jml.factor.ecm;
  */
 public class MontgomeryMult {
 	
-	private long[] TestNbr;
+	private int[] TestNbr;
 	private int NumberLength;
 	private int MontgomeryMultN;
 
-	public MontgomeryMult(long[] TestNbr, int NumberLength) {
+	public MontgomeryMult(int[] TestNbr, int NumberLength) {
 		this.TestNbr = TestNbr;
 		this.NumberLength = NumberLength;
 		
@@ -46,7 +46,7 @@ public class MontgomeryMult {
 	
 	// This "kind of over-optimized" method yields a 10-20% performance gain compared
 	// to a flat j=0..NumberLength-1 loop implementation. So we keep it as it is...
-	public void mul(long Nbr1[], long Nbr2[], long Prod[]) {
+	public void mul(int Nbr1[], int Nbr2[], int Prod[]) {
 		int i, j;
 		long MaxUInt = 0x7FFFFFFFl;
 		long Pr, Nbr;
@@ -78,8 +78,8 @@ public class MontgomeryMult {
 				Prod0 = (Pr = Prod0 - TestNbr0) & MaxUInt;
 				Prod1 = ((Pr >> 31) + Prod1 - TestNbr1) & MaxUInt;
 			}
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
 			break;
 
 		case 3:
@@ -102,9 +102,9 @@ public class MontgomeryMult {
 				Prod1 = (Pr = (Pr >> 31) + Prod1 - TestNbr1) & MaxUInt;
 				Prod2 = ((Pr >> 31) + Prod2 - TestNbr2) & MaxUInt;
 			}
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
-			Prod[2] = Prod2;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
+			Prod[2] = (int)Prod2;
 			break;
 
 		case 4:
@@ -131,10 +131,10 @@ public class MontgomeryMult {
 				Prod2 = (Pr = (Pr >> 31) + Prod2 - TestNbr2) & MaxUInt;
 				Prod3 = ((Pr >> 31) + Prod3 - TestNbr3) & MaxUInt;
 			}
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
-			Prod[2] = Prod2;
-			Prod[3] = Prod3;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
+			Prod[2] = (int)Prod2;
+			Prod[3] = (int)Prod3;
 			break;
 
 		case 5:
@@ -165,11 +165,11 @@ public class MontgomeryMult {
 				Prod3 = (Pr = (Pr >> 31) + Prod3 - TestNbr3) & MaxUInt;
 				Prod4 = ((Pr >> 31) + Prod4 - TestNbr4) & MaxUInt;
 			}
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
-			Prod[2] = Prod2;
-			Prod[3] = Prod3;
-			Prod[4] = Prod4;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
+			Prod[2] = (int)Prod2;
+			Prod[3] = (int)Prod3;
+			Prod[4] = (int)Prod4;
 			break;
 
 		case 6:
@@ -205,12 +205,12 @@ public class MontgomeryMult {
 				Prod4 = (Pr = (Pr >> 31) + Prod4 - TestNbr4) & MaxUInt;
 				Prod5 = ((Pr >> 31) + Prod5 - TestNbr5) & MaxUInt;
 			}
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
-			Prod[2] = Prod2;
-			Prod[3] = Prod3;
-			Prod[4] = Prod4;
-			Prod[5] = Prod5;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
+			Prod[2] = (int)Prod2;
+			Prod[3] = (int)Prod3;
+			Prod[4] = (int)Prod4;
+			Prod[5] = (int)Prod5;
 			break;
 
 		case 7:
@@ -251,13 +251,13 @@ public class MontgomeryMult {
 				Prod5 = (Pr = (Pr >> 31) + Prod5 - TestNbr5) & MaxUInt;
 				Prod6 = ((Pr >> 31) + Prod6 - TestNbr6) & MaxUInt;
 			}
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
-			Prod[2] = Prod2;
-			Prod[3] = Prod3;
-			Prod[4] = Prod4;
-			Prod[5] = Prod5;
-			Prod[6] = Prod6;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
+			Prod[2] = (int)Prod2;
+			Prod[3] = (int)Prod3;
+			Prod[4] = (int)Prod4;
+			Prod[5] = (int)Prod5;
+			Prod[6] = (int)Prod6;
 			break;
 
 		case 8:
@@ -302,14 +302,14 @@ public class MontgomeryMult {
 				Prod6 = (Pr = (Pr >> 31) + Prod6 - TestNbr6) & MaxUInt;
 				Prod7 = ((Pr >> 31) + Prod7 - TestNbr7) & MaxUInt;
 			}
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
-			Prod[2] = Prod2;
-			Prod[3] = Prod3;
-			Prod[4] = Prod4;
-			Prod[5] = Prod5;
-			Prod[6] = Prod6;
-			Prod[7] = Prod7;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
+			Prod[2] = (int)Prod2;
+			Prod[3] = (int)Prod3;
+			Prod[4] = (int)Prod4;
+			Prod[5] = (int)Prod5;
+			Prod[6] = (int)Prod6;
+			Prod[7] = (int)Prod7;
 			break;
 
 		case 9:
@@ -359,15 +359,15 @@ public class MontgomeryMult {
 				Prod7 = (Pr = (Pr >> 31) + Prod7 - TestNbr7) & MaxUInt;
 				Prod8 = ((Pr >> 31) + Prod8 - TestNbr8) & MaxUInt;
 			}
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
-			Prod[2] = Prod2;
-			Prod[3] = Prod3;
-			Prod[4] = Prod4;
-			Prod[5] = Prod5;
-			Prod[6] = Prod6;
-			Prod[7] = Prod7;
-			Prod[8] = Prod8;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
+			Prod[2] = (int)Prod2;
+			Prod[3] = (int)Prod3;
+			Prod[4] = (int)Prod4;
+			Prod[5] = (int)Prod5;
+			Prod[6] = (int)Prod6;
+			Prod[7] = (int)Prod7;
+			Prod[8] = (int)Prod8;
 			break;
 
 		case 10:
@@ -421,16 +421,16 @@ public class MontgomeryMult {
 				Prod8 = (Pr = (Pr >> 31) + Prod8 - TestNbr8) & MaxUInt;
 				Prod9 = ((Pr >> 31) + Prod9 - TestNbr9) & MaxUInt;
 			}
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
-			Prod[2] = Prod2;
-			Prod[3] = Prod3;
-			Prod[4] = Prod4;
-			Prod[5] = Prod5;
-			Prod[6] = Prod6;
-			Prod[7] = Prod7;
-			Prod[8] = Prod8;
-			Prod[9] = Prod9;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
+			Prod[2] = (int)Prod2;
+			Prod[3] = (int)Prod3;
+			Prod[4] = (int)Prod4;
+			Prod[5] = (int)Prod5;
+			Prod[6] = (int)Prod6;
+			Prod[7] = (int)Prod7;
+			Prod[8] = (int)Prod8;
+			Prod[9] = (int)Prod9;
 			break;
 
 		case 11:
@@ -489,17 +489,17 @@ public class MontgomeryMult {
 				Prod9 = (Pr = (Pr >> 31) + Prod9 - TestNbr9) & MaxUInt;
 				Prod10 = ((Pr >> 31) + Prod10 - TestNbr10) & MaxUInt;
 			}
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
-			Prod[2] = Prod2;
-			Prod[3] = Prod3;
-			Prod[4] = Prod4;
-			Prod[5] = Prod5;
-			Prod[6] = Prod6;
-			Prod[7] = Prod7;
-			Prod[8] = Prod8;
-			Prod[9] = Prod9;
-			Prod[10] = Prod10;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
+			Prod[2] = (int)Prod2;
+			Prod[3] = (int)Prod3;
+			Prod[4] = (int)Prod4;
+			Prod[5] = (int)Prod5;
+			Prod[6] = (int)Prod6;
+			Prod[7] = (int)Prod7;
+			Prod[8] = (int)Prod8;
+			Prod[9] = (int)Prod9;
+			Prod[10] = (int)Prod10;
 			break;
 
 		default:
@@ -542,22 +542,22 @@ public class MontgomeryMult {
 				Prod9 = (Pr = (Pr >>> 31) + MontDig * TestNbr10 + Nbr * Nbr2_10 + Prod10) & 0x7FFFFFFFl;
 				Prod10 = (Pr = (Pr >>> 31) + MontDig * TestNbr[11] + Nbr * Nbr2[11] + Prod[11]) & 0x7FFFFFFFl;
 				for (j = 12; j < NumberLength; j++) {
-					Prod[j - 1] = (Pr = (Pr >>> 31) + MontDig * TestNbr[j] + Nbr * Nbr2[j] + Prod[j]) & 0x7FFFFFFFl;
+			        Prod[j-1] = (int)((Pr = (Pr >>> 31) + MontDig * TestNbr[j] + Nbr * Nbr2[j] + Prod[j]) & 0x7FFFFFFFL);
 				}
-				Prod[j - 1] = (Pr >>> 31);
+				Prod[j - 1] = (int)(Pr >>> 31);
 				i++;
 			} while (i < NumberLength);
-			Prod[0] = Prod0;
-			Prod[1] = Prod1;
-			Prod[2] = Prod2;
-			Prod[3] = Prod3;
-			Prod[4] = Prod4;
-			Prod[5] = Prod5;
-			Prod[6] = Prod6;
-			Prod[7] = Prod7;
-			Prod[8] = Prod8;
-			Prod[9] = Prod9;
-			Prod[10] = Prod10;
+			Prod[0] = (int)Prod0;
+			Prod[1] = (int)Prod1;
+			Prod[2] = (int)Prod2;
+			Prod[3] = (int)Prod3;
+			Prod[4] = (int)Prod4;
+			Prod[5] = (int)Prod5;
+			Prod[6] = (int)Prod6;
+			Prod[7] = (int)Prod7;
+			Prod[8] = (int)Prod8;
+			Prod[9] = (int)Prod9;
+			Prod[10] = (int)Prod10;
 			for (j = NumberLength - 1; j >= 0; j--) {
 				if (Prod[j] != TestNbr[j]) {
 					break;
@@ -566,7 +566,7 @@ public class MontgomeryMult {
 			if (Prod[j] >= TestNbr[j]) {
 				Pr = 0;
 				for (j = 0; j < NumberLength; j++) {
-					Prod[j] = (Pr = (Pr >> 31) + Prod[j] - TestNbr[j]) & MaxUInt;
+			        Prod[j] = (int)((Pr = (Pr >> 31) + (long)Prod[j] - (long)TestNbr[j]) & 0x7FFFFFFFL);
 				}
 			}
 		} /* end switch */
