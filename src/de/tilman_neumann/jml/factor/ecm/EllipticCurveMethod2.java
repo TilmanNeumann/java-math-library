@@ -656,7 +656,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	    p = 0;
 	    for (i = Result.length - 1; i >= 0; i--) {
 	    	p += mask * (long) (Result[i] >= 0 ? Result[i] : Result[i] + 256);
-	    	mask <<= 8;
+	    	mask <<= 8; // mask *= 256
 	    	if (mask == 0) { // Overflow // Axel: mask == DosALa32
 	    		Temp[j++] = p;
 	    		mask = 1;
@@ -969,7 +969,8 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 		}
 		for (; i >= 0; i--) {
 			Divid = Dividend[i] + (Rem << 31);
-			Rem = Divid - (Quotient[i] = (int)(Divid / Divisor))*Divisor;
+			Rem = Divid % Divisor;
+			Quotient[i] = (int) (Divid / Divisor);
 		}
 		if (ChSignDivisor) { // Change sign if divisor is negative.
 			ChSignBigNbr(Quotient); // Convert divisor to positive.
@@ -1012,8 +1013,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	 * @param Nbr2
 	 * @param Gcd
 	 */
-	public void GcdBigNbr(int Nbr1[], int Nbr2[], int Gcd[])
-	{
+	public void GcdBigNbr(int Nbr1[], int Nbr2[], int Gcd[]) {
 	    int i, k;
 		int NumberLength = this.NumberLength;
 
@@ -1128,12 +1128,6 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 		long[] CalcAuxModInvB = this.CalcAuxModInvB;
 		long[] CalcAuxModInvMu = this.CalcAuxModInvMu;
 	    long[] CalcAuxModInvGamma = this.CalcAuxModInvGamma;
-
-	    // TODO deleted by Axel >>>>>>>>>>>>>>>>>>>>>>>
-	    if (NumberLength >= 2 && b[NumberLength-1] == 0 && b[NumberLength-2] < 0x40000000) {
-	    	NumberLength--;
-	    }
-	    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	    
 	    Convert31To32Bits(a, CalcAuxModInvA);
 	    Convert31To32Bits(b, CalcAuxModInvB);
@@ -1459,12 +1453,6 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	    long MaxUInt = 0x7FFFFFFFL;
 	    long Pr;
 	    int j;
-	
-	    // TODO deleted by Axel >>>>>>>>>>>>>>>>>>>>>>>
-	    if (NumberLength>=2 && TestNbr[NumberLength-1]==0 && TestNbr[NumberLength-2]<0x40000000) {
-	    	NumberLength--;
-	    }
-	    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	    
 	    Pr = 0;
 	    for (j = 0; j < NumberLength; j++) {
@@ -1480,12 +1468,6 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	    long MaxUInt = 0x7FFFFFFFL;
 	    int i, j;
 	    long Pr, Nbr;
-	
-	    // TODO deleted by Axel >>>>>>>>>>>>
-	    if (NumberLength >= 2 && TestNbr[NumberLength-1]==0 && TestNbr[NumberLength-2]<0x40000000) {
-	    	NumberLength--;
-	    }
-	    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	    
 	    i = NumberLength;
 	    do {
@@ -1507,8 +1489,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	    	}
 	    	Prod[j] += (Pr >>> 31);
 	    	AdjustModN(Prod, dN);
-	    }
-	    while (i > 0);
+	    } while (i > 0);
 	}
 
 	/**
