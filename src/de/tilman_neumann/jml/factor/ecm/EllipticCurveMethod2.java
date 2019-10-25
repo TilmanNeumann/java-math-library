@@ -213,7 +213,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	
 	private BigInteger fnECM(BigInteger N) {
 		int I, J, Pass, Qaux;
-		long L1, L2, LS, P, IP;
+		long L1, L2, LS, P;
 		int[] A0 = new int[NLen];
 		int[] A02 = new int[NLen];
 		int[] A03 = new int[NLen];
@@ -384,7 +384,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 					int indexM = 1;
 					do {
 						P = SmallPrime[indexM++];
-						for (IP = P; IP <= L1; IP *= P) {
+						for (long IP = P; IP <= L1; IP *= P) {
 							prac((int) P, X, Z, W1, W2, W3, W4);
 						}
 						if (Pass == 0) {
