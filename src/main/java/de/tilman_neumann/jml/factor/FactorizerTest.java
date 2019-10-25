@@ -21,9 +21,19 @@ import java.util.List;
 import java.util.TreeMap;
 
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver02_BlockLanczos;
 import de.tilman_neumann.jml.factor.cfrac.CFrac63;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF63_01;
+import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
+import de.tilman_neumann.jml.factor.ecm.TinyEcm64_MontInline;
 import de.tilman_neumann.jml.factor.hart.HartLA63;
+import de.tilman_neumann.jml.factor.psiqs.PSIQS_SBH_U;
+import de.tilman_neumann.jml.factor.siqs.SIQS;
+import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
+import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
+import de.tilman_neumann.jml.factor.siqs.powers.PowerOfSmallPrimesFinder;
+import de.tilman_neumann.jml.factor.siqs.sieve.DoubleBlockHybridSieveU;
+import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_nLarge_UBI;
 import de.tilman_neumann.jml.factor.squfof.SquFoF63;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.ConfigUtil;
@@ -222,6 +232,7 @@ public class FactorizerTest {
 				if (bits>31 && algName.startsWith("PollardRho31")) continue; // long implementation
 				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
 				if (bits>57 && algName.equals("PollardRhoBrentMontgomeryR64Mul63")) continue; // very slow above
+				if (bits>63 && algName.startsWith("HartLA63")) continue;
 				System.gc(); // create equal conditions for all algorithms
 
 				int failCount = 0;
