@@ -74,6 +74,7 @@ abstract public class PSIQSThreadBase extends Thread {
 		this.aqPairBuffer = aqPairBuffer;
 	}
 	
+	@Override
 	public void run() {
 		while (!finishNow) {
 			// create new polynomial Q(x)

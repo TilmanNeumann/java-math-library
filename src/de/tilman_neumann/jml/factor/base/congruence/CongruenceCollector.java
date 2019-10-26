@@ -174,8 +174,9 @@ public class CongruenceCollector {
 	private HashSet<Partial> findRelatedPartials(Long[] largeFactorsOfPartial) {
 		HashSet<Long> processedLargeFactors = new HashSet<>();
 		HashSet<Partial> relatedPartials = new HashSet<>(); // we need a set to avoid adding the same partial more than once
-		ArrayList<Long> currentLargeFactors = new ArrayList<>();
-		currentLargeFactors.addAll(Arrays.asList(largeFactorsOfPartial));
+		//currentLargeFactors.addAll(Arrays.asList(largeFactorsOfPartial));
+		ArrayList<Long> currentLargeFactors = new ArrayList<>(Arrays.asList(largeFactorsOfPartial));
+
 		while (currentLargeFactors.size()>0) {
 			if (DEBUG) LOG.debug("currentLargeFactors = " + currentLargeFactors);
 			ArrayList<Long> nextLargeFactors = new ArrayList<>(); // no Set required, ArrayList has faster iteration

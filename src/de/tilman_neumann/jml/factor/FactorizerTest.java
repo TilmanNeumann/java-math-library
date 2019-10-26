@@ -13,6 +13,10 @@
  */
 package de.tilman_neumann.jml.factor;
 
+import com.aparapi.device.Device;
+import com.aparapi.internal.kernel.KernelManager;
+import com.aparapi.internal.kernel.KernelPreferences;
+
 import org.apache.log4j.Logger;
 
 import java.math.BigInteger;
@@ -56,17 +60,17 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1; //000;
+	private static final int N_COUNT = 1; //1000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 384; //30;
+	private static final int START_BITS = 256; //30;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 128; //1;
+	private static final int INCR_BITS = 64; //1;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = 1408; //null;
+	private static final Integer MAX_BITS = 256; //null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_COMPOSITES; //.MODERATE_SEMIPRIMES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.QUITE_HARD_SEMIPRIMES; //.MODERATE_SEMIPRIMES;
 	/** Test mode */
 	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION; //.FIRST_FACTOR;
 
@@ -78,6 +82,13 @@ public class FactorizerTest {
 	private FactorAlgorithm[] algorithms;
 	
 	public FactorizerTest() {
+		KernelPreferences preferences = KernelManager.instance().getDefaultPreferences();
+		System.out.println("-- Devices in preferred order --");
+		for (Device device : preferences.getPreferredDevices(null)) {
+			System.out.println("----------");
+			System.out.println(device);
+		}
+
 		algorithms = new FactorAlgorithm[] {
 
 			// Trial division

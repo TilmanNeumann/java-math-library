@@ -56,8 +56,8 @@ public class Smooth_Composite implements Smooth {
 
 	@Override
 	public Set<AQPair> getAQPairs() {
-		Set<AQPair> set = new HashSet<>();
-		set.addAll(Arrays.asList(aqPairs));
+		//set.addAll(Arrays.asList(aqPairs));
+		Set<AQPair> set = new HashSet<>(Arrays.asList(aqPairs));
 		return set;
 	}
 
