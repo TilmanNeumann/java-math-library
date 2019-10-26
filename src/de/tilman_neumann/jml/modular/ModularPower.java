@@ -22,6 +22,30 @@ import java.math.BigInteger;
  * @author Tilman Neumann
  */
 public class ModularPower {
+	
+	/**
+	 * Montgomery computation of x1 ^ x2 mod m for all-BigInteger arguments.</br></br>
+	 *
+	 * <em>MontgomeryReduction implementation faster than library-based</em>.
+	 *
+	 * @param x1
+	 * @param x2
+	 * @param m
+	 * @return x1^x2 (mod m)
+	 */
+	BigInteger modPow2(BigInteger x1, BigInteger x2, BigInteger m) {
+		MontgomeryReduction.Montgomery mont = new MontgomeryReduction.Montgomery(m);
+		BigInteger prod = mont.reduce(mont.rrm);
+		BigInteger base = mont.reduce(x1.multiply(mont.rrm));
+		BigInteger exp = x2;
+		while (exp.bitLength()>0) {
+			if (exp.testBit(0)) prod=mont.reduce(prod.multiply(base));
+			exp = exp.shiftRight(1);
+			base = mont.reduce(base.multiply(base));
+		}
+		return mont.reduce(prod);
+	}
+
 	/**
 	 * Computes a^b (mod c) for all-BigInteger arguments.</br></br>
 	 * 
