@@ -114,7 +114,7 @@ public class ModularSqrt_BB {
 					break;
 				}
 			}
-			if (foundI==false) throw new IllegalStateException("Tonelli-Shanks did not find an 'i' < M=" + M);
+			if (!foundI) throw new IllegalStateException("Tonelli-Shanks did not find an 'i' < M=" + M);
 			
 			BigInteger b = mpe.modPow(c, I_1.shiftLeft(M-i-1), p); // c^(2^(M-i-1))
 			R = R.multiply(b).mod(p);
