@@ -648,7 +648,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	    int mask = 1;
 	    long p = 0;
 	    for (int i = NBytes.length - 1; i >= 0; i--) {
-	    	p += mask * (NBytes[i] & 0xFFL); // convert (eventually negative) byte positive long
+	    	p += mask * (NBytes[i] & 0xFFL); // convert (eventually negative) byte into positive long
 	    	mask <<= 8; // mask *= 256
 	    	if (mask == 0) { // int overflow after 4 shifts
 	    		Temp[j++] = p;
