@@ -39,7 +39,7 @@ public class BPSWTest {
 		return hashset;
 	}
 	
-	private TDivPrimeTest tdiv = new TDivPrimeTest();
+	private TDivPrimeTest tdiv; // = new TDivPrimeTest();
 	private MillerRabinTest millerRabinTest = new MillerRabinTest();
 	private LucasTest lucasTest = new LucasTest();
 
@@ -53,6 +53,7 @@ public class BPSWTest {
 
         // For small N, trial division is much faster than BPSW
         if (N.bitLength() < 32) {
+		tdiv = new TDivPrimeTest();
         	return tdiv.isPrime(N.intValue());
         }
         
