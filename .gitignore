@@ -3,3 +3,11 @@
 .classpath
 .project
 log.txt
+/.gradle/
+/gradle/
+gradlew
+gradlew.bat
+/.idea/
+/build/
+local.properties
+
