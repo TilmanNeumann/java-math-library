@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver02_BlockLanczos;
 import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
+import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race2;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS;
@@ -39,6 +40,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03g;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_1Large_UBI;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI;
+import de.tilman_neumann.jml.factor.tdiv.TDiv31Barrett;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
@@ -53,8 +55,8 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
 	
-	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
-	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
+	private TDiv31Barrett/*TDiv31Inverse*/ tDiv31 = new TDiv31Barrett()/*TDiv31Inverse()*/;
+	private Hart_TDiv_Race2/*Hart_TDiv_Race*/ hart = new Hart_TDiv_Race2()/*Hart_TDiv_Race()*/;
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	

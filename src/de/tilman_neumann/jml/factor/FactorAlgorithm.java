@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -44,7 +45,7 @@ abstract public class FactorAlgorithm {
 	/** the number of primes needed to factor any int <= 2^31 - 1 using trial division */
 	protected static final int NUM_PRIMES_FOR_31_BIT_TDIV = 4793;
 
-	private BPSWTest bpsw = new BPSWTest();
+	private PrPTest/*BPSWTest*/ bpsw = new PrPTest(); //new BPSWTest();
 	private TDiv tdiv = new TDiv();
 	
 	protected Integer tdivLimit;
