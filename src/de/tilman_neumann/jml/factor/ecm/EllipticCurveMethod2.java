@@ -51,11 +51,10 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethod2.class);
 
 	private static final int NLen = 1200;
-	private static final long DosALa32 = (long) 1 << 32;
-	private static final long DosALa31 = (long) 1 << 31;
+	private static final long DosALa32 = 1L << 32;
+	private static final long DosALa31 = 1L << 31;
 	private static final double dDosALa31 = DosALa31;
 	private static final double dDosALa62 = dDosALa31 * dDosALa31;
-	private static final long Mi = 1000000000;
 	private static final int ADD = 6; // number of multiplications in an addition
 	private static final int DUP = 5; //number of multiplications in a duplicate
 
@@ -642,22 +641,16 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	 * @return size of TestNbr in 31-bit units
 	 */
 	public int BigNbrToBigInt(BigInteger N, int TestNbr[]) {
-	    byte[] Result;
-	    long[] Temp;
-	    int i, j, mask;
-	    long p;
-	    int NumberLength;
-	
-	    Result = N.toByteArray();
-	    NumberLength = (Result.length * 8 + 30)/31;
-	    Temp = new long[NumberLength+1];
-	    j = 0;
-	    mask = 1;
-	    p = 0;
-	    for (i = Result.length - 1; i >= 0; i--) {
-	    	p += mask * (long) (Result[i] >= 0 ? Result[i] : Result[i] + 256);
+	    byte[] NBytes = N.toByteArray();
+	    int NumberLength = (NBytes.length * 8 + 30)/31; // number length in 31-bit integers
+	    long[] Temp = new long[NumberLength+1]; // zero-initialized
+	    int j = 0;
+	    int mask = 1;
+	    long p = 0;
+	    for (int i = NBytes.length - 1; i >= 0; i--) {
+	    	p += mask * (NBytes[i] & 0xFFL); // convert (eventually negative) byte into positive long
 	    	mask <<= 8; // mask *= 256
-	    	if (mask == 0) { // Overflow // Axel: mask == DosALa32
+	    	if (mask == 0) { // int overflow after 4 shifts
 	    		Temp[j++] = p;
 	    		mask = 1;
 		        p = 0;
@@ -665,11 +658,6 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	    }
 	    Temp[j] = p;
 	    Convert32To31Bits(Temp, TestNbr, NumberLength);
-	    if (TestNbr[NumberLength - 1] > Mi) {
-	    	TestNbr[NumberLength] = 0;
-	    	NumberLength++;
-	    }
-	    TestNbr[NumberLength] = 0;
 	    return NumberLength;
 	}
 
@@ -943,7 +931,6 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 	private void Convert32To31Bits(long[] nbr32bits, int[] nbr31bits, int NumberLength) {
 		int i, j, k;
 		j = 0;
-		nbr32bits[NumberLength] = 0;
 		for (i = 0; i < NumberLength; i++) {
 		    k = i & 0x0000001F; // k = i % 32
 			if (k == 0) {
@@ -953,6 +940,7 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 				j++;
 			}
 		}
+		nbr31bits[NumberLength] = 0;
 	}
 
 	private void DivBigNbrByLong(int Dividend[], long Divisor, int Quotient[]) {
@@ -1666,13 +1654,13 @@ public class EllipticCurveMethod2 extends FactorAlgorithm {
 				new BigInteger("101546450935661953908994991437690198927080333663460351836152986526126114727314353555755712261904130976988029406423152881932996637460315302992884162068350429"),
 				
 				// incomplete result, the factor map contains a composite
-				new BigInteger("1593332576170570774181606244493046197050984933692181475920784855223341")
+				new BigInteger("1593332576170570774181606244493046197050984933692181475920784855223341"),
 				// = 17 * 1210508704285703 * 2568160569265616473 * 30148619026320753545829271787156467
 				// but ECM fails to factor 3108780723099354807613175415185519 = 1210508704285703 * 2568160569265616473
 				// with the maximum number of curves
 				
 				// very hard for ECM, better suited for SIQS
-				//new BigInteger("1794577685365897117833870712928656282041295031283603412289229185967719140138841093599"),
+				//new BigInteger("1794577685365897117833870712928656282041295031283603412289229185967719140138841093599")
 				// = 42181796536350966453737572957846241893933 * 42543889372264778301966140913837516662044603
 		};
 		
