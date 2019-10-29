@@ -26,6 +26,10 @@ public class TDivPrimeTest {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(TDivPrimeTest.class);
 
+	private static TDivPrimeTest instance = new TDivPrimeTest();
+	public static TDivPrimeTest getInstance(){
+		return instance;
+	}
 	private static final int NUM_PRIMES_FOR_31_BIT_TDIV = 4793;
 
 	// TODO "static" leads to NPE in constructor ???
@@ -34,7 +38,7 @@ public class TDivPrimeTest {
 	private int[] primes;
 	private long[] pinv;
 	
-	public TDivPrimeTest() {
+	private TDivPrimeTest() {
 		primes = new int[NUM_PRIMES_FOR_31_BIT_TDIV];
 		pinv = new long[NUM_PRIMES_FOR_31_BIT_TDIV];
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {

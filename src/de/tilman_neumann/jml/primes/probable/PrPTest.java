@@ -63,7 +63,7 @@ public class PrPTest {
         // For small N, trial division is much faster than BPSW
         int Nbits = N.bitLength();
         if (Nbits < 32) {
-			tdiv = new TDivPrimeTest();
+			tdiv = TDivPrimeTest.getInstance();
         	return tdiv.isPrime(N.intValue());
         }
         
