@@ -90,11 +90,10 @@ public class EllipticCurveMethodTest {
 					ecm.AddBigNbr(a31, b31, c31);
 					BigInteger testSum = ecm.BigIntToBigNbr(c31);
 					if (!correctSum.equals(testSum)) {
-						LOG.error("add31 failure: correct=" + correctSum + ", add31 = " + testSum);
+						LOG.error("add31 failure: a=" + a + " + b=" + b + ": correct = " + correctSum + ", add31 = " + testSum);
 					}
 				}
 			}
-			// TODO fails for bit sizes that are multiples of 31. The result seems to be 2^bits too small always.
 		} // end_for bits
 	}
 }

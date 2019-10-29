@@ -651,7 +651,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    int mask = 1;
 	    long p = 0;
 	    for (int i = NBytes.length - 1; i >= 0; i--) {
-//			p += mask * (NBytes[i] >= 0 ? NBytes[i] : NBytes[i] + 256);
 	    	p += mask * (NBytes[i] & 0xFFL); // convert (eventually negative) byte into positive long
 	    	mask <<= 8; // mask *= 256
 	    	if (mask == 0) { // int overflow after 4 shifts
@@ -666,7 +665,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	}
 
 	public static int computeNumberLength(int bitLength) {
-		return (bitLength + 30)/31;
+		return bitLength/31 + 1;
 	}
 	
 	private static void GenerateSieve(int initial, byte[] sieve, byte[] sieve2310, int[] SmallPrime) {
