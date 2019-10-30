@@ -66,9 +66,8 @@ public class IndexSet  {
 	
 	public boolean contains(Object o) {
 		LOG.debug("contains()", new Throwable()); // never used, method untested
-		if (/*o==null ||*/ !(o instanceof Integer)) return false;
-		//int x = ((Integer)o).intValue();
-		int x = (Integer) o;
+		if (!(o instanceof Integer)) return false;
+		int x = ((Integer)o)/*.intValue()*/;
 		if (x >= numberOfBits) return false; // there is no entry as big as x
 		int longIndex = x>>6; // floor(x/64)
 		long theLong = bitArray[longIndex];

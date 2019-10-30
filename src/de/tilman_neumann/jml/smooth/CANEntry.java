@@ -45,8 +45,8 @@ public class CANEntry {
 	private CANEntry(double epsilon) {
 		this.epsilon = epsilon;
 		this.can = I_1;
-		this.primes = new ArrayList<BigInteger>();
-		this.exponents = new ArrayList<Integer>();
+		this.primes = new ArrayList<>();
+		this.exponents = new ArrayList<>();
 		this.exponentSum = 0;
 	}
 

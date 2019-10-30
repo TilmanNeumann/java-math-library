@@ -17,6 +17,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -48,11 +49,11 @@ public class JacobiTest {
 		LegendreSymbol legendreEngine = new LegendreSymbol();
 		JacobiSymbol jacobiEngine = new JacobiSymbol();
 		SecureRandom rng = new SecureRandom();
-		ArrayList<Integer> aList_int=null, pList_int=null;
+		List<Integer> aList_int=null, pList_int=null;
 		for (int bits=10; bits<100; bits+=10) {
 			// generate test numbers
-			ArrayList<BigInteger> aList = new ArrayList<BigInteger>();
-			ArrayList<BigInteger> pList = new ArrayList<BigInteger>();
+			List<BigInteger> aList = new ArrayList<>();
+			List<BigInteger> pList = new ArrayList<>();
 			for (int i=0; i<NCOUNT_CORRECTNESS; i++) {
 				aList.add(new BigInteger(bits, rng));
 			}
@@ -67,9 +68,9 @@ public class JacobiTest {
 			}
 			
 			if (bits <31) {
-				aList_int = new ArrayList<Integer>();
+				aList_int = new ArrayList<>();
 				for (BigInteger a : aList) aList_int.add(a.intValue());
-				pList_int = new ArrayList<Integer>();
+				pList_int = new ArrayList<>();
 				for (BigInteger p : pList) pList_int.add(p.intValue());
 			}
 			
@@ -112,11 +113,11 @@ public class JacobiTest {
 	
 	private static void testPerformance() {
 		SecureRandom rng = new SecureRandom();
-		ArrayList<Integer> aList_int=null, pList_int=null;
+		List<Integer> aList_int=null, pList_int=null;
 		for (int bits=10; bits<MAX_BITS; bits+=10) {
 			// generate test numbers
-			ArrayList<BigInteger> aList = new ArrayList<BigInteger>();
-			ArrayList<BigInteger> pList = new ArrayList<BigInteger>();
+			List<BigInteger> aList = new ArrayList<>();
+			List<BigInteger> pList = new ArrayList<>();
 			for (int i=0; i<NCOUNT_PERFORMANCE; i++) {
 				aList.add(new BigInteger(bits, rng));
 			}
@@ -171,9 +172,9 @@ public class JacobiTest {
 		
 			if (bits<31) {
 				// test signatures with integers, too
-				aList_int = new ArrayList<Integer>();
+				aList_int = new ArrayList<>();
 				for (BigInteger a : aList) aList_int.add(a.intValue());
-				pList_int = new ArrayList<Integer>();
+				pList_int = new ArrayList<>();
 				for (BigInteger p : pList) pList_int.add(p.intValue());
 
 				t0 = System.currentTimeMillis();

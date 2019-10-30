@@ -17,6 +17,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -69,7 +70,7 @@ abstract public class FactorAlgorithm {
 	 * @return The prime factorization of N
 	 */
 	public SortedMultiset<BigInteger> factor(BigInteger N) {
-		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<BigInteger>();
+		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
 		// first get rid of case |N|<=1:
 		if (N.abs().compareTo(I_1)<=0) {
 			// https://oeis.org/wiki/Empty_product#Prime_factorization_of_1:
@@ -133,7 +134,7 @@ abstract public class FactorAlgorithm {
 		}
 		
 		// N contains larger factors...
-		ArrayList<BigInteger> untestedFactors = new ArrayList<BigInteger>(); // faster than SortedMultiset
+		List<BigInteger> untestedFactors = new ArrayList<>(); // faster than SortedMultiset
 		untestedFactors.add(N);
 		while (untestedFactors.size()>0) {
 			N = untestedFactors.remove(untestedFactors.size()-1);

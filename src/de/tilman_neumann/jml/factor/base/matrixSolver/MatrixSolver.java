@@ -67,8 +67,8 @@ abstract public class MatrixSolver {
 		//    small primes get small indices in step 4, but experiments showed that HashMap is faster.
 		//LOG.debug("#congruences = " + congruences.size());
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		List<Smooth> congruencesCopy = new ArrayList(congruences.size());
-		Map<Integer, List<Smooth>> oddExpFactors_2_congruences = new HashMap<>();
+		ArrayList<Smooth> congruencesCopy = new ArrayList(congruences.size());
+		Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences = new HashMap<>();
 		for (Smooth congruence : congruences) {
 			congruencesCopy.add(congruence);
 			addToColumn2RowMap(congruence, oddExpFactors_2_congruences);
@@ -85,10 +85,11 @@ abstract public class MatrixSolver {
 	 * Remove singletons from <code>congruences</code>.
 	 * This can reduce the size of the equation system; actually it never diminishes the difference (#eqs - #vars).
 	 * It is very fast, too - like 60ms for a matrix for which solution via Gauss elimination takes 1 minute.
-	 *  @param congruences
-	 * @param oddExpFactors_2_congruences
+	 * 
+	 * @param congruences 
+	 * @param oddExpFactors_2_congruences 
 	 */
-	protected void removeSingletons(List<Smooth> congruences, Map<Integer, List<Smooth>> oddExpFactors_2_congruences) {
+	protected void removeSingletons(List<Smooth> congruences, Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
 		// Parse all congruences as long as we find a singleton in a complete pass
 		boolean foundSingleton;
 		do {
@@ -114,9 +115,9 @@ abstract public class MatrixSolver {
 		//LOG.debug("#congruences after removing singletons: " + congruences.size());
 	}
 	
-	private void addToColumn2RowMap(Smooth congruence, Map<Integer, List<Smooth>> oddExpFactors_2_congruences) {
+	private void addToColumn2RowMap(Smooth congruence, Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
 		for (Integer factor : congruence.getMatrixElements()) {
-			List<Smooth> congruenceList = oddExpFactors_2_congruences.get(factor);
+			ArrayList<Smooth> congruenceList = oddExpFactors_2_congruences.get(factor);
 			if (congruenceList == null) {
 				congruenceList = new ArrayList<>();
 				oddExpFactors_2_congruences.put(factor, congruenceList);
@@ -125,9 +126,9 @@ abstract public class MatrixSolver {
 		}
 	}
 	
-	private void removeFromColumn2RowMap(Smooth congruence, Map<Integer, List<Smooth>> oddExpFactors_2_congruences) {
+	private void removeFromColumn2RowMap(Smooth congruence, Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
 		for (Integer factor : congruence.getMatrixElements()) {
-			List<Smooth> congruenceList = oddExpFactors_2_congruences.get(factor);
+			ArrayList<Smooth> congruenceList = oddExpFactors_2_congruences.get(factor);
 			congruenceList.remove(congruence);
 			if (congruenceList.size()==0) {
 				// there are no more congruences with the current factor
@@ -142,7 +143,7 @@ abstract public class MatrixSolver {
 	 * @param oddExpFactors_2_congruences unsorted map from factors to the congruences in which they appear with odd exponent
 	 * @return map from factors to column indices
 	 */
-	protected Map<Integer, Integer> createFactor2ColumnIndexMap(Map<Integer, List<Smooth>> oddExpFactors_2_congruences) {
+	protected Map<Integer, Integer> createFactor2ColumnIndexMap(Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
 		int index = 0;
 		Map<Integer, Integer> factors_2_columnIndices = new HashMap<>();
 		for (Integer factor : oddExpFactors_2_congruences.keySet()) {

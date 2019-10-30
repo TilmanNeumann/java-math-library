@@ -67,7 +67,7 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 
 	// stack behaviour is faster than queue behaviour,
 	// and ArrayDeque is slightly faster than LinkedList than Stack (which extends Vector)
-	private ArrayDeque<MpiPartitionStackElem> stack = new ArrayDeque<MpiPartitionStackElem>();
+	private ArrayDeque<MpiPartitionStackElem> stack = new ArrayDeque<>();
 	private int maxStackSize = 0;
 	
 	/**
@@ -145,7 +145,7 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 	 * part = Mpi
 	 */
 	public static SortedSet<MpiPartition> partitionsOf(Mpi q) {
-		SortedSet<MpiPartition> partitions = new TreeSet<MpiPartition>(Collections.reverseOrder());
+		SortedSet<MpiPartition> partitions = new TreeSet<>(Collections.reverseOrder());
 		MpiPartitionGenerator partGen = new MpiPartitionGenerator(q);
 		while (partGen.hasNext()) {
 			Mpi[] flatPartition = partGen.next();

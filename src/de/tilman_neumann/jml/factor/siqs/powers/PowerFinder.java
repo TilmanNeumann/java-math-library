@@ -23,7 +23,7 @@ public interface PowerFinder {
 	/**
 	 * @return algorithm name
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * Find powers and add them to the prime base.

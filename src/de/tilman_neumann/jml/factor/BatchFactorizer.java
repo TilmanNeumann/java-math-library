@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
@@ -68,7 +69,7 @@ public class BatchFactorizer {
 		// We read and report all input numbers first, to be sure they were read correctly
 		// if some problem occurs in the factor tests
 		LOG.info("Reading test numbers from file " + fileName + ":");
-		ArrayList<BigInteger> testNumbers = new ArrayList<BigInteger>();
+		List<BigInteger> testNumbers = new ArrayList<>();
 		try (FileInputStream is = new FileInputStream(fileName)) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			String line = reader.readLine();

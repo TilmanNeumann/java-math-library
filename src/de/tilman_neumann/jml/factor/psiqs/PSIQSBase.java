@@ -16,6 +16,7 @@ package de.tilman_neumann.jml.factor.psiqs;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -259,7 +260,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 							// because on modern CPUs a single thread runs at a higher clock rate.
 							solverRunCount++;
 							if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
-							List<Smooth> congruences = congruenceCollector.getSmoothCongruences();
+							ArrayList<Smooth> congruences = congruenceCollector.getSmoothCongruences();
 							synchronized (aqPairBuffer) {
 								matrixSolver.solve(congruences); // throws FactorException
 							}

@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor.siqs.poly.baseFilter;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -49,7 +48,7 @@ public class BaseFilter_q2 implements BaseFilter {
 		long[] filteredPinvArrayL = solutionArrays.pinvArrayL;
 
 		// Collect q in a hash set to permit fast filtering of powers of q
-		Set<Integer> qSet = new HashSet<>();
+		HashSet<Integer> qSet = new HashSet<>();
 		for (int q : qArray) {
 			qSet.add(q);
 		}

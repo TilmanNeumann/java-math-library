@@ -15,6 +15,7 @@ package de.tilman_neumann.jml.combinatorics;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -100,7 +101,7 @@ public class Binomial {
     	int max = 10;
     	BigIntGrid grid = new BigIntGrid("n", -max, "k", -max); // works for negative k, too
     	for (int n=-max; n<=max; n++) {
-    		ArrayList<BigInteger> row = new ArrayList<>();
+    		List<BigInteger> row = new ArrayList<>();
         	for (int k=-max; k<=max; k++) {
         		row.add(binomial(n,k));
         	}

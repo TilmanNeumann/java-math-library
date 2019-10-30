@@ -15,6 +15,7 @@ package de.tilman_neumann.jml.base;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -34,7 +35,7 @@ public class BigIntTriangle {
 	private static long count = 0;
 	private static Object syncObject = new Object();
 	
-	private ArrayList<ArrayList<BigInteger>> rows = null;
+	private ArrayList<List<BigInteger>> rows = null;
 	private long id;
 	
 	/**
@@ -42,7 +43,7 @@ public class BigIntTriangle {
 	 * Rows may be added with the addRow() method.
 	 */
 	public BigIntTriangle() {
-		this.rows = new ArrayList<ArrayList<BigInteger>>();
+		this.rows = new ArrayList<>();
 		synchronized (syncObject) {
 			this.id = count++;
 		}
@@ -56,10 +57,10 @@ public class BigIntTriangle {
 	 * @param init The value with which the triangle entries are initialized.
 	 */
 	public BigIntTriangle(int n, BigInteger init) {
-		this.rows = new ArrayList<ArrayList<BigInteger>>(n);
+		this.rows = new ArrayList<>(n);
 		for (int i=0; i<n; i++) {
 			int k = i+1;
-			ArrayList<BigInteger> ithRow = new ArrayList<BigInteger>(k);
+			List<BigInteger> ithRow = new ArrayList<>(k);
 			for (int j=0; j<k; j++) {
 				ithRow.add(init);
 			}
@@ -106,7 +107,7 @@ public class BigIntTriangle {
 	 * @param n
 	 * @return n.th row
 	 */
-	public ArrayList<BigInteger> getRow(int n) {
+	public List<BigInteger> getRow(int n) {
 		return rows.get(n-1);
 	}
 	
@@ -128,9 +129,9 @@ public class BigIntTriangle {
 	/**
 	 * @return List of row sums of this triangle.
 	 */
-	public ArrayList<BigInteger> getRowSums() {
+	public List<BigInteger> getRowSums() {
 		int n = rows.size();
-		ArrayList<BigInteger> rowSums = new ArrayList<BigInteger>(n);
+		List<BigInteger> rowSums = new ArrayList<>(n);
 		for (int m=1;m<=n;m++) {
 			BigInteger rowSum = getRowSum(m);
 			rowSums.add(rowSum);
@@ -142,10 +143,10 @@ public class BigIntTriangle {
 	 * @return This triangle converted into a list read by rows.
 	 * Better suited for OEIS lookups.
 	 */
-	public ArrayList<BigInteger> toList() {
+	public List<BigInteger> toList() {
 		int n = rows.size();
 		int number = n*(n+1)/2;
-		ArrayList<BigInteger> list = new ArrayList<BigInteger>(number);
+		List<BigInteger> list = new ArrayList<>(number);
 		for (int m=1;m<=n;m++) {
 			for (int k=1;k<=m;k++) {
 				BigInteger entry = this.get(m, k);
@@ -163,7 +164,7 @@ public class BigIntTriangle {
 			maxWidth += elem.toString().length();
 		}
 		StringBuffer buf = new StringBuffer();
-		for (ArrayList<BigInteger> row : rows) {
+		for (List<BigInteger> row : rows) {
 			StringBuffer rowBuf = new StringBuffer();
 			for (BigInteger elem : row) {
 				rowBuf.append(elem.toString() + " ");

@@ -24,7 +24,7 @@ public enum SortOrder {
     
     private int multiplier;
     
-    private SortOrder(int multiplier) {
+    SortOrder(int multiplier) {
     	this.multiplier = multiplier;
     }
     

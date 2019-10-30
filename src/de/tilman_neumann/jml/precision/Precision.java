@@ -111,7 +111,7 @@ public class Precision implements Comparable<Precision> {
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o==null || !(o instanceof Precision)) return false;
+		if (!(o instanceof Precision)) return false;
 		return this.digits == ((Precision) o).digits;
 	}
 

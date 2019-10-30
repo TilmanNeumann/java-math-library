@@ -34,7 +34,7 @@ public class SHCNIterator {
 	private static final boolean DEBUG = false;
 	
 	private SHCNEntry last = null;
-	private TreeMap<Integer, SHCNEntry> exponentSum_2_shcnEntries = new TreeMap<Integer, SHCNEntry>();
+	private TreeMap<Integer, SHCNEntry> exponentSum_2_shcnEntries = new TreeMap<>();
 	
 	/**
 	 * @return next SHCN

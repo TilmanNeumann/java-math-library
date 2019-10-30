@@ -196,8 +196,8 @@ public class HarmonicNumbers {
 	}
 
 	private static void print(BigRational[][] arr) {
-		for (int i=0;i<arr.length; i++) {
-			print(arr[i]);
+		for (BigRational[] bigRationals : arr) {
+			print(bigRationals);
 		}
 	}
 	

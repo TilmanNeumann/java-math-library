@@ -85,7 +85,7 @@ public class NextProbablePrimeTest {
 			}
 
 			long startMillis, duration;
-			TreeMap<Long, List<String>> duration_2_algLists = new TreeMap<Long, List<String>>();
+			TreeMap<Long, List<String>> duration_2_algLists = new TreeMap<>();
 
 			// test BPSW
 			startMillis = System.currentTimeMillis();
@@ -110,7 +110,7 @@ public class NextProbablePrimeTest {
 	
 	private static void addToMap(TreeMap<Long, List<String>> duration_2_algLists, Long duration, String algStr) {
 		List<String> algList = duration_2_algLists.get(duration);
-		if (algList==null) algList = new ArrayList<String>();
+		if (algList==null) algList = new ArrayList<>();
 		algList.add(algStr);
 		duration_2_algLists.put(duration, algList);
 	}

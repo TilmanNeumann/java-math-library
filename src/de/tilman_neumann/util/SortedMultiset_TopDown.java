@@ -172,7 +172,7 @@ public class SortedMultiset_TopDown<T extends Comparable<T>> extends TreeMap<T, 
 	}
 
 	public SortedMultiset<T> intersect(Multiset<T> other) {
-		SortedMultiset<T> resultset = new SortedMultiset_TopDown<T>();
+		SortedMultiset<T> resultset = new SortedMultiset_TopDown<>();
 		if (other != null) {
 			for (Map.Entry<T, Integer> myEntry: this.entrySet()) {
 				int myMult = myEntry.getValue().intValue();
@@ -208,7 +208,7 @@ public class SortedMultiset_TopDown<T extends Comparable<T>> extends TreeMap<T, 
 	}
 	
 	public List<T> toList() {
-		List<T> flatList = new ArrayList<T>(totalCount);
+		List<T> flatList = new ArrayList<>(totalCount);
 		for (Map.Entry<T, Integer> entry : this.entrySet()) {
 			T value = entry.getKey();
 			int multiplicity = entry.getValue().intValue();
@@ -270,7 +270,7 @@ public class SortedMultiset_TopDown<T extends Comparable<T>> extends TreeMap<T, 
 	 * these elements the same multiplicity.
 	 */
 	public boolean equals(Object o) {
-		if (o!=null && o instanceof SortedMultiset) {
+		if (o instanceof SortedMultiset) {
 			@SuppressWarnings("unchecked")
 			SortedMultiset<T> other = (SortedMultiset<T>) o;
 			if (this.totalCount != other.totalCount()) return false;

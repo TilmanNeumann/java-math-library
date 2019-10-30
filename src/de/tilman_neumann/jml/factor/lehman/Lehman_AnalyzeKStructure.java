@@ -211,7 +211,7 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 			LOG.info("");
 			for (int i=0; i<10; i++) {
 				LOG.info("Analyze progressions for " + (30+i) + " bit numbers:");
-				TreeMap<Integer, List<Progression>> successRate2Progressions = new TreeMap<Integer, List<Progression>>(Collections.reverseOrder());
+				TreeMap<Integer, List<Progression>> successRate2Progressions = new TreeMap<>(Collections.reverseOrder());
 				for (int j=1; j<1000; j++) {
 					analyzeProgression(j, 2*j, i, successRate2Progressions);
 					analyzeProgression(2*j, 2*j, i, successRate2Progressions);
@@ -243,7 +243,7 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 		//LOG.info("    Progression " + step + "*m + " + start + ": Avg. successes = " + avgSuccessCount + ", #tests = " + numCount);
 		
 		List<Progression> progressions = successRate2Progressions.get(avgSuccessCount);
-		if (progressions == null) progressions = new ArrayList<Progression>();
+		if (progressions == null) progressions = new ArrayList<>();
 		progressions.add(new Progression(start, step));
 		successRate2Progressions.put(avgSuccessCount, progressions);
 	}

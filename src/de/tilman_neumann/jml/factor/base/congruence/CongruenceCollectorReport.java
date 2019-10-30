@@ -66,7 +66,7 @@ public class CongruenceCollectorReport {
 	public String getSmoothBigFactorPercentiles() {
 		int[] percentiles = new int[] {80, 90, 95, 98, 99};
 		int totalFactor4SmoothCount = oddExpBigFactorSizes4Smooth.totalCount();
-		Map<Integer, Integer> resultMap = new TreeMap<>();
+		TreeMap<Integer, Integer> resultMap = new TreeMap<>();
 		for (int percentile : percentiles) {
 			int requiredCount = (int) Math.ceil((totalFactor4SmoothCount * percentile) / 100.0);
 			int count = 0;

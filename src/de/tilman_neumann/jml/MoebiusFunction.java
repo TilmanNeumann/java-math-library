@@ -15,6 +15,7 @@ package de.tilman_neumann.jml;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -88,7 +89,7 @@ public class MoebiusFunction {
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
     	int nMax = 100;
-		ArrayList<Integer> results = new ArrayList<>();
+		List<Integer> results = new ArrayList<>();
 		for (int n=1; n<nMax; n++) {
 			BigInteger bigN = BigInteger.valueOf(n);
 			results.add(moebius(bigN));

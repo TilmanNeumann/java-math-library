@@ -37,7 +37,7 @@ public class PowerEntry implements Comparable<PowerEntry> {
 	
 	@Override
 	public boolean equals(Object o) {
-		if (/*o==null ||*/ !(o instanceof PowerEntry)) return false;
+		if (!(o instanceof PowerEntry)) return false;
 		return power == ((PowerEntry)o).power;
 	}
 	

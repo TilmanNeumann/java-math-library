@@ -43,8 +43,8 @@ public class SHCNEntry {
 	private SHCNEntry(double x) {
 		this.x = x;
 		this.shcn = I_1;
-		this.primes = new ArrayList<BigInteger>();
-		this.exponents = new ArrayList<Integer>();
+		this.primes = new ArrayList<>();
+		this.exponents = new ArrayList<>();
 		this.exponentSum = 0;
 	}
 

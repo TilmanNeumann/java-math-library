@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor.siqs.poly.baseFilter;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -51,12 +50,12 @@ public class BaseFilter_qk implements BaseFilter {
 		int lastqIndex = -1;
 		
 		// Collect q in a hash set to permit fast filtering of powers of q
-		Set<Integer> qSet = new HashSet<>();
+		HashSet<Integer> qSet = new HashSet<>();
 		for (int q : qArray) {
 			qSet.add(q);
 		}
 		
-		Set<Integer> filteredOutBaseElementsSet = new TreeSet<>();
+		TreeSet<Integer> filteredOutBaseElementsSet = new TreeSet<>();
 		for (int i=0; i<mergedBaseSize; i++) {
 			int p = mergedPrimes[i];
 			if (qSet.contains(p) || k%p==0) {
@@ -103,8 +102,7 @@ public class BaseFilter_qk implements BaseFilter {
 		int[] filteredOutBaseElements = new int[filteredOutBaseElementsSet.size()];
 		int i=0;
 		for (Integer filteredOutBaseElement : filteredOutBaseElementsSet) {
-			//filteredOutBaseElements[i++] = filteredOutBaseElement.intValue();
-			filteredOutBaseElements[i++] = filteredOutBaseElement;
+			filteredOutBaseElements[i++] = filteredOutBaseElement/*.intValue()*/;
 		}
 		
 		// return results

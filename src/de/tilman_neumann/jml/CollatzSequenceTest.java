@@ -44,14 +44,14 @@ public class CollatzSequenceTest {
 	private static void test3nPlus1DroppingSequence() {
 		TreeSet<Integer> lengths = new TreeSet<>();
 		int maxLength = 0;
-		ArrayList<Integer> recordLengths = new ArrayList<Integer>();
-		ArrayList<BigInteger> recordLengthsN = new ArrayList<BigInteger>();
+		List<Integer> recordLengths = new ArrayList<>();
+		List<BigInteger> recordLengthsN = new ArrayList<>();
 		// convention: length(1)=0
 		recordLengths.add(0);
 		recordLengthsN.add(I_1);
 		
 		// analyze the length of all dropping sequences, arranged by length
-		TreeMap<Integer, ArrayList<BigInteger>> length2NStartList = new TreeMap<Integer, ArrayList<BigInteger>>();
+		TreeMap<Integer, ArrayList<BigInteger>> length2NStartList = new TreeMap<>();
 		
 		// Define arithmetic progressions of dropping sequences: progr(mul, add) = {mul*n+add, n=0,1,2,...}
 		// Then we analyze the maximal length of sequences of progression progr(mul, add).
@@ -59,12 +59,12 @@ public class CollatzSequenceTest {
 		// Progressions that do not have a small maximal length are called "unbounded".
 		// Finally we analyze the counts of unbounded progressions for sets {progr(mul, add), add=0..(mul-1)}
 		// The smallest numbers of unbounded proressions ar achieved for mul being powers of 2.
-		TreeMap<Integer, TreeMap<Integer, Integer>> progressionToMaxLength = new TreeMap<Integer, TreeMap<Integer, Integer>>();
+		TreeMap<Integer, TreeMap<Integer, Integer>> progressionToMaxLength = new TreeMap<>();
 		
 		HashSet<BigInteger> resolved = new HashSet<>();
 		resolved.add(I_1);
 		for (int i=2; i<N_COUNT; i++) {
-			ArrayList<BigInteger> sequence = new ArrayList<>();
+			List<BigInteger> sequence = new ArrayList<>();
 			BigInteger nStart = BigInteger.valueOf(i);
 			BigInteger n = nStart;
 			sequence.add(n);
@@ -111,14 +111,14 @@ public class CollatzSequenceTest {
 	private static void test3nPlus1RepeatSequence() {
 		TreeSet<Integer> lengths = new TreeSet<>();
 		int maxLength = 0;
-		ArrayList<Integer> recordLengths = new ArrayList<Integer>();
-		ArrayList<BigInteger> recordLengthsN = new ArrayList<BigInteger>();
+		List<Integer> recordLengths = new ArrayList<>();
+		List<BigInteger> recordLengthsN = new ArrayList<>();
 		// convention: length(1)=0
 		recordLengths.add(0);
 		recordLengthsN.add(I_1);
 		
 		// analyze the length of all repeat sequences, arranged by length
-		TreeMap<Integer, ArrayList<BigInteger>> length2NStartList = new TreeMap<Integer, ArrayList<BigInteger>>();
+		TreeMap<Integer, ArrayList<BigInteger>> length2NStartList = new TreeMap<>();
 
 		// Define arithmetic progressions of "repeat" sequences: progr(mul, add) = {mul*n+add, n=0,1,2,...}
 		// Then we analyze the maximal length of sequences of progression progr(mul, add).
@@ -126,12 +126,12 @@ public class CollatzSequenceTest {
 		// Progressions that do not have a small maximal length are called "unbounded".
 		// Finally we analyze the counts of unbounded progressions for sets {progr(mul, add), add=0..(mul-1)}
 		// The smallest numbers of unbounded progressions are achieved for mul of the form 2^r*3^s, s small.
-		TreeMap<Integer, TreeMap<Integer, Integer>> progressionToMaxLength = new TreeMap<Integer, TreeMap<Integer, Integer>>();
+		TreeMap<Integer, TreeMap<Integer, Integer>> progressionToMaxLength = new TreeMap<>();
 
 		HashSet<BigInteger> resolved = new HashSet<>();
 		resolved.add(I_1);
 		for (int i=2; i<N_COUNT; i++) {
-			ArrayList<BigInteger> sequence = new ArrayList<>();
+			List<BigInteger> sequence = new ArrayList<>();
 			BigInteger nStart = BigInteger.valueOf(i);
 			BigInteger n = nStart;
 			sequence.add(n);
@@ -173,7 +173,7 @@ public class CollatzSequenceTest {
 	
 	private static void addToLength2NMap(TreeMap<Integer, ArrayList<BigInteger>> length2NList, int length, BigInteger nStart) {
 		ArrayList<BigInteger> nList = length2NList.get(length);
-		if (nList==null) nList = new ArrayList<BigInteger>();
+		if (nList==null) nList = new ArrayList<>();
 		nList.add(nStart);
 		length2NList.put(length, nList);
 	}
@@ -195,7 +195,7 @@ public class CollatzSequenceTest {
 	
 	private static int findPeriod(ArrayList<BigInteger> nList) {
 		int nCount = nList.size();
-		ArrayList<BigInteger> diffs = new ArrayList<BigInteger>();
+		List<BigInteger> diffs = new ArrayList<>();
 		for (int i=1; i<nCount; i++) {
 			diffs.add(nList.get(i).subtract(nList.get(i-1)));
 		}
@@ -222,7 +222,7 @@ public class CollatzSequenceTest {
 		for (int mul=START_PROGRESSION; mul<=MAX_PROGRESSION; mul<<=1) {
 			int add = nStart.mod(BigInteger.valueOf(mul)).intValue();
 			TreeMap<Integer, Integer> add2MaxLength = progressionToMaxLength.get(mul);
-			if (add2MaxLength==null) add2MaxLength = new TreeMap<Integer, Integer>();
+			if (add2MaxLength==null) add2MaxLength = new TreeMap<>();
 			Integer maxLength = add2MaxLength.get(add);
 			if (maxLength==null || length > maxLength) {
 				add2MaxLength.put(add, length);
@@ -232,10 +232,10 @@ public class CollatzSequenceTest {
 	}
 	
 	private static void analyzeProgressions(TreeMap<Integer, TreeMap<Integer, Integer>> progressionToMaxLength) {
-		ArrayList<Integer> unboundedProgressionCounts = new ArrayList<Integer>();
+		List<Integer> unboundedProgressionCounts = new ArrayList<>();
 		for (Integer mul : progressionToMaxLength.keySet()) {
 			// Find maximal bounded maxLength for arithmetic progressions with given multiplier
-			TreeSet<Integer> maxLengths = new TreeSet<Integer>();
+			TreeSet<Integer> maxLengths = new TreeSet<>();
 			for (Map.Entry<Integer, Integer> add2MaxLength : progressionToMaxLength.get(mul).entrySet()) {
 				maxLengths.add(add2MaxLength.getValue());
 			}

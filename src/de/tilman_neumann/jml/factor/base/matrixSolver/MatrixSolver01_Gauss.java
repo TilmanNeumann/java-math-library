@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -81,7 +80,7 @@ public class MatrixSolver01_Gauss extends MatrixSolver {
 					if (row.isNullVector()) {
 						//LOG.debug("solve(): 5: Found null-vector: " + row);
 						// Found null vector -> recover the set of AQ-pairs from its row index history
-						Set<AQPair> totalAQPairs = new HashSet<>(); // Set required for the "xor"-operation below
+						HashSet<AQPair> totalAQPairs = new HashSet<>(); // Set required for the "xor"-operation below
 						for (int rowIndex : row.getRowIndexHistoryAsList()) {
 							Smooth congruence = congruences.get(rowIndex);
 							// add the new AQ-pairs via "xor"

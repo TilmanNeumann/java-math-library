@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -37,7 +36,7 @@ public class PartialSolver {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(PartialSolver.class);
 
-	private List<Smooth> foundSmoothCongruences;
+	private ArrayList<Smooth> foundSmoothCongruences;
 	
 	public String getName() {
 		return "PartialSolver";
@@ -48,7 +47,7 @@ public class PartialSolver {
 	 * @param congruences the partial congruence equation system
 	 * @return list of smooth congruences found
 	 */
-	public List<Smooth> solve(Collection<? extends Partial> congruences) {
+	public ArrayList<Smooth> solve(Collection<? extends Partial> congruences) {
 		foundSmoothCongruences = new ArrayList<>();
 		
 		// 1. Create
@@ -57,8 +56,8 @@ public class PartialSolver {
 		//    small primes get small indices in step 4, but experiments showed that HashMap is faster.
 		//LOG.debug("#congruences = " + congruences.size());
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		List<Partial> congruencesCopy = new ArrayList(congruences.size());
-		Map<Long, List<Partial>> largeFactors_2_partials = new HashMap<>();
+		ArrayList<Partial> congruencesCopy = new ArrayList(congruences.size());
+		Map<Long, ArrayList<Partial>> largeFactors_2_partials = new HashMap<>();
 		for (Partial congruence : congruences) {
 			congruencesCopy.add(congruence);
 			addToColumn2RowMap(congruence, largeFactors_2_partials);
@@ -77,10 +76,11 @@ public class PartialSolver {
 	 * Remove singletons from <code>congruences</code>.
 	 * This can reduce the size of the equation system; actually it never diminishes the difference (#eqs - #vars).
 	 * It is very fast, too - like 60ms for a matrix for which solution via Gauss elimination takes 1 minute.
-	 *  @param congruences
-	 * @param largeFactors_2_partials
+	 * 
+	 * @param congruences 
+	 * @param largeFactors_2_partials 
 	 */
-	protected void removeSingletons(List<Partial> congruences, Map<Long, List<Partial>> largeFactors_2_partials) {
+	protected void removeSingletons(List<Partial> congruences, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
 		// Parse all congruences as long as we find a singleton in a complete pass
 		boolean foundSingleton;
 		do {
@@ -105,20 +105,20 @@ public class PartialSolver {
 		//LOG.debug("#congruences after removing singletons: " + congruences.size());
 	}
 	
-	private void addToColumn2RowMap(Partial congruence, Map<Long, List<Partial>> largeFactors_2_partials) {
+	private void addToColumn2RowMap(Partial congruence, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
 		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
-			List<Partial> congruenceList = largeFactors_2_partials.get(factor);
+			ArrayList<Partial> congruenceList = largeFactors_2_partials.get(factor);
 			if (congruenceList == null) {
-				congruenceList = new ArrayList<Partial>();
+				congruenceList = new ArrayList<>();
 				largeFactors_2_partials.put(factor, congruenceList);
 			}
 			congruenceList.add(congruence);
 		}
 	}
 	
-	private void removeFromColumn2RowMap(Partial congruence, Map<Long, List<Partial>> largeFactors_2_partials) {
+	private void removeFromColumn2RowMap(Partial congruence, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
 		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
-			List<Partial> congruenceList = largeFactors_2_partials.get(factor);
+			ArrayList<Partial> congruenceList = largeFactors_2_partials.get(factor);
 			congruenceList.remove(congruence);
 			if (congruenceList.size()==0) {
 				// there are no more congruences with the current factor
@@ -133,7 +133,7 @@ public class PartialSolver {
 	 * @param factors_2_partials unsorted map from factors to the congruences in which they appear with odd exponent
 	 * @return map from factors to column indices
 	 */
-	protected Map<Long, Integer> createFactor2ColumnIndexMap(Map<Long, List<Partial>> factors_2_partials) {
+	protected Map<Long, Integer> createFactor2ColumnIndexMap(Map<Long, ArrayList<Partial>> factors_2_partials) {
 		int index = 0;
 		Map<Long, Integer> factors_2_columnIndices = new HashMap<>();
 		for (Long factor : factors_2_partials.keySet()) {
@@ -187,7 +187,7 @@ public class PartialSolver {
 					if (row.isNullVector()) {
 						//LOG.debug("solve(): 5: Found null-vector: " + row);
 						// Found null vector -> recover the set of AQ-pairs from its row index history
-						Set<AQPair> totalAQPairs = new HashSet<>(); // Set required for the "xor"-operation below
+						HashSet<AQPair> totalAQPairs = new HashSet<>(); // Set required for the "xor"-operation below
 						for (int rowIndex : row.getRowIndexHistoryAsList()) {
 							Partial congruence = congruences.get(rowIndex);
 							// add the new partial via "xor"

@@ -34,7 +34,7 @@ public class CANIterator {
 	private static final boolean DEBUG = false;
 	
 	private CANEntry last = null;
-	private TreeMap<Integer, CANEntry> exponentSum_2_canEntries = new TreeMap<Integer, CANEntry>();
+	private TreeMap<Integer, CANEntry> exponentSum_2_canEntries = new TreeMap<>();
 	
 	/**
 	 * @return next CAN

@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -249,7 +250,7 @@ public class PurePowerTest {
 	   	SecureRandom rng = new SecureRandom();
 	   	for (int bits=10; bits<=50; bits+=5) {
 	   		LOG.info("Test correctness with " + nCount + " " + bits + "-bit numbers");
-		   	ArrayList<BigInteger> testSet = new ArrayList<BigInteger>();
+		   	List<BigInteger> testSet = new ArrayList<>();
 		   	for (int i=0; i<nCount; i++) {
 		   		testSet.add(new BigInteger(bits, rng));
 		   	}
@@ -274,7 +275,7 @@ public class PurePowerTest {
 	   	// create test set for performance test
 	   	SecureRandom rng = new SecureRandom();
 	   	for (int bits=50; ; bits+=50) {
-		   	ArrayList<BigInteger> testSet = new ArrayList<BigInteger>();
+		   	List<BigInteger> testSet = new ArrayList<>();
 		   	for (int i=0; i<nCount; i++) {
 		   		testSet.add(new BigInteger(bits, rng));
 		   	}

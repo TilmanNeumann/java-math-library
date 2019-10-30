@@ -66,7 +66,7 @@ public class PrimeGapTest implements SieveCallback {
 	private int highestRankUpdate = Integer.MAX_VALUE;
 
 	public PrimeGapTest(long limit) {
-		stack = new Stack<StackElement>();
+		stack = new Stack<>();
 		sieve = new SegmentedSieve(this);
 		this.limit = limit;
 	}

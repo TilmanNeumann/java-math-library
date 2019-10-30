@@ -17,6 +17,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -92,7 +93,7 @@ public class KnuthSchroeppel_CFrac {
 		
 		// From the following list we will remove the indices of any k that have been completely evaluated.
 		// ArrayList performs better than LinkedList, even with that many remove() operations.
-		ArrayList<Integer> kIndexList = new ArrayList<Integer>(kCount);
+		List<Integer> kIndexList = new ArrayList<>(kCount);
 		for (int kIndex=0; kIndex<kCount; kIndex++) kIndexList.add(kIndex);
 		
 		// target: map of f-values to k, sorted by f-values top-down

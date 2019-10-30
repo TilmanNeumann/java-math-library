@@ -54,7 +54,7 @@ public class MpiPowerMap extends HashMap<Mpi, TreeMap<Mpi, Mpi>>{
 		super();
 		this.dim = dim;
 		if (logAccesses) {
-			this.accessLog = new HashMap<Mpi, Multiset<Mpi>>();
+			this.accessLog = new HashMap<>();
 		}
 	}
 	
@@ -76,7 +76,7 @@ public class MpiPowerMap extends HashMap<Mpi, TreeMap<Mpi, Mpi>>{
 	private TreeMap<Mpi, Mpi> addSubvalues(Mpi r) {
 		TreeMap<Mpi, Mpi> result = super.get(r); // avoid access log
 		if (result==null) {
-			result = new TreeMap<Mpi, Mpi>();
+			result = new TreeMap<>();
 			
 			// end of recursion
 			if (r.getCardinality()==2) {
@@ -128,7 +128,7 @@ public class MpiPowerMap extends HashMap<Mpi, TreeMap<Mpi, Mpi>>{
 		if (logAccesses) {
 			Multiset<Mpi> biggestElems = accessLog.get(x);
 			if (biggestElems==null) {
-				biggestElems = new Multiset_HashMapImpl<Mpi>();
+				biggestElems = new Multiset_HashMapImpl<>();
 			}
 			biggestElems.add(biggestElem);
 			accessLog.put(x, biggestElems);

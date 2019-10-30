@@ -18,6 +18,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -64,8 +65,8 @@ public class Divisors {
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
 	@SuppressWarnings("unused")
-	private static ArrayList<BigInteger> getDivisors_v1(BigInteger n) {
-		ArrayList<BigInteger> divisors = new ArrayList<BigInteger>();
+	private static List<BigInteger> getDivisors_v1(BigInteger n) {
+		List<BigInteger> divisors = new ArrayList<>();
 		divisors.add(I_1);
 		BigInteger test = I_2;
 		while (test.compareTo(n) < 0) {
@@ -89,13 +90,13 @@ public class Divisors {
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
 	@SuppressWarnings("unused")
-	private static ArrayList<BigInteger> getDivisors_v2(BigInteger n) {
+	private static List<BigInteger> getDivisors_v2(BigInteger n) {
 		// all divisors <= sqrt(n)
-		ArrayList<BigInteger> smallDivisors = getSmallDivisors_v1(n);
+		List<BigInteger> smallDivisors = getSmallDivisors_v1(n);
 		if (n.equals(I_1)) return smallDivisors; // avoid double entry of 1
 		
 		// copy small divisors
-		ArrayList<BigInteger> allDivisors = new ArrayList<BigInteger>(smallDivisors);
+		List<BigInteger> allDivisors = new ArrayList<>(smallDivisors);
 		// reverse iteration, add N/smallDivisor for all small divisors
 		int i = smallDivisors.size()-1;
 		if (i>-1) {
@@ -133,19 +134,19 @@ public class Divisors {
 	private static SortedSet<BigInteger> getDivisorsTopDown(SortedMap<BigInteger, Integer> factors) {
 		if (factors.size()==0) return ONE_AS_SET; // n=1 has factor set {}
 		
-		ArrayList<BigInteger> primes = new ArrayList<>();
-		ArrayList<Integer> powers = new ArrayList<>();
+		List<BigInteger> primes = new ArrayList<>();
+		List<Integer> powers = new ArrayList<>();
 		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
 			primes.add(entry.getKey());
 			powers.add(entry.getValue());
 		}
 
-		TreeSet<BigInteger> divisors = new TreeSet<BigInteger>();
+		TreeSet<BigInteger> divisors = new TreeSet<>();
 		if (primes.size()==0 || (primes.size()==1 && primes.get(0).equals(I_0))) {
 			return divisors;
 		}
 		
-		Stack<ArrayList<Integer>> stack = new Stack<ArrayList<Integer>>();
+		Stack<List<Integer>> stack = new Stack<>();
 		stack.push(powers);
 		while (!stack.isEmpty()) {
 			powers = stack.pop();
@@ -161,7 +162,7 @@ public class Divisors {
 				for (int i=0; i<powers.size(); i++) {
 					int power = powers.get(i);
 					// create new entry
-					ArrayList<Integer> reducedPowers = new ArrayList<Integer>(powers); // copy
+					List<Integer> reducedPowers = new ArrayList<>(powers); // copy
 					reducedPowers.set(i, power-1);
 					stack.push(reducedPowers);
 				}
@@ -178,27 +179,27 @@ public class Divisors {
 	public static SortedSet<BigInteger> getDivisors/*BottomUp*/(SortedMap<BigInteger, Integer> factors) {
 		if (factors.size()==0) return ONE_AS_SET; // n=1 has factor set {}
 		
-		ArrayList<BigInteger> primes = new ArrayList<>();
-		ArrayList<Integer> maxPowers = new ArrayList<>();
+		List<BigInteger> primes = new ArrayList<>();
+		List<Integer> maxPowers = new ArrayList<>();
 		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
 			primes.add(entry.getKey());
 			maxPowers.add(entry.getValue());
 		}
 
-		TreeSet<BigInteger> divisors = new TreeSet<BigInteger>();
+		TreeSet<BigInteger> divisors = new TreeSet<>();
 		if (primes.size()==0 || (primes.size()==1 && primes.get(0).equals(I_0))) {
 			return divisors;
 		}
 		
-		Stack<ArrayList<Integer>> stack = new Stack<ArrayList<Integer>>();
-		ArrayList<Integer> emptyPowers = new ArrayList<Integer>();
+		Stack<List<Integer>> stack = new Stack<>();
+		List<Integer> emptyPowers = new ArrayList<>();
 		for (int i=0; i<maxPowers.size(); i++) {
 			emptyPowers.add(0);
 		}
 		stack.push(emptyPowers);
 		
 		while (!stack.isEmpty()) {
-			ArrayList<Integer> powers = stack.pop();
+			List<Integer> powers = stack.pop();
 			// compute divisor from stack element
 			BigInteger divisor = I_1;
 			for (int i=0; i<powers.size(); i++) {
@@ -214,7 +215,7 @@ public class Divisors {
 					int power = powers.get(i);
 					if (power < maxPower) {
 						// create new entry
-						ArrayList<Integer> enhancedPowers = new ArrayList<Integer>(powers); // copy
+						List<Integer> enhancedPowers = new ArrayList<>(powers); // copy
 						enhancedPowers.set(i, power+1);
 						stack.push(enhancedPowers);
 					}
@@ -247,10 +248,10 @@ public class Divisors {
 	 * @param n
 	 * @return all divisors d of n with d <= lower(sqrt(n)).
 	 */
-	public static ArrayList<BigInteger> getSmallDivisors_v1(BigInteger n) {
+	public static List<BigInteger> getSmallDivisors_v1(BigInteger n) {
 		BigInteger d_max = SqrtInt.iSqrt(n)[0];
 		//LOG.debug("n=" + n + ", d_max=" + d_max);
-		ArrayList<BigInteger> smallDivisors = new ArrayList<BigInteger>();
+		List<BigInteger> smallDivisors = new ArrayList<>();
 		for (BigInteger d=I_1; d.compareTo(d_max)<=0; d=d.add(I_1)) {
 			if (n.mod(d).equals(I_0)) {
 				// found small divisor
@@ -279,27 +280,27 @@ public class Divisors {
 		
 		BigInteger d_max = SqrtInt.iSqrt(n)[0];
 		
-		ArrayList<BigInteger> primes = new ArrayList<>();
-		ArrayList<Integer> maxPowers = new ArrayList<>();
+		List<BigInteger> primes = new ArrayList<>();
+		List<Integer> maxPowers = new ArrayList<>();
 		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
 			primes.add(entry.getKey());
 			maxPowers.add(entry.getValue());
 		}
 
-		TreeSet<BigInteger> divisors = new TreeSet<BigInteger>();
+		TreeSet<BigInteger> divisors = new TreeSet<>();
 		if (primes.size()==0 || (primes.size()==1 && primes.get(0).equals(I_0))) {
 			return divisors;
 		}
 		
-		Stack<ArrayList<Integer>> stack = new Stack<ArrayList<Integer>>();
-		ArrayList<Integer> emptyPowers = new ArrayList<Integer>();
+		Stack<List<Integer>> stack = new Stack<>();
+		List<Integer> emptyPowers = new ArrayList<>();
 		for (int i=0; i<maxPowers.size(); i++) {
 			emptyPowers.add(0);
 		}
 		stack.push(emptyPowers);
 		
 		while (!stack.isEmpty()) {
-			ArrayList<Integer> powers = stack.pop();
+			List<Integer> powers = stack.pop();
 			// compute divisor from stack element
 			BigInteger divisor = I_1;
 			for (int i=0; i<powers.size(); i++) {
@@ -316,7 +317,7 @@ public class Divisors {
 						int power = powers.get(i);
 						if (power < maxPower) {
 							// create new entry
-							ArrayList<Integer> enhancedPowers = new ArrayList<Integer>(powers); // copy
+							List<Integer> enhancedPowers = new ArrayList<>(powers); // copy
 							enhancedPowers.set(i, power+1);
 							stack.push(enhancedPowers);
 						}
@@ -362,7 +363,7 @@ public class Divisors {
 	 * @return sum of divisors
 	 */
 	public static BigInteger sumOfDivisors(SortedMap<BigInteger, Integer> factors) {
-		ArrayList<BigInteger> entrySums = new ArrayList<BigInteger>();
+		List<BigInteger> entrySums = new ArrayList<>();
 		
 		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
 			// entry sum: if the entry is 3^4, then the entry sum is S(3,4) = 3^0 + 3^1 + 3^2 + 3^3 + 3^4.
@@ -586,7 +587,7 @@ public class Divisors {
 		
 		for (int bits = 15; bits<32; bits++) { // getBiggestDivisorBelowSqrtN_small() needs int arguments
 			// create test set
-			ArrayList<BigInteger> testSet = new ArrayList<>();
+			List<BigInteger> testSet = new ArrayList<>();
 			for (int i=0; i<NCOUNT; ) {
 				BigInteger n = new BigInteger(bits, rng);
 				if (n.compareTo(I_0)>0) {

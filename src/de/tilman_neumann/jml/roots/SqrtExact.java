@@ -70,7 +70,7 @@ public class SqrtExact {
 	// add mod 97 (49 square rests) -> ~ 0.0% possible squares
 	
 	private static HashSet<Integer> toHashSet(int[] arr) {
-		HashSet<Integer> hashset = new HashSet<Integer>(arr.length<<1); // sparse hashset -> less entries per list -> faster lookup!
+		HashSet<Integer> hashset = new HashSet<>(arr.length << 1); // sparse hashset -> less entries per list -> faster lookup!
 		for (int i : arr) hashset.add(i);
 		return hashset;
 	}

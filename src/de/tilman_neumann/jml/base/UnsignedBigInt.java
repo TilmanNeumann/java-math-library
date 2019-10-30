@@ -276,7 +276,7 @@ public class UnsignedBigInt {
     
     @Override
     public boolean equals(Object o) {
-    	if (o==null || !(o instanceof UnsignedBigInt)) return false;
+    	if (!(o instanceof UnsignedBigInt)) return false;
     	UnsignedBigInt other = (UnsignedBigInt) o;
     	if (intLength!=other.intLength) return false;
     	for (int i=intLength-1; i>=0; i--) {

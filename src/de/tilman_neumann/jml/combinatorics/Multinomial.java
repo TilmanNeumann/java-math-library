@@ -30,17 +30,17 @@ public class Multinomial {
 	 * @param N Category counts.
 	 * @return (N1+...+Nk) choose (N1, ..., Nk)
 	 */
-	public static BigInteger multinomial(int N[]) {
+	public static BigInteger multinomial(int[] N) {
 		// get dimension
 		int k = N.length;
 	
 		// get total count
 		int Nall = 0;
-		for (int i = 0; i<k; i++) Nall += N[i];
+		for (int item : N) Nall += item;
 	
 		// calculate the multinomial
 		BigInteger ret = Factorial.factorial(Nall);
-		for (int i=0; i<k; i++) ret = ret.divide(Factorial.factorial(N[i]));
+		for (int value : N) ret = ret.divide(Factorial.factorial(value));
 	
 		// return the result
 		return ret;

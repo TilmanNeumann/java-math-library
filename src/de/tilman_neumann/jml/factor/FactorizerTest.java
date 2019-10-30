@@ -17,32 +17,17 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.base.congruence.*;
 import de.tilman_neumann.jml.factor.base.matrixSolver.*;
 import de.tilman_neumann.jml.factor.cfrac.*;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.*;
-import de.tilman_neumann.jml.factor.ecm.*;
 import de.tilman_neumann.jml.factor.hart.*;
-import de.tilman_neumann.jml.factor.lehman.*;
-import de.tilman_neumann.jml.factor.pollardRho.*;
-import de.tilman_neumann.jml.factor.psiqs.*;
-import de.tilman_neumann.jml.factor.siqs.*;
-import de.tilman_neumann.jml.factor.siqs.poly.*;
-import de.tilman_neumann.jml.factor.siqs.poly.baseFilter.*;
-import de.tilman_neumann.jml.factor.siqs.powers.*;
-import de.tilman_neumann.jml.factor.siqs.sieve.*;
-import de.tilman_neumann.jml.factor.siqs.tdiv.*;
 import de.tilman_neumann.jml.factor.squfof.*;
-import de.tilman_neumann.jml.factor.tdiv.*;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
-import de.tilman_neumann.jml.sequence.*;
 import de.tilman_neumann.util.*;
 
 /**
@@ -219,7 +204,7 @@ public class FactorizerTest {
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
-		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<Long, List<FactorAlgorithm>>();
+		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<>();
 		for (int i=0; i<REPEATS; i++) {
 			for (FactorAlgorithm algorithm : algorithms) {
 				// exclude special size implementations
@@ -308,7 +293,7 @@ public class FactorizerTest {
 				}
 				
 				List<FactorAlgorithm> algList = ms_2_algorithms.get(duration);
-				if (algList==null) algList = new ArrayList<FactorAlgorithm>();
+				if (algList==null) algList = new ArrayList<>();
 				algList.add(algorithm);
 				ms_2_algorithms.put(duration, algList);
 				if (failCount>0) {

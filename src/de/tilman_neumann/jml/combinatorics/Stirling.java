@@ -43,7 +43,7 @@ public class Stirling {
 	private static Object syncObject = new Object();
 
     /** hashtable for of 1.kind Stirling numbers indexed by (n,k) */
-    private static HashMap<Pair<Integer, Integer>, BigInteger> s1Map = new HashMap<Pair<Integer, Integer>, BigInteger>();
+    private static HashMap<Pair<Integer, Integer>, BigInteger> s1Map = new HashMap<>();
 
 	/**
 	 * (Signed) Stirling numbers of the first kind.
@@ -200,7 +200,7 @@ public class Stirling {
 	@SuppressWarnings("unused")
 	private static BigInteger stirling1WithHashedMemory(int n, int k) {
     	if (n>k && k>0) {
-        	Pair<Integer, Integer> nkp = new Pair<Integer, Integer>(n, k);
+        	Pair<Integer, Integer> nkp = new Pair<>(n, k);
             BigInteger retValue = s1Map.get(nkp);
             if (retValue == null) {
                 // recursion:
@@ -301,8 +301,12 @@ public class Stirling {
             int b = Integer.parseInt(args[2]);
 
             // Calculate my Stirling number sum [20.1.03]:
-            BigInteger num, den, powerTerm, divMod[], gcd;
-            double sum=0.0, fraction;
+            BigInteger num;
+			BigInteger den;
+			BigInteger powerTerm;
+			BigInteger[] divMod;
+			BigInteger gcd;
+			double sum=0.0, fraction;
             int n=a1, dn=a1;
             int i;
         
@@ -359,8 +363,11 @@ public class Stirling {
             int b2 = Integer.parseInt(args[3]);
 
             // other initializations
-            BigInteger num, den, gcd, divMod[];
-            double sum=0.0, isum, fraction, bi, f;
+            BigInteger num;
+			BigInteger den;
+			BigInteger gcd;
+			BigInteger[] divMod;
+			double sum=0.0, isum, fraction, bi, f;
             int i1=a1, dn=a1, i2, i;
 
             // create initial diagonal of Stirling numbers:

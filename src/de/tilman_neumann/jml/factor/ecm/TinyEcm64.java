@@ -1209,9 +1209,8 @@ public class TinyEcm64 extends FactorAlgorithm {
 				51113648728234999L,
 				55878279398722441L,
 		};
-		
-		for (int i=0; i<testNumbers.length; i++) {
-			long N = testNumbers[i];
+
+		for (long N : testNumbers) {
 			BigInteger factor = factorizer.findSingleFactor(BigInteger.valueOf(N));
 			LOG.info("Found factor " + factor + " of N=" + N);
 		}

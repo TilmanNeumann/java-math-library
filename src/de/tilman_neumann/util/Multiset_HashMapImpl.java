@@ -173,7 +173,7 @@ public class Multiset_HashMapImpl<T> extends HashMap<T, Integer> implements Mult
 	}
 
 	public Multiset<T> intersect(Multiset<T> other) {
-		Multiset<T> resultset = new Multiset_HashMapImpl<T>();
+		Multiset<T> resultset = new Multiset_HashMapImpl<>();
 		if (other != null) {
 			for (Map.Entry<T, Integer> myEntry: this.entrySet()) {
 				int myMult = myEntry.getValue().intValue();
@@ -201,7 +201,7 @@ public class Multiset_HashMapImpl<T> extends HashMap<T, Integer> implements Mult
 	}
 	
 	public List<T> toList() {
-		List<T> flatList = new ArrayList<T>(totalCount);
+		List<T> flatList = new ArrayList<>(totalCount);
 		for (Map.Entry<T, Integer> entry : this.entrySet()) {
 			T value = entry.getKey();
 			int multiplicity = entry.getValue().intValue();
@@ -242,7 +242,7 @@ public class Multiset_HashMapImpl<T> extends HashMap<T, Integer> implements Mult
 	 * order the elements appear.
 	 */
 	public boolean equals(Object o) {
-		if (o!=null && o instanceof Multiset) {
+		if (o instanceof Multiset) {
 			Multiset<T> other = (Multiset<T>) o;
 			if (this.totalCount != other.totalCount()) return false;
 			if (this.keyCount() != other.keyCount()) return false;

@@ -18,6 +18,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -128,8 +129,8 @@ public class SqrtInt {
    	 * @param nCount
    	 * @return
    	 */
-	private static ArrayList<BigInteger> createTestSet(int nCount, int bits) {
-	   	ArrayList<BigInteger> testSet = new ArrayList<BigInteger>();
+	private static List<BigInteger> createTestSet(int nCount, int bits) {
+	   	List<BigInteger> testSet = new ArrayList<>();
 	   	for (int i=0; i<nCount;) {
 	   		BigInteger testNum = new BigInteger(bits, RNG);
 	   		if (testNum.bitLength()<bits) continue; // not exact size, skip
@@ -142,7 +143,7 @@ public class SqrtInt {
 	private static void testCorrectness(int nCount) {
 		for (int bits = 100; bits<=130; bits+=1) {
 			LOG.info("test correctness of sqrt() implementations for " + bits + "-bit numbers...");
-			ArrayList<BigInteger> testSet = createTestSet(nCount, bits);
+			List<BigInteger> testSet = createTestSet(nCount, bits);
 		   	for (BigInteger testNum : testSet) {
 		   		testCorrectness(testNum, bits, iSqrt/*_v01*/(testNum), "v01");
 		   	}
@@ -166,7 +167,7 @@ public class SqrtInt {
 
 	private static void testPerformance(int nCount) {
 		for (int bits = 10; ; bits += 10 /*RNG.nextInt(50)*/) {
-			ArrayList<BigInteger> testSet = createTestSet(nCount, bits);
+			List<BigInteger> testSet = createTestSet(nCount, bits);
 			LOG.info("test sqrt of " + bits + "-bit numbers:");
 			long t0, t1;
 		   	t0 = System.currentTimeMillis();

@@ -17,7 +17,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -161,7 +160,7 @@ public class CFrac extends FactorAlgorithm {
 		this.auxFactorizer.initialize(N, maxQRest);
 		FactorTest factorTest = new FactorTest01(N);
 		this.congruenceCollector.initialize(N, factorTest, profile);
-		this.combinedPrimesSet = new HashSet<Integer>();
+		this.combinedPrimesSet = new HashSet<>();
 		this.matrixSolver.initialize(N, factorTest);
 
 		// max iterations: there is no need to account for k, because expansions of smooth kN are typically not longer than those for N.
@@ -173,11 +172,10 @@ public class CFrac extends FactorAlgorithm {
 		// compute multiplier k: though k=1 is better than Knuth-Schroeppel for N<47 bits,
 		// we can ignore that here because that is far out of the optimal CFrac range
 		TreeMap<Double, Integer> kMap = ks.computeMultiplier(N, ks_adjust);
-		Iterator<Integer> kIter = kMap.values().iterator();
-		
-		while (kIter.hasNext()) {
+
+		for (Integer integer : kMap.values()) {
 			// get a new k, return immediately if kN is square
-			this.kN = BigInteger.valueOf(kIter.next()).multiply(N);
+			this.kN = BigInteger.valueOf(integer).multiply(N);
 			BigInteger[] iSqrt = SqrtInt.iSqrt(kN);
 			this.floor_sqrt_kN = iSqrt[0];
 			if (floor_sqrt_kN.equals(iSqrt[1])) return N.gcd(floor_sqrt_kN);
@@ -185,7 +183,7 @@ public class CFrac extends FactorAlgorithm {
 			// Create the reduced prime base for kN:
 			primeBaseBuilder.computeReducedPrimeBase(kN, primeBaseSize, primesArray, primesArray_big);
 			// add new reduced prime base to the combined prime base
-			for (int i=0; i<primeBaseSize; i++) combinedPrimesSet.add(primesArray[i]);
+			for (int i = 0; i < primeBaseSize; i++) combinedPrimesSet.add(primesArray[i]);
 			// we want: #equations = #variables + some extra congruences
 			this.requiredSmoothCongruenceCount = combinedPrimesSet.size() + extraCongruences;
 
@@ -197,7 +195,7 @@ public class CFrac extends FactorAlgorithm {
 			} catch (FactorException fe) {
 				long endTime = System.currentTimeMillis();
 				if (profile) {
-					LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
+					LOG.info("Found factor of N=" + N + " in " + (endTime - startTime) + "ms (LinAlgPhase took " + (endTime - linAlgStartTime) + "ms)");
 					CongruenceCollectorReport ccReport = congruenceCollector.getReport();
 					LOG.info("    cc: " + ccReport.getOperationDetails());
 					if (GlobalParameters.ANALYZE_LARGE_FACTOR_SIZES) {
@@ -301,7 +299,7 @@ public class CFrac extends FactorAlgorithm {
 		assertTrue(Q_ip1.signum()>=0);
 		// verify congruence A^2 == Q (mod N)
 		BigInteger Q_test = i%2==1 ? Q_ip1 : Q_ip1.negate().mod(N);
-		BigInteger div[] = A_i.pow(2).subtract(Q_test).divideAndRemainder(N);
+		BigInteger[] div = A_i.pow(2).subtract(Q_test).divideAndRemainder(N);
 		assertEquals(I_0, div[1]); // exact division
 		LOG.debug("A^2-Q = " + div[0] + " * N");
 		LOG.debug("A^2 % N = " + A_i.pow(2).mod(N) + ", Q = " + Q_test);

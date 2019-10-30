@@ -48,7 +48,7 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 
 	// stack behaviour is faster than queue behaviour,
 	// and ArrayDeque is slightly faster than LinkedList than Stack (which extends Vector)
-	private ArrayDeque<IntegerPartitionStackElem> stack = new ArrayDeque<IntegerPartitionStackElem>();
+	private ArrayDeque<IntegerPartitionStackElem> stack = new ArrayDeque<>();
 	private int maxStackSize = 0;
 	
 	/**
@@ -122,7 +122,7 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 	 * part = Integer
 	 */
 	public static SortedSet<IntegerPartition> partitionsOf(int n) {
-		SortedSet<IntegerPartition> partitions = new TreeSet<IntegerPartition>(Collections.reverseOrder());
+		SortedSet<IntegerPartition> partitions = new TreeSet<>(Collections.reverseOrder());
 		IntegerPartitionGenerator partGen = new IntegerPartitionGenerator(n);
 		while (partGen.hasNext()) {
 			int[] flatPartition = partGen.next();

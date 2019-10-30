@@ -157,7 +157,7 @@ public class Lehman_AnalyzeKProgressions2 {
 	private void test() {
 		LOG.info("Test N having " + BITS + " bit");
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, BITS, TestNumberNature.MODERATE_SEMIPRIMES);
-		List<Progression> initialProgressions = new ArrayList<Progression>();
+		List<Progression> initialProgressions = new ArrayList<>();
 		for (int j=1; j<1000; j++) {
 			initialProgressions.add(new Progression(j, 2*j)); // odd k
 			initialProgressions.add(new Progression(2*j, 2*j)); // even k
@@ -170,11 +170,11 @@ public class Lehman_AnalyzeKProgressions2 {
 			}
 		}
 		
-		TreeMap<Double, List<Progression>> successRate2Progressions = new TreeMap<Double, List<Progression>>(Collections.reverseOrder());
+		TreeMap<Double, List<Progression>> successRate2Progressions = new TreeMap<>(Collections.reverseOrder());
 		for (Progression progression : initialProgressions) {
 			double avgSuccessCount = progression.factoredN / (double) progression.testCount;
 			List<Progression> progressionsList = successRate2Progressions.get(avgSuccessCount);
-			if (progressionsList == null) progressionsList = new ArrayList<Progression>();
+			if (progressionsList == null) progressionsList = new ArrayList<>();
 			progressionsList.add(progression);
 			successRate2Progressions.put(avgSuccessCount, progressionsList);
 		}

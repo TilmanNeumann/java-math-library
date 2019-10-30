@@ -72,7 +72,7 @@ public class MatrixRow {
 	
 	@Override
 	public boolean equals(Object o) {
-		if (/*o==null ||*/ !(o instanceof MatrixRow)) return false;
+		if (!(o instanceof MatrixRow)) return false;
 		MatrixRow other = (MatrixRow) o;
 		return this.rowIndexHistory.equals(other.rowIndexHistory);
 	}

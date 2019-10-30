@@ -110,7 +110,7 @@ public class Scale implements Comparable<Scale> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o==null || !(o instanceof Scale)) return false;
+		if (!(o instanceof Scale)) return false;
 		return this.digits == ((Scale) o).digits;
 	}
 

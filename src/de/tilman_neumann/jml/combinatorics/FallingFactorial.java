@@ -17,6 +17,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -101,7 +102,7 @@ public class FallingFactorial {
     	int max = 10;
     	BigIntGrid grid = new BigIntGrid("n", -max, "k", 0); // negative k not supported, results would be rational
     	for (int n=-max; n<=max; n++) {
-    		ArrayList<BigInteger> row = new ArrayList<>();
+    		List<BigInteger> row = new ArrayList<>();
         	for (int k=0; k<=max; k++) {
         		row.add(fallingFactorial(n,k));
         	}

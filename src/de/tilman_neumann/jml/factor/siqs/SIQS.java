@@ -272,7 +272,7 @@ public class SIQS extends FactorAlgorithm {
 							if (profile) ccDuration += timer.capture();
 							solverRunCount++;
 							if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
-							List<Smooth> congruences = congruenceCollector.getSmoothCongruences();
+							ArrayList<Smooth> congruences = congruenceCollector.getSmoothCongruences();
 							matrixSolver.solve(congruences); // throws FactorException
 							
 							// If we get here then there was no FactorException

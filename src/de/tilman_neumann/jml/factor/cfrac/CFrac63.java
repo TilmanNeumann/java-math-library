@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor.cfrac;
 
 import java.math.BigInteger;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -139,7 +138,7 @@ public class CFrac63 extends FactorAlgorithm {
 		this.auxFactorizer.initialize(N, maxQRest);
 		FactorTest factorTest = new FactorTest01(N);
 		this.congruenceCollector.initialize(N, factorTest, false);
-		this.combinedPrimesSet = new HashSet<Integer>();
+		this.combinedPrimesSet = new HashSet<>();
 		this.matrixSolver.initialize(N, factorTest);
 
 		// max iterations: there is no need to account for k, because expansions of smooth kN are typically not longer than those for N.
@@ -151,25 +150,24 @@ public class CFrac63 extends FactorAlgorithm {
 		// compute multiplier k: though k=1 is better than Knuth-Schroeppel for N<47 bits,
 		// we can ignore that here because that is far out of the optimal CFrac range
 		TreeMap<Double, Integer> kMap = ks.computeMultiplier(N, ks_adjust);
-		Iterator<Integer> kIter = kMap.values().iterator();
-		
-		while (kIter.hasNext()) {
+
+		for (Integer integer : kMap.values()) {
 			// get a new k, return immediately if kN is square
-			this.kN = BigInteger.valueOf(kIter.next()).multiply(N);
+			this.kN = BigInteger.valueOf(integer).multiply(N);
 			floor_sqrt_kN = (long) Math.sqrt(kN.doubleValue()); // faster than BigInteger sqrt; but the type conversion may give ceil(sqrt(kN)) for some N >= 54 bit
 			BigInteger sqrt_kN_big = BigInteger.valueOf(floor_sqrt_kN);
 			long diff = kN.subtract(sqrt_kN_big.multiply(sqrt_kN_big)).longValue();
-			if (diff==0) return N.gcd(sqrt_kN_big);
-			if (diff<0) {
+			if (diff == 0) return N.gcd(sqrt_kN_big);
+			if (diff < 0) {
 				// floor_sqrt_kN was too big, diff too small -> compute correction
 				floor_sqrt_kN--;
-				diff += (floor_sqrt_kN<<1) + 1;
+				diff += (floor_sqrt_kN << 1) + 1;
 			}
 
 			// Create the reduced prime base for kN:
 			primeBaseBuilder.computeReducedPrimeBase(kN, primeBaseSize, primesArray);
 			// add new reduced prime base to the combined prime base
-			for (int i=0; i<primeBaseSize; i++) combinedPrimesSet.add(primesArray[i]);
+			for (int i = 0; i < primeBaseSize; i++) combinedPrimesSet.add(primesArray[i]);
 			// we want: #equations = #variables + some extra congruences
 			this.requiredSmoothCongruenceCount = combinedPrimesSet.size() + extraCongruences;
 
@@ -180,7 +178,8 @@ public class CFrac63 extends FactorAlgorithm {
 				test(diff);
 			} catch (FactorException fe) {
 				long endTime = System.currentTimeMillis();
-				if (DEBUG) LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
+				if (DEBUG)
+					LOG.info("Found factor of N=" + N + " in " + (endTime - startTime) + "ms (LinAlgPhase took " + (endTime - linAlgStartTime) + "ms)");
 				return fe.getFactor();
 			}
 		}
@@ -270,7 +269,7 @@ public class CFrac63 extends FactorAlgorithm {
 		assertTrue(Q_ip1.signum()>=0);
 		// verify congruence A^2 == Q (mod N)
 		BigInteger Q_test = i%2==1 ? Q_ip1 : Q_ip1.negate().mod(N);
-		BigInteger div[] = A_i.pow(2).subtract(Q_test).divideAndRemainder(N);
+		BigInteger[] div = A_i.pow(2).subtract(Q_test).divideAndRemainder(N);
 		assertEquals(I_0, div[1]); // works
 		LOG.debug("A^2-Q = " + div[0] + " * N");
 		LOG.debug("A^2 % N = " + A_i.pow(2).mod(N) + ", Q = " + Q_test);

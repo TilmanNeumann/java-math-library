@@ -60,31 +60,31 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	private static final int DUP = 5; //number of multiplications in a duplicate
 
 	/** 1 as "BigNbr" */
-	private static final int BigNbr1[] = new int[NLen];
+	private static final int[] BigNbr1 = new int[NLen];
 
 	/** maximum number of elliptic curves tested for 30, 35, ..., 85, 90 digits */
-	private static final int limits[] = { 5, 8, 15, 25, 27, 32, 43, 70, 150, 300, 350, 600, 1500 };
+	private static final int[] limits = { 5, 8, 15, 25, 27, 32, 43, 70, 150, 300, 350, 600, 1500 };
 	
 	/** Primes < 5000 */
-	private static final int SmallPrime[] = new int[670]; // p_669 = 4999;
+	private static final int[] SmallPrime = new int[670]; // p_669 = 4999;
 
 	private static final PrPTest prp = new PrPTest();
 	private static final PurePowerTest powerTest = new PurePowerTest();
 	private static final TDiv tdiv = new TDiv();
 	private MontgomeryMult montgomery;
 
-	private static final double v[] =
+	private static final double[] v =
 		{ 1.61803398875, 1.72360679775, 1.618347119656, 1.617914406529, 1.612429949509,
 		  1.632839806089, 1.620181980807, 1.580178728295, 1.617214616534, 1.38196601125 };
 
-	private final long biTmp[] = new long[NLen];
+	private final long[] biTmp = new long[NLen];
 
 	// Used inside GCD calculations in multiple precision numbers
-	private final int CalcAuxGcdU[] = new int[NLen];
-	private final int CalcAuxGcdV[] = new int[NLen];
-	private final int CalcAuxGcdT[] = new int[NLen];
-	private final int GcdAccumulated[] = new int[NLen];
-	final int CalcBigNbr[] = new int[NLen];
+	private final int[] CalcAuxGcdU = new int[NLen];
+	private final int[] CalcAuxGcdV = new int[NLen];
+	private final int[] CalcAuxGcdT = new int[NLen];
+	private final int[] GcdAccumulated = new int[NLen];
+	final int[] CalcBigNbr = new int[NLen];
 
 	private final long[] CalcAuxModInvA = new long[NLen];
 	private final long[] CalcAuxModInvB = new long[NLen];
@@ -92,7 +92,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	private final long[] CalcAuxModInvGamma = new long[NLen];
 
 	/** input N as a BigNbr */
-	private final int TestNbr[] = new int[NLen];
+	private final int[] TestNbr = new int[NLen];
 
 	/** Length of multiple precision numbers. */
 	int NumberLength;
@@ -136,7 +136,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 
 	@Override
 	public SortedMultiset<BigInteger> factor(BigInteger N) {
-		SortedMultiset<BigInteger> allFactors = new SortedMultiset_BottomUp<BigInteger>();
+		SortedMultiset<BigInteger> allFactors = new SortedMultiset_BottomUp<>();
 		SortedMultiset<BigInteger> compositeFactors = factorize(N, allFactors);
 		allFactors.addAll(compositeFactors);
 		return allFactors;
@@ -168,7 +168,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		}
 		
 		// N is composite -> do ECM
-		TreeMap<BigInteger, Integer> compositesToTest = new TreeMap<BigInteger, Integer>();
+		TreeMap<BigInteger, Integer> compositesToTest = new TreeMap<>();
 		compositesToTest.put(N, 1);
 		while (!compositesToTest.isEmpty()) {
 			// get next composite to test
@@ -271,9 +271,9 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			dN += TestNbr[NumberLength - 3] / dDosALa62;
 		}
 
-		final int MontgomeryMultR1[] = new int[NLen];
-		final int MontgomeryMultR2[] = new int[NLen];
-		final int MontgomeryMultAfterInv[] = new int[NLen];
+		final int[] MontgomeryMultR1 = new int[NLen];
+		final int[] MontgomeryMultR2 = new int[NLen];
+		final int[] MontgomeryMultAfterInv = new int[NLen];
 
 		int jj = NumberLength;
 		MontgomeryMultR1[jj] = 1;
@@ -643,7 +643,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param TestNbr output
 	 * @return size of TestNbr in 31-bit units
 	 */
-	public int BigNbrToBigInt(BigInteger N, int TestNbr[]) {
+	public int BigNbrToBigInt(BigInteger N, int[] TestNbr) {
 	    byte[] NBytes = N.toByteArray();
 	    int NumberLength = computeNumberLength(NBytes.length * 8); // number length in 31-bit integers
 	    long[] Temp = new long[NumberLength+1]; // zero-initialized
@@ -786,7 +786,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		}
 	}
 
-	void AddBigNbr(int Nbr1[], int Nbr2[], int Sum[]) {
+	void AddBigNbr(int[] Nbr1, int[] Nbr2, int[] Sum) {
 		int NumberLength = this.NumberLength;
 		long Cy = 0;
 		for (int i = 0; i < NumberLength; i++) {
@@ -795,16 +795,16 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		}
 	}
 
-	void AddBigNbr32(long Nbr1[], long Nbr2[], long Sum[]) {
+	void AddBigNbr32(long[] Nbr1, long[] Nbr2, long[] Sum) {
 		int NumberLength = this.NumberLength;
 		long Cy = 0;
 		for (int i = 0; i < NumberLength; i++) {
 			Cy = (Cy >> 32) + Nbr1[i] + Nbr2[i];
-			Sum[i] = Cy & 0xFFFFFFFFl;
+			Sum[i] = Cy & 0xFFFFFFFFL;
 		}
 	}
 
-	public void AddBigNbrModN(int Nbr1[], int Nbr2[], int Sum[]) {
+	public void AddBigNbrModN(int[] Nbr1, int[] Nbr2, int[] Sum) {
 		int NumberLength = this.NumberLength;
 	    long MaxUInt = 0x7FFFFFFFL;
 	    long carry = 0;
@@ -823,7 +823,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    }
 	}
 
-	private void AdjustModN(int Nbr[], double dN) {
+	private void AdjustModN(int[] Nbr, double dN) {
 		int NumberLength = this.NumberLength;
 	    long MaxUInt = 0x7FFFFFFFL;
 	    long TrialQuotient;
@@ -883,7 +883,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		return (new BigInteger(Result));
 	}
 
-	private boolean BigNbrAreEqual(int Nbr1[], int Nbr2[]) {
+	private boolean BigNbrAreEqual(int[] Nbr1, int[] Nbr2) {
 		for (int i = 0; i < NumberLength; i++) {
 			if (Nbr1[i] != Nbr2[i]) {
 				return false;
@@ -892,7 +892,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		return true;
 	}
 
-	private boolean BigNbrIsZero(int Nbr[]) {
+	private boolean BigNbrIsZero(int[] Nbr) {
 		for (int i = 0; i < NumberLength; i++) {
 			if (Nbr[i] != 0) {
 				return false;
@@ -901,7 +901,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		return true;
 	}
 
-	private void ChSignBigNbr(int Nbr[]) {
+	private void ChSignBigNbr(int[] Nbr) {
 		int NumberLength = this.NumberLength;
 		int Cy = 0;
 		for (int i = 0; i < NumberLength; i++) {
@@ -924,7 +924,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			if (j == NumberLength - 1) {
 				nbr32bits[i] = nbr31bits[j] >> k;
 			} else {
-				nbr32bits[i] = ((nbr31bits[j] >> k) | (nbr31bits[j + 1] << (31 - k))) & 0xFFFFFFFFl;
+				nbr32bits[i] = ((nbr31bits[j] >> k) | (nbr31bits[j + 1] << (31 - k))) & 0xFFFFFFFFL;
 			}
 			i++;
 		}
@@ -948,7 +948,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		nbr31bits[NumberLength] = 0;
 	}
 
-	private void DivBigNbrByLong(int Dividend[], long Divisor, int Quotient[]) {
+	private void DivBigNbrByLong(int[] Dividend, long Divisor, int[] Quotient) {
 		int i;
 		boolean ChSignDivisor = false;
 		long Divid, Rem = 0;
@@ -957,7 +957,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			ChSignDivisor = true; // Indicate to change sign at the end and
 			Divisor = -Divisor; // convert divisor to positive.
 		}
-		if (Dividend[i = NumberLength - 1] >= 0x40000000l) { // If dividend is negative...
+		if (Dividend[i = NumberLength - 1] >= 0x40000000L) { // If dividend is negative...
 			Rem = Divisor - 1;
 		}
 		for (; i >= 0; i--) {
@@ -1006,7 +1006,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param Nbr2
 	 * @param Gcd
 	 */
-	public void GcdBigNbr(int Nbr1[], int Nbr2[], int Gcd[]) {
+	public void GcdBigNbr(int[] Nbr1, int[] Nbr2, int[] Gcd) {
 	    int i, k;
 		int NumberLength = this.NumberLength;
 
@@ -1052,7 +1052,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			while ((CalcAuxGcdT[0] & 1) == 0) { // Step 4
 				DivBigNbrByLong(CalcAuxGcdT, 2, CalcAuxGcdT); // Step 3
 			}
-			if (CalcAuxGcdT[NumberLength - 1] < 0x40000000l) { // Step 5
+			if (CalcAuxGcdT[NumberLength - 1] < 0x40000000L) { // Step 5
 				System.arraycopy(CalcAuxGcdT, 0, CalcAuxGcdU, 0, NumberLength);
 			} else {
 				System.arraycopy(CalcAuxGcdT, 0, CalcAuxGcdV, 0, NumberLength);
@@ -1077,7 +1077,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param Nbr input
 	 * @param Out output
 	 */
-	public void LongToBigNbr(long Nbr, int Out[]) {
+	public void LongToBigNbr(long Nbr, int[] Out) {
 	    Out[0] = (int)(Nbr & 0x7FFFFFFF);
 	    Out[1] = (int)((Nbr >> 31) & 0x7FFFFFFF);
 	    if (NumberLength > 2) {
@@ -1387,7 +1387,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		            Dif++;
 		            E++;
 		            T1++;
-		        }; /* end while */
+		        }/* end while */
 		        
 		        Iaa <<= T1;
 		        Iab <<= T1;
@@ -1444,7 +1444,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    Convert32To31Bits(CalcAuxModInvMu, inv, NumberLength);
 	}
 
-	public void MultBigNbrByLongModN(int Nbr1[], long Nbr2, int Prod[], double dN) {
+	public void MultBigNbrByLongModN(int[] Nbr1, long Nbr2, int[] Prod, double dN) {
 		int NumberLength = this.NumberLength;
 	    long MaxUInt = 0x7FFFFFFFL;
 	    long Pr;
@@ -1459,7 +1459,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    AdjustModN(Prod, dN);
 	}
 
-	private void MultBigNbrModN(int Nbr1[], int Nbr2[], int Prod[], double dN) {
+	private void MultBigNbrModN(int[] Nbr1, int[] Nbr2, int[] Prod, double dN) {
 		int NumberLength = this.NumberLength;
 	    long MaxUInt = 0x7FFFFFFFL;
 	    int i, j;
@@ -1616,7 +1616,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		add3(x, z, xA, zA, xB, zB, xC, zC);
 	}
 
-	public void SubtractBigNbr(int Nbr1[], int Nbr2[], int Diff[]) {
+	public void SubtractBigNbr(int[] Nbr1, int[] Nbr2, int[] Diff) {
 	    long carry = 0;
 	    for (int i = 0; i < NumberLength; i++) {
 	    	carry = (carry >> 31) + (long)Nbr1[i] - (long)Nbr2[i];
@@ -1624,16 +1624,16 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    }
 	}
 
-	private void SubtractBigNbr32(long Nbr1[], long Nbr2[], long Diff[]) {
+	private void SubtractBigNbr32(long[] Nbr1, long[] Nbr2, long[] Diff) {
 		int NumberLength = this.NumberLength;
 		long Cy = 0;
 		for (int i = 0; i < NumberLength; i++) {
 			Cy = (Cy >> 32) + Nbr1[i] - Nbr2[i];
-			Diff[i] = Cy & 0xFFFFFFFFl;
+			Diff[i] = Cy & 0xFFFFFFFFL;
 		}
 	}
 
-	public void SubtractBigNbrModN(int Nbr1[], int Nbr2[], int Diff[]) {
+	public void SubtractBigNbrModN(int[] Nbr1, int[] Nbr2, int[] Diff) {
 		int NumberLength = this.NumberLength;
 		long MaxUInt = 0x7FFFFFFFL; // Integer.MAX_VALUE
 		long carry = 0;
@@ -1657,7 +1657,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param Nbr
 	 * @return decimal string representation of Nbr
 	 */
-	public String BigNbrToString(int Nbr[]) {
+	public String BigNbrToString(int[] Nbr) {
 		BigInteger bigInt = this.BigIntToBigNbr(Nbr);
 		return bigInt.toString();
 	}
@@ -1667,7 +1667,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param Nbr
 	 * @return decimal string representation of Nbr
 	 */
-	public String BigNbrToString(long Nbr[]) {
+	public String BigNbrToString(long[] Nbr) {
 		int nbr31Size = (NumberLength*32+30)/31;
 		int[] nbr31 = new int[nbr31Size];
 		this.Convert32To31Bits(Nbr, nbr31, NumberLength);

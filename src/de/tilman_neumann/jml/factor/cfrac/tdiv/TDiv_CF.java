@@ -27,14 +27,14 @@ public interface TDiv_CF {
 	/**
 	 * @return the name of this algorithm
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * Initialize for a new N.
 	 * @param N
 	 * @param maxQRest
 	 */
-	public void initialize(BigInteger N, double maxQRest);
+	void initialize(BigInteger N, double maxQRest);
 
 	/**
 	 * Initialize this factorizer for a new k; in particular set the prime base to be used for trial division.
@@ -44,7 +44,7 @@ public interface TDiv_CF {
 	 * @param primesArray_big prime base in BigIntegers
 	 * @throws FactorException 
 	 */
-	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray, BigInteger[] primesArray_big) throws FactorException;
+	void initialize(BigInteger kN, int primeBaseSize, int[] primesArray, BigInteger[] primesArray_big) throws FactorException;
 	
 	/**
 	 * Check if Q is smooth (factors completely over the prime base) or "sufficiently smooth" (factors almost over the prime base).
@@ -53,5 +53,5 @@ public interface TDiv_CF {
 	 * @param Q
 	 * @return an AQ-pair if Q is at least "sufficiently smooth", null else
 	 */
-	public AQPair test(BigInteger A, BigInteger Q);
+	AQPair test(BigInteger A, BigInteger Q);
 }

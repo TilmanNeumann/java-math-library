@@ -80,25 +80,25 @@ public class SquFoF31 extends FactorAlgorithm {
 
 		// Several base multipliers allow to expand the fail-free working range until N=2^52.
 		// None of the base multipliers is a square of another one.
-		for (int baseMultiplierIndex=0; baseMultiplierIndex<BASE_MULTIPLIERS.length; baseMultiplierIndex++) {
-			int baseMultiplier = BASE_MULTIPLIERS[baseMultiplierIndex];
+		for (int baseMultiplier : BASE_MULTIPLIERS) {
 			// sequence: for each new N start again with the first k
 			SquarefreeSequence63 kSequence = new SquarefreeSequence63(baseMultiplier);
 			kSequence.reset();
 			while (true) {
 				long k = kSequence.next().longValue();
-				this.kN = k*N;
-				if (bitLength(kN) > 60) break; // use next smaller base multiplier; the inner loops need 3 bit tolerance
-				
+				this.kN = k * N;
+				if (bitLength(kN) > 60)
+					break; // use next smaller base multiplier; the inner loops need 3 bit tolerance
+
 				// The cast may be wrong for some bigger kN, but fixing the cast would mean a small performance
 				// penalty, so we ignore it. Return immediately if kN is square.
 				floor_sqrt_kN = (int) Math.sqrt(kN);
-				int diff = (int) (kN - floor_sqrt_kN*(long)floor_sqrt_kN);
-				if (diff==0) return gcdEngine.gcd(N, floor_sqrt_kN);
-				
+				int diff = (int) (kN - floor_sqrt_kN * (long) floor_sqrt_kN);
+				if (diff == 0) return gcdEngine.gcd(N, floor_sqrt_kN);
+
 				// search square Q_i
 				Long factor = test(diff);
-				if (factor!=null) return factor;
+				if (factor != null) return factor;
 			}
 		}
 		return 0; // not found

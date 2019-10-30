@@ -75,8 +75,7 @@ abstract public class AQPair {
 	protected SortedMultiset<Long> getSmallQFactors() {
 		SortedMultiset<Long> allFactors = new SortedMultiset_BottomUp<>();
 		for (int i=0; i<smallFactors.length; i++) {
-			//allFactors.add(Long.valueOf(smallFactors[i]), smallFactorExponents[i]);
-			allFactors.add((long) smallFactors[i], smallFactorExponents[i]);
+			allFactors.add(Long.valueOf(smallFactors[i]), smallFactorExponents[i]);
 		}
 		return allFactors;
 	}

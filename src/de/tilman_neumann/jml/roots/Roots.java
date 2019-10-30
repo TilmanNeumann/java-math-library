@@ -16,6 +16,7 @@ package de.tilman_neumann.jml.roots;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -257,8 +258,8 @@ public class Roots {
    	 * @param nCount
    	 * @return
    	 */
-	private static ArrayList<BigInteger> createTestSet(int nCount, int bits) {
-	   	ArrayList<BigInteger> testSet = new ArrayList<BigInteger>();
+	private static List<BigInteger> createTestSet(int nCount, int bits) {
+	   	List<BigInteger> testSet = new ArrayList<>();
 	   	for (int i=0; i<nCount;) {
 	   		BigInteger testNum = new BigInteger(bits, RNG);
 	   		if (testNum.bitLength()<bits) continue; // not exact size, skip
@@ -270,7 +271,7 @@ public class Roots {
 	
 	private static void testCorrectness(int nCount) {
 		for (int bits = 100; bits<=1000; bits+=100) {
-			ArrayList<BigInteger> testSet = createTestSet(nCount, bits);
+			List<BigInteger> testSet = createTestSet(nCount, bits);
 			// test correctness
 		   	for (BigInteger testNum : testSet) {
 		   		int root = 2 + RNG.nextInt(48);
@@ -296,7 +297,7 @@ public class Roots {
 
 	private static void testPerformance(int nCount) {
 		for (int bits = 100; ; bits+=100) {
-			ArrayList<BigInteger> testSet = createTestSet(nCount, bits);
+			List<BigInteger> testSet = createTestSet(nCount, bits);
 			for (int root=3; ((float)bits)/root > 4; root += 1+RNG.nextInt(10)) {
 				// RNG reduces compiler optimizations ? -> makes test results more comparable ?
 				LOG.info("test " + root + ".th root of " + bits + "-bit numbers:");
