@@ -2,6 +2,7 @@ package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
@@ -22,6 +23,10 @@ public class EllipticCurveMethodTest {
 		int[] a31 = new int[EllipticCurveMethod.NLen];
 		int[] b31 = new int[EllipticCurveMethod.NLen];
 		int[] c31 = new int[EllipticCurveMethod.NLen];
+		
+		long[] a32 = new long[EllipticCurveMethod.NLen];
+		long[] b32 = new long[EllipticCurveMethod.NLen];
+		long[] c32 = new long[EllipticCurveMethod.NLen];
 		
 		for (int bits = 10; bits<1000; bits += 1) {
 			ecm.NumberLength = EllipticCurveMethod.computeNumberLength(bits);
@@ -91,6 +96,27 @@ public class EllipticCurveMethodTest {
 					BigInteger testSum = ecm.BigIntToBigNbr(c31);
 					if (!correctSum.equals(testSum)) {
 						LOG.error("add31 failure: a=" + a + " + b=" + b + ": correct = " + correctSum + ", add31 = " + testSum);
+					}
+				}
+			}
+			
+			// add32
+			LOG.debug("Test add32 of N with " + bits + " bit...");
+			imax = (int) Math.sqrt(N_COUNT);
+			jmin = N_COUNT - (int) Math.sqrt(N_COUNT);
+			for (int i=0; i<imax; i++) {
+				BigInteger a = NArray[i];
+				ecm.BigNbrToBigInt(a, a32);
+				// LOG.debug("a=" + a + ", a32 = " + Arrays.toString(a32));
+				for (int j=jmin; j<N_COUNT; j++) {
+					BigInteger b = NArray[j];
+					ecm.BigNbrToBigInt(b, b32);
+					// LOG.debug("b=" + b + ", b32 = " + Arrays.toString(b32));
+					BigInteger correctSum = a.add(b);
+					ecm.AddBigNbr32(a32, b32, c32);
+					BigInteger testSum = ecm.BigIntToBigNbr(c32);
+					if (!correctSum.equals(testSum)) {
+						LOG.error("add32 failure: a=" + a + " + b=" + b + ": correct = " + correctSum + ", add32 = " + testSum);
 					}
 				}
 			}
