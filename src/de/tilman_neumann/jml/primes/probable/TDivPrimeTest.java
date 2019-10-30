@@ -35,7 +35,7 @@ public class TDivPrimeTest {
 	private long[] pinv;
 
 	private static TDivPrimeTest instance = new TDivPrimeTest();
-	public static TDivPrimeTest getInstance() { return instance; }
+	public static TDivPrimeTest getInstance() { return instance; } //Singleton
 
 	private TDivPrimeTest() {
 		primes = new int[NUM_PRIMES_FOR_31_BIT_TDIV];
