@@ -166,7 +166,7 @@ public class DoubleBlockSieve implements Sieve {
 			LOG.debug("db: r_s=" + r_s + ", r_m = " + r_m + ", r_l = " + r_l);
 		}
 
-		List<Integer> smoothXList = new ArrayList<Integer>();
+		List<Integer> smoothXList = new ArrayList<>();
 		for (int b2=0; b2<k2; b2++) { // bottom-up order is required because in each block, the data for the next block is adjusted
 			// positive x: initialize block
 			System.arraycopy(initializedBlock, 0, sieveBlock, 0, effectiveB2);

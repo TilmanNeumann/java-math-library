@@ -121,7 +121,7 @@ public class TDiv_QS_1Large implements TDiv_QS {
 		if (profile) timer.capture();
 
 		// do trial division with sieve result
-		ArrayList<AQPair> aqPairs = new ArrayList<AQPair>();
+		List<AQPair> aqPairs = new ArrayList<>();
 		for (int x : xList) {
 			smallFactors.reset();
 			testCount++;
@@ -211,7 +211,7 @@ public class TDiv_QS_1Large implements TDiv_QS {
 		if (profile) pass1Duration += timer.capture();
 
 		// Pass 2: Reduce Q by the pass2Primes and collect small factors
-		BigInteger div[];
+		BigInteger[] div;
 		for (int pass2Index = 0; pass2Index < pass2Count; pass2Index++) {
 			int p = pass2Powers[pass2Index];
 			BigInteger pBig = BigInteger.valueOf(p);

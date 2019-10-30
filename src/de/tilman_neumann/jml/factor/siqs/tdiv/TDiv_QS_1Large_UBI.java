@@ -127,7 +127,7 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 		if (profile) timer.capture();
 		
 		// do trial division with sieve result
-		ArrayList<AQPair> aqPairs = new ArrayList<AQPair>();
+		List<AQPair> aqPairs = new ArrayList<>();
 		for (int x : xList) {
 			smallFactors.reset();
 			testCount++;

@@ -272,7 +272,7 @@ public class SIQS extends FactorAlgorithm {
 							if (profile) ccDuration += timer.capture();
 							solverRunCount++;
 							if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
-							ArrayList<Smooth> congruences = congruenceCollector.getSmoothCongruences();
+							List<Smooth> congruences = congruenceCollector.getSmoothCongruences();
 							matrixSolver.solve(congruences); // throws FactorException
 							
 							// If we get here then there was no FactorException
@@ -376,7 +376,7 @@ public class SIQS extends FactorAlgorithm {
 			if (aqPair instanceof Smooth) foundPerfectSmoothCount++;
 		}
 		foundAQPairsCount += foundAQPairs.size();
-		ArrayList<Integer> allXList = new ArrayList<Integer>();
+		List<Integer> allXList = new ArrayList<>();
 		allXList.add(0);
 		for (int x=1; x<sieveArraySize; x++) {
 			allXList.add(x);

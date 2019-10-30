@@ -16,6 +16,7 @@ package de.tilman_neumann.jml.factor.siqs;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -102,7 +103,7 @@ public class KnuthSchroeppel {
 		
 		// From the following list we will remove the indices of any k that have been completely evaluated.
 		// ArrayList performs better than LinkedList, even with that many remove() operations.
-		ArrayList<Integer> kIndexList = new ArrayList<Integer>(kCount);
+		List<Integer> kIndexList = new ArrayList<>(kCount);
 		for (int kIndex=0; kIndex<kCount; kIndex++) kIndexList.add(kIndex);
 		
 		// add odd primes contribution

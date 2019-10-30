@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
@@ -71,7 +72,7 @@ public class MatrixSolver02_BlockLanczos extends MatrixSolver {
 		// There can be up to 32 potential solutions encoded in matrixV!
 		// One in bit 0 of all ints, the next in bit 1 of all ints, and so on.
   		for (int mask = 1; mask != 0; mask *= 2) {
-  			HashSet<AQPair> totalAQPairs = new HashSet<AQPair>(); // Set required for the "xor"-operation below
+  			Set<AQPair> totalAQPairs = new HashSet<>(); // Set required for the "xor"-operation below
   			for (int row = matrixBlength - 1; row >= 0; row--) {
   				if ((matrixV[row] & mask) != 0) {
   					// the current row belongs to the solution encoded in matrixV by the bit addressed by mask.

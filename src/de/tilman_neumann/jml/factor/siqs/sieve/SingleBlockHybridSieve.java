@@ -169,7 +169,7 @@ public class SingleBlockHybridSieve implements Sieve {
 		if (profile) initDuration += timer.capture();
 
 		// Sieve with positive x, large primes:
-		List<Integer> smoothXList = new ArrayList<Integer>();
+		List<Integer> smoothXList = new ArrayList<>();
 		final byte[] logPArray = solutionArrays.logPArray;
 		int i;
 		for (i=primeBaseSize-1; i>=p1Index; i--) {

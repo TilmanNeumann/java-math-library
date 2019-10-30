@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -80,7 +81,7 @@ public class MatrixSolver01_Gauss extends MatrixSolver {
 					if (row.isNullVector()) {
 						//LOG.debug("solve(): 5: Found null-vector: " + row);
 						// Found null vector -> recover the set of AQ-pairs from its row index history
-						HashSet<AQPair> totalAQPairs = new HashSet<AQPair>(); // Set required for the "xor"-operation below
+						Set<AQPair> totalAQPairs = new HashSet<>(); // Set required for the "xor"-operation below
 						for (int rowIndex : row.getRowIndexHistoryAsList()) {
 							Smooth congruence = congruences.get(rowIndex);
 							// add the new AQ-pairs via "xor"
@@ -103,7 +104,7 @@ public class MatrixSolver01_Gauss extends MatrixSolver {
 	 * @return
 	 */
 	private List<MatrixRow> createMatrix(List<Smooth> congruences, Map<Integer, Integer> factors_2_columnIndices) {
-		ArrayList<MatrixRow> matrixRows = new ArrayList<MatrixRow>(congruences.size()); // ArrayList is faster than LinkedList, even with many remove() operations
+		List<MatrixRow> matrixRows = new ArrayList<>(congruences.size()); // ArrayList is faster than LinkedList, even with many remove() operations
 		int rowIndex = 0;
 		int numberOfRows = congruences.size();
 		for (Smooth congruence : congruences) {

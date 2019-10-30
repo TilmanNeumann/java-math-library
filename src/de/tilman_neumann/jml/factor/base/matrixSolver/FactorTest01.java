@@ -91,7 +91,7 @@ public class FactorTest01 implements FactorTest {
 			LOG.debug("N = " + N + ": testForFactor(): A=" + getAString(aqPairs) + "=" + AProd + ", Q=" + getQString(aqPairs) + ", sqrt(Q)=" + totalQSqrt);
 			// verify congruence A^2 == Q (mod N)
 			BigInteger totalQ = totalQSqrt.multiply(totalQSqrt);
-			BigInteger div[] = AProd.pow(2).subtract(totalQ).divideAndRemainder(N);
+			BigInteger[] div = AProd.pow(2).subtract(totalQ).divideAndRemainder(N);
 			assertEquals(I_0, div[1]);
 			LOG.debug("A^2-Q = " + div[0] + " * N");
 			LOG.debug("A^2 % N = " + AProd.pow(2).mod(N) + ", Q = " + totalQ);

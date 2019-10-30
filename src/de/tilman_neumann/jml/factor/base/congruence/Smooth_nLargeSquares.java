@@ -56,8 +56,8 @@ public class Smooth_nLargeSquares extends Smooth_Simple {
 	@Override
 	public int getNumberOfLargeQFactors() {
 		int count = 0;
-		for (int i=0; i<bigFactorExponents.length; i++) {
-			count += bigFactorExponents[i];
+		for (byte bigFactorExponent : bigFactorExponents) {
+			count += bigFactorExponent;
 		}
 		return count;
 	}

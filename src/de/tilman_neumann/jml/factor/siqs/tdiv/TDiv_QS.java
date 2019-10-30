@@ -29,7 +29,7 @@ public interface TDiv_QS {
 	/**
 	 * @return the name of this algorithm
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * Initialize this trial division engine for a new N.
@@ -38,7 +38,7 @@ public interface TDiv_QS {
 	 * @param maxQRest the biggest QRest admitted for a smooth relation
 	 * @param profile if true then collect timings
 	 */
-	public void initializeForN(double N_dbl, BigInteger kN, double maxQRest, boolean profile);
+	void initializeForN(double N_dbl, BigInteger kN, double maxQRest, boolean profile);
 
 	/**
 	 * Set prime/power base, polynomial parameters and smallest x-solutions for a new a-parameter.
