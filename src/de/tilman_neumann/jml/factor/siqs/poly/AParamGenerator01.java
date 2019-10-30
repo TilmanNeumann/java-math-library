@@ -20,6 +20,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -84,7 +85,7 @@ public class AParamGenerator01 implements AParamGenerator {
 	/** random generator */
 	private SecureRandom rng = new SecureRandom();
 	/** map of a-values already used to their q-values */
-	private HashMap<BigInteger, int[]> aParamHistory;
+	private Map<BigInteger, int[]> aParamHistory;
 
 	/** The generated a-parameter */
 	private BigInteger a;
@@ -140,7 +141,7 @@ public class AParamGenerator01 implements AParamGenerator {
 		}
 		
 		// reset aParamHistory
-		aParamHistory = new HashMap<BigInteger, int[]>();
+		aParamHistory = new HashMap<>();
 		// reset rng seed for more reliable tests
 		rng.setSeed(0x1234567890abcdefL);
 	}
@@ -170,7 +171,7 @@ public class AParamGenerator01 implements AParamGenerator {
 	 * The computation should be pretty safe to avoid that QS becomes unstable for bad choices of qCount.
 	 */
 	private void computeAParameter() {
-		TreeSet<Integer> qIndexSet = new TreeSet<Integer>();
+		Set<Integer> qIndexSet = new TreeSet<>();
 		a = I_1;
 		// find the first (qCount-1) q randomly
 		for (int i=0; i<qCount-1; i++) {
@@ -199,7 +200,8 @@ public class AParamGenerator01 implements AParamGenerator {
 		qtArray = new int[qCount];
 		Iterator<Integer> qIndexIter = qIndexSet.iterator();
 		for (int i=0; i<qCount; i++) {
-			qIndex = qIndexIter.next().intValue();
+			//qIndex = qIndexIter.next().intValue();
+			qIndex = qIndexIter.next();
 			qArray[i] = primesArray[qIndex];
 			qtArray[i] = tArray[qIndex];
 		}

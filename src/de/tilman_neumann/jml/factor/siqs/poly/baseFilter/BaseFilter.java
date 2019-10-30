@@ -29,7 +29,7 @@ public interface BaseFilter {
 	/**
 	 * Filtering results.
 	 */
-	public static class Result {
+	class Result {
 		public SolutionArrays solutionArrays;
 		public int filteredBaseSize;
 		public int[] filteredOutBaseElements;
@@ -51,10 +51,10 @@ public interface BaseFilter {
 	 * @param k
 	 * @return filtered result
 	 */
-	public Result filter(SolutionArrays solutionArrays, BaseArrays baseArrays, int mergedBaseSize, int[] qArray, int qCount, int k);
+	Result filter(SolutionArrays solutionArrays, BaseArrays baseArrays, int mergedBaseSize, int[] qArray, int qCount, int k);
 	
 	/**
 	 * @return algorithm name
 	 */
-	public String getName();
+	String getName();
 }

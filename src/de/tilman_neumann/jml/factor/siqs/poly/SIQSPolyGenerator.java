@@ -198,7 +198,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				// Contini defines computations for (i+1)th polynomial in i
 				// -> the second b-parameter is computed with i=1, the third b-parameter with i=2, etc.
 				// -> do asserts involving bIndex before bIndex is incremented
-				assertTrue((2*bIndex) % Math.pow(2, v) == 0);
+				assertEquals(0, (2 * bIndex) % Math.pow(2, v), 0.0);
 				assertTrue((2*bIndex) % Math.pow(2, v+1) > 0);
 				if (d == 2) {
 					// b is odd
