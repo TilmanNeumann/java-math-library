@@ -16,6 +16,7 @@ package de.tilman_neumann.jml.factor.siqs.powers;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -50,18 +51,18 @@ public class PowerOfSmallPrimesFinder extends SomePowerFinder {
 	 * @param tArray
 	 * @param primeBaseSize
 	 * @param sieveParams
-	 * 
+	 *
 	 * @return powers sorted bottom-up by p
 	 */
 	@Override
-	public TreeSet<PowerEntry> findPowers(BigInteger kN, int[] primes, int[] tArray, int primeBaseSize, SieveParams sieveParams) {
+	public Set<PowerEntry> findPowers(BigInteger kN, int[] primes, int[] tArray, int primeBaseSize, SieveParams sieveParams) {
 		final UnsignedBigInt kN_UBI = new UnsignedBigInt(kN);
 		final int pMinIndex = sieveParams.pMinIndex;
 		final int pMin = sieveParams.pMin;
 		final int pMax = sieveParams.pMax;
 		final float lnPMultiplier = sieveParams.lnPMultiplier;
 		
-		TreeSet<PowerEntry> powerEntries = new TreeSet<PowerEntry>();
+		Set<PowerEntry> powerEntries = new TreeSet<>();
 		// exclude powers of primes > sqrt(pMax)
 		int sqrtPMaxIndex = binarySearch.getInsertPosition(primes, primeBaseSize, (int)Math.sqrt(pMax));
 		int maxIndex = Math.min(pMinIndex, sqrtPMaxIndex);

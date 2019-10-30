@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -34,7 +35,7 @@ abstract public class SomePowerFinder implements PowerFinder {
 
 	@Override
 	public BaseArrays addPowers(BigInteger kN, int[] primes, int[] tArray, byte[] logPArray, double[] reciprocals, long[] pinvs, int primeBaseSize, SieveParams sieveParams) {
-		TreeSet<PowerEntry> powers = findPowers(kN, primes, tArray, primeBaseSize, sieveParams);
+		Set<PowerEntry> powers = findPowers(kN, primes, tArray, primeBaseSize, sieveParams);
 		return mergePrimesAndPowers(primes, tArray, logPArray, reciprocals, pinvs, primeBaseSize, powers);
 	}
 
@@ -48,7 +49,7 @@ abstract public class SomePowerFinder implements PowerFinder {
 	 * @param sieveParams basic sieve parameters
 	 * @return powers sorted bottom-up by p
 	 */
-	abstract TreeSet<PowerEntry> findPowers(BigInteger kN, int[] primes, int[] tArray, int primeBaseSize, SieveParams sieveParams);
+	abstract Set<PowerEntry> findPowers(BigInteger kN, int[] primes, int[] tArray, int primeBaseSize, SieveParams sieveParams);
 
 	/**
 	 * Merge primes and powers.
@@ -59,7 +60,7 @@ abstract public class SomePowerFinder implements PowerFinder {
 	 * @param powerEntries
 	 * @return
 	 */
-	private BaseArrays mergePrimesAndPowers(int[] primesArray, int[] tArray, byte[] logPArray, double[] pinvArrayD, long[] pinvArrayL, int primeBaseSize, TreeSet<PowerEntry> powerEntries) {
+	private BaseArrays mergePrimesAndPowers(int[] primesArray, int[] tArray, byte[] logPArray, double[] pinvArrayD, long[] pinvArrayL, int primeBaseSize, Set<PowerEntry> powerEntries) {
 		int powerCount = powerEntries.size();
 		BaseArrays baseArrays = new BaseArrays(primeBaseSize + powerCount);
 		int[] mergedPrimes = baseArrays.primes;
