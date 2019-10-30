@@ -21,7 +21,6 @@
 package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -686,7 +685,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    	}
 	    }
 	    TestNbr[j] = p;
-	    // TODO 0-initialize all TestNbr entries from j to NumberLength ?
+	    // TODO 0-initialize all TestNbr entries from j+1 to NumberLength ?
 	    return NumberLength;
 	}
 
@@ -911,14 +910,10 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 
 	BigInteger BigIntToBigNbr(long[] GD) {
 		byte[] Result;
-//		long[] Temp;
 		int i, NL;
 		long digit;
 
-//		Temp = new long[NumberLength];
-//		Convert31To32Bits(GD, Temp);
 		NL = NumberLength * 4;
-		// LOG.debug("NumberLength = " + NumberLength + ", GD = " + Arrays.toString(GD));
 		Result = new byte[NL];
 		for (i = 0; i < NumberLength; i++) {
 			digit = GD[i];
