@@ -636,14 +636,13 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		return BigIntToBigNbr(GD);
 	}
 	
-
 	/**
 	 * Converts BigInteger N into {TestNbr, NumberLength}.
 	 * @param N input
 	 * @param TestNbr output
 	 * @return size of TestNbr in 31-bit units
 	 */
-	public int BigNbrToBigInt(BigInteger N, int TestNbr[]) {
+	public int BigNbrToBigInt(BigInteger N, int[] TestNbr) {
 	    byte[] NBytes = N.toByteArray();
 	    int NumberLength = computeNumberLength(NBytes.length * 8); // number length in 31-bit integers
 	    long[] Temp = new long[NumberLength+1]; // zero-initialized
@@ -661,6 +660,32 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    }
 	    Temp[j] = p;
 	    Convert32To31Bits(Temp, TestNbr, NumberLength);
+	    return NumberLength;
+	}
+	
+	/**
+	 * Converts BigInteger N into {TestNbr, NumberLength}.
+	 * @param N input
+	 * @param TestNbr output
+	 * @return size of TestNbr in 32-bit units
+	 */
+	public int BigNbrToBigInt(BigInteger N, long[] TestNbr) {
+	    byte[] NBytes = N.toByteArray();
+	    int NumberLength = computeNumberLength(NBytes.length * 8); // number length in 31-bit integers
+	    int j = 0;
+	    int mask = 1;
+	    long p = 0;
+	    for (int i = NBytes.length - 1; i >= 0; i--) {
+	    	p += mask * (NBytes[i] & 0xFFL); // convert (eventually negative) byte into positive long
+	    	mask <<= 8; // mask *= 256
+	    	if (mask == 0) { // int overflow after 4 shifts
+	    		TestNbr[j++] = p;
+	    		mask = 1;
+		        p = 0;
+	    	}
+	    }
+	    TestNbr[j] = p;
+	    // TODO 0-initialize all TestNbr entries from j+1 to NumberLength ?
 	    return NumberLength;
 	}
 
@@ -875,6 +900,23 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		Result = new byte[NL];
 		for (i = 0; i < NumberLength; i++) {
 			digit = Temp[i];
+			Result[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
+			Result[NL - 2 - 4 * i] = (byte) (digit / 0x100 & 0xFF);
+			Result[NL - 3 - 4 * i] = (byte) (digit / 0x10000 & 0xFF);
+			Result[NL - 4 - 4 * i] = (byte) (digit / 0x1000000 & 0xFF);
+		}
+		return (new BigInteger(Result));
+	}
+
+	BigInteger BigIntToBigNbr(long[] GD) {
+		byte[] Result;
+		int i, NL;
+		long digit;
+
+		NL = NumberLength * 4;
+		Result = new byte[NL];
+		for (i = 0; i < NumberLength; i++) {
+			digit = GD[i];
 			Result[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
 			Result[NL - 2 - 4 * i] = (byte) (digit / 0x100 & 0xFF);
 			Result[NL - 3 - 4 * i] = (byte) (digit / 0x10000 & 0xFF);
