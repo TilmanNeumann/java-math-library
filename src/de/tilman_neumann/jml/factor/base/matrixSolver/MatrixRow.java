@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.base.matrixSolver;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -39,7 +39,7 @@ public class MatrixRow {
 		this.rowIndexHistory = rowIndexHistory;
 	}
 	
-	public ArrayList<Integer> getRowIndexHistoryAsList() {
+	public List<Integer> getRowIndexHistoryAsList() {
 		return rowIndexHistory.toList();
 	}
 	
@@ -72,7 +72,7 @@ public class MatrixRow {
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o==null || !(o instanceof MatrixRow)) return false;
+		if (/*o==null ||*/ !(o instanceof MatrixRow)) return false;
 		MatrixRow other = (MatrixRow) o;
 		return this.rowIndexHistory.equals(other.rowIndexHistory);
 	}

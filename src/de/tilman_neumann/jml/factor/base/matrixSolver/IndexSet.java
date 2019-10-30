@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.factor.base.matrixSolver;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -65,8 +66,9 @@ public class IndexSet  {
 	
 	public boolean contains(Object o) {
 		LOG.debug("contains()", new Throwable()); // never used, method untested
-		if (o==null || !(o instanceof Integer)) return false;
-		int x = ((Integer)o).intValue();
+		if (/*o==null ||*/ !(o instanceof Integer)) return false;
+		//int x = ((Integer)o).intValue();
+		int x = (Integer) o;
 		if (x >= numberOfBits) return false; // there is no entry as big as x
 		int longIndex = x>>6; // floor(x/64)
 		long theLong = bitArray[longIndex];
@@ -114,8 +116,8 @@ public class IndexSet  {
 	/**
 	 * @return this index set as a list
 	 */
-	public ArrayList<Integer> toList() {
-		ArrayList<Integer> result = new ArrayList<Integer>();
+	public List<Integer> toList() {
+		List<Integer> result = new ArrayList<>();
 		for (int i=0; i<numberOfLongs; i++) {
 			long theLong = bitArray[i];
 			int x = i<<6; // x = 64*i

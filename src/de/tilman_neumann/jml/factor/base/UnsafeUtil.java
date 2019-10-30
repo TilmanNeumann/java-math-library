@@ -15,6 +15,7 @@ package de.tilman_neumann.jml.factor.base;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -37,7 +38,7 @@ public class UnsafeUtil {
 	private static final int ADDITIONAL_SIZE = IS_PAGE_ALIGNED ? PAGE_SIZE : 0;
 	
 	// a map from addresses to allocation sizes
-	private static final HashMap<Long, Long> ADDRESS_2_SIZE_MAP = new HashMap<Long, Long>();
+	private static final Map<Long, Long> ADDRESS_2_SIZE_MAP = new HashMap<>();
 	// native memory already allocated in byte
 	private static long TOTAL_ALLOCATED = 0;
 	

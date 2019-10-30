@@ -15,6 +15,7 @@ package de.tilman_neumann.jml.factor.psiqs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 
@@ -25,13 +26,13 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 public class AQPairBuffer {
 	private static final int INITIAL_BUFFER_SIZE = 100;
 	
-	private ArrayList<AQPair> aqPairs = new ArrayList<AQPair>(INITIAL_BUFFER_SIZE);
+	private List<AQPair> aqPairs = new ArrayList<>(INITIAL_BUFFER_SIZE);
 	
 	/**
 	 * Called by the control thread, indicating that it waits for AQPairs.
 	 * @return collected AQPairs
 	 */
-	ArrayList<AQPair> collectAQPairs() {
+	List<AQPair> collectAQPairs() {
 		synchronized (this) {
 			while (true) {
 				try {
@@ -43,8 +44,8 @@ public class AQPairBuffer {
 				}
 			}
 			// get new data
-			ArrayList<AQPair> ret = aqPairs;
-			aqPairs = new ArrayList<AQPair>(INITIAL_BUFFER_SIZE);
+			List<AQPair> ret = aqPairs;
+			aqPairs = new ArrayList<>(INITIAL_BUFFER_SIZE);
 			return ret;
 		}
 	}
