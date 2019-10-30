@@ -52,7 +52,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 	private int[] primes;
 	private double[] reciprocals;
 	
-	private final AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
+	private final AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.getInstance();
 	private final Gcd63 gcdEngine = new Gcd63();
 
 	/**

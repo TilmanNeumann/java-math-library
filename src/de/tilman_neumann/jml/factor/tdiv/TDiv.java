@@ -30,7 +30,7 @@ public class TDiv {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(TDiv.class);
 	
-	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
+	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.getInstance();
 
 	/**
 	 * Tries to find small factors of a positive, possibly large argument N by doing trial division

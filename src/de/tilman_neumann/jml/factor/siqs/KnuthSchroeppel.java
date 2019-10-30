@@ -51,7 +51,7 @@ public class KnuthSchroeppel {
 	private static final double PENALTY_WEIGHT = 0.35;
 
 	// 10000 primes would always be enough, but using the auto-expanding sieve facade is nicer
-	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
+	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.getInstance();
 	private SquarefreeSequence63 squareFreeSequence = new SquarefreeSequence63(1);
 
 	private int[] kArray = new int[10000];

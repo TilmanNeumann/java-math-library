@@ -34,7 +34,7 @@ public class TDiv31Barrett extends FactorAlgorithm {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(TDiv31Barrett.class);
 
-	private AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();	// "static" would be slightly slower
+	private AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.getInstance();	// "static" would be slightly slower
 
 	private int[] primes;
 	private long[] pinv;

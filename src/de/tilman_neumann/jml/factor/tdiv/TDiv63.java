@@ -27,7 +27,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  */
 public class TDiv63 extends FactorAlgorithm {
 	
-	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
+	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.getInstance().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
 
 	private int pLimit = Integer.MAX_VALUE;
 

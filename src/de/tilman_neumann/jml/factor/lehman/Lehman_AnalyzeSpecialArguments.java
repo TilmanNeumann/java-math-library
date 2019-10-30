@@ -32,7 +32,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 public class Lehman_AnalyzeSpecialArguments extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeSpecialArguments.class);
 	
-	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
+	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.getInstance().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
 
 	private final Gcd63 gcdEngine = new Gcd63();
 

@@ -41,7 +41,7 @@ public class KnuthSchroeppel_CFrac {
 	private static final double FOUR_BY_3 = 4.0/3.0 * Math.log(2);
 
 	// 10000 primes would always be enough, but using the expandable sieve is nicer
-	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
+	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.getInstance();
 	private SquarefreeSequence squareFreeSequence = new SquarefreeSequence(1);
 
 	private int[] kArray = new int[10000];

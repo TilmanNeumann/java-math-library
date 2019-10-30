@@ -44,7 +44,7 @@ public class HartLA63 extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(HartLA63.class);
 	private static final boolean DEBUG = false;
 
-	private final AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
+	private final AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.getInstance();
 
 	// input
 	private BigInteger N, kN;

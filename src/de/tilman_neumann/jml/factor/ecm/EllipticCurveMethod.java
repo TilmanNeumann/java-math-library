@@ -110,7 +110,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			BigNbr1[i] = 0;
 		}
 		
-		final AutoExpandingPrimesArray autoPrimes = AutoExpandingPrimesArray.get().ensureLimit(5000);
+		final AutoExpandingPrimesArray autoPrimes = AutoExpandingPrimesArray.getInstance().ensureLimit(5000);
 		SmallPrime[0] = 2;
 		for (int indexM = 1; indexM < SmallPrime.length; indexM++) {
 			SmallPrime[indexM] = autoPrimes.getPrime(indexM);

@@ -34,7 +34,7 @@ public class PrimeBaseGenerator {
 	private static final Logger LOG = Logger.getLogger(PrimeBaseGenerator.class);
 	private static final boolean DEBUG = false;
 	
-	private AutoExpandingPrimesArray rawPrimesArray = AutoExpandingPrimesArray.get();
+	private AutoExpandingPrimesArray rawPrimesArray = AutoExpandingPrimesArray.getInstance();
 	private JacobiSymbol jacobiEngine = new JacobiSymbol();
 
 	/**

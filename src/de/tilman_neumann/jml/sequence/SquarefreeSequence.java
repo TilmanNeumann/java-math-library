@@ -29,7 +29,7 @@ import de.tilman_neumann.util.ConfigUtil;
 public class SquarefreeSequence implements NumberSequence<BigInteger> {
 	private static final Logger LOG = Logger.getLogger(SquarefreeSequence.class);
 
-	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
+	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.getInstance();
 	
 	private BigInteger multiplier;
 	private BigInteger next;

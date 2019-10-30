@@ -40,7 +40,7 @@ public class AutoExpandingPrimesArray implements SieveCallback {
 	// singleton
 	private static final AutoExpandingPrimesArray THE_PRIMES_ARRAY = new AutoExpandingPrimesArray();
 	
-	public static AutoExpandingPrimesArray get() {
+	public static AutoExpandingPrimesArray getInstance() {
 		return THE_PRIMES_ARRAY;
 	}
 	

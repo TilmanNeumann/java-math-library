@@ -25,7 +25,7 @@ import de.tilman_neumann.util.ConfigUtil;
 public class SquarefreeSequence63 implements NumberSequence<Long> {
 	private static final Logger LOG = Logger.getLogger(SquarefreeSequence63.class);
 
-	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
+	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.getInstance();
 	
 	private long multiplier;
 	private long next;

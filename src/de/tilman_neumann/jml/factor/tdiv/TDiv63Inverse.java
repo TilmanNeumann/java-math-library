@@ -44,7 +44,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 public class TDiv63Inverse extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(TDiv63Inverse.class);
 	
-	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
+	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.getInstance();
 
 	private static final int DISCRIMINATOR_BITS = 10; // experimental result
 	private static final double DISCRIMINATOR = 1.0/(1<<DISCRIMINATOR_BITS);

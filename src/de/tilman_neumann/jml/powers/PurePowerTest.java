@@ -46,7 +46,7 @@ public class PurePowerTest {
 	private static final double LN_3 = Math.log(3);
 	
 	private Gcd31 gcdEngine = new Gcd31();
-	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
+	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.getInstance();
 
 	public static class Result {
 		public BigInteger base;
