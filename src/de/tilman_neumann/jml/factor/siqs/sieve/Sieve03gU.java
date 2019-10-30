@@ -188,7 +188,7 @@ public class Sieve03gU implements Sieve {
 		if (profile) sieveDuration += timer.capture();
 
 		// collect results: we check 8 sieve locations in one long
-		List<Integer> smoothXList = new ArrayList<Integer>();
+		List<Integer> smoothXList = new ArrayList<>();
 		long y0, y1;
 		for (long x=sieveArrayAddress+sieveArraySize; x>sieveArrayAddress; ) {
 			if ((((y0 = UNSAFE.getLong(x-=8)) | (y1 = UNSAFE.getLong(x-=8))) & 0x8080808080808080L) != 0) {

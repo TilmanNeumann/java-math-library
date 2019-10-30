@@ -181,7 +181,7 @@ public class DoubleBlockHybridSieveU implements Sieve {
 		if (profile) initDuration += timer.capture();
 
 		// Sieve with positive x, large primes:
-		List<Integer> smoothXList = new ArrayList<Integer>();
+		List<Integer> smoothXList = new ArrayList<>();
 		final byte[] logPArray = solutionArrays.logPArray;
 		int i;
 		long x1Addr, x2Addr;

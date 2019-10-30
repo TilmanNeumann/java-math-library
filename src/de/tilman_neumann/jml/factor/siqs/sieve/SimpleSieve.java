@@ -113,7 +113,7 @@ public class SimpleSieve implements Sieve {
 		if (profile) sieveDuration += timer.capture();
 
 		// collect results
-		List<Integer> smoothXList = new ArrayList<Integer>();
+		List<Integer> smoothXList = new ArrayList<>();
 		// let the sieve entry counter x run down to 0 is much faster because of the simpler exit condition
 		for (int x=sieveArraySize-1; x>=0; x--) {
 			// collect positive x
