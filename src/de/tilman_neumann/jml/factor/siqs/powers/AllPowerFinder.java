@@ -60,7 +60,7 @@ public class AllPowerFinder extends SomePowerFinder {
 		final int pMax = sieveParams.pMax;
 		final float lnPMultiplier = sieveParams.lnPMultiplier;
 		
-		TreeSet<PowerEntry> powerEntries = new TreeSet<PowerEntry>();
+		TreeSet<PowerEntry> powerEntries = new TreeSet<>();
 		// exclude powers of primes > sqrt(pMax)
 		int sqrtPMaxIndex = binarySearch.getInsertPosition(primes, primeBaseSize, (int)Math.sqrt(pMax));
 		for (int pIndex=1; pIndex<sqrtPMaxIndex; pIndex++) { // p[0]==2 never has 2 x-solutions

@@ -37,7 +37,7 @@ public class Smooth_Composite implements Smooth {
 	 */
 	public Smooth_Composite(Set<AQPair> aqPairs) {
 		this.aqPairs = new AQPair[aqPairs.size()];
-		HashSet<Integer> smallFactorsWithOddExp = new HashSet<Integer>();
+		HashSet<Integer> smallFactorsWithOddExp = new HashSet<>();
 		int aqPairCount = 0;
 		for (AQPair aqPair : aqPairs) {
 			this.aqPairs[aqPairCount++] = aqPair;
@@ -49,17 +49,15 @@ public class Smooth_Composite implements Smooth {
 				}
 			}
 		}
-		this.oddExpElements = smallFactorsWithOddExp.toArray(new Integer[smallFactorsWithOddExp.size()]);
+		//this.oddExpElements = smallFactorsWithOddExp.toArray(new Integer[smallFactorsWithOddExp.size()]);
+		this.oddExpElements = smallFactorsWithOddExp.toArray(new Integer[0]);
 		
 		this.hashCode = aqPairs.hashCode();
 	}
 
 	@Override
 	public Set<AQPair> getAQPairs() {
-		Set<AQPair> set = new HashSet<>();
-		for (AQPair aqPair : aqPairs) {
-			set.add(aqPair);
-		}
+		Set<AQPair> set = new HashSet<>(Arrays.asList(aqPairs));
 		return set;
 	}
 
@@ -89,7 +87,7 @@ public class Smooth_Composite implements Smooth {
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o==null || !(o instanceof Smooth_Composite)) return false;
+		if (!(o instanceof Smooth_Composite)) return false;
 		Smooth_Composite other = (Smooth_Composite) o;
 		// equal objects must have the same hashCode
 		if (hashCode != other.hashCode) return false;
@@ -98,8 +96,8 @@ public class Smooth_Composite implements Smooth {
 
 	@Override
 	public String toString() {
-		SortedMultiset<BigInteger> allA = new SortedMultiset_BottomUp<BigInteger>();
-		SortedMultiset<Long> allQ = new SortedMultiset_BottomUp<Long>();
+		SortedMultiset<BigInteger> allA = new SortedMultiset_BottomUp<>();
+		SortedMultiset<Long> allQ = new SortedMultiset_BottomUp<>();
 		for (AQPair aqPair : aqPairs) {
 			allA.add(aqPair.getA());
 			allQ.addAll(aqPair.getAllQFactors());

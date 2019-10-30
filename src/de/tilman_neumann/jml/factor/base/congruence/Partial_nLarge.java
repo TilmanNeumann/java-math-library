@@ -15,6 +15,7 @@ package de.tilman_neumann.jml.factor.base.congruence;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.SortedLongArray;
@@ -57,18 +58,19 @@ public class Partial_nLarge extends Partial {
 
 	@Override
 	public Long[] getLargeFactorsWithOddExponent() {
-		ArrayList<Long> result = new ArrayList<>();
+		List<Long> result = new ArrayList<>();
 		for (int i=0; i<bigFactors.length; i++) {
 			if ((bigFactorExponents[i]&1)==1) result.add(bigFactors[i]);
 		}
-		return result.toArray(new Long[result.size()]);
+		//return result.toArray(new Long[result.size()]);
+		return result.toArray(new Long[0]);
 	}
 
 	@Override
 	public int getNumberOfLargeQFactors() {
 		int count = 0;
-		for (int i=0; i<bigFactorExponents.length; i++) {
-			count += bigFactorExponents[i];
+		for (byte bigFactorExponent : bigFactorExponents) {
+			count += bigFactorExponent;
 		}
 		return count;
 	}

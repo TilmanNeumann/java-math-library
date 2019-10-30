@@ -30,12 +30,13 @@ abstract public class Smooth_Simple extends AQPair implements Smooth {
 	public Smooth_Simple(BigInteger A, SortedIntegerArray smallFactors) {
 		super(A, smallFactors);
 		// determine small factors with odd exponents: first we need a set to eliminate duplicates.
-		Set<Integer> result = new HashSet<Integer>();
+		Set<Integer> result = new HashSet<>();
 		for (int i=0; i<this.smallFactors.length; i++) {
 			if ((smallFactorExponents[i]&1)==1) result.add(this.smallFactors[i]);
 		}
 		// convert to array
-		this.oddExpElements = result.toArray(new Integer[result.size()]);
+		//this.oddExpElements = result.toArray(new Integer[result.size()]);
+		this.oddExpElements = result.toArray(new Integer[0]);
 	}
 
 	@Override

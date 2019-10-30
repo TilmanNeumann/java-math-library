@@ -15,6 +15,7 @@ package de.tilman_neumann.jml.base;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,7 +70,7 @@ public class NumberGrid<U> implements Serializable {
 		this.xIncrement = xIncrement;
 		this.yStart = yStart;
 		this.yIncrement = yIncrement;
-		this.rows = new LinkedList<List<U>>();
+		this.rows = new LinkedList<>();
 	}
 
 	/**
@@ -113,9 +114,10 @@ public class NumberGrid<U> implements Serializable {
 	public String toString() {
 		int numberOfColumns = this.getNumberOfColumns();
 		int[] columnWidths = new int[numberOfColumns];
-		for (int j=0; j<columnWidths.length; j++) {
-			columnWidths[j] = 0;
-		}
+		//for (int j=0; j<columnWidths.length; j++) {
+		//	columnWidths[j] = 0;
+		//}
+		Arrays.fill(columnWidths, 0);
 		// Determine maximal lengths of strings in the several columns:
 		for (List<U> row : this.rows) {
 			if (row != null) {
@@ -159,10 +161,10 @@ public class NumberGrid<U> implements Serializable {
 	/**
 	 * @return This triangle converted into a list read by rows.
 	 */
-	public ArrayList<U> toList() {
+	public List<U> toList() {
 		int n = rows.size();
 		int number = n*(n+1)/2;
-		ArrayList<U> list = new ArrayList<U>(number);
+		List<U> list = new ArrayList<>(number);
 		for (List<U> row : this.getRows()) {
 			list.addAll(row);
 		}
