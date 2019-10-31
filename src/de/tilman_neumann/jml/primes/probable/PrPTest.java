@@ -47,7 +47,7 @@ public class PrPTest {
 		return hashset;
 	}
 	
-	private TDivPrimeTest tdiv = new TDivPrimeTest();
+	//private TDivPrimeTest tdiv = new TDivPrimeTest();
 	private MillerRabinTest millerRabinTest = new MillerRabinTest();
 	private LucasTest lucasTest = new LucasTest();
 
@@ -62,7 +62,8 @@ public class PrPTest {
         // For small N, trial division is much faster than BPSW
         int Nbits = N.bitLength();
         if (Nbits < 32) {
-        	return tdiv.isPrime(N.intValue());
+        	//return tdiv.isPrime(N.intValue());
+		return TDivPrimeTest.getInstance().isPrime(N.intValue());
         }
         
 		// Test residues % 30030. Note that N<30030 have been exclude by trial division above.
