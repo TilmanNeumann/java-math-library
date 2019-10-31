@@ -2,7 +2,6 @@ package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
@@ -13,7 +12,7 @@ public class EllipticCurveMethodTest {
 	
 	private static final SecureRandom RNG = new SecureRandom();
 
-	private static final int N_COUNT = 10000;
+	private static final int N_COUNT = 100000;
 	
 	public static void main(String[] args) {
 		ConfigUtil.initProject();

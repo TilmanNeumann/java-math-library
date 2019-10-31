@@ -685,7 +685,11 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    	}
 	    }
 	    TestNbr[j] = p;
-	    // TODO 0-initialize all TestNbr entries from j+1 to NumberLength ?
+	    // zero-initialize all TestNbr entries from j+1 to NumberLength
+	    j++;
+	    for ( ; j<=NumberLength; j++) {
+	    	TestNbr[j] = 0;
+	    }
 	    return NumberLength;
 	}
 
