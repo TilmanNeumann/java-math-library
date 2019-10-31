@@ -635,6 +635,289 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		return BigIntToBigNbr(GD);
 	}
 	
+	private static void GenerateSieve(int initial, byte[] sieve, byte[] sieve2310, int[] SmallPrime) {
+		int i, j, Q;
+		for (i = 0; i < 23100; i += 2310) {
+			System.arraycopy(sieve2310, 0, sieve, i, 2310);
+		}
+		j = 5;
+		Q = 13; /* Point to prime 13 */
+		do {
+			if (initial > Q * Q) {
+				for (i = (int) (((long) initial * ((Q - 1) / 2)) % Q); i < 23100; i += Q) {
+					sieve[i] = 1; /* Composite */
+				}
+			} else {
+				i = Q * Q - initial;
+				if (i < 46200) {
+					for (i = i / 2; i < 23100; i += Q) {
+						sieve[i] = 1; /* Composite */
+					}
+				} else {
+					break;
+				}
+			}
+			Q = SmallPrime[++j];
+		} while (Q < 5000);
+	}
+
+	/**
+	 * Computes nP from P=(x:z) and puts the result in (x:z). Assumes n>2.
+	 * 
+	 * @param n
+	 * @param x
+	 * @param z
+	 * @param xT
+	 * @param zT
+	 * @param xT2
+	 * @param zT2
+	 */
+	private void prac(int n, int[] x, int[] z, int[] xT, int[] zT, int[] xT2, int[] zT2) {
+		int d, e, r, i;
+		int[] t;
+		int[] xA = x, zA = z;
+		int[] xB = fieldAux1, zB = fieldAux2;
+		int[] xC = fieldAux3, zC = fieldAux4;
+
+		/* chooses the best value of v */
+		r = lucas_cost(n, v[0]);
+		i = 0;
+		for (d = 1; d < 10; d++) {
+			e = lucas_cost(n, v[d]);
+			if (e < r) {
+				r = e;
+				i = d;
+			}
+		}
+		d = n;
+		r = (int) (d / v[i] + 0.5);
+		/* first iteration always begins by Condition 3, then a swap */
+		d = n - r;
+		e = 2 * r - n;
+		System.arraycopy(xA, 0, xB, 0, NumberLength); // B = A
+		System.arraycopy(zA, 0, zB, 0, NumberLength);
+		System.arraycopy(xA, 0, xC, 0, NumberLength); // C = A
+		System.arraycopy(zA, 0, zC, 0, NumberLength);
+		duplicate(xA, zA, xA, zA); /* A=2*A */
+		while (d != e) {
+			if (d < e) {
+				r = d;
+				d = e;
+				e = r;
+				t = xA;
+				xA = xB;
+				xB = t;
+				t = zA;
+				zA = zB;
+				zB = t;
+			}
+			/* do the first line of Table 4 whose condition qualifies */
+			if (4 * d <= 5 * e && ((d + e) % 3) == 0) { /* condition 1 */
+				r = (2 * d - e) / 3;
+				e = (2 * e - d) / 3;
+				d = r;
+				add3(xT, zT, xA, zA, xB, zB, xC, zC); /* T = f(A,B,C) */
+				add3(xT2, zT2, xT, zT, xA, zA, xB, zB); /* T2 = f(T,A,B) */
+				add3(xB, zB, xB, zB, xT, zT, xA, zA); /* B = f(B,T,A) */
+				t = xA;
+				xA = xT2;
+				xT2 = t;
+				t = zA;
+				zA = zT2;
+				zT2 = t; /* swap A and T2 */
+			} else if (4 * d <= 5 * e && (d - e) % 6 == 0) { /* condition 2 */
+				d = (d - e) / 2;
+				add3(xB, zB, xA, zA, xB, zB, xC, zC); /* B = f(A,B,C) */
+				duplicate(xA, zA, xA, zA); /* A = 2*A */
+			} else if (d <= (4 * e)) { /* condition 3 */
+				d -= e;
+				add3(xT, zT, xB, zB, xA, zA, xC, zC); /* T = f(B,A,C) */
+				t = xB;
+				xB = xT;
+				xT = xC;
+				xC = t;
+				t = zB;
+				zB = zT;
+				zT = zC;
+				zC = t; /* circular permutation (B,T,C) */
+			} else if ((d + e) % 2 == 0) { /* condition 4 */
+				d = (d - e) / 2;
+				add3(xB, zB, xB, zB, xA, zA, xC, zC); /* B = f(B,A,C) */
+				duplicate(xA, zA, xA, zA); /* A = 2*A */
+			} else if (d % 2 == 0) { /* condition 5 */
+				d /= 2;
+				add3(xC, zC, xC, zC, xA, zA, xB, zB); /* C = f(C,A,B) */
+				duplicate(xA, zA, xA, zA); /* A = 2*A */
+			} else if (d % 3 == 0) { /* condition 6 */
+				d = d / 3 - e;
+				duplicate(xT, zT, xA, zA); /* T1 = 2*A */
+				add3(xT2, zT2, xA, zA, xB, zB, xC, zC); /* T2 = f(A,B,C) */
+				add3(xA, zA, xT, zT, xA, zA, xA, zA); /* A = f(T1,A,A) */
+				add3(xT, zT, xT, zT, xT2, zT2, xC, zC); /* T1 = f(T1,T2,C) */
+				t = xC;
+				xC = xB;
+				xB = xT;
+				xT = t;
+				t = zC;
+				zC = zB;
+				zB = zT;
+				zT = t; /* circular permutation (C,B,T) */
+			} else if ((d + e) % 3 == 0) { /* condition 7 */
+				d = (d - 2 * e) / 3;
+				add3(xT, zT, xA, zA, xB, zB, xC, zC); /* T1 = f(A,B,C) */
+				add3(xB, zB, xT, zT, xA, zA, xB, zB); /* B = f(T1,A,B) */
+				duplicate(xT, zT, xA, zA);
+				add3(xA, zA, xA, zA, xT, zT, xA, zA); /* A = 3*A */
+			} else if ((d - e) % 3 == 0) { /* condition 8 */
+				d = (d - e) / 3;
+				add3(xT, zT, xA, zA, xB, zB, xC, zC); /* T1 = f(A,B,C) */
+				add3(xC, zC, xC, zC, xA, zA, xB, zB); /* C = f(A,C,B) */
+				t = xB;
+				xB = xT;
+				xT = t;
+				t = zB;
+				zB = zT;
+				zT = t; /* swap B and T */
+				duplicate(xT, zT, xA, zA);
+				add3(xA, zA, xA, zA, xT, zT, xA, zA); /* A = 3*A */
+			} else if (e % 2 == 0) { /* condition 9 */
+				e /= 2;
+				add3(xC, zC, xC, zC, xB, zB, xA, zA); /* C = f(C,B,A) */
+				duplicate(xB, zB, xB, zB); /* B = 2*B */
+			}
+		}
+		add3(x, z, xA, zA, xB, zB, xC, zC);
+	}
+
+	/** returns the number of modular multiplications */
+	private static int lucas_cost(int n, double v) {
+		int c, d, e, r;
+
+		d = n;
+		r = (int) (d / v + 0.5);
+		if (r >= n) return (ADD * n);
+		
+		d = n - r;
+		e = 2 * r - n;
+		c = DUP + ADD; /* initial duplicate and final addition */
+		while (d != e) {
+			if (d < e) {
+				r = d;
+				d = e;
+				e = r;
+			}
+			if (4 * d <= 5 * e && ((d + e) % 3) == 0) { /* condition 1 */
+				r = (2 * d - e) / 3;
+				e = (2 * e - d) / 3;
+				d = r;
+				c += 3 * ADD; /* 3 additions */
+			} else if (4 * d <= 5 * e && (d - e) % 6 == 0) { /* condition 2 */
+				d = (d - e) / 2;
+				c += ADD + DUP; /* one addition, one duplicate */
+			} else if (d <= (4 * e)) { /* condition 3 */
+				d -= e;
+				c += ADD; /* one addition */
+			} else if ((d + e) % 2 == 0) { /* condition 4 */
+				d = (d - e) / 2;
+				c += ADD + DUP; /* one addition, one duplicate */
+			} else if (d % 2 == 0) { /* condition 5 */
+				d /= 2;
+				c += ADD + DUP; /* one addition, one duplicate */
+			} else if (d % 3 == 0) { /* condition 6 */
+				d = d / 3 - e;
+				c += 3 * ADD + DUP; /* three additions, one duplicate */
+			} else if ((d + e) % 3 == 0) { /* condition 7 */
+				d = (d - 2 * e) / 3;
+				c += 3 * ADD + DUP; /* three additions, one duplicate */
+			} else if ((d - e) % 3 == 0) { /* condition 8 */
+				d = (d - e) / 3;
+				c += 3 * ADD + DUP; /* three additions, one duplicate */
+			} else if (e % 2 == 0) { /* condition 9 */
+				e /= 2;
+				c += ADD + DUP; /* one addition, one duplicate */
+			}
+		}
+		return (c);
+	}
+
+	/**
+	 * computes 2P=(x2:z2) from P=(x1:z1), with 5 mul, 4 add/sub, 5 mod. Uses the following global variables: - n :
+	 * number to factor - b : (a+2)/4 mod n - u, v, w : auxiliary variables Modifies: x2, z2, u, v, w
+	 */
+	private void duplicate(int[] x2, int[] z2, int[] x1, int[] z1) {
+		int[] u = fieldUZ;
+		int[] v = fieldTX;
+		int[] w = fieldTZ;
+		AddBigNbrModN(x1, z1, w); // w = x1+z1
+		montgomery.mul(w, w, u); // u = (x1+z1)^2
+		SubtractBigNbrModN(x1, z1, w); // w = x1-z1
+		montgomery.mul(w, w, v); // v = (x1-z1)^2
+		montgomery.mul(u, v, x2); // x2 = u*v = (x1^2 - z1^2)^2
+		SubtractBigNbrModN(u, v, w); // w = u-v = 4*x1*z1
+		montgomery.mul(fieldAA, w, u);
+		AddBigNbrModN(u, v, u); // u = (v+b*w)
+		montgomery.mul(w, u, z2); // z2 = (w*u)
+	}
+
+	/**
+	 * Adds Q=(x2:z2) and R=(x1:z1) and puts the result in (x3:z3), using 5/6 mul, 6 add/sub and 6 mod. One assumes that
+	 * Q-R=P or R-Q=P where P=(x:z). Uses the following global variables: - n : number to factor - x, z : coordinates of
+	 * P - u, v, w : auxiliary variables Modifies: x3, z3, u, v, w. (x3,z3) may be identical to (x2,z2) and to (x,z)
+	 * 
+	 * @param x3 
+	 * @param z3 
+	 * @param x2 
+	 * @param z2 
+	 * @param x1 
+	 * @param z1 
+	 * @param x 
+	 * @param z 
+	 */
+	private void add3(int[] x3, int[] z3, int[] x2, int[] z2, int[] x1, int[] z1, int[] x, int[] z) {
+		int[] t = fieldTX;
+		int[] u = fieldTZ;
+		int[] v = fieldUX;
+		int[] w = fieldUZ;
+		SubtractBigNbrModN(x2, z2, v); // v = x2-z2
+		AddBigNbrModN(x1, z1, w);      // w = x1+z1
+		montgomery.mul(v, w, u); // u = (x2-z2)*(x1+z1)
+		AddBigNbrModN(x2, z2, w); // w = x2+z2
+		SubtractBigNbrModN(x1, z1, t); // t = x1-z1
+		montgomery.mul(t, w, v); // v = (x2+z2)*(x1-z1)
+		AddBigNbrModN(u, v, t); // t = 2*(x1*x2-z1*z2)
+		montgomery.mul(t, t, w); // w = 4*(x1*x2-z1*z2)^2
+		SubtractBigNbrModN(u, v, t); // t = 2*(x2*z1-x1*z2)
+		montgomery.mul(t, t, v); // v = 4*(x2*z1-x1*z2)^2
+		if (BigNbrAreEqual(x, x3)) {
+			System.arraycopy(x, 0, u, 0, NumberLength);
+			System.arraycopy(w, 0, t, 0, NumberLength);
+			montgomery.mul(z, t, w);
+			montgomery.mul(v, u, z3);
+			System.arraycopy(w, 0, x3, 0, NumberLength);
+		} else {
+			montgomery.mul(w, z, x3); // x3 = 4*z*(x1*x2-z1*z2)^2
+			montgomery.mul(x, v, z3); // z3 = 4*x*(x2*z1-x1*z2)^2
+		}
+	}
+
+	/**
+	 * Convert a non-negative long <code>Nbr</code> into a BigNbr <code>Out</code> represented by 31-bit integers.
+	 * @param Nbr input
+	 * @param Out output
+	 */
+	void LongToBigNbr(long Nbr, int Out[]) {
+	    Out[0] = (int)(Nbr & 0x7FFFFFFF);
+	    Out[1] = (int)((Nbr >> 31) & 0x7FFFFFFF);
+	    if (NumberLength > 2) {
+		    // bit 63 needs special consideration
+	    	Out[2] = (Nbr >= DosALa62) ? 1 : 0;
+		    
+		    for (int i = 3; i < NumberLength; i++) {
+		    	Out[i] = 0;
+		    }
+	    }
+	}
+
 	/**
 	 * Converts BigInteger N into {TestNbr, NumberLength}.
 	 * @param N input
@@ -694,124 +977,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	static int computeNumberLength(int bitLength) {
 		return bitLength/31 + 1;
 	}
-	
-	private static void GenerateSieve(int initial, byte[] sieve, byte[] sieve2310, int[] SmallPrime) {
-		int i, j, Q;
-		for (i = 0; i < 23100; i += 2310) {
-			System.arraycopy(sieve2310, 0, sieve, i, 2310);
-		}
-		j = 5;
-		Q = 13; /* Point to prime 13 */
-		do {
-			if (initial > Q * Q) {
-				for (i = (int) (((long) initial * ((Q - 1) / 2)) % Q); i < 23100; i += Q) {
-					sieve[i] = 1; /* Composite */
-				}
-			} else {
-				i = Q * Q - initial;
-				if (i < 46200) {
-					for (i = i / 2; i < 23100; i += Q) {
-						sieve[i] = 1; /* Composite */
-					}
-				} else {
-					break;
-				}
-			}
-			Q = SmallPrime[++j];
-		} while (Q < 5000);
-	}
-
-	/** returns the number of modular multiplications */
-	private static int lucas_cost(int n, double v) {
-		int c, d, e, r;
-
-		d = n;
-		r = (int) (d / v + 0.5);
-		if (r >= n) return (ADD * n);
-		
-		d = n - r;
-		e = 2 * r - n;
-		c = DUP + ADD; /* initial duplicate and final addition */
-		while (d != e) {
-			if (d < e) {
-				r = d;
-				d = e;
-				e = r;
-			}
-			if (4 * d <= 5 * e && ((d + e) % 3) == 0) { /* condition 1 */
-				r = (2 * d - e) / 3;
-				e = (2 * e - d) / 3;
-				d = r;
-				c += 3 * ADD; /* 3 additions */
-			} else if (4 * d <= 5 * e && (d - e) % 6 == 0) { /* condition 2 */
-				d = (d - e) / 2;
-				c += ADD + DUP; /* one addition, one duplicate */
-			} else if (d <= (4 * e)) { /* condition 3 */
-				d -= e;
-				c += ADD; /* one addition */
-			} else if ((d + e) % 2 == 0) { /* condition 4 */
-				d = (d - e) / 2;
-				c += ADD + DUP; /* one addition, one duplicate */
-			} else if (d % 2 == 0) { /* condition 5 */
-				d /= 2;
-				c += ADD + DUP; /* one addition, one duplicate */
-			} else if (d % 3 == 0) { /* condition 6 */
-				d = d / 3 - e;
-				c += 3 * ADD + DUP; /* three additions, one duplicate */
-			} else if ((d + e) % 3 == 0) { /* condition 7 */
-				d = (d - 2 * e) / 3;
-				c += 3 * ADD + DUP; /* three additions, one duplicate */
-			} else if ((d - e) % 3 == 0) { /* condition 8 */
-				d = (d - e) / 3;
-				c += 3 * ADD + DUP; /* three additions, one duplicate */
-			} else if (e % 2 == 0) { /* condition 9 */
-				e /= 2;
-				c += ADD + DUP; /* one addition, one duplicate */
-			}
-		}
-		return (c);
-	}
-
-	/**
-	 * Adds Q=(x2:z2) and R=(x1:z1) and puts the result in (x3:z3), using 5/6 mul, 6 add/sub and 6 mod. One assumes that
-	 * Q-R=P or R-Q=P where P=(x:z). Uses the following global variables: - n : number to factor - x, z : coordinates of
-	 * P - u, v, w : auxiliary variables Modifies: x3, z3, u, v, w. (x3,z3) may be identical to (x2,z2) and to (x,z)
-	 * 
-	 * @param x3 
-	 * @param z3 
-	 * @param x2 
-	 * @param z2 
-	 * @param x1 
-	 * @param z1 
-	 * @param x 
-	 * @param z 
-	 */
-	private void add3(int[] x3, int[] z3, int[] x2, int[] z2, int[] x1, int[] z1, int[] x, int[] z) {
-		int[] t = fieldTX;
-		int[] u = fieldTZ;
-		int[] v = fieldUX;
-		int[] w = fieldUZ;
-		SubtractBigNbrModN(x2, z2, v); // v = x2-z2
-		AddBigNbrModN(x1, z1, w);      // w = x1+z1
-		montgomery.mul(v, w, u); // u = (x2-z2)*(x1+z1)
-		AddBigNbrModN(x2, z2, w); // w = x2+z2
-		SubtractBigNbrModN(x1, z1, t); // t = x1-z1
-		montgomery.mul(t, w, v); // v = (x2+z2)*(x1-z1)
-		AddBigNbrModN(u, v, t); // t = 2*(x1*x2-z1*z2)
-		montgomery.mul(t, t, w); // w = 4*(x1*x2-z1*z2)^2
-		SubtractBigNbrModN(u, v, t); // t = 2*(x2*z1-x1*z2)
-		montgomery.mul(t, t, v); // v = 4*(x2*z1-x1*z2)^2
-		if (BigNbrAreEqual(x, x3)) {
-			System.arraycopy(x, 0, u, 0, NumberLength);
-			System.arraycopy(w, 0, t, 0, NumberLength);
-			montgomery.mul(z, t, w);
-			montgomery.mul(v, u, z3);
-			System.arraycopy(w, 0, x3, 0, NumberLength);
-		} else {
-			montgomery.mul(w, z, x3); // x3 = 4*z*(x1*x2-z1*z2)^2
-			montgomery.mul(x, v, z3); // z3 = 4*x*(x2*z1-x1*z2)^2
-		}
-	}
 
 	void AddBigNbr(int Nbr1[], int Nbr2[], int Sum[]) {
 		int NumberLength = this.NumberLength;
@@ -848,6 +1013,86 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    		Sum[i] = (int)(carry & MaxUInt);
 	    	}
 	    }
+	}
+
+	void SubtractBigNbr(int Nbr1[], int Nbr2[], int Diff[]) {
+	    long carry = 0;
+	    for (int i = 0; i < NumberLength; i++) {
+	    	carry = (carry >> 31) + (long)Nbr1[i] - (long)Nbr2[i];
+	    	Diff[i] = (int)(carry & 0x7FFFFFFFL);
+	    }
+	}
+
+	void SubtractBigNbr32(long Nbr1[], long Nbr2[], long Diff[]) {
+		int NumberLength = this.NumberLength;
+		long Cy = 0;
+		for (int i = 0; i < NumberLength; i++) {
+			Cy = (Cy >> 32) + Nbr1[i] - Nbr2[i];
+			Diff[i] = Cy & 0xFFFFFFFFl;
+		}
+	}
+
+	void SubtractBigNbrModN(int Nbr1[], int Nbr2[], int Diff[]) {
+		int NumberLength = this.NumberLength;
+		long MaxUInt = 0x7FFFFFFFL; // Integer.MAX_VALUE
+		long carry = 0;
+		int i;
+		
+		for (i = 0; i < NumberLength; i++) {
+			carry = (carry >> 31) + (long)Nbr1[i] - (long)Nbr2[i];
+			Diff[i] = (int)(carry & MaxUInt);
+		}
+		if (carry < 0) {
+			carry = 0;
+			for (i = 0; i < NumberLength; i++) {
+				carry = (carry >> 31) + (long)Diff[i] + (long)TestNbr[i];
+				Diff[i] = (int)(carry & MaxUInt);
+			}
+		}
+	}
+
+	void MultBigNbrByLongModN(int Nbr1[], long Nbr2, int Prod[], double dN) {
+		int NumberLength = this.NumberLength;
+	    long MaxUInt = 0x7FFFFFFFL;
+	    long Pr;
+	    int j;
+	    
+	    Pr = 0;
+	    for (j = 0; j < NumberLength; j++) {
+	    	Pr = (Pr >>> 31) + Nbr2 * Nbr1[j];
+	    	Prod[j] = (int)(Pr & MaxUInt);
+	    }
+	    Prod[j] = (int)(Pr >>> 31);
+	    AdjustModN(Prod, dN);
+	}
+
+	private void MultBigNbrModN(int Nbr1[], int Nbr2[], int Prod[], double dN) {
+		int NumberLength = this.NumberLength;
+	    long MaxUInt = 0x7FFFFFFFL;
+	    int i, j;
+	    long Pr, Nbr;
+	    
+	    i = NumberLength;
+	    do {
+	    	Prod[--i] = 0;
+	    } while (i > 0);
+	    i = NumberLength;
+	    do {
+	    	Nbr = Nbr1[--i];
+	    	j = NumberLength;
+	    	do {
+	    		Prod[j] = Prod[j - 1];
+	    		j--;
+	    	} while (j > 0);
+	    	Prod[0] = 0;
+	    	Pr = 0;
+	    	for (j = 0; j < NumberLength; j++) {
+	    		Pr = (Pr >>> 31) + Nbr * Nbr2[j] + Prod[j];
+	    		Prod[j] = (int)(Pr & MaxUInt);
+	    	}
+	    	Prod[j] += (Pr >>> 31);
+	    	AdjustModN(Prod, dN);
+	    } while (i > 0);
 	}
 
 	private void AdjustModN(int Nbr[], double dN) {
@@ -890,44 +1135,26 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    }
 	}
 
-	BigInteger BigIntToBigNbr(int[] GD) {
-		long[] Temp = new long[NumberLength];
-		Convert31To32Bits(GD, Temp);
-		int NL = NumberLength * 4;
-		byte[] NBytes = new byte[NL];
-		for (int i = 0; i < NumberLength; i++) {
-			final long digit = Temp[i];
-			NBytes[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
-			NBytes[NL - 2 - 4 * i] = (byte) (digit / 0x100 & 0xFF);
-			NBytes[NL - 3 - 4 * i] = (byte) (digit / 0x10000 & 0xFF);
-			NBytes[NL - 4 - 4 * i] = (byte) (digit / 0x1000000 & 0xFF);
-		}
-		
-		BigInteger result = new BigInteger(NBytes);
-		// XXX If the correct result is negative then result = correctResult + 2^(31*numberLength).
-		// The following patch fixes that but unfortunately breaks some cases when the correct result is positive.
-		//int signMask = 0xFF >> (NumberLength&7);
-		//if ((NBytes[0] & signMask) > 0) {
-		//	result = result.subtract(I_1.shiftLeft(31*NumberLength));
-		//}
-		return result;
-	}
+	private void DivBigNbrByLong(int Dividend[], long Divisor, int Quotient[]) {
+		int i;
+		boolean ChSignDivisor = false;
+		long Divid, Rem = 0;
 
-	BigInteger BigIntToBigNbr(long[] GD) {
-		byte[] Result;
-		int i, NL;
-		long digit;
-
-		NL = NumberLength * 4;
-		Result = new byte[NL];
-		for (i = 0; i < NumberLength; i++) {
-			digit = GD[i];
-			Result[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
-			Result[NL - 2 - 4 * i] = (byte) (digit / 0x100 & 0xFF);
-			Result[NL - 3 - 4 * i] = (byte) (digit / 0x10000 & 0xFF);
-			Result[NL - 4 - 4 * i] = (byte) (digit / 0x1000000 & 0xFF);
+		if (Divisor < 0) { // If divisor is negative...
+			ChSignDivisor = true; // Indicate to change sign at the end and
+			Divisor = -Divisor; // convert divisor to positive.
 		}
-		return (new BigInteger(Result));
+		if (Dividend[i = NumberLength - 1] >= 0x40000000l) { // If dividend is negative...
+			Rem = Divisor - 1;
+		}
+		for (; i >= 0; i--) {
+			Divid = Dividend[i] + (Rem << 31);
+			Rem = Divid % Divisor;
+			Quotient[i] = (int) (Divid / Divisor);
+		}
+		if (ChSignDivisor) { // Change sign if divisor is negative.
+			ChSignBigNbr(Quotient); // Convert divisor to positive.
+		}
 	}
 
 	private boolean BigNbrAreEqual(int Nbr1[], int Nbr2[]) {
@@ -993,47 +1220,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			}
 		}
 		nbr31bits[NumberLength] = 0;
-	}
-
-	private void DivBigNbrByLong(int Dividend[], long Divisor, int Quotient[]) {
-		int i;
-		boolean ChSignDivisor = false;
-		long Divid, Rem = 0;
-
-		if (Divisor < 0) { // If divisor is negative...
-			ChSignDivisor = true; // Indicate to change sign at the end and
-			Divisor = -Divisor; // convert divisor to positive.
-		}
-		if (Dividend[i = NumberLength - 1] >= 0x40000000l) { // If dividend is negative...
-			Rem = Divisor - 1;
-		}
-		for (; i >= 0; i--) {
-			Divid = Dividend[i] + (Rem << 31);
-			Rem = Divid % Divisor;
-			Quotient[i] = (int) (Divid / Divisor);
-		}
-		if (ChSignDivisor) { // Change sign if divisor is negative.
-			ChSignBigNbr(Quotient); // Convert divisor to positive.
-		}
-	}
-
-	/**
-	 * computes 2P=(x2:z2) from P=(x1:z1), with 5 mul, 4 add/sub, 5 mod. Uses the following global variables: - n :
-	 * number to factor - b : (a+2)/4 mod n - u, v, w : auxiliary variables Modifies: x2, z2, u, v, w
-	 */
-	private void duplicate(int[] x2, int[] z2, int[] x1, int[] z1) {
-		int[] u = fieldUZ;
-		int[] v = fieldTX;
-		int[] w = fieldTZ;
-		AddBigNbrModN(x1, z1, w); // w = x1+z1
-		montgomery.mul(w, w, u); // u = (x1+z1)^2
-		SubtractBigNbrModN(x1, z1, w); // w = x1-z1
-		montgomery.mul(w, w, v); // v = (x1-z1)^2
-		montgomery.mul(u, v, x2); // x2 = u*v = (x1^2 - z1^2)^2
-		SubtractBigNbrModN(u, v, w); // w = u-v = 4*x1*z1
-		montgomery.mul(fieldAA, w, u);
-		AddBigNbrModN(u, v, u); // u = (v+b*w)
-		montgomery.mul(w, u, z2); // z2 = (w*u)
 	}
 
 	/**
@@ -1116,24 +1302,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		while (k > 0) {
 	    	AddBigNbr(Gcd, Gcd, Gcd);
 	    	k--;
-	    }
-	}
-
-	/**
-	 * Convert a non-negative long <code>Nbr</code> into a BigNbr <code>Out</code> represented by 31-bit integers.
-	 * @param Nbr input
-	 * @param Out output
-	 */
-	void LongToBigNbr(long Nbr, int Out[]) {
-	    Out[0] = (int)(Nbr & 0x7FFFFFFF);
-	    Out[1] = (int)((Nbr >> 31) & 0x7FFFFFFF);
-	    if (NumberLength > 2) {
-		    // bit 63 needs special consideration
-	    	Out[2] = (Nbr >= DosALa62) ? 1 : 0;
-		    
-		    for (int i = 3; i < NumberLength; i++) {
-		    	Out[i] = 0;
-		    }
 	    }
 	}
 
@@ -1491,214 +1659,46 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    Convert32To31Bits(CalcAuxModInvMu, inv, NumberLength);
 	}
 
-	void MultBigNbrByLongModN(int Nbr1[], long Nbr2, int Prod[], double dN) {
-		int NumberLength = this.NumberLength;
-	    long MaxUInt = 0x7FFFFFFFL;
-	    long Pr;
-	    int j;
-	    
-	    Pr = 0;
-	    for (j = 0; j < NumberLength; j++) {
-	    	Pr = (Pr >>> 31) + Nbr2 * Nbr1[j];
-	    	Prod[j] = (int)(Pr & MaxUInt);
-	    }
-	    Prod[j] = (int)(Pr >>> 31);
-	    AdjustModN(Prod, dN);
-	}
-
-	private void MultBigNbrModN(int Nbr1[], int Nbr2[], int Prod[], double dN) {
-		int NumberLength = this.NumberLength;
-	    long MaxUInt = 0x7FFFFFFFL;
-	    int i, j;
-	    long Pr, Nbr;
-	    
-	    i = NumberLength;
-	    do {
-	    	Prod[--i] = 0;
-	    } while (i > 0);
-	    i = NumberLength;
-	    do {
-	    	Nbr = Nbr1[--i];
-	    	j = NumberLength;
-	    	do {
-	    		Prod[j] = Prod[j - 1];
-	    		j--;
-	    	} while (j > 0);
-	    	Prod[0] = 0;
-	    	Pr = 0;
-	    	for (j = 0; j < NumberLength; j++) {
-	    		Pr = (Pr >>> 31) + Nbr * Nbr2[j] + Prod[j];
-	    		Prod[j] = (int)(Pr & MaxUInt);
-	    	}
-	    	Prod[j] += (Pr >>> 31);
-	    	AdjustModN(Prod, dN);
-	    } while (i > 0);
-	}
-
-	/**
-	 * Computes nP from P=(x:z) and puts the result in (x:z). Assumes n>2.
-	 * 
-	 * @param n
-	 * @param x
-	 * @param z
-	 * @param xT
-	 * @param zT
-	 * @param xT2
-	 * @param zT2
-	 */
-	private void prac(int n, int[] x, int[] z, int[] xT, int[] zT, int[] xT2, int[] zT2) {
-		int d, e, r, i;
-		int[] t;
-		int[] xA = x, zA = z;
-		int[] xB = fieldAux1, zB = fieldAux2;
-		int[] xC = fieldAux3, zC = fieldAux4;
-
-		/* chooses the best value of v */
-		r = lucas_cost(n, v[0]);
-		i = 0;
-		for (d = 1; d < 10; d++) {
-			e = lucas_cost(n, v[d]);
-			if (e < r) {
-				r = e;
-				i = d;
-			}
-		}
-		d = n;
-		r = (int) (d / v[i] + 0.5);
-		/* first iteration always begins by Condition 3, then a swap */
-		d = n - r;
-		e = 2 * r - n;
-		System.arraycopy(xA, 0, xB, 0, NumberLength); // B = A
-		System.arraycopy(zA, 0, zB, 0, NumberLength);
-		System.arraycopy(xA, 0, xC, 0, NumberLength); // C = A
-		System.arraycopy(zA, 0, zC, 0, NumberLength);
-		duplicate(xA, zA, xA, zA); /* A=2*A */
-		while (d != e) {
-			if (d < e) {
-				r = d;
-				d = e;
-				e = r;
-				t = xA;
-				xA = xB;
-				xB = t;
-				t = zA;
-				zA = zB;
-				zB = t;
-			}
-			/* do the first line of Table 4 whose condition qualifies */
-			if (4 * d <= 5 * e && ((d + e) % 3) == 0) { /* condition 1 */
-				r = (2 * d - e) / 3;
-				e = (2 * e - d) / 3;
-				d = r;
-				add3(xT, zT, xA, zA, xB, zB, xC, zC); /* T = f(A,B,C) */
-				add3(xT2, zT2, xT, zT, xA, zA, xB, zB); /* T2 = f(T,A,B) */
-				add3(xB, zB, xB, zB, xT, zT, xA, zA); /* B = f(B,T,A) */
-				t = xA;
-				xA = xT2;
-				xT2 = t;
-				t = zA;
-				zA = zT2;
-				zT2 = t; /* swap A and T2 */
-			} else if (4 * d <= 5 * e && (d - e) % 6 == 0) { /* condition 2 */
-				d = (d - e) / 2;
-				add3(xB, zB, xA, zA, xB, zB, xC, zC); /* B = f(A,B,C) */
-				duplicate(xA, zA, xA, zA); /* A = 2*A */
-			} else if (d <= (4 * e)) { /* condition 3 */
-				d -= e;
-				add3(xT, zT, xB, zB, xA, zA, xC, zC); /* T = f(B,A,C) */
-				t = xB;
-				xB = xT;
-				xT = xC;
-				xC = t;
-				t = zB;
-				zB = zT;
-				zT = zC;
-				zC = t; /* circular permutation (B,T,C) */
-			} else if ((d + e) % 2 == 0) { /* condition 4 */
-				d = (d - e) / 2;
-				add3(xB, zB, xB, zB, xA, zA, xC, zC); /* B = f(B,A,C) */
-				duplicate(xA, zA, xA, zA); /* A = 2*A */
-			} else if (d % 2 == 0) { /* condition 5 */
-				d /= 2;
-				add3(xC, zC, xC, zC, xA, zA, xB, zB); /* C = f(C,A,B) */
-				duplicate(xA, zA, xA, zA); /* A = 2*A */
-			} else if (d % 3 == 0) { /* condition 6 */
-				d = d / 3 - e;
-				duplicate(xT, zT, xA, zA); /* T1 = 2*A */
-				add3(xT2, zT2, xA, zA, xB, zB, xC, zC); /* T2 = f(A,B,C) */
-				add3(xA, zA, xT, zT, xA, zA, xA, zA); /* A = f(T1,A,A) */
-				add3(xT, zT, xT, zT, xT2, zT2, xC, zC); /* T1 = f(T1,T2,C) */
-				t = xC;
-				xC = xB;
-				xB = xT;
-				xT = t;
-				t = zC;
-				zC = zB;
-				zB = zT;
-				zT = t; /* circular permutation (C,B,T) */
-			} else if ((d + e) % 3 == 0) { /* condition 7 */
-				d = (d - 2 * e) / 3;
-				add3(xT, zT, xA, zA, xB, zB, xC, zC); /* T1 = f(A,B,C) */
-				add3(xB, zB, xT, zT, xA, zA, xB, zB); /* B = f(T1,A,B) */
-				duplicate(xT, zT, xA, zA);
-				add3(xA, zA, xA, zA, xT, zT, xA, zA); /* A = 3*A */
-			} else if ((d - e) % 3 == 0) { /* condition 8 */
-				d = (d - e) / 3;
-				add3(xT, zT, xA, zA, xB, zB, xC, zC); /* T1 = f(A,B,C) */
-				add3(xC, zC, xC, zC, xA, zA, xB, zB); /* C = f(A,C,B) */
-				t = xB;
-				xB = xT;
-				xT = t;
-				t = zB;
-				zB = zT;
-				zT = t; /* swap B and T */
-				duplicate(xT, zT, xA, zA);
-				add3(xA, zA, xA, zA, xT, zT, xA, zA); /* A = 3*A */
-			} else if (e % 2 == 0) { /* condition 9 */
-				e /= 2;
-				add3(xC, zC, xC, zC, xB, zB, xA, zA); /* C = f(C,B,A) */
-				duplicate(xB, zB, xB, zB); /* B = 2*B */
-			}
-		}
-		add3(x, z, xA, zA, xB, zB, xC, zC);
-	}
-
-	void SubtractBigNbr(int Nbr1[], int Nbr2[], int Diff[]) {
-	    long carry = 0;
-	    for (int i = 0; i < NumberLength; i++) {
-	    	carry = (carry >> 31) + (long)Nbr1[i] - (long)Nbr2[i];
-	    	Diff[i] = (int)(carry & 0x7FFFFFFFL);
-	    }
-	}
-
-	void SubtractBigNbr32(long Nbr1[], long Nbr2[], long Diff[]) {
-		int NumberLength = this.NumberLength;
-		long Cy = 0;
+	BigInteger BigIntToBigNbr(int[] GD) {
+		long[] Temp = new long[NumberLength];
+		Convert31To32Bits(GD, Temp);
+		int NL = NumberLength * 4;
+		byte[] NBytes = new byte[NL];
 		for (int i = 0; i < NumberLength; i++) {
-			Cy = (Cy >> 32) + Nbr1[i] - Nbr2[i];
-			Diff[i] = Cy & 0xFFFFFFFFl;
+			final long digit = Temp[i];
+			NBytes[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
+			NBytes[NL - 2 - 4 * i] = (byte) (digit / 0x100 & 0xFF);
+			NBytes[NL - 3 - 4 * i] = (byte) (digit / 0x10000 & 0xFF);
+			NBytes[NL - 4 - 4 * i] = (byte) (digit / 0x1000000 & 0xFF);
 		}
+		
+		BigInteger result = new BigInteger(NBytes);
+		// XXX If the correct result is negative then result = correctResult + 2^(31*numberLength).
+		// The following patch fixes that but unfortunately breaks some cases when the correct result is positive.
+		//int signMask = 0xFF >> (NumberLength&7);
+		//if ((NBytes[0] & signMask) > 0) {
+		//	result = result.subtract(I_1.shiftLeft(31*NumberLength));
+		//}
+		return result;
 	}
 
-	void SubtractBigNbrModN(int Nbr1[], int Nbr2[], int Diff[]) {
-		int NumberLength = this.NumberLength;
-		long MaxUInt = 0x7FFFFFFFL; // Integer.MAX_VALUE
-		long carry = 0;
-		int i;
-		
+	BigInteger BigIntToBigNbr(long[] GD) {
+		byte[] Result;
+		int i, NL;
+		long digit;
+
+		NL = NumberLength * 4;
+		Result = new byte[NL];
 		for (i = 0; i < NumberLength; i++) {
-			carry = (carry >> 31) + (long)Nbr1[i] - (long)Nbr2[i];
-			Diff[i] = (int)(carry & MaxUInt);
+			digit = GD[i];
+			Result[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
+			Result[NL - 2 - 4 * i] = (byte) (digit / 0x100 & 0xFF);
+			Result[NL - 3 - 4 * i] = (byte) (digit / 0x10000 & 0xFF);
+			Result[NL - 4 - 4 * i] = (byte) (digit / 0x1000000 & 0xFF);
 		}
-		if (carry < 0) {
-			carry = 0;
-			for (i = 0; i < NumberLength; i++) {
-				carry = (carry >> 31) + (long)Diff[i] + (long)TestNbr[i];
-				Diff[i] = (int)(carry & MaxUInt);
-			}
-		}
+		return (new BigInteger(Result));
 	}
-	
+
 	/**
 	 * Converts a BigNbr in 31-bit representation into a String.
 	 * @param Nbr
