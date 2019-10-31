@@ -1239,26 +1239,16 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param Gcd
 	 */
 	void GcdBigNbr(int Nbr1[], int Nbr2[], int Gcd[]) {
-	    int i, k;
+	    int k;
 		int NumberLength = this.NumberLength;
 
 	    System.arraycopy(Nbr1, 0, CalcAuxGcdU, 0, NumberLength);
 	    System.arraycopy(Nbr2, 0, CalcAuxGcdV, 0, NumberLength);
-	    for (i = 0; i < NumberLength; i++) {
-	    	if (CalcAuxGcdU[i] != 0) {
-	    		break;
-	    	}
-	    }
-	    if (i == NumberLength) {
+	    if (BigNbrIsZero(CalcAuxGcdU)) {
 	    	System.arraycopy(CalcAuxGcdV, 0, Gcd, 0, NumberLength);
 	    	return;
 	    }
-	    for (i = 0; i < NumberLength; i++) {
-	    	if (CalcAuxGcdV[i] != 0) {
-	    		break;
-	    	}
-	    }
-	    if (i == NumberLength) {
+	    if (BigNbrIsZero(CalcAuxGcdV)) {
 	    	System.arraycopy(CalcAuxGcdU, 0, Gcd, 0, NumberLength);
 	    	return;
 	    }
@@ -1291,12 +1281,8 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				ChSignBigNbr(CalcAuxGcdV);
 			}                                                
 			SubtractBigNbr(CalcAuxGcdU, CalcAuxGcdV, CalcAuxGcdT); // Step 6
-			for (i = 0; i < NumberLength; i++) {
-				if (CalcAuxGcdT[i] != 0) {
-					break;
-				}
-			}
-	    } while (i != NumberLength);
+	    } while (!BigNbrIsZero(CalcAuxGcdT));
+		
 	    System.arraycopy(CalcAuxGcdU, 0, Gcd, 0, NumberLength); // Step 7
 		while (k > 0) {
 	    	AddBigNbr(Gcd, Gcd, Gcd);
