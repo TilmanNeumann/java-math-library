@@ -101,7 +101,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	/** Elliptic Curve number */
 	private int EC;
 	
-	private int[] fieldAA, fieldTX, fieldTZ, fieldUX, fieldUZ;
+	private int[] fieldTX, fieldTZ, fieldUX, fieldUZ;
 	private int[] fieldAux1, fieldAux2, fieldAux3, fieldAux4;
 	
 	static {
@@ -254,7 +254,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		byte[] sieve = new byte[23100];
 		byte[] sieve2310 = new byte[2310];
 		int[] sieveidx = new int[480];
-		fieldAA = AA;
 		
 		// convert BigInteger N into TestNbr and NumberLength
 		this.NumberLength = BigNbrToBigInt(N, TestNbr);
@@ -351,7 +350,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				LongToBigNbr(4, Aux2);
 				ModInvBigNbr(Aux2, Aux3, TestNbr);
 				MultBigNbrModN(Aux3, MontgomeryMultR1, Aux2, dN);
-				montgomery.mul(Aux1, Aux2, AA);
+				montgomery.mul(Aux1, Aux2, AA); // the only write access to AA
 				MultBigNbrByLongModN(A02, 3, Aux1, dN);
 				AddBigNbrModN(Aux1, MontgomeryMultR1, X);
 				
@@ -364,10 +363,10 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				for (Pass = 0; Pass < 2; Pass++) {
 					/* For powers of 2 */
 					for (I = 1; I <= L1; I <<= 1) {
-						duplicate(X, Z, X, Z);
+						duplicate(X, Z, X, Z, AA);
 					}
 					for (I = 3; I <= L1; I *= 3) {
-						duplicate(W1, W2, X, Z);
+						duplicate(W1, W2, X, Z, AA);
 						add3(X, Z, X, Z, W1, W2, X, Z);
 					}
 
@@ -386,7 +385,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 					do {
 						P = SmallPrime[indexM++];
 						for (long IP = P; IP <= L1; IP *= P) {
-							prac((int) P, X, Z, W1, W2, W3, W4);
+							prac((int) P, X, Z, W1, W2, W3, W4, AA);
 						}
 						if (Pass == 0) {
 							montgomery.mul(GcdAccumulated, Z, Aux1);
@@ -416,7 +415,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 								continue; /* Do not process composites */
 							if (P + 2 * i > L1)
 								break;
-							prac((int) (P + 2 * i), X, Z, W1, W2, W3, W4);
+							prac((int) (P + 2 * i), X, Z, W1, W2, W3, W4, AA);
 							if (Pass == 0) {
 								montgomery.mul(GcdAccumulated, Z, Aux1);
 								System.arraycopy(Aux1, 0, GcdAccumulated, 0, NumberLength);
@@ -672,7 +671,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param xT2
 	 * @param zT2
 	 */
-	private void prac(int n, int[] x, int[] z, int[] xT, int[] zT, int[] xT2, int[] zT2) {
+	private void prac(int n, int[] x, int[] z, int[] xT, int[] zT, int[] xT2, int[] zT2, int[] AA) {
 		int d, e, r, i;
 		int[] t;
 		int[] xA = x, zA = z;
@@ -698,7 +697,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		System.arraycopy(zA, 0, zB, 0, NumberLength);
 		System.arraycopy(xA, 0, xC, 0, NumberLength); // C = A
 		System.arraycopy(zA, 0, zC, 0, NumberLength);
-		duplicate(xA, zA, xA, zA); /* A=2*A */
+		duplicate(xA, zA, xA, zA, AA); /* A=2*A */
 		while (d != e) {
 			if (d < e) {
 				r = d;
@@ -728,7 +727,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			} else if (4 * d <= 5 * e && (d - e) % 6 == 0) { /* condition 2 */
 				d = (d - e) / 2;
 				add3(xB, zB, xA, zA, xB, zB, xC, zC); /* B = f(A,B,C) */
-				duplicate(xA, zA, xA, zA); /* A = 2*A */
+				duplicate(xA, zA, xA, zA, AA); /* A = 2*A */
 			} else if (d <= (4 * e)) { /* condition 3 */
 				d -= e;
 				add3(xT, zT, xB, zB, xA, zA, xC, zC); /* T = f(B,A,C) */
@@ -743,14 +742,14 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			} else if ((d + e) % 2 == 0) { /* condition 4 */
 				d = (d - e) / 2;
 				add3(xB, zB, xB, zB, xA, zA, xC, zC); /* B = f(B,A,C) */
-				duplicate(xA, zA, xA, zA); /* A = 2*A */
+				duplicate(xA, zA, xA, zA, AA); /* A = 2*A */
 			} else if (d % 2 == 0) { /* condition 5 */
 				d /= 2;
 				add3(xC, zC, xC, zC, xA, zA, xB, zB); /* C = f(C,A,B) */
-				duplicate(xA, zA, xA, zA); /* A = 2*A */
+				duplicate(xA, zA, xA, zA, AA); /* A = 2*A */
 			} else if (d % 3 == 0) { /* condition 6 */
 				d = d / 3 - e;
-				duplicate(xT, zT, xA, zA); /* T1 = 2*A */
+				duplicate(xT, zT, xA, zA, AA); /* T1 = 2*A */
 				add3(xT2, zT2, xA, zA, xB, zB, xC, zC); /* T2 = f(A,B,C) */
 				add3(xA, zA, xT, zT, xA, zA, xA, zA); /* A = f(T1,A,A) */
 				add3(xT, zT, xT, zT, xT2, zT2, xC, zC); /* T1 = f(T1,T2,C) */
@@ -766,7 +765,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				d = (d - 2 * e) / 3;
 				add3(xT, zT, xA, zA, xB, zB, xC, zC); /* T1 = f(A,B,C) */
 				add3(xB, zB, xT, zT, xA, zA, xB, zB); /* B = f(T1,A,B) */
-				duplicate(xT, zT, xA, zA);
+				duplicate(xT, zT, xA, zA, AA);
 				add3(xA, zA, xA, zA, xT, zT, xA, zA); /* A = 3*A */
 			} else if ((d - e) % 3 == 0) { /* condition 8 */
 				d = (d - e) / 3;
@@ -778,12 +777,12 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				t = zB;
 				zB = zT;
 				zT = t; /* swap B and T */
-				duplicate(xT, zT, xA, zA);
+				duplicate(xT, zT, xA, zA, AA);
 				add3(xA, zA, xA, zA, xT, zT, xA, zA); /* A = 3*A */
 			} else if (e % 2 == 0) { /* condition 9 */
 				e /= 2;
 				add3(xC, zC, xC, zC, xB, zB, xA, zA); /* C = f(C,B,A) */
-				duplicate(xB, zB, xB, zB); /* B = 2*B */
+				duplicate(xB, zB, xB, zB, AA); /* B = 2*B */
 			}
 		}
 		add3(x, z, xA, zA, xB, zB, xC, zC);
@@ -844,7 +843,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * computes 2P=(x2:z2) from P=(x1:z1), with 5 mul, 4 add/sub, 5 mod. Uses the following global variables: - n :
 	 * number to factor - b : (a+2)/4 mod n - u, v, w : auxiliary variables Modifies: x2, z2, u, v, w
 	 */
-	private void duplicate(int[] x2, int[] z2, int[] x1, int[] z1) {
+	private void duplicate(int[] x2, int[] z2, int[] x1, int[] z1, int[] AA) {
 		int[] u = fieldUZ;
 		int[] v = fieldTX;
 		int[] w = fieldTZ;
@@ -854,7 +853,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		montgomery.mul(w, w, v); // v = (x1-z1)^2
 		montgomery.mul(u, v, x2); // x2 = u*v = (x1^2 - z1^2)^2
 		SubtractBigNbrModN(u, v, w); // w = u-v = 4*x1*z1
-		montgomery.mul(fieldAA, w, u);
+		montgomery.mul(AA, w, u);
 		AddBigNbrModN(u, v, u); // u = (v+b*w)
 		montgomery.mul(w, u, z2); // z2 = (w*u)
 	}
