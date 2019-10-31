@@ -1,3 +1,16 @@
+/*
+ * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
+ * Copyright (C) 2019 Tilman Neumann (www.tilman-neumann.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program;
+ * if not, see <http://www.gnu.org/licenses/>.
+ */
 package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
@@ -7,12 +20,14 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.util.ConfigUtil;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+
 public class EllipticCurveMethodTest {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethodTest.class);
 	
 	private static final SecureRandom RNG = new SecureRandom();
 
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 1000000;
 	
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
@@ -72,35 +87,56 @@ public class EllipticCurveMethodTest {
 					String a31Str = ecm.BigNbrToString(a31);
 					ecm.LongToBigNbr(N.longValue(), b31);
 					String b31Str = ecm.BigNbrToString(b31);
-					ecm.SubtractBigNbr(a31, b31, c31);
-					String diffStr = ecm.BigNbrToString(c31);
 					if (!a31Str.equals(b31Str)) {
+						ecm.SubtractBigNbr(a31, b31, c31);
+						String diffStr = ecm.BigNbrToString(c31);
 						LOG.error("long conversion failure: a31Str=" + a31Str + ", b31Str = " + b31Str + ", diff = " + diffStr + ", NumberLength = " + ecm.NumberLength);
-					}
-				}
-			}
-			
-			// add31
-			LOG.debug("Test add31 of N with " + bits + " bit...");
-			int imax = (int) Math.sqrt(N_COUNT);
-			int jmin = N_COUNT - (int) Math.sqrt(N_COUNT);
-			for (int i=0; i<imax; i++) {
-				BigInteger a = NArray[i];
-				ecm.BigNbrToBigInt(a, a31);
-				for (int j=jmin; j<N_COUNT; j++) {
-					BigInteger b = NArray[j];
-					ecm.BigNbrToBigInt(b, b31);
-					BigInteger correctSum = a.add(b);
-					ecm.AddBigNbr(a31, b31, c31);
-					BigInteger testSum = ecm.BigIntToBigNbr(c31);
-					if (!correctSum.equals(testSum)) {
-						LOG.error("add31 failure: a=" + a + " + b=" + b + ": correct = " + correctSum + ", add31 = " + testSum);
 					}
 				}
 			}
 			
 			// add32
 			LOG.debug("Test add32 of N with " + bits + " bit...");
+			int imax = (int) Math.sqrt(N_COUNT);
+			int jmin = N_COUNT - (int) Math.sqrt(N_COUNT);
+			for (int i=0; i<imax; i++) {
+				BigInteger a = NArray[i];
+				ecm.BigNbrToBigInt(a, a32);
+				// LOG.debug("a=" + a + ", a32 = " + Arrays.toString(a32));
+				for (int j=jmin; j<N_COUNT; j++) {
+					BigInteger b = NArray[j];
+					ecm.BigNbrToBigInt(b, b32);
+					// LOG.debug("b=" + b + ", b32 = " + Arrays.toString(b32));
+					BigInteger correctResult = a.add(b);
+					ecm.AddBigNbr32(a32, b32, c32);
+					BigInteger testResult = ecm.BigIntToBigNbr(c32);
+					if (!correctResult.equals(testResult)) {
+						LOG.error("add32 failure: " + a + " + " + b + ": correct = " + correctResult + ", add32 = " + testResult);
+					}
+				}
+			}
+
+			// add31
+			LOG.debug("Test add31 of N with " + bits + " bit...");
+			imax = (int) Math.sqrt(N_COUNT);
+			jmin = N_COUNT - (int) Math.sqrt(N_COUNT);
+			for (int i=0; i<imax; i++) {
+				BigInteger a = NArray[i];
+				ecm.BigNbrToBigInt(a, a31);
+				for (int j=jmin; j<N_COUNT; j++) {
+					BigInteger b = NArray[j];
+					ecm.BigNbrToBigInt(b, b31);
+					BigInteger correctResult = a.add(b);
+					ecm.AddBigNbr(a31, b31, c31);
+					BigInteger testResult = ecm.BigIntToBigNbr(c31);
+					if (!correctResult.equals(testResult)) {
+						LOG.error("add31 failure: " + a + " + " + b + ": correct = " + correctResult + ", add31 = " + testResult);
+					}
+				}
+			}
+			
+			// subtract32
+			LOG.debug("Test subtract32 of N with " + bits + " bit...");
 			imax = (int) Math.sqrt(N_COUNT);
 			jmin = N_COUNT - (int) Math.sqrt(N_COUNT);
 			for (int i=0; i<imax; i++) {
@@ -111,11 +147,37 @@ public class EllipticCurveMethodTest {
 					BigInteger b = NArray[j];
 					ecm.BigNbrToBigInt(b, b32);
 					// LOG.debug("b=" + b + ", b32 = " + Arrays.toString(b32));
-					BigInteger correctSum = a.add(b);
-					ecm.AddBigNbr32(a32, b32, c32);
-					BigInteger testSum = ecm.BigIntToBigNbr(c32);
-					if (!correctSum.equals(testSum)) {
-						LOG.error("add32 failure: a=" + a + " + b=" + b + ": correct = " + correctSum + ", add32 = " + testSum);
+					BigInteger correctResult = a.subtract(b);
+					ecm.SubtractBigNbr32(a32, b32, c32);
+					BigInteger testResult = ecm.BigIntToBigNbr(c32);
+					if (!correctResult.equals(testResult)) {
+						LOG.error("subtract32 failure: " + a + " - " + b + ": correct = " + correctResult + ", subtract32 = " + testResult);
+					}
+				}
+			}
+			
+			// subtract31
+			LOG.debug("Test subtract31 of N with " + bits + " bit...");
+			imax = (int) Math.sqrt(N_COUNT);
+			jmin = N_COUNT - (int) Math.sqrt(N_COUNT);
+			for (int i=0; i<imax; i++) {
+				BigInteger a = NArray[i];
+				ecm.BigNbrToBigInt(a, a31);
+				// LOG.debug("a=" + a + ", a31 = " + Arrays.toString(a31));
+				for (int j=jmin; j<N_COUNT; j++) {
+					BigInteger b = NArray[j];
+					ecm.BigNbrToBigInt(b, b31);
+					// LOG.debug("b=" + b + ", b31 = " + Arrays.toString(b31));
+					BigInteger correctResult = a.subtract(b);
+					ecm.SubtractBigNbr(a31, b31, c31);
+					BigInteger testResult = ecm.BigIntToBigNbr(c31);
+					if (correctResult.signum() < 0) {
+						// XXX testResult is only correct in the 2-complement of 2^(31*numberLength).
+						// Possibly this is sufficient for the ECM method.
+						testResult = testResult.subtract(I_1.shiftLeft(31*ecm.NumberLength));
+					}
+					if (!correctResult.equals(testResult)) {
+						LOG.error("subtract31 failure: " + a + " - " + b + ": correct = " + correctResult + ", subtract31 = " + testResult);
 					}
 				}
 			}
