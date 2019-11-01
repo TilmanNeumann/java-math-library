@@ -1187,7 +1187,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		}
 	}
 
-	void Convert31To32Bits(int[] nbr31bits, long[] nbr32bits) {
+	void Convert31To32Bits(int[] nbr31, long[] nbr32) {
 		int i, j, k;
 		i = 0;
 		for (j = -1; j < NumberLength; j++) {
@@ -1199,26 +1199,26 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				break;
 			}
 			if (j == NumberLength - 1) {
-				nbr32bits[i] = nbr31bits[j] >> k;
+				nbr32[i] = nbr31[j] >> k;
 			} else {
-				nbr32bits[i] = ((nbr31bits[j] >> k) | (nbr31bits[j + 1] << (31 - k))) & 0xFFFFFFFFl;
+				nbr32[i] = ((nbr31[j] >> k) | (nbr31[j + 1] << (31 - k))) & 0xFFFFFFFFl;
 			}
 			i++;
 		}
 		for (; i < NumberLength; i++) {
-			nbr32bits[i] = 0;
+			nbr32[i] = 0;
 		}
 	}
 
-	private void Convert32To31Bits(long[] nbr32bits, int[] nbr31bits, int NumberLength) {
+	private void Convert32To31Bits(long[] nbr32, int[] nbr31, int NumberLength) {
 		int i, j, k;
 		j = 0;
 		for (i = 0; i < NumberLength; i++) {
 		    k = i & 0x0000001F; // k = i % 32
 			if (k == 0) {
-		        nbr31bits[i] = (int)(nbr32bits[j] & 0x7FFFFFFF);
+		        nbr31[i] = (int)(nbr32[j] & 0x7FFFFFFF);
 			} else {
-		        nbr31bits[i] = (int)(((nbr32bits[j] >> (32-k)) | (nbr32bits[j+1] << k)) & 0x7FFFFFFF);
+		        nbr31[i] = (int)(((nbr32[j] >> (32-k)) | (nbr32[j+1] << k)) & 0x7FFFFFFF);
 				j++;
 			}
 		}
@@ -1659,38 +1659,24 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		
 		long[] Temp = new long[NumberLength];
 		Convert31To32Bits(nbrCopy, Temp);
-		int NL = NumberLength * 4;
-		byte[] NBytes = new byte[NL];
-		for (int i = 0; i < NumberLength; i++) {
-			final long digit = Temp[i];
-			NBytes[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
-			NBytes[NL - 2 - 4 * i] = (byte) (digit / 0x100 & 0xFF);
-			NBytes[NL - 3 - 4 * i] = (byte) (digit / 0x10000 & 0xFF);
-			NBytes[NL - 4 - 4 * i] = (byte) (digit / 0x1000000 & 0xFF);
-		}
-		
-		BigInteger result = new BigInteger(NBytes);
+		BigInteger result = BigIntToBigNbr(Temp);
 		if (chSign) {
 			result = result.negate();
 		}
 		return result;
 	}
 
-	BigInteger BigIntToBigNbr(long[] GD) {
-		byte[] Result;
-		int i, NL;
-		long digit;
-
-		NL = NumberLength * 4;
-		Result = new byte[NL];
-		for (i = 0; i < NumberLength; i++) {
-			digit = GD[i];
-			Result[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
-			Result[NL - 2 - 4 * i] = (byte) (digit / 0x100 & 0xFF);
-			Result[NL - 3 - 4 * i] = (byte) (digit / 0x10000 & 0xFF);
-			Result[NL - 4 - 4 * i] = (byte) (digit / 0x1000000 & 0xFF);
+	BigInteger BigIntToBigNbr(long[] nbr) {
+		int NL = NumberLength * 4;
+		byte[] NBytes = new byte[NL];
+		for (int i = 0; i < NumberLength; i++) {
+			final long digit = nbr[i];
+			NBytes[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
+			NBytes[NL - 2 - 4 * i] = (byte) ((digit >> 8) & 0xFF);
+			NBytes[NL - 3 - 4 * i] = (byte) ((digit >> 16) & 0xFF);
+			NBytes[NL - 4 - 4 * i] = (byte) ((digit >> 24) & 0xFF);
 		}
-		return (new BigInteger(Result));
+		return (new BigInteger(NBytes));
 	}
 
 	/**
