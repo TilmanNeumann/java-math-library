@@ -57,17 +57,35 @@ public class EllipticCurveMethodTest {
 		ecm.NumberLength = NumberLength; 
 	}
 	
-	private void testInOutConversion(BigInteger N, int NumberLength) {
+	private BigInteger testInOutConversion32(BigInteger N, int NumberLength) {
 		try {
-			ecm.BigNbrToBigInt(N, a31, NumberLength);
-			BigInteger Nout = ecm.BigIntToBigNbr(a31);
-			if (!N.equals(Nout)) {
-				ecm.Convert31To32Bits(a31, a32);
-				BigInteger testResult32 = ecm.BigIntToBigNbr(a32);
-				LOG.error("In-out-conversion failure: N=" + N + ", Nout = " + Nout + ", testResult32 = " + testResult32 + ", NumberLength = " + ecm.NumberLength);
+			ecm.BigNbrToBigInt(N, a32, NumberLength);
+			BigInteger N32 = ecm.BigIntToBigNbr(a32);
+			if (!N.equals(N32)) {
+				LOG.error("inOut32 failure: N=" + N + ", N32 = " + N32 + ", NumberLength = " + ecm.NumberLength);
+				LOG.debug("N.toByteArray()   = " +  Arrays.toString(N.toByteArray()));
+				LOG.debug("N32.toByteArray() = " +  Arrays.toString(N32.toByteArray()));
 			}
+			return N32;
 		} catch (Exception e) {
 			LOG.error("Conversion of N=" + N + " caused " + e, e);
+			return null;
+		}
+	}
+
+	private BigInteger testInOutConversion31(BigInteger N, int NumberLength) {
+		try {
+			ecm.BigNbrToBigInt(N, a31, NumberLength);
+			BigInteger N31 = ecm.BigIntToBigNbr(a31);
+			if (!N.equals(N31)) {
+				LOG.error("inOut31 failure: N=" + N + ", N31 = " + N31 + ", NumberLength = " + ecm.NumberLength);
+				LOG.debug("N.toByteArray()   = " +  Arrays.toString(N.toByteArray()));
+				LOG.debug("N31.toByteArray() = " +  Arrays.toString(N31.toByteArray()));
+			}
+			return N31;
+		} catch (Exception e) {
+			LOG.error("Conversion of N=" + N + " caused " + e, e);
+			return null;
 		}
 	}
 	
@@ -81,10 +99,16 @@ public class EllipticCurveMethodTest {
 				NArray[i] = new BigInteger(bits, RNG).negate(); // XXX test neg args, too
 			}
 			
-			// in-out-conversion
-			LOG.debug("Test in-out-conversion of N with " + bits + " bit...");
+			// in-out-conversion32
+			LOG.debug("Test in-out-conversion32 of N with " + bits + " bit...");
 			for (int i=0; i<N_COUNT; i++) {
-				testInOutConversion(NArray[i], NumberLength);
+				testInOutConversion32(NArray[i], NumberLength);
+			}
+			
+			// in-out-conversion31
+			LOG.debug("Test in-out-conversion31 of N with " + bits + " bit...");
+			for (int i=0; i<N_COUNT; i++) {
+				testInOutConversion31(NArray[i], NumberLength);
 			}
 			
 			if (bits < 64) {
@@ -200,12 +224,11 @@ public class EllipticCurveMethodTest {
 		
 		for (SpecialTest test : tests) {
 			BigInteger N = test.N;
-			LOG.debug("N=" + N + " has " + N.bitLength() + " bit");
-			LOG.debug("byte array=" + Arrays.toString(N.toByteArray()));
-			LOG.debug("binary=" + N.toString(2));
+			LOG.debug("N = " + N + " has " + N.bitLength() + " bit");
 			int NumberLength = EllipticCurveMethod.computeNumberLength(test.testBitLength);
 			setNumberLength(NumberLength);
-			testInOutConversion(N, NumberLength);
+			testInOutConversion32(N, NumberLength);
+			testInOutConversion31(N, NumberLength);
 		}
 	}
 	
