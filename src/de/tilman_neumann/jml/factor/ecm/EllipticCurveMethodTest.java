@@ -20,14 +20,12 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.util.ConfigUtil;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-
 public class EllipticCurveMethodTest {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethodTest.class);
 	
 	private static final SecureRandom RNG = new SecureRandom();
 
-	private static final int N_COUNT = 1000000;
+	private static final int N_COUNT = 100000;
 	
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
@@ -43,12 +41,12 @@ public class EllipticCurveMethodTest {
 		long[] c32 = new long[EllipticCurveMethod.NLen];
 		
 		for (int bits = 10; bits<1000; bits += 1) {
-			ecm.NumberLength = EllipticCurveMethod.computeNumberLength(bits);
+			int NumberLength = ecm.NumberLength = EllipticCurveMethod.computeNumberLength(bits);
 			
 			LOG.debug("Create " + N_COUNT + " N with " + bits + " bit...");
 			BigInteger[] NArray = new BigInteger[N_COUNT];
 			for (int i=0; i<N_COUNT; i++) {
-				NArray[i] = new BigInteger(bits, RNG)/*.negate()*/; // XXX test negative args fail
+				NArray[i] = new BigInteger(bits, RNG)/*.negate()*/; // XXX test neg args, too
 			}
 			
 			// in-out-conversion
@@ -56,10 +54,12 @@ public class EllipticCurveMethodTest {
 			for (int i=0; i<N_COUNT; i++) {
 				BigInteger Nin = NArray[i];
 				try {
-					ecm.BigNbrToBigInt(Nin, a31);
+					ecm.BigNbrToBigInt(Nin, a31, NumberLength);
 					BigInteger Nout = ecm.BigIntToBigNbr(a31);
 					if (!Nin.equals(Nout)) {
-						LOG.error("In-out-conversion failure: Nin=" + Nin + ", Nout = " + Nout + ", NumberLength = " + ecm.NumberLength);
+						ecm.Convert31To32Bits(a31, a32);
+						BigInteger testResult32 = ecm.BigIntToBigNbr(a32);
+						LOG.error("In-out-conversion failure: Nin=" + Nin + ", Nout = " + Nout + ", testResult32 = " + testResult32 + ", NumberLength = " + ecm.NumberLength);
 					}
 				} catch (Exception e) {
 					LOG.error("Conversion of N=" + Nin + " caused " + e, e);
@@ -71,7 +71,7 @@ public class EllipticCurveMethodTest {
 			for (int i=0; i<N_COUNT; i++) {
 				BigInteger N = NArray[i];
 				String NStr = N.toString();
-				ecm.BigNbrToBigInt(N, a31);
+				ecm.BigNbrToBigInt(N, a31, NumberLength);
 				String big31Str = ecm.BigNbrToString(a31);
 				if (!NStr.equals(big31Str)) {
 					LOG.error("toString-conversion failure: correct=" + NStr + ", big31Str = " + big31Str);
@@ -83,7 +83,7 @@ public class EllipticCurveMethodTest {
 				LOG.debug("Test long conversion of N with " + bits + " bit...");
 				for (int i=0; i<N_COUNT; i++) {
 					BigInteger N = NArray[i];
-					ecm.BigNbrToBigInt(N, a31);
+					ecm.BigNbrToBigInt(N, a31, NumberLength);
 					String a31Str = ecm.BigNbrToString(a31);
 					ecm.LongToBigNbr(N.longValue(), b31);
 					String b31Str = ecm.BigNbrToString(b31);
@@ -102,11 +102,9 @@ public class EllipticCurveMethodTest {
 			for (int i=0; i<imax; i++) {
 				BigInteger a = NArray[i];
 				ecm.BigNbrToBigInt(a, a32);
-				// LOG.debug("a=" + a + ", a32 = " + Arrays.toString(a32));
 				for (int j=jmin; j<N_COUNT; j++) {
 					BigInteger b = NArray[j];
 					ecm.BigNbrToBigInt(b, b32);
-					// LOG.debug("b=" + b + ", b32 = " + Arrays.toString(b32));
 					BigInteger correctResult = a.add(b);
 					ecm.AddBigNbr32(a32, b32, c32);
 					BigInteger testResult = ecm.BigIntToBigNbr(c32);
@@ -122,15 +120,17 @@ public class EllipticCurveMethodTest {
 			jmin = N_COUNT - (int) Math.sqrt(N_COUNT);
 			for (int i=0; i<imax; i++) {
 				BigInteger a = NArray[i];
-				ecm.BigNbrToBigInt(a, a31);
+				ecm.BigNbrToBigInt(a, a31, NumberLength);
 				for (int j=jmin; j<N_COUNT; j++) {
 					BigInteger b = NArray[j];
-					ecm.BigNbrToBigInt(b, b31);
+					ecm.BigNbrToBigInt(b, b31, NumberLength);
 					BigInteger correctResult = a.add(b);
 					ecm.AddBigNbr(a31, b31, c31);
 					BigInteger testResult = ecm.BigIntToBigNbr(c31);
 					if (!correctResult.equals(testResult)) {
-						LOG.error("add31 failure: " + a + " + " + b + ": correct = " + correctResult + ", add31 = " + testResult);
+						ecm.Convert31To32Bits(c31, c32);
+						BigInteger testResult32 = ecm.BigIntToBigNbr(c32);
+						LOG.error("add31 failure: " + a + " + " + b + ": correct = " + correctResult + ", add31 = " + testResult + ", testResult32 = " + testResult32);
 					}
 				}
 			}
@@ -142,11 +142,9 @@ public class EllipticCurveMethodTest {
 			for (int i=0; i<imax; i++) {
 				BigInteger a = NArray[i];
 				ecm.BigNbrToBigInt(a, a32);
-				// LOG.debug("a=" + a + ", a32 = " + Arrays.toString(a32));
 				for (int j=jmin; j<N_COUNT; j++) {
 					BigInteger b = NArray[j];
 					ecm.BigNbrToBigInt(b, b32);
-					// LOG.debug("b=" + b + ", b32 = " + Arrays.toString(b32));
 					BigInteger correctResult = a.subtract(b);
 					ecm.SubtractBigNbr32(a32, b32, c32);
 					BigInteger testResult = ecm.BigIntToBigNbr(c32);
@@ -162,22 +160,17 @@ public class EllipticCurveMethodTest {
 			jmin = N_COUNT - (int) Math.sqrt(N_COUNT);
 			for (int i=0; i<imax; i++) {
 				BigInteger a = NArray[i];
-				ecm.BigNbrToBigInt(a, a31);
-				// LOG.debug("a=" + a + ", a31 = " + Arrays.toString(a31));
+				ecm.BigNbrToBigInt(a, a31, NumberLength);
 				for (int j=jmin; j<N_COUNT; j++) {
 					BigInteger b = NArray[j];
-					ecm.BigNbrToBigInt(b, b31);
-					// LOG.debug("b=" + b + ", b31 = " + Arrays.toString(b31));
+					ecm.BigNbrToBigInt(b, b31, NumberLength);
 					BigInteger correctResult = a.subtract(b);
 					ecm.SubtractBigNbr(a31, b31, c31);
 					BigInteger testResult = ecm.BigIntToBigNbr(c31);
-					if (correctResult.signum() < 0) {
-						// XXX testResult is only correct in the 2-complement of 2^(31*numberLength).
-						// Possibly this is sufficient for the ECM method.
-						testResult = testResult.subtract(I_1.shiftLeft(31*ecm.NumberLength));
-					}
 					if (!correctResult.equals(testResult)) {
-						LOG.error("subtract31 failure: " + a + " - " + b + ": correct = " + correctResult + ", subtract31 = " + testResult);
+						ecm.Convert31To32Bits(c31, c32);
+						BigInteger testResult32 = ecm.BigIntToBigNbr(c32);
+						LOG.error("subtract31 failure: " + a + " - " + b + ": correct = " + correctResult + ", subtract31 = " + testResult + ", testResult32 = " + testResult32 + ", NumberLength = " + ecm.NumberLength);
 					}
 				}
 			}

@@ -255,8 +255,10 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		byte[] sieve2310 = new byte[2310];
 		int[] sieveidx = new int[480];
 		
-		// convert BigInteger N into TestNbr and NumberLength
-		this.NumberLength = BigNbrToBigInt(N, TestNbr);
+		// Compute NumberLength, the number of ints in which all computations are carried out
+		this.NumberLength = computeNumberLength(N.toByteArray().length * 8);
+		// Convert BigInteger N into TestNbr, a representation in NumberLength 31-bit integers
+		BigNbrToBigInt(N, TestNbr, NumberLength);
 		
 		// set up Montgomery multiplication
 		this.montgomery = new MontgomeryMult(TestNbr, NumberLength);
@@ -900,20 +902,27 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	}
 
 	/**
-	 * Convert a non-negative long <code>Nbr</code> into a BigNbr <code>Out</code> represented by 31-bit integers.
+	 * Convert a long <code>Nbr</code> into a BigNbr <code>Out</code> represented by 31-bit integers.
 	 * @param Nbr input
 	 * @param Out output
 	 */
 	void LongToBigNbr(long Nbr, int Out[]) {
-	    Out[0] = (int)(Nbr & 0x7FFFFFFF);
-	    Out[1] = (int)((Nbr >> 31) & 0x7FFFFFFF);
+		final boolean chSign = Nbr<0 ? true: false;
+		final long nbrPos = Nbr<0 ? -Nbr : Nbr;
+		
+	    Out[0] = (int)(nbrPos & 0x7FFFFFFF);
+	    Out[1] = (int)((nbrPos >> 31) & 0x7FFFFFFF);
 	    if (NumberLength > 2) {
 		    // bit 63 needs special consideration
-	    	Out[2] = (Nbr >= DosALa62) ? 1 : 0;
+	    	Out[2] = (nbrPos >= DosALa62) ? 1 : 0;
 		    
 		    for (int i = 3; i < NumberLength; i++) {
 		    	Out[i] = 0;
 		    }
+	    }
+	    
+	    if (chSign) {
+	    	ChSignBigNbr(Out);
 	    }
 	}
 
@@ -921,27 +930,34 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * Converts BigInteger N into {TestNbr, NumberLength}.
 	 * @param N input
 	 * @param TestNbr output
-	 * @return size of TestNbr in 31-bit units
+	 * @param NumberLength the size of numbers we are working with
 	 */
-	int BigNbrToBigInt(BigInteger N, int[] TestNbr) {
+	void BigNbrToBigInt(BigInteger N, int[] TestNbr, int NumberLength) {
 	    byte[] NBytes = N.toByteArray();
-	    int NumberLength = computeNumberLength(NBytes.length * 8); // number length in 31-bit integers
-	    long[] Temp = new long[NumberLength+1]; // zero-initialized
+	    long[] Temp = new long[NumberLength+1]; // zero-initialized // TODO remove +1 ?
 	    int j = 0;
 	    int mask = 1;
 	    long p = 0;
-	    for (int i = NBytes.length - 1; i >= 0; i--) {
-	    	p += mask * (NBytes[i] & 0xFFL); // convert (eventually negative) byte into positive long
-	    	mask <<= 8; // mask *= 256
+	    // process unsigned bytes
+	    for (int i = NBytes.length - 1; i > 0; i--) {
+	    	p += mask * (NBytes[i] & 0xFFL);
+	    	mask <<= 8;
 	    	if (mask == 0) { // int overflow after 4 shifts
 	    		Temp[j++] = p;
 	    		mask = 1;
 		        p = 0;
 	    	}
 	    }
+	    // the most significant byte holds BigIntegers sign bit
+    	p += mask * NBytes[0];
+    	mask <<= 8;
+    	if (mask == 0) {
+    		Temp[j++] = p;
+    		mask = 1;
+	        p = 0;
+    	}
 	    Temp[j] = p;
 	    Convert32To31Bits(Temp, TestNbr, NumberLength);
-	    return NumberLength;
 	}
 	
 	/**
@@ -956,25 +972,35 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    int j = 0;
 	    int mask = 1;
 	    long p = 0;
-	    for (int i = NBytes.length - 1; i >= 0; i--) {
-	    	p += mask * (NBytes[i] & 0xFFL); // convert (eventually negative) byte into positive long
-	    	mask <<= 8; // mask *= 256
+	    // process unsigned bytes
+	    for (int i = NBytes.length - 1; i > 0; i--) {
+	    	p += mask * (NBytes[i] & 0xFFL);
+	    	mask <<= 8;
 	    	if (mask == 0) { // int overflow after 4 shifts
 	    		TestNbr[j++] = p;
 	    		mask = 1;
 		        p = 0;
 	    	}
 	    }
+	    // the most significant byte holds BigIntegers sign bit
+    	p += mask * NBytes[0];
+    	mask <<= 8;
+    	if (mask == 0) {
+    		TestNbr[j++] = p;
+    		mask = 1;
+	        p = 0;
+    	}
 	    TestNbr[j] = p;
 	    // zero-initialize all TestNbr entries from j+1 to NumberLength
-	    while (++j <= NumberLength) {
+	    while (++j <= NumberLength) { // TODO < ?
 	    	TestNbr[j] = 0;
 	    }
 	    return NumberLength;
 	}
 
 	static int computeNumberLength(int bitLength) {
-		return bitLength/31 + 1;
+		// 2 additional bits to avoid overflows in additions
+		return (bitLength + 32)/31;
 	}
 
 	void AddBigNbr(int Nbr1[], int Nbr2[], int Sum[]) {
@@ -1183,7 +1209,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		}
 	}
 
-	private void Convert31To32Bits(int[] nbr31bits, long[] nbr32bits) {
+	void Convert31To32Bits(int[] nbr31bits, long[] nbr32bits) {
 		int i, j, k;
 		i = 0;
 		for (j = -1; j < NumberLength; j++) {
@@ -1202,7 +1228,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			i++;
 		}
 		for (; i < NumberLength; i++) {
-			nbr32bits[i] = 0;
+			nbr32bits[i] = 0; // TODO 0xFFFFFFFF when negative?
 		}
 	}
 
@@ -1218,7 +1244,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				j++;
 			}
 		}
-		nbr31bits[NumberLength] = 0;
+		nbr31bits[NumberLength] = 0; // TODO remove ?
 	}
 
 	/**
@@ -1644,9 +1670,18 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    Convert32To31Bits(CalcAuxModInvMu, inv, NumberLength);
 	}
 
-	BigInteger BigIntToBigNbr(int[] GD) {
+	BigInteger BigIntToBigNbr(int[] nbr) {
+		int[] nbrCopy = new int[NumberLength+1];
+		System.arraycopy(nbr, 0, nbrCopy, 0, NumberLength);
+		boolean chSign = false;
+		
+		if (nbr[NumberLength-1] >= 0x40000000L) {
+			ChSignBigNbr(nbrCopy);
+			chSign = true;
+		}
+		
 		long[] Temp = new long[NumberLength];
-		Convert31To32Bits(GD, Temp);
+		Convert31To32Bits(nbrCopy, Temp);
 		int NL = NumberLength * 4;
 		byte[] NBytes = new byte[NL];
 		for (int i = 0; i < NumberLength; i++) {
@@ -1658,12 +1693,9 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		}
 		
 		BigInteger result = new BigInteger(NBytes);
-		// XXX If the correct result is negative then result = correctResult + 2^(31*numberLength).
-		// The following patch fixes that but unfortunately breaks some cases when the correct result is positive.
-		//int signMask = 0xFF >> (NumberLength&7);
-		//if ((NBytes[0] & signMask) > 0) {
-		//	result = result.subtract(I_1.shiftLeft(31*NumberLength));
-		//}
+		if (chSign) {
+			result = result.negate();
+		}
 		return result;
 	}
 
