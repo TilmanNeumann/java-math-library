@@ -39,7 +39,7 @@ public class EllipticCurveMethodTest {
 	
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethodTest.class);
 
-	private static final int N_COUNT = 1000;
+	private static final int N_COUNT = 100000;
 
 	private final SecureRandom RNG = new SecureRandom();
 	
@@ -71,15 +71,6 @@ public class EllipticCurveMethodTest {
 		}
 	}
 	
-	private void testToStringConversion(BigInteger N, int NumberLength) {
-		String NStr = N.toString();
-		ecm.BigNbrToBigInt(N, a31, NumberLength);
-		String big31Str = ecm.BigNbrToString(a31);
-		if (!NStr.equals(big31Str)) {
-			LOG.error("toString-conversion failure: correct=" + NStr + ", big31Str = " + big31Str);
-		}
-	}
-	
 	private void testRandomNumbers() {
 		for (int bits = 10; bits<1000; bits += 1) {
 			int NumberLength = ecm.NumberLength = EllipticCurveMethod.computeNumberLength(bits);
@@ -94,12 +85,6 @@ public class EllipticCurveMethodTest {
 			LOG.debug("Test in-out-conversion of N with " + bits + " bit...");
 			for (int i=0; i<N_COUNT; i++) {
 				testInOutConversion(NArray[i], NumberLength);
-			}
-			
-			// toString
-			LOG.debug("Test toString conversion of N with " + bits + " bit...");
-			for (int i=0; i<N_COUNT; i++) {
-				testToStringConversion(NArray[i], NumberLength);
 			}
 			
 			if (bits < 64) {
@@ -221,7 +206,6 @@ public class EllipticCurveMethodTest {
 			int NumberLength = EllipticCurveMethod.computeNumberLength(test.testBitLength);
 			setNumberLength(NumberLength);
 			testInOutConversion(N, NumberLength);
-			testToStringConversion(N, NumberLength);
 		}
 	}
 	
