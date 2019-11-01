@@ -934,7 +934,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 */
 	void BigNbrToBigInt(BigInteger N, int[] TestNbr, int NumberLength) {
 	    byte[] NBytes = N.toByteArray();
-	    long[] Temp = new long[NumberLength+1]; // zero-initialized // TODO remove +1 ?
+	    long[] Temp = new long[NumberLength+1]; // zero-initialized
 	    int j = 0;
 	    int mask = 1;
 	    long p = 0;
@@ -956,7 +956,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
     		mask = 1;
 	        p = 0;
     	}
-	    Temp[j] = p;
+	    Temp[j] = p; // this is why Temp needs one extra int
 	    Convert32To31Bits(Temp, TestNbr, NumberLength);
 	}
 	
@@ -991,8 +991,9 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	        p = 0;
     	}
 	    TestNbr[j] = p;
-	    // zero-initialize all TestNbr entries from j+1 to NumberLength
-	    while (++j <= NumberLength) { // TODO < ?
+	    // Zero-initialize all TestNbr entries from j+1 to NumberLength.
+	    // It is required that TestNbr[NumberLength] is set to 0, too.
+	    while (++j <= NumberLength) {
 	    	TestNbr[j] = 0;
 	    }
 	    return NumberLength;
@@ -1228,7 +1229,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			i++;
 		}
 		for (; i < NumberLength; i++) {
-			nbr32bits[i] = 0; // TODO 0xFFFFFFFF when negative?
+			nbr32bits[i] = 0;
 		}
 	}
 
@@ -1244,7 +1245,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				j++;
 			}
 		}
-		nbr31bits[NumberLength] = 0; // TODO remove ?
 	}
 
 	/**
