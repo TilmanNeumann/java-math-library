@@ -15,31 +15,76 @@ package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.util.ConfigUtil;
 
 public class EllipticCurveMethodTest {
+	
+	static class SpecialTest {
+		BigInteger N;
+		int testBitLength;
+		
+		/**
+		 * @param N
+		 * @param testBitLength the test bit size for which N was created
+		 */
+		public SpecialTest(BigInteger N, int testBitLength) {
+			this.N = N;
+			this.testBitLength = testBitLength;
+		}
+	}
+	
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethodTest.class);
-	
-	private static final SecureRandom RNG = new SecureRandom();
 
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 1000000;
+
+	private final SecureRandom RNG = new SecureRandom();
 	
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		
-		EllipticCurveMethod ecm = new EllipticCurveMethod();
-		
-		int[] a31 = new int[EllipticCurveMethod.NLen];
-		int[] b31 = new int[EllipticCurveMethod.NLen];
-		int[] c31 = new int[EllipticCurveMethod.NLen];
-		
-		long[] a32 = new long[EllipticCurveMethod.NLen];
-		long[] b32 = new long[EllipticCurveMethod.NLen];
-		long[] c32 = new long[EllipticCurveMethod.NLen];
-		
+	private final EllipticCurveMethod ecm = new EllipticCurveMethod();
+	
+	private final int[] a31 = new int[EllipticCurveMethod.NLen];
+	private final int[] b31 = new int[EllipticCurveMethod.NLen];
+	private final int[] c31 = new int[EllipticCurveMethod.NLen];
+	
+	private final long[] a32 = new long[EllipticCurveMethod.NLen];
+	private final long[] b32 = new long[EllipticCurveMethod.NLen];
+	private final long[] c32 = new long[EllipticCurveMethod.NLen];
+	
+	public EllipticCurveMethodTest() {
+		RNG.setSeed(42); // make test results repeatible
+	}
+	
+	private void setNumberLength(int NumberLength) {
+		ecm.NumberLength = NumberLength; 
+	}
+	
+	private void testInOutConversion(BigInteger N, int NumberLength) {
+		try {
+			ecm.BigNbrToBigInt(N, a31, NumberLength);
+			BigInteger Nout = ecm.BigIntToBigNbr(a31);
+			if (!N.equals(Nout)) {
+				ecm.Convert31To32Bits(a31, a32);
+				BigInteger testResult32 = ecm.BigIntToBigNbr(a32);
+				LOG.error("In-out-conversion failure: N=" + N + ", Nout = " + Nout + ", testResult32 = " + testResult32 + ", NumberLength = " + ecm.NumberLength);
+			}
+		} catch (Exception e) {
+			LOG.error("Conversion of N=" + N + " caused " + e, e);
+		}
+	}
+	
+	private void testToStringConversion(BigInteger N, int NumberLength) {
+		String NStr = N.toString();
+		ecm.BigNbrToBigInt(N, a31, NumberLength);
+		String big31Str = ecm.BigNbrToString(a31);
+		if (!NStr.equals(big31Str)) {
+			LOG.error("toString-conversion failure: correct=" + NStr + ", big31Str = " + big31Str);
+		}
+	}
+	
+	private void testRandomNumbers() {
 		for (int bits = 10; bits<1000; bits += 1) {
 			int NumberLength = ecm.NumberLength = EllipticCurveMethod.computeNumberLength(bits);
 			
@@ -52,18 +97,7 @@ public class EllipticCurveMethodTest {
 			// in-out-conversion
 			LOG.debug("Test in-out-conversion of N with " + bits + " bit...");
 			for (int i=0; i<N_COUNT; i++) {
-				BigInteger Nin = NArray[i];
-				try {
-					ecm.BigNbrToBigInt(Nin, a31, NumberLength);
-					BigInteger Nout = ecm.BigIntToBigNbr(a31);
-					if (!Nin.equals(Nout)) {
-						ecm.Convert31To32Bits(a31, a32);
-						BigInteger testResult32 = ecm.BigIntToBigNbr(a32);
-						LOG.error("In-out-conversion failure: Nin=" + Nin + ", Nout = " + Nout + ", testResult32 = " + testResult32 + ", NumberLength = " + ecm.NumberLength);
-					}
-				} catch (Exception e) {
-					LOG.error("Conversion of N=" + Nin + " caused " + e, e);
-				}
+				testInOutConversion(NArray[i], NumberLength);
 			}
 			
 			// toString
@@ -175,5 +209,34 @@ public class EllipticCurveMethodTest {
 				}
 			}
 		} // end_for bits
+	}
+	
+	public static void main(String[] args) {
+		ConfigUtil.initProject();
+		
+		SpecialTest[] tests = new SpecialTest[] {
+			// TODO Some rare failures of in-out- and toString conversion in random test
+			// The N have in common that their actual bit size is ~20 bit smaller than the generation target was
+			new SpecialTest(new BigInteger("-9047107805356617574821419177374462823988751688943829812044231389676"), 248),
+			new SpecialTest(new BigInteger("-810645591595199570650496051345328669857441632357541306927499776869083777701428362211927875931927"), 341),
+			new SpecialTest(new BigInteger("-1661507549698651677347352443872649283631112234579374113959724008640719132113623333818063620959056420710153"), 371),
+			new SpecialTest(new BigInteger("-3879725014912056720725365884026092090047847467519283535255468693493067092968062030773638553790318583416720"), 371),
+			new SpecialTest(new BigInteger("-81238486828807671926156945485493053897286271079236717483584339941912993848458748988378027450406814055929"), 371),
+		};
+		
+		EllipticCurveMethodTest ecmTest = new EllipticCurveMethodTest();
+		
+		for (SpecialTest test : tests) {
+			BigInteger N = test.N;
+			LOG.debug("N=" + N + " has " + N.bitLength() + " bit");
+			LOG.debug("byte array=" + Arrays.toString(N.toByteArray()));
+			LOG.debug("binary=" + N.toString(2));
+			int NumberLength = EllipticCurveMethod.computeNumberLength(test.testBitLength);
+			ecmTest.setNumberLength(NumberLength);
+			ecmTest.testInOutConversion(N, NumberLength);
+			ecmTest.testToStringConversion(N, NumberLength);
+		}
+		
+		ecmTest.testRandomNumbers();
 	}
 }
