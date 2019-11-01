@@ -927,48 +927,26 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	}
 
 	/**
-	 * Converts BigInteger N into {TestNbr, NumberLength}.
+	 * Converts BigInteger N into TestNbr represented by 31-bit ints.
 	 * @param N input
 	 * @param TestNbr output
 	 * @param NumberLength the size of numbers we are working with
 	 */
 	void BigNbrToBigInt(BigInteger N, int[] TestNbr, int NumberLength) {
-	    byte[] NBytes = N.toByteArray();
+		// Temp needs 1 extra int because of TestNbr[j] = p; in BigNbrToBigInt(long[])
 	    long[] Temp = new long[NumberLength+1]; // zero-initialized
-	    int j = 0;
-	    int mask = 1;
-	    long p = 0;
-	    // process unsigned bytes
-	    for (int i = NBytes.length - 1; i > 0; i--) {
-	    	p += mask * (NBytes[i] & 0xFFL);
-	    	mask <<= 8;
-	    	if (mask == 0) { // int overflow after 4 shifts
-	    		Temp[j++] = p;
-	    		mask = 1;
-		        p = 0;
-	    	}
-	    }
-	    // the most significant byte holds BigIntegers sign bit
-    	p += mask * NBytes[0];
-    	mask <<= 8;
-    	if (mask == 0) {
-    		Temp[j++] = p;
-    		mask = 1;
-	        p = 0;
-    	}
-	    Temp[j] = p; // this is why Temp needs one extra int
+		BigNbrToBigInt(N, Temp, NumberLength);
 	    Convert32To31Bits(Temp, TestNbr, NumberLength);
 	}
 	
 	/**
-	 * Converts BigInteger N into {TestNbr, NumberLength}.
+	 * Converts BigInteger N into TestNbr represented by 32-bit ints.
 	 * @param N input
 	 * @param TestNbr output
-	 * @return size of TestNbr in 32-bit units
+	 * @param NumberLength
 	 */
-	int BigNbrToBigInt(BigInteger N, long[] TestNbr) {
+	void BigNbrToBigInt(BigInteger N, long[] TestNbr, int NumberLength) {
 	    byte[] NBytes = N.toByteArray();
-	    int NumberLength = computeNumberLength(NBytes.length * 8); // number length in 31-bit integers
 	    int j = 0;
 	    int mask = 1;
 	    long p = 0;
@@ -996,7 +974,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    while (++j <= NumberLength) {
 	    	TestNbr[j] = 0;
 	    }
-	    return NumberLength;
 	}
 
 	static int computeNumberLength(int bitLength) {
