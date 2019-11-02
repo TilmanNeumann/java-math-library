@@ -39,7 +39,7 @@ public class EllipticCurveMethodTest {
 	
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethodTest.class);
 
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 10000;
 
 	private final SecureRandom RNG = new SecureRandom();
 	
@@ -57,7 +57,6 @@ public class EllipticCurveMethodTest {
 		ecm.NumberLength = NumberLength; 
 	}
 	
-	// TODO Fails for negative N with 31k+30 bit. Fortunately, ECM does not call the involved methods with negative inputs.
 	private BigInteger testInOutConversion32(BigInteger N, int NumberLength) {
 		try {
 			ecm.BigNbrToBigInt(N, a32, NumberLength);
@@ -65,7 +64,7 @@ public class EllipticCurveMethodTest {
 			if (!N.equals(N32)) {
 				LOG.error("inOut32 failure:");
 				LOG.debug("    NumberLength " + ecm.NumberLength);
-				LOG.debug("    N   = " + N + "(" + N.bitLength() + " bit)");
+				LOG.debug("    N   = " + N + " (" + N.bitLength() + " bit)");
 				LOG.debug("    N32 = " + N32);
 				LOG.debug("    N.toByteArray()   = " +  Arrays.toString(N.toByteArray()));
 				LOG.debug("    a32 = " +  Arrays.toString(a32));
@@ -85,7 +84,7 @@ public class EllipticCurveMethodTest {
 			if (!N.equals(N31)) {
 				LOG.error("inOut31 failure:");
 				LOG.debug("    NumberLength " + ecm.NumberLength);
-				LOG.debug("    N   = " + N + "(" + N.bitLength() + " bit)");
+				LOG.debug("    N   = " + N + " (" + N.bitLength() + " bit)");
 				LOG.debug("    N31 = " + N31);
 				LOG.debug("    N.toByteArray()   = " +  Arrays.toString(N.toByteArray()));
 				LOG.debug("    a31 = " +  Arrays.toString(a31));

@@ -1666,18 +1666,51 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		return result;
 	}
 
-	// TODO Fails for negative N with 31k+30 bit. Fortunately, ECM does not call the involved methods with negative inputs.
+	// This method used to fail for negative inputs with nbr[NumberLength-1]==0.
+    // This has been fixed with a quite ugly workaround.
+	// TODO look for a more elegant solution
 	BigInteger BigIntToBigNbr(long[] nbr) {
-		int NL = NumberLength * 4;
+		int trueNumberLength = NumberLength;
+		for (int i = NumberLength-1; i>=0; i--) {
+			if (nbr[i] != 0) break;
+			trueNumberLength--;
+		}
+		boolean isNegative = trueNumberLength>0 && nbr[trueNumberLength-1]<0;
+		if (isNegative) {
+			int NL = trueNumberLength*4;
+			byte[] NBytes = new byte[NL];
+			for (int i = 0; i < trueNumberLength; i++) {
+				final long digit = nbr[i];
+				NBytes[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
+				NBytes[NL - 2 - 4 * i] = (byte) ((digit >> 8) & 0xFF);
+				NBytes[NL - 3 - 4 * i] = (byte) ((digit >> 16) & 0xFF);
+				NBytes[NL - 4 - 4 * i] = (byte) ((digit >> 24) & 0xFF);
+			}
+			
+			// remove leading 0-bytes:
+			int zeroCount = 0;
+			for ( ; zeroCount<NL; zeroCount++) {
+				if (NBytes[zeroCount] != 0) break;
+			}
+			if (zeroCount == 0) return new BigInteger(NBytes);
+			int NL2 = NL - zeroCount;
+			if (NL2 == 0) return BigInteger.valueOf(0);
+			byte[] NBytes2 = new byte[NL2];
+			System.arraycopy(NBytes, zeroCount, NBytes2, 0, NL2);
+			return new BigInteger(NBytes2);
+		}
+		
+		// Old implementation for positive numbers
+		int NL = NumberLength*4;
 		byte[] NBytes = new byte[NL];
-		for (int i = 0; i < NumberLength; i++) {
+		for (int i = 0; i < NumberLength /*trueNumberLength*/; i++) { // XXX trueNumberLength works as well ?
 			final long digit = nbr[i];
 			NBytes[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
 			NBytes[NL - 2 - 4 * i] = (byte) ((digit >> 8) & 0xFF);
 			NBytes[NL - 3 - 4 * i] = (byte) ((digit >> 16) & 0xFF);
 			NBytes[NL - 4 - 4 * i] = (byte) ((digit >> 24) & 0xFF);
 		}
-		return (new BigInteger(NBytes));
+		return new BigInteger(NBytes);
 	}
 
 	/**
