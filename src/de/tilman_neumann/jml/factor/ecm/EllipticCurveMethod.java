@@ -977,7 +977,8 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	}
 
 	static int computeNumberLength(int bitLength) {
-		// 2 additional bits to avoid overflows in additions
+		// The original computation was (bitLength + 30)/31;
+		// added one bit for the sign and another to avoid overflows in additions
 		return (bitLength + 32)/31;
 	}
 
