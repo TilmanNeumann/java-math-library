@@ -1731,7 +1731,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @return decimal string representation of Nbr
 	 */
 	String BigNbrToString(long Nbr[]) {
-		int nbr31Size = (NumberLength*32+30)/31;
+		int nbr31Size = (NumberLength*32+30)/31; // XXX looks unsafe, but the method is never called yet
 		int[] nbr31 = new int[nbr31Size];
 		this.Convert32To31Bits(Nbr, nbr31, NumberLength);
 		BigInteger bigInt = this.BigIntToBigNbr(nbr31);
