@@ -1187,6 +1187,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		}
 	}
 
+	// TODO This may be the problem in in-out-conversion31 of negative inputs
 	void Convert31To32Bits(int[] nbr31, long[] nbr32) {
 		int i, j, k;
 		i = 0;
