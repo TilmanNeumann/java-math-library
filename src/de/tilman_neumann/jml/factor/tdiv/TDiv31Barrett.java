@@ -22,6 +22,8 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.I_2;
+
 /**
  * Trial division using Barrett reduction,
  * see https://en.wikipedia.org/wiki/Barrett_reduction. 
@@ -59,8 +61,17 @@ public class TDiv31Barrett extends FactorAlgorithm {
 		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
 		int N = Nbig.intValue();
 		
+		// Powers of 2 can be removed very fast.
+		// This is required also because the Barrett division does not work with p=2.
+		int lsb = Integer.numberOfTrailingZeros(N);
+		if (lsb > 0) {
+			primeFactors.add(I_2, lsb);
+			N >>= lsb;
+		}
+		
+		// Test odd primes
 		int q;
-		for (int i=0; ; i++) {
+		for (int i=1; ; i++) {
 			final long r = pinv[i];
 			final int p = primes[i];
 			int exp = 0;
