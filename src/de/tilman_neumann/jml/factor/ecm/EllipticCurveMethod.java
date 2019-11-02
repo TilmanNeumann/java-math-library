@@ -1666,6 +1666,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		return result;
 	}
 
+	// TODO Fails for negative N with 31k+30 bit. Fortunately, ECM does not call the involved methods with negative inputs.
 	BigInteger BigIntToBigNbr(long[] nbr) {
 		int NL = NumberLength * 4;
 		byte[] NBytes = new byte[NL];
