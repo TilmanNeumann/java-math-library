@@ -20,7 +20,6 @@ import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.gcd.Gcd63;
@@ -30,8 +29,11 @@ import de.tilman_neumann.util.ConfigUtil;
  * Analyze the congruences best matching Hart's one-line factor algorithm when tested with 4kN values.
  * @author Tilman Neumann
  */
-public class Hart_AnalyzeCongruences extends FactorAlgorithm {
+public class Hart_AnalyzeCongruences {
 	private static final Logger LOG = Logger.getLogger(Hart_AnalyzeCongruences.class);
+	
+	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
+	private static final boolean USE_kN_CONGRUENCES = true;
 
 	// algorithm options
 	/** number of test numbers */
@@ -47,8 +49,8 @@ public class Hart_AnalyzeCongruences extends FactorAlgorithm {
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 16;
-	private static final int AMOD = 16;
+	private static final int KNMOD = 6;
+	private static final int AMOD = 6;
 
 	private double[] sqrt;
 
@@ -66,17 +68,6 @@ public class Hart_AnalyzeCongruences extends FactorAlgorithm {
 			sqrt[i] = sqrtI;
 		}
 	}
-	
-	@Override
-	public String getName() {
-		return "Hart_AnalyzeCongruences";
-	}
-
-	@Override
-	public BigInteger findSingleFactor(BigInteger N) {
-		findSingleFactor(N.longValue());
-		return null; // dummy
-	}
 
 	public void findSingleFactor(long N) {
 		long fourN = N<<2;
@@ -91,7 +82,11 @@ public class Hart_AnalyzeCongruences extends FactorAlgorithm {
 				if (b*b == test) {
 					long gcd = gcdEngine.gcd(a+b, N);
 					if (gcd>1 && gcd<N) {
-						counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+						if (USE_kN_CONGRUENCES) {
+							counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+						} else {
+							counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+						}
 						return; // removes the blur at even k!
 					}
 				}
@@ -107,13 +102,14 @@ public class Hart_AnalyzeCongruences extends FactorAlgorithm {
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		for (BigInteger N : testNumbers) {
-			this.findSingleFactor(N);
+			this.findSingleFactor(N.longValue());
 		}
 		
+		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
 		for (int k=0; k<KMOD; k++) {
 			for (int Nk=0; Nk<KNMOD; Nk++) {
 				for (int a=0; a<AMOD; a++) {
-					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (N+k)%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
+					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
 				}
 				LOG.info("");
 			}
