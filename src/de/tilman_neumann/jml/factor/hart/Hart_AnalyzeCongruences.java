@@ -77,12 +77,8 @@ public class Hart_AnalyzeCongruences {
 			sqrt[i] = Math.sqrt(i*K_MULT);
 		}
 	}
-	
-	public String getName() {
-		return "Hart_AnalyzeCongruencesWithMultiplier";
-	}
 
-	public void findSingleFactor(long N) {
+	private void findSingleFactor(long N) {
 		long fourN = N<<2;
 		double sqrt4N = Math.sqrt(fourN);
 		long a, b, test, gcd;
