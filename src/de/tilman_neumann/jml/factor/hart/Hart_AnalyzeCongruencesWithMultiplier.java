@@ -34,6 +34,9 @@ import de.tilman_neumann.util.ConfigUtil;
  */
 public class Hart_AnalyzeCongruencesWithMultiplier extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_AnalyzeCongruencesWithMultiplier.class);
+	
+	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
+	private static final boolean USE_kN_CONGRUENCES = true;
 
 	// algorithm options
 	/** number of test numbers */
@@ -49,8 +52,8 @@ public class Hart_AnalyzeCongruencesWithMultiplier extends FactorAlgorithm {
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 8;
-	private static final int AMOD = 8;
+	private static final int KNMOD = 6;
+	private static final int AMOD = 6;
 	
 	/**
 	 * We only test k-values that are multiples of this constant.
@@ -102,7 +105,11 @@ public class Hart_AnalyzeCongruencesWithMultiplier extends FactorAlgorithm {
 					if (b*b == test) {
 						gcd = gcdEngine.gcd(a+b, N);
 						if (gcd>1 && gcd<N) {
-							counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+							if (USE_kN_CONGRUENCES) {
+								counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+							} else {
+								counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+							}
 							return; // removes the blur at even k!
 						}
 					}
@@ -127,10 +134,11 @@ public class Hart_AnalyzeCongruencesWithMultiplier extends FactorAlgorithm {
 			this.findSingleFactor(N);
 		}
 		
+		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
 		for (int k=0; k<KMOD; k++) {
 			for (int Nk=0; Nk<KNMOD; Nk++) {
 				for (int a=0; a<AMOD; a++) {
-					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (N+k)%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
+					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
 				}
 				LOG.info("");
 			}
