@@ -36,7 +36,7 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
+public class Lehman_AnalyzeKStructure {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeKStructure.class);
 
 	private static class Progression {
@@ -70,16 +70,6 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 	/** The number of N's factored by the individual k values */
 	private int[][] kFactorCounts;
 	private int arrayIndex;
-	
-	@Override
-	public String getName() {
-		return "Lehman_AnalyzeKStructure";
-	}
-
-	@Override
-	public BigInteger findSingleFactor(BigInteger N) {
-		return BigInteger.valueOf(findSingleFactor(N.longValue()));
-	}
 	
 	public long findSingleFactor(long N) {
 		final int cbrt = (int) Math.cbrt(N);
@@ -189,7 +179,7 @@ public class Lehman_AnalyzeKStructure extends FactorAlgorithm {
 			BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 			LOG.info("Test N having " + bits + " bit");
 			for (BigInteger N : testNumbers) {
-				this.findSingleFactor(N);
+				this.findSingleFactor(N.longValue());
 			}
 		}
 		

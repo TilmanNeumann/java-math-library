@@ -13,14 +13,11 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
-import java.math.BigInteger;
-
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.jml.factor.FactorAlgorithm;
 
 /**
  * Lehman analyzer that finds the correct k- and a-values of inputs other algorithms can not cope with.
@@ -29,22 +26,12 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeSpecialArguments extends FactorAlgorithm {
+public class Lehman_AnalyzeSpecialArguments {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeSpecialArguments.class);
 	
-	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(NUM_PRIMES_FOR_31_BIT_TDIV);
+	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
 
 	private final Gcd63 gcdEngine = new Gcd63();
-
-	@Override
-	public String getName() {
-		return "Lehman_AnalyzeSpecialArguments";
-	}
-
-	@Override
-	public BigInteger findSingleFactor(BigInteger N) {
-		return BigInteger.valueOf(findSingleFactor(N.longValue()));
-	}
 	
 	public long findSingleFactor(long N) {
 		// 1. Check via trial division whether N has a nontrivial divisor d <= cbrt(N), and if so, return d.

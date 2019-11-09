@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 import de.tilman_neumann.jml.factor.TestNumberNature;
@@ -32,7 +31,7 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeKFactoringMostN extends FactorAlgorithm {
+public class Lehman_AnalyzeKFactoringMostN {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeKFactoringMostN.class);
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
@@ -53,16 +52,6 @@ public class Lehman_AnalyzeKFactoringMostN extends FactorAlgorithm {
 	private final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 
 	TreeMap<Integer, HashSet<Long>> k2FactoredN;
-
-	@Override
-	public String getName() {
-		return "Lehman_AnalyzeKFactoringMostN";
-	}
-
-	@Override
-	public BigInteger findSingleFactor(BigInteger N) {
-		return BigInteger.valueOf(findSingleFactor(N.longValue()));
-	}
 	
 	public long findSingleFactor(long N) {
 		final int cbrt = (int) Math.cbrt(N);
@@ -148,7 +137,7 @@ public class Lehman_AnalyzeKFactoringMostN extends FactorAlgorithm {
 		LOG.info("Test N having " + bits + " bit");
 		
 		for (BigInteger N : testNumbers) {
-			this.findSingleFactor(N);
+			this.findSingleFactor(N.longValue());
 		}
 		
 		int ncount = N_COUNT;

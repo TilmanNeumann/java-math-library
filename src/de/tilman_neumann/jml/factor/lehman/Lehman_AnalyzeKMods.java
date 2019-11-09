@@ -19,7 +19,6 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 
@@ -28,7 +27,7 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeKMods extends FactorAlgorithm {
+public class Lehman_AnalyzeKMods {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeKMods.class);
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
@@ -54,16 +53,6 @@ public class Lehman_AnalyzeKMods extends FactorAlgorithm {
 	
 	public Lehman_AnalyzeKMods(int m) {
 		this.MOD = m;
-	}
-	
-	@Override
-	public String getName() {
-		return "Lehman_AnalyzeKMods";
-	}
-
-	@Override
-	public BigInteger findSingleFactor(BigInteger N) {
-		return BigInteger.valueOf(findSingleFactor(N.longValue()));
 	}
 	
 	public long findSingleFactor(long N) {
@@ -162,7 +151,7 @@ public class Lehman_AnalyzeKMods extends FactorAlgorithm {
 		LOG.info("Test MOD " + MOD + " with N having " + bits + " bit");
 		
 		for (BigInteger N : testNumbers) {
-			this.findSingleFactor(N);
+			this.findSingleFactor(N.longValue());
 		}
 		
 		int sum = 0;

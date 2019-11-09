@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 
@@ -34,7 +33,7 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
+public class Lehman_AnalyzeCongruences {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeCongruences.class);
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
@@ -57,16 +56,6 @@ public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 	
 	// dimensions: k%KMOD, kN%KNMOD, a%AMOD, adjust%AMOD
 	private int[][][][] counts;
-	
-	@Override
-	public String getName() {
-		return "Lehman_AnalyzeCongruences";
-	}
-
-	@Override
-	public BigInteger findSingleFactor(BigInteger N) {
-		return BigInteger.valueOf(findSingleFactor(N.longValue()));
-	}
 	
 	public long findSingleFactor(long N) {
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
@@ -108,7 +97,7 @@ public class Lehman_AnalyzeCongruences extends FactorAlgorithm {
 		
 		for (BigInteger N : testNumbers) {
 			if (N.mod(I_6).equals(I_1))
-			this.findSingleFactor(N);
+			this.findSingleFactor(N.longValue());
 		}
 		
 		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
