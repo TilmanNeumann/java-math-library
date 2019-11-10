@@ -20,7 +20,6 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.SortedMultiset;
@@ -116,19 +115,6 @@ abstract public class FactorAlgorithm {
 			if (N.equals(I_1)) {
 				// N was "easy"
 				return primeFactors;
-			}
-			
-			boolean doEcm = false;
-			if (doEcm) {
-				// For large N with many "middle-size" prime factors, some Ecm is appropriate.
-				EllipticCurveMethod ecm = new EllipticCurveMethod();
-				BigInteger factor = ecm.findSingleFactor(N);
-				// TODO Currently too much Ecm is done here. We need to readjust its limits.
-				// TODO Ecm may find several factors
-				if (factor.compareTo(I_1)>0 && factor.compareTo(N)<0) {
-					LOG.debug("Ecm found factor " + factor + " of N=" + N);
-					// TODO
-				}
 			}
 		}
 		
