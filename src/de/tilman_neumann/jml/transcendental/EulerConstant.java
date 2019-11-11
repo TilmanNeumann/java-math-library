@@ -58,7 +58,7 @@ public class EulerConstant {
 	 * https://math.stackexchange.com/questions/129777/what-is-the-fastest-most-efficient-algorithm-for-estimating-eulers-constant-g?noredirect=1&lq=1
 	 *
 	 * I realized that the first sum converges to 1 with error 2^(-sqrt(2)*k).
-	 * Thus replacing the first sum by 1 gives a faster algorithm.
+	 * Thus replacing the first sum by 1 gives a faster algorithm, implemented in gamma_v2().
 	 * 
 	 * @param scale
 	 * @return
@@ -106,7 +106,7 @@ public class EulerConstant {
 	}
 
 	/**
-	 * Simplified implementation realizing that the first converges to 1. So here we use the approximation
+	 * Simplified implementation realizing that the first sum converges to 1. So here we use the approximation
 	 * 
 	 * gamma = 1 - log k + sum_(r=1..12k+1) (-k)^(r+1)/[(r-1)!*(r+1)^2] + O(2^-k)
 	 * 
