@@ -1044,12 +1044,12 @@ public class TinyEcm64 extends FactorAlgorithm {
 		return;
 	}
 	
-	private long setUpMontgomeryMult_v1(long n) {
-		long x = (((n + 2) & 4) << 1) + n; // here x*a==1 mod 2**4
-		x *= 2 - n * x;         	       // here x*a==1 mod 2**8
-		x *= 2 - n * x;               	   // here x*a==1 mod 2**16
-		x *= 2 - n * x;              	   // here x*a==1 mod 2**32         
-		x *= 2 - n * x;           	       // here x*a==1 mod 2**64
+	private long setUpMontgomeryMult_v1(long N) {
+		long x = (((N + 2) & 4) << 1) + N; // here x*N==1 mod 2**4
+		x *= 2 - N * x;         	       // here x*N==1 mod 2**8
+		x *= 2 - N * x;               	   // here x*N==1 mod 2**16
+		x *= 2 - N * x;              	   // here x*N==1 mod 2**32         
+		x *= 2 - N * x;           	       // here x*N==1 mod 2**64
 		return (long)0 - x;
 	}
 
@@ -1059,7 +1059,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * With a minor modification the algorithm from http://coliru.stacked-crooked.com/a/f57f11426d06acd8
 	 * still works for R=2^64.
 	 */
-	private long setUpMontgomeryMult_v2(long n) {
+	private long setUpMontgomeryMult_v2(long N) {
 		// initialization
 	    long a = R_HALF;
 	    long u = 1;
@@ -1071,7 +1071,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	            u >>>= 1;
 	    	    v >>>= 1;
 	        } else {
-	            u = ((u ^ n) >>> 1) + (u & n);
+	            u = ((u ^ N) >>> 1) + (u & N);
 	            v = (v >>> 1) + R_HALF;
 	        }
 	    }
