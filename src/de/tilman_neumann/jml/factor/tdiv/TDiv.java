@@ -68,14 +68,16 @@ public class TDiv {
 		int p_i;
 		for (int i=1; (p_i=SMALL_PRIMES.getPrime(i))<=limit; i++) {
 			BigInteger p_i_big = BigInteger.valueOf(p_i);
-			BigInteger[] div = N.divideAndRemainder(p_i_big);
-			if (div[1].equals(I_0)) {
+			//BigInteger[] div = N.divideAndRemainder(p_i_big);
+			BigInteger rDiv = N.remainder(p_i_big);
+			if (rDiv/*[1]*/.equals(I_0)) {
 				// p_i divides N at least once
+				BigInteger dDiv = N.divide(p_i_big);
 				do {
 					addToMap(p_i_big, 1, primeFactors);
-					N = div[0];
-					div = N.divideAndRemainder(p_i_big);
-				} while (div[1].equals(I_0));
+					N = dDiv; //div[0];
+					BigInteger[] div = N.divideAndRemainder(p_i_big);
+				} while (rDiv/*div[1]*/.equals(I_0));
 
 				if (N.bitLength() < 63) {
 					// check if we are done
