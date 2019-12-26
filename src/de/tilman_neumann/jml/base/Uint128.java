@@ -287,7 +287,7 @@ public class Uint128 {
 		            [q_hi||    ]
 		*/
 		
-		long q_hat = Long.divideUnsigned(r_hi, b_hi);
+		long q_hat = divideUnsignedLong(r_hi, b_hi);
 		if (DEBUG) LOG.debug("q_hat=" + Long.toUnsignedString(q_hat));
 		
 		Uint128 mulResult = mul64(v, q_hat);
@@ -337,7 +337,7 @@ public class Uint128 {
 		            [q_hi||q_lo]
 		*/
 		
-		q_hat = Long.divideUnsigned((r_hi << 32)|(r_lo >>> 32), b_hi);
+		q_hat = divideUnsignedLong((r_hi << 32)|(r_lo >>> 32), b_hi);
 		if (DEBUG) LOG.debug("b=" + Long.toUnsignedString(v) + ", q_hat=" + Long.toUnsignedString(q_hat));
 		
 		mulResult = mul64(v, q_hat);
@@ -364,6 +364,21 @@ public class Uint128 {
 		r = r_lo >>> s;
 		
 		return new long[] {q, r};
+	}
+
+	/**
+	 * A good replacement for the slow Long.divideUnsigned(). Taken from the Huldra project,
+	 * see BigInt.div(..) at https://github.com/bwakell/Huldra.
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	private long divideUnsignedLong(long a, long b) {
+		long qhat = (a >>> 1)/b << 1;
+		long t = a - qhat*b;
+		if (t+Long.MIN_VALUE >= b+Long.MIN_VALUE) qhat++;
+		if (DEBUG) assertEquals(Long.divideUnsigned(a, b), qhat);
+		return qhat;
 	}
 
 	/**
