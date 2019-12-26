@@ -371,9 +371,9 @@ public class Uint128 {
 	 * see BigInt.div(..) at https://github.com/bwakell/Huldra.
 	 * @param a
 	 * @param b
-	 * @return
+	 * @return unsigned a/b
 	 */
-	private long divideUnsignedLong(long a, long b) {
+	private static long divideUnsignedLong(long a, long b) {
 		long qhat = (a >>> 1)/b << 1;
 		long t = a - qhat*b;
 		if (t+Long.MIN_VALUE >= b+Long.MIN_VALUE) qhat++;
