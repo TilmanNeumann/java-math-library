@@ -14,7 +14,7 @@
 package de.tilman_neumann.jml.factor.base;
 
 /**
- * Global analysis settings.
+ * Factoring analysis settings.
  * 
  * Code "guarded" with a static final boolean = false will be removed by the compiler.
  * Thus if turned off, analysis code does not decrement performance.
