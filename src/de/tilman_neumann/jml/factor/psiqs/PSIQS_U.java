@@ -39,13 +39,11 @@ public class PSIQS_U extends PSIQSBase {
 	 * @param numberOfThreads
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param matrixSolver solver for smooth congruences matrix
-	 * @param profile
 	 */
-	public PSIQS_U(
-			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, int numberOfThreads,
-			PowerFinder powerFinder, MatrixSolver matrixSolver, boolean profile) {
+	public PSIQS_U(float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, 
+				   int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
 		
-		super(Cmult, Mmult, maxQRestExponent, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount), profile);
+		super(Cmult, Mmult, maxQRestExponent, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount));
 	}
 
 	@Override
@@ -57,8 +55,8 @@ public class PSIQS_U extends PSIQSBase {
 	@Override
 	protected PSIQSThreadBase createThread(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
-			AParamGenerator apg, AQPairBuffer aqPairBuffer, int threadIndex, boolean profile) {
+			AParamGenerator apg, AQPairBuffer aqPairBuffer, int threadIndex) {
 		
-		return new PSIQSThread_U(k, N, kN, d, sieveParams, baseArrays, apg, aqPairBuffer, threadIndex, profile);
+		return new PSIQSThread_U(k, N, kN, d, sieveParams, baseArrays, apg, aqPairBuffer, threadIndex);
 	}
 }

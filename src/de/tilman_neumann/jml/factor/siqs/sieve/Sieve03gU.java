@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +60,6 @@ public class Sieve03gU implements Sieve {
 	private BinarySearch binarySearch = new BinarySearch();
 
 	// timings
-	private boolean profile;
 	private Timer timer = new Timer();
 	private long initDuration, sieveDuration, collectDuration;
 	
@@ -68,7 +69,7 @@ public class Sieve03gU implements Sieve {
 	}
 	
 	@Override
-	public void initializeForN(SieveParams sieveParams, int mergedBaseSize, boolean profile) {
+	public void initializeForN(SieveParams sieveParams, int mergedBaseSize) {
 		this.pMinIndex = sieveParams.pMinIndex;
 		int pMax = sieveParams.pMax;
 		this.initializer = sieveParams.initializer;
@@ -81,9 +82,7 @@ public class Sieve03gU implements Sieve {
 		sieveArrayAddress = UnsafeUtil.allocateMemory(sieveAllocationSize);
 		if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
 
-		// profiling
-		this.profile = profile;
-		initDuration = sieveDuration = collectDuration = 0;
+		if (PROFILE) initDuration = sieveDuration = collectDuration = 0;
 	}
 
 	@Override
@@ -114,9 +113,9 @@ public class Sieve03gU implements Sieve {
 
 	@Override
 	public List<Integer> sieve() {
-		if (profile) timer.capture();
+		if (PROFILE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
-		if (profile) initDuration += timer.capture();
+		if (PROFILE) initDuration += timer.capture();
 		
 		// Sieve with positive x, large primes:
 		final int[] pArray = solutionArrays.pArray;
@@ -185,7 +184,7 @@ public class Sieve03gU implements Sieve {
 				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
 			}
 		} // end for (p)
-		if (profile) sieveDuration += timer.capture();
+		if (PROFILE) sieveDuration += timer.capture();
 
 		// collect results: we check 8 sieve locations in one long
 		List<Integer> smoothXList = new ArrayList<Integer>();
@@ -220,11 +219,11 @@ public class Sieve03gU implements Sieve {
 				}
 			}
 		}
-		if (profile) collectDuration += timer.capture();
+		if (PROFILE) collectDuration += timer.capture();
 		
 		// re-initialize sieve array for negative x
 		this.initializeSieveArray(sieveArraySize);
-		if (profile) initDuration += timer.capture();
+		if (PROFILE) initDuration += timer.capture();
 
 		// negative x, large primes:
 		for (i=primeBaseSize-1; i>=p1Index; i--) {
@@ -286,7 +285,7 @@ public class Sieve03gU implements Sieve {
 				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
 			}
 		} // end for (p)
-		if (profile) sieveDuration += timer.capture();
+		if (PROFILE) sieveDuration += timer.capture();
 
 		// collect results
 		for (long x=sieveArrayAddress+sieveArraySize; x>sieveArrayAddress; ) {
@@ -319,7 +318,7 @@ public class Sieve03gU implements Sieve {
 				}
 			}
 		}
-		if (profile) collectDuration += timer.capture();
+		if (PROFILE) collectDuration += timer.capture();
 		return smoothXList;
 	}
 

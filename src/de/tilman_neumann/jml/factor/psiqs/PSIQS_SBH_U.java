@@ -41,13 +41,11 @@ public class PSIQS_SBH_U extends PSIQSBase {
 	 * @param numberOfThreads
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param matrixSolver solver for smooth congruences matrix
-	 * @param profile
 	 */
-	public PSIQS_SBH_U(
-			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, int blockSize, int numberOfThreads,
-			PowerFinder powerFinder, MatrixSolver matrixSolver, boolean profile) {
+	public PSIQS_SBH_U(float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, int blockSize,
+					   int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
 		
-		super(Cmult, Mmult, maxQRestExponent, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount), profile);
+		super(Cmult, Mmult, maxQRestExponent, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount));
 		this.blockSize = blockSize;
 	}
 
@@ -59,8 +57,8 @@ public class PSIQS_SBH_U extends PSIQSBase {
 
 	protected PSIQSThreadBase createThread(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
-			AParamGenerator apg, AQPairBuffer aqPairBuffer, int threadIndex, boolean profile) {
+			AParamGenerator apg, AQPairBuffer aqPairBuffer, int threadIndex) {
 		
-		return new PSIQSThread_SBH_U(k, N, kN, d, sieveParams, baseArrays, blockSize, apg, aqPairBuffer, threadIndex, profile);
+		return new PSIQSThread_SBH_U(k, N, kN, d, sieveParams, baseArrays, blockSize, apg, aqPairBuffer, threadIndex);
 	}
 }

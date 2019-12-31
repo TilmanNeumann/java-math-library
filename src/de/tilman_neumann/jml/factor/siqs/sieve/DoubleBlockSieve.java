@@ -13,6 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -58,7 +59,6 @@ public class DoubleBlockSieve implements Sieve {
 	private BinarySearch binarySearch = new BinarySearch();
 
 	// timings
-	private boolean profile;
 	private Timer timer = new Timer();
 	private long initDuration, sieveDuration, collectDuration;
 
@@ -79,7 +79,7 @@ public class DoubleBlockSieve implements Sieve {
 	}
 	
 	@Override
-	public void initializeForN(SieveParams sieveParams, int mergedBaseSize, boolean profile) {
+	public void initializeForN(SieveParams sieveParams, int mergedBaseSize) {
 		this.pMinIndex = sieveParams.pMinIndex;
 		byte[] initializer = sieveParams.getInitializerBlock();
 
@@ -123,9 +123,7 @@ public class DoubleBlockSieve implements Sieve {
 		dPosArray = new int[mergedBaseSize];
 		dNegArray = new int[mergedBaseSize];
 
-		// profiling
-		this.profile = profile;
-		initDuration = sieveDuration = collectDuration = 0;
+		if (PROFILE) initDuration = sieveDuration = collectDuration = 0;
 	}
 	
 	@Override
@@ -136,7 +134,7 @@ public class DoubleBlockSieve implements Sieve {
 	
 	@Override
 	public List<Integer> sieve() {
-		if (profile) timer.capture();
+		if (PROFILE) timer.capture();
 
 		// preprocessing
 		final int[] pArray = solutionArrays.pArray;
@@ -170,7 +168,7 @@ public class DoubleBlockSieve implements Sieve {
 		for (int b2=0; b2<k2; b2++) { // bottom-up order is required because in each block, the data for the next block is adjusted
 			// positive x: initialize block
 			System.arraycopy(initializedBlock, 0, sieveBlock, 0, effectiveB2);
-			if (profile) initDuration += timer.capture();
+			if (PROFILE) initDuration += timer.capture();
 
 			for (int b1=0; b1<k1; b1++) {
 				// sieve inner block [b1*B1, (b1+1)*B1] with prime index ranges 0...r_s-1 and r_s...r_m
@@ -179,7 +177,7 @@ public class DoubleBlockSieve implements Sieve {
 			}
 			// sieve outer block [b2*B2, (b2+1)*B2] with prime index ranges r_m...r_l-1 and r_l...max
 			sievePositiveXBlock(pArray, logPArray, effectiveB2, 0, r_m, r_l, filteredBaseSize);
-			if (profile) sieveDuration += timer.capture();
+			if (PROFILE) sieveDuration += timer.capture();
 
 			// collect block
 			// let the sieve entry counter x run down to 0 is much faster because of the simpler exit condition
@@ -199,11 +197,11 @@ public class DoubleBlockSieve implements Sieve {
 					if (sieveBlock[x+4] < 0) smoothXList.add(x+b2Offset4);
 				}
 			} // end for (x)
-			if (profile) collectDuration += timer.capture();
+			if (PROFILE) collectDuration += timer.capture();
 			
 			// negative x: initialize block
 			System.arraycopy(initializedBlock, 0, sieveBlock, 0, effectiveB2);
-			if (profile) initDuration += timer.capture();
+			if (PROFILE) initDuration += timer.capture();
 			
 			for (int b1=0; b1<k1; b1++) {
 				// sieve inner block [b1*B1, (b1+1)*B1] with prime index ranges 0...r_s-1 and r_s...r_m
@@ -212,7 +210,7 @@ public class DoubleBlockSieve implements Sieve {
 			}
 			// sieve outer block [b2*B2, (b2+1)*B2] with prime index ranges r_m...r_l-1 and r_l...max
 			sieveNegativeXBlock(pArray, logPArray, effectiveB2, 0, r_m, r_l, filteredBaseSize);
-			if (profile) sieveDuration += timer.capture();
+			if (PROFILE) sieveDuration += timer.capture();
 			
 			// collect block
 			// let the sieve entry counter x run down to 0 is much faster because of the simpler exit condition
@@ -227,7 +225,7 @@ public class DoubleBlockSieve implements Sieve {
 					if (sieveBlock[x+4] < 0) smoothXList.add(-(x+b2Offset4));
 				}
 			} // end for (x)
-			if (profile) collectDuration += timer.capture();
+			if (PROFILE) collectDuration += timer.capture();
 		}
 		return smoothXList;
 	}

@@ -40,13 +40,12 @@ public class PSIQSThread_SBH_U extends PSIQSThreadBase {
 	 * @param apg
 	 * @param aqPairBuffer
 	 * @param threadIndex
-	 * @param profile
 	 */
 	public PSIQSThread_SBH_U(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays, int blockSize, 
-			AParamGenerator apg, AQPairBuffer aqPairBuffer, int threadIndex, boolean profile) {
+			AParamGenerator apg, AQPairBuffer aqPairBuffer, int threadIndex) {
 		
 		super(k, N, kN, d, sieveParams, baseArrays, apg, aqPairBuffer, new SIQSPolyGenerator(), new SingleBlockHybridSieveU(blockSize),
-			  new TDiv_QS_2Large_UBI(), threadIndex, profile);
+			  new TDiv_QS_2Large_UBI(), threadIndex);
 	}
 }

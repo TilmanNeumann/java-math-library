@@ -13,6 +13,10 @@
  */
 package de.tilman_neumann.jml.factor.cfrac;
 
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.*;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
@@ -24,7 +28,6 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorException;
-import de.tilman_neumann.jml.factor.base.GlobalParameters;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
@@ -40,9 +43,6 @@ import de.tilman_neumann.jml.roots.SqrtInt;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
-
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * CFrac = Shanks' SQUFOF algorithm + carry along continuant recurrence + collect smooth relations + LinAlg solver.<br/><br/>
@@ -98,7 +98,6 @@ public class CFrac extends FactorAlgorithm {
 	private MatrixSolver matrixSolver;
 
 	// profiling
-	private boolean profile;
 	private long startTime, linAlgStartTime;
 	
 	/**
@@ -112,10 +111,9 @@ public class CFrac extends FactorAlgorithm {
 	 * @param extraCongruences the number of surplus congruences we collect to have a greater chance that the equation system solves.
 	 * @param matrixSolver matrix solver for the smooth congruence equation system
 	 * @param ks_adjust
-	 * @param profile if true then analyze operations & timings
 	 */
-	public CFrac(boolean use_all_i, int stopRoot, float stopMult, float C, float maxQRestExponent, TDiv_CF auxFactorizer,
-			       int extraCongruences, MatrixSolver matrixSolver, int ks_adjust, boolean profile) {
+	public CFrac(boolean use_all_i, int stopRoot, float stopMult, float C, float maxQRestExponent, 
+				 TDiv_CF auxFactorizer, int extraCongruences, MatrixSolver matrixSolver, int ks_adjust) {
 		
 		this.use_all_i = use_all_i;
 		this.stopRoot = stopRoot;
@@ -127,7 +125,6 @@ public class CFrac extends FactorAlgorithm {
 		this.extraCongruences = extraCongruences;
 		this.matrixSolver = matrixSolver;
 		this.ks_adjust = ks_adjust;
-		this.profile = profile;
 	}
 
 	@Override
@@ -140,8 +137,8 @@ public class CFrac extends FactorAlgorithm {
 	 * @return factor, or null if no factor was found.
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
+		if (PROFILE) startTime = System.currentTimeMillis();
 		this.N = N;
-		this.startTime = System.currentTimeMillis();
 
 		// compute prime base size
 		double N_dbl = N.doubleValue();
@@ -160,7 +157,7 @@ public class CFrac extends FactorAlgorithm {
 		// initialize sub-algorithms for N
 		this.auxFactorizer.initialize(N, maxQRest);
 		FactorTest factorTest = new FactorTest01(N);
-		this.congruenceCollector.initialize(N, factorTest, profile);
+		this.congruenceCollector.initialize(N, factorTest);
 		this.combinedPrimesSet = new HashSet<Integer>();
 		this.matrixSolver.initialize(N, factorTest);
 
@@ -195,17 +192,17 @@ public class CFrac extends FactorAlgorithm {
 				// search square Q_i
 				test();
 			} catch (FactorException fe) {
-				long endTime = System.currentTimeMillis();
-				if (profile) {
+				if (PROFILE) {
+					long endTime = System.currentTimeMillis();
 					LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
 					CongruenceCollectorReport ccReport = congruenceCollector.getReport();
 					LOG.info("    cc: " + ccReport.getOperationDetails());
-					if (GlobalParameters.ANALYZE_LARGE_FACTOR_SIZES) {
+					if (ANALYZE_LARGE_FACTOR_SIZES) {
 						LOG.info("        " + ccReport.getPartialBigFactorSizes());
 						LOG.info("        " + ccReport.getSmoothBigFactorSizes());
 						LOG.info("        " + ccReport.getNonIntFactorPercentages());
 					}
-					if (CongruenceCollector.ANALYZE_Q_SIGNS) {
+					if (ANALYZE_Q_SIGNS) {
 						LOG.info("        " + ccReport.getPartialQSignCounts());
 						LOG.info("        " + ccReport.getSmoothQSignCounts());
 					}
@@ -254,7 +251,7 @@ public class CFrac extends FactorAlgorithm {
 				if (DEBUG) LOG.debug("N = " + N + ": Q_test = " + Q_test + " -> aqPair = " + aqPair);
 				if (aqPair!=null) {
 					// the Q was sufficiently smooth
-					linAlgStartTime = System.currentTimeMillis(); // just in case it really starts
+					if (PROFILE) linAlgStartTime = System.currentTimeMillis(); // just in case it really starts
 					boolean addedSmooth = congruenceCollector.add(aqPair);
 					if (addedSmooth) {
 						int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();
@@ -348,7 +345,7 @@ public class CFrac extends FactorAlgorithm {
 	}
 	
 	private static void testInput() {
-		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5, false);
+		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5);
 		Timer timer = new Timer();
 		while(true) {
 			try {

@@ -31,6 +31,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF63;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.PROFILE;
 import static org.junit.Assert.*;
 
 /**
@@ -119,8 +120,8 @@ public class CFrac63 extends FactorAlgorithm {
 	 * @return factor, or null if no factor was found.
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
+		if (PROFILE) startTime = System.currentTimeMillis();
 		this.N = N;
-		this.startTime = System.currentTimeMillis();
 
 		// compute prime base size
 		double N_dbl = N.doubleValue();
@@ -138,7 +139,7 @@ public class CFrac63 extends FactorAlgorithm {
 		// initialize sub-algorithms for N
 		this.auxFactorizer.initialize(N, maxQRest);
 		FactorTest factorTest = new FactorTest01(N);
-		this.congruenceCollector.initialize(N, factorTest, false);
+		this.congruenceCollector.initialize(N, factorTest);
 		this.combinedPrimesSet = new HashSet<Integer>();
 		this.matrixSolver.initialize(N, factorTest);
 
@@ -179,8 +180,10 @@ public class CFrac63 extends FactorAlgorithm {
 				// search square Q_i
 				test(diff);
 			} catch (FactorException fe) {
-				long endTime = System.currentTimeMillis();
-				if (DEBUG) LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
+				if (PROFILE) {
+					long endTime = System.currentTimeMillis();
+					LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
+				}
 				return fe.getFactor();
 			}
 		}
@@ -224,7 +227,7 @@ public class CFrac63 extends FactorAlgorithm {
 				if (DEBUG) LOG.debug("N = " + N + ": Q_test = " + Q_test + " -> aqPair = " + aqPair);
 				if (aqPair!=null) {
 					// the Q was sufficiently smooth
-					linAlgStartTime = System.currentTimeMillis(); // just in case it really starts
+					if (PROFILE) linAlgStartTime = System.currentTimeMillis(); // just in case it really starts
 					boolean addedSmooth = congruenceCollector.add(aqPair);
 					if (addedSmooth) {
 						int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();

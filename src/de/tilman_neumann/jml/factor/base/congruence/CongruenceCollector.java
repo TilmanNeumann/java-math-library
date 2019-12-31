@@ -13,7 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
-import static org.junit.Assert.assertTrue;
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -23,7 +24,6 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
-import de.tilman_neumann.jml.factor.base.GlobalParameters;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -37,8 +37,6 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 public class CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
-	
-	public static final boolean ANALYZE_Q_SIGNS = false;
 
 	/** smooth congruences */
 	private ArrayList<Smooth> smoothCongruences;
@@ -54,7 +52,6 @@ public class CongruenceCollector {
 	private FactorTest factorTest;
 
 	// statistics
-	private boolean analyzeBigFactorCounts;
 	private int perfectSmoothCount, totalPartialCount;
 	private int[] smoothFromPartialCounts, partialCounts;
 	private Multiset<Integer> oddExpBigFactorSizes4Smooth, oddExpBigFactorSizes;
@@ -64,26 +61,30 @@ public class CongruenceCollector {
 	 * Initialize congruence collector for a new N.
 	 * @param N
 	 * @param factorTest
-	 * @param analyzeBigFactorCounts must be true if getReport() shall be used
 	 */
-	public void initialize(BigInteger N, FactorTest factorTest, boolean analyzeBigFactorCounts) {
+	public void initialize(BigInteger N, FactorTest factorTest) {
 		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
-		this.analyzeBigFactorCounts = analyzeBigFactorCounts;
 		
 		// statistics
-		perfectSmoothCount = 0;
-		// zero-initialized smoothFromPartialCounts: index 0 -> from 1-partials, index 1 -> from 2-partials, index 2 -> from 2-partials
-		smoothFromPartialCounts = new int[3];
-		partialCounts = new int[3];
 		totalPartialCount = 0;
-		// collected vs. useful partials
-		oddExpBigFactorSizes4Smooth = new SortedMultiset_BottomUp<Integer>();
-		oddExpBigFactorSizes = new SortedMultiset_BottomUp<Integer>();
-		// Q-analysis
-		partialWithPositiveQCount = 0;
-		smoothWithPositiveQCount = 0;
+		if (ANALYZE_LARGE_FACTOR_COUNTS) {
+			perfectSmoothCount = 0;
+			// zero-initialized smoothFromPartialCounts: index 0 -> from 1-partials, index 1 -> from 2-partials, index 2 -> from 2-partials
+			smoothFromPartialCounts = new int[3];
+			partialCounts = new int[3];
+		}
+		if (ANALYZE_LARGE_FACTOR_SIZES) {
+			// collected vs. useful partials
+			oddExpBigFactorSizes4Smooth = new SortedMultiset_BottomUp<Integer>();
+			oddExpBigFactorSizes = new SortedMultiset_BottomUp<Integer>();
+		}
+		if (ANALYZE_Q_SIGNS) {
+			// Q-analysis
+			partialWithPositiveQCount = 0;
+			smoothWithPositiveQCount = 0;
+		}
 	}
 	
 	/**
@@ -99,7 +100,7 @@ public class CongruenceCollector {
 			boolean added = addSmooth(smooth);
 			if (added) {
 				if (DEBUG) LOG.debug("Found new smooth congruence " + smooth + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-				perfectSmoothCount++;
+				if (ANALYZE_LARGE_FACTOR_COUNTS) perfectSmoothCount++;
 				return true;
 			}
 			return false;
@@ -126,7 +127,7 @@ public class CongruenceCollector {
 				int addedCount = 0;
 				for (Smooth foundSmooth : foundSmooths) {
 					if (addSmooth(foundSmooth)) {
-						if (analyzeBigFactorCounts) {
+						if (ANALYZE_LARGE_FACTOR_COUNTS) {
 							// count kind of partials that helped to find smooths
 							int maxLargeFactorCount = 0;
 							for (AQPair aqPairFromSmooth : foundSmooth.getAQPairs()) {
@@ -140,7 +141,7 @@ public class CongruenceCollector {
 					}
 				}
 				if (addedCount>0) {
-					if (GlobalParameters.ANALYZE_LARGE_FACTOR_SIZES) {
+					if (ANALYZE_LARGE_FACTOR_SIZES) {
 						// register size of large factors that helped to find smooths
 						for (Long oddExpBigFactor : oddExpBigFactors) {
 							int oddExpBigFactorBits = 64 - Long.numberOfLeadingZeros(oddExpBigFactor);
@@ -159,7 +160,7 @@ public class CongruenceCollector {
 		addPartial(partial, oddExpBigFactors);
 		totalPartialCount++;
 		if (DEBUG) LOG.debug("Found new partial relation " + aqPair + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + totalPartialCount);
-		if (analyzeBigFactorCounts) partialCounts[oddExpBigFactorsCount-1]++;
+		if (ANALYZE_LARGE_FACTOR_COUNTS) partialCounts[oddExpBigFactorsCount-1]++;
 		return false; // no smooth added
 	}
 	
@@ -232,7 +233,7 @@ public class CongruenceCollector {
 			largeFactors_2_partials.put(oddExpBigFactor, partialCongruenceList);
 		}
 		
-		if (GlobalParameters.ANALYZE_LARGE_FACTOR_SIZES) {
+		if (ANALYZE_LARGE_FACTOR_SIZES) {
 			for (Long oddExpBigFactor : oddExpBigFactors) {
 				int oddExpBigFactorBits = 64 - Long.numberOfLeadingZeros(oddExpBigFactor);
 				oddExpBigFactorSizes.add(oddExpBigFactorBits);

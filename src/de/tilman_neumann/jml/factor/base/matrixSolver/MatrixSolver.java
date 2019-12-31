@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.base.matrixSolver;
 
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.ANALYZE_SOLVER_RUNS;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +54,7 @@ abstract public class MatrixSolver {
 	 */
 	public void initialize(BigInteger N, FactorTest factorTest) {
 		this.factorTest = factorTest;
-		this.testedNullVectorCount = 0;
+		if (ANALYZE_SOLVER_RUNS) this.testedNullVectorCount = 0;
 	}
 
 	/**
@@ -162,11 +164,14 @@ abstract public class MatrixSolver {
 
 	public void processNullVector(Set<AQPair> aqPairs) throws FactorException {
 		// found square congruence -> check for factor
-		testedNullVectorCount++;
+		if (ANALYZE_SOLVER_RUNS) testedNullVectorCount++;
 		factorTest.testForFactor(aqPairs);
 		// no factor exception -> drop improper square congruence
 	}
 	
+	/**
+	 * @return the number of solver runs needed (so far). Is not populated (i.e. 0) if ANALYZE_SOLVER_RUNS==false.
+	 */
 	public int getTestedNullVectorCount() {
 		return testedNullVectorCount;
 	}

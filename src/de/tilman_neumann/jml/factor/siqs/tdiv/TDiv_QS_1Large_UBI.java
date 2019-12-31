@@ -13,6 +13,10 @@
  */
 package de.tilman_neumann.jml.factor.siqs.tdiv;
 
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
+import static org.junit.Assert.*;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +32,6 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.Timer;
-
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * A trial division engine where partials can only have 1 large factor.
@@ -74,13 +75,9 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 	private SortedIntegerArray smallFactors = new SortedIntegerArray();
 	
 	// statistics
-	private boolean profile;
 	private Timer timer = new Timer();
 	private long testCount, sufficientSmoothCount;
-	private long aqDuration;
-	private long pass1Duration;
-	private long pass2Duration;
-	private long factorDuration;
+	private long aqDuration, pass1Duration, pass2Duration, factorDuration;
 	
 	@Override
 	public String getName() {
@@ -88,19 +85,15 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 	}
 
 	@Override
-	public void initializeForN(double N_dbl, BigInteger kN, double maxQRest, boolean profile) {
+	public void initializeForN(double N_dbl, BigInteger kN, double maxQRest) {
 		// the biggest unfactored rest where some Q is considered smooth enough for a congruence.
 		this.maxQRest = maxQRest;
 		if (DEBUG) LOG.debug("maxQRest = " + maxQRest + " (" + (64 - Long.numberOfLeadingZeros((long)maxQRest)) + " bits)");
 		this.kN = kN;
 		// statistics
-		this.profile = profile;
 		this.testCount = 0;
 		this.sufficientSmoothCount = 0;
-		this.aqDuration = 0;
-		this.pass1Duration = 0;
-		this.pass2Duration = 0;
-		this.factorDuration = 0;
+		if (PROFILE) aqDuration = pass1Duration = pass2Duration = factorDuration = 0;
 	}
 
 	@Override
@@ -124,7 +117,7 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 
 	@Override
 	public List<AQPair> testList(List<Integer> xList) {
-		if (profile) timer.capture();
+		if (PROFILE) timer.capture();
 		
 		// do trial division with sieve result
 		ArrayList<AQPair> aqPairs = new ArrayList<AQPair>();
@@ -133,9 +126,9 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 			testCount++;
 			BigInteger A = da.multiply(BigInteger.valueOf(x)).add(bParam); // A(x) = d*a*x+b, with d = 1 or 2 depending on kN % 8
 			BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
-			if (profile) aqDuration += timer.capture();
+			if (PROFILE) aqDuration += timer.capture();
 			AQPair aqPair = test(A, Q, x);
-			if (profile) factorDuration += timer.capture();
+			if (PROFILE) factorDuration += timer.capture();
 			if (aqPair != null) {
 				// Q(x) was found sufficiently smooth to be considered a (partial) congruence
 				aqPairs.add(aqPair);
@@ -155,7 +148,7 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 				}
 			}
 		}
-		if (profile) aqDuration += timer.capture();
+		if (PROFILE) aqDuration += timer.capture();
 		return aqPairs;
 	}
 	
@@ -214,7 +207,7 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 				// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
 			}
 		}
-		if (profile) pass1Duration += timer.capture();
+		if (PROFILE) pass1Duration += timer.capture();
 
 		// Pass 2: Reduce Q by the pass2Primes and collect small factors
 		Q_rest_UBI.set(Q_rest);
@@ -236,7 +229,7 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 				}
 			}
 		}
-		if (profile) pass2Duration += timer.capture();
+		if (PROFILE) pass2Duration += timer.capture();
 		if (Q_rest_UBI.isOne()) return new Smooth_Perfect(A, smallFactors);
 		Q_rest = Q_rest_UBI.toBigInteger();
 		

@@ -13,6 +13,9 @@
  */
 package de.tilman_neumann.jml.factor.hart;
 
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.PROFILE;
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
@@ -27,8 +30,6 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF63;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
-
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Experimental Hart algorithm assembling square congruences from smooth congruences.
@@ -121,8 +122,8 @@ public class HartLA63 extends FactorAlgorithm {
 	 * @return factor, or null if no factor was found.
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
+		if (PROFILE) this.startTime = System.currentTimeMillis();
 		this.N = N;
-		this.startTime = System.currentTimeMillis();
 
 		// compute prime base size
 		double N_dbl = N.doubleValue();
@@ -140,7 +141,7 @@ public class HartLA63 extends FactorAlgorithm {
 		// initialize sub-algorithms for N
 		this.auxFactorizer.initialize(N, maxQRest);
 		FactorTest factorTest = new FactorTest01(N);
-		this.congruenceCollector.initialize(N, factorTest, false);
+		this.congruenceCollector.initialize(N, factorTest);
 		this.matrixSolver.initialize(N, factorTest);
 		
 		// Create prime base for N: Note that a reduced prime base wpuld not help here.
@@ -157,8 +158,10 @@ public class HartLA63 extends FactorAlgorithm {
 			// search square Q_i
 			test();
 		} catch (FactorException fe) {
-			long endTime = System.currentTimeMillis();
-			if (DEBUG) LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
+			if (PROFILE) {
+				long endTime = System.currentTimeMillis();
+				LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
+			}
 			return fe.getFactor();
 		}
 

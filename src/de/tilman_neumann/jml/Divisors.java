@@ -118,7 +118,7 @@ public class Divisors {
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
 	public static SortedSet<BigInteger> getDivisors/*_v3*/(BigInteger n) {
-		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
+		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1); // permit multiple threads?
 		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
 		return getDivisors(factors);
 	}
@@ -261,7 +261,7 @@ public class Divisors {
 	}
 	
 	public static SortedSet<BigInteger> getSmallDivisors/*_v2*/(BigInteger n) {
-		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
+		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1); // permit multiple threads?
 		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
 		return getSmallDivisors/*_v2*/(n, factors);
 	}
@@ -350,7 +350,7 @@ public class Divisors {
      * E.g. sumOfDivisors(6) = 1+2+3+6 = 12.
      */
     public static BigInteger sumOfDivisors/*_v2*/(BigInteger x) {
-		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
+		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1); // permit multiple threads?
 		SortedMap<BigInteger, Integer> factors = factorizer.factor(x);
     	return sumOfDivisors(factors);
     }
@@ -389,7 +389,7 @@ public class Divisors {
 	 * @return number of divisors of n
 	 */
 	public static BigInteger getDivisorCount(BigInteger n) {
-		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
+		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1); // permit multiple threads?
 		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
     	return getDivisorCount(factors);
 	}
@@ -451,7 +451,7 @@ public class Divisors {
      * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
      */
     private static BigInteger getBiggestDivisorBelowSqrtN_big(BigInteger n) {
-		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1, false); // permit multiple threads?
+		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1); // permit multiple threads?
 		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
 		return getBiggestDivisorBelowSqrtN(n, factors);
     }

@@ -53,11 +53,10 @@ abstract public class PSIQSThreadBase extends Thread {
 	 * @param sieve the sieve engine
 	 * @param tdiv the trial division engine
 	 * @param threadIndex
-	 * @param profile
 	 */
 	public PSIQSThreadBase(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays, AParamGenerator apg, AQPairBuffer aqPairBuffer,
-			PolyGenerator polyGenerator, Sieve sieve, TDiv_QS tdiv, int threadIndex, boolean profile) {
+			PolyGenerator polyGenerator, Sieve sieve, TDiv_QS tdiv, int threadIndex) {
 		
 		// set thread name
 		super("T-" + threadIndex);
@@ -69,7 +68,7 @@ abstract public class PSIQSThreadBase extends Thread {
 		
 		// initialize polynomial generator and sub-engines
 		// apg is already initialized and the same object for all threads -> a-parameter generation is synchronized on it
-		polyGenerator.initializeForN(k, N, kN, d, sieveParams, baseArrays, apg, sieve, auxFactorizer, profile);
+		polyGenerator.initializeForN(k, N, kN, d, sieveParams, baseArrays, apg, sieve, auxFactorizer);
 		// synchronized buffer to pass AQ-pairs to the main thread -> the same object for all threads
 		this.aqPairBuffer = aqPairBuffer;
 	}

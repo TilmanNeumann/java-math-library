@@ -59,7 +59,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	
 	// SIQS tuned for small N
-	private SIQS siqs_smallArgs = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false);
+	private SIQS siqs_smallArgs = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss());
 
 	// The SIQS chosen for big arguments depends on constructor parameters
 	private FactorAlgorithm siqs_bigArgs;
@@ -68,20 +68,18 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	 * Simple constructor, computing the amount of trial division automatically 
 	 * and using PSIQS with sun.misc.Unsafe features.
 	 * @param numberOfThreads the number of parallel threads for PSIQS
-	 * @param profile if true then extended profiling information is collected
 	 */
-	public CombinedFactorAlgorithm(int numberOfThreads, boolean profile) {
-		this(numberOfThreads, true, profile);
+	public CombinedFactorAlgorithm(int numberOfThreads) {
+		this(numberOfThreads, true);
 	}
 	
 	/**
 	 * Simple constructor, computing the amount of trial division automatically.
 	 * @param numberOfThreads the number of parallel threads for PSIQS
 	 * @param permitUnsafeUsage
-	 * @param profile if true then extended profiling information is collected
 	 */
-	public CombinedFactorAlgorithm(int numberOfThreads, boolean permitUnsafeUsage, boolean profile) {
-		this(numberOfThreads, null, permitUnsafeUsage, profile);
+	public CombinedFactorAlgorithm(int numberOfThreads, boolean permitUnsafeUsage) {
+		this(numberOfThreads, null, permitUnsafeUsage);
 	}
 
 	/**
@@ -89,20 +87,19 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	 * @param numberOfThreads the number of parallel threads for PSIQS
 	 * @param tdivLimit limit of primes p for trial division; if null then the value is determined by best experimental results
 	 * @param permitUnsafeUsage if true then PSIQS_U using sun.misc.Unsafe features is used. This may be ~10% faster.
-	 * @param profile if true then extended profiling information is collected
 	 */
-	public CombinedFactorAlgorithm(int numberOfThreads, Integer tdivLimit, boolean permitUnsafeUsage, boolean profile) {
+	public CombinedFactorAlgorithm(int numberOfThreads, Integer tdivLimit, boolean permitUnsafeUsage) {
 		super(tdivLimit);
 		
 		if (numberOfThreads==1) {
 			// Avoid multi-thread overhead if the requested number of threads is 1
 			Sieve sieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
-			siqs_bigArgs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), sieve, new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), false);
+			siqs_bigArgs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), sieve, new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos());
 		} else {
 			if (permitUnsafeUsage) {
-				siqs_bigArgs = new PSIQS_U(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), profile);
+				siqs_bigArgs = new PSIQS_U(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos());
 			} else {
-				siqs_bigArgs = new PSIQS(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), profile);
+				siqs_bigArgs = new PSIQS(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos());
 			}
 		}
 	
@@ -236,7 +233,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
     	}
     	// run
     	long t0 = System.currentTimeMillis();
-    	CombinedFactorAlgorithm factorizer = new CombinedFactorAlgorithm(numberOfThreads, true);
+    	CombinedFactorAlgorithm factorizer = new CombinedFactorAlgorithm(numberOfThreads);
     	SortedMultiset<BigInteger> result = factorizer.factor(N);
 		long duration = System.currentTimeMillis()-t0;
 		String durationStr = TimeUtil.timeStr(duration);

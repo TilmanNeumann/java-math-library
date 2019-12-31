@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.siqs.tdiv;
 
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+
 import de.tilman_neumann.util.Multiset;
 
 public class TDivReport {
@@ -43,12 +45,14 @@ public class TDivReport {
 	public void add(TDivReport other) {
 		this.testCount += other.testCount;
 		this.sufficientSmoothCount += other.sufficientSmoothCount;
-		this.aqDuration += other.aqDuration;
-		this.pass1Duration += other.pass1Duration;
-		this.pass2Duration += other.pass2Duration;
-		this.primeTestDuration += other.primeTestDuration;
-		this.factorDuration += other.factorDuration;
-		this.qRestSizes.addAll(other.qRestSizes);
+		if (PROFILE) {
+			this.aqDuration += other.aqDuration;
+			this.pass1Duration += other.pass1Duration;
+			this.pass2Duration += other.pass2Duration;
+			this.primeTestDuration += other.primeTestDuration;
+			this.factorDuration += other.factorDuration;
+		}
+		if (ANALYZE_LARGE_FACTOR_SIZES) this.qRestSizes.addAll(other.qRestSizes);
 	}
 
 	public String getOperationDetails() {

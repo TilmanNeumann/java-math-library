@@ -89,7 +89,7 @@ public class BatchFactorizer {
 		}
 		
 		// Now test all test numbers in the order they were found
-		CombinedFactorAlgorithm factorizer = new CombinedFactorAlgorithm(numberOfThreads, true);
+		CombinedFactorAlgorithm factorizer = new CombinedFactorAlgorithm(numberOfThreads);
 		for (BigInteger N : testNumbers) {
 			try {
 				LOG.info("Factoring " + N + " (" + N.bitLength() + " bits) ...");

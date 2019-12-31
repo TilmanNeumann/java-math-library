@@ -13,6 +13,10 @@
  */
 package de.tilman_neumann.jml.factor.siqs.poly;
 
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.*;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 
@@ -28,9 +32,6 @@ import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
 import de.tilman_neumann.jml.gcd.EEA31;
 import de.tilman_neumann.util.Timer;
-
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * A generator for SIQS polynomials.
@@ -85,7 +86,6 @@ public class SIQSPolyGenerator implements PolyGenerator {
 	private TDiv_QS tDivEngine;
 
 	// profiling
-	private boolean profile;
 	private Timer timer = new Timer();
 	private int aParamCount, bParamCount;
 	private long aDuration, firstBDuration, filterPBDuration, firstXArrayDuration, nextBDuration, nextXArrayDuration;
@@ -102,7 +102,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 	@Override
 	public void initializeForN(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
-			AParamGenerator aParamGenerator, Sieve sieveEngine, TDiv_QS tDivEngine, boolean profile) {
+			AParamGenerator aParamGenerator, Sieve sieveEngine, TDiv_QS tDivEngine) {
 		
 		this.k = k;
 		this.kN = kN;
@@ -113,10 +113,10 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		
 		// initialize sub-engines
 		this.aParamGenerator = aParamGenerator;
-		sieveEngine.initializeForN(sieveParams, mergedBaseSize, profile);
+		sieveEngine.initializeForN(sieveParams, mergedBaseSize);
 		this.sieveEngine = sieveEngine;
 		final double N_dbl = N.doubleValue();
-		tDivEngine.initializeForN(N_dbl, kN, sieveParams.maxQRest, profile);
+		tDivEngine.initializeForN(N_dbl, kN, sieveParams.maxQRest);
 		this.tDivEngine = tDivEngine;
 
 		// B2: the array needs one more element because used indices start at 1.
@@ -130,16 +130,10 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		// Allocate filtered base and solution arrays: The true size may be smaller if powers are filtered out, too.
 		solutionArrays = new SolutionArrays(mergedBaseSize - qCount, qCount);
 		
-		// profiling
-		this.profile = profile;
+		// statistics
 		aParamCount = 0;
 		bParamCount = 0;
-		aDuration = 0;
-		firstBDuration = 0;
-		filterPBDuration = 0;
-		firstXArrayDuration = 0;
-		nextBDuration = 0;
-		nextXArrayDuration = 0;
+		if (PROFILE) aDuration = firstBDuration = filterPBDuration = firstXArrayDuration = nextBDuration = nextXArrayDuration = 0;
 	}
 	
 	@Override
@@ -147,7 +141,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		if (bIndex==maxBIndex) {
 			// Incrementing bIndex would exceed the maximum value -> we need a new a-parameter.
 			// Computing a-parameters is very fast (typically 0 to 15ms) despite synchronization.
-			if (profile) timer.capture();
+			if (PROFILE) timer.capture();
 			synchronized (aParamGenerator) {
 				a = aParamGenerator.computeNextAParameter();
 				qArray = aParamGenerator.getQArray();
@@ -157,7 +151,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			da_UBI = new UnsignedBigInt(da);
 			aParamCount++;
 			maxBIndex = 1<<(qCount-1); // 2^(qCount-1)
-			if (profile) aDuration += timer.capture();
+			if (PROFILE) aDuration += timer.capture();
 			// compute the first b
 			computeFirstBParameter();
 			bParamCount++;
@@ -166,22 +160,22 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				LOG.debug("first a=" + a + ", b=" + b);
 				LOG.debug("(b^2-kN)/a [" + bIndex + "] = " + b.multiply(b).subtract(kN).divide(a));
 			}
-			if (profile) firstBDuration += timer.capture();
+			if (PROFILE) firstBDuration += timer.capture();
 			// filter prime base
 			BaseFilter.Result filterResult = baseFilter.filter(solutionArrays, baseArrays, mergedBaseSize, qArray, qCount, k);
 			filteredBaseSize = filterResult.filteredBaseSize;
-			if (profile) filterPBDuration += timer.capture();
+			if (PROFILE) filterPBDuration += timer.capture();
 			// compute ainvp[], Bainv2[][] and solution x-arrays for a and first b
 			computeFirstXArrays();
 			// pass data to sub-engines
 			sieveEngine.initializeForAParameter(solutionArrays, filteredBaseSize);
 			tDivEngine.initializeForAParameter(da, b, solutionArrays, filteredBaseSize, filterResult.filteredOutBaseElements);
-			if (profile) firstXArrayDuration += timer.capture();
+			if (PROFILE) firstXArrayDuration += timer.capture();
 		} else {
 			// compute the next b-parameter:
 			// the gray code v with 2^v || 2*i in [Contini97] is the exponent
 			// at which 2*i contains the 2. Here we have bIndex instead of Contini's "i".
-			if (profile) timer.capture();
+			if (PROFILE) timer.capture();
 			int v = Integer.numberOfTrailingZeros(bIndex<<1);
 			// bIndex/2^v is a half-integer. Therefore we have ceilTerm = ceil(bIndex/2^v) = bIndex/2^v + 1.
 			// If ceilTerm is even, then (-1)^ceilTerm is positive and B_l[v] must be added.
@@ -214,14 +208,14 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				LOG.debug("a=" + a + ": " + bIndex + ".th b=" + b);
 				LOG.debug("(b^2-kN)/a [" + bIndex + "] = " + b.multiply(b).subtract(kN).divide(a));
 			}
-			if (profile) nextBDuration += timer.capture();
+			if (PROFILE) nextBDuration += timer.capture();
 
 			// Update solution arrays: 
 			// Since only the array-content is modified, the x-arrays in poly are updated implicitly.
 			// This approach would work in a multi-threaded SIQS implementation too, if we create a new thread for each new a-parameter.
 			// Note that fix prime divisors depend only on a and k -> they do not change at a new b-parameter.
 			computeNextXArrays(v, bParameterNeedsAddition);
-			if (profile) nextXArrayDuration += timer.capture();
+			if (PROFILE) nextXArrayDuration += timer.capture();
 		}
 	}
 
