@@ -44,9 +44,12 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * A port of Ben Buhrow's tinyecm.c, an ECM implementation for unsigned 64 bit integers.
+ * A port of Ben Buhrow's tinyecm.c (https://www.mersenneforum.org/showpost.php?p=521028&postcount=84)
+ * an ECM implementation for unsigned 64 bit integers.
  * So far it works for inputs up to 62 bit, albeit not as fast as the C original.
  * The (lack of an) assembler instruction to multiply two 64 bit integers seems to make a big impact here...
+ * 
+ * This variant uses a special implementation for Montgomery squares. Not a very impressing improvement...
  * 
  * @author Tilman Neumann
  */
