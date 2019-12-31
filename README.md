@@ -21,8 +21,8 @@ If you are interested in factoring then have a look at the following classes:
 
 The factoring methods are used to implement a fast sumOfDivisors() function.
 
-Another prominent subject in this library is prime testing. For example, you can find
-* a port of Kim Walisch's primesieve
+Another prominent subject in this library is prime generation and testing. For example, you can find
+* a port of Kim Walisch's primesieve (basic for him, pretty fast for most others)
 * SSOZJ3A, a fast twin prime sieve by Jabari Zakiya
 * a BPSW probable prime test implementation, and
 * state-of-the-art bound computations for the n.th prime and prime counting functions.
@@ -64,7 +64,7 @@ Here you have many options:
 * Choose the number of test numbers, their bit range, step size etc. by setting the static variables `N_COUNT`, `START_BITS`, `INCR_BITS`, `MAX_BITS` and so on.
 * Adjusting the static variables `TEST_NUMBER_NATURE` and `TEST_MODE` lets you choose the nature of test numbers (random, semi-prime, etc.) and if you want a complete factorization or only the first factor.
 
-The amount of analysis and logging can be influenced by setting the static variables in the AnalysisOptions interface.
+The amount of analysis and logging can be influenced by setting the static variables in the AnalysisOptions interface. Typically one wants to have all those options set to false if `N_COUNT > 1`.
 
 
 ## Remarks
