@@ -95,7 +95,7 @@ public class SIQS extends FactorAlgorithm {
 	private int allAQPairsCount;
 	
 	// statistics
-	private Timer timer = new Timer(); // start timer
+	private Timer timer = new Timer();
 	private long powerTestDuration, initNDuration, ccDuration, solverDuration;
 	private int solverRunCount;
 	
@@ -142,7 +142,7 @@ public class SIQS extends FactorAlgorithm {
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
 		if (PROFILE) {
-			timer.capture();
+			timer.capture(); // start timer
 			powerTestDuration = initNDuration = ccDuration = solverDuration = 0;
 		}
 		if (ANALYZE_SOLVER_RUNS) solverRunCount = 0;

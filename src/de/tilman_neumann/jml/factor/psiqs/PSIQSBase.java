@@ -88,7 +88,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	protected PowerFinder powerFinder;
 	
 	// statistics
-	private Timer timer = new Timer(); // start timer
+	private Timer timer = new Timer();
 	private long powerTestDuration, initNDuration, createThreadDuration, ccDuration, solverDuration;
 	private int solverRunCount;
 	
@@ -129,7 +129,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
 		if (PROFILE) {
-			timer.capture();
+			timer.capture(); // start timer
 			powerTestDuration = initNDuration = createThreadDuration = ccDuration = solverDuration = 0;
 		}
 		if (ANALYZE_SOLVER_RUNS) solverRunCount = 0;
