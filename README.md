@@ -19,7 +19,14 @@ If you are interested in factoring then have a look at the following classes:
 * PSIQS (multi-threaded)
 * PSIQS_U (multi-threaded, using sun.misc.Unsafe)
 
-The factoring methods are used as well to implement a fast sumOfDivisors() function.
+The factoring methods are used to implement a fast sumOfDivisors() function.
+
+Another prominent subject in this library is prime testing. For example, you can find
+* a port of Kim Walisch's primesieve
+* SSOZJ3A, a fast twin prime sieve by Jabari Zakiya
+* a BPSW probable prime test implementation, and
+* state-of-the-art bound computations for the n.th prime and prime counting functions.
+
 Other noteworthy parts of this library are sqrt(), nth_root(), ln() and exp() functions for BigDecimals.
 
 More special contents are a fast generator for the partitions of multipartite numbers and 
@@ -72,5 +79,13 @@ Big thanks to
 * Dario Alpern for the permission to use his Block-Lanczos solver under GPL 3
 * Graeme Willoughby for his great comments on the BigInteger algorithms in the SqrtInt, SqrtExact, Root and PurePowerTest classes
 * Thilo Harich for a great collaboration and his immense improvements on the Lehman factoring method
-* Ben Buhrow for his free, open source tinyecm.c and his comments on mersenneforum.org that helped a lot to improve the performance of my Java port
+* Ben Buhrow for his free, open source [tinyecm.c](https://www.mersenneforum.org/showpost.php?p=521028&postcount=84) and his comments on mersenneforum.org that helped a lot to improve the performance of my Java port
+
+Some (other) third-party software reused in this library:
+* [Dario Alpern's ECM implementation](https://github.com/alpertron/calculators/blob/master/OldApplets/ecm.java),
+refactored by Axel Kramer (and by myself)
+* [Kim Walisch's primesieve](https://github.com/kimwalisch/primesieve) (ported by myself)
+* [SSOZJ3A](https://gist.github.com/jzakiya/6c7e1868bd749a6b1add62e3e3b2341e), a fast twin prime sieve by Jabari Zakiya, [Java port](https://gist.github.com/Pascal66/4d4229e88f4002641ddcaa5eccd0f6d5) by Pascal Pechard
+
+
 
