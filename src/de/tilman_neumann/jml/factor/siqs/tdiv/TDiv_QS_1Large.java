@@ -85,8 +85,7 @@ public class TDiv_QS_1Large implements TDiv_QS {
 		if (DEBUG) LOG.debug("maxQRest = " + maxQRest + " (" + (64 - Long.numberOfLeadingZeros((long)maxQRest)) + " bits)");
 		this.kN = kN;
 		// statistics
-		this.testCount = 0;
-		this.sufficientSmoothCount = 0;
+		if (ANALYZE_TDIV) testCount = sufficientSmoothCount = 0;
 		if (PROFILE) aqDuration = pass1Duration = pass2Duration = factorDuration = 0;
 	}
 
@@ -117,7 +116,7 @@ public class TDiv_QS_1Large implements TDiv_QS {
 		ArrayList<AQPair> aqPairs = new ArrayList<AQPair>();
 		for (int x : xList) {
 			smallFactors.reset();
-			testCount++;
+			if (ANALYZE_TDIV) testCount++;
 			BigInteger A = da.multiply(BigInteger.valueOf(x)).add(bParam); // A(x) = d*a*x+b, with d = 1 or 2 depending on kN % 8
 			BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
 			if (PROFILE) aqDuration += timer.capture();
@@ -126,7 +125,7 @@ public class TDiv_QS_1Large implements TDiv_QS {
 			if (aqPair != null) {
 				// Q(x) was found sufficiently smooth to be considered a (partial) congruence
 				aqPairs.add(aqPair);
-				sufficientSmoothCount++;
+				if (ANALYZE_TDIV) sufficientSmoothCount++;
 				if (DEBUG) {
 					LOG.debug("Found congruence " + aqPair);
 					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));

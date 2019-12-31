@@ -51,6 +51,11 @@ public interface AnalysisOptions {
 	static final boolean ANALYZE_Q_SIGNS = false;
 	
 	/**
+	 * Analyze trial division tests.
+	 */
+	static final boolean ANALYZE_TDIV = false;
+
+	/**
 	 * Analyze how many solver runs and null-vector tests were required.
 	 * This number may be bigger than expected by theory because we do not check for duplicate relations.
 	 * On the other hand, the likelihood of duplicate relations decreases quickly with growing N;

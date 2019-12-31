@@ -319,10 +319,12 @@ public class SIQS extends FactorAlgorithm {
 				int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
 				LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
 				if (ANALYZE_POLY_COUNTS) LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
-				LOG.info("    tDiv: " + tdivReport.getOperationDetails());
-				String qRestSizes = tdivReport.getQRestSizes();
-				if (qRestSizes != null) {
-					LOG.info("        " + qRestSizes);
+				if (ANALYZE_TDIV) LOG.info("    tDiv: " + tdivReport.getOperationDetails());
+				if (ANALYZE_LARGE_FACTOR_SIZES) {
+					String qRestSizes = tdivReport.getQRestSizes();
+					if (qRestSizes != null) {
+						LOG.info("        " + qRestSizes);
+					}
 				}
 				LOG.info("    cc: " + ccReport.getOperationDetails());
 				if (ANALYZE_LARGE_FACTOR_SIZES) {
