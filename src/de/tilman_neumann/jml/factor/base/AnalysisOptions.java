@@ -31,6 +31,11 @@ public interface AnalysisOptions {
 	static final boolean PROFILE = false;
 	
 	/**
+	 * Analyze the number of polynomials?
+	 */
+	static final boolean ANALYZE_POLY_COUNTS = false;
+
+	/**
 	 * Analyze the number of large factors in smooth relations?
 	 */
 	static final boolean ANALYZE_LARGE_FACTOR_COUNTS = false;

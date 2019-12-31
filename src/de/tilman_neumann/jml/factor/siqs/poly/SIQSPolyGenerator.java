@@ -131,8 +131,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		solutionArrays = new SolutionArrays(mergedBaseSize - qCount, qCount);
 		
 		// statistics
-		aParamCount = 0;
-		bParamCount = 0;
+		if (ANALYZE_POLY_COUNTS) aParamCount = bParamCount = 0;
 		if (PROFILE) aDuration = firstBDuration = filterPBDuration = firstXArrayDuration = nextBDuration = nextXArrayDuration = 0;
 	}
 	
@@ -149,12 +148,12 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			}
 			da = BigInteger.valueOf(d).multiply(a);
 			da_UBI = new UnsignedBigInt(da);
-			aParamCount++;
+			if (ANALYZE_POLY_COUNTS) aParamCount++;
 			maxBIndex = 1<<(qCount-1); // 2^(qCount-1)
 			if (PROFILE) aDuration += timer.capture();
 			// compute the first b
 			computeFirstBParameter();
-			bParamCount++;
+			if (ANALYZE_POLY_COUNTS) bParamCount++;
 			bIndex = 1;
 			if (DEBUG) {
 				LOG.debug("first a=" + a + ", b=" + b);
@@ -185,7 +184,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			// WARNING: b must not be computed (mod a) !
 			b = bParameterNeedsAddition ? b.add(B2Array[v-1]) : b.subtract(B2Array[v-1]);
 			tDivEngine.setBParameter(b);
-			bParamCount++;
+			if (ANALYZE_POLY_COUNTS) bParamCount++;
 			if (DEBUG) {
 				//LOG.debug("a = " + a + ", b = " + b);
 				assertTrue(0<v && v<qCount); // exact

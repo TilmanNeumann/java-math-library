@@ -293,8 +293,8 @@ public class SIQS extends FactorAlgorithm {
 				}
 				if (PROFILE) ccDuration += timer.capture();
 				if (DEBUG) {
-					PolyReport polyReport = polyGenerator.getReport();
-					LOG.debug(polyGenerator.getName() + ": " + polyReport.getOperationDetails() + ": Sieve found " + smoothXList.size() + " smooth x, tDiv let " + aqPairs.size() + " pass.");
+					if (ANALYZE_POLY_COUNTS) LOG.debug(polyGenerator.getName() + ": " + polyGenerator.getReport().getOperationDetails());
+					LOG.debug("Sieve found " + smoothXList.size() + " smooth x, tDiv let " + aqPairs.size() + " pass.");
 					LOG.debug("-> Now in total we have found " + congruenceCollector.getSmoothCongruenceCount() + " / " + requiredSmoothCongruenceCount + " smooth congruences and " + congruenceCollector.getPartialCongruenceCount() + " partials.");
 				}
 			} // end poly
@@ -318,7 +318,7 @@ public class SIQS extends FactorAlgorithm {
 				LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " in " + TimeUtil.timeStr(timer.totalRuntime()));
 				int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
 				LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
-				LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
+				if (ANALYZE_POLY_COUNTS) LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 				LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 				String qRestSizes = tdivReport.getQRestSizes();
 				if (qRestSizes != null) {

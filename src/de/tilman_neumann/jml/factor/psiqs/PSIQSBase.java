@@ -300,7 +300,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " in " + TimeUtil.timeStr(timer.totalRuntime()));
 				int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
 				LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
-				LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
+				if (ANALYZE_POLY_COUNTS) LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 				LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 				String qRestSizes = tdivReport.getQRestSizes();
 				if (qRestSizes != null) {

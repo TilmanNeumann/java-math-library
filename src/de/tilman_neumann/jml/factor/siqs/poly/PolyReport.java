@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.siqs.poly;
 
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+
 /**
  * Reports about a polynomial generator.
  * @author Tilman Neumann
@@ -29,14 +31,18 @@ public class PolyReport {
 	private long nextXArrayDuration;
 	
 	public PolyReport(int aParamCount, int bParamCount, long aDuration, long firstBDuration, long filterPBDuration, long firstXArrayDuration, long nextBDuration, long nextXArrayDuration) {
-		this.aParamCount = aParamCount;
-		this.bParamCount = bParamCount;
-		this.aDuration = aDuration;
-		this.firstBDuration = firstBDuration;
-		this.filterPBDuration = filterPBDuration;
-		this.firstXArrayDuration = firstXArrayDuration;
-		this.nextBDuration = nextBDuration;
-		this.nextXArrayDuration = nextXArrayDuration;
+		if (ANALYZE_POLY_COUNTS) {
+			this.aParamCount = aParamCount;
+			this.bParamCount = bParamCount;
+		}
+		if (PROFILE) {
+			this.aDuration = aDuration;
+			this.firstBDuration = firstBDuration;
+			this.filterPBDuration = filterPBDuration;
+			this.firstXArrayDuration = firstXArrayDuration;
+			this.nextBDuration = nextBDuration;
+			this.nextXArrayDuration = nextXArrayDuration;
+		}
 	}
 	
 	/**
@@ -44,14 +50,18 @@ public class PolyReport {
 	 * @param other another report added to this
 	 */
 	public void add(PolyReport other) {
-		this.aParamCount += other.aParamCount;
-		this.bParamCount += other.bParamCount;
-		this.aDuration += other.aDuration;
-		this.firstBDuration += other.firstBDuration;
-		this.filterPBDuration += other.filterPBDuration;
-		this.firstXArrayDuration += other.firstXArrayDuration;
-		this.nextBDuration += other.nextBDuration;
-		this.nextXArrayDuration += other.nextXArrayDuration;
+		if (ANALYZE_POLY_COUNTS) {
+			this.aParamCount += other.aParamCount;
+			this.bParamCount += other.bParamCount;
+		}
+		if (PROFILE) {
+			this.aDuration += other.aDuration;
+			this.firstBDuration += other.firstBDuration;
+			this.filterPBDuration += other.filterPBDuration;
+			this.firstXArrayDuration += other.firstXArrayDuration;
+			this.nextBDuration += other.nextBDuration;
+			this.nextXArrayDuration += other.nextXArrayDuration;
+		}
 	}
 	
 	public String getOperationDetails() {
