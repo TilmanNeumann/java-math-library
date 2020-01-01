@@ -142,7 +142,7 @@ public class SIQS extends FactorAlgorithm {
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
 		if (PROFILE) {
-			timer.capture(); // start timer
+			timer.start(); // start timer
 			powerTestDuration = initNDuration = ccDuration = solverDuration = 0;
 		}
 		if (ANALYZE_SOLVER_RUNS) solverRunCount = 0;

@@ -129,7 +129,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
 		if (PROFILE) {
-			timer.capture(); // start timer
+			timer.start();
 			powerTestDuration = initNDuration = createThreadDuration = ccDuration = solverDuration = 0;
 		}
 		if (ANALYZE_SOLVER_RUNS) solverRunCount = 0;
