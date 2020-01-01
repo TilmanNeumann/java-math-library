@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.hart;
 
-import static de.tilman_neumann.jml.factor.base.AnalysisOptions.PROFILE;
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.ANALYZE;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
@@ -122,7 +122,7 @@ public class HartLA63 extends FactorAlgorithm {
 	 * @return factor, or null if no factor was found.
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
-		if (PROFILE) this.startTime = System.currentTimeMillis();
+		if (ANALYZE) this.startTime = System.currentTimeMillis();
 		this.N = N;
 
 		// compute prime base size
@@ -158,7 +158,7 @@ public class HartLA63 extends FactorAlgorithm {
 			// search square Q_i
 			test();
 		} catch (FactorException fe) {
-			if (PROFILE) {
+			if (ANALYZE) {
 				long endTime = System.currentTimeMillis();
 				LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
 			}

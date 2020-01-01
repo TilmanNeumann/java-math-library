@@ -127,7 +127,7 @@ public class DoubleBlockHybridSieveU implements Sieve {
 		if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
 		sieveBlockAddress = UnsafeUtil.allocateMemory(effectiveB2);
 
-		if (PROFILE) initDuration = sieveDuration = collectDuration = 0;
+		if (ANALYZE) initDuration = sieveDuration = collectDuration = 0;
 	}
 
 	@Override
@@ -154,7 +154,7 @@ public class DoubleBlockHybridSieveU implements Sieve {
 
 	@Override
 	public List<Integer> sieve() {
-		if (PROFILE) timer.capture();
+		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
 		
 		// prepare single-block data for smallish primes:
@@ -176,7 +176,7 @@ public class DoubleBlockHybridSieveU implements Sieve {
 				dNegArray[i] = dPosArray[i] = x1 - x2;
 			}
 		}
-		if (PROFILE) initDuration += timer.capture();
+		if (ANALYZE) initDuration += timer.capture();
 
 		// Sieve with positive x, large primes:
 		List<Integer> smoothXList = new ArrayList<Integer>();
@@ -220,7 +220,7 @@ public class DoubleBlockHybridSieveU implements Sieve {
 			x2Addr += p;
 			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
 		}
-		if (PROFILE) sieveDuration += timer.capture();
+		if (ANALYZE) sieveDuration += timer.capture();
 
 		// Positive x, small primes:
 		long nextB2Address = sieveBlockAddress + effectiveB2;
@@ -228,7 +228,7 @@ public class DoubleBlockHybridSieveU implements Sieve {
 			// positive x: initialize block
 			final int b2Offset = b2*effectiveB2;
 			UNSAFE.copyMemory(sieveArrayAddress + b2Offset, sieveBlockAddress, effectiveB2);
-			if (PROFILE) initDuration += timer.capture();
+			if (ANALYZE) initDuration += timer.capture();
 
 			for (int b1=0; b1<k1; b1++) {
 				// sieve inner block [b1*B1, (b1+1)*B1] with prime index ranges 0...r_s-1 and r_s...r_m
@@ -237,7 +237,7 @@ public class DoubleBlockHybridSieveU implements Sieve {
 			}
 			// sieve outer block [b2*B2, (b2+1)*B2] with prime index ranges r_m...r_l-1 and r_l...max
 			sievePositiveXBlock(pArray, logPArray, effectiveB2, 0, effectiveB2, r_m, r_l, p3Index);
-			if (PROFILE) sieveDuration += timer.capture();
+			if (ANALYZE) sieveDuration += timer.capture();
 
 			// Collect block: We collect 16 bytes at once, thus we need 16 | effectiveBlockSize -> see initialize()
 			long y0, y1;
@@ -271,12 +271,12 @@ public class DoubleBlockHybridSieveU implements Sieve {
 					}
 				}
 			} // end for (x)
-			if (PROFILE) collectDuration += timer.capture();
+			if (ANALYZE) collectDuration += timer.capture();
 		}
 		
 		// re-initialize sieve array for negative x
 		this.initializeSieveArray(sieveArraySize);
-		if (PROFILE) initDuration += timer.capture();
+		if (ANALYZE) initDuration += timer.capture();
 
 		// negative x, large primes:
 		for (i=solutionCount-1; i>=p1Index; i--) {
@@ -315,13 +315,13 @@ public class DoubleBlockHybridSieveU implements Sieve {
 			x2Addr += p;
 			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
 		}
-		if (PROFILE) sieveDuration += timer.capture();
+		if (ANALYZE) sieveDuration += timer.capture();
 
 		// negative x, small primes:
 		for (int b2=0; b2<k2; b2++) { // bottom-up order is required because in each block, the data for the next block is adjusted
 			final int b2Offset = b2*effectiveB2;
 			UNSAFE.copyMemory(sieveArrayAddress + b2Offset, sieveBlockAddress, effectiveB2);
-			if (PROFILE) initDuration += timer.capture();
+			if (ANALYZE) initDuration += timer.capture();
 			
 			for (int b1=0; b1<k1; b1++) {
 				// sieve inner block [b1*B1, (b1+1)*B1] with prime index ranges 0...r_s-1 and r_s...r_m
@@ -330,7 +330,7 @@ public class DoubleBlockHybridSieveU implements Sieve {
 			}
 			// sieve outer block [b2*B2, (b2+1)*B2] with prime index ranges r_m...r_l-1 and r_l...max
 			sieveNegativeXBlock(pArray, logPArray, effectiveB2, 0, effectiveB2, r_m, r_l, p3Index);
-			if (PROFILE) sieveDuration += timer.capture();
+			if (ANALYZE) sieveDuration += timer.capture();
 			
 			// collect block
 			long y0, y1;
@@ -364,7 +364,7 @@ public class DoubleBlockHybridSieveU implements Sieve {
 					}
 				}
 			} // end for (x)
-			if (PROFILE) collectDuration += timer.capture();
+			if (ANALYZE) collectDuration += timer.capture();
 		}
 		return smoothXList;
 	}

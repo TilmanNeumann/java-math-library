@@ -131,8 +131,10 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		solutionArrays = new SolutionArrays(mergedBaseSize - qCount, qCount);
 		
 		// statistics
-		if (ANALYZE_POLY_COUNTS) aParamCount = bParamCount = 0;
-		if (PROFILE) aDuration = firstBDuration = filterPBDuration = firstXArrayDuration = nextBDuration = nextXArrayDuration = 0;
+		if (ANALYZE) {
+			aParamCount = bParamCount = 0;
+			aDuration = firstBDuration = filterPBDuration = firstXArrayDuration = nextBDuration = nextXArrayDuration = 0;
+		}
 	}
 	
 	@Override
@@ -140,7 +142,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		if (bIndex==maxBIndex) {
 			// Incrementing bIndex would exceed the maximum value -> we need a new a-parameter.
 			// Computing a-parameters is very fast (typically 0 to 15ms) despite synchronization.
-			if (PROFILE) timer.capture();
+			if (ANALYZE) timer.capture();
 			synchronized (aParamGenerator) {
 				a = aParamGenerator.computeNextAParameter();
 				qArray = aParamGenerator.getQArray();
@@ -148,33 +150,33 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			}
 			da = BigInteger.valueOf(d).multiply(a);
 			da_UBI = new UnsignedBigInt(da);
-			if (ANALYZE_POLY_COUNTS) aParamCount++;
+			if (ANALYZE) aParamCount++;
 			maxBIndex = 1<<(qCount-1); // 2^(qCount-1)
-			if (PROFILE) aDuration += timer.capture();
+			if (ANALYZE) aDuration += timer.capture();
 			// compute the first b
 			computeFirstBParameter();
-			if (ANALYZE_POLY_COUNTS) bParamCount++;
+			if (ANALYZE) bParamCount++;
 			bIndex = 1;
 			if (DEBUG) {
 				LOG.debug("first a=" + a + ", b=" + b);
 				LOG.debug("(b^2-kN)/a [" + bIndex + "] = " + b.multiply(b).subtract(kN).divide(a));
 			}
-			if (PROFILE) firstBDuration += timer.capture();
+			if (ANALYZE) firstBDuration += timer.capture();
 			// filter prime base
 			BaseFilter.Result filterResult = baseFilter.filter(solutionArrays, baseArrays, mergedBaseSize, qArray, qCount, k);
 			filteredBaseSize = filterResult.filteredBaseSize;
-			if (PROFILE) filterPBDuration += timer.capture();
+			if (ANALYZE) filterPBDuration += timer.capture();
 			// compute ainvp[], Bainv2[][] and solution x-arrays for a and first b
 			computeFirstXArrays();
 			// pass data to sub-engines
 			sieveEngine.initializeForAParameter(solutionArrays, filteredBaseSize);
 			tDivEngine.initializeForAParameter(da, b, solutionArrays, filteredBaseSize, filterResult.filteredOutBaseElements);
-			if (PROFILE) firstXArrayDuration += timer.capture();
+			if (ANALYZE) firstXArrayDuration += timer.capture();
 		} else {
 			// compute the next b-parameter:
 			// the gray code v with 2^v || 2*i in [Contini97] is the exponent
 			// at which 2*i contains the 2. Here we have bIndex instead of Contini's "i".
-			if (PROFILE) timer.capture();
+			if (ANALYZE) timer.capture();
 			int v = Integer.numberOfTrailingZeros(bIndex<<1);
 			// bIndex/2^v is a half-integer. Therefore we have ceilTerm = ceil(bIndex/2^v) = bIndex/2^v + 1.
 			// If ceilTerm is even, then (-1)^ceilTerm is positive and B_l[v] must be added.
@@ -184,7 +186,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			// WARNING: b must not be computed (mod a) !
 			b = bParameterNeedsAddition ? b.add(B2Array[v-1]) : b.subtract(B2Array[v-1]);
 			tDivEngine.setBParameter(b);
-			if (ANALYZE_POLY_COUNTS) bParamCount++;
+			if (ANALYZE) bParamCount++;
 			if (DEBUG) {
 				//LOG.debug("a = " + a + ", b = " + b);
 				assertTrue(0<v && v<qCount); // exact
@@ -207,14 +209,14 @@ public class SIQSPolyGenerator implements PolyGenerator {
 				LOG.debug("a=" + a + ": " + bIndex + ".th b=" + b);
 				LOG.debug("(b^2-kN)/a [" + bIndex + "] = " + b.multiply(b).subtract(kN).divide(a));
 			}
-			if (PROFILE) nextBDuration += timer.capture();
+			if (ANALYZE) nextBDuration += timer.capture();
 
 			// Update solution arrays: 
 			// Since only the array-content is modified, the x-arrays in poly are updated implicitly.
 			// This approach would work in a multi-threaded SIQS implementation too, if we create a new thread for each new a-parameter.
 			// Note that fix prime divisors depend only on a and k -> they do not change at a new b-parameter.
 			computeNextXArrays(v, bParameterNeedsAddition);
-			if (PROFILE) nextXArrayDuration += timer.capture();
+			if (ANALYZE) nextXArrayDuration += timer.capture();
 		}
 	}
 

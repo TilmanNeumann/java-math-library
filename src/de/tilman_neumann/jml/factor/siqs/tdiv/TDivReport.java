@@ -28,11 +28,9 @@ public class TDivReport {
 	private Multiset<Integer> qRestSizes;
 	
 	public TDivReport(long testCount, long sufficientSmoothCount, long aqDuration, long pass1Duration, long pass2Duration, long primeTestDuration, long factorDuration, Multiset<Integer> qRestSizes) {
-		if (ANALYZE_TDIV) {
+		if (ANALYZE) {
 			this.testCount = testCount;
 			this.sufficientSmoothCount = sufficientSmoothCount;
-		}
-		if (PROFILE) {
 			this.aqDuration = aqDuration;
 			this.pass1Duration = pass1Duration;
 			this.pass2Duration = pass2Duration;
@@ -47,11 +45,9 @@ public class TDivReport {
 	 * @param other another report added to this
 	 */
 	public void add(TDivReport other) {
-		if (ANALYZE_TDIV) {
+		if (ANALYZE) {
 			this.testCount += other.testCount;
 			this.sufficientSmoothCount += other.sufficientSmoothCount;
-		}
-		if (PROFILE) {
 			this.aqDuration += other.aqDuration;
 			this.pass1Duration += other.pass1Duration;
 			this.pass2Duration += other.pass2Duration;

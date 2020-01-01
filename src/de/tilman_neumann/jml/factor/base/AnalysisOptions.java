@@ -26,40 +26,19 @@ package de.tilman_neumann.jml.factor.base;
  */
 public interface AnalysisOptions {
 	/**
-	 * Analyze timings of factor algorithms and parts of them?
+	 * Basic analysis includes number of polynomials, number of smooth and partial relations
+	 * (also by large factor counts), trials division results, solver runs and tested null-vectors,
+	 * and sub-phase timings.
 	 */
-	static final boolean PROFILE = false;
-	
-	/**
-	 * Analyze the number of polynomials?
-	 */
-	static final boolean ANALYZE_POLY_COUNTS = false;
+	static final boolean ANALYZE = false;
 
 	/**
-	 * Analyze the number of large factors in smooth relations?
-	 */
-	static final boolean ANALYZE_LARGE_FACTOR_COUNTS = false;
-
-	/**
-	 * Analyze size of large factors that yield smooth relations?
+	 * A switch to additionally turn on analysis of the size of large factors that yield smooth relations.
 	 */
 	static final boolean ANALYZE_LARGE_FACTOR_SIZES = false;
 	
 	/**
-	 * Analyze the ratio of Q-values with positive and negative sign.
+	 * A switch to additionally turn on analysis of the number of Q-values with positive and negative sign.
 	 */
 	static final boolean ANALYZE_Q_SIGNS = false;
-	
-	/**
-	 * Analyze trial division tests.
-	 */
-	static final boolean ANALYZE_TDIV = false;
-
-	/**
-	 * Analyze how many solver runs and null-vector tests were required.
-	 * This number may be bigger than expected by theory because we do not check for duplicate relations.
-	 * On the other hand, the likelihood of duplicate relations decreases quickly with growing N;
-	 * thus asymptotically, checking for duplicates would mean a performance penalty.
-	 */
-	static final boolean ANALYZE_SOLVER_RUNS = false;
 }

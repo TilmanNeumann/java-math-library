@@ -137,7 +137,7 @@ public class CFrac extends FactorAlgorithm {
 	 * @return factor, or null if no factor was found.
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
-		if (PROFILE) startTime = System.currentTimeMillis();
+		if (ANALYZE) startTime = System.currentTimeMillis();
 		this.N = N;
 
 		// compute prime base size
@@ -192,7 +192,7 @@ public class CFrac extends FactorAlgorithm {
 				// search square Q_i
 				test();
 			} catch (FactorException fe) {
-				if (PROFILE) {
+				if (ANALYZE) {
 					long endTime = System.currentTimeMillis();
 					LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
 					CongruenceCollectorReport ccReport = congruenceCollector.getReport();
@@ -251,7 +251,7 @@ public class CFrac extends FactorAlgorithm {
 				if (DEBUG) LOG.debug("N = " + N + ": Q_test = " + Q_test + " -> aqPair = " + aqPair);
 				if (aqPair!=null) {
 					// the Q was sufficiently smooth
-					if (PROFILE) linAlgStartTime = System.currentTimeMillis(); // just in case it really starts
+					if (ANALYZE) linAlgStartTime = System.currentTimeMillis(); // just in case it really starts
 					boolean addedSmooth = congruenceCollector.add(aqPair);
 					if (addedSmooth) {
 						int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();

@@ -31,7 +31,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF63;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static de.tilman_neumann.jml.factor.base.AnalysisOptions.PROFILE;
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.ANALYZE;
 import static org.junit.Assert.*;
 
 /**
@@ -120,7 +120,7 @@ public class CFrac63 extends FactorAlgorithm {
 	 * @return factor, or null if no factor was found.
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
-		if (PROFILE) startTime = System.currentTimeMillis();
+		if (ANALYZE) startTime = System.currentTimeMillis();
 		this.N = N;
 
 		// compute prime base size
@@ -180,7 +180,7 @@ public class CFrac63 extends FactorAlgorithm {
 				// search square Q_i
 				test(diff);
 			} catch (FactorException fe) {
-				if (PROFILE) {
+				if (ANALYZE) {
 					long endTime = System.currentTimeMillis();
 					LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
 				}
@@ -227,7 +227,7 @@ public class CFrac63 extends FactorAlgorithm {
 				if (DEBUG) LOG.debug("N = " + N + ": Q_test = " + Q_test + " -> aqPair = " + aqPair);
 				if (aqPair!=null) {
 					// the Q was sufficiently smooth
-					if (PROFILE) linAlgStartTime = System.currentTimeMillis(); // just in case it really starts
+					if (ANALYZE) linAlgStartTime = System.currentTimeMillis(); // just in case it really starts
 					boolean addedSmooth = congruenceCollector.add(aqPair);
 					if (addedSmooth) {
 						int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();

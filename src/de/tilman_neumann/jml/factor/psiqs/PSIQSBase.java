@@ -128,11 +128,11 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	 * @return factor, or null if no factor was found.
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
-		if (PROFILE) {
+		if (ANALYZE) {
 			timer.start();
 			powerTestDuration = initNDuration = createThreadDuration = ccDuration = solverDuration = 0;
+			solverRunCount = 0;
 		}
-		if (ANALYZE_SOLVER_RUNS) solverRunCount = 0;
 
 		// the quadratic sieve does not work for pure powers; check that first:
 		PurePowerTest.Result purePower = powerTest.test(N);
@@ -140,7 +140,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			// N is indeed a pure power -> return a factor that is about sqrt(N)
 			return purePower.base.pow(purePower.exponent>>1);
 		} // else: no pure power, run quadratic sieve
-		if (PROFILE) powerTestDuration += timer.capture();
+		if (ANALYZE) powerTestDuration += timer.capture();
 
 		// Compute prime base size:
 		// http://www.mersenneforum.org/showthread.php?s=3087aa210d8d7f1852c690a45f22d2e5&t=11116&page=2:
@@ -229,7 +229,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 		// Find and add powers to the prime base
 		BaseArrays baseArrays = powerFinder.addPowers(kN, primesArray, tArray, logPArray, pinvArrayD, pinvArrayL, primeBaseSize, sieveParams);
-		if (PROFILE) initNDuration += timer.capture();
+		if (ANALYZE) initNDuration += timer.capture();
 
 		// Create and run threads: This is among the most expensive parts for N<=180 bit,
 		// much more expensive than all the other initializations for a new N.
@@ -238,7 +238,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			threadArray[threadIndex] = createThread(k, N, kN, d, sieveParams, baseArrays, apg, aqPairBuffer, threadIndex);
 			threadArray[threadIndex].start();
 		}
-		if (PROFILE) createThreadDuration += timer.capture();
+		if (ANALYZE) createThreadDuration += timer.capture();
 
 		try {
 			while (true) { // as long as we didn't find a factor
@@ -247,17 +247,17 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				
 				//LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
 				// Add new data to the congruenceCollector and eventually run the matrix solver.
-				if (PROFILE) timer.capture();
+				if (ANALYZE) timer.capture();
 				for (AQPair aqPair : aqPairs) {
 					boolean addedSmooth = congruenceCollector.add(aqPair);
 					if (addedSmooth) {
 						int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();
 						if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
 							// Try to solve equation system
-							if (PROFILE) ccDuration += timer.capture();
+							if (ANALYZE) ccDuration += timer.capture();
 							// It is faster to block the other threads while the solver is running,
 							// because on modern CPUs a single thread runs at a higher clock rate.
-							if (ANALYZE_SOLVER_RUNS) {
+							if (ANALYZE) {
 								solverRunCount++;
 								if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
 							}
@@ -266,18 +266,18 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 								matrixSolver.solve(congruences); // throws FactorException
 							}
 								
-							if (PROFILE) solverDuration += timer.capture();
+							if (ANALYZE) solverDuration += timer.capture();
 							// Extend equation system and continue searching smooth congruences
 							requiredSmoothCongruenceCount += extraCongruences;
 						}
 					}
 				}
-				if (PROFILE) ccDuration += timer.capture();
+				if (ANALYZE) ccDuration += timer.capture();
 			}
 		} catch (FactorException fe) {
 			// now we have found a factor.
 			BigInteger factor = fe.getFactor();
-			if (PROFILE) {
+			if (ANALYZE) {
 				solverDuration += timer.capture();
 				// assemble reports from all threads
 				PolyReport polyReport = threadArray[0].getPolyReport();
@@ -300,14 +300,9 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " in " + TimeUtil.timeStr(timer.totalRuntime()));
 				int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
 				LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
-				if (ANALYZE_POLY_COUNTS) LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
-				if (ANALYZE_TDIV) LOG.info("    tDiv: " + tdivReport.getOperationDetails());
-				if (ANALYZE_LARGE_FACTOR_SIZES) {
-					String qRestSizes = tdivReport.getQRestSizes();
-					if (qRestSizes != null) {
-						LOG.info("        " + qRestSizes);
-					}
-				}
+				LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
+				LOG.info("    tDiv: " + tdivReport.getOperationDetails());
+				if (ANALYZE_LARGE_FACTOR_SIZES) LOG.info("        " +  tdivReport.getQRestSizes());
 				LOG.info("    cc: " + ccReport.getOperationDetails());
 				if (ANALYZE_LARGE_FACTOR_SIZES) {
 					LOG.info("        " + ccReport.getPartialBigFactorSizes());
@@ -319,7 +314,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 					LOG.info("        " + ccReport.getPartialQSignCounts());
 					LOG.info("        " + ccReport.getSmoothQSignCounts());
 				}
-				if (ANALYZE_SOLVER_RUNS) LOG.info("    #solverRuns = " + solverRunCount + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
+				LOG.info("    #solverRuns = " + solverRunCount + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
 				LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, createThreads=" + createThreadDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + ccDuration + "ms, solver=" + solverDuration + "ms");
 				LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(numberOfThreads));
 				LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(numberOfThreads));

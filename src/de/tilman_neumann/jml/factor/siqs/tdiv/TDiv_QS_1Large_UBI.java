@@ -91,8 +91,8 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 		if (DEBUG) LOG.debug("maxQRest = " + maxQRest + " (" + (64 - Long.numberOfLeadingZeros((long)maxQRest)) + " bits)");
 		this.kN = kN;
 		// statistics
-		if (ANALYZE_TDIV) testCount = sufficientSmoothCount = 0;
-		if (PROFILE) aqDuration = pass1Duration = pass2Duration = factorDuration = 0;
+		if (ANALYZE) testCount = sufficientSmoothCount = 0;
+		if (ANALYZE) aqDuration = pass1Duration = pass2Duration = factorDuration = 0;
 	}
 
 	@Override
@@ -116,22 +116,22 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 
 	@Override
 	public List<AQPair> testList(List<Integer> xList) {
-		if (PROFILE) timer.capture();
+		if (ANALYZE) timer.capture();
 		
 		// do trial division with sieve result
 		ArrayList<AQPair> aqPairs = new ArrayList<AQPair>();
 		for (int x : xList) {
 			smallFactors.reset();
-			if (ANALYZE_TDIV) testCount++;
+			if (ANALYZE) testCount++;
 			BigInteger A = da.multiply(BigInteger.valueOf(x)).add(bParam); // A(x) = d*a*x+b, with d = 1 or 2 depending on kN % 8
 			BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
-			if (PROFILE) aqDuration += timer.capture();
+			if (ANALYZE) aqDuration += timer.capture();
 			AQPair aqPair = test(A, Q, x);
-			if (PROFILE) factorDuration += timer.capture();
+			if (ANALYZE) factorDuration += timer.capture();
 			if (aqPair != null) {
 				// Q(x) was found sufficiently smooth to be considered a (partial) congruence
 				aqPairs.add(aqPair);
-				if (ANALYZE_TDIV) sufficientSmoothCount++;
+				if (ANALYZE) sufficientSmoothCount++;
 				if (DEBUG) {
 					LOG.debug("Found congruence " + aqPair);
 					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
@@ -147,7 +147,7 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 				}
 			}
 		}
-		if (PROFILE) aqDuration += timer.capture();
+		if (ANALYZE) aqDuration += timer.capture();
 		return aqPairs;
 	}
 	
@@ -206,7 +206,7 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 				// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
 			}
 		}
-		if (PROFILE) pass1Duration += timer.capture();
+		if (ANALYZE) pass1Duration += timer.capture();
 
 		// Pass 2: Reduce Q by the pass2Primes and collect small factors
 		Q_rest_UBI.set(Q_rest);
@@ -228,7 +228,7 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 				}
 			}
 		}
-		if (PROFILE) pass2Duration += timer.capture();
+		if (ANALYZE) pass2Duration += timer.capture();
 		if (Q_rest_UBI.isOne()) return new Smooth_Perfect(A, smallFactors);
 		Q_rest = Q_rest_UBI.toBigInteger();
 		

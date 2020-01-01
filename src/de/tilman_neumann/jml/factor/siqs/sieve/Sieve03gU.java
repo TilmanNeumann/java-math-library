@@ -82,7 +82,7 @@ public class Sieve03gU implements Sieve {
 		sieveArrayAddress = UnsafeUtil.allocateMemory(sieveAllocationSize);
 		if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
 
-		if (PROFILE) initDuration = sieveDuration = collectDuration = 0;
+		if (ANALYZE) initDuration = sieveDuration = collectDuration = 0;
 	}
 
 	@Override
@@ -113,9 +113,9 @@ public class Sieve03gU implements Sieve {
 
 	@Override
 	public List<Integer> sieve() {
-		if (PROFILE) timer.capture();
+		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
-		if (PROFILE) initDuration += timer.capture();
+		if (ANALYZE) initDuration += timer.capture();
 		
 		// Sieve with positive x, large primes:
 		final int[] pArray = solutionArrays.pArray;
@@ -184,7 +184,7 @@ public class Sieve03gU implements Sieve {
 				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
 			}
 		} // end for (p)
-		if (PROFILE) sieveDuration += timer.capture();
+		if (ANALYZE) sieveDuration += timer.capture();
 
 		// collect results: we check 8 sieve locations in one long
 		List<Integer> smoothXList = new ArrayList<Integer>();
@@ -219,11 +219,11 @@ public class Sieve03gU implements Sieve {
 				}
 			}
 		}
-		if (PROFILE) collectDuration += timer.capture();
+		if (ANALYZE) collectDuration += timer.capture();
 		
 		// re-initialize sieve array for negative x
 		this.initializeSieveArray(sieveArraySize);
-		if (PROFILE) initDuration += timer.capture();
+		if (ANALYZE) initDuration += timer.capture();
 
 		// negative x, large primes:
 		for (i=primeBaseSize-1; i>=p1Index; i--) {
@@ -285,7 +285,7 @@ public class Sieve03gU implements Sieve {
 				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
 			}
 		} // end for (p)
-		if (PROFILE) sieveDuration += timer.capture();
+		if (ANALYZE) sieveDuration += timer.capture();
 
 		// collect results
 		for (long x=sieveArrayAddress+sieveArraySize; x>sieveArrayAddress; ) {
@@ -318,7 +318,7 @@ public class Sieve03gU implements Sieve {
 				}
 			}
 		}
-		if (PROFILE) collectDuration += timer.capture();
+		if (ANALYZE) collectDuration += timer.capture();
 		return smoothXList;
 	}
 

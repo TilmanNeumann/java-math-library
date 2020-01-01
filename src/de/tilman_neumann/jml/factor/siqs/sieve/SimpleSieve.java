@@ -55,7 +55,7 @@ public class SimpleSieve implements Sieve {
 	public void initializeForN(SieveParams sieveParams, int mergedBaseSize) {
 		this.sieveArraySize = sieveParams.sieveArraySize;
 
-		if (PROFILE) initDuration = sieveDuration = collectDuration = 0;
+		if (ANALYZE) initDuration = sieveDuration = collectDuration = 0;
 	}
 
 	@Override
@@ -66,9 +66,9 @@ public class SimpleSieve implements Sieve {
 
 	@Override
 	public List<Integer> sieve() {
-		if (PROFILE) timer.capture();
+		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
-		if (PROFILE) initDuration += timer.capture();
+		if (ANALYZE) initDuration += timer.capture();
 
 		final int[] pArray = solutionArrays.pArray;
 		final int[] x1Array = solutionArrays.x1Array;
@@ -109,7 +109,7 @@ public class SimpleSieve implements Sieve {
 				}
 			} // else x2min==x1min -> do not sieve with the same x twice
 		}
-		if (PROFILE) sieveDuration += timer.capture();
+		if (ANALYZE) sieveDuration += timer.capture();
 
 		// collect results
 		List<Integer> smoothXList = new ArrayList<Integer>();
@@ -126,7 +126,7 @@ public class SimpleSieve implements Sieve {
 				smoothXList.add(-x);
 			}
 		} // end for (x)
-		if (PROFILE) collectDuration += timer.capture();
+		if (ANALYZE) collectDuration += timer.capture();
 		return smoothXList;
 	}
 

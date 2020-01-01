@@ -47,7 +47,7 @@ public class CongruenceCollectorReport {
 	}
 	
 	public String getOperationDetails() {
-		if (ANALYZE_LARGE_FACTOR_COUNTS) {
+		if (ANALYZE) {
 			String smoothFromPartialsStr = smoothFromPartialCounts[0] + " from 1-partials";
 			if (smoothFromPartialCounts[1]>0) smoothFromPartialsStr += ", " + smoothFromPartialCounts[1] + " involving 2-partials";
 			if (smoothFromPartialCounts[2]>0) smoothFromPartialsStr += ", " + smoothFromPartialCounts[2] + " involving 3-partials";

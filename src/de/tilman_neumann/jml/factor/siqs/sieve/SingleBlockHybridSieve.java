@@ -118,7 +118,7 @@ public class SingleBlockHybridSieve implements Sieve {
 		if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
 		sieveBlock = new byte[effectiveBlockSize];
 
-		if (PROFILE) initDuration = sieveDuration = collectDuration = 0;
+		if (ANALYZE) initDuration = sieveDuration = collectDuration = 0;
 	}
 
 	@Override
@@ -142,7 +142,7 @@ public class SingleBlockHybridSieve implements Sieve {
 
 	@Override
 	public List<Integer> sieve() {
-		if (PROFILE) timer.capture();
+		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
 		
 		// prepare single-block data for smallish primes:
@@ -164,7 +164,7 @@ public class SingleBlockHybridSieve implements Sieve {
 				dNegArray[i] = dPosArray[i] = x1 - x2;
 			}
 		}
-		if (PROFILE) initDuration += timer.capture();
+		if (ANALYZE) initDuration += timer.capture();
 
 		// Sieve with positive x, large primes:
 		List<Integer> smoothXList = new ArrayList<Integer>();
@@ -200,19 +200,19 @@ public class SingleBlockHybridSieve implements Sieve {
 			sieveArray[x1+p2] += logP;
 			sieveArray[x2+p2] += logP;
 		}
-		if (PROFILE) sieveDuration += timer.capture();
+		if (ANALYZE) sieveDuration += timer.capture();
 
 		// Positive x, small primes:
 		for (int b=0; b<blockCount; b++) { // bottom-up order is required because in each block, the data for the next block is adjusted
 			// positive x: initialize block
 			final int blockOffset = b*effectiveBlockSize;
 			System.arraycopy(sieveArray, blockOffset, sieveBlock, 0, effectiveBlockSize);
-			if (PROFILE) initDuration += timer.capture();
+			if (ANALYZE) initDuration += timer.capture();
 			
 			// positive x: sieve block [b*B, (b+1)*B] with prime index ranges 0...r_s-1 and r_s...max
 			//LOG.debug("sieve pos. block " + b + " (" + effectiveBlockSize + " bytes) with primes " + pMinIndex + " ... " + r_s + " ... " + p3Index);
 			sievePositiveXBlock(pArray, logPArray, effectiveBlockSize, pMinIndex, r_s, p3Index);
-			if (PROFILE) sieveDuration += timer.capture();
+			if (ANALYZE) sieveDuration += timer.capture();
 			
 			// collect block
 			// let the sieve entry counter x run down to 0 is much faster because of the simpler exit condition
@@ -231,12 +231,12 @@ public class SingleBlockHybridSieve implements Sieve {
 					if (sieveBlock[x+4] < 0) smoothXList.add(x+blockOffset4);
 				}
 			} // end for (x)
-			if (PROFILE) collectDuration += timer.capture();
+			if (ANALYZE) collectDuration += timer.capture();
 		}
 		
 		// re-initialize sieve array for negative x
 		this.initializeSieveArray(sieveArraySize);
-		if (PROFILE) initDuration += timer.capture();
+		if (ANALYZE) initDuration += timer.capture();
 
 		// negative x, large primes:
 		for (i=primeBaseSize-1; i>=p1Index; i--) {
@@ -268,19 +268,19 @@ public class SingleBlockHybridSieve implements Sieve {
 			sieveArray[x1+p2] += logP;
 			sieveArray[x2+p2] += logP;
 		}
-		if (PROFILE) sieveDuration += timer.capture();
+		if (ANALYZE) sieveDuration += timer.capture();
 
 		// negative x, small primes:
 		for (int b=0; b<blockCount; b++) { // bottom-up order is required because in each block, the data for the next block is adjusted
 			// negative x: initialize block
 			final int blockOffset = b*effectiveBlockSize;
 			System.arraycopy(sieveArray, blockOffset, sieveBlock, 0, effectiveBlockSize);
-			if (PROFILE) initDuration += timer.capture();
+			if (ANALYZE) initDuration += timer.capture();
 			
 			// negative x: sieve block [b*B, (b+1)*B] with prime index ranges 0...r_s-1 and r_s...max
 			//LOG.debug("sieve neg. block " + b + " (" + effectiveBlockSize + " bytes) with primes " + pMinIndex + " ... " + r_s + " ... " + p3Index);
 			sieveNegativeXBlock(pArray, logPArray, effectiveBlockSize, pMinIndex, r_s, p3Index);
-			if (PROFILE) sieveDuration += timer.capture();
+			if (ANALYZE) sieveDuration += timer.capture();
 			
 			// Collect block: We collect 4 bytes at once, thus we need 4 | effectiveBlockSize -> see initialize()
 			final int blockOffset1 = blockOffset+1;
@@ -298,7 +298,7 @@ public class SingleBlockHybridSieve implements Sieve {
 					if (sieveBlock[x+4] < 0) smoothXList.add(-(x+blockOffset4));
 				}
 			} // end for (x)
-			if (PROFILE) collectDuration += timer.capture();
+			if (ANALYZE) collectDuration += timer.capture();
 		}
 		return smoothXList;
 	}

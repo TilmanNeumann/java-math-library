@@ -108,7 +108,7 @@ public class Sieve03g implements Sieve {
 		sieveArray = new byte[sieveAllocationSize];
 		if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
 
-		if (PROFILE) initDuration = sieveDuration = collectDuration = 0;
+		if (ANALYZE) initDuration = sieveDuration = collectDuration = 0;
 	}
 
 	@Override
@@ -134,9 +134,9 @@ public class Sieve03g implements Sieve {
 
 	@Override
 	public List<Integer> sieve() {
-		if (PROFILE) timer.capture();
+		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
-		if (PROFILE) initDuration += timer.capture();
+		if (ANALYZE) initDuration += timer.capture();
 		
 		// Sieve with positive x, large primes:
 		final int[] pArray = solutionArrays.pArray;
@@ -195,7 +195,7 @@ public class Sieve03g implements Sieve {
 				sieveArray[x2+=p] += logP;
 			}
 		} // end for (p)
-		if (PROFILE) sieveDuration += timer.capture();
+		if (ANALYZE) sieveDuration += timer.capture();
 
 		// collect results
 		List<Integer> smoothXList = new ArrayList<Integer>();
@@ -211,11 +211,11 @@ public class Sieve03g implements Sieve {
 				if (sieveArray[x+4] < 0) smoothXList.add(x+4);
 			}
 		}
-		if (PROFILE) collectDuration += timer.capture();
+		if (ANALYZE) collectDuration += timer.capture();
 		
 		// re-initialize sieve array for negative x
 		this.initializeSieveArray(sieveArraySize);
-		if (PROFILE) initDuration += timer.capture();
+		if (ANALYZE) initDuration += timer.capture();
 
 		// negative x, large primes:
 		for (i=primeBaseSize-1; i>=p1Index; i--) {
@@ -265,7 +265,7 @@ public class Sieve03g implements Sieve {
 				sieveArray[x2+=p] += logP;
 			}
 		} // end for (p)
-		if (PROFILE) sieveDuration += timer.capture();
+		if (ANALYZE) sieveDuration += timer.capture();
 
 		// collect results
 		// let the sieve entry counter x run down to 0 is much faster because of the simpler exit condition
@@ -280,7 +280,7 @@ public class Sieve03g implements Sieve {
 				if (sieveArray[x+4] < 0) smoothXList.add(-(x+4));
 			}
 		}
-		if (PROFILE) collectDuration += timer.capture();
+		if (ANALYZE) collectDuration += timer.capture();
 		return smoothXList;
 	}
 

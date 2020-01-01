@@ -31,11 +31,9 @@ public class PolyReport {
 	private long nextXArrayDuration;
 	
 	public PolyReport(int aParamCount, int bParamCount, long aDuration, long firstBDuration, long filterPBDuration, long firstXArrayDuration, long nextBDuration, long nextXArrayDuration) {
-		if (ANALYZE_POLY_COUNTS) {
+		if (ANALYZE) {
 			this.aParamCount = aParamCount;
 			this.bParamCount = bParamCount;
-		}
-		if (PROFILE) {
 			this.aDuration = aDuration;
 			this.firstBDuration = firstBDuration;
 			this.filterPBDuration = filterPBDuration;
@@ -50,11 +48,9 @@ public class PolyReport {
 	 * @param other another report added to this
 	 */
 	public void add(PolyReport other) {
-		if (ANALYZE_POLY_COUNTS) {
+		if (ANALYZE) {
 			this.aParamCount += other.aParamCount;
 			this.bParamCount += other.bParamCount;
-		}
-		if (PROFILE) {
 			this.aDuration += other.aDuration;
 			this.firstBDuration += other.firstBDuration;
 			this.filterPBDuration += other.filterPBDuration;
