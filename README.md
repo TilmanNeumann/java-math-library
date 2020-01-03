@@ -35,6 +35,7 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Releases
 
+* v0.9.11: Added SSOZJ3A, a fast twin prime sieve; guard analysis code by final static booleans, so that the code is removed by the compiler when the boolean is set to false.
 * v0.9.10: Added port of Ben Buhrow's tinyecm.c.
 * v0.9.9.3: Added Hart's "one line factorizer"; simplified FactorAlgorithm type hierarchy.
 * v0.9.9: Significantly faster trial division and Pollard-Rho.
