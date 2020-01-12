@@ -23,7 +23,7 @@ The factoring methods are used to implement a fast sumOfDivisors() function.
 
 Another prominent subject in this library is prime generation and testing. For example, you can find
 * a port of Kim Walisch's primesieve (basic for him, pretty fast for most others)
-* SSOZJ3A, a fast twin prime sieve by Jabari Zakiya
+* SSOZJ, a fast twin prime sieve by Jabari Zakiya
 * a BPSW probable prime test implementation, and
 * state-of-the-art bound computations for the n.th prime and prime counting functions.
 
@@ -35,7 +35,7 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Releases
 
-* v0.9.11: Added SSOZJ3A, a fast twin prime sieve; guard analysis code by final static booleans, so that the code is removed by the compiler when the boolean is set to false.
+* v0.9.11: Added SSOZJ, a fast twin prime sieve; guard analysis code by final static booleans, so that the code is removed by the compiler when the boolean is set to false.
 * v0.9.10: Added port of Ben Buhrow's tinyecm.c.
 * v0.9.9.3: Added Hart's "one line factorizer"; simplified FactorAlgorithm type hierarchy.
 * v0.9.9: Significantly faster trial division and Pollard-Rho.
@@ -97,7 +97,7 @@ Some (other) third-party software reused in this library:
 * [Dario Alpern's ECM implementation](https://github.com/alpertron/calculators/blob/master/OldApplets/ecm.java),
 refactored by Axel Kramer (and by myself)
 * [Kim Walisch's primesieve](https://github.com/kimwalisch/primesieve) (ported by myself)
-* [SSOZJ3A](https://gist.github.com/jzakiya/6c7e1868bd749a6b1add62e3e3b2341e), a fast twin prime sieve by Jabari Zakiya, [Java port](https://gist.github.com/Pascal66/4d4229e88f4002641ddcaa5eccd0f6d5) by Pascal Pechard
+* [SSOZJ](https://gist.github.com/jzakiya/6c7e1868bd749a6b1add62e3e3b2341e), a fast twin prime sieve by Jabari Zakiya, [Java port](https://github.com/Pascal66/TwinsPrimesSieve) by Pascal Pechard
 
 
 
