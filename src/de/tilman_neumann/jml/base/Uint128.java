@@ -190,6 +190,13 @@ public class Uint128 {
 		final long carry = (med_term+Long.MIN_VALUE < med_prod1+Long.MIN_VALUE) ? 1L<<32 : 0;
 		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
 		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		
+		// With newer hardware and Java 10+, the following should be faster
+//		final long r_lo2 = a*b;
+//		final long r_hi2 = Math.multiplyHigh(a, b);
+//		assertEquals(r_hi, r_hi2); // TODO not always true
+//		assertEquals(r_lo, r_lo2);
+
 		return new Uint128(r_hi, r_lo);
 	}
 
