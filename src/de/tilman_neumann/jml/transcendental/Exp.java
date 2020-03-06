@@ -126,6 +126,10 @@ public class Exp {
 	 * This function uses the transform exp(w)=exp(x)^(2^K) with x=w*2^(-K).
 	 * This way, we can bring the argument to develop in a power series
 	 * arbitrarily near to 0 with very high convergence speed.
+	 * 
+	 * @param w argument
+	 * @param outScale wanted precision in after-floating point decimal digits
+	 * @return exp(w)
 	 */
 	public static BigDecimal exp/*PowerReduction*/(BigDecimal w, Scale outScale) {
 	    // Compute K and x=w*2^(-K): Derived from complexity considerations exposed in mpfr sources, experimentally refined.
