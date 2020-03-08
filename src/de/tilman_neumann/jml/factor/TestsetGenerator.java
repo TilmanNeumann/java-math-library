@@ -21,6 +21,7 @@ import java.security.SecureRandom;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -142,5 +143,19 @@ public class TestsetGenerator {
 		int normedMaxValue = Math.max(1, maxValue - minValue);
 		return RNG.nextInt() % (normedMaxValue+1) + minValue;
 		// the above has more entropy than RNG.nextInt(normedMaxValue) + minValue
+	}
+	
+	/**
+	 * A simple main function to generate hard semi-primes.
+	 * @param args ignored
+	 */
+	public static void main(String[] args) {
+		ConfigUtil.initProject();
+
+		for (int bits = 330; bits<=450; bits+=10) {
+			BigInteger num = generate(1, bits, TestNumberNature.QUITE_HARD_SEMIPRIMES)[0];
+			LOG.info("// " + bits + " bits:");
+			LOG.info(num);
+		}
 	}
 }
