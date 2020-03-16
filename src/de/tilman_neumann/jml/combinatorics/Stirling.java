@@ -14,11 +14,12 @@
 package de.tilman_neumann.jml.combinatorics;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.BigIntList;
+import de.tilman_neumann.jml.base.BigIntCollectionUtil;
 import de.tilman_neumann.jml.base.BigIntPoly;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.Pair;
@@ -428,14 +429,14 @@ public class Stirling {
     @SuppressWarnings("unused")
 	private static void printFirstStirlings() {
 		for (int n=0; n<12; n++) {
-			BigIntList stirlings1 = new BigIntList();
+			ArrayList<BigInteger> stirlings1 = new ArrayList<>();
 			for (int i=1; i<=n; i++) {
 				BigInteger stirling1 = stirling1WithMemory(n, i);
 				stirlings1.add(stirling1);
 			}
 			LOG.info("1st stirling numbers (" + n + ", i) = " + stirlings1);
-			LOG.info("sum of row elements = " + stirlings1.sum());
-			LOG.info("sum of absolute row elements = " + stirlings1.absSum());
+			LOG.info("sum of row elements = " + BigIntCollectionUtil.sum(stirlings1));
+			LOG.info("sum of absolute row elements = " + BigIntCollectionUtil.absSum(stirlings1));
 		}
     }
     

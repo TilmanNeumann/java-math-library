@@ -15,43 +15,27 @@ package de.tilman_neumann.jml.base;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.StringTokenizer;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
- * A list of big integers.
+ * Utility methods for collections of BigIntegers.
  * 
  * @author Tilman Neumann
  */
-public class BigIntList extends ArrayList<BigInteger> {
-
-	private static final long serialVersionUID = -5780972400272364758L;
-
-	/**
-	 * Constructor for an empty list with standard initial capacity.
-	 */
-	public BigIntList() {
-		super();
-	}
-	
-	/**
-	 * Constructor for an empty list with specified initial capacity.
-	 * @param size initial capacity
-	 */
-	public BigIntList(int size) {
-		super(size);
-	}
+public class BigIntCollectionUtil {
 
 	/**
 	 * Factory method creating a list of big integers from the given comma-separated string.
 	 * @param str
 	 * @return list of big integers
 	 */
-	public static BigIntList valueOf(String str) {
+	public static ArrayList<BigInteger> valueOf(String str) {
 		if (str==null) { return null; }
 
-		BigIntList list = new BigIntList();
+		ArrayList<BigInteger> list = new ArrayList<>();
         StringTokenizer tokenizer = new StringTokenizer(str.trim(), ",");
 
         while (tokenizer.hasMoreTokens()) {
@@ -66,37 +50,40 @@ public class BigIntList extends ArrayList<BigInteger> {
 	}
 
 	/**
-	 * @return The sum of all elements.
+	 * @param c a collection of BigIntegers
+	 * @return The sum of all elements of collection c.
 	 */
-	public BigInteger sum() {
+	public static BigInteger sum(Collection<BigInteger> c) {
 		BigInteger sum = I_0;
-		for (BigInteger elem : this) {
+		for (BigInteger elem : c) {
 			sum = sum.add(elem);
 		}
 		return sum;
 	}
 
 	/**
-	 * @return The sum of the absolute values of the elements.
+	 * @param c a collection of BigIntegers
+	 * @return The sum of the absolute values of the elements of collection c.
 	 */
-	public BigInteger absSum() {
+	public static BigInteger absSum(Collection<BigInteger> c) {
 		BigInteger sum = I_0;
-		for (BigInteger elem : this) {
+		for (BigInteger elem : c) {
 			sum = sum.add(elem.abs());
 		}
 		return sum;
 	}
 
 	/**
-	 * @return The product of all elements, 0 if the list is empty.
+	 * @param c a collection of BigIntegers
+	 * @return The product of all elements of collection c, 0 if the collection is empty.
 	 */
-	public BigInteger product() {
-		if (this.isEmpty()) {
+	public static BigInteger product(Collection<BigInteger> c) {
+		if (c==null || c.isEmpty()) {
 			return I_0;
 		}
 		
 		BigInteger prod = I_1;
-		for (BigInteger elem : this) {
+		for (BigInteger elem : c) {
 			prod = prod.multiply(elem);
 		}
 		return prod;
