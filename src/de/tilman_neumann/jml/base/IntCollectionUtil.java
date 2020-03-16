@@ -14,23 +14,23 @@
 package de.tilman_neumann.jml.base;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.StringTokenizer;
 
 /**
- * Integer list, with factory method from comma-separated string.
+ * Utility methods for collections of Integers.
+ * 
  * @author Tilman Neumann
  */
-public class IntList extends ArrayList<Integer> {
-
-	private static final long serialVersionUID = -9086114515836575213L;
+public class IntCollectionUtil {
 
 	/**
 	 * Converts the given comma-separated string into a list of Integers.
 	 * @param str
 	 * @return list of sequence elements
 	 */
-	public static IntList valueOf(String str) {
-		IntList list = new IntList();
+	public static ArrayList<Integer> stringToList(String str) {
+		ArrayList<Integer> list = new ArrayList<>();
 		if (str!=null) {
 	        StringTokenizer tokenizer = new StringTokenizer(str.trim(), ",");
 	        while (tokenizer.hasMoreTokens()) {
@@ -43,5 +43,18 @@ public class IntList extends ArrayList<Integer> {
 	        }
 		}
 	    return list;
+	}
+
+	/**
+	 * Returns the maximum value of the given non-negative integer collection.
+	 * @param c the collection (not null)
+	 * @return the biggest element, or 0 if the collection is empty
+	 */
+	public static int max(Collection<Integer> c) {
+		int result = 0;
+		for (int elem : c) {
+			if (elem>result) result = elem;
+		}
+		return result;
 	}
 }

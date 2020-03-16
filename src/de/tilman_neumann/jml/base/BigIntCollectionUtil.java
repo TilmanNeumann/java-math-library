@@ -32,7 +32,7 @@ public class BigIntCollectionUtil {
 	 * @param str
 	 * @return list of big integers
 	 */
-	public static ArrayList<BigInteger> valueOf(String str) {
+	public static ArrayList<BigInteger> stringToList(String str) {
 		if (str==null) { return null; }
 
 		ArrayList<BigInteger> list = new ArrayList<>();

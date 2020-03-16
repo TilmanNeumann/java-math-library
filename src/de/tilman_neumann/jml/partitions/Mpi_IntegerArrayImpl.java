@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import de.tilman_neumann.jml.base.IntList;
+import de.tilman_neumann.jml.base.IntCollectionUtil;
 
 /**
  * int[] implementation of a multipartite number like [1,3,4,2,0,1].
@@ -78,7 +78,7 @@ public class Mpi_IntegerArrayImpl implements Mpi {
 	 * @param str
 	 */
 	public Mpi_IntegerArrayImpl(String str) {
-		this(IntList.valueOf(str));
+		this(IntCollectionUtil.stringToList(str));
 	}
 
 	public int getDim() {
