@@ -246,7 +246,7 @@ public class FactorizerTest {
 						try {
 							factors[j] = algorithm.findSingleFactor(testNumbers[j]);
 						} catch (ArithmeticException e) {
-							LOG.error("Algorithm " + algorithm + " threw Exception while searching for a factor of N=" + testNumbers[j] + ": " + e);
+							LOG.error("FactorAlgorithm " + algorithm.getName() + " threw Exception while searching for a factor of N=" + testNumbers[j] + ": " + e);
 						}
 					}
 					long endTimeMillis = System.currentTimeMillis();
