@@ -27,7 +27,6 @@ import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
@@ -254,16 +253,15 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 						int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();
 						if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
 							// Try to solve equation system
-							if (ANALYZE) ccDuration += timer.capture();
-							// It is faster to block the other threads while the solver is running,
-							// because on modern CPUs a single thread runs at a higher clock rate.
 							if (ANALYZE) {
+								ccDuration += timer.capture();
 								solverRunCount++;
 								if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
 							}
-							ArrayList<Smooth> congruences = congruenceCollector.getSmoothCongruences();
+							// It is faster to block the other threads while the solver is running,
+							// because on modern CPUs a single thread runs at a higher clock rate.
 							synchronized (aqPairBuffer) {
-								matrixSolver.solve(congruences); // throws FactorException
+								matrixSolver.solve(congruenceCollector.getSmoothCongruences()); // throws FactorException
 							}
 								
 							if (ANALYZE) solverDuration += timer.capture();
