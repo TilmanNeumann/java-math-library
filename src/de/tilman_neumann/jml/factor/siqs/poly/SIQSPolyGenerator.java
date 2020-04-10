@@ -52,7 +52,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 	
 	private int k;
 	private BigInteger kN;
-	/** the d-parameter of the polynomial Q2(x) = (d*a*x + b)^2 - kN. d is 2 if kN == 1 (mod 8), otherwise 1 */
+	/** the d-parameter of the polynomial Q(x) = (d*a*x + b)^2 - kN. d is 2 if kN == 1 (mod 8), otherwise 1 */
 	private int d;
 	
 	// prime base
