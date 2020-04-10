@@ -87,6 +87,9 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 	protected PowerFinder powerFinder;
 	
+	private AQPairBuffer aqPairBuffer;
+	private int requiredSmoothCongruenceCount;
+	
 	// statistics
 	private Timer timer = new Timer();
 	private long powerTestDuration, initNDuration, createThreadDuration, ccDuration, solverDuration;
@@ -161,7 +164,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 		// The number of congruences we need to find before we try to solve the smooth congruence equation system:
 		// We want: #equations = #variables + some extra congruences
-		int requiredSmoothCongruenceCount = primeBaseSize + extraCongruences;
+		requiredSmoothCongruenceCount = primeBaseSize + extraCongruences;
 
 		// compute Knuth-Schroppel multiplier
 		int k = multiplierFinder.computeMultiplier(N);
@@ -213,7 +216,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		matrixSolver.initialize(N, factorTest);
 
 		// create empty synchronized AQ-pair buffer, used to pass AQ-pairs from "sieve threads" to the main thread
-		AQPairBuffer aqPairBuffer = new AQPairBuffer();
+		aqPairBuffer = new AQPairBuffer();
 
 		// compute some basic parameters for N
 		SieveParams sieveParams = new SieveParams(kN, primesArray, primeBaseSize, adjustedSieveArraySize, maxQRest, 127);
@@ -242,37 +245,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 		try {
 			while (true) { // as long as we didn't find a factor
-				// wait for new data
-				ArrayList<AQPair> aqPairs = aqPairBuffer.collectAQPairs();
-				
-				//LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
-				// Add new data to the congruenceCollector and eventually run the matrix solver.
-				if (ANALYZE) timer.capture();
-				for (AQPair aqPair : aqPairs) {
-					boolean addedSmooth = congruenceCollector.add(aqPair);
-					if (addedSmooth) {
-						int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();
-						if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
-							// Try to solve equation system
-							if (ANALYZE) {
-								ccDuration += timer.capture();
-								solverRunCount++;
-								if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
-							}
-							ArrayList<Smooth> congruences = congruenceCollector.getSmoothCongruences();
-							// It is faster to block the other threads while the solver is running,
-							// because on modern CPUs a single thread runs at a higher clock rate.
-							synchronized (aqPairBuffer) {
-								matrixSolver.solve(congruences); // throws FactorException
-							}
-								
-							if (ANALYZE) solverDuration += timer.capture();
-							// Extend equation system and continue searching smooth congruences
-							requiredSmoothCongruenceCount += extraCongruences;
-						}
-					}
-				}
-				if (ANALYZE) ccDuration += timer.capture();
+				collectAndProcessAQPairs();
 			}
 		} catch (FactorException fe) {
 			// now we have found a factor.
@@ -338,6 +311,40 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		}
 	}
 
+	private void collectAndProcessAQPairs() throws FactorException {
+		// wait for new data
+		ArrayList<AQPair> aqPairs = aqPairBuffer.collectAQPairs();
+		
+		//LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
+		// Add new data to the congruenceCollector and eventually run the matrix solver.
+		if (ANALYZE) timer.capture();
+		for (AQPair aqPair : aqPairs) {
+			boolean addedSmooth = congruenceCollector.add(aqPair);
+			if (addedSmooth) {
+				int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();
+				if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
+					// Try to solve equation system
+					if (ANALYZE) {
+						ccDuration += timer.capture();
+						solverRunCount++;
+						if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
+					}
+					ArrayList<Smooth> congruences = congruenceCollector.getSmoothCongruences();
+					// It is faster to block the other threads while the solver is running,
+					// because on modern CPUs a single thread runs at a higher clock rate.
+					synchronized (aqPairBuffer) {
+						matrixSolver.solve(congruences); // throws FactorException
+					}
+						
+					if (ANALYZE) solverDuration += timer.capture();
+					// Extend equation system and continue searching smooth congruences
+					requiredSmoothCongruenceCount += extraCongruences;
+				}
+			}
+		}
+		if (ANALYZE) ccDuration += timer.capture();
+	}
+	
 	private byte[] computeLogPArray(int[] primesArray, int primeBaseSize, float lnPMultiplier) {
 		byte[] logPArray = new byte[primeBaseSize];
 		for (int i=primeBaseSize-1; i>=0; i--) {
