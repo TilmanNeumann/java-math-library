@@ -374,9 +374,6 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			}
     		try {
     			t.join();
-    			// XXX: Joining a thread may fail when it is in a synchronized block.
-    			// If I remember well, this is a problem with unsafe atomic operations in Java.
-    			// It happens most likely for small N.
     			if (DEBUG) LOG.debug("thread " + t.getName() + " joined");
     		} catch (InterruptedException e) {
     			if (DEBUG) LOG.debug("thread " + t.getName() + " interrupted main thread");
