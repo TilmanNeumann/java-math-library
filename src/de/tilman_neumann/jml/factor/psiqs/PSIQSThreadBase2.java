@@ -16,6 +16,8 @@ package de.tilman_neumann.jml.factor.psiqs;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorParallel;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
@@ -33,6 +35,8 @@ import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
  * @author Tilman Neumann
  */
 abstract public class PSIQSThreadBase2 extends Thread {
+	private static final Logger LOG = Logger.getLogger(PSIQSThreadBase2.class);
+	private static final boolean DEBUG = false;
 
 	protected PolyGenerator polyGenerator;
 	protected Sieve sieve;
@@ -88,13 +92,13 @@ abstract public class PSIQSThreadBase2 extends Thread {
 
 			if (aqPairs.size()>0) {
 				// add all congruences synchronized and notify control thread
-//				aqPairBuffer.addAll(aqPairs);
 				synchronized (cc) {
 					if (cc.factor == null) {
 						cc.collectAndProcessAQPairs(aqPairs);
 					}
 					if (cc.factor != null) {
 						finishNow = true;
+						if (DEBUG) LOG.debug("Thread " + getName() + " is done.");
 					}
 					cc.notify();
 				}
