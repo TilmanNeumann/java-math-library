@@ -17,17 +17,13 @@ import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
-import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorParallel;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
@@ -79,21 +75,15 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	protected float maxQRestExponent;
 	
 	// collects the congruences we find
-	private CongruenceCollector congruenceCollector;
-	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^(extraCongruences+1)
-	private int extraCongruences;
+	private CongruenceCollectorParallel congruenceCollector;
 	/** The solver used for smooth congruence equation systems. */
 	protected MatrixSolver matrixSolver;
 
 	protected PowerFinder powerFinder;
 	
-	private AQPairBuffer aqPairBuffer;
-	private int requiredSmoothCongruenceCount;
-	
 	// statistics
 	private Timer timer = new Timer();
-	private long powerTestDuration, initNDuration, createThreadDuration, ccDuration, solverDuration;
-	private int solverRunCount;
+	private long powerTestDuration, initNDuration, createThreadDuration;
 	
 	/**
 	 * Standard constructor.
@@ -117,8 +107,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		this.numberOfThreads = numberOfThreads;
 		this.d0 = d;
 		this.powerFinder = powerFinder;
-		this.congruenceCollector = new CongruenceCollector();
-		this.extraCongruences = 10;
+		this.congruenceCollector = new CongruenceCollectorParallel(10);
 		this.matrixSolver = matrixSolver;
 		this.apg = apg;
 		this.multiplierFinder = new KnuthSchroeppel();
@@ -133,8 +122,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	public BigInteger findSingleFactor(BigInteger N) {
 		if (ANALYZE) {
 			timer.start();
-			powerTestDuration = initNDuration = createThreadDuration = ccDuration = solverDuration = 0;
-			solverRunCount = 0;
+			powerTestDuration = initNDuration = createThreadDuration = 0;
 		}
 
 		// the quadratic sieve does not work for pure powers; check that first:
@@ -161,10 +149,6 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		}
 		int primeBaseSize = Math.max(30, (int) primeBaseSize_dbl); // min. size for very small N
 		int[] primesArray = new int[primeBaseSize];
-
-		// The number of congruences we need to find before we try to solve the smooth congruence equation system:
-		// We want: #equations = #variables + some extra congruences
-		requiredSmoothCongruenceCount = primeBaseSize + extraCongruences;
 
 		// compute Knuth-Schroppel multiplier
 		int k = multiplierFinder.computeMultiplier(N);
@@ -212,11 +196,8 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		// initialize sub-algorithms for new N
 		apg.initialize(k, N, kN, d, primeBaseSize, primesArray, tArray, adjustedSieveArraySize); // must be done before polyGenerator initialization where qCount is required
 		FactorTest factorTest = new FactorTest01(N);
-		congruenceCollector.initialize(N, factorTest);
 		matrixSolver.initialize(N, factorTest);
-
-		// create empty synchronized AQ-pair buffer, used to pass AQ-pairs from "sieve threads" to the main thread
-		aqPairBuffer = new AQPairBuffer();
+		congruenceCollector.initialize(N, primeBaseSize, matrixSolver, factorTest);
 
 		// compute some basic parameters for N
 		SieveParams sieveParams = new SieveParams(kN, primesArray, primeBaseSize, adjustedSieveArraySize, maxQRest, 127);
@@ -238,111 +219,83 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		// much more expensive than all the other initializations for a new N.
 		PSIQSThreadBase[] threadArray = new PSIQSThreadBase[numberOfThreads];
 		for (int threadIndex=0; threadIndex<numberOfThreads; threadIndex++) {
-			threadArray[threadIndex] = createThread(k, N, kN, d, sieveParams, baseArrays, apg, aqPairBuffer, threadIndex);
+			threadArray[threadIndex] = createThread(k, N, kN, d, sieveParams, baseArrays, apg, congruenceCollector, threadIndex);
 			threadArray[threadIndex].start();
 		}
 		if (ANALYZE) createThreadDuration += timer.capture();
 
-		try {
-			while (true) { // as long as we didn't find a factor
-				collectAndProcessAQPairs();
-			}
-		} catch (FactorException fe) {
-			// now we have found a factor.
-			BigInteger factor = fe.getFactor();
-			if (ANALYZE) {
-				solverDuration += timer.capture();
-				// assemble reports from all threads
-				PolyReport polyReport = threadArray[0].getPolyReport();
-				SieveReport sieveReport = threadArray[0].getSieveReport();
-				TDivReport tdivReport = threadArray[0].getTDivReport();
-				for (int threadIndex=1; threadIndex<numberOfThreads; threadIndex++) {
-					polyReport.add(threadArray[threadIndex].getPolyReport());
-					sieveReport.add(threadArray[threadIndex].getSieveReport());
-					tdivReport.add(threadArray[threadIndex].getTDivReport());
+		// Wait until a factor has been found. For small N, a factor may be found before the control thread waits!
+		synchronized (congruenceCollector) {
+			while (congruenceCollector.factor == null) {
+				try {
+					congruenceCollector.wait(); // is woken up by notify() when a factor was found
+					//LOG.debug("Control thread got notified...");
+				} catch (InterruptedException ie) {
+					// ignore
 				}
-				CongruenceCollectorReport ccReport = congruenceCollector.getReport();
-				// solverReport is not urgently needed
-				
-				long initPolyDuration = polyReport.getTotalDuration(numberOfThreads);
-				long sieveDuration = sieveReport.getTotalDuration(numberOfThreads);
-				long tdivDuration = tdivReport.getTotalDuration(numberOfThreads);
-				
-				// report results
-				LOG.info(getName() + ":");
-				LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " in " + TimeUtil.timeStr(timer.totalRuntime()));
-				int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
-				LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
-				LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
-				LOG.info("    tDiv: " + tdivReport.getOperationDetails());
-				if (ANALYZE_LARGE_FACTOR_SIZES) LOG.info("        " +  tdivReport.getQRestSizes());
-				LOG.info("    cc: " + ccReport.getOperationDetails());
-				if (ANALYZE_LARGE_FACTOR_SIZES) {
-					LOG.info("        " + ccReport.getPartialBigFactorSizes());
-					LOG.info("        " + ccReport.getSmoothBigFactorSizes());
-					LOG.info("        " + ccReport.getSmoothBigFactorPercentiles());
-					LOG.info("        " + ccReport.getNonIntFactorPercentages());
-				}
-				if (ANALYZE_Q_SIGNS) {
-					LOG.info("        " + ccReport.getPartialQSignCounts());
-					LOG.info("        " + ccReport.getSmoothQSignCounts());
-				}
-				LOG.info("    #solverRuns = " + solverRunCount + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
-				LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, createThreads=" + createThreadDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + ccDuration + "ms, solver=" + solverDuration + "ms");
-				LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(numberOfThreads));
-				LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(numberOfThreads));
-				LOG.info("    -> tdiv sub-timings: " + tdivReport.getPhaseTimings(numberOfThreads));
-				// CC and solver have no sub-timings yet
 			}
-			
-			// kill all threads & release memory
-			long killStart = System.currentTimeMillis();
-			for (int threadIndex=0; threadIndex<numberOfThreads; threadIndex++) {
-				killThread(threadArray[threadIndex]);
-				threadArray[threadIndex].cleanUp(); // e.g. let sieve release native memory !
-				threadArray[threadIndex] = null;
-			}
-			if (DEBUG) LOG.debug("Killing threads took " + (System.currentTimeMillis()-killStart) + "ms"); // usually 0-16 ms, no problem
-			apg.cleanUp();
-			congruenceCollector.cleanUp();
-			matrixSolver.cleanUp();
-			// done
-			return factor;
 		}
-	}
 
-	private void collectAndProcessAQPairs() throws FactorException {
-		// wait for new data
-		ArrayList<AQPair> aqPairs = aqPairBuffer.collectAQPairs();
+		BigInteger factor = congruenceCollector.factor;
 		
-		//LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
-		// Add new data to the congruenceCollector and eventually run the matrix solver.
-		if (ANALYZE) timer.capture();
-		for (AQPair aqPair : aqPairs) {
-			boolean addedSmooth = congruenceCollector.add(aqPair);
-			if (addedSmooth) {
-				int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();
-				if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
-					// Try to solve equation system
-					if (ANALYZE) {
-						ccDuration += timer.capture();
-						solverRunCount++;
-						if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
-					}
-					ArrayList<Smooth> congruences = congruenceCollector.getSmoothCongruences();
-					// It is faster to block the other threads while the solver is running,
-					// because on modern CPUs a single thread runs at a higher clock rate.
-					synchronized (aqPairBuffer) {
-						matrixSolver.solve(congruences); // throws FactorException
-					}
-						
-					if (ANALYZE) solverDuration += timer.capture();
-					// Extend equation system and continue searching smooth congruences
-					requiredSmoothCongruenceCount += extraCongruences;
-				}
+		if (ANALYZE) {
+			// assemble reports from all threads
+			PolyReport polyReport = threadArray[0].getPolyReport();
+			SieveReport sieveReport = threadArray[0].getSieveReport();
+			TDivReport tdivReport = threadArray[0].getTDivReport();
+			for (int threadIndex=1; threadIndex<numberOfThreads; threadIndex++) {
+				polyReport.add(threadArray[threadIndex].getPolyReport());
+				sieveReport.add(threadArray[threadIndex].getSieveReport());
+				tdivReport.add(threadArray[threadIndex].getTDivReport());
 			}
+			CongruenceCollectorReport ccReport = congruenceCollector.getReport();
+			// a detailed solverReport is not needed yet
+			
+			long initPolyDuration = polyReport.getTotalDuration(numberOfThreads);
+			long sieveDuration = sieveReport.getTotalDuration(numberOfThreads);
+			long tdivDuration = tdivReport.getTotalDuration(numberOfThreads);
+			
+			// report results
+			LOG.info(getName() + ":");
+			LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " in " + TimeUtil.timeStr(timer.totalRuntime()));
+			int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
+			LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
+			LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
+			LOG.info("    tDiv: " + tdivReport.getOperationDetails());
+			if (ANALYZE_LARGE_FACTOR_SIZES) LOG.info("        " +  tdivReport.getQRestSizes());
+			LOG.info("    cc: " + ccReport.getOperationDetails());
+			if (ANALYZE_LARGE_FACTOR_SIZES) {
+				LOG.info("        " + ccReport.getPartialBigFactorSizes());
+				LOG.info("        " + ccReport.getSmoothBigFactorSizes());
+				LOG.info("        " + ccReport.getSmoothBigFactorPercentiles());
+				LOG.info("        " + ccReport.getNonIntFactorPercentages());
+			}
+			if (ANALYZE_Q_SIGNS) {
+				LOG.info("        " + ccReport.getPartialQSignCounts());
+				LOG.info("        " + ccReport.getSmoothQSignCounts());
+			}
+			LOG.info("    #solverRuns = " + congruenceCollector.getSolverRunCount() + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
+			LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, createThreads=" + createThreadDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + congruenceCollector.getCollectDuration() + "ms, solver=" + congruenceCollector.getSolverDuration() + "ms");
+			LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(numberOfThreads));
+			LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(numberOfThreads));
+			LOG.info("    -> tdiv sub-timings: " + tdivReport.getPhaseTimings(numberOfThreads));
+			// CC and solver have no sub-timings yet
 		}
-		if (ANALYZE) ccDuration += timer.capture();
+		
+		// kill all threads & release memory
+		long killStart = System.currentTimeMillis();
+		for (int threadIndex=0; threadIndex<numberOfThreads; threadIndex++) {
+			killThread(threadArray[threadIndex]);
+			threadArray[threadIndex].cleanUp(); // e.g. let sieve release native memory !
+			threadArray[threadIndex] = null;
+		}
+		if (DEBUG) LOG.debug("Killing threads took " + (System.currentTimeMillis()-killStart) + "ms"); // usually 0-16 ms, no problem
+		apg.cleanUp();
+		congruenceCollector.cleanUp();
+		matrixSolver.cleanUp();
+		// done
+		return factor;
+
 	}
 	
 	private byte[] computeLogPArray(int[] primesArray, int primeBaseSize, float lnPMultiplier) {
@@ -355,7 +308,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 	abstract protected PSIQSThreadBase createThread(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
-			AParamGenerator apg, AQPairBuffer aqPairBuffer, int threadIndex);
+			AParamGenerator apg, CongruenceCollectorParallel cc, int threadIndex);
 	
 	private void killThread(PSIQSThreadBase t) {
     	while (t.isAlive()) {
