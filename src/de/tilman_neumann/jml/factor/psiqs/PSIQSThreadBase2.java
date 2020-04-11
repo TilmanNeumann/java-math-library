@@ -98,9 +98,9 @@ abstract public class PSIQSThreadBase2 extends Thread {
 					}
 					if (cc.factor != null) {
 						finishNow = true;
-						if (DEBUG) LOG.debug("Thread " + getName() + " is done.");
+						if (DEBUG) LOG.debug("Thread " + getName() + " found factor " + cc.factor + " and is done.");
+						cc.notify();
 					}
-					cc.notify();
 				}
 			}
 		}

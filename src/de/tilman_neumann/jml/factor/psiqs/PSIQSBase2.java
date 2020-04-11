@@ -224,27 +224,20 @@ abstract public class PSIQSBase2 extends FactorAlgorithm {
 		}
 		if (ANALYZE) createThreadDuration += timer.capture();
 
-		BigInteger factor = null;
-		while (true) { // as long as we didn't find a factor
-			synchronized (congruenceCollector) {
-				if (congruenceCollector.factor != null) {
-					factor = congruenceCollector.factor;
-					if (DEBUG) LOG.debug("Found factor " + factor + " of N = " + N + " before the control thread went to sleep!");
-					break;
-				}
-				while (true) {
-					try {
-						congruenceCollector.wait(); // is woken up by notify() when a factor was found
-						//LOG.debug("Control thread got notified...");
-						break;
-					} catch (InterruptedException ie) {
-						// ignore
-					}
+		// Wait until a factor has been found. For small N, a factor may be found before the control thread waits!
+		synchronized (congruenceCollector) {
+			while (congruenceCollector.factor == null) {
+				try {
+					congruenceCollector.wait(); // is woken up by notify() when a factor was found
+					//LOG.debug("Control thread got notified...");
+				} catch (InterruptedException ie) {
+					// ignore
 				}
 			}
 		}
+
+		BigInteger factor = congruenceCollector.factor;
 		
-		// Found factor!
 		if (ANALYZE) {
 			// assemble reports from all threads
 			PolyReport polyReport = threadArray[0].getPolyReport();
@@ -256,7 +249,7 @@ abstract public class PSIQSBase2 extends FactorAlgorithm {
 				tdivReport.add(threadArray[threadIndex].getTDivReport());
 			}
 			CongruenceCollectorReport ccReport = congruenceCollector.getReport();
-			// solverReport is not urgently needed
+			// a detailed solverReport is not needed yet
 			
 			long initPolyDuration = polyReport.getTotalDuration(numberOfThreads);
 			long sieveDuration = sieveReport.getTotalDuration(numberOfThreads);
