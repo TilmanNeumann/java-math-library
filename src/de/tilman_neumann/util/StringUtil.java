@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.util;
 
-import org.apache.commons.lang.StringUtils;
-
 public class StringUtil {
 	private StringUtil() {
 		// static class
@@ -25,10 +23,17 @@ public class StringUtil {
      *
      * @param s string to repeat
      * @param n number of repetitions
-     * @return a string resulting from n repetitions of s, or null if n negative
+     * @return a string resulting from n repetitions of s, or null if n <= 0
      */
     public static String repeat(String s, int n) {
-        return StringUtils.repeat(s, n);
+    	if (s == null || n <= 0) return null;
+    	
+    	int resultLen = s.length() * n;
+        StringBuffer buffer = new StringBuffer(resultLen);
+        for (int i = n; i > 0; i--) {
+        	buffer.append(s);
+        }
+        return buffer.toString();
     }
 
     /**
