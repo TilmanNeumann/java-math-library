@@ -27,9 +27,10 @@ public class StringUtil {
      */
     public static String repeat(String s, int n) {
     	if (s == null || n <= 0) return null;
-    	
-    	int resultLen = s.length() * n;
-        StringBuffer buffer = new StringBuffer(resultLen);
+    	int sLen = s.length();
+    	if (sLen == 0) return "";
+
+        StringBuffer buffer = new StringBuffer(sLen * n);
         for (int i = n; i > 0; i--) {
         	buffer.append(s);
         }
