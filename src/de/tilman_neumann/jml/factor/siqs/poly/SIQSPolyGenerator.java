@@ -165,6 +165,7 @@ public class SIQSPolyGenerator implements PolyGenerator {
 			// filter prime base
 			BaseFilter.Result filterResult = baseFilter.filter(solutionArrays, baseArrays, mergedBaseSize, qArray, qCount, k);
 			filteredBaseSize = filterResult.filteredBaseSize;
+			if (DEBUG) assertEquals(mergedBaseSize-qCount, filteredBaseSize); // XXX may not work for all filters; maybe those that do not comply should be dropped
 			if (ANALYZE) filterPBDuration += timer.capture();
 			// compute ainvp[], Bainv2[][] and solution x-arrays for a and first b
 			computeFirstXArrays();
