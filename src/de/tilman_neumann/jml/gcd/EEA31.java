@@ -163,7 +163,7 @@ public class EEA31 {
 	 *
 	 * @param a
 	 * @param modulus
-	 * @return
+	 * @return (1/a) mod modulus
 	 */
 	public int modularInverse/*_v2*/(int a, int modulus) {
 		int ps, ps1, ps2, parity, dividend, divisor, rem, q, sign, aPos;
