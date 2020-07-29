@@ -38,7 +38,6 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver02_BlockLanczo
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
-import de.tilman_neumann.jml.factor.siqs.poly.PolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.PolyReport;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
@@ -71,7 +70,7 @@ public class SIQS extends FactorAlgorithm {
 	private PrimeBaseGenerator primeBaseBuilder = new PrimeBaseGenerator();
 	private ModularSqrtsEngine modularSqrtsEngine = new ModularSqrtsEngine(); // computes tArray
 	private AParamGenerator apg;
-	private PolyGenerator polyGenerator;
+	private SIQSPolyGenerator polyGenerator;
 	private PowerFinder powerFinder;
 	
 	// sieve
@@ -114,7 +113,7 @@ public class SIQS extends FactorAlgorithm {
 	 * @param matrixSolver matrix solver for the smooth congruence equation system
 	 */
 	public SIQS(
-			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, PowerFinder powerFinder, PolyGenerator polyGenerator, 
+			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, PowerFinder powerFinder, SIQSPolyGenerator polyGenerator, 
 			Sieve sieve, TDiv_QS auxFactorizer, int extraCongruences, MatrixSolver matrixSolver) {
 		
 		this.Cmult = Cmult;

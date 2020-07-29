@@ -22,7 +22,7 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorParallel;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
-import de.tilman_neumann.jml.factor.siqs.poly.PolyGenerator;
+import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.PolyReport;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
@@ -38,7 +38,7 @@ abstract public class PSIQSThreadBase extends Thread {
 	private static final Logger LOG = Logger.getLogger(PSIQSThreadBase.class);
 	private static final boolean DEBUG = false;
 
-	protected PolyGenerator polyGenerator;
+	protected SIQSPolyGenerator polyGenerator;
 	protected Sieve sieve;
 	protected TDiv_QS auxFactorizer;
 	private CongruenceCollectorParallel cc;
@@ -61,7 +61,7 @@ abstract public class PSIQSThreadBase extends Thread {
 	 */
 	public PSIQSThreadBase(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, 
-			BaseArrays baseArrays, AParamGenerator apg, PolyGenerator polyGenerator,
+			BaseArrays baseArrays, AParamGenerator apg, SIQSPolyGenerator polyGenerator,
 			Sieve sieve, TDiv_QS tdiv, CongruenceCollectorParallel cc, int threadIndex) {
 		
 		// set thread name

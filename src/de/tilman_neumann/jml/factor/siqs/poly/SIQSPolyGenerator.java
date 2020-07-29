@@ -38,7 +38,7 @@ import de.tilman_neumann.util.Timer;
  * 
  * @author Tilman Neumann
  */
-public class SIQSPolyGenerator implements PolyGenerator {
+public class SIQSPolyGenerator {
 	private static final Logger LOG = Logger.getLogger(SIQSPolyGenerator.class);
 	private static final boolean DEBUG = false;
 
@@ -94,12 +94,27 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		this.baseFilter = new BaseFilter_q1();
 	}
 	
-	@Override
+	/**
+	 * @return the name of this polynomial generator
+	 */
 	public String getName() {
 		return "SIQSPoly(" + baseFilter.getName() + ")";
 	}
 
-	@Override
+	/**
+	 * Initialize the polynomial generator for a new N.
+	 * Inside this method we require aParamGenerator.qCount -> aParamGenerator must have been initialized before.
+	 * 
+	 * @param k multiplier
+	 * @param N
+	 * @param kN
+	 * @param d the d-parameter of quadratic polynomials Q(x) = (d*a*x + b)^2 - kN
+	 * @param sieveParams basic sieve parameters for a new N
+	 * @param baseArrays primes, power arrays after adding powers
+	 * @param aParamGenerator generator for a-parameters
+	 * @param sieveEngine
+	 * @param tDivEngine
+	 */
 	public void initializeForN(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
 			AParamGenerator aParamGenerator, Sieve sieveEngine, TDiv_QS tDivEngine) {
@@ -137,7 +152,9 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		}
 	}
 	
-	@Override
+	/**
+	 * Compute a new polynomial.
+	 */
 	public void nextPolynomial() {
 		if (bIndex==maxBIndex) {
 			// Incrementing bIndex would exceed the maximum value -> we need a new a-parameter.
@@ -441,12 +458,16 @@ public class SIQSPolyGenerator implements PolyGenerator {
 		}
 	}
 
-	@Override
+	/**
+	 * @return description of the durations of the individual sub-phases
+	 */
 	public PolyReport getReport() {
 		return new PolyReport(aParamCount, bParamCount, aDuration, firstBDuration, filterPBDuration, firstXArrayDuration, nextBDuration, nextXArrayDuration);
 	}
 	
-	@Override
+	/**
+	 * Release memory after a factorization.
+	 */
 	public void cleanUp() {
 		baseArrays = null;
 		solutionArrays = null;
