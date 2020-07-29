@@ -182,7 +182,9 @@ public class SIQSPolyGenerator {
 			// filter prime base
 			BaseFilter.Result filterResult = baseFilter.filter(solutionArrays, baseArrays, mergedBaseSize, qArray, qCount, k);
 			filteredBaseSize = filterResult.filteredBaseSize;
-			if (DEBUG) assertEquals(mergedBaseSize-qCount, filteredBaseSize); // XXX may not work for all filters; maybe those that do not comply should be dropped
+			if (DEBUG) assertEquals(mergedBaseSize-qCount, filteredBaseSize);
+			// XXX may not work for all filters; maybe those that do not comply should be dropped
+			// XXX the problem seems to appear at sieving with powers only ?
 			if (ANALYZE) filterPBDuration += timer.capture();
 			// compute ainvp[], Bainv2[][] and solution x-arrays for a and first b
 			computeFirstXArrays();
@@ -374,14 +376,15 @@ public class SIQSPolyGenerator {
 				}
 				// x1,x2 were chosen such that p divides Q
 				int x1 = x1Array[pIndex];
+				assertTrue(x1>=0 && x1<p);
 				if (t==0) assertEquals(x1, (int) ((ainvp * (p - bModP)) % p));
 				
 				BigInteger Q1 = da.multiply(BigInteger.valueOf(x1)).add(b).pow(2).subtract(kN);
 				assertEquals(I_0, Q1.mod(p_big));
 				int x2 = x2Array[pIndex];
+				assertTrue(x2>=0 && x2<p);
 				BigInteger Q2 = da.multiply(BigInteger.valueOf(x2)).add(b).pow(2).subtract(kN);
 				assertEquals(I_0, Q2.mod(p_big));
-				if (x1<0 || x2<0) LOG.debug("p=" + p + ", ainvp=" + ainvp + ": x1 = " + x1 + ", x2 = " + x2);
 			}
 		} // end_for (primes)
 		
