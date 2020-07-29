@@ -179,13 +179,15 @@ public class SIQSPolyGenerator {
 				LOG.debug("(b^2-kN)/a [" + bIndex + "] = " + b.multiply(b).subtract(kN).divide(a));
 			}
 			if (ANALYZE) firstBDuration += timer.capture();
+			
 			// filter prime base
 			BaseFilter.Result filterResult = baseFilter.filter(solutionArrays, baseArrays, mergedBaseSize, qArray, qCount, k);
 			filteredBaseSize = filterResult.filteredBaseSize;
-			if (DEBUG) assertEquals(mergedBaseSize-qCount, filteredBaseSize);
-			// XXX may not work for all filters; maybe those that do not comply should be dropped
-			// XXX the problem seems to appear at sieving with powers only ?
+			if (DEBUG) assertTrue(filteredBaseSize <= mergedBaseSize-qCount);
+			// The above is an equality if we do not sieve with powers.
+			// If we do sieve with powers then powers of q's may be removed, leading to the inequality.
 			if (ANALYZE) filterPBDuration += timer.capture();
+
 			// compute ainvp[], Bainv2[][] and solution x-arrays for a and first b
 			computeFirstXArrays();
 			// pass data to sub-engines
