@@ -78,7 +78,8 @@ public class SIQSPolyGenerator {
 	// solution arrays
 	private int filteredBaseSize;
 	private SolutionArrays solutionArrays;
-	
+	private int[][] Bainv2Array;
+
 	private EEA31 eea = new EEA31();
 	private BaseFilter baseFilter;
 	
@@ -143,8 +144,13 @@ public class SIQSPolyGenerator {
 		bIndex = maxBIndex = 0;
 		
 		// Allocate filtered base and solution arrays: The true size may be smaller if powers are filtered out, too.
-		solutionArrays = new SolutionArrays(mergedBaseSize - qCount, qCount);
-		
+		int solutionsCount = mergedBaseSize - qCount;
+		solutionArrays = new SolutionArrays(solutionsCount, qCount);
+		// Bainv2: full initialization.
+		// The sub-arrays are in reverse order compared to [Contini], which almost doubles the speed of nextXArrays().
+		// The maximum v value is qCount-1 -> allocation with qCount-1 is sufficient.
+		Bainv2Array = new int[qCount-1][solutionsCount];
+
 		// statistics
 		if (ANALYZE) {
 			aParamCount = bParamCount = 0;
@@ -237,7 +243,7 @@ public class SIQSPolyGenerator {
 			// Since only the array-content is modified, the x-arrays in poly are updated implicitly.
 			// This approach would work in a multi-threaded SIQS implementation too, if we create a new thread for each new a-parameter.
 			// Note that fix prime divisors depend only on a and k -> they do not change at a new b-parameter.
-			computeNextXArrays(v, bParameterNeedsAddition);
+			computeNextXArrays(Bainv2Array[v-1], bParameterNeedsAddition);
 			if (ANALYZE) nextXArrayDuration += timer.capture();
 		}
 	}
@@ -326,7 +332,6 @@ public class SIQSPolyGenerator {
 		
 		final int[] pArray = solutionArrays.pArray;
 		final int[] tArray = solutionArrays.tArray;
-		final int[][] Bainv2Array = solutionArrays.Bainv2Array;
 		final int[] x1Array = solutionArrays.x1Array;
 		final int[] x2Array = solutionArrays.x2Array;
 		final long[] ainvpArray = new long[filteredBaseSize];
@@ -412,15 +417,14 @@ public class SIQSPolyGenerator {
 
 	/**
 	 * Update the entries of the solution arrays for the next b-parameter.
-	 * @param v gray code, with v in [1, ..., qCount-1]
+	 * @param Bainv2Row Bainv2Array[v-1] with gray code v in [1, ..., qCount-1]
 	 * @param xArraysNeedSubtraction true if ceil(bIndex/2^v) is even, (-1)^ceil(bIndex/2^v) == +1
 	 */
-	private void computeNextXArrays(int v, boolean xArraysNeedSubtraction) { // performance-critical !
+	private void computeNextXArrays(int[] Bainv2Row, boolean xArraysNeedSubtraction) { // performance-critical !
 		// update solution arrays:
 		// Note that trial division needs the solutions for all primes p,
 		// even if the sieve leaves out the smallest p[i] with i < pMinIndex.
 		int[] filteredPowers = solutionArrays.pArray;
-		int[] Bainv2Row = solutionArrays.Bainv2Array[v-1];
 		int[] x1Array = solutionArrays.x1Array;
 		int[] x2Array = solutionArrays.x2Array;
 		// WARNING: The correct case distinction depending on the sign of (-1)^ceil(bIndex/2^v)
