@@ -16,7 +16,9 @@ package de.tilman_neumann.jml.factor.lehman;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -104,23 +106,30 @@ public class Lehman_AnalyzeCongruences2 {
 		
 		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
 		for (int k=0; k<KMOD; k++) {
-			for (int Nk=0; Nk<KNMOD; Nk++) {
-				int[][] a_adjust_counts = counts[k][Nk];
+			for (int kN=0; kN<KNMOD; kN++) {
+				int[][] a0_adjust_counts = counts[k][kN];
 				if (DEBUG) {
-					for (int a=0; a<AMOD; a++) {
-						LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(a_adjust_counts[a]));
+					for (int a0=0; a0<AMOD; a0++) {
+						LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ", a0%" + AMOD + "=" + a0 + ": " + Arrays.toString(a0_adjust_counts[a0]));
 					}
 					LOG.info("");
 				}
+				
+				// a0_adjust_counts[][] contains the counts of (a0, adjust) pairs that led to successful factorizations.
+				// An antidiagonal of that table means that a0 + adjust is fixed, i.e. each antidiagonal identifies a
+				// particular a == (a0 + adjust) % AMOD !
 				int knkCount = 0;
+				List<Integer> aList = new ArrayList<>();
 				for (int a=0; a<AMOD; a++) {
-					int cnt = computeAntiDiagonalCount(a_adjust_counts, a);
+					int cnt = computeAntiDiagonalCount(a0_adjust_counts, a);
 					if (cnt > 0) {
 						knkCount += cnt;
-						LOG.info("k%" + KMOD + "=" + k + ", kN%" + KNMOD + "=" + Nk + ", a=" + a + ": antidiagonal has " + cnt + " hits");
+						aList.add(a);
 					}
 				}
-				if (knkCount > 0) LOG.info("");
+				if (knkCount > 0) {
+					LOG.info("k%" + KMOD + "=" + k + ", kN%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + AMOD + ")");
+				}
 			}
 		}
 		LOG.info("");

@@ -49,8 +49,8 @@ public class Lehman_AnalyzeCongruences {
 	private static final Integer MAX_BITS = 63;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 32;
-	private static final int AMOD = 32;
+	private static final int KNMOD = 8;
+	private static final int AMOD = 8;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
@@ -102,9 +102,13 @@ public class Lehman_AnalyzeCongruences {
 		
 		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
 		for (int k=0; k<KMOD; k++) {
-			for (int Nk=0; Nk<KNMOD; Nk++) {
-				for (int a=0; a<AMOD; a++) {
-					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + Nk + ", a%" + AMOD + "=" + a + ": " + Arrays.toString(counts[k][Nk][a]));
+			for (int kN=0; kN<KNMOD; kN++) {
+				int[][] a0_adjust_counts = counts[k][kN];
+				// a0_adjust_counts[][] contains the counts of (a0, adjust) pairs that led to successful factorizations.
+				// An antidiagonal of that table means that a0 + adjust is fixed, i.e. each antidiagonal identifies a
+				// particular a == (a0 + adjust) % AMOD !
+				for (int a0=0; a0<AMOD; a0++) {
+					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ", a0%" + AMOD + "=" + a0 + ": " + Arrays.toString(a0_adjust_counts[a0]));
 				}
 				LOG.info("");
 			}
