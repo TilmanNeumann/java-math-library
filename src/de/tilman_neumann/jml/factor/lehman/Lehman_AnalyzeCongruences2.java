@@ -54,7 +54,7 @@ public class Lehman_AnalyzeCongruences2 {
 
 	private static final int KMOD = 6;
 	private static final int KNMOD = 8;
-	private static final int AMOD = 8;
+	private static final int AMOD = 8; // AMOD > KNMOD makes no sense ?
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
