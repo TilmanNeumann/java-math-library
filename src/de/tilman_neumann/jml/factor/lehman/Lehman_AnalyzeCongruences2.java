@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.StringUtil;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 
@@ -41,10 +42,10 @@ public class Lehman_AnalyzeCongruences2 {
 	private static final boolean DEBUG = false;
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
-	private static final boolean USE_kN_CONGRUENCES = false;
+	private static final boolean USE_kN_CONGRUENCES = true;
 
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 1000000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
@@ -53,8 +54,8 @@ public class Lehman_AnalyzeCongruences2 {
 	private static final Integer MAX_BITS = 63;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 8;
-	private static final int AMOD = 8; // AMOD > KNMOD makes no sense ?
+	private static final int KNMOD = 128;
+	private static final int AMOD = 128; // AMOD > KNMOD makes no sense ?
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
@@ -105,6 +106,7 @@ public class Lehman_AnalyzeCongruences2 {
 		}
 		
 		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
+		List<Integer>[] aForKN = new List[KNMOD];
 		for (int k=0; k<KMOD; k++) {
 			for (int kN=0; kN<KNMOD; kN++) {
 				int[][] a0_adjust_counts = counts[k][kN];
@@ -131,8 +133,25 @@ public class Lehman_AnalyzeCongruences2 {
 					int avgAntidiagonalSuccesses = knkCount/aList.size(); // avg. factoring successes per antidiagonal
 					LOG.info("k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + AMOD + "), avg hits = " + avgAntidiagonalSuccesses);
 				}
+				if (k == 1) {
+					// collect data plot for odd k (results are equal for all odd k)
+					aForKN[kN] = aList;
+				}
 			}
 		}
+		LOG.info("");
+
+		// create data plot for odd k
+		for (int kN=1; kN<KNMOD; kN+=2) {
+			String row = "";
+			int i=0;
+			for (int a : aForKN[kN]) {
+				while (i++<a) row += " ";
+				row += "x";
+			}
+			LOG.info(row);
+		}
+
 		LOG.info("");
 	}
 
