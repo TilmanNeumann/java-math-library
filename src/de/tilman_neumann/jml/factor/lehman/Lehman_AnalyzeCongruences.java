@@ -96,7 +96,7 @@ public class Lehman_AnalyzeCongruences {
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		
 		for (BigInteger N : testNumbers) {
-			if (N.mod(I_6).equals(I_1))
+			//if (N.mod(I_6).equals(I_1)) // makes no difference
 			this.findSingleFactor(N.longValue());
 		}
 		
