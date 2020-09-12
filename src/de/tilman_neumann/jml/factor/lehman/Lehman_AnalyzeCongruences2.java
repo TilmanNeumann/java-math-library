@@ -45,7 +45,7 @@ public class Lehman_AnalyzeCongruences2 {
 	private static final boolean USE_kN_CONGRUENCES = true;
 
 	/** number of test numbers */
-	private static final int N_COUNT = 1000000;
+	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
@@ -54,8 +54,8 @@ public class Lehman_AnalyzeCongruences2 {
 	private static final Integer MAX_BITS = 63;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 128;
-	private static final int AMOD = 128; // AMOD > KNMOD makes no sense ?
+	private static final int KNMOD = 16; // KNMOD a multiple of AMOD replicates the a-pattern in vertical direction
+	private static final int AMOD = 32; // AMOD a multiple of KNMOD replicates the a-pattern in horizontal direction
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
