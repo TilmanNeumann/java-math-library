@@ -24,7 +24,6 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.StringUtil;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 
@@ -106,6 +105,7 @@ public class Lehman_AnalyzeCongruences2 {
 		}
 		
 		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
+		@SuppressWarnings("unchecked")
 		List<Integer>[] aForKN = new List[KNMOD];
 		for (int k=0; k<KMOD; k++) {
 			for (int kN=0; kN<KNMOD; kN++) {
