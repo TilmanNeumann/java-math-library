@@ -41,7 +41,7 @@ public class Lehman_AnalyzeCongruences2 {
 	private static final boolean DEBUG = false;
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
-	private static final boolean USE_kN_CONGRUENCES = true;
+	private static final boolean USE_kN_CONGRUENCES = false;
 
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
@@ -53,8 +53,8 @@ public class Lehman_AnalyzeCongruences2 {
 	private static final Integer MAX_BITS = 63;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 32;
-	private static final int AMOD = 32; // AMOD > KNMOD makes no sense ?
+	private static final int KNMOD = 8;
+	private static final int AMOD = 8; // AMOD > KNMOD makes no sense ?
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
@@ -129,7 +129,7 @@ public class Lehman_AnalyzeCongruences2 {
 				}
 				if (knkCount > 0) {
 					int avgAntidiagonalSuccesses = knkCount/aList.size(); // avg. factoring successes per antidiagonal
-					LOG.info("k%" + KMOD + "=" + k + ", kN%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + AMOD + "), avg hits = " + avgAntidiagonalSuccesses);
+					LOG.info("k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + AMOD + "), avg hits = " + avgAntidiagonalSuccesses);
 				}
 			}
 		}
