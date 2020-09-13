@@ -50,11 +50,10 @@ public class Lehman_AnalyzeCongruences {
 
 	private static final int KMOD = 6;
 	private static final int KNMOD = 8;
-	private static final int AMOD = 8;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
-	// dimensions: k%KMOD, kN%KNMOD, a%AMOD, adjust%AMOD
+	// dimensions: k%KMOD, kN%KNMOD, a%KNMOD, adjust%KNMOD
 	private int[][][][] counts;
 	
 	public long findSingleFactor(long N) {
@@ -66,7 +65,7 @@ public class Lehman_AnalyzeCongruences {
 			long sqrt4kN = (long) Math.ceil(Math.sqrt(fourKN));
 			long limit = (long) (sqrt4kN + sixthRoot / fourSqrtK);
 			for (long a0 = sqrt4kN; a0 <= limit; a0++) {
-				for (int adjust=0; adjust<AMOD; adjust++) {
+				for (int adjust=0; adjust<KNMOD; adjust++) {
 					long a = a0 + adjust;
 					final long test = a*a - fourKN;
 					final long b = (long) Math.sqrt(test);
@@ -74,9 +73,9 @@ public class Lehman_AnalyzeCongruences {
 						long gcd = gcdEngine.gcd(a+b, N);
 						if (gcd>1 && gcd<N) {
 							if (USE_kN_CONGRUENCES) {
-								counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+								counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%KNMOD)][adjust]++;
 							} else {
-								counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+								counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%KNMOD)][adjust]++;
 							}
 							return gcd; // removes the blur at even k!
 						}
@@ -89,7 +88,7 @@ public class Lehman_AnalyzeCongruences {
 	}
 	
 	private void testRange(int bits) {
-		counts = new int[KMOD][KNMOD][AMOD][AMOD];
+		counts = new int[KMOD][KNMOD][KNMOD][KNMOD];
 		
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
@@ -106,9 +105,9 @@ public class Lehman_AnalyzeCongruences {
 				int[][] a0_adjust_counts = counts[k][kN];
 				// a0_adjust_counts[][] contains the counts of (a0, adjust) pairs that led to successful factorizations.
 				// An antidiagonal of that table means that a0 + adjust is fixed, i.e. each antidiagonal identifies a
-				// particular a == (a0 + adjust) % AMOD !
-				for (int a0=0; a0<AMOD; a0++) {
-					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ", a0%" + AMOD + "=" + a0 + ": " + Arrays.toString(a0_adjust_counts[a0]));
+				// particular a == (a0 + adjust) % KNMOD !
+				for (int a0=0; a0<KNMOD; a0++) {
+					LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ", a0%" + KNMOD + "=" + a0 + ": " + Arrays.toString(a0_adjust_counts[a0]));
 				}
 				LOG.info("");
 			}

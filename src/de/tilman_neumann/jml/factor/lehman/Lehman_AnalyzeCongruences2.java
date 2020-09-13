@@ -53,12 +53,11 @@ public class Lehman_AnalyzeCongruences2 {
 	private static final Integer MAX_BITS = 63;
 
 	private static final int KMOD = 6;
-	private static final int KNMOD = 16; // KNMOD a multiple of AMOD replicates the a-pattern in vertical direction
-	private static final int AMOD = 32; // AMOD a multiple of KNMOD replicates the a-pattern in horizontal direction
+	private static final int KNMOD = 16;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
-	// dimensions: k%KMOD, kN%KNMOD, a%AMOD, adjust%AMOD
+	// dimensions: k%KMOD, kN%KNMOD, a%KNMOD, adjust%KNMOD
 	private int[][][][] counts;
 	
 	public long findSingleFactor(long N) {
@@ -70,7 +69,7 @@ public class Lehman_AnalyzeCongruences2 {
 			long sqrt4kN = (long) Math.ceil(Math.sqrt(fourKN));
 			long limit = (long) (sqrt4kN + sixthRoot / fourSqrtK);
 			for (long a0 = sqrt4kN; a0 <= limit; a0++) {
-				for (int adjust=0; adjust<AMOD; adjust++) {
+				for (int adjust=0; adjust<KNMOD; adjust++) {
 					long a = a0 + adjust;
 					final long test = a*a - fourKN;
 					final long b = (long) Math.sqrt(test);
@@ -78,9 +77,9 @@ public class Lehman_AnalyzeCongruences2 {
 						long gcd = gcdEngine.gcd(a+b, N);
 						if (gcd>1 && gcd<N) {
 							if (USE_kN_CONGRUENCES) {
-								counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+								counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%KNMOD)][adjust]++;
 							} else {
-								counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%AMOD)][adjust]++;
+								counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%KNMOD)][adjust]++;
 							}
 							return gcd; // removes the blur at even k!
 						}
@@ -93,7 +92,7 @@ public class Lehman_AnalyzeCongruences2 {
 	}
 	
 	private void testRange(int bits) {
-		counts = new int[KMOD][KNMOD][AMOD][AMOD];
+		counts = new int[KMOD][KNMOD][KNMOD][KNMOD];
 		
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
@@ -111,18 +110,18 @@ public class Lehman_AnalyzeCongruences2 {
 			for (int kN=0; kN<KNMOD; kN++) {
 				int[][] a0_adjust_counts = counts[k][kN];
 				if (DEBUG) {
-					for (int a0=0; a0<AMOD; a0++) {
-						LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ", a0%" + AMOD + "=" + a0 + ": " + Arrays.toString(a0_adjust_counts[a0]));
+					for (int a0=0; a0<KNMOD; a0++) {
+						LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ", a0%" + KNMOD + "=" + a0 + ": " + Arrays.toString(a0_adjust_counts[a0]));
 					}
 					LOG.info("");
 				}
 				
 				// a0_adjust_counts[][] contains the counts of (a0, adjust) pairs that led to successful factorizations.
 				// An antidiagonal of that table means that a0 + adjust is fixed, i.e. each antidiagonal identifies a
-				// particular a == (a0 + adjust) % AMOD !
+				// particular a == (a0 + adjust) % KNMOD !
 				int knkCount = 0;
 				List<Integer> aList = new ArrayList<>();
-				for (int a=0; a<AMOD; a++) {
+				for (int a=0; a<KNMOD; a++) {
 					int cnt = computeAntiDiagonalCount(a0_adjust_counts, a);
 					if (cnt > 0) {
 						knkCount += cnt;
@@ -131,7 +130,7 @@ public class Lehman_AnalyzeCongruences2 {
 				}
 				if (knkCount > 0) {
 					int avgAntidiagonalSuccesses = knkCount/aList.size(); // avg. factoring successes per antidiagonal
-					LOG.info("k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + AMOD + "), avg hits = " + avgAntidiagonalSuccesses);
+					LOG.info("k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgAntidiagonalSuccesses);
 				}
 				if (k == 1) {
 					// collect data plot for odd k (results are equal for all odd k)
@@ -156,16 +155,16 @@ public class Lehman_AnalyzeCongruences2 {
 	}
 
 	/**
-	 * Compute the sum of the antidiagonal entries of array[i][j] with i+j (mod AMOD) == a.
+	 * Compute the sum of the antidiagonal entries of array[i][j] with i+j (mod KNMOD) == a.
 	 * @param array
 	 * @param a
 	 * @return sum of the antidiagonal given by 'a'
 	 */
 	private int computeAntiDiagonalCount(int[][] array, int a) {
 		int result = 0;
-		for (int i=0; i<AMOD; i++) {
+		for (int i=0; i<KNMOD; i++) {
 			int adjust = a-i;
-			if (adjust<0) adjust += AMOD;
+			if (adjust<0) adjust += KNMOD;
 			result += array[i][adjust];
 		}
 		return result;
