@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,37 +31,26 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * Congruences a == kN (mod 2^s) are slightly more discriminative
  * than Lehman's original congruences a == (k+N) (mod 2^s), s = 1, 2, 3, ...
  * 
- * Version 2 prints diagrams of a (after adjustment) % KNMOD leading to factorizations (x-axis),
- * vs. kN % KNMOD (y-axis).
+ * Version 3 analyzes if doubling of KNMOD leads to improvements each time.
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeCongruences2 {
-	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeCongruences2.class);
+public class Lehman_AnalyzeCongruences3 {
+	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeCongruences3.class);
 	
 	private static final boolean DEBUG = false;
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
 
-	/** number of test numbers */
-	private static final int N_COUNT = 100000;
-	/** the bit size of N to start with */
-	private static final int START_BITS = 30;
-	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 1;
-	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = 63;
-
 	private static final int KMOD = 6;
-	private static final int KNMOD = 16;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
 	// dimensions: k%KMOD, kN%KNMOD, a%KNMOD, adjust%KNMOD
 	private int[][][][] counts;
 	
-	public long findSingleFactor(long N) {
+	public long findSingleFactor(long N, int KNMOD) {
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
 		double sixthRoot = Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k <= cbrt; k++) {
@@ -94,16 +81,17 @@ public class Lehman_AnalyzeCongruences2 {
 		return 0; // Fail
 	}
 	
-	private void testRange(int bits) {
+	private void testRange(int KNMOD) {
+		LOG.info("Test KNMOD = " + KNMOD);
+		
 		counts = new int[KMOD][KNMOD][KNMOD][KNMOD];
 		
-		BigInteger N_min = I_1.shiftLeft(bits-1);
-		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
-		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
+		int bits = 30;
+		BigInteger[] testNumbers = TestsetGenerator.generate(KNMOD*1000, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 		
 		for (BigInteger N : testNumbers) {
 			//if (N.mod(I_6).equals(I_5)) // makes no difference
-			this.findSingleFactor(N.longValue());
+			this.findSingleFactor(N.longValue(), KNMOD);
 		}
 		
 		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
@@ -125,7 +113,7 @@ public class Lehman_AnalyzeCongruences2 {
 				int knkCount = 0;
 				List<Integer> aList = new ArrayList<>();
 				for (int a=0; a<KNMOD; a++) {
-					int cnt = computeAntiDiagonalCount(a0_adjust_counts, a);
+					int cnt = computeAntiDiagonalCount(a0_adjust_counts, a, KNMOD);
 					if (cnt > 0) {
 						knkCount += cnt;
 						aList.add(a);
@@ -163,7 +151,7 @@ public class Lehman_AnalyzeCongruences2 {
 	 * @param a
 	 * @return sum of the antidiagonal given by 'a'
 	 */
-	private int computeAntiDiagonalCount(int[][] array, int a) {
+	private int computeAntiDiagonalCount(int[][] array, int a, int KNMOD) {
 		int result = 0;
 		for (int i=0; i<KNMOD; i++) {
 			int adjust = a-i;
@@ -175,13 +163,12 @@ public class Lehman_AnalyzeCongruences2 {
 	
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		int bits = START_BITS;
+		int KNMOD = 4;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
-	    	Lehman_AnalyzeCongruences2 testEngine = new Lehman_AnalyzeCongruences2();
-			testEngine.testRange(bits);
-			bits += INCR_BITS;
-			if (MAX_BITS!=null && bits > MAX_BITS) break;
+	    	Lehman_AnalyzeCongruences3 testEngine = new Lehman_AnalyzeCongruences3();
+			testEngine.testRange(KNMOD);
+			KNMOD <<= 1;
 		}
 	}
 }
