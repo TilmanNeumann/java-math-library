@@ -34,7 +34,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * Congruences a == kN (mod 2^s) are slightly more discriminative
  * than Lehman's original congruences a == (k+N) (mod 2^s), s = 1, 2, 3, ...
  * 
- * Version 3 doubles KNMOD step-by-step and analyzes or allows to analyze changes.
+ * Version 3 doubles KNMOD step-by-step and analyzes or allows to analyze incremental changes.
+ * Only odd k are analyzed, because the result for even k is trivial (we need all odd "a"-values).
  * 
  * @author Tilman Neumann
  */
