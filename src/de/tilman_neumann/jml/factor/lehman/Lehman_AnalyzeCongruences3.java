@@ -34,7 +34,7 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * Congruences a == kN (mod 2^s) are slightly more discriminative
  * than Lehman's original congruences a == (k+N) (mod 2^s), s = 1, 2, 3, ...
  * 
- * Version 3 analyzes if doubling of KNMOD leads to improvements each time.
+ * Version 3 doubles KNMOD step-by-step and analyzes or allows to analyze changes.
  * 
  * @author Tilman Neumann
  */
@@ -46,12 +46,10 @@ public class Lehman_AnalyzeCongruences3 {
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
 
-	private static final int KMOD = 6;
-
 	private final Gcd63 gcdEngine = new Gcd63();
 	
-	// dimensions: k%KMOD, kN%KNMOD, a%KNMOD
-	private int[][][] counts;
+	// dimensions: kN%KNMOD, a%KNMOD
+	private int[][] counts;
 	
 	public long findSingleFactor(long N, int KNMOD) {
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
@@ -69,10 +67,13 @@ public class Lehman_AnalyzeCongruences3 {
 					if (b*b == test) {
 						long gcd = gcdEngine.gcd(a+b, N);
 						if (gcd>1 && gcd<N) {
-							// We know that all elements of an antidiagonal (a0, adjust) with a0 + adjust == a (mod KNMOD)
-							// represent the same "successful a". Thus we only need to store results for "a" !
-							long kNTerm = USE_kN_CONGRUENCES ? k*N : k+N;
-							counts[k%KMOD][(int)(kNTerm%KNMOD)][(int)(a%KNMOD)]++;
+							// congruences are the same for all odd k
+							if ((k & 1) == 1) {
+								// We know that all elements of an antidiagonal (a0, adjust) with a0 + adjust == a (mod KNMOD)
+								// represent the same "successful a". Thus we only need to store results for "a" !
+								long kNTerm = USE_kN_CONGRUENCES ? k*N : k+N;
+								counts[(int)(kNTerm%KNMOD)][(int)(a%KNMOD)]++;
+							}
 							return gcd; // removes the blur at even k!
 						}
 					}
@@ -84,9 +85,9 @@ public class Lehman_AnalyzeCongruences3 {
 	}
 	
 	private void testRange(int KNMOD) {
-		LOG.info("Test KNMOD = " + KNMOD);
+		LOG.info("Test KNMOD = " + KNMOD + " ...");
 		
-		counts = new int[KMOD][KNMOD][KNMOD];
+		counts = new int[KNMOD][KNMOD];
 		
 		int bits = 30;
 		BigInteger[] testNumbers = TestsetGenerator.generate(KNMOD*1000, bits, TestNumberNature.MODERATE_SEMIPRIMES);
@@ -96,36 +97,34 @@ public class Lehman_AnalyzeCongruences3 {
 			this.findSingleFactor(N.longValue(), KNMOD);
 		}
 		
+		LOG.debug("Compute a-lists...");
 		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
 		@SuppressWarnings("unchecked")
 		List<Integer>[] aForKN = new List[KNMOD];
-		for (int k=0; k<KMOD; k++) {
-			for (int kN=0; kN<KNMOD; kN++) {
-				int[] a_counts = counts[k][kN];
-				if (DEBUG) {
-					for (int a0=0; a0<KNMOD; a0++) {
-						LOG.info("Successful a for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": " + Arrays.toString(a_counts));
-					}
-					LOG.info("");
+
+		for (int kN=0; kN<KNMOD; kN++) {
+			int[] a_counts = counts[kN];
+			if (DEBUG) {
+				for (int a0=0; a0<KNMOD; a0++) {
+					LOG.info("Successful a for odd k, (" + kNStr + ")%" + KNMOD + "=" + kN + ": " + Arrays.toString(a_counts));
 				}
-				
-				int knkCount = 0;
-				List<Integer> aList = new ArrayList<>();
-				for (int a=0; a<KNMOD; a++) {
-					if (a_counts[a] > 0) {
-						knkCount += a_counts[a];
-						aList.add(a);
-					}
-				}
-				if (knkCount > 0) {
-					int avgAntidiagonalSuccesses = knkCount/aList.size(); // avg. factoring successes per antidiagonal
-					LOG.info("k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgAntidiagonalSuccesses);
-				}
-				if (k == 1) {
-					// collect data plot for odd k (results are equal for all odd k)
-					aForKN[kN] = aList;
+				LOG.info("");
+			}
+			
+			int knkCount = 0;
+			List<Integer> aList = new ArrayList<>();
+			for (int a=0; a<KNMOD; a++) {
+				if (a_counts[a] > 0) {
+					knkCount += a_counts[a];
+					aList.add(a);
 				}
 			}
+			if (knkCount > 0) {
+				int avgAntidiagonalSuccesses = knkCount/aList.size(); // avg. factoring successes per antidiagonal
+				LOG.info("(" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgAntidiagonalSuccesses);
+			}
+			// collect data plot for odd k (results are equal for all odd k)
+			aForKN[kN] = aList;
 		}
 		LOG.info("");
 
