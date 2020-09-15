@@ -28,6 +28,9 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
 /**
  * Analyze the moduli of a-values that help the Lehman algorithm to find factors.
  * 
+ * If we analyze the data in terms of (a0, adjust) pairs, we notice that we always get antidiagonals, each of
+ * them representing a "successful a", because a == (a0 + adjust) (mod KNMOD). So all we need to investigate is "a".
+ * 
  * Congruences a == kN (mod 2^s) are slightly more discriminative
  * than Lehman's original congruences a == (k+N) (mod 2^s), s = 1, 2, 3, ...
  * 
@@ -47,8 +50,8 @@ public class Lehman_AnalyzeCongruences3 {
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
-	// dimensions: k%KMOD, kN%KNMOD, a%KNMOD, adjust%KNMOD
-	private int[][][][] counts;
+	// dimensions: k%KMOD, kN%KNMOD, a%KNMOD
+	private int[][][] counts;
 	
 	public long findSingleFactor(long N, int KNMOD) {
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
@@ -66,11 +69,10 @@ public class Lehman_AnalyzeCongruences3 {
 					if (b*b == test) {
 						long gcd = gcdEngine.gcd(a+b, N);
 						if (gcd>1 && gcd<N) {
-							if (USE_kN_CONGRUENCES) {
-								counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%KNMOD)][adjust]++;
-							} else {
-								counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%KNMOD)][adjust]++;
-							}
+							// We know that all elements of an antidiagonal (a0, adjust) with a0 + adjust == a (mod KNMOD)
+							// represent the same "successful a". Thus we only need to store results for "a" !
+							long kNTerm = USE_kN_CONGRUENCES ? k*N : k+N;
+							counts[k%KMOD][(int)(kNTerm%KNMOD)][(int)(a%KNMOD)]++;
 							return gcd; // removes the blur at even k!
 						}
 					}
@@ -84,7 +86,7 @@ public class Lehman_AnalyzeCongruences3 {
 	private void testRange(int KNMOD) {
 		LOG.info("Test KNMOD = " + KNMOD);
 		
-		counts = new int[KMOD][KNMOD][KNMOD][KNMOD];
+		counts = new int[KMOD][KNMOD][KNMOD];
 		
 		int bits = 30;
 		BigInteger[] testNumbers = TestsetGenerator.generate(KNMOD*1000, bits, TestNumberNature.MODERATE_SEMIPRIMES);
@@ -99,23 +101,19 @@ public class Lehman_AnalyzeCongruences3 {
 		List<Integer>[] aForKN = new List[KNMOD];
 		for (int k=0; k<KMOD; k++) {
 			for (int kN=0; kN<KNMOD; kN++) {
-				int[][] a0_adjust_counts = counts[k][kN];
+				int[] a_counts = counts[k][kN];
 				if (DEBUG) {
 					for (int a0=0; a0<KNMOD; a0++) {
-						LOG.info("Successful adjusts for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ", a0%" + KNMOD + "=" + a0 + ": " + Arrays.toString(a0_adjust_counts[a0]));
+						LOG.info("Successful a for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": " + Arrays.toString(a_counts));
 					}
 					LOG.info("");
 				}
 				
-				// a0_adjust_counts[][] contains the counts of (a0, adjust) pairs that led to successful factorizations.
-				// An antidiagonal of that table means that a0 + adjust is fixed, i.e. each antidiagonal identifies a
-				// particular a == (a0 + adjust) % KNMOD !
 				int knkCount = 0;
 				List<Integer> aList = new ArrayList<>();
 				for (int a=0; a<KNMOD; a++) {
-					int cnt = computeAntiDiagonalCount(a0_adjust_counts, a, KNMOD);
-					if (cnt > 0) {
-						knkCount += cnt;
+					if (a_counts[a] > 0) {
+						knkCount += a_counts[a];
 						aList.add(a);
 					}
 				}
@@ -143,22 +141,6 @@ public class Lehman_AnalyzeCongruences3 {
 		}
 
 		LOG.info("");
-	}
-
-	/**
-	 * Compute the sum of the antidiagonal entries of array[i][j] with i+j (mod KNMOD) == a.
-	 * @param array
-	 * @param a
-	 * @return sum of the antidiagonal given by 'a'
-	 */
-	private int computeAntiDiagonalCount(int[][] array, int a, int KNMOD) {
-		int result = 0;
-		for (int i=0; i<KNMOD; i++) {
-			int adjust = a-i;
-			if (adjust<0) adjust += KNMOD;
-			result += array[i][adjust];
-		}
-		return result;
 	}
 	
 	public static void main(String[] args) {

@@ -31,6 +31,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * Congruences a == kN (mod 2^s) are slightly more discriminative
  * than Lehman's original congruences a == (k+N) (mod 2^s), s = 1, 2, 3, ...
  * 
+ * Version 1 shows that all successful (a0, adjust) pairs represent the same "a".
+ * 
  * @author Tilman Neumann
  */
 public class Lehman_AnalyzeCongruences {
@@ -72,11 +74,8 @@ public class Lehman_AnalyzeCongruences {
 					if (b*b == test) {
 						long gcd = gcdEngine.gcd(a+b, N);
 						if (gcd>1 && gcd<N) {
-							if (USE_kN_CONGRUENCES) {
-								counts[k%KMOD][(int)((k*N)%KNMOD)][(int)(a0%KNMOD)][adjust]++;
-							} else {
-								counts[k%KMOD][(int)((k+N)%KNMOD)][(int)(a0%KNMOD)][adjust]++;
-							}
+							long kNTerm = USE_kN_CONGRUENCES ? k*N : k+N;
+							counts[k%KMOD][(int)(kNTerm%KNMOD)][(int)(a0%KNMOD)][adjust]++;
 							return gcd; // removes the blur at even k!
 						}
 					}
