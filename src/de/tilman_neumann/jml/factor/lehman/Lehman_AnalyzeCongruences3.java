@@ -95,7 +95,7 @@ public class Lehman_AnalyzeCongruences3 {
 		
 		for (BigInteger N : testNumbers) {
 			//if (N.mod(I_6).equals(I_5)) // makes no difference
-			this.findSingleFactor(N.longValue(), KNMOD);
+			this.findSingleFactor(N.longValue(), KNMOD); // this is the expensive part
 		}
 		
 		LOG.debug("Compute a-lists...");
