@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +33,11 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * Congruences a == kN (mod 2^s) are slightly more discriminative
  * than Lehman's original congruences a == (k+N) (mod 2^s), s = 1, 2, 3, ...
  * 
- * Version 2 prints diagrams of a (after adjustment) % KNMOD leading to factorizations (x-axis),
- * vs. kN % KNMOD (y-axis).
+ * Version 3 doubles KNMOD step-by-step and analyzes or allows to analyze incremental changes.
+ * Only odd k are analyzed, because the result for even k is trivial (we need all odd "a"-values).
+ * 
+ * Successful a from k*N congruences are 1, 2, 6, 16, 56, 192, 736, 2816, 11136, ... (not found in OEIS)
+ * Successful a from k+N congruences are 1, 2, 6, 16, 64, 256, 1024, ... (last improvement at KNMOD = 16)
  * 
  * @author Tilman Neumann
  */
@@ -46,24 +47,12 @@ public class Lehman_AnalyzeCongruences2 {
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
 
-	/** number of test numbers */
-	private static final int N_COUNT = 100000;
-	/** the bit size of N to start with */
-	private static final int START_BITS = 30;
-	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 1;
-	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = 63;
-
-	private static final int KMOD = 6;
-	private static final int KNMOD = 16;
-
 	private final Gcd63 gcdEngine = new Gcd63();
 	
-	// dimensions: k%KMOD, kN%KNMOD, a%KNMOD
-	private int[][][] counts;
+	// dimensions: kN%KNMOD, a%KNMOD
+	private int[][] counts;
 	
-	public long findSingleFactor(long N) {
+	public long findSingleFactor(long N, int KNMOD) {
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
 		double sixthRoot = Math.pow(N, 1/6.0); // double precision is required for stability
 		for (int k=1; k <= cbrt; k++) {
@@ -79,10 +68,13 @@ public class Lehman_AnalyzeCongruences2 {
 					if (b*b == test) {
 						long gcd = gcdEngine.gcd(a+b, N);
 						if (gcd>1 && gcd<N) {
-							// We know that all elements of an antidiagonal (a0, adjust) with a0 + adjust == a (mod KNMOD)
-							// represent the same "successful a". Thus we only need to store results for "a" !
-							long kNTerm = USE_kN_CONGRUENCES ? k*N : k+N;
-							counts[k%KMOD][(int)(kNTerm%KNMOD)][(int)(a%KNMOD)]++;
+							// congruences are the same for all odd k
+							if ((k & 1) == 1) {
+								// We know that all elements of an antidiagonal (a0, adjust) with a0 + adjust == a (mod KNMOD)
+								// represent the same "successful a". Thus we only need to store results for "a" !
+								long kNTerm = USE_kN_CONGRUENCES ? k*N : k+N;
+								counts[(int)(kNTerm%KNMOD)][(int)(a%KNMOD)]++;
+							}
 							return gcd; // removes the blur at even k!
 						}
 					}
@@ -93,46 +85,48 @@ public class Lehman_AnalyzeCongruences2 {
 		return 0; // Fail
 	}
 	
-	private void testRange(int bits) {
-		counts = new int[KMOD][KNMOD][KNMOD];
+	private void testRange(int KNMOD) {
+		LOG.info("Test KNMOD = " + KNMOD + " ...");
 		
-		BigInteger N_min = I_1.shiftLeft(bits-1);
-		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
-		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
+		counts = new int[KNMOD][KNMOD];
+		
+		int bits = 30;
+		BigInteger[] testNumbers = TestsetGenerator.generate(KNMOD*1000, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 		
 		for (BigInteger N : testNumbers) {
 			//if (N.mod(I_6).equals(I_5)) // makes no difference
-			this.findSingleFactor(N.longValue());
+			this.findSingleFactor(N.longValue(), KNMOD); // this is the expensive part
 		}
 		
+		LOG.debug("Compute a-lists...");
 		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
 		@SuppressWarnings("unchecked")
 		List<Integer>[] aForKN = new List[KNMOD];
-		for (int k=0; k<KMOD; k++) {
-			for (int kN=0; kN<KNMOD; kN++) {
-				int[] aSuccessCounts = counts[k][kN];
-				int knSuccessCount = 0;
-				List<Integer> aList = new ArrayList<>();
-				for (int a=0; a<KNMOD; a++) {
-					if (aSuccessCounts[a] > 0) {
-						knSuccessCount += aSuccessCounts[a];
-						aList.add(a);
-					}
-				}
-				if (knSuccessCount > 0) {
-					int avgASuccessCount = knSuccessCount/aList.size(); // avg. factoring successes per "a"
-					LOG.info("k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgASuccessCount);
-				}
-				if (k == 1) {
-					// collect data plot for odd k (results are equal for all odd k)
-					aForKN[kN] = aList;
+		int totalACount = 0;
+		
+		for (int kN=0; kN<KNMOD; kN++) {
+			int[] aSuccessCounts = counts[kN];
+			int knSuccessCount = 0;
+			List<Integer> aList = new ArrayList<>();
+			for (int a=0; a<KNMOD; a++) {
+				if (aSuccessCounts[a] > 0) {
+					knSuccessCount += aSuccessCounts[a];
+					aList.add(a);
 				}
 			}
+			if (knSuccessCount > 0) {
+				int avgASuccessCount = knSuccessCount/aList.size(); // avg. factoring successes per "a"
+				LOG.info("(" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgASuccessCount);
+			}
+			// collect data plot for odd k (results are equal for all odd k)
+			aForKN[kN] = aList;
+			totalACount += aList.size();
 		}
 		LOG.info("");
 
 		// create data plot for odd k
-		for (int kN=1; kN<KNMOD; kN+=2) {
+		int knStart = USE_kN_CONGRUENCES ? 1 : 0;
+		for (int kN=knStart; kN<KNMOD; kN+=2) {
 			String row = "";
 			int i=0;
 			for (int a : aForKN[kN]) {
@@ -143,17 +137,18 @@ public class Lehman_AnalyzeCongruences2 {
 		}
 
 		LOG.info("");
+		LOG.info("totalACount = " + totalACount);
+		LOG.info("");
 	}
 	
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		int bits = START_BITS;
+		int KNMOD = 2;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
 	    	Lehman_AnalyzeCongruences2 testEngine = new Lehman_AnalyzeCongruences2();
-			testEngine.testRange(bits);
-			bits += INCR_BITS;
-			if (MAX_BITS!=null && bits > MAX_BITS) break;
+			testEngine.testRange(KNMOD);
+			KNMOD <<= 1;
 		}
 	}
 }
