@@ -110,18 +110,18 @@ public class Lehman_AnalyzeCongruences2 {
 		List<Integer>[] aForKN = new List[KNMOD];
 		for (int k=0; k<KMOD; k++) {
 			for (int kN=0; kN<KNMOD; kN++) {
-				int[] a_counts = counts[k][kN];
-				int knkCount = 0;
+				int[] aSuccessCounts = counts[k][kN];
+				int knSuccessCount = 0;
 				List<Integer> aList = new ArrayList<>();
 				for (int a=0; a<KNMOD; a++) {
-					if (a_counts[a] > 0) {
-						knkCount += a_counts[a];
+					if (aSuccessCounts[a] > 0) {
+						knSuccessCount += aSuccessCounts[a];
 						aList.add(a);
 					}
 				}
-				if (knkCount > 0) {
-					int avgAntidiagonalSuccesses = knkCount/aList.size(); // avg. factoring successes per antidiagonal
-					LOG.info("k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgAntidiagonalSuccesses);
+				if (knSuccessCount > 0) {
+					int avgASuccessCount = knSuccessCount/aList.size(); // avg. factoring successes per "a"
+					LOG.info("k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgASuccessCount);
 				}
 				if (k == 1) {
 					// collect data plot for odd k (results are equal for all odd k)

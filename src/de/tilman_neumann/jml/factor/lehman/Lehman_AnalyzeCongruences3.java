@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor.lehman;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -102,18 +101,18 @@ public class Lehman_AnalyzeCongruences3 {
 		List<Integer>[] aForKN = new List[KNMOD];
 
 		for (int kN=0; kN<KNMOD; kN++) {
-			int[] a_counts = counts[kN];
-			int knkCount = 0;
+			int[] aSuccessCounts = counts[kN];
+			int knSuccessCount = 0;
 			List<Integer> aList = new ArrayList<>();
 			for (int a=0; a<KNMOD; a++) {
-				if (a_counts[a] > 0) {
-					knkCount += a_counts[a];
+				if (aSuccessCounts[a] > 0) {
+					knSuccessCount += aSuccessCounts[a];
 					aList.add(a);
 				}
 			}
-			if (knkCount > 0) {
-				int avgAntidiagonalSuccesses = knkCount/aList.size(); // avg. factoring successes per antidiagonal
-				LOG.info("(" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgAntidiagonalSuccesses);
+			if (knSuccessCount > 0) {
+				int avgASuccessCount = knSuccessCount/aList.size(); // avg. factoring successes per "a"
+				LOG.info("(" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgASuccessCount);
 			}
 			// collect data plot for odd k (results are equal for all odd k)
 			aForKN[kN] = aList;
