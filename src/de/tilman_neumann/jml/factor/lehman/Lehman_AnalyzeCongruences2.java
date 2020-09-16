@@ -16,6 +16,7 @@ package de.tilman_neumann.jml.factor.lehman;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.apache.log4j.Logger;
 
@@ -46,11 +47,13 @@ public class Lehman_AnalyzeCongruences2 {
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
+	private static final boolean PRINT_LAST_SUCCESSFUL_A = false;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
 	private int[][] counts; // dimensions: kN%KNMOD, a%KNMOD
-	
+	ArrayList<Integer>[] aForKN = null;
+
 	public long findSingleFactor(long N, int KNMOD) {
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
 		double sixthRoot = Math.pow(N, 1/6.0); // double precision is required for stability
@@ -98,16 +101,37 @@ public class Lehman_AnalyzeCongruences2 {
 				this.findSingleFactor(N.longValue(), KNMOD); // this is the expensive part
 			}
 			
+			// extrapolate last KNMOD results
+			List<Integer>[] lastAForKN = null;
+			if (aForKN != null) {
+				lastAForKN = new List[KNMOD];
+				int kN=0;
+				for (; kN<KNMOD/2; kN++) {
+					// copy old a-values
+					List<Integer> lastAList = aForKN[kN];
+					lastAForKN[kN] = new ArrayList<>(lastAList);
+					// extend on horizontal axis
+					ListIterator<Integer> li = lastAList.listIterator(lastAList.size());
+					while(li.hasPrevious()) {
+						lastAForKN[kN].add(KNMOD - li.previous());
+					}
+				}
+				// extend on vertical axis
+				for (; kN<KNMOD; kN++) {
+					lastAForKN[kN] = new ArrayList<>(lastAForKN[kN-(KNMOD>>1)]);
+				}
+			}
+			// now we have extrapolated the last a-values for [KNMOD/2][KNMOD/2] to [KNMOD][KNMOD]
+			
 			LOG.debug("Compute a-lists...");
 			String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
-			@SuppressWarnings("unchecked")
-			List<Integer>[] aForKN = new List[KNMOD];
+			aForKN = new ArrayList[KNMOD];
 			int totalACount = 0;
 			
 			for (int kN=0; kN<KNMOD; kN++) {
 				int[] aSuccessCounts = counts[kN];
 				int knSuccessCount = 0;
-				List<Integer> aList = new ArrayList<>();
+				ArrayList<Integer> aList = new ArrayList<>();
 				for (int a=0; a<KNMOD; a++) {
 					if (aSuccessCounts[a] > 0) {
 						knSuccessCount += aSuccessCounts[a];
@@ -124,14 +148,37 @@ public class Lehman_AnalyzeCongruences2 {
 			}
 			LOG.info("");
 
+			if (PRINT_LAST_SUCCESSFUL_A) {
+				if (lastAForKN != null) {
+					int knStart = USE_kN_CONGRUENCES ? 1 : 0;
+					for (int kN=knStart; kN<KNMOD; kN+=2) {
+						String row = "";
+						int i=0;
+						for (int a : lastAForKN[kN]) {
+							while (i++<a) row += " ";
+							row += "x";
+						}
+						LOG.info(row);
+					}
+				}
+				LOG.info("");
+			}
+
 			// create data plot for odd k
 			int knStart = USE_kN_CONGRUENCES ? 1 : 0;
 			for (int kN=knStart; kN<KNMOD; kN+=2) {
 				String row = "";
 				int i=0;
-				for (int a : aForKN[kN]) {
-					while (i++<a) row += " ";
-					row += "x";
+				if (lastAForKN == null) {
+					for (int a : aForKN[kN]) {
+						while (i++<a) row += " ";
+						row += "x";
+					}
+				} else {
+					for (int a : lastAForKN[kN]) {
+						while (i++<a) row += " ";
+						row += aForKN[kN].contains(a) ? "x" : ".";
+					}
 				}
 				LOG.info(row);
 			}
