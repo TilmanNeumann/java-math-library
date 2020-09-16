@@ -17,7 +17,6 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -43,8 +42,6 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  */
 public class Lehman_AnalyzeCongruences2 {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeCongruences2.class);
-	
-	private static final boolean DEBUG = false;
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
@@ -114,13 +111,6 @@ public class Lehman_AnalyzeCongruences2 {
 		for (int k=0; k<KMOD; k++) {
 			for (int kN=0; kN<KNMOD; kN++) {
 				int[] a_counts = counts[k][kN];
-				if (DEBUG) {
-					for (int a0=0; a0<KNMOD; a0++) {
-						LOG.info("Successful a for k%" + KMOD + "=" + k + ", (" + kNStr + ")%" + KNMOD + "=" + kN + ": " + Arrays.toString(a_counts));
-					}
-					LOG.info("");
-				}
-				
 				int knkCount = 0;
 				List<Integer> aList = new ArrayList<>();
 				for (int a=0; a<KNMOD; a++) {

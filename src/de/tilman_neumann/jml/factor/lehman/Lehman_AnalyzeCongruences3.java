@@ -42,8 +42,6 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
 public class Lehman_AnalyzeCongruences3 {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeCongruences3.class);
 	
-	private static final boolean DEBUG = false;
-	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
 
@@ -105,13 +103,6 @@ public class Lehman_AnalyzeCongruences3 {
 
 		for (int kN=0; kN<KNMOD; kN++) {
 			int[] a_counts = counts[kN];
-			if (DEBUG) {
-				for (int a0=0; a0<KNMOD; a0++) {
-					LOG.info("Successful a for odd k, (" + kNStr + ")%" + KNMOD + "=" + kN + ": " + Arrays.toString(a_counts));
-				}
-				LOG.info("");
-			}
-			
 			int knkCount = 0;
 			List<Integer> aList = new ArrayList<>();
 			for (int a=0; a<KNMOD; a++) {
