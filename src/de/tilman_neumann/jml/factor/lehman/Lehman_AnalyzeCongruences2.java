@@ -36,7 +36,7 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * Version 3 doubles KNMOD step-by-step and analyzes or allows to analyze incremental changes.
  * Only odd k are analyzed, because the result for even k is trivial (we need all odd "a"-values).
  * 
- * Successful a from k*N congruences are 1, 2, 6, 16, 56, 192, 736, 2816, 11136, ... (not found in OEIS)
+ * Successful a from k*N congruences are 1, 2, 6, 16, 56, 192, 736, 2816, 11136, 44014, ... (not found in OEIS)
  * Successful a from k+N congruences are 1, 2, 6, 16, 64, 256, 1024, ... (last improvement at KNMOD = 16)
  * 
  * @author Tilman Neumann
@@ -49,8 +49,7 @@ public class Lehman_AnalyzeCongruences2 {
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
-	// dimensions: kN%KNMOD, a%KNMOD
-	private int[][] counts;
+	private int[][] counts; // dimensions: kN%KNMOD, a%KNMOD
 	
 	public long findSingleFactor(long N, int KNMOD) {
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
@@ -85,70 +84,66 @@ public class Lehman_AnalyzeCongruences2 {
 		return 0; // Fail
 	}
 	
-	private void testRange(int KNMOD) {
-		LOG.info("Test KNMOD = " + KNMOD + " ...");
-		
-		counts = new int[KNMOD][KNMOD];
-		
-		int bits = 30;
-		BigInteger[] testNumbers = TestsetGenerator.generate(KNMOD*1000, bits, TestNumberNature.MODERATE_SEMIPRIMES);
-		
-		for (BigInteger N : testNumbers) {
-			//if (N.mod(I_6).equals(I_5)) // makes no difference
-			this.findSingleFactor(N.longValue(), KNMOD); // this is the expensive part
-		}
-		
-		LOG.debug("Compute a-lists...");
-		String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
-		@SuppressWarnings("unchecked")
-		List<Integer>[] aForKN = new List[KNMOD];
-		int totalACount = 0;
-		
-		for (int kN=0; kN<KNMOD; kN++) {
-			int[] aSuccessCounts = counts[kN];
-			int knSuccessCount = 0;
-			List<Integer> aList = new ArrayList<>();
-			for (int a=0; a<KNMOD; a++) {
-				if (aSuccessCounts[a] > 0) {
-					knSuccessCount += aSuccessCounts[a];
-					aList.add(a);
+	private void test() {
+		for (int KNMOD = 2; ; KNMOD<<=1) {
+			LOG.info("Test KNMOD = " + KNMOD + " ...");
+			
+			counts = new int[KNMOD][KNMOD];
+			
+			int bits = 30;
+			BigInteger[] testNumbers = TestsetGenerator.generate(KNMOD*1000, bits, TestNumberNature.MODERATE_SEMIPRIMES);
+			
+			for (BigInteger N : testNumbers) {
+				//if (N.mod(I_6).equals(I_5)) // makes no difference
+				this.findSingleFactor(N.longValue(), KNMOD); // this is the expensive part
+			}
+			
+			LOG.debug("Compute a-lists...");
+			String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
+			@SuppressWarnings("unchecked")
+			List<Integer>[] aForKN = new List[KNMOD];
+			int totalACount = 0;
+			
+			for (int kN=0; kN<KNMOD; kN++) {
+				int[] aSuccessCounts = counts[kN];
+				int knSuccessCount = 0;
+				List<Integer> aList = new ArrayList<>();
+				for (int a=0; a<KNMOD; a++) {
+					if (aSuccessCounts[a] > 0) {
+						knSuccessCount += aSuccessCounts[a];
+						aList.add(a);
+					}
 				}
+				if (knSuccessCount > 0) {
+					int avgASuccessCount = knSuccessCount/aList.size(); // avg. factoring successes per "a"
+					LOG.info("(" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgASuccessCount);
+				}
+				// collect data plot for odd k (results are equal for all odd k)
+				aForKN[kN] = aList;
+				totalACount += aList.size();
 			}
-			if (knSuccessCount > 0) {
-				int avgASuccessCount = knSuccessCount/aList.size(); // avg. factoring successes per "a"
-				LOG.info("(" + kNStr + ")%" + KNMOD + "=" + kN + ": successful a = " + aList + " (mod " + KNMOD + "), avg hits = " + avgASuccessCount);
-			}
-			// collect data plot for odd k (results are equal for all odd k)
-			aForKN[kN] = aList;
-			totalACount += aList.size();
-		}
-		LOG.info("");
+			LOG.info("");
 
-		// create data plot for odd k
-		int knStart = USE_kN_CONGRUENCES ? 1 : 0;
-		for (int kN=knStart; kN<KNMOD; kN+=2) {
-			String row = "";
-			int i=0;
-			for (int a : aForKN[kN]) {
-				while (i++<a) row += " ";
-				row += "x";
+			// create data plot for odd k
+			int knStart = USE_kN_CONGRUENCES ? 1 : 0;
+			for (int kN=knStart; kN<KNMOD; kN+=2) {
+				String row = "";
+				int i=0;
+				for (int a : aForKN[kN]) {
+					while (i++<a) row += " ";
+					row += "x";
+				}
+				LOG.info(row);
 			}
-			LOG.info(row);
-		}
 
-		LOG.info("");
-		LOG.info("totalACount = " + totalACount);
-		LOG.info("");
+			LOG.info("");
+			LOG.info("totalACount = " + totalACount);
+			LOG.info("");
+		}
 	}
 	
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		int KNMOD = 2;
-		while (true) {
-			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
-	    	Lehman_AnalyzeCongruences2 testEngine = new Lehman_AnalyzeCongruences2();
-			testEngine.testRange(KNMOD);
-			KNMOD <<= 1;
-		}
+    	new Lehman_AnalyzeCongruences2().test();
 	}
 }
