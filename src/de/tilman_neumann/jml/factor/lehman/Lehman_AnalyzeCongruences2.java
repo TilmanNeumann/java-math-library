@@ -174,6 +174,7 @@ public class Lehman_AnalyzeCongruences2 {
 			}
 
 			// compute the "a" that have changed from successful at last KNMOD to unsuccessful at current KNMOD
+			int totalDroppedACount = 0;
 			int knStart = USE_kN_CONGRUENCES ? 1 : 0;
 			if (lastAForKN != null) {
 				for (int kN=knStart; kN<KNMOD; kN+=2) {
@@ -185,6 +186,7 @@ public class Lehman_AnalyzeCongruences2 {
 					}
 					if (!droppedAList.isEmpty()) {
 						LOG.info("(" + kNStr + ")%" + KNMOD + "=" + kN + ": dropped a = " + droppedAList + " (mod " + KNMOD + ")");
+						totalDroppedACount += droppedAList.size();
 					}
 				}
 				LOG.info("");
@@ -210,6 +212,7 @@ public class Lehman_AnalyzeCongruences2 {
 
 			LOG.info("");
 			LOG.info("totalACount = " + totalACount);
+			LOG.info("totalDroppedACount = " + totalDroppedACount);
 			LOG.info("");
 		}
 	}
