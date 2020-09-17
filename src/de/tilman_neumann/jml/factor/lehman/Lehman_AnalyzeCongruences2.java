@@ -95,7 +95,7 @@ public class Lehman_AnalyzeCongruences2 {
 			counts = new int[KNMOD][KNMOD];
 			
 			int bits = 30;
-			BigInteger[] testNumbers = TestsetGenerator.generate(KNMOD*1000, bits, TestNumberNature.MODERATE_SEMIPRIMES);
+			BigInteger[] testNumbers = TestsetGenerator.generate(KNMOD*2000, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 			
 			for (BigInteger N : testNumbers) {
 				//if (N.mod(I_6).equals(I_5)) // makes no difference
@@ -156,6 +156,7 @@ public class Lehman_AnalyzeCongruences2 {
 			}
 			LOG.info("");
 
+			// the following block is only for debugging
 			if (PRINT_LAST_SUCCESSFUL_A) {
 				if (lastAForKN != null) {
 					int knStart = USE_kN_CONGRUENCES ? 1 : 0;
@@ -172,8 +173,24 @@ public class Lehman_AnalyzeCongruences2 {
 				LOG.info("");
 			}
 
-			// create data plot for odd k
+			// compute the "a" that have changed from successful at last KNMOD to unsuccessful at current KNMOD
 			int knStart = USE_kN_CONGRUENCES ? 1 : 0;
+			if (lastAForKN != null) {
+				for (int kN=knStart; kN<KNMOD; kN+=2) {
+					List<Integer> droppedAList = new ArrayList<Integer>();
+					for (int a : lastAForKN[kN]) {
+						if (!aForKN[kN].contains(a)) {
+							droppedAList.add(a);
+						}
+					}
+					if (!droppedAList.isEmpty()) {
+						LOG.info("(" + kNStr + ")%" + KNMOD + "=" + kN + ": dropped a = " + droppedAList + " (mod " + KNMOD + ")");
+					}
+				}
+				LOG.info("");
+			}
+			
+			// create data plot for odd k
 			for (int kN=knStart; kN<KNMOD; kN+=2) {
 				String row = "";
 				int i=0;
