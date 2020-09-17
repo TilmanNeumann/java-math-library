@@ -13,7 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,8 +37,32 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * Version 3 doubles KNMOD step-by-step and analyzes or allows to analyze incremental changes.
  * Only odd k are analyzed, because the result for even k is trivial (we need all odd "a"-values).
  * 
- * Successful a from k*N congruences are 1, 2, 6, 16, 56, 192, 736, 2816, 11136, 44014, ... (not found in OEIS)
- * Successful a from k+N congruences are 1, 2, 6, 16, 64, 256, 1024, ... (last improvement at KNMOD = 16)
+ * The number of successful a from original k+N congruences are 1, 2, 6, 16, 64, 256, 1024, ...
+ * The last incremental improvement occurs at KNMOD=16. This is trivial.
+ * 
+ * For the more interesting k*N congruences I found experimentally:
+ * The number of successful a are #a = 1, 2, 6, 16, 56, 192, 736, 2816, 11136, 44032, ... (not found in OEIS)
+ *                  dropped a are #d = 0, 2, 2,  8,  8,  32,  32,  128,   128,   512, ...
+ * 
+ * This yields the recurrence
+ * KNMOD_EXP = ld(KNMOD);
+ * #a(KNMOD_EXP=1) = 1, #a(KNMOD_EXP>1) = #a(KNMOD_EXP-1)*4 - 2^floor(KNMOD_EXP/2)
+ * 
+ * The first values are
+ * KNMOD=   2: KNMOD_EXP= 1, #a = 2^0 = 1
+ * KNMOD=   4: KNMOD_EXP= 2, #a = (2^0)*4 - 2^1 = 2^2 - 2^1 = 2
+ * KNMOD=   8: KNMOD_EXP= 3, #a = (2^2 - 2^1)*4 - 2^1 = 2^4 - 2^3 - 2^1 = 6
+ * KNMOD=  16: KNMOD_EXP= 4, #a = (2^4 - 2^3 - 2^1)*4 - 2^3 = 2^6 - 2^5 - 2^4 = 16
+ * KNMOD=  32: KNMOD_EXP= 5, #a = (2^6 - 2^5 - 2^4)*4 - 2^3 = 2^8 - 2^7 - 2^6 - 2^3 = 56
+ * KNMOD=  64: KNMOD_EXP= 6, #a = (2^8 - 2^7 - 2^6 - 2^3)*4 - 2^5 = 2^10 - 2^9 - 2^8 - 2^6 = 192
+ * KNMOD= 128: KNMOD_EXP= 7, #a = (2^10 - 2^9 - 2^8 - 2^6)*4 - 2^5 = 2^12 - 2^11 - 2^10 - 2^8 - 2^5 = 736
+ * KNMOD= 256: KNMOD_EXP= 8, #a = (2^12 - 2^11 - 2^10 - 2^8 - 2^5)*4 - 2^7 = 2^14 - 2^13 - 2^12 - 2^10 - 2^8 = 2816
+ * KNMOD= 512: KNMOD_EXP= 9, #a = (2^14 - 2^13 - 2^12 - 2^10 - 2^8)*4 - 2^7 = 2^16 - 2^15 - 2^14 - 2^12 - 2^10 - 2^7 = 11136
+ * KNMOD=1024: KNMOD_EXP=10, #a = (2^16 - 2^15 - 2^14 - 2^12 - 2^10 - 2^7)*4 - 2^9 = 2^18 - 2^17 - 2^16 - 2^14 - 2^12 - 2^10 = 44032
+ * etc...
+ * 
+ * So my hypothesis is that
+ * #a = 1, 2, 6, 16, 56, 192, 736, 2816, 11136, 44032, 175616, 700416, ...
  * 
  * @author Tilman Neumann
  */
