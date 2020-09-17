@@ -13,10 +13,11 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
+
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.apache.log4j.Logger;
 
@@ -108,12 +109,19 @@ public class Lehman_AnalyzeCongruences2 {
 				int kN=0;
 				for (; kN<KNMOD/2; kN++) {
 					// copy old a-values
-					List<Integer> lastAList = aForKN[kN];
-					lastAForKN[kN] = new ArrayList<>(lastAList);
-					// extend on horizontal axis
-					ListIterator<Integer> li = lastAList.listIterator(lastAList.size());
-					while(li.hasPrevious()) {
-						lastAForKN[kN].add(KNMOD - li.previous());
+					ArrayList<Integer> lastAList = aForKN[kN];
+					lastAForKN[kN] = new ArrayList<>(lastAList); // copy
+					if (lastAList != null && !lastAList.isEmpty()) {
+						// extend on horizontal axis
+						if (lastAList.get(0) == 0) {
+							lastAForKN[kN].add(KNMOD/2);
+							lastAList.remove(0);
+						}
+						Collections.reverse(lastAList);
+						for (int a : lastAList) {
+							int elem = KNMOD - a;
+							lastAForKN[kN].add(elem);
+						}
 					}
 				}
 				// extend on vertical axis
