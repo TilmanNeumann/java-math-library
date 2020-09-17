@@ -29,12 +29,9 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * Analyze the moduli of a-values that help the Lehman algorithm to find factors.
  * 
  * If we analyze the data in terms of (a0, adjust) pairs, we notice that we always get antidiagonals, each of
- * them representing a "successful a", because a == (a0 + adjust) (mod KNMOD). So all we need to investigate is "a".
+ * them representing a "successful a", because a == (a0 + adjust) (mod KNMOD). So all we need to investigate is "a" (mod KNMOD).
  * 
- * Congruences a == kN (mod 2^s) are slightly more discriminative
- * than Lehman's original congruences a == (k+N) (mod 2^s), s = 1, 2, 3, ...
- * 
- * Version 3 doubles KNMOD step-by-step and analyzes or allows to analyze incremental changes.
+ * Version 2 doubles KNMOD step-by-step and analyzes or allows to analyze incremental changes.
  * Only odd k are analyzed, because the result for even k is trivial (we need all odd "a"-values).
  * 
  * The number of successful a from original k+N congruences are 1, 2, 6, 16, 64, 256, 1024, ...
