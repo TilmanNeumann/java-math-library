@@ -43,7 +43,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * This yields the recurrence
  * KNMOD_EXP = ld(KNMOD);
- * #a(KNMOD_EXP=1) = 1, #a(KNMOD_EXP>1) = #a(KNMOD_EXP-1)*4 - 2^floor(KNMOD_EXP/2)
+ * rightExp = 2*floor(KNMOD_EXP/2) - 1
+ * #a(KNMOD_EXP=1) = 1, #a(KNMOD_EXP>1) = #a(KNMOD_EXP-1)*4 - 2^rightExp
  * 
  * The first values are
  * KNMOD=   2: KNMOD_EXP= 1, #a = 2^0 = 1
@@ -237,8 +238,24 @@ public class Lehman_AnalyzeCongruences2 {
 		}
 	}
 	
+	private static void computeHypotheticalACounts(int num) {
+		List<Integer> aCounts = new ArrayList<>();
+		aCounts.add(1); // for KNMOD=2, KNMOD_EXP=1
+		for (int KNMOD_EXP = 2; KNMOD_EXP<=num; KNMOD_EXP++) {
+			int lastACount = aCounts.get(KNMOD_EXP-2);
+			int rightExp = ((KNMOD_EXP>>1) << 1) - 1;
+			int nextACount = (lastACount<<2) - (1<<rightExp);
+			aCounts.add(nextACount);
+		}
+		LOG.info("Hypothetical aCounts = " + aCounts);
+		LOG.info("");
+	}
+
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
+    	
+    	computeHypotheticalACounts(30);
+    	
     	new Lehman_AnalyzeCongruences2().test();
 	}
 }
