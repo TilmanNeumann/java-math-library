@@ -41,10 +41,13 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * The number of successful a are #a = 1, 2, 6, 16, 56, 192, 736, 2816, 11136, 44032, ... (not found in OEIS)
  *                  dropped a are #d = 0, 2, 2,  8,  8,  32,  32,  128,   128,   512, ...
  * 
- * This yields the recurrence
- * KNMOD_EXP = ld(KNMOD);
- * rightExp = 2*floor(KNMOD_EXP/2) - 1
- * #a(KNMOD_EXP=1) = 1, #a(KNMOD_EXP>1) = #a(KNMOD_EXP-1)*4 - 2^rightExp
+ * This yields the iterative solutions
+ * #a(KNMOD_EXP=1) = 1
+ * if (KNMOD > 1) {
+ *     KNMOD_EXP = ld(KNMOD);
+ *     rightExp = 2*floor(KNMOD_EXP/2) - 1
+ *     #a(KNMOD_EXP) = #a(KNMOD_EXP-1)*4 - 2^rightExp
+ * }
  * 
  * The first values are
  * KNMOD=   2: KNMOD_EXP= 1, #a = 2^0 = 1
@@ -60,7 +63,12 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * etc...
  * 
  * So my hypothesis is that
- * #a = 1, 2, 6, 16, 56, 192, 736, 2816, 11136, 44032, 175616, 700416, ...
+ * #a = 1, 2, 6, 16, 56, 192, 736, 2816, 11136, 44032, 175616, 700416, 2799616, 11190272, 44752896, 178978816, 715882496, 2863398912, 11453464576, 45813334016, 183252811776, 733009149952, 2932034502656, 11728129622016, 46912510099456, 187650006843392, 750599993819136, 3002399841058816, 12009599230017536, 48038396383199232, ...
+ * 
+ * For #a[2*n] = 2, 16, 192, 2816, 44032, 700416, 11190272, 178978816, 2863398912, 45813334016, 733009149952, ...
+ * we have #a[2*n]/2 = A083086[2*n].
+ * 
+ * It shouldn't be too difficult to find a closed formula as well.
  * 
  * @author Tilman Neumann
  */
