@@ -239,12 +239,12 @@ public class Lehman_AnalyzeCongruences2 {
 	}
 	
 	private static void computeHypotheticalACounts(int num) {
-		List<Integer> aCounts = new ArrayList<>();
-		aCounts.add(1); // for KNMOD=2, KNMOD_EXP=1
+		List<Long> aCounts = new ArrayList<>();
+		aCounts.add(1L); // for KNMOD=2, KNMOD_EXP=1
 		for (int KNMOD_EXP = 2; KNMOD_EXP<=num; KNMOD_EXP++) {
-			int lastACount = aCounts.get(KNMOD_EXP-2);
+			long lastACount = aCounts.get(KNMOD_EXP-2);
 			int rightExp = ((KNMOD_EXP>>1) << 1) - 1;
-			int nextACount = (lastACount<<2) - (1<<rightExp);
+			long nextACount = (lastACount<<2L) - (1L<<rightExp);
 			aCounts.add(nextACount);
 		}
 		LOG.info("Hypothetical aCounts = " + aCounts);
