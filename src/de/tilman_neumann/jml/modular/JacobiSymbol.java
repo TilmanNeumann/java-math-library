@@ -322,16 +322,22 @@ public class JacobiSymbol {
 	}
 
     /**
-     * Kronecker Kr(a|m) symbol generalizes Jacobi symbol J(a|m) for arbitrary natural numbers m.
+     * The Kronecker symbol K(a|m) generalizes the Jacobi symbol J(a|m) for arbitrary natural numbers m.
+     * 
+     * Note that the Kronecker symbol does not have the same connection to quadratic residues as the Jacobi symbol.
+     * In particular, the Kronecker symbol K(a|m) for even m can take values independently on whether a is a quadratic residue or nonresidue modulo m. 
+     * 
+     * See https://en.wikipedia.org/wiki/Kronecker_symbol#Properties
+     * 
      * @param a
      * @param m
-     * @return
+     * @return K(a|m)
      */
     public int kroneckerSymbol(BigInteger a, BigInteger m) {
     	int easyPart = 1;
-    	// make n positive if necessary
+    	// make m positive if necessary
     	int mCmpZero = m.compareTo(I_0);
-    	if (mCmpZero == 0) throw new IllegalArgumentException("Kronecker symbol Kr(a|m): illegal argument m=0");
+    	if (mCmpZero == 0) throw new IllegalArgumentException("Kronecker symbol K(a|m): illegal argument m=0");
     	if (mCmpZero < 0) {
     		easyPart = -1;
     		m = m.negate();
@@ -342,13 +348,13 @@ public class JacobiSymbol {
     		// m has a factor of 2
     		if ((a.intValue() & 1) == 0) return 0;
 
-    		// Kr(a|2) is +1 if a%8=1,7
-    		// Kr(a|2) is -1 if a%8=3,5
+    		// K(a|2) is +1 if a%8=1,7
+    		// K(a|2) is -1 if a%8=3,5
     		int aMod8 = a.intValue() & 7; // for a%8 we need only the lowest 3 bits
     		if (aMod8==3 || aMod8==5) {
     			easyPart = -easyPart;
     		}
-    		// continue working on the rest Kr(a| (m/2))
+    		// continue working on the rest K(a|(m/2))
     		m = m.shiftRight(1);
     	}
     	
