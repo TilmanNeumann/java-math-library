@@ -30,7 +30,6 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class JacobiSymbol {
-	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(JacobiSymbol.class);
 
 	/**
