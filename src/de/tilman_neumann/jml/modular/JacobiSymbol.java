@@ -16,8 +16,12 @@ package de.tilman_neumann.jml.modular;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
+
+import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Jacobi symbol. The basic implementation follows [Crandall, Pomerance 2005: Prime numbers];
@@ -362,4 +366,39 @@ public class JacobiSymbol {
     	if (m.equals(I_1)) return easyPart;
     	return easyPart * jacobiSymbol(a, m);
     }
+    
+    /**
+     * Return all quadratic residues modulo m, where m may be even, too.
+     * Computed by brute force.
+     * 
+     * @param m
+     * @return set of quadratic residues modulo m, sorted bottom up.
+     */
+    public static TreeSet<Long> getQuadraticResidues(long m) {
+    	TreeSet<Long> quadraticResidues = new TreeSet<Long>();
+    	for (long i=0; i<=m/2; i++) {
+    		quadraticResidues.add(i*i % m);
+    	}
+    	return quadraticResidues;
+    }
+    
+	/**
+	 * Test.
+	 * @param args ignored
+	 */
+	public static void main(String[] args) {
+		ConfigUtil.initProject();
+		TreeSet<Long> quadraticResiduesMod100 = getQuadraticResidues(100);
+		LOG.info("m = 100 has " + quadraticResiduesMod100.size() + " quadratic residues: " + quadraticResiduesMod100);
+		
+		ArrayList<Integer> counts = new ArrayList<Integer>();
+		for (int n=0; n<20; n++) {
+			int m = 1<<n;
+			TreeSet<Long> quadraticResiduesMod2PowN = getQuadraticResidues(m);
+			LOG.info("m = " + m + " has " + quadraticResiduesMod2PowN.size() + " quadratic residues: " + quadraticResiduesMod2PowN);
+			counts.add(quadraticResiduesMod2PowN.size());
+		}
+		LOG.info("counts = " + counts);
+		// A023105(n) = 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, ...
+	}
 }
