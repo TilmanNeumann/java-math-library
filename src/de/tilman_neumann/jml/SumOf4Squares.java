@@ -31,14 +31,14 @@ public class SumOf4Squares {
 	private static final Logger LOG = Logger.getLogger(SumOf4Squares.class);
 
 	/**
-	 * Compute all elements of A004015 below m, i.e. all n<m such that n can be expressed as a sum of 4 squares
+	 * Compute all elements of A004215 below m, i.e. all n<m such that n can be expressed as a sum of 4 squares
 	 * but not by a sum of less than four squares.
 	 * As commented in http://oeis.org/A004215, these are numbers of the form 4^i(8j+7), i >= 0, j >= 0.
 	 * 
 	 * @param m
-	 * @return A004015 entries < m
+	 * @return A004215 entries < m
 	 */
-	public static TreeSet<Long> getA004015(long m) {
+	public static TreeSet<Long> getA004215(long m) {
 		TreeSet<Long> result = new TreeSet<Long>();
 		int mBits = 64 - Long.numberOfLeadingZeros(m);
 		int iMax = (mBits+1)>>1;
@@ -56,7 +56,7 @@ public class SumOf4Squares {
 	}
 	
 	/**
-	 * A test of the hypothesis that A023105(2^n) == 2 + the number of entries of A004015 that are less than 2^n.
+	 * A test of the hypothesis that A023105(2^n) == 2 + the number of entries of A004215 that are less than 2^n.
 	 * 
 	 * @param args ignored
 	 */
@@ -64,7 +64,7 @@ public class SumOf4Squares {
 		ConfigUtil.initProject();
 		
 		ArrayList<Integer> quadraticResidueCounts = new ArrayList<Integer>();
-		ArrayList<Integer> a004015EntryCounts = new ArrayList<Integer>();
+		ArrayList<Integer> a004215EntryCounts = new ArrayList<Integer>();
 		
 		for (int n=0; n<20; n++) {
 			int m = 1<<n;
@@ -72,15 +72,15 @@ public class SumOf4Squares {
 			LOG.info("There are " + quadraticResiduesMod2PowN.size() + " quadratic residues % " + m + ": " + quadraticResiduesMod2PowN);
 			quadraticResidueCounts.add(quadraticResiduesMod2PowN.size());
 			
-			TreeSet<Long> a004015Entries = getA004015(m);
-			LOG.info("There are " + a004015Entries.size() + " A004015 entries < " + m + ": " + a004015Entries);
-			a004015EntryCounts.add(a004015Entries.size());
+			TreeSet<Long> a004215Entries = getA004215(m);
+			LOG.info("There are " + a004215Entries.size() + " A004215 entries < " + m + ": " + a004215Entries);
+			a004215EntryCounts.add(a004215Entries.size());
 			LOG.info("");
 		}
 		
 		LOG.info("quadraticResidueCounts = " + quadraticResidueCounts);
 		// A023105(n) = 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, ...
 		
-		LOG.info("a004015EntryCounts = " + a004015EntryCounts);
+		LOG.info("a004215EntryCounts = " + a004215EntryCounts);
 	}
 }
