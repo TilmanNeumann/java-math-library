@@ -14,6 +14,8 @@
 package de.tilman_neumann.jml;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -30,8 +32,10 @@ public class SumOf4Squares {
 
 	private static final Logger LOG = Logger.getLogger(SumOf4Squares.class);
 
+	private static final boolean DEBUG = false;
+	
 	/**
-	 * Compute all elements of A004215 below m, i.e. all n<m such that n can be expressed as a sum of 4 squares
+	 * Compute all elements of A004215 below m, i.e. all k<m such that k can be expressed as a sum of 4 squares
 	 * but not by a sum of less than four squares.
 	 * As commented in http://oeis.org/A004215, these are numbers of the form 4^i(8j+7), i >= 0, j >= 0.
 	 * 
@@ -56,6 +60,49 @@ public class SumOf4Squares {
 	}
 	
 	/**
+	 * Compute all elements of A004215 below m = 2^n, i.e. all k<m such that k can be expressed as a sum of 4 squares
+	 * but not by a sum of less than 4 squares.
+	 * 
+	 * This implementation seems to be faster than v1 but in the current form suffers from garbage collection.
+	 * 
+	 * @param n
+	 * @return A004215 entries < 2^n
+	 */
+	public static List<Long> getA004215_v2(long n) {
+		if (n < 3) return new ArrayList<>();
+		
+		List<Long> list = Arrays.asList(new Long[] {0L, 1L}); // mod=2
+		for (int i=1; i<n; i++) {
+			boolean iOdd = (i & 1) == 1;
+			int mod = 1<<i;
+			List<Long> nextList = new ArrayList<>(list); // copy
+			for (long elem : list) {
+				nextList.add(elem + mod);
+			}
+			// remove some stuff
+			if (DEBUG) LOG.debug("mod=" + mod + ", i odd = " + iOdd + ", list = " + list + ", nextList = " + nextList);
+			if (iOdd) {
+				nextList.remove(Long.valueOf(mod));
+				nextList.remove(Long.valueOf(mod>>1));
+			} else {
+				nextList.remove(Long.valueOf((mod>>1) + (mod>>2)));
+			}
+			if (DEBUG) LOG.debug("reduced nextList = " + nextList);
+			list = nextList;
+		}
+		
+		// remove more stuff
+		list.remove(0L);
+		boolean nOdd = (n & 1) == 1;
+		if (nOdd) {
+			list.remove(Long.valueOf(1 << (n-1)));
+		} else {
+			list.remove(Long.valueOf((1 << (n-1)) + (1 << (n-2))));
+		}
+		return list;
+	}
+
+	/**
 	 * A test of the hypothesis that A023105(2^n) == 2 + the number of entries of A004215 that are less than 2^n.
 	 * 
 	 * @param args ignored
@@ -65,22 +112,34 @@ public class SumOf4Squares {
 		
 		ArrayList<Integer> quadraticResidueCounts = new ArrayList<Integer>();
 		ArrayList<Integer> a004215EntryCounts = new ArrayList<Integer>();
+		ArrayList<Integer> a004215EntryCounts_v2 = new ArrayList<Integer>();
 		
-		for (int n=0; n<20; n++) {
+		for (int n=0; n<30; n++) {
 			int m = 1<<n;
+			long t0 = System.currentTimeMillis();
 			TreeSet<Long> quadraticResiduesMod2PowN = JacobiSymbol.getQuadraticResidues(m);
-			LOG.info("There are " + quadraticResiduesMod2PowN.size() + " quadratic residues % " + m + ": " + quadraticResiduesMod2PowN);
+			long t1 = System.currentTimeMillis();
+			LOG.info("There are " + quadraticResiduesMod2PowN.size() + " quadratic residues % " + m + (DEBUG ? ": " + quadraticResiduesMod2PowN : "") + " -- duration: " + (t1-t0) + "ms");
 			quadraticResidueCounts.add(quadraticResiduesMod2PowN.size());
 			
+			t0 = System.currentTimeMillis();
 			TreeSet<Long> a004215Entries = getA004215(m);
-			LOG.info("There are " + a004215Entries.size() + " A004215 entries < " + m + ": " + a004215Entries);
+			t1 = System.currentTimeMillis();
+			LOG.info("v1: There are " + a004215Entries.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries : "") + " -- duration: " + (t1-t0) + "ms");
 			a004215EntryCounts.add(a004215Entries.size());
+			
+			t0 = System.currentTimeMillis();
+			List<Long> a004215Entries_v2 = getA004215_v2(n);
+			t1 = System.currentTimeMillis();
+			LOG.info("v2: There are " + a004215Entries_v2.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries_v2 : "") + " -- duration: " + (t1-t0) + "ms");
+			a004215EntryCounts_v2.add(a004215Entries_v2.size());
 			LOG.info("");
 		}
 		
 		LOG.info("quadraticResidueCounts = " + quadraticResidueCounts);
 		// A023105(n) = 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, ...
 		
-		LOG.info("a004215EntryCounts = " + a004215EntryCounts);
+		LOG.info("v1: a004215EntryCounts = " + a004215EntryCounts);
+		LOG.info("v2: a004215EntryCounts = " + a004215EntryCounts_v2);
 	}
 }
