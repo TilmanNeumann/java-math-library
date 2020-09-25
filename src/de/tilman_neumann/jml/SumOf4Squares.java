@@ -103,7 +103,7 @@ public class SumOf4Squares {
 	}
 	
 	/**
-	 * Another implementation using arrays.
+	 * Another implementation using arrays, much faster than the previous ones.
 	 * 
 	 * @param n such that m=2^n
 	 * @param array an array big enough to take roughly 2^n/6 values
@@ -175,7 +175,8 @@ public class SumOf4Squares {
 	}
 
 	/**
-	 * A test of the hypothesis that A023105(2^n) == 2 + the number of entries of A004215 that are less than 2^n.
+	 * A test of the hypothesis that A023105(2^n) == 2 + the number of entries of A004215 that are less than 2^n, for n>0.
+	 * Confirmed until n=29.
 	 * 
 	 * @param args ignored
 	 */
@@ -187,25 +188,25 @@ public class SumOf4Squares {
 		ArrayList<Integer> a004215EntryCounts_v2 = new ArrayList<Integer>();
 		ArrayList<Integer> a004215EntryCounts_v3 = new ArrayList<Integer>();
 		
-		for (int n=0; n<=25; n++) {
-			int m = 1<<n;
+		for (int n=0; n<=30; n++) {
+			long m = 1L<<n;
 			long t0 = System.currentTimeMillis();
 			TreeSet<Long> quadraticResiduesMod2PowN = JacobiSymbol.getQuadraticResidues(m);
 			long t1 = System.currentTimeMillis();
 			LOG.info("n=" + n + ": There are " + quadraticResiduesMod2PowN.size() + " quadratic residues % " + m + (DEBUG ? ": " + quadraticResiduesMod2PowN : "") + " -- duration: " + (t1-t0) + "ms");
 			quadraticResidueCounts.add(quadraticResiduesMod2PowN.size());
 			
-			t0 = System.currentTimeMillis();
-			TreeSet<Long> a004215Entries = getA004215(m);
-			t1 = System.currentTimeMillis();
-			LOG.info("v1: There are " + a004215Entries.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries : "") + " -- duration: " + (t1-t0) + "ms");
-			a004215EntryCounts.add(a004215Entries.size());
-			
-			t0 = System.currentTimeMillis();
-			List<Long> a004215Entries_v2 = getA004215_v2(n);
-			t1 = System.currentTimeMillis();
-			LOG.info("v2: There are " + a004215Entries_v2.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries_v2 : "") + " -- duration: " + (t1-t0) + "ms");
-			a004215EntryCounts_v2.add(a004215Entries_v2.size());
+//			t0 = System.currentTimeMillis();
+//			TreeSet<Long> a004215Entries = getA004215(m);
+//			t1 = System.currentTimeMillis();
+//			LOG.info("v1: There are " + a004215Entries.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries : "") + " -- duration: " + (t1-t0) + "ms");
+//			a004215EntryCounts.add(a004215Entries.size());
+//			
+//			t0 = System.currentTimeMillis();
+//			List<Long> a004215Entries_v2 = getA004215_v2(n);
+//			t1 = System.currentTimeMillis();
+//			LOG.info("v2: There are " + a004215Entries_v2.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries_v2 : "") + " -- duration: " + (t1-t0) + "ms");
+//			a004215EntryCounts_v2.add(a004215Entries_v2.size());
 			
 			t0 = System.currentTimeMillis();
 			long[] a004215Entries_v3 = new long[((1<<n) + 32) / 6]; // #{A004215(k) | k<m} is always near to m/6
@@ -214,6 +215,7 @@ public class SumOf4Squares {
 			t1 = System.currentTimeMillis();
 			LOG.info("v3: There are " + count + " A004215 entries < " + m + (DEBUG ? ": " + Arrays.toString(a004215Entries_v3) : "") + " -- duration: " + (t1-t0) + "ms");
 			a004215EntryCounts_v3.add(count);
+			
 			LOG.info("");
 		}
 		
