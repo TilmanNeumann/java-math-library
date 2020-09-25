@@ -80,14 +80,14 @@ public class SumOf4Squares {
 				nextList.add(elem + mod);
 			}
 			// remove some stuff
-			if (DEBUG) LOG.debug("mod=" + mod + ", i odd = " + iOdd + ", list = " + list + ", nextList = " + nextList);
+//			if (DEBUG) LOG.debug("mod=" + mod + ", i odd = " + iOdd + ", list = " + list + ", nextList = " + nextList);
 			if (iOdd) {
 				nextList.remove(Long.valueOf(mod));
 				nextList.remove(Long.valueOf(mod>>1));
 			} else {
 				nextList.remove(Long.valueOf((mod>>1) + (mod>>2)));
 			}
-			if (DEBUG) LOG.debug("reduced nextList = " + nextList);
+//			if (DEBUG) LOG.debug("reduced nextList = " + nextList);
 			list = nextList;
 		}
 		
@@ -100,6 +100,78 @@ public class SumOf4Squares {
 			list.remove(Long.valueOf((1 << (n-1)) + (1 << (n-2))));
 		}
 		return list;
+	}
+	
+	/**
+	 * Another implementation using arrays.
+	 * 
+	 * @param n such that m=2^n
+	 * @param array an array big enough to take roughly 2^n/6 values
+	 * @return number of entries
+	 */
+	public static int getA004215_v3(long n, long[] array) {
+		if (n < 3) return 0;
+		
+		// start with entries mod 2
+		array[0] = 0;
+		array[1] = 1;
+		int count = 2;
+		
+		for (int i=1; i<n; i++) {
+			boolean iOdd = (i & 1) == 1;
+			int mod = 1<<i;
+			
+			// duplicate
+			for (int j=0; j<count; j++) {
+				array [j+count] = array[j] + mod;
+			}
+			count <<= 1;
+			
+			if (DEBUG) LOG.debug("mod=" + mod + ", i odd = " + iOdd + ", count = " + count + ", array = " + Arrays.toString(array));
+			
+			// remove some stuff
+			int nextCount = 0;
+			if (iOdd) {
+				for (int j=0; j<count; j++) {
+					long elem = array[j];
+					if (elem != mod && elem != (mod>>1)) {
+						// if (DEBUG) LOG.debug("mod=" + mod + ", i odd = " + iOdd + ": add elem = " + elem);
+						array [nextCount++] = elem;
+					}
+				}
+			} else {
+				for (int j=0; j<count; j++) {
+					long elem = array[j];
+					if (elem != (mod>>1) + (mod>>2)) {
+						// if (DEBUG) LOG.debug("mod=" + mod + ", i odd = " + iOdd + ": add elem = " + elem);
+						array [nextCount++] = elem;
+					}
+				}
+			}
+			if (DEBUG) LOG.debug("reduced array = " + Arrays.toString(array));
+			count = nextCount;
+		}
+		
+		// remove last stuff
+		int outCount = 0;
+		boolean nOdd = (n & 1) == 1;
+		if (nOdd) {
+			for (int j=1; j<count; j++) { // remove 0
+				long elem = array[j];
+				if (elem != (1L << (n-1))) {
+					array [outCount++] = elem;
+				}
+			}
+		} else {
+			for (int j=1; j<count; j++) { // remove 0
+				long elem = array[j];
+				if (elem != (1 << (n-1)) + (1 << (n-2))) {
+					array [outCount++] = elem;
+				}
+			}
+		}
+		
+		return outCount;
 	}
 
 	/**
@@ -133,6 +205,13 @@ public class SumOf4Squares {
 			t1 = System.currentTimeMillis();
 			LOG.info("v2: There are " + a004215Entries_v2.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries_v2 : "") + " -- duration: " + (t1-t0) + "ms");
 			a004215EntryCounts_v2.add(a004215Entries_v2.size());
+			
+			t0 = System.currentTimeMillis();
+			long[] a004215Entries_v3 = new long[((1<<n)+ 100) / 6]; // #{A004215(k) | k<m} is always near to m/6
+			int count = getA004215_v3(n, a004215Entries_v3);
+			t1 = System.currentTimeMillis();
+			LOG.info("v3: There are " + count + " A004215 entries < " + m + (DEBUG ? ": " + Arrays.toString(a004215Entries_v3) : "") + " -- duration: " + (t1-t0) + "ms");
+			a004215EntryCounts_v2.add(count);
 			LOG.info("");
 		}
 		
