@@ -185,13 +185,14 @@ public class SumOf4Squares {
 		ArrayList<Integer> quadraticResidueCounts = new ArrayList<Integer>();
 		ArrayList<Integer> a004215EntryCounts = new ArrayList<Integer>();
 		ArrayList<Integer> a004215EntryCounts_v2 = new ArrayList<Integer>();
+		ArrayList<Integer> a004215EntryCounts_v3 = new ArrayList<Integer>();
 		
-		for (int n=0; n<30; n++) {
+		for (int n=0; n<=25; n++) {
 			int m = 1<<n;
 			long t0 = System.currentTimeMillis();
 			TreeSet<Long> quadraticResiduesMod2PowN = JacobiSymbol.getQuadraticResidues(m);
 			long t1 = System.currentTimeMillis();
-			LOG.info("There are " + quadraticResiduesMod2PowN.size() + " quadratic residues % " + m + (DEBUG ? ": " + quadraticResiduesMod2PowN : "") + " -- duration: " + (t1-t0) + "ms");
+			LOG.info("n=" + n + ": There are " + quadraticResiduesMod2PowN.size() + " quadratic residues % " + m + (DEBUG ? ": " + quadraticResiduesMod2PowN : "") + " -- duration: " + (t1-t0) + "ms");
 			quadraticResidueCounts.add(quadraticResiduesMod2PowN.size());
 			
 			t0 = System.currentTimeMillis();
@@ -207,11 +208,12 @@ public class SumOf4Squares {
 			a004215EntryCounts_v2.add(a004215Entries_v2.size());
 			
 			t0 = System.currentTimeMillis();
-			long[] a004215Entries_v3 = new long[((1<<n)+ 100) / 6]; // #{A004215(k) | k<m} is always near to m/6
+			long[] a004215Entries_v3 = new long[((1<<n) + 32) / 6]; // #{A004215(k) | k<m} is always near to m/6
+			// 32 is fine up to 
 			int count = getA004215_v3(n, a004215Entries_v3);
 			t1 = System.currentTimeMillis();
 			LOG.info("v3: There are " + count + " A004215 entries < " + m + (DEBUG ? ": " + Arrays.toString(a004215Entries_v3) : "") + " -- duration: " + (t1-t0) + "ms");
-			a004215EntryCounts_v2.add(count);
+			a004215EntryCounts_v3.add(count);
 			LOG.info("");
 		}
 		
@@ -220,5 +222,6 @@ public class SumOf4Squares {
 		
 		LOG.info("v1: a004215EntryCounts = " + a004215EntryCounts);
 		LOG.info("v2: a004215EntryCounts = " + a004215EntryCounts_v2);
+		LOG.info("v3: a004215EntryCounts = " + a004215EntryCounts_v3);
 	}
 }
