@@ -375,7 +375,7 @@ public class JacobiSymbol {
      */
     public static TreeSet<Long> getQuadraticResidues(long m) {
     	TreeSet<Long> quadraticResidues = new TreeSet<Long>();
-    	for (long i=1; i<=m/2; i++) {
+    	for (long i=0; i<=m/2; i++) {
     		quadraticResidues.add(i*i % m);
     	}
     	return quadraticResidues;
