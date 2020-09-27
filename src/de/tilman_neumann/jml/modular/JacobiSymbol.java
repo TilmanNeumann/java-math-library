@@ -35,10 +35,14 @@ public class JacobiSymbol {
 	/**
 	 * JacobiSymbol J(a|m), m an odd integer, for BigInteger arguments.
 	 * Basic implementation. (slow)
+	 * @param a argument
+	 * @param m modulus, an odd integer
+	 * @return J(a|m)
 	 */
 	/* not public */ int jacobiSymbol_v01(BigInteger a, BigInteger m) {
+		if (m.equals(I_0)) return 0;
     	int aCmpZero = a.compareTo(I_0);
-        if (aCmpZero == 0) return 0;
+        if (aCmpZero == 0) return 1;
 
        // make a positive
 		int t=1, mMod8;
@@ -78,12 +82,13 @@ public class JacobiSymbol {
 	 * First optimization. (still slow)
 	 * 
 	 * @param a
-	 * @param m
-	 * @return
+	 * @param m modulus, an odd integer
+	 * @return J(a|m)
 	 */
 	/* not public */ int jacobiSymbol_v02(BigInteger a, BigInteger m) {
+		if (m.equals(I_0)) return 0;
     	int aCmpZero = a.compareTo(I_0);
-        if (aCmpZero == 0) return 0;
+        if (aCmpZero == 0) return 1;
 
        // make a positive
 		int t=1, mMod8;
@@ -130,12 +135,13 @@ public class JacobiSymbol {
 	 * Highly optimized, using faster quadratic reciprocity.
 	 * 
 	 * @param a
-	 * @param m an odd integer
-	 * @return
+	 * @param m modulus, an odd integer
+	 * @return J(a|m)
 	 */
 	public int jacobiSymbol/*_v03*/(BigInteger a, BigInteger m) {
+		if (m.equals(I_0)) return 0;
     	int aCmpZero = a.compareTo(I_0);
-        if (aCmpZero == 0) return 0;
+        if (aCmpZero == 0) return 1;
 
        // make a positive
 		int t=1, mMod8;
@@ -176,8 +182,9 @@ public class JacobiSymbol {
 	}
 	
 	public int jacobiSymbol/*_v03*/(BigInteger a, int m) {
+		if (m == 0) return 0;
     	int aCmpZero = a.compareTo(I_0);
-        if (aCmpZero == 0) return 0;
+        if (aCmpZero == 0) return 1;
 
        // make a positive
 		int t=1, mMod8;
@@ -218,7 +225,8 @@ public class JacobiSymbol {
 	}
 	
 	public int jacobiSymbol/*_v03*/(int a, BigInteger m) {
-        if (a == 0) return 0;
+		if (m.equals(I_0)) return 0;
+        if (a == 0) return 1;
 
        // make a positive
 		int t=1;
@@ -284,7 +292,8 @@ public class JacobiSymbol {
 	}
 	
 	public int jacobiSymbol/*_v03*/(int a, int m) {
-        if (a == 0) return 0;
+		if (m == 0) return 0;
+        if (a == 0) return 1;
 
        // make a positive
 		int t=1, mMod8;
@@ -384,7 +393,7 @@ public class JacobiSymbol {
     /**
      * Get the quadratic residues of even "i" modulo m.
      * @param m
-     * @return
+     * @return set of quadratic residues modulo m that result from even arguments
      */
     public static TreeSet<Long> getEvenQuadraticResidues(long m) {
     	TreeSet<Long> quadraticResidues = new TreeSet<Long>();
