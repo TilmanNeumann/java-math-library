@@ -40,9 +40,8 @@ public class JacobiSymbol {
 	 * @return J(a|m)
 	 */
 	/* not public */ int jacobiSymbol_v01(BigInteger a, BigInteger m) {
-		if (m.equals(I_0)) return 0;
     	int aCmpZero = a.compareTo(I_0);
-        if (aCmpZero == 0) return 1;
+        if (aCmpZero == 0) return 0;
 
        // make a positive
 		int t=1, mMod8;
@@ -86,9 +85,8 @@ public class JacobiSymbol {
 	 * @return J(a|m)
 	 */
 	/* not public */ int jacobiSymbol_v02(BigInteger a, BigInteger m) {
-		if (m.equals(I_0)) return 0;
     	int aCmpZero = a.compareTo(I_0);
-        if (aCmpZero == 0) return 1;
+        if (aCmpZero == 0) return 0;
 
        // make a positive
 		int t=1, mMod8;
@@ -139,9 +137,8 @@ public class JacobiSymbol {
 	 * @return J(a|m)
 	 */
 	public int jacobiSymbol/*_v03*/(BigInteger a, BigInteger m) {
-		if (m.equals(I_0)) return 0;
     	int aCmpZero = a.compareTo(I_0);
-        if (aCmpZero == 0) return 1;
+        if (aCmpZero == 0) return 0;
 
        // make a positive
 		int t=1, mMod8;
@@ -182,9 +179,8 @@ public class JacobiSymbol {
 	}
 	
 	public int jacobiSymbol/*_v03*/(BigInteger a, int m) {
-		if (m == 0) return 0;
     	int aCmpZero = a.compareTo(I_0);
-        if (aCmpZero == 0) return 1;
+        if (aCmpZero == 0) return 0;
 
        // make a positive
 		int t=1, mMod8;
@@ -225,8 +221,7 @@ public class JacobiSymbol {
 	}
 	
 	public int jacobiSymbol/*_v03*/(int a, BigInteger m) {
-		if (m.equals(I_0)) return 0;
-        if (a == 0) return 1;
+        if (a == 0) return 0;
 
        // make a positive
 		int t=1;
@@ -292,8 +287,7 @@ public class JacobiSymbol {
 	}
 	
 	public int jacobiSymbol/*_v03*/(int a, int m) {
-		if (m == 0) return 0;
-        if (a == 0) return 1;
+        if (a == 0) return 0;
 
        // make a positive
 		int t=1, mMod8;
@@ -393,7 +387,7 @@ public class JacobiSymbol {
     /**
      * Get the quadratic residues of even "i" modulo m.
      * @param m
-     * @return set of quadratic residues modulo m that result from even arguments
+     * @return
      */
     public static TreeSet<Long> getEvenQuadraticResidues(long m) {
     	TreeSet<Long> quadraticResidues = new TreeSet<Long>();
