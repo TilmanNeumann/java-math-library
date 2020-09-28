@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml;
+package de.tilman_neumann.jml.modular;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +20,6 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.modular.JacobiSymbol;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
