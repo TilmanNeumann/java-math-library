@@ -190,22 +190,22 @@ public class SumOf4Squares {
 		for (int n=0; n<=30; n++) {
 			long m = 1L<<n;
 			long t0 = System.currentTimeMillis();
-			TreeSet<Long> quadraticResiduesMod2PowN = JacobiSymbol.getQuadraticResidues(m);
+			TreeSet<Long> quadraticResiduesMod2PowN = QuadraticResidues.getQuadraticResidues(m);
 			long t1 = System.currentTimeMillis();
 			LOG.info("n=" + n + ": There are " + quadraticResiduesMod2PowN.size() + " quadratic residues % " + m + (DEBUG ? ": " + quadraticResiduesMod2PowN : "") + " -- duration: " + (t1-t0) + "ms");
 			quadraticResidueCounts.add(quadraticResiduesMod2PowN.size());
 			
-//			t0 = System.currentTimeMillis();
-//			TreeSet<Long> a004215Entries = getA004215(m);
-//			t1 = System.currentTimeMillis();
-//			LOG.info("v1: There are " + a004215Entries.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries : "") + " -- duration: " + (t1-t0) + "ms");
-//			a004215EntryCounts.add(a004215Entries.size());
-//			
-//			t0 = System.currentTimeMillis();
-//			List<Long> a004215Entries_v2 = getA004215_v2(n);
-//			t1 = System.currentTimeMillis();
-//			LOG.info("v2: There are " + a004215Entries_v2.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries_v2 : "") + " -- duration: " + (t1-t0) + "ms");
-//			a004215EntryCounts_v2.add(a004215Entries_v2.size());
+			t0 = System.currentTimeMillis();
+			TreeSet<Long> a004215Entries = getA004215(m);
+			t1 = System.currentTimeMillis();
+			LOG.info("v1: There are " + a004215Entries.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries : "") + " -- duration: " + (t1-t0) + "ms");
+			a004215EntryCounts.add(a004215Entries.size());
+			
+			t0 = System.currentTimeMillis();
+			List<Long> a004215Entries_v2 = getA004215_v2(n);
+			t1 = System.currentTimeMillis();
+			LOG.info("v2: There are " + a004215Entries_v2.size() + " A004215 entries < " + m + (DEBUG ? ": " + a004215Entries_v2 : "") + " -- duration: " + (t1-t0) + "ms");
+			a004215EntryCounts_v2.add(a004215Entries_v2.size());
 			
 			t0 = System.currentTimeMillis();
 			long[] a004215Entries_v3 = new long[((1<<n) + 32) / 6]; // #{A004215(k) | k<m} is always near to m/6
