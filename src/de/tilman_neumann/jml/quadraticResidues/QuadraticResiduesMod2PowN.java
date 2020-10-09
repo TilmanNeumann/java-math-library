@@ -254,10 +254,14 @@ public class QuadraticResiduesMod2PowN {
 	 * @return set of complements
 	 */
 	public static TreeSet<Long> getComplementOfQuadraticResiduesMod2PowN(int n) {
-		List<Long> list = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
+		TreeSet<Long> complement = new TreeSet<>();
+		if (n<1) {
+			complement.add(0L);
+			return complement;
+		}
 		
 		long m = 1L << n;
-		TreeSet<Long> complement = new TreeSet<>();
+		List<Long> list = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
 		for (long elem : list) {
 			complement.add(elem>0 ? m - elem : 0);
 		}
