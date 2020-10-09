@@ -17,12 +17,14 @@ import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.quadraticResidues.QuadraticResiduesMod2PowN;
+import de.tilman_neumann.jml.roots.SqrtExact;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
@@ -35,12 +37,16 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
 public class Lehman_AnalyzeCongruences3 {
 	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeCongruences3.class);
 	
+	private static final boolean DEBUG = true;
+
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 	
 	private int[][] counts; // dimensions: kN%KNMOD, a%KNMOD
+	
+	private List<Long> qr;
 	private TreeSet<Long> qrComplements;
 	private TreeSet<Integer> offsets;
 	
@@ -76,7 +82,18 @@ public class Lehman_AnalyzeCongruences3 {
 									// LOG.debug("kN = " + kNMod + ", aMod=" + aMod + ": offset = " + offset + ", offset2 = " + offset2);
 									offsets.add((int) offset2);
 									assertTrue(qrComplements.contains(Long.valueOf(offset2)));
+									// Uuuuh. The former means that test == 64 * (some quadratic residue) (mod KNMOD) for not too small KNMODs !
+									if (KNMOD>4) {
+										assertEquals(0, test % 64);
+										long testMod = (test/64) % KNMOD;
+										if (DEBUG) LOG.debug("test/64 = " + (test/64) + ", testMod = " + testMod + ", qr = " + qr);
+										assertTrue(qr.contains(testMod));
+										// test/64 is always a square, so then is test !
+										long lowerSqrt = SqrtExact.exactSqrt(BigInteger.valueOf(test/64)).longValue();
+										assertEquals(test/64, lowerSqrt*lowerSqrt);
+									}
 								}
+								
 								// We know that all elements of an antidiagonal (a0, adjust) with a0 + adjust == a (mod KNMOD)
 								// represent the same "successful a". Thus we only need to store results for "a" !
 								counts[kNMod][aMod]++;
@@ -101,6 +118,8 @@ public class Lehman_AnalyzeCongruences3 {
 			
 			int bits = 15;
 			BigInteger[] testNumbers = TestsetGenerator.generate(KNMOD*100, bits, TestNumberNature.MODERATE_SEMIPRIMES);
+			
+			qr = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
 			
 			qrComplements = QuadraticResiduesMod2PowN.getComplementOfQuadraticResiduesMod2PowN(n-4);
 			LOG.info("qrComplements = " + qrComplements);
