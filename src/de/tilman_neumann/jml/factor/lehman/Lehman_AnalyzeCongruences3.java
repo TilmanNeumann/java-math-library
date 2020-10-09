@@ -17,7 +17,6 @@ import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -42,7 +41,7 @@ public class Lehman_AnalyzeCongruences3 {
 	private final Gcd63 gcdEngine = new Gcd63();
 	
 	private int[][] counts; // dimensions: kN%KNMOD, a%KNMOD
-	private TreeSet<Long> a004215;
+	private TreeSet<Long> qrComplements;
 	private TreeSet<Integer> offsets;
 	
 	ArrayList<Integer>[] aForKN = null;
@@ -76,7 +75,7 @@ public class Lehman_AnalyzeCongruences3 {
 									long offset2 = (offset-1)/16;
 									// LOG.debug("kN = " + kNMod + ", aMod=" + aMod + ": offset = " + offset + ", offset2 = " + offset2);
 									offsets.add((int) offset2);
-									assertTrue(a004215.contains(Long.valueOf(offset2)));
+									assertTrue(qrComplements.contains(Long.valueOf(offset2)));
 								}
 								// We know that all elements of an antidiagonal (a0, adjust) with a0 + adjust == a (mod KNMOD)
 								// represent the same "successful a". Thus we only need to store results for "a" !
@@ -103,13 +102,8 @@ public class Lehman_AnalyzeCongruences3 {
 			int bits = 15;
 			BigInteger[] testNumbers = TestsetGenerator.generate(KNMOD*100, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 			
-			a004215 = getQuadraticComplement(n-4);
-			if (KNMOD < 128) { // TODO Why is this necessary?
-				a004215.add(0L);
-				a004215.add(Long.valueOf((KNMOD >> 6) + (KNMOD >> 5)));
-			}
-			
-			LOG.debug("A004215 =       " + a004215);
+			qrComplements = QuadraticResiduesMod2PowN.getComplementOfQuadraticResiduesMod2PowN(n-4);
+			LOG.info("qrComplements = " + qrComplements);
 
 			for (BigInteger N : testNumbers) {
 				//if (N.mod(I_6).equals(I_5)) // makes no difference
@@ -120,37 +114,9 @@ public class Lehman_AnalyzeCongruences3 {
 			LOG.info("");
 		}
 	}
-	
-	public static TreeSet<Long> getQuadraticComplement(int n) {
-		if (n < 3) return new TreeSet<>();
-		
-		List<Long> list = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
-		
-		long m = 1L << n;
-		TreeSet<Long> complement = new TreeSet<>();
-		for (long elem : list) {
-			complement.add(elem > 0 ? m - elem : 0);
-		}
-		return complement;
-	}
-
-	private static void computeHypotheticalACounts(int num) {
-		List<Long> aCounts = new ArrayList<>();
-		aCounts.add(1L); // for KNMOD=2, KNMOD_EXP=1
-		for (int KNMOD_EXP = 2; KNMOD_EXP<=num; KNMOD_EXP++) {
-			long lastACount = aCounts.get(KNMOD_EXP-2);
-			int rightExp = ((KNMOD_EXP>>1) << 1) - 1;
-			long nextACount = (lastACount<<2L) - (1L<<rightExp);
-			aCounts.add(nextACount);
-		}
-		LOG.info("Hypothetical aCounts = " + aCounts);
-		LOG.info("");
-	}
 
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-    	
-    	computeHypotheticalACounts(30);
     	
     	new Lehman_AnalyzeCongruences3().test();
 	}

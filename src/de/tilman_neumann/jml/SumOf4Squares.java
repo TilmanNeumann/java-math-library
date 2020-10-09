@@ -59,7 +59,7 @@ public class SumOf4Squares {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Compute all elements of A004215 below m = 2^n, i.e. all k<m such that k can be expressed as a sum of 4 squares
 	 * but not by a sum of less than 4 squares.
@@ -71,17 +71,11 @@ public class SumOf4Squares {
 	 */
 	public static TreeSet<Long> getA004215_v2(int n) {
 		if (n < 3) return new TreeSet<>();
-		
-		List<Long> list = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
-		
-		long m = 1L << n;
-		TreeSet<Long> complement = new TreeSet<>();
-		for (long elem : list) {
-			complement.add(m - elem);
-		}
+
+		TreeSet<Long> complement = QuadraticResiduesMod2PowN.getComplementOfQuadraticResiduesMod2PowN(n);
 		
 		// remove the entries not needed for A004215
-		complement.remove(m);
+		complement.remove(0L);
 		boolean nOdd = (n & 1) == 1;
 		if (nOdd) {
 			complement.remove(Long.valueOf(1 << (n-1)));

@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
@@ -241,5 +242,25 @@ public class QuadraticResiduesMod2PowN {
 		}
 		
 		return lastCount;
+	}
+	
+	/**
+	 * Returns the "complement" of quadratic residues modulo 2^n.
+	 * The complement c of a quadratic residue qr is computed as c = 2^n - qr if qr>0, c = 0 if qr==0. 
+	 * 
+	 * A004215 can be computed based on these sets.
+	 * 
+	 * @param n
+	 * @return set of complements
+	 */
+	public static TreeSet<Long> getComplementOfQuadraticResiduesMod2PowN(int n) {
+		List<Long> list = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
+		
+		long m = 1L << n;
+		TreeSet<Long> complement = new TreeSet<>();
+		for (long elem : list) {
+			complement.add(elem>0 ? m - elem : 0);
+		}
+		return complement;
 	}
 }
