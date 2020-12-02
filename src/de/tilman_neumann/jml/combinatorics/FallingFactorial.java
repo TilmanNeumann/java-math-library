@@ -92,11 +92,6 @@ public class FallingFactorial {
         return result;
 	}
     
-    
-    /**
-     * Test
-     * @param args ignored
-     */
     private static void testSmall() {
     	int max = 10;
     	BigIntGrid grid = new BigIntGrid("n", -max, "k", 0); // negative k not supported, results would be rational
