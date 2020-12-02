@@ -116,6 +116,11 @@ public class Precision implements Comparable<Precision> {
 	}
 
 	@Override
+	public int hashCode() {
+		return digits;
+	}
+	
+	@Override
 	public int compareTo(Precision other) {
 		return this.digits - other.digits;
 	}

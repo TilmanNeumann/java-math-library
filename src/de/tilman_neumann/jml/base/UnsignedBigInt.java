@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.base;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
@@ -285,6 +286,18 @@ public class UnsignedBigInt {
     	return true;
     }
 
+    @Override
+    public int hashCode() {
+        if (intArray == null || intLength==0) {
+            return 0;
+        }
+        int result = 1;
+    	for (int i=intLength-1; i>=0; i--) {
+            result = 31 * result + intArray[i];
+    	}
+        return result;
+    }
+    
 	public BigInteger toBigInteger() {
 		//LOG.debug("intLength = " + intLength);
 		if (intLength==0) return I_0;
