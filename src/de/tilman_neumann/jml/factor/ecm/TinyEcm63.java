@@ -95,7 +95,9 @@ public class TinyEcm63 extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(TinyEcm63.class);
 
 	private static final boolean DEBUG = false;
-	
+
+	private static final int MAX_BITS_SUPPORTED = 62;
+
 	private static final byte[] prac70Steps = new byte[] { 
 			0,6,0,6,0,6,0,4,6,0,4,6,0,4,4,6,
 			0,4,4,6,0,5,4,6,0,3,3,4,6,0,3,5,
@@ -1099,7 +1101,7 @@ public class TinyEcm63 extends FactorAlgorithm {
 		if (DEBUG) LOG.debug("LCGSTATE = " + LCGSTATE);
 		
 		int NBits = N.bitLength();
-		if (NBits > 62) throw new IllegalArgumentException("N=" + N + " has " + NBits + " bit, but tinyEcm supports arguments up to 63 bit only.");
+		if (NBits > MAX_BITS_SUPPORTED) throw new IllegalArgumentException("N=" + N + " has " + NBits + " bit, but tinyEcm only supports arguments <= " + MAX_BITS_SUPPORTED + " bit.");
 		// TODO Try to make it work for 63, 64 bit numbers
 		if (DEBUG) LOG.debug("N=" + N + " has " + NBits + " bits");
 		
@@ -1118,13 +1120,11 @@ public class TinyEcm63 extends FactorAlgorithm {
 		} else if (NBits <= 60) {
 			B1 = 165;
 			curves = 32;
-		} else if (NBits < 64) {
+		} else { // here the original tinyecm.c bound was < 64 bit
 			B1 = 205;
 			curves = 40;
-		} else { // >= 64 bit can not happen here but we keep the data for the moment
-			B1 = 1000;
-			curves = 64;
-		}
+		} // else for NBits >= 64 bit, tinyecm.c had the parameters  B1 = 1000; curves = 64;
+
 		if (DEBUG) LOG.debug("B1=" + B1 + ", curves=" + curves);
 		
 		if (DEBUG) LOG.debug("Try to factor N=" + N);
