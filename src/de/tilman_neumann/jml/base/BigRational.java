@@ -235,9 +235,9 @@ public class BigRational extends Number implements Comparable<BigRational> {
 		return this.compareTo(new BigRational(other));
 	}
 	
-	/**
-	 * equals() must be consistent with compareTo()...
-	 */
+	// Note: equals() must be consistent with compareTo()
+	// XXX some quality assurance tools are unhappy with calls like BigRational.equals(BigInteger)
+	@Override
 	public boolean equals(Object o) {
 		if (o==null) return false;
 		if (o instanceof BigRational) {
