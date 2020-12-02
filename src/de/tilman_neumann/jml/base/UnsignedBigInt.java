@@ -14,7 +14,6 @@
 package de.tilman_neumann.jml.base;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
