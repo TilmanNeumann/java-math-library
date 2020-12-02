@@ -46,7 +46,7 @@ public class ModularSqrtTest {
 
 	/**
 	 * Create positive n having Jacobi(n|p) == 1 for all p in pArray.
-	 * @param pArray
+	 * @param pList
 	 * @return
 	 */
 	private static int[] createNArray(int[] pList) {

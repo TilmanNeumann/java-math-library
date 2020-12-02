@@ -92,7 +92,7 @@ public class Stirling {
 	 * approach.
 	 * 
 	 * @param n the first argument to the Stirling function.
-	 * @param m the second argument to the Stirling function.
+	 * @param k the second argument to the Stirling function.
 	 * @return s(n,k)
 	 * @see <a href="http://en.wikipedia.org/wiki/Stirling_number">http://en.wikipedia.org/wiki/Stirling_number</a>
 	 */
