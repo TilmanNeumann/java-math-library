@@ -65,6 +65,8 @@ public class Precision implements Comparable<Precision> {
 
 	/**
 	 * The precision of a BigDecimal, with 0 for zero values.
+	 * @param x the given BigDecimal
+	 * @return the precision of x
 	 */
 	public static Precision of(BigDecimal x) {
 		return Precision.valueOf(x.signum()!=0 ? x.precision() : 0);
