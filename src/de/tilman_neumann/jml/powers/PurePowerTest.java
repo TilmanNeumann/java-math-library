@@ -61,7 +61,7 @@ public class PurePowerTest {
 	/**
 	 * Test if N is a pure power.</br></br>
 	 * 
-	 * The algorithm is based on {@link https://en.wikipedia.org/wiki/Rational_sieve#Limitations_of_the_algorithm},
+	 * The algorithm is based on {@link "https://en.wikipedia.org/wiki/Rational_sieve#Limitations_of_the_algorithm"},
 	 * with several improvements pointed out by to Graeme Willoughby:</br>
 	 * 
 	 * 1. Write an even number as N=(2^m)k (k odd). Then its p.th power (2^m)k)^p = (2^mp)k^p has the binary representation

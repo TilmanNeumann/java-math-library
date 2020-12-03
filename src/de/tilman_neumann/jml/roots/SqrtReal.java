@@ -121,7 +121,8 @@ public class SqrtReal {
   	}
   
 	/**
-	 * Test
+	 * Test.
+	 * @param argv command line arguments
 	 */
 	public static void main(String[] argv) {
     	ConfigUtil.initProject();

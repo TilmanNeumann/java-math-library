@@ -101,6 +101,7 @@ public class SqrtInt {
 	 * Here we use guess - n/guess as convergence criterion, which is simple and correct.
 	 * 
 	 * @param n
+	 * @param guess the initial guess
 	 * @return [lower, upper] int values of sqrt(n)
 	 */
 	public static BigInteger[] iSqrt(BigInteger n, BigInteger guess) {
