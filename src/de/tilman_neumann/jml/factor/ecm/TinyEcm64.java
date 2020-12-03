@@ -698,6 +698,12 @@ public class TinyEcm64 extends FactorAlgorithm {
 		}
 	}
 	
+	/**
+	 * @param n the number to factor
+	 * @param B1 stage 1 bound
+	 * @param curves currently ignored because we run curves until a factor is found. This requires that the algorithm is fed with composites, no primes.
+	 * @return Factorization result
+	 */
 	EcmResult tinyecm(long n, int B1, int curves)
 	{
 		//attempt to factor n with the elliptic curve method
