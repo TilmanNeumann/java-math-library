@@ -38,7 +38,7 @@ import java.util.Map;
  * 
  * @author Tilman Neumann
  * 
- * @param T element class, must have consistent equals() and hashCode() methods
+ * @param <T> element class, must have consistent equals() and hashCode() methods
  */
 public class Multiset_HashMapImpl<T> extends HashMap<T, Integer> implements Multiset<T> {
 	
@@ -131,7 +131,8 @@ public class Multiset_HashMapImpl<T> extends HashMap<T, Integer> implements Mult
 			if (imult>1) {
 				// the cast works if we only put T-type keys into the map
 				// which should be guaranteed in the add-methods
-				super.put((T)key, Integer.valueOf(imult-1));
+				@SuppressWarnings("unchecked") T castedKey = (T) key;
+				super.put(castedKey, Integer.valueOf(imult-1));
 				this.totalCount--;
 			} else if (imult==1) {
 				// delete entry from internal map
@@ -243,7 +244,7 @@ public class Multiset_HashMapImpl<T> extends HashMap<T, Integer> implements Mult
 	 */
 	public boolean equals(Object o) {
 		if (o!=null && o instanceof Multiset) {
-			Multiset<T> other = (Multiset<T>) o;
+			@SuppressWarnings("unchecked") Multiset<T> other = (Multiset<T>) o;
 			if (this.totalCount != other.totalCount()) return false;
 			if (this.keyCount() != other.keyCount()) return false;
 			for (Map.Entry<T, Integer> myEntry : this.entrySet()) {

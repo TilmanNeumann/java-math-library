@@ -35,6 +35,7 @@ public class ProjectTest extends TestSuite {
 
     /**
      * Collects the tests from all packages in the project.
+     * @return TestSuite
      */
 	public static TestSuite suite() {
 		// create project test suite

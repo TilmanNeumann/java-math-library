@@ -24,9 +24,9 @@ public class PrimeCountUpperBounds {
 	}
 	
 	/**
-	 * Computes an upper bound for the prime counting function pi(x) := number of primes in (0, x]
+	 * Computes an upper bound for the prime counting function pi(x) := number of primes in (0, x].
 	 * @param x
-	 * @return
+	 * @return upper bound for the number of primes < x
 	 */
 	public static long combinedUpperBound(long x) {
 		if (x<2) return 0;
@@ -49,8 +49,10 @@ public class PrimeCountUpperBounds {
 	 * Axler, https://arxiv.org/pdf/1409.1780.pdf, Theorem 1.1:
 	 * pi(x) < x/ln(x) + x/ln^2(x) + 2*x/ln^3(x) + 6.35*x/ln^4(x) + 24.35*x/ln^5(x) + 121.75*x/ln^6(x) + 730.5*x(ln^7(x) + 6801.4*x/ln^8(x) for x>1.
 	 * 
-	 * "Improves Dusart's estimate for every x > e^23.11" = 1.08779...e10.
-	 * Statement verified, correct.
+	 * "Improves Dusart's estimate for every x > e^23.11" = 1.08779...e10. Statement verified, correct.
+	 * 
+	 * @param x
+	 * @return upper bound for the number of primes < x
 	 */
 	public static long Axler_1_1(long x) {
 		double lnx = Math.log(x);
@@ -71,6 +73,9 @@ public class PrimeCountUpperBounds {
 	 * Axler comments: "improvement of Theorem 1.1 for every sufficiently large x". This is true, but the improvement is quite small.
 	 * 
 	 * From data up to x ~ 4.112 * 10^11 I estimated that Theorem 1.3 is better than Corollar 3.5c for approximately x > 2.470.000.000.000.
+	 * 
+	 * @param x
+	 * @return upper bound for the number of primes < x
 	 */
 	public static long Axler_1_3(long x) {
 		double lnx = Math.log(x);
@@ -85,7 +90,10 @@ public class PrimeCountUpperBounds {
 
 	/**
 	 * Axler, https://arxiv.org/pdf/1409.1780.pdf, Corollary 3.5a: 
-	 * pi(x) < x / [ln(x) - 1 - 1/ln(x) - 3.35/ln^2(x) - 12.65/ln^3(x) - 89.6/ln^4(x)] for x >= 21.95
+	 * pi(x) < x / [ln(x) - 1 - 1/ln(x) - 3.35/ln^2(x) - 12.65/ln^3(x) - 89.6/ln^4(x)] for x >= 21.95.
+	 * 
+	 * @param x
+	 * @return upper bound for the number of primes < x
 	 */
 	public static long Axler_3_5a(long x) {
 		double lnx = Math.log(x);
@@ -98,7 +106,10 @@ public class PrimeCountUpperBounds {
 
 	/**
 	 * Axler, https://arxiv.org/pdf/1409.1780.pdf, Corollary 3.5b: 
-	 * pi(x) < x / [ln(x) - 1 - 1/ln(x) - 3.35/ln^2(x) - 15.43/ln^3(x)] for x >= 14.36
+	 * pi(x) < x / [ln(x) - 1 - 1/ln(x) - 3.35/ln^2(x) - 15.43/ln^3(x)] for x >= 14.36.
+	 * 
+	 * @param x
+	 * @return upper bound for the number of primes < x
 	 */
 	public static long Axler_3_5b(long x) {
 		double lnx = Math.log(x);
@@ -110,9 +121,12 @@ public class PrimeCountUpperBounds {
 
 	/**
 	 * Axler, https://arxiv.org/pdf/1409.1780.pdf, Corollary 3.5c:
-	 * pi(x) < x / [ln(x) - 1 - 1/ln(x) - 3.83/ln^2(x)] for x >= 9.25
+	 * pi(x) < x / [ln(x) - 1 - 1/ln(x) - 3.83/ln^2(x)] for x >= 9.25.
 	 * 
-	 * Best stable algorithm for all x tested so far! (x <= 50673847669)
+	 * Best stable algorithm for all x tested so far! (x <= 50673847669).
+	 * 
+	 * @param x
+	 * @return upper bound for the number of primes < x
 	 */
 	public static long Axler_3_5c(long x) {
 		double lnx = Math.log(x);
@@ -126,6 +140,9 @@ public class PrimeCountUpperBounds {
 	 * pi(x) < x / [ln(x) - 1 - 1.17/ln(x)]<br/>
 	 * 
 	 * Works for x >= 2.634.800.823 and then it is the best bound for x < 6.200.000.000 approximately.
+	 * 
+	 * @param x
+	 * @return upper bound for the number of primes < x
 	 */
 	public static long Axler_3_5d(long x) {
 		double lnx = Math.log(x);
@@ -135,6 +152,8 @@ public class PrimeCountUpperBounds {
 
 	/**
 	 * Dusart 2010 theorem 6.9, eq. (6.5), holds for any x >= 1.
+	 * @param x
+	 * @return upper bound for the number of primes < x
 	 */
 	public static long Dusart2010_eq6_5(long x) {
 		double lnx = Math.log(x);
@@ -143,7 +162,10 @@ public class PrimeCountUpperBounds {
 
 	/**
 	 * Dusart 2010 theorem 6.9, eq. (6.6), holds for any x >= 60184.
-	 * @see https://arxiv.org/PS_cache/arxiv/pdf/1002/1002.0442v1.pdf
+	 * @param x
+	 * @return upper bound for the number of primes < x
+	 * 
+	 * @see "https://arxiv.org/PS_cache/arxiv/pdf/1002/1002.0442v1.pdf"
 	 */
 	public static long Dusart2010_eq6_6(long x) {
 		return (long) Math.ceil(x / (Math.log(x) - 1.1));
@@ -151,7 +173,10 @@ public class PrimeCountUpperBounds {
 
 	/**
 	 * Dusart 2010 theorem 6.9, eq. (6.7), holds for any x >= 2953652287.
-	 * @see https://arxiv.org/PS_cache/arxiv/pdf/1002/1002.0442v1.pdf
+	 * @param x
+	 * @return upper bound for the number of primes < x
+	 * 
+	 * @see "https://arxiv.org/PS_cache/arxiv/pdf/1002/1002.0442v1.pdf"
 	 */
 	public static long Dusart2010_eq6_7(long x) {
 		double lnx = Math.log(x);
@@ -162,6 +187,8 @@ public class PrimeCountUpperBounds {
 
 	/**
 	 * Rosser, Schoenfeld: pi(x) < 1.25506*x / ln(x) for x > 1.
+	 * @param x
+	 * @return upper bound for the number of primes < x
 	 */
 	public static long Rosser_Schoenfeld(long x) {
 		return (long) Math.ceil(1.25506*x / Math.log(x));

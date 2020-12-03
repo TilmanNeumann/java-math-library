@@ -170,7 +170,7 @@ public class HarmonicNumbers {
 	 * Can also be understood as a finite version of Riemanns zeta function.
 	 * @param n
 	 * @param r
-	 * @return
+	 * @return H_{n,r}
 	 */
 	public static BigRational harmonicPower(int n, int r) {
 		if (n<1) throw new IllegalArgumentException("argument n must be positive, but is " + n);

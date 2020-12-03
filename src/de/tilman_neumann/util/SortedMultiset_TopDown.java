@@ -130,7 +130,8 @@ public class SortedMultiset_TopDown<T extends Comparable<T>> extends TreeMap<T, 
 				if (imult>1) {
 					// the cast works if we only put T-type keys into the map
 					// which should be guaranteed in the add-methods
-					this.put((T)key, Integer.valueOf(imult-1));
+					@SuppressWarnings("unchecked") T castedKey = (T) key;
+					this.put(castedKey, Integer.valueOf(imult-1));
 				} else {
 					// delete entry from internal map
 					super.remove(key);

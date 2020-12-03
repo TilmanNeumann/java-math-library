@@ -32,9 +32,9 @@ import de.tilman_neumann.util.ConfigUtil;
  * If we find a solution with m,n,k > 2 then we have a counterexample to Beal's conjecture and win the 100k dollar prize.
  * But note that the strong Beal conjecture states that there are no more solutions than the 10 already found.
  * 
- * @see https://de.wikipedia.org/wiki/Fermat-Catalan-Vermutung
- * @see http://mathworld.wolfram.com/Fermat-CatalanConjecture.html
- * @see http://mathworld.wolfram.com/BealsConjecture.html
+ * @see "https://de.wikipedia.org/wiki/Fermat-Catalan-Vermutung"
+ * @see "http://mathworld.wolfram.com/Fermat-CatalanConjecture.html"
+ * @see "http://mathworld.wolfram.com/BealsConjecture.html"
  * 
  * @author Tilman Neumann
  */

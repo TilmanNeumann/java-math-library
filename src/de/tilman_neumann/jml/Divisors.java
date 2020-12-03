@@ -460,6 +460,7 @@ public class Divisors {
      * Find the biggest divisor of n <= sqrt(n) given the prime factorization of n.
      * 
      * @param n
+     * @param factors the factors of n as a map from primes to exponents
      * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
      */
     public static BigInteger getBiggestDivisorBelowSqrtN(BigInteger n, SortedMap<BigInteger, Integer> factors) {
