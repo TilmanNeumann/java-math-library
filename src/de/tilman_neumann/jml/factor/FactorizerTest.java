@@ -130,7 +130,6 @@ public class FactorizerTest {
 			new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF01(), 10, new MatrixSolver01_Gauss(), 5),
 			new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5),
 			new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF03(), 10, new MatrixSolver01_Gauss(), 5),
-			new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF04(), 10, new MatrixSolver01_Gauss(), 5),
 //			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver01_Gauss(), 3),
 			//new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver01_Gauss(), 12),
 

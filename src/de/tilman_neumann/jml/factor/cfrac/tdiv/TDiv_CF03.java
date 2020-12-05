@@ -37,8 +37,9 @@ import static org.junit.Assert.*;
 /**
  * Auxiliary factor algorithm to find smooth decompositions of Q's.
  * 
- * Version 02:
- * Uses trial division first, complete factorization if Q is considered sufficiently smooth.
+ * Version 03:
+ * Uses divideAndRemainder() only instead of mod() followed by divideAndRemainder().
+ * This makes sense only since the speed improvement of divideAndRemainder() achieved 2020-12-05.
  * 
  * @author Tilman Neumann
  */
@@ -48,7 +49,6 @@ public class TDiv_CF03 implements TDiv_CF {
 
 	private int primeBaseSize;
 	private int[] primesArray_int;
-	private BigInteger[] primesArray_big;
 	private int pMax;
 	private BigInteger pMaxSquare;
 
@@ -80,10 +80,9 @@ public class TDiv_CF03 implements TDiv_CF {
 		this.maxQRest = maxQRest;
 	}
 
-	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray, BigInteger[] primesArray_big) {
+	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray) {
 		this.primeBaseSize = primeBaseSize;
 		this.primesArray_int = primesArray;
-		this.primesArray_big = primesArray_big;
 		this.pMax = primesArray[primeBaseSize-1];
 		if (DEBUG) {
 			int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
@@ -121,22 +120,14 @@ public class TDiv_CF03 implements TDiv_CF {
 			Q_rest_UBI.set(Q_rest);
 			while (trialDivIndex < primeBaseSize) {
 				p = primesArray_int[trialDivIndex];
-				if (Q_rest_UBI.mod(p)==0) { // very fast!
+				int rem = Q_rest_UBI.divideAndRemainder(p, quot);
+				// LOG.debug(Q_rest_UBI + " / " + p + " = " + quot + " rest " + rem);
+				if (rem==0) {
 					// no remainder -> exact division -> small factor
 					smallFactors.add(p);
-					Q_rest_UBI.divideAndRemainder(p, quot);
 					UnsignedBigInt tmp = Q_rest_UBI;
 					Q_rest_UBI = quot;
 					quot = tmp;
-					
-					if (DEBUG) {
-						BigInteger old = Q_rest;
-						Q_rest = Q_rest.divide(BigInteger.valueOf(p));
-						if (!Q_rest_UBI.toBigInteger().equals(Q_rest)) {
-							LOG.info(old + " / " + p + " = " + Q_rest + ", but we got " + Q_rest_UBI);
-						}
-					}
-					
 					// After division by a prime base element (typically < 20 bit), Q_rest is >= 44 bits.
 					Q_rest_bits = Q_rest_UBI.bitLength();
 					if (Q_rest_bits<64) break; // continue in long version
@@ -147,7 +138,6 @@ public class TDiv_CF03 implements TDiv_CF {
 			} // end while (trialDivIndex < primeBaseSize)
 			Q_rest = Q_rest_UBI.toBigInteger(); // simplifies conversions below
 		}
-		
 		if (Q_rest_bits>31 && Q_rest_bits<64 && trialDivIndex<primeBaseSize) {
 			// continue trial division in long
 			long Q_rest_long = Q_rest.longValue();

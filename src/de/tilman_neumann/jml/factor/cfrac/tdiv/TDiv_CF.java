@@ -41,10 +41,9 @@ public interface TDiv_CF {
 	 * @param kN
 	 * @param primeBaseSize the true prime base size (the arrays are preallocated with a bigger length)
 	 * @param primesArray prime base in ints
-	 * @param primesArray_big prime base in BigIntegers
 	 * @throws FactorException 
 	 */
-	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray, BigInteger[] primesArray_big) throws FactorException;
+	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray) throws FactorException;
 	
 	/**
 	 * Check if Q is smooth (factors completely over the prime base) or "sufficiently smooth" (factors almost over the prime base).

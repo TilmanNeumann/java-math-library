@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.modular.JacobiSymbol;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.*;
 
 /**
@@ -45,21 +44,9 @@ public class PrimeBaseGenerator {
 	 * @param primesArray is filled with the primes p satisfying Jacobi(kN|p)>=0
 	 */
 	public void computeReducedPrimeBase(BigInteger kN, int primeBaseSize, int[] primesArray) {
-		computeReducedPrimeBase(kN, primeBaseSize, primesArray, null);
-	}
-
-	/**
-	 * Compute a reduced prime base containing the 2 and odd primes p with Jacobi(kN|p)>=0
-	 * 
-	 * @param kN has to be a quadratic residue modulo all p
-	 * @param primeBaseSize the wanted number of primes
-	 * @param primesArray is filled with the primes p satisfying Jacobi(kN|p)>=0
-	 * @param primesArray_big if not null then this array is filled with the p in BigInteger
-	 */
-	public void computeReducedPrimeBase(BigInteger kN, int primeBaseSize, int[] primesArray, BigInteger[] primesArray_big) {
 		// the 2 is always added
 		primesArray[0] = 2;
-		if (primesArray_big!=null) primesArray_big[0] = I_2;
+		
 		// odd primes
 		int count = 1;
 		for (int i=1; ; i++) {
@@ -79,7 +66,6 @@ public class PrimeBaseGenerator {
 				// kN is a quadratic residue mod p (or not coprime)
 				primesArray[count] = p;
 				// if not null, then fill primesArray_big, too
-				if (primesArray_big!=null) primesArray_big[count] = BigInteger.valueOf(p);
 				if (++count == primeBaseSize) break;
 			}
 		}

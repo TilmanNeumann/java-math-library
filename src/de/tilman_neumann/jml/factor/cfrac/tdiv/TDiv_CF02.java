@@ -48,8 +48,7 @@ public class TDiv_CF02 implements TDiv_CF {
 
 	private int primeBaseSize;
 	private int[] primesArray_int;
-	private BigInteger[] primesArray_big;
-	private int pMax;
+private int pMax;
 	private BigInteger pMaxSquare;
 
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
@@ -64,6 +63,7 @@ public class TDiv_CF02 implements TDiv_CF {
 	private PrPTest prpTest = new PrPTest();
 
 	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
+	private UnsignedBigInt quot = new UnsignedBigInt(new int[50]);
 
 	// result: two arrays that are reused, their content is _copied_ to AQ-pairs
 	private SortedIntegerArray smallFactors = new SortedIntegerArray();
@@ -79,10 +79,9 @@ public class TDiv_CF02 implements TDiv_CF {
 		this.maxQRest = maxQRest;
 	}
 
-	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray, BigInteger[] primesArray_big) {
+	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray) {
 		this.primeBaseSize = primeBaseSize;
 		this.primesArray_int = primesArray;
-		this.primesArray_big = primesArray_big;
 		this.pMax = primesArray[primeBaseSize-1];
 		if (DEBUG) {
 			int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
@@ -123,18 +122,30 @@ public class TDiv_CF02 implements TDiv_CF {
 				if (Q_rest_UBI.mod(p)==0) { // very fast!
 					// no remainder -> exact division -> small factor
 					smallFactors.add(p);
-					// BigInteger.divide() is slightly faster than Q_rest_UBI.divideAndRemainder()
-					Q_rest = Q_rest.divide(primesArray_big[trialDivIndex]);
+					Q_rest_UBI.divideAndRemainder(p, quot);
+					UnsignedBigInt tmp = Q_rest_UBI;
+					Q_rest_UBI = quot;
+					quot = tmp;
+					
+					if (DEBUG) {
+						BigInteger old = Q_rest;
+						Q_rest = Q_rest.divide(BigInteger.valueOf(p));
+						if (!Q_rest_UBI.toBigInteger().equals(Q_rest)) {
+							LOG.info(old + " / " + p + " = " + Q_rest + ", but we got " + Q_rest_UBI);
+						}
+					}
+					
 					// After division by a prime base element (typically < 20 bit), Q_rest is >= 44 bits.
-					Q_rest_bits = Q_rest.bitLength();
+					Q_rest_bits = Q_rest_UBI.bitLength();
 					if (Q_rest_bits<64) break; // continue in long version
-					Q_rest_UBI.set(Q_rest);
 					// trialDivIndex must remain as it is to find the same p more than once
 				} else {
 					trialDivIndex++;
 				}
 			} // end while (trialDivIndex < primeBaseSize)
+			Q_rest = Q_rest_UBI.toBigInteger(); // simplifies conversions below
 		}
+		
 		if (Q_rest_bits>31 && Q_rest_bits<64 && trialDivIndex<primeBaseSize) {
 			// continue trial division in long
 			long Q_rest_long = Q_rest.longValue();

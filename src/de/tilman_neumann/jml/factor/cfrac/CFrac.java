@@ -79,7 +79,6 @@ public class CFrac extends FactorAlgorithm {
 	private int primeBaseSize;
 	private PrimeBaseGenerator primeBaseBuilder = new PrimeBaseGenerator();
 	private int[] primesArray;
-	private BigInteger[] primesArray_big;
 	/** The union of all reduced prime bases -- this is the number of variables in the equation system */
 	private HashSet<Integer> combinedPrimesSet;
 
@@ -149,7 +148,6 @@ public class CFrac extends FactorAlgorithm {
 		this.primeBaseSize = 25 + (int) (Math.exp(Math.pow(lnN, lnNPow) * Math.pow(lnlnN, 1-lnNPow) * C));
 		if (DEBUG) LOG.debug("N = " + N + ": primeBaseSize = " + primeBaseSize);
 		this.primesArray = new int[primeBaseSize];
-		this.primesArray_big = new BigInteger[primeBaseSize];
 		
 		// compute the biggest unfactored rest where some Q is still considered "sufficiently smooth".
 		double maxQRest = Math.pow(N_dbl, maxQRestExponent);
@@ -180,7 +178,7 @@ public class CFrac extends FactorAlgorithm {
 			if (floor_sqrt_kN.equals(iSqrt[1])) return N.gcd(floor_sqrt_kN);
 
 			// Create the reduced prime base for kN:
-			primeBaseBuilder.computeReducedPrimeBase(kN, primeBaseSize, primesArray, primesArray_big);
+			primeBaseBuilder.computeReducedPrimeBase(kN, primeBaseSize, primesArray);
 			// add new reduced prime base to the combined prime base
 			for (int i=0; i<primeBaseSize; i++) combinedPrimesSet.add(primesArray[i]);
 			// we want: #equations = #variables + some extra congruences
@@ -188,7 +186,7 @@ public class CFrac extends FactorAlgorithm {
 
 			try {
 				// initialize the Q-factorizer with new prime base
-				this.auxFactorizer.initialize(kN, primeBaseSize, primesArray, primesArray_big); // may throw FactorException
+				this.auxFactorizer.initialize(kN, primeBaseSize, primesArray); // may throw FactorException
 				// search square Q_i
 				test();
 			} catch (FactorException fe) {
