@@ -156,15 +156,20 @@ public class UnsignedBigInt {
 		return intLength;
 	}
 	
+	public int bitLength() {
+		return intLength==0 ? 0 : (intLength<<5) - Integer.numberOfLeadingZeros(intArray[intLength-1]);
+	}
+	
     /**
      * Divide this by the given <code>divisor</code>, store the quotient in <code>quotient</code> and return the remainder.
      * The caller must make sure that {@link #set(BigInteger)} has been invoked before.
      * 
      * @param divisor
-     * @param quotient output!
+     * @param quotient output
      * @return remainder
      */
-    public int divideAndRemainder(final int divisor, UnsignedBigInt quotient) {
+	@Deprecated // v2 is significantly faster
+    public int divideAndRemainder_v1(final int divisor, UnsignedBigInt quotient) {
     	// A special treatment of intLength==1 is asymptotically bad
         long rem = 0;
         long divisor_long = divisor & 0xFFFFFFFFL;
@@ -178,10 +183,10 @@ public class UnsignedBigInt {
             quot = currentDividend / divisor_long;
     		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
             rem = currentDividend % divisor_long;
-            //if (DEBUG) {
-            //	assertTrue(currentDividend >= 0);
-            //	assertTrue(quot <= 0xFFFFFFFFL);
-            //}
+            if (DEBUG) {
+            	assertTrue(currentDividend >= 0);
+            	assertTrue(quot <= 0xFFFFFFFFL);
+            }
             quotient.intArray[i] = (int) (quot & 0xFFFFFFFFL);
             if (quot>0) {
             	quotient.intLength = i+1;
@@ -196,10 +201,48 @@ public class UnsignedBigInt {
             quot = currentDividend / divisor_long;
     		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
             rem = currentDividend % divisor_long;
-            //if (DEBUG) {
-            //	assertTrue(currentDividend >= 0);
-            //	assertTrue(quot <= 0xFFFFFFFFL);
-            //}
+            if (DEBUG) {
+            	assertTrue(currentDividend >= 0);
+            	assertTrue(quot <= 0xFFFFFFFFL);
+            }
+            quotient.intArray[i] = (int) (quot & 0xFFFFFFFFL);
+        }
+        
+        return (int) rem;
+    }
+    
+    /**
+     * Divide this by the given <code>divisor</code>, store the quotient in <code>quotient</code> and return the remainder.
+     * The caller must make sure that {@link #set(BigInteger)} has been invoked before.
+     * 
+     * @param divisor
+     * @param quotient output
+     * @return remainder
+     */
+    public int divideAndRemainder/*_v2*/(final int divisor, UnsignedBigInt quotient) {
+    	// A special treatment of intLength==1 is asymptotically bad
+    	
+        long divisor_long = divisor & 0xFFFFFFFFL;
+        long rem = intArray[intLength-1] & 0xFFFFFFFFL;
+        if (rem < divisor_long) {
+            quotient.intArray[intLength-1] = 0;
+            quotient.intLength = intLength-1;
+        } else {
+            quotient.intArray[intLength-1] = (int) (rem / divisor_long);
+            rem = (rem - (quotient.intArray[intLength-1] * divisor_long)) & 0xFFFFFFFFL;
+            quotient.intLength = intLength;
+        }
+
+        long currentDividend, quot;
+        for (int i = intLength-2; i >= 0; i--) {
+            currentDividend = (rem << 32) | (intArray[i] & 0xFFFFFFFFL);
+            quot = currentDividend / divisor_long;
+    		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
+            rem = currentDividend % divisor_long;
+            if (DEBUG) {
+            	assertTrue(currentDividend >= 0);
+            	assertTrue(quot <= 0xFFFFFFFFL);
+            }
             quotient.intArray[i] = (int) (quot & 0xFFFFFFFFL);
         }
         
@@ -213,6 +256,7 @@ public class UnsignedBigInt {
      * @param divisor
      * @return remainder of this / divisor
      */
+    // TODO inhere improvements from immutable divideAndRemainder()
     public int divideAndRemainder(final int divisor) {
     	// A special treatment of intLength==1 is asymptotically bad
         long rem = 0;
@@ -226,10 +270,10 @@ public class UnsignedBigInt {
             quot = currentDividend / divisor_long;
     		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
             rem = currentDividend % divisor_long;
-            //if (DEBUG) {
-            //	assertTrue(currentDividend >= 0);
-            //	assertTrue(quot <= 0xFFFFFFFFL);
-            //}
+            if (DEBUG) {
+            	assertTrue(currentDividend >= 0);
+            	assertTrue(quot <= 0xFFFFFFFFL);
+            }
             intArray[i] = (int) (quot & 0xFFFFFFFFL);
             if (quot>0) {
             	intLength = i+1;
@@ -244,10 +288,10 @@ public class UnsignedBigInt {
             quot = currentDividend / divisor_long;
     		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
             rem = currentDividend % divisor_long;
-            //if (DEBUG) {
-            //	assertTrue(currentDividend >= 0);
-            //	assertTrue(quot <= 0xFFFFFFFFL);
-            //}
+            if (DEBUG) {
+            	assertTrue(currentDividend >= 0);
+            	assertTrue(quot <= 0xFFFFFFFFL);
+            }
             intArray[i] = (int) (quot & 0xFFFFFFFFL);
         }
         
@@ -295,6 +339,16 @@ public class UnsignedBigInt {
             result = 31 * result + intArray[i];
     	}
         return result;
+    }
+    
+    public int intValue() {
+    	return intLength == 0 ? 0 : intArray[0];
+   }
+
+    public long longValue() {
+    	if (intLength == 0) return 0;
+    	if (intLength == 1) return intArray[0];
+    	return (intArray[1] << 32) | intArray[0];
     }
     
 	public BigInteger toBigInteger() {
