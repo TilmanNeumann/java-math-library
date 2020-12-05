@@ -48,7 +48,7 @@ public class TDiv_CF02 implements TDiv_CF {
 
 	private int primeBaseSize;
 	private int[] primesArray_int;
-private int pMax;
+	private int pMax;
 	private BigInteger pMaxSquare;
 
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
