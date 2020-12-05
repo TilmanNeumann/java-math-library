@@ -250,55 +250,6 @@ public class UnsignedBigInt {
     }
 
     /**
-     * Mutable divide and remainder computation. After the operation, this will be the quotient,
-     * and the remainder is returned.
-     * 
-     * @param divisor
-     * @return remainder of this / divisor
-     */
-    // TODO inhere improvements from immutable divideAndRemainder()
-    public int divideAndRemainder(final int divisor) {
-    	// A special treatment of intLength==1 is asymptotically bad
-        long rem = 0;
-        long divisor_long = divisor & 0xFFFFFFFFL;
-        long currentDividend, quot;
-
-        // loop that determines intLength by the way
-        int i = intLength-1;
-        for (; i >= 0; i--) {
-            currentDividend = (rem << 32) | (intArray[i] & 0xFFFFFFFFL);
-            quot = currentDividend / divisor_long;
-    		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
-            rem = currentDividend % divisor_long;
-            if (DEBUG) {
-            	assertTrue(currentDividend >= 0);
-            	assertTrue(quot <= 0xFFFFFFFFL);
-            }
-            intArray[i] = (int) (quot & 0xFFFFFFFFL);
-            if (quot>0) {
-            	intLength = i+1;
-            	i--; // loop decrement will not be carried out after break
-            	break; // go to loop without intLength-test
-            }
-        }
-        
-        // loop without intLength-test
-        for (; i >= 0; i--) {
-            currentDividend = (rem << 32) | (intArray[i] & 0xFFFFFFFFL);
-            quot = currentDividend / divisor_long;
-    		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
-            rem = currentDividend % divisor_long;
-            if (DEBUG) {
-            	assertTrue(currentDividend >= 0);
-            	assertTrue(quot <= 0xFFFFFFFFL);
-            }
-            intArray[i] = (int) (quot & 0xFFFFFFFFL);
-        }
-        
-        return (int) rem;
-    }
-
-    /**
      * Compute the remainder of this modulo divisor.
      * The caller must make sure that {@link #set(BigInteger)} has been invoked before.
      * 
