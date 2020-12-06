@@ -216,7 +216,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	}
 	
 	private BigInteger fnECM(BigInteger N) {
-		int J, Pass, Qaux;
 		int[] A0 = new int[NLen];
 		int[] A02 = new int[NLen];
 		int[] A03 = new int[NLen];
@@ -225,14 +224,10 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		int[] DZ = new int[NLen]; // zero-init required
 		int[] GD = new int[NLen]; // zero-init required
 		int[] M = new int[NLen]; // zero-init required
-		int[] TX = new int[NLen];
-		fieldTX = TX;
-		int[] TZ = new int[NLen];
-		fieldTZ = TZ;
-		int[] UX = new int[NLen];
-		fieldUX = UX;
-		int[] UZ = new int[NLen];
-		fieldUZ = UZ;
+		int[] TX = fieldTX = new int[NLen];
+		int[] TZ = fieldTZ = new int[NLen];
+		int[] UX = fieldUX = new int[NLen];
+		int[] UZ = fieldUZ = new int[NLen];
 		int[] W1 = new int[NLen];
 		int[] W2 = new int[NLen];
 		int[] W3 = new int[NLen]; // zero-init required
@@ -241,14 +236,10 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		int[] WZ = new int[NLen];
 		int[] X = new int[NLen];
 		int[] Z = new int[NLen];
-		int[] Aux1 = new int[NLen];
-		fieldAux1 = Aux1;
-		int[] Aux2 = new int[NLen];
-		fieldAux2 = Aux2;
-		int[] Aux3 = new int[NLen];
-		fieldAux3 = Aux3;
-		int[] Aux4 = new int[NLen];
-		fieldAux4 = Aux4;
+		int[] Aux1 = fieldAux1 = new int[NLen];
+		int[] Aux2 = fieldAux2 = new int[NLen];
+		int[] Aux3 = fieldAux3 = new int[NLen];
+		fieldAux4 = new int[NLen];
 		int[] Xaux = new int[NLen];
 		int[] Zaux = new int[NLen];
 		int[][] root = new int[480][NLen];
@@ -358,7 +349,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				System.arraycopy(X, 0, Xaux, 0, NumberLength);
 				System.arraycopy(Z, 0, Zaux, 0, NumberLength);
 				System.arraycopy(MontgomeryMultR1, 0, GcdAccumulated, 0, NumberLength);
-				for (Pass = 0; Pass < 2; Pass++) {
+				for (int Pass = 0; Pass < 2; Pass++) {
 					/* For powers of 2 */
 					for (int I = 1; I <= L1; I <<= 1) {
 						duplicate(X, Z, X, Z, AA);
@@ -456,14 +447,14 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				System.arraycopy(X, 0, Xaux, 0, NumberLength);
 				System.arraycopy(Z, 0, Zaux, 0, NumberLength); // (X:Z) -> Q (output from step 1)
 				
-				for (Pass = 0; Pass < 2; Pass++) {
+				for (int Pass = 0; Pass < 2; Pass++) {
+					int J = 0;
 					System.arraycopy(MontgomeryMultR1, 0, GcdAccumulated, 0, NumberLength);
 					System.arraycopy(X, 0, UX, 0, NumberLength);
 					System.arraycopy(Z, 0, UZ, 0, NumberLength); // (UX:UZ) -> Q
 					ModInvBigNbr(Z, TestNbr, Aux2);
 					montgomery.mul(Aux2, MontgomeryMultAfterInv, Aux1);
 					montgomery.mul(Aux1, X, root[0]); // root[0] <- X/Z (Q)
-					J = 0;
 					AddBigNbrModN(X, Z, Aux1);
 					montgomery.mul(Aux1, Aux1, W1);
 					SubtractBigNbrModN(X, Z, Aux1);
@@ -554,7 +545,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 					SubtractBigNbrModN(W1, W2, Aux1);
 					montgomery.mul(Aux1, Aux1, Aux2);
 					montgomery.mul(Aux2, UX, Z); // (X:Z) -> 3*2310Q
-					Qaux = (int) (L1 / 4620);
+					int Qaux = (int) (L1 / 4620);
 					int maxIndexM = (int) (L2 / 4620);
 					for (int indexM = 0; indexM <= maxIndexM; indexM++) {
 						if (indexM >= Qaux) { // If inside step 2 range...
