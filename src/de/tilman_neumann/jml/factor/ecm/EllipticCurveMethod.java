@@ -217,7 +217,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	
 	private BigInteger fnECM(BigInteger N) {
 		int I, J, Pass, Qaux;
-		long L1, L2, LS, P;
 		int[] A0 = new int[NLen];
 		int[] A02 = new int[NLen];
 		int[] A03 = new int[NLen];
@@ -301,30 +300,25 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 						return I_1; // stop ECM
 					}
 				}
-				L1 = 2000;
-				L2 = 200000;
-				LS = 45;
-				/* Number of primes less than 2000 */
-				if (EC > 25) {
-					if (EC < 326) {
-						L1 = 50000;
-						L2 = 5000000;
-						LS = 224;
-						/* Number of primes less than 50000 */
-					} else if (EC < 2000) {
-						L1 = 1000000;
-						L2 = 100000000;
-						LS = 1001;
-						/* Number of primes less than 1000000 */
-					} else {
-						L1 = 11000000;
-						L2 = 1100000000;
-						LS = 3316;
-						/* Number of primes less than 11000000 */
-					}
+				
+				long L1, L2, LS;
+				if (EC < 26) {
+					L1 = 2000; // Number of primes less than 2.000
+					L2 = 200000;
+					LS = 45;
+				} else if (EC < 326) {
+					L1 = 50000; // Number of primes less than 50.000
+					L2 = 5000000;
+					LS = 224;
+				} else if (EC < 2000) {
+					L1 = 1000000; // Number of primes less than 1.000.000
+					L2 = 100000000;
+					LS = 1001;
+				} else {
+					L1 = 11000000; // Number of primes less than 11.000.000
+					L2 = 1100000000;
+					LS = 3316;
 				}
-
-				// System.out.println(primalityString + EC + "\n" + UpperLine + "\n" + LowerLine);
 
 				LongToBigNbr(2 * (EC + 1), Aux1);
 				LongToBigNbr(3 * (EC + 1) * (EC + 1) - 1, Aux2);
@@ -385,6 +379,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 					}
 
 					/* for powers of odd primes */
+					long P;
 					int indexM = 1;
 					do {
 						P = SmallPrime[indexM++];
