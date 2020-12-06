@@ -50,6 +50,8 @@ import static org.junit.Assert.*;
 public class EllipticCurveMethod extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethod.class);
 
+	private static final double BINARY_TO_DECIMAL_DIGIT_CONVERSION = Math.log(2.0)/Math.log(10.0);
+	
 	static final int NLen = 1200;
 	private static final long DosALa32 = 1L << 32;
 	private static final long DosALa31 = 1L << 31;
@@ -291,7 +293,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		do {
 			new_curve: do {
 				EC++;
-				int digitsOfN = N.toString().length(); // Get number of digits.
+				int digitsOfN = (int) Math.ceil(N.bitLength() * BINARY_TO_DECIMAL_DIGIT_CONVERSION); // number of decimal digits
 				if (digitsOfN > 30 && digitsOfN <= 90) { // If between 30 and 90 digits...
 					int limit = limits[((int) digitsOfN - 31) / 5];
 					if (EC >= limit) {
