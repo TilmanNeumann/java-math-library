@@ -216,7 +216,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	}
 	
 	private BigInteger fnECM(BigInteger N) {
-		int I, J, Pass, Qaux;
+		int J, Pass, Qaux;
 		int[] A0 = new int[NLen];
 		int[] A02 = new int[NLen];
 		int[] A03 = new int[NLen];
@@ -360,10 +360,10 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				System.arraycopy(MontgomeryMultR1, 0, GcdAccumulated, 0, NumberLength);
 				for (Pass = 0; Pass < 2; Pass++) {
 					/* For powers of 2 */
-					for (I = 1; I <= L1; I <<= 1) {
+					for (int I = 1; I <= L1; I <<= 1) {
 						duplicate(X, Z, X, Z, AA);
 					}
-					for (I = 3; I <= L1; I *= 3) {
+					for (int I = 3; I <= L1; I *= 3) {
 						duplicate(W1, W2, X, Z, AA);
 						add3(X, Z, X, Z, W1, W2, X, Z);
 					}
@@ -485,7 +485,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 					SubtractBigNbrModN(W1, W2, Aux1);
 					montgomery.mul(Aux1, Aux1, Aux2);
 					montgomery.mul(Aux2, UX, Z); // (X:Z) -> 3Q
-					for (I = 5; I < 2310; I += 2) {
+					for (int I = 5; I < 2310; I += 2) {
 						System.arraycopy(X, 0, WX, 0, NumberLength);
 						System.arraycopy(Z, 0, WZ, 0, NumberLength);
 						SubtractBigNbrModN(X, Z, Aux1);
