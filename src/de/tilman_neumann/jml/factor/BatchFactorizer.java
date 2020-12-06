@@ -19,11 +19,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.TimeUtil;
 
 /**
@@ -94,9 +96,17 @@ public class BatchFactorizer {
 			try {
 				LOG.info("Factoring " + N + " (" + N.bitLength() + " bits) ...");
 				long start = System.currentTimeMillis();
-				BigInteger factor = factorizer.findSingleFactor(N);
+				SortedMultiset<BigInteger> factors = factorizer.factor(N);
 				long duration = System.currentTimeMillis() - start;
-				LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) in " + TimeUtil.timeStr(duration));
+				
+				Set<BigInteger> keys = factors.keySet();
+				BigInteger smallestFoundFactor = keys!=null && !keys.isEmpty() ? keys.iterator().next() : null;
+				int smallestFoundFactorBitLength = smallestFoundFactor!=null ? smallestFoundFactor.bitLength() : 0;
+				if (smallestFoundFactorBitLength > 0) {
+					LOG.info("Found factorization of N = " + N + " = " + factors + " (smallest factor has " + smallestFoundFactorBitLength + " bits) in " + TimeUtil.timeStr(duration));
+				} else {
+					LOG.info("No factor found of N = " + N + "; is it prime? Computation took " + TimeUtil.timeStr(duration));
+				}
 			} catch (Exception | Error e) {
 				LOG.error("An error occurred during the factorization of N = " + N + ": " + e, e);
 			}
