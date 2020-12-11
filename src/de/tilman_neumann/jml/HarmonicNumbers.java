@@ -252,10 +252,13 @@ public class HarmonicNumbers {
     	int nMax = 10;
     	int rMax = 10;
     	LOG.info("nMax = " + nMax + ", rMax = " + rMax);
-    	//computeAndPrintHyperharmonic_recurrent(nMax, rMax);
+    	computeAndPrintHyperharmonic_recurrent(nMax, rMax);
+    	LOG.info("");
     	computeAndPrintHyperharmonic_closedForm(nMax, rMax);
-    	// result: both forms are equal!
+    	LOG.info("");
+    	// result: both forms are equal
+    	
     	computeAndPrintHarmonicPowers(nMax, rMax);
-    	// different, but very interesting !!!
+    	// different, but very interesting !
 	}
 }
