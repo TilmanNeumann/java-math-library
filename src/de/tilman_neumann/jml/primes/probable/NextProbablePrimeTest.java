@@ -98,7 +98,8 @@ public class NextProbablePrimeTest {
 			// test built-in method
 			startMillis = System.currentTimeMillis();
 			for (BigInteger n : testSet) {
-				n.nextProbablePrime();
+				@SuppressWarnings("unused")
+				BigInteger result = n.nextProbablePrime();
 			}
 			duration = System.currentTimeMillis() - startMillis;
 			addToMap(duration_2_algLists, duration, "Java");

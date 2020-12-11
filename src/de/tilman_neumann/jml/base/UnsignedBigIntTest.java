@@ -104,7 +104,8 @@ public class UnsignedBigIntTest {
 		   	t0 = System.currentTimeMillis();
 			for (BigInteger divisor_big : divisors_big) {
 			   	for (BigInteger testNum : testSet) {
-			   		testNum.mod(divisor_big);
+			   		@SuppressWarnings("unused")
+					BigInteger result = testNum.mod(divisor_big);
 			   	}
 			}
 		   	t1 = System.currentTimeMillis();
@@ -122,7 +123,8 @@ public class UnsignedBigIntTest {
 		   	t0 = System.currentTimeMillis();
 			for (BigInteger divisor_big : divisors_big) {
 			   	for (BigInteger testNum : testSet) {
-			   		testNum.divideAndRemainder(divisor_big);
+			   		@SuppressWarnings("unused")
+					BigInteger[] result = testNum.divideAndRemainder(divisor_big);
 			   	}
 			}
 		   	t1 = System.currentTimeMillis();
