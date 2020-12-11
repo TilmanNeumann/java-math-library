@@ -138,9 +138,10 @@ public class Lehman_AnalyzeCongruences2 {
 				int kN=0;
 				for (; kN<KNMOD/2; kN++) {
 					// copy old a-values
+					lastAForKN[kN] = new ArrayList<>();
 					ArrayList<Integer> lastAList = aForKN[kN];
-					lastAForKN[kN] = new ArrayList<>(lastAList); // copy
 					if (lastAList != null && !lastAList.isEmpty()) {
+						lastAForKN[kN].addAll(lastAList);
 						// extend on horizontal axis
 						if (lastAList.get(0) == 0) {
 							lastAForKN[kN].add(KNMOD/2);
