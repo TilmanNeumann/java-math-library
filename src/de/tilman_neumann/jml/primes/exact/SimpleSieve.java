@@ -64,11 +64,6 @@ public class SimpleSieve {
 		}
 	}
 	
-	public void finalize() {
-		// resolve possible circular dependency that would cause a memory leak
-		clientCallback = null;
-	}
-	
 	/**
 	 * Test performance without load caused by processPrime().
 	 * @param args ignored
