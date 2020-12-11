@@ -298,8 +298,8 @@ public class UnsignedBigInt {
 
     public long longValue() {
     	if (intLength == 0) return 0;
-    	if (intLength == 1) return intArray[0];
-    	return (intArray[1] << 32) | intArray[0];
+    	if (intLength == 1) return intArray[0] & 0xFFFFFFFFL;
+    	return ( (intArray[1] & 0xFFFFFFFFL) << 32) | (intArray[0] & 0xFFFFFFFFL);
     }
     
 	public BigInteger toBigInteger() {
