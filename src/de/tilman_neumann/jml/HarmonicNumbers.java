@@ -85,7 +85,7 @@ public class HarmonicNumbers {
 	 */
 	public static BigDecimal harmonic_upperBound(BigInteger n, Scale scale) {
 		BigDecimal result = EulerConstant.gamma(scale);
-		result.setScale(scale.digits(), RoundingMode.CEILING);
+		result = result.setScale(scale.digits(), RoundingMode.CEILING);
 		result = result.add(Ln.ln(new BigDecimal(n), scale));
 		BigInteger den = n.shiftLeft(1); // 2n
 		result = result.add(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
@@ -108,7 +108,7 @@ public class HarmonicNumbers {
 	// TODO larger series expansion using Bernoulli numbers, see https://en.wikipedia.org/wiki/Harmonic_number#Calculation
 	public static BigDecimal harmonic_lowerBound(BigInteger n, Scale scale) {
 		BigDecimal result = EulerConstant.gamma(scale);
-		result.setScale(scale.digits(), RoundingMode.FLOOR);
+		result = result.setScale(scale.digits(), RoundingMode.FLOOR);
 		result = result.add(Ln.ln(new BigDecimal(n), scale));
 		BigInteger den = n.shiftLeft(1); // 2n
 		result = result.add(F_1.divide(new BigDecimal(den), scale.digits(), RoundingMode.HALF_EVEN));
