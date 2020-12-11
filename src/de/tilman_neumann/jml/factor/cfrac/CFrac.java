@@ -349,7 +349,8 @@ public class CFrac extends FactorAlgorithm {
 			try {
 				LOG.info("Please insert the number to factor:");
 				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				String input = in.readLine().trim();
+				String line = in.readLine();
+				String input = line !=null ? line.trim() : "";
 				//LOG.debug("input = >" + input + "<");
 				BigInteger N = new BigInteger(input);
 				LOG.info("Factoring " + N + " ...");

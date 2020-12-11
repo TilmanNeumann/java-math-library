@@ -47,7 +47,7 @@ public class BatchFactorizer {
 			System.out.println("Please insert [-t <numberOfThreads>] <batchFile> :");
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 			line = in.readLine();
-			String input = line.trim();
+			String input = line !=null ? line.trim() : "";
 			if (input.startsWith("-t")) {
 				input = input.substring(2).trim();
 				StringTokenizer parser = new StringTokenizer(input);
