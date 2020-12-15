@@ -255,6 +255,7 @@ public class UnsignedBigInt {
      * 
      * This simple implementation seems to be amazingly fast, like 100 times faster than BigInteger.mod(d),
      * where BigInteger d = BigInteger.valueOf(divisor) has been created before the performance test loop.
+     * Here, Barrett reduction has no chance to shine...
      * 
      * @param divisor
      * @return remainder
@@ -266,7 +267,6 @@ public class UnsignedBigInt {
         long currentDividend;
         for (int i = intLength-1; i >= 0; i--) {
             currentDividend = (rem << 32) | (intArray[i] & 0xFFFFFFFFL);
-    		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
             rem = currentDividend % divisor_long;
         }
         return (int) rem;
