@@ -253,6 +253,9 @@ public class UnsignedBigInt {
      * Compute the remainder of this modulo divisor.
      * The caller must make sure that {@link #set(BigInteger)} has been invoked before.
      * 
+     * This simple implementation seems to be amazingly fast, like 100 times faster than BigInteger.mod(d),
+     * where BigInteger d = BigInteger.valueOf(divisor) has been created before the performance test loop.
+     * 
      * @param divisor
      * @return remainder
      */
