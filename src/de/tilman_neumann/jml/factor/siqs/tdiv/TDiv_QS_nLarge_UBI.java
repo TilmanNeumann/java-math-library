@@ -47,7 +47,10 @@ import de.tilman_neumann.util.Timer;
 
 /**
  * A trial division engine where partials can have several large factors.
- * Division is carried out using UnsignedBigInt; this way less intermediate objects are created.
+ * 
+ * Division is carried out in two stages:
+ * Stage 1 identifies prime factors of Q, applying long-valued Barrett reduction
+ * Stage 2 does the actual division using UnsignedBigInt; this way less intermediate objects are created.
  * 
  * Faster than 1Large for approximately N>=220 bit.
  * 

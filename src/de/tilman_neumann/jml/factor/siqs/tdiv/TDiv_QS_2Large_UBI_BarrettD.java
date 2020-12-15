@@ -50,7 +50,9 @@ import de.tilman_neumann.util.Timer;
  * A trial division engine where partials can have up to 2 large factors.
  * This is absolutely adequate for the quadratic sieve, because we would hardly get 3 large factors for inputs < 400 bit.
  * 
- * Division is carried out using UnsignedBigInt; this way less intermediate objects are created.
+ * Division is carried out in two stages:
+ * Stage 1 identifies prime factors of Q; here an experimental double-valued Barrett reduction is used to do that
+ * Stage 2 does the actual division using UnsignedBigInt; this way less intermediate objects are created.
  * 
  * Faster than 1Large for approximately N>=220 bit.
  * 

@@ -34,7 +34,10 @@ import de.tilman_neumann.util.Timer;
 
 /**
  * A trial division engine where partials can only have 1 large factor.
- * Uses standard BigIntegers division.
+ * 
+ * Division is carried out in two stages:
+ * Stage 1 identifies prime factors of Q, applying long-valued Barrett reduction
+ * Stage 2 does the actual division using BigInteger
  * 
  * @author Tilman Neumann
  */
