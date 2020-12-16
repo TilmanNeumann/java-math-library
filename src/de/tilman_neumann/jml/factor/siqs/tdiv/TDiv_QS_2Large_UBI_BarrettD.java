@@ -249,10 +249,9 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 		Q_rest_UBI.set(Q_rest);
 		for (int pass2Index = 0; pass2Index < pass2Count; pass2Index++) {
 			int p = pass2Powers[pass2Index];
-			while (true) {
-				int rem = Q_rest_UBI.divideAndRemainder(p, quotient_UBI);
-				if (rem>0) break;
-				// remainder == 0 -> the division was exact. assign quotient to Q_rest and add p to factors
+			int rem;
+			while ((rem = Q_rest_UBI.divideAndRemainder(p, quotient_UBI)) == 0) {
+				// the division was exact. assign quotient to Q_rest and add p to factors
 				UnsignedBigInt tmp = Q_rest_UBI;
 				Q_rest_UBI = quotient_UBI;
 				quotient_UBI = tmp;

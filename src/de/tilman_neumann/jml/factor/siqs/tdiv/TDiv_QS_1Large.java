@@ -208,8 +208,7 @@ public class TDiv_QS_1Large implements TDiv_QS {
 		// Pass 2: Reduce Q by the pass2Primes and collect small factors
 		BigInteger div[];
 		for (int pass2Index = 0; pass2Index < pass2Count; pass2Index++) {
-			int p = pass2Powers[pass2Index];
-			BigInteger pBig = BigInteger.valueOf(p);
+			BigInteger pBig = BigInteger.valueOf(pass2Powers[pass2Index]);
 			while (true) {
 				div = Q_rest.divideAndRemainder(pBig);
 				if (div[1].compareTo(I_0)>0) break;
