@@ -20,6 +20,8 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.factor.base.FactorArguments;
+import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.SortedMultiset;
@@ -68,6 +70,8 @@ abstract public class FactorAlgorithm {
 	 * @return The prime factorization of N
 	 */
 	public SortedMultiset<BigInteger> factor(BigInteger N) {
+		boolean searchSmallFactors = true; // XXX should be a method parameter
+		
 		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<BigInteger>();
 		// first get rid of case |N|<=1:
 		if (N.abs().compareTo(I_1)<=0) {
@@ -94,6 +98,7 @@ abstract public class FactorAlgorithm {
 			return primeFactors;
 		}
 
+		/* TODO move the following block to appropriate algorithms
 		int Nbits = N.bitLength();
 		if (Nbits > 62) {
 			// "Small" algorithms like trial division, Lehman or Pollard-Rho are very good themselves
@@ -117,39 +122,80 @@ abstract public class FactorAlgorithm {
 				return primeFactors;
 			}
 		}
+		*/
 		
 		// N contains larger factors...
-		ArrayList<BigInteger> untestedFactors = new ArrayList<BigInteger>(); // faster than SortedMultiset
+		long smallestPossibleFactor = 3;
+		FactorResult factorResult = new FactorResult(primeFactors, new SortedMultiset_BottomUp<BigInteger>(), new SortedMultiset_BottomUp<BigInteger>(), smallestPossibleFactor);
+		SortedMultiset<BigInteger> untestedFactors = factorResult.untestedFactors; // ArrayList would be faster
 		untestedFactors.add(N);
-		while (untestedFactors.size()>0) {
-			N = untestedFactors.remove(untestedFactors.size()-1);
-			if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
-				// N is probable prime. In exceptional cases this prediction may be wrong and N composite
-				// -> then we would falsely predict N to be prime. BPSW is known to be exact for N <= 64 bit.
-				//LOG.debug(N + " is probable prime.");
-				primeFactors.add(N);
-				continue;
+		while (true) {
+			// resolve untested factors
+			while (untestedFactors.size()>0) {
+				BigInteger untestedFactor = untestedFactors.firstKey();
+				int exp = untestedFactors.get(untestedFactor);
+				untestedFactors.removeAll(untestedFactor);
+				if (bpsw.isProbablePrime(untestedFactor)) {
+					// The untestedFactor is probable prime. In exceptional cases this prediction may be wrong and untestedFactor composite
+					// -> then we would falsely predict untestedFactor to be prime. BPSW is known to be exact for arguments <= 64 bit.
+					//LOG.debug(untestedFactor + " is probable prime.");
+					factorResult.primeFactors.add(untestedFactor, exp);
+				} else {
+					factorResult.compositeFactors.add(untestedFactor, exp);
+				}
 			}
-			BigInteger factor1 = findSingleFactor(N);
-			if (factor1.compareTo(I_1) > 0 && factor1.compareTo(N) < 0) {
-				// found factor
-				untestedFactors.add(factor1);
-				untestedFactors.add(N.divide(factor1));
-			} else {
-				// findSingleFactor() failed to find a factor of the composite N
-				if (DEBUG) LOG.error("Factor algorithm " + getName() + " failed to find a factor of composite " + N);
-				primeFactors.add(N);
+			// now untestedFactors is empty
+			
+			// factor composite factors; iteration needs to be fail-fast against element addition and removal
+			while (true) {
+				if (factorResult.compositeFactors.isEmpty()) {
+					// all factors are prime factors now
+					return factorResult.primeFactors;
+				}
+				
+				BigInteger compositeFactor = factorResult.compositeFactors.keySet().iterator().next();
+				int exp = factorResult.compositeFactors.get(compositeFactor);
+				factorResult.compositeFactors.removeAll(compositeFactor);
+				
+				FactorArguments args = new FactorArguments(compositeFactor, exp, searchSmallFactors, smallestPossibleFactor);
+				boolean foundFactor = searchFactors(args, factorResult);
+				if (!foundFactor) {
+					if (DEBUG) LOG.error("Factor algorithm " + getName() + " failed to find a factor of composite " + compositeFactor);
+					factorResult.primeFactors.add(compositeFactor, exp); // emergency response ;-)
+				} // else: found factors have been added to factorResult.untestedFactors with the given exponent
+				
+				smallestPossibleFactor = Math.max(smallestPossibleFactor, factorResult.smallestPossibleFactorRemaining);
 			}
-
 		}
-		//LOG.debug(this.factorAlg + ": => all factors = " + primeFactors);
-		return primeFactors;
 	}
 	
 	/**
 	 * Find a single factor of the given N, which is composite and odd.
 	 * @param N
 	 * @return factor
+	 * @deprecated not general enough for all cases (find small factors before real algorithm, ECM); this method may be removed in a future release.
 	 */
+	@Deprecated
 	abstract public BigInteger findSingleFactor(BigInteger N);
+	
+	/**
+	 * Try to find at least one factor of the given args.N, which is composite and odd.
+	 * @param args
+	 * @param result the result of the factoring attempt. Should be initialized only once by the caller to reduce overhead.
+	 * @return found a factor ?
+	 * 
+	 * TODO Overwrite this method appropriately in sub-algorithms!
+	 */
+	public boolean searchFactors(FactorArguments args, FactorResult result) {
+		BigInteger N = args.N;
+		BigInteger factor1 = findSingleFactor(N);
+		if (factor1.compareTo(I_1) > 0 && factor1.compareTo(N) < 0) {
+			// We found a factor, but here we cannot know if it is prime or composite
+			result.untestedFactors.add(factor1, args.exp);
+			result.untestedFactors.add(N.divide(factor1), args.exp);
+			return true;
+		}
+
+		return false; // nothing found
+	}
 }
