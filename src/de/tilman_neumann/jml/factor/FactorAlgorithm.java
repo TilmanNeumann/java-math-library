@@ -16,7 +16,6 @@ package de.tilman_neumann.jml.factor;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
