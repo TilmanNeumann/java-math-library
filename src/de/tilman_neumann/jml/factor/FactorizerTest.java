@@ -67,9 +67,9 @@ public class FactorizerTest {
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_COMPOSITES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
+	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
 
 	private BPSWTest bpsw = new BPSWTest();
 	
@@ -215,7 +215,7 @@ public class FactorizerTest {
 			factorSetArray = new SortedMultiset_BottomUp[N_COUNT];
 		}
 
-		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
+		LOG.info("Test N with " + bits + " bits, e.g. N = " + testNumbers[0]);
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
 		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<Long, List<FactorAlgorithm>>();

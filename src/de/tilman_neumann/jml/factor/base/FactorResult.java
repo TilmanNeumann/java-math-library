@@ -31,4 +31,9 @@ public class FactorResult {
 		this.compositeFactors = compositeFactors;
 		this.smallestPossibleFactorRemaining = smallestPossibleFactorRemaining;
 	}
+	
+	@Override
+	public String toString() {
+		return "primeFactors = " + primeFactors + ", untestedFactors = " + untestedFactors + ", compositeFactors = " + compositeFactors + ", smallestPossibleFactorRemaining = " + smallestPossibleFactorRemaining;
+	}
 }

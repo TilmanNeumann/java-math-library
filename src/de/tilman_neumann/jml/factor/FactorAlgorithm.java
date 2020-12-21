@@ -155,9 +155,7 @@ abstract public class FactorAlgorithm {
 	 * @param searchSmallFactors if true then the algorithm may search for small factors before the real algorithm is run
 	 * @return The prime factorization of N
 	 */
-	// XXX still buggy
 	public SortedMultiset<BigInteger> factor(BigInteger N, boolean searchSmallFactors) {
-		
 		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<BigInteger>();
 		// first get rid of case |N|<=1:
 		if (N.abs().compareTo(I_1)<=0) {
@@ -184,7 +182,7 @@ abstract public class FactorAlgorithm {
 			return primeFactors;
 		}
 
-		/* TODO move the following block to appropriate algorithms
+		/* TODO move the following block to appropriate algorithms */
 		int Nbits = N.bitLength();
 		if (Nbits > 62) {
 			// "Small" algorithms like trial division, Lehman or Pollard-Rho are very good themselves
@@ -208,7 +206,6 @@ abstract public class FactorAlgorithm {
 				return primeFactors;
 			}
 		}
-		*/
 		
 		// N contains larger factors...
 		long smallestPossibleFactor = 3;
@@ -216,6 +213,7 @@ abstract public class FactorAlgorithm {
 		SortedMultiset<BigInteger> untestedFactors = factorResult.untestedFactors; // ArrayList would be faster
 		untestedFactors.add(N);
 		while (true) {
+			if (DEBUG) LOG.debug("1: factorResult: " + factorResult);
 			// resolve untested factors
 			while (untestedFactors.size()>0) {
 				BigInteger untestedFactor = untestedFactors.firstKey();
@@ -231,22 +229,27 @@ abstract public class FactorAlgorithm {
 				}
 			}
 			// now untestedFactors is empty
-			
-			// factor composite factors; iteration needs to be fail-fast against element addition and removal
+			if (DEBUG) LOG.debug("2: factorResult: " + factorResult);
+
+			// factor composite factors; iteration needs to be fail-safe against element addition and removal
 			while (true) {
 				if (factorResult.compositeFactors.isEmpty()) {
-					// all factors are prime factors now
-					return factorResult.primeFactors;
+					if (factorResult.untestedFactors.isEmpty()) {
+						// all factors are prime factors now
+						return factorResult.primeFactors;
+					}
+					// else there are still untested factors
+					break;
 				}
 				
 				BigInteger compositeFactor = factorResult.compositeFactors.keySet().iterator().next();
-				int exp = factorResult.compositeFactors.get(compositeFactor);
-				factorResult.compositeFactors.removeAll(compositeFactor);
+				int exp = factorResult.compositeFactors.removeAll(compositeFactor);
 				
 				FactorArguments args = new FactorArguments(compositeFactor, exp, searchSmallFactors, smallestPossibleFactor);
 				boolean foundFactor = searchFactors(args, factorResult);
+				if (DEBUG) LOG.debug("3: foundFactor = " + foundFactor + ", factorResult: " + factorResult);
 				if (!foundFactor) {
-					if (DEBUG) LOG.error("Factor algorithm " + getName() + " failed to find a factor of composite " + compositeFactor);
+					LOG.error("Factor algorithm " + getName() + " failed to find a factor of composite " + compositeFactor);
 					factorResult.primeFactors.add(compositeFactor, exp); // emergency response ;-)
 				} // else: found factors have been added to factorResult.untestedFactors with the given exponent
 				
