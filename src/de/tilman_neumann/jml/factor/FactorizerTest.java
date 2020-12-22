@@ -177,7 +177,8 @@ public class FactorizerTest {
 			// * we need 0.14 < maxQRestExponent < 0.2; everything else is prohibitive; use null for dynamic determination
 			// * BlockLanczos is better than Gauss solver for N > 200 bit
 //			new PSIQS(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
-//			new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
+	//		new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
+	//		new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), true, true),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), false, true),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new AllPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), false, true), // best for large N
@@ -205,7 +206,7 @@ public class FactorizerTest {
 			for (int j=0; j<N_COUNT; j++) {
 				BigInteger N = testNumbers[j];
 				// get factors from verification factorizer and test them for absolute correctness
-				SortedMultiset<BigInteger> correctFactors = FactorAlgorithm.DEFAULT.factor(N);
+				SortedMultiset<BigInteger> correctFactors = FactorAlgorithm.DEFAULT.factor(N); // XXX do we want the control algorithm to log details if ANALYZE==true?
 				for (BigInteger factor : correctFactors.keySet()) {
 					if (!bpsw.isProbablePrime(factor)) {
 						LOG.error("The verification factor algorithm failed to factor N=" + N + " = " + correctFactors + " correctly! Factor " + factor + " is not prime.");

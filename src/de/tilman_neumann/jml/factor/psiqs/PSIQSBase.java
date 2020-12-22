@@ -39,6 +39,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.powers.PurePowerTest;
+import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
 
@@ -86,6 +87,8 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 	protected PowerFinder powerFinder;
 	
+	private BPSWTest bpsw = new BPSWTest();
+
 	// statistics
 	private Timer timer = new Timer();
 	private long powerTestDuration, initNDuration, createThreadDuration;
@@ -133,7 +136,34 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 		BigInteger N = args.N;
 		if (searchSmallFactors) {
-			// TODO put trial division, ECM here
+			int actualTdivLimit;
+			if (tdivLimit != null) {
+				// use "dictated" limit
+				actualTdivLimit = tdivLimit.intValue();
+			} else {
+				// adjust tdivLimit=2^e by experimental results
+				// XXX did I derive the experimental results from SIQS or PSIQS ? Obviously they do not take into account the number of threads...
+				final double e = 10 + (args.NBits-45)*0.07407407407; // constant 0.07.. = 10/135
+				actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
+			}
+
+			// LOG.debug("1: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result.primeFactors = " + result.primeFactors);
+			N = tdiv.findSmallOddFactors(N, actualTdivLimit, result.primeFactors);
+			// LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result.primeFactors = " + result.primeFactors);
+			// TODO update result.smallestPossibleFactorRemaining; this requires to change the signature of tdiv.findSmallOddFactors()
+			// TODO add tdiv duration to final report
+
+			if (N.equals(I_1)) {
+				// N was "easy"
+				return true;
+			}
+			
+			if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
+				result.primeFactors.add(N);
+				return true;
+			}
+
+			// TODO put ECM here
 		}
 		
 		// the quadratic sieve does not work for pure powers; check that first:
