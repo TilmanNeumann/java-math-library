@@ -23,6 +23,8 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.factor.base.FactorArguments;
+import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver02_BlockLanczos;
 import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
@@ -127,6 +129,26 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		return siqs_bigArgs.findSingleFactor(N);
 	}
 	
+	@Override
+	public boolean searchFactors(FactorArguments args, FactorResult result) {
+		int NBits = args.NBits;
+		if (NBits<25) {
+			// find all remaining factors; these are known to be prime factors
+			// XXX since the change from findSingleFactor() to factor() we might want to increase the limit
+			SortedMultiset<BigInteger> factors = tDiv31.factor(args.N);
+			if (factors.size() > 0) {
+				result.primeFactors.addAll(factors);
+				return true;
+			}
+			return false;
+		}
+		if (NBits<50) return hart.searchFactors(args, result);
+		if (NBits<57) return pollardRhoR64Mul63.searchFactors(args, result);
+		if (NBits<63) return pollardRho64.searchFactors(args, result);
+		if (NBits<97) return siqs_smallArgs.searchFactors(args, result);
+		return siqs_bigArgs.searchFactors(args, result);
+	}
+
 	/**
 	 * Run with command-line arguments or console input (if no command-line arguments are given).
 	 * Usage for executable jar file:

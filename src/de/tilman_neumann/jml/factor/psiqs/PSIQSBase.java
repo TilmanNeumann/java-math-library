@@ -21,6 +21,8 @@ import java.math.BigInteger;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
+import de.tilman_neumann.jml.factor.base.FactorArguments;
+import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorParallel;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
@@ -48,6 +50,9 @@ import de.tilman_neumann.util.Timer;
 abstract public class PSIQSBase extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(PSIQSBase.class);
 	private static final boolean DEBUG = false;
+
+	/** if true then search for small factors before PSIQS is run */
+	private boolean searchSmallFactors = true;
 
 	protected int numberOfThreads;
 	private Integer d0;
@@ -115,17 +120,50 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		this.matrixSolver = matrixSolver;
 		this.apg = apg;
 		this.multiplierFinder = new KnuthSchroeppel();
+		this.searchSmallFactors = searchSmallFactors;
 	}
 
 	abstract public String getName();
-	
+
+	public boolean searchFactors(FactorArguments args, FactorResult result) {
+		if (ANALYZE) {
+			timer.start(); // start timer
+			powerTestDuration = initNDuration = createThreadDuration = 0;
+		}
+
+		BigInteger N = args.N;
+		if (searchSmallFactors) {
+			// TODO put trial division, ECM here
+		}
+		
+		// the quadratic sieve does not work for pure powers; check that first:
+		PurePowerTest.Result purePower = powerTest.test(N);
+		if (purePower!=null) {
+			// N is indeed a pure power. In contrast to findSingleFactor() we can also add the exponent, so following steps get faster
+			result.untestedFactors.add(purePower.base, purePower.exponent);
+			return true;
+		} // else: no pure power, run quadratic sieve
+		if (ANALYZE) powerTestDuration += timer.capture();
+		
+		// run quadratic sieve
+		BigInteger factor1 = findSingleFactorInternal(N);
+		if (factor1.compareTo(I_1) > 0 && factor1.compareTo(N) < 0) {
+			// We found a factor, but here we cannot know if it is prime or composite
+			result.untestedFactors.add(factor1, args.exp);
+			result.untestedFactors.add(N.divide(factor1), args.exp);
+			return true;
+		}
+
+		return false; // nothing found
+	}
+
 	/**
 	 * Test the current N.
 	 * @return factor, or null if no factor was found.
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
 		if (ANALYZE) {
-			timer.start();
+			timer.start(); // start timer
 			powerTestDuration = initNDuration = createThreadDuration = 0;
 		}
 
@@ -136,7 +174,16 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			return purePower.base.pow(purePower.exponent>>1);
 		} // else: no pure power, run quadratic sieve
 		if (ANALYZE) powerTestDuration += timer.capture();
+		
+		// run quadratic sieve
+		return findSingleFactorInternal(N);
+	}
 
+	/**
+	 * Runs the quadratic sieve.
+	 * @return factor, or null if no factor was found.
+	 */
+	private BigInteger findSingleFactorInternal(BigInteger N) {
 		// Compute prime base size:
 		// http://www.mersenneforum.org/showthread.php?s=3087aa210d8d7f1852c690a45f22d2e5&t=11116&page=2:
 		// "A rough estimate of the largest prime in the factor base is exp(0.5 * sqrt(ln(N) * ln(ln(N))))".
