@@ -81,7 +81,17 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	 * @param permitUnsafeUsage
 	 */
 	public CombinedFactorAlgorithm(int numberOfThreads, boolean permitUnsafeUsage) {
-		this(numberOfThreads, null, permitUnsafeUsage, true, true);
+		this(numberOfThreads, null, permitUnsafeUsage);
+	}
+
+	/**
+	 * Simplified constructor.
+	 * @param numberOfThreads the number of parallel threads for PSIQS
+	 * @param tdivLimit limit of primes p for trial division; if null then the value is determined by best experimental results
+	 * @param permitUnsafeUsage if true then PSIQS_U using sun.misc.Unsafe features is used. This may be ~10% faster.
+	 */
+	public CombinedFactorAlgorithm(int numberOfThreads, Integer tdivLimit, boolean permitUnsafeUsage) {
+		this(numberOfThreads, tdivLimit, permitUnsafeUsage, true, true); // TODO switch useLegacyFactoring to false when the advanced approach has proven to be prolific
 	}
 
 	/**
