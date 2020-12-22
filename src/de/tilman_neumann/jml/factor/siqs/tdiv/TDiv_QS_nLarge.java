@@ -87,7 +87,7 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	// Nested SIQS is required only for approximately N>310 bit.
 	// XXX For safety reasons we do not use Sieve03gU yet for the internal quadratic sieve
-	private SIQS qsInternal = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss());
+	private SIQS qsInternal = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), true, false); // XXX set useLegacyFactoring to false
 
 	// smallest solutions of Q(x) == A(x)^2 (mod p)
 	private int[] x1Array, x2Array;

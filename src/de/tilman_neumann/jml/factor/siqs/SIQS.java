@@ -63,7 +63,7 @@ public class SIQS extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(SIQS.class);
 	private static final boolean DEBUG = false;
 	private static final boolean TEST_SIEVE = false;
-	
+
 	private PurePowerTest powerTest = new PurePowerTest();
 	private KnuthSchroeppel multiplierFinder = new KnuthSchroeppel(); // used to compute the multiplier k
 	private float Cmult; // multiplier to compute prime base size
@@ -111,10 +111,14 @@ public class SIQS extends FactorAlgorithm {
 	 * @param auxFactorizer
 	 * @param extraCongruences the number of surplus congruences we collect to have a greater chance that the equation system solves.
 	 * @param matrixSolver matrix solver for the smooth congruence equation system
+	 * @param useLegacyFactoring if true then factor() uses findSingleFactor(), otherwise searchFactors()
+	 * @param searchSmallFactors if true then search for small factors before PSIQS is run
 	 */
 	public SIQS(
 			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, PowerFinder powerFinder, SIQSPolyGenerator polyGenerator, 
-			Sieve sieve, TDiv_QS auxFactorizer, int extraCongruences, MatrixSolver matrixSolver) {
+			Sieve sieve, TDiv_QS auxFactorizer, int extraCongruences, MatrixSolver matrixSolver, boolean useLegacyFactoring, boolean searchSmallFactors) {
+		
+		super(null, useLegacyFactoring);
 		
 		this.Cmult = Cmult;
 		this.Mmult = Mmult;
@@ -132,7 +136,8 @@ public class SIQS extends FactorAlgorithm {
 	@Override
 	public String getName() {
 		String maxQRestExponentStr = "maxQRestExponent=" + String.format("%.3f", maxQRestExponent);
-		return "SIQS(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + maxQRestExponentStr + ", " + powerFinder.getName() + ", " + polyGenerator.getName() + ", " + sieve.getName() + ", " + auxFactorizer.getName() + ", " + matrixSolver.getName() + ")";
+		String modeStr = "mode = " + (useLegacyFactoring ? "legacy" : "advanced");
+		return "SIQS(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + maxQRestExponentStr + ", " + powerFinder.getName() + ", " + polyGenerator.getName() + ", " + sieve.getName() + ", " + auxFactorizer.getName() + ", " + matrixSolver.getName() + ", " + modeStr + ")";
 	}
 	
 	/**
@@ -407,7 +412,7 @@ public class SIQS extends FactorAlgorithm {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		SIQS qs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos());
+		SIQS qs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(), 10, new MatrixSolver02_BlockLanczos(), false, true);
 		Timer timer = new Timer();
 		while(true) {
 			try {

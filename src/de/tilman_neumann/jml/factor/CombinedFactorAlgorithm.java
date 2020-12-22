@@ -52,14 +52,14 @@ import de.tilman_neumann.util.TimeUtil;
 public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
-	
+
 	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
 	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	
 	// SIQS tuned for small N
-	private SIQS siqs_smallArgs = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss());
+	private SIQS siqs_smallArgs;
 
 	// The SIQS chosen for big arguments depends on constructor parameters
 	private FactorAlgorithm siqs_bigArgs;
@@ -79,7 +79,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	 * @param permitUnsafeUsage
 	 */
 	public CombinedFactorAlgorithm(int numberOfThreads, boolean permitUnsafeUsage) {
-		this(numberOfThreads, null, permitUnsafeUsage);
+		this(numberOfThreads, null, permitUnsafeUsage, true, true);
 	}
 
 	/**
@@ -87,28 +87,33 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	 * @param numberOfThreads the number of parallel threads for PSIQS
 	 * @param tdivLimit limit of primes p for trial division; if null then the value is determined by best experimental results
 	 * @param permitUnsafeUsage if true then PSIQS_U using sun.misc.Unsafe features is used. This may be ~10% faster.
+	 * @param useLegacyFactoring if true then factor() uses findSingleFactor(), otherwise searchFactors()
+	 * @param searchSmallFactors if true then search for small factors before SIQS or PSIQS is run
 	 */
-	public CombinedFactorAlgorithm(int numberOfThreads, Integer tdivLimit, boolean permitUnsafeUsage) {
-		super(tdivLimit);
+	public CombinedFactorAlgorithm(int numberOfThreads, Integer tdivLimit, boolean permitUnsafeUsage, boolean useLegacyFactoring, boolean searchSmallFactors) {
+		super(tdivLimit, useLegacyFactoring);
 		
+		siqs_smallArgs = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), useLegacyFactoring, searchSmallFactors);
+
 		if (numberOfThreads==1) {
 			// Avoid multi-thread overhead if the requested number of threads is 1
 			Sieve sieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
-			siqs_bigArgs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), sieve, new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos());
+			siqs_bigArgs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), sieve, new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), useLegacyFactoring, searchSmallFactors);
 		} else {
 			if (permitUnsafeUsage) {
-				siqs_bigArgs = new PSIQS_U(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos());
+				siqs_bigArgs = new PSIQS_U(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), useLegacyFactoring, searchSmallFactors);
 			} else {
-				siqs_bigArgs = new PSIQS(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos());
+				siqs_bigArgs = new PSIQS(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), useLegacyFactoring, searchSmallFactors);
 			}
 		}
 	
-		// XXX: Other options that perform well: PowerOfSmallPrimesFinder, SingleBlockHybridSieve(U).
+		// Other options that perform well: PowerOfSmallPrimesFinder, SingleBlockHybridSieve(U).
 	}
 
 	@Override
 	public String getName() {
-		return "combi(" + (tdivLimit!=null ? tdivLimit : "auto") + ")";
+		String modeStr = "mode = " + (useLegacyFactoring ? "legacy" : "advanced");
+		return "combi(" + (tdivLimit!=null ? tdivLimit : "auto") + ", " + modeStr + ")";
 	}
 
 	@Override

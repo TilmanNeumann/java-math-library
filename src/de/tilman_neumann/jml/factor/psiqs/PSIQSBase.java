@@ -96,10 +96,14 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param matrixSolver solver for smooth congruences matrix
 	 * @param apg a-parameter generator
+	 * @param useLegacyFactoring if true then factor() uses findSingleFactor(), otherwise searchFactors()
+	 * @param searchSmallFactors if true then search for small factors before PSIQS is run
 	 */
 	public PSIQSBase(
 			float Cmult, float Mmult, Float maxQRestExponent, int numberOfThreads, Integer d,
-			PowerFinder powerFinder, MatrixSolver matrixSolver, AParamGenerator apg) {
+			PowerFinder powerFinder, MatrixSolver matrixSolver, AParamGenerator apg, boolean useLegacyFactoring, boolean searchSmallFactors) {
+		
+		super(null, useLegacyFactoring);
 		
 		this.Cmult = Cmult;
 		this.Mmult = Mmult;
