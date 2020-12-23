@@ -97,13 +97,6 @@ public interface Multiset<T> {
 	/**
 	 * @return The number of different elements
 	 */
-	// same as size()
-	int keyCount();
-
-	/**
-	 * @return The number of different elements
-	 */
-	// same as keyCount()
 	int size();
 	
 	/**

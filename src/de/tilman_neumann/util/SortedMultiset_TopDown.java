@@ -185,10 +185,6 @@ public class SortedMultiset_TopDown<T extends Comparable<T>> extends TreeMap<T, 
 		return resultset;
 	}
 	
-	public int keyCount() {
-		return this.size();
-	}
-	
 	public int totalCount() {
 		int sum = 0;
 		for (Integer mult : this.values()) {

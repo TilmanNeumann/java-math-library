@@ -185,10 +185,6 @@ public class Multiset_HashMapImpl<T> extends HashMap<T, Integer> implements Mult
 		return resultset;
 	}
 	
-	public int keyCount() {
-		return this.size();
-	}
-	
 	public int totalCount() {
 		int sum = 0;
 		for (Integer mult : this.values()) {
