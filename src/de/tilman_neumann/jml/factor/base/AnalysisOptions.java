@@ -30,7 +30,7 @@ public interface AnalysisOptions {
 	 * (also by large factor counts), trials division results, solver runs and tested null-vectors,
 	 * and sub-phase timings.
 	 */
-	static final boolean ANALYZE = true;
+	static final boolean ANALYZE = false;
 
 	/**
 	 * A switch to additionally turn on analysis of the size of large factors that yield smooth relations.

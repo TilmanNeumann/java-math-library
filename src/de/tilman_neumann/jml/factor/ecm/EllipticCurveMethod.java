@@ -21,13 +21,13 @@
 package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
-import java.util.Map.Entry;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
+import de.tilman_neumann.jml.factor.base.FactorArguments;
+import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
@@ -37,7 +37,6 @@ import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * <p>Use Elliptic Curve Method to find the prime number factors of a given BigInteger.</p>
@@ -98,7 +97,8 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 
 	/** Length of multiple precision numbers. */
 	int NumberLength;
-	// TODO Running operations to the full NumberLength ignoring the true argument sizes is a waste of performance.
+	// XXX Running operations to the full NumberLength ignoring the true argument sizes might be a waste of performance.
+	// Or maybe not, if all arguments in this special algorithm have nearly the size of the N to factor... -> Check that.
 
 	/** Elliptic Curve number */
 	private int EC;
@@ -136,68 +136,77 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		return fnECM(N);
 	}
 
-	@Override
-	public SortedMultiset<BigInteger> factor(BigInteger N) {
-		SortedMultiset<BigInteger> allFactors = new SortedMultiset_BottomUp<BigInteger>();
-		SortedMultiset<BigInteger> compositeFactors = factorize(N, allFactors);
-		allFactors.addAll(compositeFactors);
-		return allFactors;
-	}
-	
 	/**
 	 * Find small factors of some N. Returns found factors in <code>primeFactors</code> and eventually some
 	 * unfactored composites as return value.
 	 * 
-	 * @param N the number to factor
-	 * @param primeFactors the found prime factors.
-	 * @return unfactored composites left after stopping ECM, empty map if N has been factored completely
+	 * @param args
+	 * @param result the result of the factoring attempt. Should be initialized only once by the caller to reduce overhead.
+	 * @return true if ECM found some factors
 	 */
-	public SortedMultiset<BigInteger> factorize(BigInteger N, SortedMap<BigInteger, Integer> primeFactors) {
+	public boolean searchFactors(FactorArguments args, FactorResult result) {
 		// set up new N
+		BigInteger N = args.N;
 		EC = 1;
 		
 		// Do trial division by all primes < 131072.
-		SortedMultiset<BigInteger> unresolvedComposites = new SortedMultiset_BottomUp<>();
-		N = tdiv.findSmallFactors(N, 131072, primeFactors); // TODO do outside ECM?
+		SortedMultiset<BigInteger> tdivFactors = new SortedMultiset_BottomUp<BigInteger>();
+		// Adding the factors found by trial division must take into account the multiplicity of N
+		N = tdiv.findSmallFactors(N, 131072, tdivFactors); // TODO take into account the amount of trial division done before
+		for (BigInteger tdivFactor : tdivFactors.keySet()) {
+			int tdivFactorExp = tdivFactors.get(tdivFactor);
+			result.primeFactors.add(tdivFactor, tdivFactorExp*args.exp);
+		}
+
 		if (N.equals(I_1)) {
-			return unresolvedComposites;
+			return true;
 		}
 		
 		// There are factors greater than 131071, and they may be prime or composite.
 		if (isProbablePrime(N)) {
-			addToMap(N, 1, primeFactors);
-			return unresolvedComposites;
+			addToMap(N, args.exp, result.primeFactors);
+			return true;
 		}
 		
 		// N is composite -> do ECM
-		TreeMap<BigInteger, Integer> compositesToTest = new TreeMap<BigInteger, Integer>();
-		compositesToTest.put(N, 1);
+		boolean factorFound = false;
+		SortedMultiset<BigInteger> compositesToTest = result.compositeFactors;
+		compositesToTest.add(N, args.exp); // we know that N is composite
+		
+		// here we store all composites ECM failed to factor
+		SortedMultiset<BigInteger> failedComposites = new SortedMultiset_BottomUp<BigInteger>();
+		
 		while (!compositesToTest.isEmpty()) {
 			// get next composite to test
-			Entry<BigInteger, Integer> compositeEntry = compositesToTest.pollLastEntry();
-			N = compositeEntry.getKey();
-			int exp = compositeEntry.getValue();
+			N = compositesToTest.firstKey();
+			int exp = compositesToTest.removeAll(N);
 			
 			// pure power?
 			PurePowerTest.Result r = powerTest.test(N);
 			if (r != null) {
 				// N is a pure power!
-				addToMapDependingOnPrimeTest(r.base, exp*r.exponent, primeFactors, compositesToTest);
+				addToMapDependingOnPrimeTest(r.base, exp*r.exponent, result.primeFactors, compositesToTest);
+				factorFound = true;
 				continue; // test next composite
 			}
 
 			// ECM
 			final BigInteger NN = fnECM(N);
 			if (NN.equals(I_1)) {
-				// N is composite but could not be resolved
-				addToMap(N, exp, unresolvedComposites);
+				// N is composite but could not be factored by ECM
+				addToMap(N, exp, failedComposites);
 				continue;
 			}
 			// NN is a factor of N
-			addToMapDependingOnPrimeTest(NN, exp, primeFactors, compositesToTest);
-			addToMapDependingOnPrimeTest(N.divide(NN), exp, primeFactors, compositesToTest);
+			addToMapDependingOnPrimeTest(NN, exp, result.primeFactors, compositesToTest);
+			addToMapDependingOnPrimeTest(N.divide(NN), exp, result.primeFactors, compositesToTest);
+			factorFound = true;
 		}
-		return unresolvedComposites;
+		
+		// Before we finish, add all composites that could not be factored to result.compositeFactors.
+		// We want the product of result factors to match N, no matter what happened.
+		compositesToTest.addAll(failedComposites);
+		return factorFound;
 	}
 
 	private boolean isProbablePrime(BigInteger N) {
@@ -617,10 +626,8 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 					}
 				} /* end for Pass */
 			} while (true); /* end curve calculation */
-			assertFalse(BigNbrAreEqual(GD, TestNbr));
-		} while (BigNbrAreEqual(GD, TestNbr) == true);
-		// System.out.println("");
-		// StepECM = 0; /* do not show pass number on screen */
+		} while (BigNbrAreEqual(GD, TestNbr)); // while gcd == N; indeed this happens now and then
+
 		return BigIntToBigNbr(GD);
 	}
 	
@@ -1746,12 +1753,15 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		long t0, t1;
 		t0 = System.currentTimeMillis();
 		for (BigInteger N : testNums) {
-			SortedMap<BigInteger, Integer> primeFactors = new TreeMap<>();
-			SortedMap<BigInteger, Integer> unfactoredComposites = ecm.factorize(N, primeFactors);
-			if (!unfactoredComposites.isEmpty()) {
-				LOG.debug("N = " + N + " = " + primeFactors + " * " + unfactoredComposites);
+			SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<BigInteger>();
+			long smallestPossibleFactor = 3;
+			FactorResult factorResult = new FactorResult(primeFactors, new SortedMultiset_BottomUp<BigInteger>(), new SortedMultiset_BottomUp<BigInteger>(), smallestPossibleFactor);
+			FactorArguments factorArgs = new FactorArguments(N, 1, smallestPossibleFactor);
+			boolean foundFactor = ecm.searchFactors(factorArgs, factorResult);
+			if (foundFactor) {
+				LOG.debug("N = " + N + ": " + factorResult.primeFactors + " * " + factorResult.compositeFactors);
 			} else {
-				LOG.debug("N = " + N + " = " + primeFactors);
+				LOG.debug("ECM did not find any factor for N = " + N);
 			}
 		}
 		t1 = System.currentTimeMillis();

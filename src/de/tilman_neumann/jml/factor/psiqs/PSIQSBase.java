@@ -29,6 +29,7 @@ import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
+import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.siqs.KnuthSchroeppel;
 import de.tilman_neumann.jml.factor.siqs.ModularSqrtsEngine;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
@@ -84,9 +85,10 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	private CongruenceCollectorParallel congruenceCollector;
 	/** The solver used for smooth congruence equation systems. */
 	protected MatrixSolver matrixSolver;
-
-	protected PowerFinder powerFinder;
 	
+	protected PowerFinder powerFinder;
+	private EllipticCurveMethod ecm = new EllipticCurveMethod();
+
 	private BPSWTest bpsw = new BPSWTest();
 
 	// statistics
@@ -128,6 +130,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 	abstract public String getName();
 
+	@Override
 	public boolean searchFactors(FactorArguments args, FactorResult result) {
 		if (ANALYZE) {
 			timer.start(); // start timer
@@ -141,8 +144,8 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				// use "dictated" limit
 				actualTdivLimit = tdivLimit.intValue();
 			} else {
-				// adjust tdivLimit=2^e by experimental results
-				// XXX did I derive the experimental results from SIQS or PSIQS ? Obviously they do not take into account the number of threads...
+				// Adjust tdivLimit=2^e by experimental results.
+				// XXX This estimate should take into account the number of threads.
 				final double e = 10 + (args.NBits-45)*0.07407407407; // constant 0.07.. = 10/135
 				actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
 			}
@@ -151,6 +154,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			N = tdiv.findSmallOddFactors(N, actualTdivLimit, result.primeFactors);
 			// LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result.primeFactors = " + result.primeFactors);
 			// TODO update result.smallestPossibleFactorRemaining; this requires to change the signature of tdiv.findSmallOddFactors()
+			// TODO should we always return if a factor was found so that in CombinedFactorAlgorithm we can schedule to the right sub-algorithm depending on size?
 			// TODO add tdiv duration to final report
 
 			if (N.equals(I_1)) {
@@ -163,10 +167,24 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				return true;
 			}
 
-			// TODO put ECM here
+			// ECM
+			// TODO ECM needs readjustment of parameters. Currently, for TestNumberNature.MODERATE_SEMIPRIMES + TestMode.PRIME_FACTORIZATION + 
+			// searchSmallFactors==true, far too much ECM is done. All other configurations seem to behave ok.
+			args.N = N;
+			args.NBits = N.bitLength();
+			// args.exp remains unchanged
+			// TODO args.smallestPossibleFactor
+
+			boolean factorFound = ecm.searchFactors(args, result); // TODO a parallel ECM implementation with numberOfThreads threads would be nice here
+			if (factorFound) {
+				return true;
+			} else {
+				// N could not be resolved by ECM and has been added to compositeFactors again...
+				result.compositeFactors.remove(N);
+			}
 		}
 		
-		// the quadratic sieve does not work for pure powers; check that first:
+		// the quadratic sieve does not work for pure powers
 		PurePowerTest.Result purePower = powerTest.test(N);
 		if (purePower!=null) {
 			// N is indeed a pure power. In contrast to findSingleFactor() we can also add the exponent, so following steps get faster
@@ -191,6 +209,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	 * Test the current N.
 	 * @return factor, or null if no factor was found.
 	 */
+	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
 		if (ANALYZE) {
 			timer.start(); // start timer
