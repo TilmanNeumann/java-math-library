@@ -93,7 +93,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 	// statistics
 	private Timer timer = new Timer();
-	private long powerTestDuration, initNDuration, createThreadDuration;
+	private long initialTdivDuration, ecmDuration, powerTestDuration, initNDuration, createThreadDuration;
 	
 	/**
 	 * Standard constructor.
@@ -134,7 +134,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	public boolean searchFactors(FactorArguments args, FactorResult result) {
 		if (ANALYZE) {
 			timer.start(); // start timer
-			powerTestDuration = initNDuration = createThreadDuration = 0;
+			initialTdivDuration = ecmDuration = powerTestDuration = initNDuration = createThreadDuration = 0;
 		}
 
 		BigInteger N = args.N;
@@ -155,7 +155,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			// LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result.primeFactors = " + result.primeFactors);
 			// TODO update result.smallestPossibleFactorRemaining; this requires to change the signature of tdiv.findSmallOddFactors()
 			// TODO should we always return if a factor was found so that in CombinedFactorAlgorithm we can schedule to the right sub-algorithm depending on size?
-			// TODO add tdiv duration to final report
+			if (ANALYZE) initialTdivDuration += timer.capture();
 
 			if (N.equals(I_1)) {
 				// N was "easy"
@@ -176,6 +176,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			// TODO args.smallestPossibleFactor
 
 			boolean factorFound = ecm.searchFactors(args, result); // TODO a parallel ECM implementation with numberOfThreads threads would be nice here
+			if (ANALYZE) ecmDuration += timer.capture();
 			if (factorFound) {
 				return true;
 			} else {
@@ -357,7 +358,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			
 			// report results
 			LOG.info(getName() + ":");
-			LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " in " + TimeUtil.timeStr(timer.totalRuntime()));
+			LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " (" + N.bitLength() + " bits) in " + TimeUtil.timeStr(timer.totalRuntime()));
 			int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
 			LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
 			LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
@@ -375,7 +376,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				LOG.info("        " + ccReport.getSmoothQSignCounts());
 			}
 			LOG.info("    #solverRuns = " + congruenceCollector.getSolverRunCount() + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
-			LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, createThreads=" + createThreadDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + congruenceCollector.getCollectDuration() + "ms, solver=" + congruenceCollector.getSolverDuration() + "ms");
+			LOG.info("    Approximate phase timings: tdiv=" + initialTdivDuration + "ms, ecm=" + ecmDuration + "ms, powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, createThreads=" + createThreadDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + congruenceCollector.getCollectDuration() + "ms, solver=" + congruenceCollector.getSolverDuration() + "ms");
 			LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(numberOfThreads));
 			LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(numberOfThreads));
 			LOG.info("    -> tdiv sub-timings: " + tdivReport.getPhaseTimings(numberOfThreads));

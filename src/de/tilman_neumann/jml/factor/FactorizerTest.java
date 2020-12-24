@@ -57,7 +57,7 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 10;
+	private static final int N_COUNT = 1;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 70;
 	/** the increment in bit size from test set to test set */
@@ -203,17 +203,6 @@ public class FactorizerTest {
 		} else {
 			// TEST_MODE==TestMode.PRIME_FACTORIZATION
 			correctFactorSets = new SortedMultiset_BottomUp[N_COUNT];
-			for (int j=0; j<N_COUNT; j++) {
-				BigInteger N = testNumbers[j];
-				// get factors from verification factorizer and test them for absolute correctness
-				SortedMultiset<BigInteger> correctFactors = FactorAlgorithm.DEFAULT.factor(N); // XXX do we want the control algorithm to log details if ANALYZE==true?
-				for (BigInteger factor : correctFactors.keySet()) {
-					if (!bpsw.isProbablePrime(factor)) {
-						LOG.error("The verification factor algorithm failed to factor N=" + N + " = " + correctFactors + " correctly! Factor " + factor + " is not prime.");
-					}
-				}
-				correctFactorSets[j] = correctFactors;
-			}
 			factorSetArray = new SortedMultiset_BottomUp[N_COUNT];
 		}
 
@@ -292,11 +281,15 @@ public class FactorizerTest {
 					duration = endTimeMillis - startTimeMillis; // duration in ms
 					//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
 					
-					// compare results of current algorithm with verification factorizer
+					// test correctness
 					for (int j=0; j<N_COUNT; j++) {
 						BigInteger N = testNumbers[j];
-						SortedMultiset<BigInteger> correctFactors = correctFactorSets[j];
 						SortedMultiset<BigInteger> factorSet = factorSetArray[j];
+						SortedMultiset<BigInteger> correctFactors = correctFactorSets[j];
+						if (correctFactors == null) {
+							correctFactors = correctFactorSets[j] = testAndGetCorrectFactors(N, factorSet);
+						}
+						
 						if (!correctFactors.equals(factorSet)) {
 							if (DEBUG) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find all factors of N=" + N + ". Correct factors=" + correctFactors + ", found factors=" + factorSet);
 							failExample = N;
@@ -330,6 +323,28 @@ public class FactorizerTest {
 			}
 			rank += j;
 		}
+	}
+	
+	private SortedMultiset<BigInteger> testAndGetCorrectFactors(BigInteger N, SortedMultiset<BigInteger> factorSet) {
+		if (factorSet != null) {
+			// analyzing the found factors will usually be faster than doing another factorization with a safe algorithm
+			BigInteger product = I_1;
+			for (BigInteger factor : factorSet.keySet()) {
+				if (!bpsw.isProbablePrime(factor)) {
+					// not finding the prime factorization is an error -> make sure that N != product.
+					break;
+				}
+				int exp = factorSet.get(factor);
+				BigInteger pow = factor.pow(exp);
+				product = product.multiply(pow);
+			}
+			if (N.equals(product)) {
+				return factorSet;
+			}
+		}
+		
+		// Something went wrong above, so now we factor N with a safe algorithm. Strategies with a better performance certainly exist.
+		return FactorAlgorithm.DEFAULT.factor(N); // XXX do we want the control algorithm to log details if ANALYZE==true?
 	}
 	
 	/**
