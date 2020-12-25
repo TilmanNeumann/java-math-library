@@ -13,15 +13,25 @@
  */
 package de.tilman_neumann.jml.factor.psiqs;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
+
+import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorParallel;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver02_BlockLanczos;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
+import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
+import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
+import de.tilman_neumann.util.TimeUtil;
+import de.tilman_neumann.util.Timer;
 
 /**
  * Multi-threaded SIQS using Sieve03gU.
@@ -29,6 +39,8 @@ import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
  * @author Tilman Neumann
  */
 public class PSIQS_U extends PSIQSBase {
+
+	private static final Logger LOG = Logger.getLogger(PSIQS_U.class);
 
 	/**
 	 * Standard constructor.
@@ -62,5 +74,49 @@ public class PSIQS_U extends PSIQSBase {
 			AParamGenerator apg, CongruenceCollectorParallel cc, int threadIndex) {
 		
 		return new PSIQSThread_U(k, N, kN, d, sieveParams, baseArrays, apg, cc, threadIndex);
+	}
+
+	// Standalone test --------------------------------------------------------------------------------------------------
+
+	/**
+	 * Stand-alone test.
+	 * @param args ignored
+	 * 
+	 * Some test numbers:
+	 * 11111111111111111111111111
+	 * 5679148659138759837165981543
+	 * 11111111111111111111111111155555555555111111111111111
+	 * 
+	 * 2900608971182010301486951469292513060638582965350239259380273225053930627446289431038392125
+	 * = 33333 * 33335 * 33337 * 33339 * 33341 * 33343 * 33345 * 33347 * 33349 * 33351 * 33353 * 33355 * 33357 * 33359 * 33361 * 33363 * 33367 * 33369 * 33369 * 33371
+	 * 
+	 * 15841065490425479923 = 2604221509 * 6082841047
+	 */
+	public static void main(String[] args) {
+    	ConfigUtil.initProject();
+		Timer timer = new Timer();
+		PSIQS_U qs = new PSIQS_U(0.32F, 0.37F, null, null, 5, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true);
+
+		while(true) {
+			try {
+				LOG.info("Please insert the number to factor:");
+				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+				String line = in.readLine();
+				String input = line !=null ? line.trim() : "";
+				//LOG.debug("input = >" + input + "<");
+				BigInteger N = new BigInteger(input);
+				LOG.info("Factoring " + N + " (" + N.bitLength() + " bits)...");
+				timer.capture();
+				SortedMultiset<BigInteger> factors = qs.factor(N);
+				if (factors != null) {
+					long duration = timer.capture();
+					LOG.info("Factored N = " + factors + " in " + TimeUtil.timeStr(duration) + ".");
+			} else {
+					LOG.info("No factor found...");
+				}
+			} catch (Exception ex) {
+				LOG.error("Error " + ex, ex);
+			}
+		}
 	}
 }
