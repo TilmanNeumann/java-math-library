@@ -174,7 +174,7 @@ public class SIQS extends FactorAlgorithm {
 			// LOG.debug("1: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result.primeFactors = " + result.primeFactors);
 			N = tdiv.findSmallOddFactors(N, actualTdivLimit, result.primeFactors);
 			// LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result.primeFactors = " + result.primeFactors);
-			// TODO update result.smallestPossibleFactorRemaining; this requires to change the signature of tdiv.findSmallOddFactors()
+			// TODO update smallestPossibleFactor; this requires to change the signature of tdiv.findSmallOddFactors()
 			// TODO should we always return if a factor was found so that in CombinedFactorAlgorithm we can schedule to the right sub-algorithm depending on size?
 			if (ANALYZE) initialTdivDuration += timer.capture();
 			
@@ -189,8 +189,6 @@ public class SIQS extends FactorAlgorithm {
 			}
 
 			// ECM
-			// TODO ECM needs readjustment of parameters. Currently, for TestNumberNature.MODERATE_SEMIPRIMES + TestMode.PRIME_FACTORIZATION + 
-			// searchSmallFactors==true, far too much ECM is done. All other configurations seem to behave ok.
 			args.N = N;
 			args.NBits = N.bitLength();
 			// args.exp remains unchanged

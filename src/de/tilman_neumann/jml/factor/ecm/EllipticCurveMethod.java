@@ -49,7 +49,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 public class EllipticCurveMethod extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(EllipticCurveMethod.class);
 
-	private static final double BINARY_TO_DECIMAL_DIGIT_CONVERSION = Math.log(2.0)/Math.log(10.0);
+	private static final boolean DEBUG = false;
 	
 	static final int NLen = 1200;
 	private static final long DosALa32 = 1L << 32;
@@ -62,9 +62,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 
 	/** 1 as "BigNbr" */
 	private static final int BigNbr1[] = new int[NLen];
-
-	/** maximum number of elliptic curves tested for 30, 35, ..., 85, 90 digits */
-	private static final int limits[] = { 5, 8, 15, 25, 27, 32, 43, 70, 150, 300, 350, 600, 1500 };
 	
 	/** Primes < 5000 */
 	private static final int SmallPrime[] = new int[670]; // p_669 = 4999;
@@ -99,7 +96,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	int NumberLength;
 	// XXX Running operations to the full NumberLength ignoring the true argument sizes might be a waste of performance.
 	// Or maybe not, if all arguments in this special algorithm have nearly the size of the N to factor... -> Check that.
-
+	
 	/** Elliptic Curve number */
 	private int EC;
 	
@@ -118,7 +115,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			SmallPrime[indexM] = autoPrimes.getPrime(indexM);
 		}
 	}
-
+	
 	@Override
 	public String getName() {
 		return "ECM";
@@ -288,17 +285,25 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		AddBigNbrModN(MontgomeryMultR1, MontgomeryMultR1, MontgomeryMultR2);
 		
 		// Modular curve loop: It seems to be faster not to repeat previously tested curves for new factors
+		Integer maxCurves = null;
 		EC--;
 		do {
 			new_curve: do {
 				EC++;
-				int digitsOfN = (int) Math.ceil(N.bitLength() * BINARY_TO_DECIMAL_DIGIT_CONVERSION); // number of decimal digits
-				if (digitsOfN > 30 && digitsOfN <= 90) { // If between 30 and 90 digits...
-					int limit = limits[((int) digitsOfN - 31) / 5];
-					if (EC >= limit) {
-						EC += 1;
-						return I_1; // stop ECM
-					}
+				if (maxCurves == null) {
+					int NBits = N.bitLength();
+					// Dario Alpern's choice of (decimal digits -> maxCurves) was:
+					// 30->5, 35->8, 40->15, 45->25, 50->27, 55->32, 60->43, 65->70, 70->150, 75->300, 80->350, 85->600, 90->1500
+					// For N > 90 decimal digits the number of curves to run was unlimited, so his SIQS would never be called.
+					// The following estimate was adjusted for PSIQS with 6 threads. It is rather cautious because hitting hard semi-primes
+					// shall not let ECM waste more time than SIQS or PSIQS would need. Nonetheless, these few curves speed up factoring random composites a lot.
+					// TODO scale by number of PSIQS threads !
+					// TODO allow to run forever, which might be interesting if ECM is called standalone.
+					maxCurves = NBits>130 ? (int) Math.pow((NBits-130)/15, 1.61) : 0;
+					if (DEBUG) LOG.debug("ECM: NBits = " + NBits + ", maxCurves = " + maxCurves);
+				}
+				if (EC >= maxCurves) {
+					return I_1; // stop ECM
 				}
 				
 				long L1, L2, LS;
@@ -628,6 +633,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			} while (true); /* end curve calculation */
 		} while (BigNbrAreEqual(GD, TestNbr)); // while gcd == N; indeed this happens now and then
 
+		if (DEBUG) LOG.info("ECM did " + EC + " curves");
 		return BigIntToBigNbr(GD);
 	}
 	
