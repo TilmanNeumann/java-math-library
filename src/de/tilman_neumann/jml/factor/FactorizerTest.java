@@ -69,7 +69,7 @@ public class FactorizerTest {
 	/** Nature of test numbers */
 	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_COMPOSITES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
+	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
 
 	private BPSWTest bpsw = new BPSWTest();
 	
@@ -236,7 +236,7 @@ public class FactorizerTest {
 					long startTimeMillis = System.currentTimeMillis();
 					for (int j=0; j<N_COUNT; j++) {
 						try {
-							factors[j] = algorithm.findSingleFactor(testNumbers[j]);
+							factors[j] = algorithm.findSingleFactor(testNumbers[j]); // TODO use searchFactors() here, too ?
 						} catch (ArithmeticException e) {
 							LOG.error("FactorAlgorithm " + algorithm.getName() + " threw Exception while searching for a factor of N=" + testNumbers[j] + ": " + e);
 						}
