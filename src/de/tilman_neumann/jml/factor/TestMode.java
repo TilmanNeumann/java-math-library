@@ -19,7 +19,7 @@ package de.tilman_neumann.jml.factor;
  */
 public enum TestMode {
 	/** 
-	 * Find the first factor of some N.
+	 * Find the first factor of some N. Several algorithms like SIQS expect that the test numbers have already been stripped of simple factors.
 	 */
 	FIRST_FACTOR,
 	
