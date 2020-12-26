@@ -142,9 +142,9 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	@Override
 	public boolean searchFactors(FactorArguments args, FactorResult result) {
 		int NBits = args.NBits;
-		if (NBits<25) {
-			// find all remaining factors; these are known to be prime factors
-			// XXX since the change from findSingleFactor() to factor() we might want to increase the limit
+		if (NBits<32) {
+			// Find all remaining factors; these are known to be prime factors.
+			// The bound here is higher than in findSingleFactor() because here we find all factors in a single tdiv run.
 			int factorCountBefore = result.primeFactors.totalCount();
 			tDiv31.factor(args.N, args.exp, result.primeFactors);
 			return result.primeFactors.totalCount() != factorCountBefore;
