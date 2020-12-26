@@ -43,7 +43,7 @@ public class EllipticCurveMethodTest {
 
 	private final SecureRandom RNG = new SecureRandom();
 	
-	private final EllipticCurveMethod ecm = new EllipticCurveMethod();
+	private final EllipticCurveMethod ecm = new EllipticCurveMethod(0);
 	
 	private final int[] a31 = new int[EllipticCurveMethod.NLen];
 	private final int[] b31 = new int[EllipticCurveMethod.NLen];

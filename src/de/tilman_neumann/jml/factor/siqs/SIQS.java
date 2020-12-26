@@ -79,7 +79,7 @@ public class SIQS extends FactorAlgorithm {
 	private AParamGenerator apg;
 	private SIQSPolyGenerator polyGenerator;
 	private PowerFinder powerFinder;
-	private EllipticCurveMethod ecm = new EllipticCurveMethod();
+	private EllipticCurveMethod ecm = new EllipticCurveMethod(0);
 
 	// sieve
 	private float Mmult;

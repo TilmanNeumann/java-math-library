@@ -57,11 +57,11 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1000000;
+	private static final int N_COUNT = 1;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 20;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 1;
+	private static final int INCR_BITS = 10;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
@@ -82,10 +82,10 @@ public class FactorizerTest {
 		algorithms = new FactorAlgorithm[] {
 
 			// Trial division
-			new TDiv31(),
-			new TDiv31Inverse(),
-			new TDiv31Barrett(), // Fastest algorithm for N <= 26 bit
-			new TDiv63Inverse(1<<21),
+//			new TDiv31(),
+//			new TDiv31Inverse(),
+//			new TDiv31Barrett(), // Fastest algorithm for N <= 26 bit
+//			new TDiv63Inverse(1<<21),
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),

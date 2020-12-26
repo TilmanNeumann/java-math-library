@@ -94,11 +94,9 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 
 	/** Length of multiple precision numbers. */
 	int NumberLength;
-	// XXX Running operations to the full NumberLength ignoring the true argument sizes might be a waste of performance.
-	// Or maybe not, if all arguments in this special algorithm have nearly the size of the N to factor... -> Check that.
 	
-	/** Elliptic Curve number */
-	private int EC;
+	/** the maximum number of curves to run. -1 means no limit, 0 automatic computation of the parameter, positive values are applied directly */
+	int maxCurves;
 	
 	private int[] fieldTX, fieldTZ, fieldUX, fieldUZ;
 	private int[] fieldAux1, fieldAux2, fieldAux3, fieldAux4;
@@ -115,22 +113,19 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			SmallPrime[indexM] = autoPrimes.getPrime(indexM);
 		}
 	}
+
+	/**
+	 * Full constructor.
+	 * @param maxCurves the maximum number of curves to run.
+	 * -1 means no limit, 0 automatic computation of the parameter, positive values are applied directly.
+	 */
+	public EllipticCurveMethod(int maxCurves) {
+		this.maxCurves = maxCurves;
+	}
 	
 	@Override
 	public String getName() {
-		return "ECM";
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Note that the curve limit of this method for finding a single factor is the same as that of factor()
-	 * and factorize() for finding all prime factors of N.
-	 */
-	@Override
-	public BigInteger findSingleFactor(BigInteger N) {
-		EC = 1;
-		return fnECM(N);
+		return "ECM(maxCurves = " + maxCurves + ")";
 	}
 
 	/**
@@ -144,7 +139,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	public boolean searchFactors(FactorArguments args, FactorResult result) {
 		// set up new N
 		BigInteger N = args.N;
-		EC = 1;
 		
 		// Do trial division by all primes < 131072.
 		SortedMultiset<BigInteger> tdivFactors = new SortedMultiset_BottomUp<BigInteger>();
@@ -188,7 +182,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			}
 
 			// ECM
-			final BigInteger NN = fnECM(N);
+			final BigInteger NN = findSingleFactor(N);
 			if (NN.equals(I_1)) {
 				// N is composite but could not be factored by ECM
 				addToMap(N, exp, failedComposites);
@@ -221,7 +215,14 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		map.put(N, (oldExp == null) ? exp : oldExp+exp);
 	}
 	
-	private BigInteger fnECM(BigInteger N) {
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Note that the curve limit of this method for finding a single factor is the same as that of factor()
+	 * and factorize() for finding all prime factors of N.
+	 */
+	@Override
+	public BigInteger findSingleFactor(BigInteger N) {
 		int[] A0 = new int[NLen];
 		int[] A02 = new int[NLen];
 		int[] A03 = new int[NLen];
@@ -285,24 +286,23 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		AddBigNbrModN(MontgomeryMultR1, MontgomeryMultR1, MontgomeryMultR2);
 		
 		// Modular curve loop: It seems to be faster not to repeat previously tested curves for new factors
-		Integer maxCurves = null;
-		EC--;
+		int maxCurvesForN = maxCurves;
+		if (maxCurvesForN == 0) { // automatic computation requested
+			int NBits = N.bitLength();
+			// Dario Alpern's choice of (decimal digits -> maxCurves) was:
+			// 30->5, 35->8, 40->15, 45->25, 50->27, 55->32, 60->43, 65->70, 70->150, 75->300, 80->350, 85->600, 90->1500
+			// For N > 90 decimal digits the number of curves to run was unlimited, so his SIQS would never be called.
+			// The following estimate was adjusted for PSIQS with 6 threads. It is rather cautious because hitting hard semi-primes
+			// shall not let ECM waste more time than SIQS or PSIQS would need. Nonetheless, these few curves speed up factoring random composites a lot.
+			// TODO scale by number of PSIQS threads !
+			maxCurvesForN = NBits>130 ? (int) Math.pow((NBits-130)/15, 1.61) : 0;
+			if (DEBUG) LOG.debug("ECM: NBits = " + NBits + ", maxCurvesForN = " + maxCurvesForN);
+		}
+		int EC = 0; // current number of curves
 		do {
 			new_curve: do {
 				EC++;
-				if (maxCurves == null) {
-					int NBits = N.bitLength();
-					// Dario Alpern's choice of (decimal digits -> maxCurves) was:
-					// 30->5, 35->8, 40->15, 45->25, 50->27, 55->32, 60->43, 65->70, 70->150, 75->300, 80->350, 85->600, 90->1500
-					// For N > 90 decimal digits the number of curves to run was unlimited, so his SIQS would never be called.
-					// The following estimate was adjusted for PSIQS with 6 threads. It is rather cautious because hitting hard semi-primes
-					// shall not let ECM waste more time than SIQS or PSIQS would need. Nonetheless, these few curves speed up factoring random composites a lot.
-					// TODO scale by number of PSIQS threads !
-					// TODO allow to run forever, which might be interesting if ECM is called standalone.
-					maxCurves = NBits>130 ? (int) Math.pow((NBits-130)/15, 1.61) : 0;
-					if (DEBUG) LOG.debug("ECM: NBits = " + NBits + ", maxCurves = " + maxCurves);
-				}
-				if (EC >= maxCurves) {
+				if (maxCurvesForN > 0 && EC >= maxCurvesForN) {
 					return I_1; // stop ECM
 				}
 				
@@ -1754,7 +1754,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				// = 42181796536350966453737572957846241893933 * 42543889372264778301966140913837516662044603
 		};
 		
-		EllipticCurveMethod ecm = new EllipticCurveMethod();
+		EllipticCurveMethod ecm = new EllipticCurveMethod(-1);
 		
 		long t0, t1;
 		t0 = System.currentTimeMillis();
