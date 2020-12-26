@@ -108,10 +108,10 @@ abstract public class FactorAlgorithm {
 		if (lsb > 0) {
 			primeFactors.add(I_2, lsb);
 			N = N.shiftRight(lsb);
-		}
-		if (N.equals(I_1)) {
-			// N was a power of 2
-			return;
+			if (N.equals(I_1)) {
+				// N was a power of 2
+				return;
+			}
 		}
 		
 		// N contains larger factors...
@@ -175,8 +175,7 @@ abstract public class FactorAlgorithm {
 				// resolve untested factors
 				while (untestedFactors.size()>0) {
 					BigInteger untestedFactor = untestedFactors.firstKey();
-					int exp = untestedFactors.get(untestedFactor);
-					untestedFactors.removeAll(untestedFactor);
+					int exp = untestedFactors.removeAll(untestedFactor);
 					if (bpsw.isProbablePrime(untestedFactor)) {
 						// The untestedFactor is probable prime. In exceptional cases this prediction may be wrong and untestedFactor composite
 						// -> then we would falsely predict untestedFactor to be prime. BPSW is known to be exact for arguments <= 64 bit.
@@ -200,7 +199,7 @@ abstract public class FactorAlgorithm {
 						break;
 					}
 					
-					BigInteger compositeFactor = factorResult.compositeFactors.keySet().iterator().next();
+					BigInteger compositeFactor = factorResult.compositeFactors.firstKey();
 					int exp = factorResult.compositeFactors.removeAll(compositeFactor);
 					
 					FactorArguments args = new FactorArguments(compositeFactor, exp, smallestPossibleFactor);
