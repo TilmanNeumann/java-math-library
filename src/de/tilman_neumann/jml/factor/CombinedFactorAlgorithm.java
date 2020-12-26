@@ -145,12 +145,9 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		if (NBits<25) {
 			// find all remaining factors; these are known to be prime factors
 			// XXX since the change from findSingleFactor() to factor() we might want to increase the limit
-			SortedMultiset<BigInteger> factors = tDiv31.factor(args.N);
-			if (factors.size() > 0) {
-				result.primeFactors.addAll(factors);
-				return true;
-			}
-			return false;
+			int factorCountBefore = result.primeFactors.totalCount();
+			tDiv31.factor(args.N, result.primeFactors);
+			return result.primeFactors.totalCount() != factorCountBefore;
 		}
 		if (NBits<50) return hart.searchFactors(args, result);
 		if (NBits<57) return pollardRhoR64Mul63.searchFactors(args, result);

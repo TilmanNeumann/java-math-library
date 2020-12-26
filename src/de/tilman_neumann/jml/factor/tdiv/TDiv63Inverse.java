@@ -24,7 +24,6 @@ import de.tilman_neumann.jml.primes.bounds.PrimeCountUpperBounds;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 /**
  * Trial division factor algorithm replacing division by multiplications.
@@ -89,13 +88,12 @@ public class TDiv63Inverse extends FactorAlgorithm {
 	}
 
 	@Override
-	public SortedMultiset<BigInteger> factor(BigInteger Nbig) {
+	public void factor(BigInteger Nbig, SortedMultiset<BigInteger> primeFactors) {
 		int NBits = Nbig.bitLength();
 		if (NBits>63) {
 			throw new IllegalArgumentException("Argument N=" + Nbig  + " (" + NBits + " bit) is too large for algorithm " + getName());
 		}
 		
-		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
 		long N = Nbig.longValue();
 		
 		int i=0;
@@ -135,7 +133,6 @@ public class TDiv63Inverse extends FactorAlgorithm {
 			// either N is prime, or we could not find all factors with p<=pLimit -> add the rest to the result
 			primeFactors.add(BigInteger.valueOf(N));
 		}
-		return primeFactors;
 	}
 
 	/**

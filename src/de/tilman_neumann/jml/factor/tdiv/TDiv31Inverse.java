@@ -18,10 +18,9 @@ import java.math.BigInteger;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 /**
- * Trial division factor algorithm replacing division by multiplications.
+ * Trial division factor algorithm using double-valued Barrett reduction, thus replacing division by multiplications.
  * 
  * Instead of dividing N by consecutive primes, we store the reciprocals of those primes, too,
  * and multiply N by those reciprocals. Only if such a result is near to an integer we need
@@ -29,8 +28,6 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * 
  * This variant abstains from testing N%primes[i] when the discriminator test indicates a neat division,
  * and unrolls the loop in findSingleFactor().
- * 
- * Another bit faster than TDiv31Inverse_NoDoubleCheck.
  * 
  * @authors Thilo Harich + Tilman Neumann
  */
@@ -59,10 +56,9 @@ public class TDiv31Inverse extends FactorAlgorithm {
 	public String getName() {
 		return "TDiv31Inverse";
 	}
-
+	
 	@Override
-	public SortedMultiset<BigInteger> factor(BigInteger Nbig) {
-		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
+	public void factor(BigInteger Nbig, SortedMultiset<BigInteger> primeFactors) {
 		int N = Nbig.intValue();
 		
 		int q;
@@ -83,10 +79,9 @@ public class TDiv31Inverse extends FactorAlgorithm {
 		}
 		
 		if (N>1) {
-			// either N is prime, or we could not find all factors with p<=pLimit -> add the rest to the result
+			// either N is prime, or we could not find all factors -> add the rest to the result
 			primeFactors.add(BigInteger.valueOf(N));
 		}
-		return primeFactors;
 	}
 
 	@Override

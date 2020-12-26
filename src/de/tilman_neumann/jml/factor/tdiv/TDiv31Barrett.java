@@ -20,12 +20,11 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_2;
 
 /**
- * Trial division using Barrett reduction,
+ * Trial division using long-valued Barrett reduction,
  * see https://en.wikipedia.org/wiki/Barrett_reduction. 
  * 
  * Significantly faster than TDiv31Inverse.
@@ -57,8 +56,7 @@ public class TDiv31Barrett extends FactorAlgorithm {
 	}
 
 	@Override
-	public SortedMultiset<BigInteger> factor(BigInteger Nbig) {
-		SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<>();
+	public void factor(BigInteger Nbig, SortedMultiset<BigInteger> primeFactors) {
 		int N = Nbig.intValue();
 		
 		// Powers of 2 can be removed very fast.
@@ -88,10 +86,9 @@ public class TDiv31Barrett extends FactorAlgorithm {
 		}
 		
 		if (N>1) {
-			// either N is prime, or we could not find all factors with p<=pLimit -> add the rest to the result
+			// either N is prime, or we could not find all factors -> add the rest to the result
 			primeFactors.add(BigInteger.valueOf(N));
 		}
-		return primeFactors;
 	}
 
 	@Override
