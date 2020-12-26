@@ -59,6 +59,16 @@ public class TDiv31Inverse extends FactorAlgorithm {
 	
 	@Override
 	public void factor(BigInteger Nbig, SortedMultiset<BigInteger> primeFactors) {
+		factor(Nbig, 1, primeFactors);
+	}
+	
+	/**
+	 * Find all factor of NBig, which must have less than 32 bit.
+	 * @param Nbig
+	 * @param Nexp the exponent which with found factors are added to primeFactors
+	 * @param primeFactors
+	 */
+	public void factor(BigInteger Nbig, int Nexp, SortedMultiset<BigInteger> primeFactors) {
 		int N = Nbig.intValue();
 		
 		int q;
@@ -71,7 +81,7 @@ public class TDiv31Inverse extends FactorAlgorithm {
 				N = q; // avoiding a division here by storing q benefits the int version but not the long version
 			}
 			if (exp>0) {
-				primeFactors.add(BigInteger.valueOf(p), exp);
+				primeFactors.add(BigInteger.valueOf(p), exp*Nexp);
 			}
 			if (p*(long)p > N) {
 				break;
@@ -80,7 +90,7 @@ public class TDiv31Inverse extends FactorAlgorithm {
 		
 		if (N>1) {
 			// either N is prime, or we could not find all factors -> add the rest to the result
-			primeFactors.add(BigInteger.valueOf(N));
+			primeFactors.add(BigInteger.valueOf(N), Nexp);
 		}
 	}
 

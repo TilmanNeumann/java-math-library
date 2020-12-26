@@ -146,7 +146,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 			// find all remaining factors; these are known to be prime factors
 			// XXX since the change from findSingleFactor() to factor() we might want to increase the limit
 			int factorCountBefore = result.primeFactors.totalCount();
-			tDiv31.factor(args.N, result.primeFactors);
+			tDiv31.factor(args.N, args.exp, result.primeFactors);
 			return result.primeFactors.totalCount() != factorCountBefore;
 		}
 		if (NBits<50) return hart.searchFactors(args, result);
@@ -267,7 +267,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
     	}
     	// run
     	long t0 = System.currentTimeMillis();
-    	CombinedFactorAlgorithm factorizer = new CombinedFactorAlgorithm(numberOfThreads);
+    	CombinedFactorAlgorithm factorizer = new CombinedFactorAlgorithm(numberOfThreads, null, true, false, true);
     	SortedMultiset<BigInteger> result = factorizer.factor(N);
 		long duration = System.currentTimeMillis()-t0;
 		String durationStr = TimeUtil.timeStr(duration);

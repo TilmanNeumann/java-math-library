@@ -57,7 +57,7 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1000000;
+	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 20;
 	/** the increment in bit size from test set to test set */
@@ -184,7 +184,8 @@ public class FactorizerTest {
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), false, true), // best for large N
 
 			// Combination of best algorithms for all factor argument sizes
-//			new CombinedFactorAlgorithm(6, 1<<16, true, false, true),
+			new CombinedFactorAlgorithm(6, 1<<16, true, false, true),
+			new CombinedFactorAlgorithm(6, 1<<16, true, true, true),
 		};
 	}
 	
