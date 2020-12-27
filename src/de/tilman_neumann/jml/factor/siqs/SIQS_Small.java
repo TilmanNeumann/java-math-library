@@ -14,6 +14,8 @@
 package de.tilman_neumann.jml.factor.siqs;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.ANALYZE_LARGE_FACTOR_SIZES;
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.ANALYZE_Q_SIGNS;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -68,7 +70,7 @@ import de.tilman_neumann.util.Timer;
 public class SIQS_Small extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(SIQS_Small.class);
 	private static final boolean DEBUG = false;
-	private static final boolean ANALYZE = false; // SIQS_Small needs it's own ANALYZE flag when run inside Tdiv_QS
+	private static final boolean ANALYZE = true; // SIQS_Small needs it's own ANALYZE flag when run inside Tdiv_QS
 
 	/** if true then search for small factors before PSIQS is run */
 	private boolean searchSmallFactors = true;
@@ -424,6 +426,16 @@ public class SIQS_Small extends FactorAlgorithm {
 		LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 		LOG.info("    cc: " + ccReport.getOperationDetails());
+		if (ANALYZE_LARGE_FACTOR_SIZES) {
+			LOG.info("        " + ccReport.getPartialBigFactorSizes());
+			LOG.info("        " + ccReport.getSmoothBigFactorSizes());
+			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles());
+			LOG.info("        " + ccReport.getNonIntFactorPercentages());
+		}
+		if (ANALYZE_Q_SIGNS) {
+			LOG.info("        " + ccReport.getPartialQSignCounts());
+			LOG.info("        " + ccReport.getSmoothQSignCounts());
+		}
 		LOG.info("    #solverRuns = " + solverRunCount + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
 		LOG.info("    Approximate phase timings: tdiv=" + initialTdivDuration + "ms, ecm=" + ecmDuration + "ms, powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + ccDuration + "ms, solver=" + solverDuration + "ms");
 		LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(1));
