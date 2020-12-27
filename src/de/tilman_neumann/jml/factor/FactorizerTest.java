@@ -59,11 +59,11 @@ public class FactorizerTest {
 	/** number of test numbers */
 	private static final int N_COUNT = 1000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 94;
+	private static final int START_BITS = 54;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = 150;
+	private static final Integer MAX_BITS = 120;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */

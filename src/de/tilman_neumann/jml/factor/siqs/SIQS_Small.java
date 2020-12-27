@@ -132,7 +132,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		this.polyGenerator = polyGenerator;
 		this.sieve = new Sieve03gU();
 		this.congruenceCollector = new CongruenceCollector();
-		this.auxFactorizer = new TDiv_QS_1Large_UBI();
+		this.auxFactorizer = new TDiv_QS_1Large_UBI(); // using 1-partials or not makes hardly a difference for small N
 		this.extraCongruences = extraCongruences;
 		this.matrixSolver = new MatrixSolver01_Gauss();
 		apg = new AParamGenerator01(wantedQCount);
