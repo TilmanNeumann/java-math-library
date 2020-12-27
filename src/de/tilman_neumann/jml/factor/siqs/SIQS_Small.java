@@ -47,6 +47,7 @@ import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerOfSmallPrimesFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
+import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03g;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
@@ -130,7 +131,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		this.maxQRestExponent0 = maxQRestExponent;
 		this.powerFinder = new PowerOfSmallPrimesFinder();
 		this.polyGenerator = polyGenerator;
-		this.sieve = new Sieve03gU();
+		this.sieve = new Sieve03g(); // XXX new Sieve03gU() is faster but seems to cause problems in cleanup()
 		this.congruenceCollector = new CongruenceCollector();
 		this.auxFactorizer = new TDiv_QS_1Large_UBI(); // using 1-partials or not makes hardly a difference for small N
 		this.extraCongruences = extraCongruences;
@@ -447,7 +448,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	public void cleanUp() {
 		apg.cleanUp();
 		polyGenerator.cleanUp();
-		sieve.cleanUp();
+		sieve.cleanUp(); // XXX problems here with Sieve03gU ?
 		auxFactorizer.cleanUp();
 		congruenceCollector.cleanUp();
 		matrixSolver.cleanUp();
