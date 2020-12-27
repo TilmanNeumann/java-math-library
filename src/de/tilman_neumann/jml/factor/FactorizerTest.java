@@ -57,19 +57,19 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1;
+	private static final int N_COUNT = 1000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 20;
+	private static final int START_BITS = 94;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 10;
+	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = null;
+	private static final Integer MAX_BITS = 150;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_COMPOSITES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
+	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
 
 	private BPSWTest bpsw = new BPSWTest();
 	
@@ -145,7 +145,9 @@ public class FactorizerTest {
 			// * best for >= 250 bit: (Sieve03gU or SingleBlockHybridSieve) + (noPowers or smallPowers) + (TDiv2L or TDivnL) + BL
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SimpleSieve(), new TDiv_QS_1Large(), 10, new MatrixSolver01_Gauss(), false, true),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false, true),
-//			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false, true),
+			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large(), 10, new MatrixSolver01_Gauss(), false, false),
+			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false, false),
+			new SIQS_Small(0.32F, 0.37F, null, null, new SIQSPolyGenerator(), 10, false, false),
 
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), false, true),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), false, true),
@@ -184,8 +186,8 @@ public class FactorizerTest {
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), false, true), // best for large N
 
 			// Combination of best algorithms for all factor argument sizes
-			new CombinedFactorAlgorithm(6, 1<<16, true, false, true),
-			new CombinedFactorAlgorithm(6, 1<<16, true, true, true),
+//			new CombinedFactorAlgorithm(6, 1<<16, true, false, true),
+//			new CombinedFactorAlgorithm(6, 1<<16, true, true, true),
 		};
 	}
 	
@@ -215,7 +217,7 @@ public class FactorizerTest {
 			for (FactorAlgorithm algorithm : algorithms) {
 				// exclude special size implementations
 				String algName = algorithm.getName();
-				if (bits<53 && algName.startsWith("SIQS")) continue; // unstable for smaller N // TODO the bound has been much smaller some time ago
+				if (bits<54 && algName.startsWith("SIQS")) continue; // unstable for smaller N
 				if (bits<57 && algName.startsWith("PSIQS")) continue; // unstable for smaller N
 				if (bits>98 && algName.startsWith("CFrac63")) continue; // unstable for N>98 bits
 				if (bits>52 && algName.startsWith("SquFoF31")) continue; // int implementation

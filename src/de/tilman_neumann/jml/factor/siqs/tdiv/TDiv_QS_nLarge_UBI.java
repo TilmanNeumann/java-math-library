@@ -36,8 +36,6 @@ import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63
 import de.tilman_neumann.jml.factor.siqs.SIQS_Small;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
-import de.tilman_neumann.jml.factor.siqs.powers.PowerOfSmallPrimesFinder;
-import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03g;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset;
@@ -93,7 +91,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	// Nested SIQS is required only for approximately N>310 bit.
 	// XXX For safety reasons we do not use Sieve03gU yet for the internal quadratic sieve
-	private SIQS_Small qsInternal = new SIQS_Small(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, true, false); // XXX set useLegacyFactoring to false
+	private SIQS_Small qsInternal = new SIQS_Small(0.32F, 0.37F, null, 0.16F, new SIQSPolyGenerator(), 10, true, false); // XXX set useLegacyFactoring to false
 	                        
 	// smallest solutions of Q(x) == A(x)^2 (mod p)
 	private int[] x1Array, x2Array;
