@@ -57,13 +57,13 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1000;
+	private static final int N_COUNT = 1;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 54;
+	private static final int START_BITS = 70;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 1;
+	private static final int INCR_BITS = 10;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = 120;
+	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
@@ -138,16 +138,17 @@ public class FactorizerTest {
 //			new TinyEcm64(),
 //			new TinyEcm64_MontSqr(),
 //			new TinyEcm64_MontInline(),
-
+//			new EllipticCurveMethod(0),
+			
 			// SIQS:
 			// * best until 220 bit: Sieve03gU + smallPowers + TDiv1L + Gauss
 			// * best for 230, 240 bit: Sieve03gU + smallPowers + TDivnL + BL
 			// * best for >= 250 bit: (Sieve03gU or SingleBlockHybridSieve) + (noPowers or smallPowers) + (TDiv2L or TDivnL) + BL
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SimpleSieve(), new TDiv_QS_1Large(), 10, new MatrixSolver01_Gauss(), false, true),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false, true),
-			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large(), 10, new MatrixSolver01_Gauss(), false, false),
-			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false, false),
-			new SIQS_Small(0.32F, 0.37F, null, null, new SIQSPolyGenerator(), 10, false, false),
+	//		new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large(), 10, new MatrixSolver01_Gauss(), false, false),
+	//		new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), false, false),
+	//		new SIQS_Small(0.32F, 0.37F, null, null, new SIQSPolyGenerator(), 10, false, false),
 
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), false, true),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), false, true),
@@ -180,6 +181,7 @@ public class FactorizerTest {
 			// * BlockLanczos is better than Gauss solver for N > 200 bit
 //			new PSIQS(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
 	//		new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
+	//		new PSIQS_U2(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
 	//		new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), true, true),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), false, true),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new AllPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
@@ -187,7 +189,7 @@ public class FactorizerTest {
 
 			// Combination of best algorithms for all factor argument sizes
 //			new CombinedFactorAlgorithm(6, 1<<16, true, false, true),
-//			new CombinedFactorAlgorithm(6, 1<<16, true, true, true),
+			new CombinedFactorAlgorithm(6, 1<<16, true, true, true),
 		};
 	}
 	

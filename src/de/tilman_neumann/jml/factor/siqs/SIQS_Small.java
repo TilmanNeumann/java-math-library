@@ -47,7 +47,6 @@ import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerOfSmallPrimesFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
-import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03g;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
@@ -71,7 +70,7 @@ import de.tilman_neumann.util.Timer;
 public class SIQS_Small extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(SIQS_Small.class);
 	private static final boolean DEBUG = false;
-	private static final boolean ANALYZE = true; // SIQS_Small needs it's own ANALYZE flag when run inside Tdiv_QS
+	private static final boolean ANALYZE = false; // SIQS_Small needs it's own ANALYZE flag when run inside Tdiv_QS
 
 	/** if true then search for small factors before PSIQS is run */
 	private boolean searchSmallFactors = true;
@@ -131,7 +130,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		this.maxQRestExponent0 = maxQRestExponent;
 		this.powerFinder = new PowerOfSmallPrimesFinder();
 		this.polyGenerator = polyGenerator;
-		this.sieve = new Sieve03g(); // XXX new Sieve03gU() is faster but seems to cause problems in cleanup()
+		this.sieve = new Sieve03gU();
 		this.congruenceCollector = new CongruenceCollector();
 		this.auxFactorizer = new TDiv_QS_1Large_UBI(); // using 1-partials or not makes hardly a difference for small N
 		this.extraCongruences = extraCongruences;
@@ -392,8 +391,8 @@ public class SIQS_Small extends FactorAlgorithm {
 				logResults(N, k, kN, factor, primeBaseSize, pMax, adjustedSieveArraySize);
 			}
 			
-			// release memory after a factorization; this improves the accuracy of timings when several algorithms are tested in parallel
-			this.cleanUp();
+			// release native memory after each Q-rest factorization
+			this.sieve.cleanUp();
 			// done
 			return factor;
 		}
@@ -445,10 +444,13 @@ public class SIQS_Small extends FactorAlgorithm {
 		// CC and solver have no sub-timings yet
 	}
 	
+	/**
+	 * Clean up after a factorization of N.
+	 */
 	public void cleanUp() {
 		apg.cleanUp();
 		polyGenerator.cleanUp();
-		sieve.cleanUp(); // XXX problems here with Sieve03gU ?
+		// the sieve is not cleaned here but after each Q-rest factorization, just in case it is using native memory
 		auxFactorizer.cleanUp();
 		congruenceCollector.cleanUp();
 		matrixSolver.cleanUp();
