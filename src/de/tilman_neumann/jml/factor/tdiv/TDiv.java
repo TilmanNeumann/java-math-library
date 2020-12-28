@@ -77,9 +77,9 @@ public class TDiv {
 					div = N.divideAndRemainder(p_i_big);
 				} while (div[1].equals(I_0));
 
+				// At least one division has occurred; check if we are done.
+				// XXX the following check could be improved comparing the bitLength of sqrt(N) and p_i, or the bitLength of N and p_i^2
 				if (N.bitLength() < 63) {
-					// check if we are done
-					// TODO do also when no division occurred? the p are increasing all the time...
 					long p_i_square = p_i *(long)p_i;
 					if (p_i_square > N.longValue()) {
 						//LOG.debug("N=" + N + " < p^2=" + p_i_square);
