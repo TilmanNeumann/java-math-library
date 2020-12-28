@@ -294,9 +294,8 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			// Dario Alpern's choice of (decimal digits -> maxCurves) was:
 			// 30->5, 35->8, 40->15, 45->25, 50->27, 55->32, 60->43, 65->70, 70->150, 75->300, 80->350, 85->600, 90->1500
 			// For N > 90 decimal digits the number of curves to run was unlimited, so his SIQS would never be called.
-			// The following estimate was adjusted for PSIQS with 6 threads. It is rather cautious because hitting hard semi-primes
+			// The following re-estimate seems to work quite fine for any number of PSIQS threads. It is rather cautious because hitting hard semi-primes
 			// shall not let ECM waste more time than SIQS or PSIQS would need. Nonetheless, these few curves speed up factoring random composites a lot.
-			// TODO scale by number of PSIQS threads !
 			maxCurvesForN = NBits>130 ? (int) Math.pow((NBits-130)/15, 1.61) : 0;
 			if (DEBUG) LOG.debug("ECM: NBits = " + NBits + ", maxCurvesForN = " + maxCurvesForN);
 		}
