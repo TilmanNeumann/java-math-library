@@ -110,7 +110,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		if (numberOfThreads==1) {
 			// Avoid multi-thread overhead if the requested number of threads is 1
 			Sieve sieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
-			siqs_bigArgs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), sieve, new TDiv_QS_2Large_UBI(), 10, new MatrixSolver02_BlockLanczos(), useLegacyFactoring, searchSmallFactors);
+			siqs_bigArgs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), sieve, new TDiv_QS_2Large_UBI(permitUnsafeUsage), 10, new MatrixSolver02_BlockLanczos(), useLegacyFactoring, searchSmallFactors);
 		} else {
 			if (permitUnsafeUsage) {
 				siqs_bigArgs = new PSIQS_U(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), useLegacyFactoring, searchSmallFactors);

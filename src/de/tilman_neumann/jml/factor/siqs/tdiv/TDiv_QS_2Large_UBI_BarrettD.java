@@ -60,7 +60,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 	private static final boolean DEBUG = false;
 
 	private static final double CAST_CORRECTION = 1.0 / (1L << 32);
-
+	
 	// factor argument and polynomial parameters
 	private BigInteger kN;
 	private BigInteger da; // d*a with d = 1 or 2 depending on kN % 8
@@ -94,7 +94,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	// Nested SIQS is required only for approximately N>310 bit.
-	private SIQS_Small qsInternal = new SIQS_Small(0.32F, 0.37F, null, 0.16F, new SIQSPolyGenerator(), 10, true, false);
+	private SIQS_Small qsInternal;
 	
 	// smallest solutions of Q(x) == A(x)^2 (mod p)
 	private int[] x1Array, x2Array;
@@ -107,7 +107,15 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 	private long testCount, sufficientSmoothCount;
 	private long aqDuration, pass1Duration, pass2Duration, primeTestDuration, factorDuration;
 	private Multiset<Integer> qRestSizes;
-	
+
+	/**
+	 * Full constructor.
+	 * @param permitUnsafeUsage if true then SIQS_Small (which is used for N > 310 bit to factor Q-rests) uses a sieve exploiting sun.misc.Unsafe features.
+	 */
+	public TDiv_QS_2Large_UBI_BarrettD(boolean permitUnsafeUsage) {
+		qsInternal = new SIQS_Small(0.32F, 0.37F, null, 0.16F, new SIQSPolyGenerator(), 10, permitUnsafeUsage, true, false);
+	}
+
 	@Override
 	public String getName() {
 		return "TDiv_2L_UBI_BarrettD";

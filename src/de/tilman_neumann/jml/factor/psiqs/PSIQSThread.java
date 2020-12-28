@@ -46,6 +46,6 @@ public class PSIQSThread extends PSIQSThreadBase {
 			AParamGenerator apg, CongruenceCollectorParallel cc, int threadIndex) {
 		
 		super(k, N, kN, d, sieveParams, baseArrays, apg, new SIQSPolyGenerator(), new Sieve03g(),
-			  new TDiv_QS_2Large_UBI(), cc, threadIndex);
+			  new TDiv_QS_2Large_UBI(false), cc, threadIndex);
 	}
 }

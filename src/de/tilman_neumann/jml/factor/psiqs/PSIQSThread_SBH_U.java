@@ -47,6 +47,6 @@ public class PSIQSThread_SBH_U extends PSIQSThreadBase {
 			AParamGenerator apg, CongruenceCollectorParallel cc, int threadIndex) {
 		
 		super(k, N, kN, d, sieveParams, baseArrays, apg, new SIQSPolyGenerator(), new SingleBlockHybridSieveU(blockSize),
-			  new TDiv_QS_2Large_UBI(), cc, threadIndex);
+			  new TDiv_QS_2Large_UBI(true), cc, threadIndex);
 	}
 }

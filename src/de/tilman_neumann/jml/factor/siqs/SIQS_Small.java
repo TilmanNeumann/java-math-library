@@ -47,6 +47,7 @@ import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerOfSmallPrimesFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
+import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03g;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
@@ -72,6 +73,9 @@ public class SIQS_Small extends FactorAlgorithm {
 	private static final boolean DEBUG = false;
 	private static final boolean ANALYZE = false; // SIQS_Small needs it's own ANALYZE flag when run inside Tdiv_QS
 
+	/** if true then SIQS_Small uses a sieve exploiting sun.misc.Unsafe features. This may be ~10% faster. */
+	private boolean useUnsafe;
+	
 	/** if true then search for small factors before PSIQS is run */
 	private boolean searchSmallFactors = true;
 	
@@ -116,12 +120,13 @@ public class SIQS_Small extends FactorAlgorithm {
 	 *                         Good values are 0.16..0.19; null means that it is determined automatically.
 	 * @param polyGenerator
 	 * @param extraCongruences the number of surplus congruences we collect to have a greater chance that the equation system solves.
+	 * @param permitUnsafeUsage if true then SIQS_Small uses a sieve exploiting sun.misc.Unsafe features. This may be ~10% faster.
 	 * @param useLegacyFactoring if true then factor() uses findSingleFactor(), otherwise searchFactors()
 	 * @param searchSmallFactors if true then search for small factors before PSIQS is run
 	 */
 	public SIQS_Small(
 			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, SIQSPolyGenerator polyGenerator, int extraCongruences, 
-			boolean useLegacyFactoring, boolean searchSmallFactors) {
+			boolean permitUnsafeUsage, boolean useLegacyFactoring, boolean searchSmallFactors) {
 		
 		super(null, useLegacyFactoring);
 		
@@ -130,7 +135,8 @@ public class SIQS_Small extends FactorAlgorithm {
 		this.maxQRestExponent0 = maxQRestExponent;
 		this.powerFinder = new PowerOfSmallPrimesFinder();
 		this.polyGenerator = polyGenerator;
-		this.sieve = new Sieve03gU();
+		this.useUnsafe = permitUnsafeUsage;
+		this.sieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
 		this.congruenceCollector = new CongruenceCollector();
 		this.auxFactorizer = new TDiv_QS_1Large_UBI(); // using 1-partials or not makes hardly a difference for small N
 		this.extraCongruences = extraCongruences;
@@ -143,7 +149,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	public String getName() {
 		String maxQRestExponentStr = "maxQRestExponent=" + String.format("%.3f", maxQRestExponent);
 		String modeStr = "mode = " + (useLegacyFactoring ? "legacy" : "advanced");
-		return "SIQS_Small(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + maxQRestExponentStr + ", " + powerFinder.getName() + ", " + polyGenerator.getName() + ", " + sieve.getName() + ", " + auxFactorizer.getName() + ", " + matrixSolver.getName() + ", " + modeStr + ")";
+		return "SIQS_Small(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + maxQRestExponentStr + ", " + powerFinder.getName() + ", " + polyGenerator.getName() + ", " + sieve.getName() + ", " + auxFactorizer.getName() + ", " + matrixSolver.getName() + ", useUnsafe = " + useUnsafe + ", " + modeStr + ")";
 	}
 
 	@Override
@@ -474,7 +480,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		SIQS_Small qs = new SIQS_Small(0.32F, 0.37F, null, null, new SIQSPolyGenerator(), 10, false, true);
+		SIQS_Small qs = new SIQS_Small(0.32F, 0.37F, null, null, new SIQSPolyGenerator(), 10, true, false, true);
 		Timer timer = new Timer();
 		while(true) {
 			try {
