@@ -1700,7 +1700,10 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		// Old implementation for positive numbers
 		int NL = NumberLength*4;
 		byte[] NBytes = new byte[NL];
-		for (int i = 0; i < NumberLength /*trueNumberLength*/; i++) { // XXX trueNumberLength works as well ?
+		
+		// Originally the following loop ran up to NumberLength (say 10). But it works as well with trueNumberLength (say 1), 
+		// because (big-endian) leading zero-bytes are ignored by the BigInteger constructor.
+		for (int i = 0; i < /*NumberLength*/ trueNumberLength; i++) {
 			final long digit = nbr[i];
 			NBytes[NL - 1 - 4 * i] = (byte) (digit & 0xFF);
 			NBytes[NL - 2 - 4 * i] = (byte) ((digit >> 8) & 0xFF);
