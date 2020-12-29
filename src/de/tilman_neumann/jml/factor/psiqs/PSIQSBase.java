@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.factor.psiqs;
 
 import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+import static org.junit.Assert.assertEquals;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
@@ -150,17 +151,19 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
 			}
 
-			// LOG.debug("1: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result.primeFactors = " + result.primeFactors);
-			N = tdiv.findSmallOddFactors(N, actualTdivLimit, result.primeFactors);
-			// LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result.primeFactors = " + result.primeFactors);
-			// TODO update smallestPossibleFactor; this requires to change the signature of tdiv.findSmallOddFactors()
-			// TODO should we always return if a factor was found so that in CombinedFactorAlgorithm we can schedule to the right sub-algorithm depending on size?
+			// LOG.debug("1: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result: " + result);
+			tdiv.findSmallOddFactors(args, actualTdivLimit, result);
+			// LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result: " + result);
 			if (ANALYZE) initialTdivDuration += timer.capture();
 
-			if (N.equals(I_1)) {
+			if (result.untestedFactors.isEmpty()) {
 				// N was "easy"
 				return true;
 			}
+			// Otherwise we have to continue
+			N = result.untestedFactors.firstKey();
+			int exp = result.untestedFactors.removeAll(N);
+			if (DEBUG) assertEquals(1, exp); // looks save, otherwise we'ld have to consider exp below
 			
 			if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
 				result.primeFactors.add(N);
@@ -170,9 +173,8 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			// ECM
 			args.N = N;
 			args.NBits = N.bitLength();
-			// args.exp remains unchanged
-			// TODO args.smallestPossibleFactor
-
+			args.exp = exp;
+			args.smallestPossibleFactor = result.smallestPossibleFactorRemaining;
 			boolean factorFound = ecm.searchFactors(args, result); // TODO a parallel ECM implementation with numberOfThreads threads would be nice here
 			if (ANALYZE) ecmDuration += timer.capture();
 			if (factorFound) {

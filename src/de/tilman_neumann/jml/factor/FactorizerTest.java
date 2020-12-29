@@ -69,7 +69,7 @@ public class FactorizerTest {
 	/** Nature of test numbers */
 	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
+	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
 
 	private BPSWTest bpsw = new BPSWTest();
 	
@@ -144,7 +144,7 @@ public class FactorizerTest {
 			// * best until 220 bit: Sieve03gU + smallPowers + TDiv1L + Gauss
 			// * best for 230, 240 bit: Sieve03gU + smallPowers + TDivnL + BL
 			// * best for >= 250 bit: (Sieve03gU or SingleBlockHybridSieve) + (noPowers or smallPowers) + (TDiv2L or TDivnL) + BL
-			new SIQS_Small(0.305F, 0.37F, null, null, new SIQSPolyGenerator(), 10, true, false, false),
+	//		new SIQS_Small(0.305F, 0.37F, null, null, new SIQSPolyGenerator(), 10, true, false, false),
 
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SimpleSieve(), new TDiv_QS_1Large(true), 10, new MatrixSolver01_Gauss(), false, true),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(true), 10, new MatrixSolver01_Gauss(), false, true),
@@ -155,7 +155,7 @@ public class FactorizerTest {
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver02_BlockLanczos(), false, true),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_nLarge(true), 10, new MatrixSolver02_BlockLanczos(), false, true),
 //			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver02_BlockLanczos(), false, true),
-			new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver02_BlockLanczos(), false, false),
+	//		new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver02_BlockLanczos(), true, false),
 
 			// sieving with prime powers: best sieve for small N!
 //			new SIQS(0.32F, 0.37F, null, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(true), 10, new MatrixSolver01_Gauss(), false, true),
@@ -180,8 +180,8 @@ public class FactorizerTest {
 			// * we need 0.14 < maxQRestExponent < 0.2; everything else is prohibitive; use null for dynamic determination
 			// * BlockLanczos is better than Gauss solver for N > 200 bit
 //			new PSIQS(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
-	//		new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
-	//		new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), true, true),
+			new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), false, false),
+			new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), true, false),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), false, true),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new AllPowerFinder(), new MatrixSolver02_BlockLanczos(), false, true),
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), false, true), // best for large N

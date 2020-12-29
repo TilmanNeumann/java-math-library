@@ -20,6 +20,8 @@ import java.util.SortedMap;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.factor.base.FactorArguments;
+import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 
 /**
@@ -94,6 +96,56 @@ public class TDiv {
 		return N; // unfactored rest
 	}
 	
+	/**
+	 * Tries to find small _odd_ factors of a positive, possibly large argument N by doing trial division
+	 * by all primes p with 3 <= p <= limit. Typically, factor 2 should have been removed before calling
+	 * this method.
+	 * 
+	 * @param args
+	 * @param limit
+	 * @param results a pre-initalized data structure to add results to
+	 * @return true if a factor has been found
+	 */
+	public boolean findSmallOddFactors(FactorArguments args, int limit, FactorResult result) {
+		SMALL_PRIMES.ensureLimit(limit);
+		
+		BigInteger N = args.N;
+		SortedMap<BigInteger, Integer> primeFactors = result.primeFactors;
+		
+		boolean found = false;
+		int p_i;
+		for (int i=1; (p_i=SMALL_PRIMES.getPrime(i))<=limit; i++) {
+			BigInteger p_i_big = BigInteger.valueOf(p_i);
+			BigInteger[] div = N.divideAndRemainder(p_i_big);
+			if (div[1].equals(I_0)) {
+				// p_i divides N at least once
+				found = true;
+				
+				do {
+					addToMap(p_i_big, 1, primeFactors);
+					N = div[0];
+					div = N.divideAndRemainder(p_i_big);
+				} while (div[1].equals(I_0));
+
+				// At least one division has occurred; check if we are done.
+				// XXX the following check could be improved comparing the bitLength of sqrt(N) and p_i, or the bitLength of N and p_i^2
+				if (N.bitLength() < 63) {
+					long p_i_square = p_i *(long)p_i;
+					if (p_i_square > N.longValue()) {
+						//LOG.debug("N=" + N + " < p^2=" + p_i_square);
+						// the remaining N is 1 or prime
+						if (N.compareTo(I_1)>0) addToMap(N, 1, primeFactors);
+						return true;
+					}
+				}
+			}
+		}
+		
+		result.smallestPossibleFactorRemaining = p_i; // may be helpful in following factor algorithms
+		result.untestedFactors.add(N); // we do not know if the remaining N is prime or composite
+		return found;
+	}
+
 	private void addToMap(BigInteger N, int exp, SortedMap<BigInteger, Integer> map) {
 		Integer oldExp = map.get(N);
 		// replaces old entry if oldExp!=null

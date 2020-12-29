@@ -167,6 +167,7 @@ abstract public class FactorAlgorithm {
 		} else {
 			// use searchFactors()
 			long smallestPossibleFactor = 3;
+			FactorArguments args = new FactorArguments(N, 1, smallestPossibleFactor);
 			FactorResult factorResult = new FactorResult(primeFactors, new SortedMultiset_BottomUp<BigInteger>(), new SortedMultiset_BottomUp<BigInteger>(), smallestPossibleFactor);
 			SortedMultiset<BigInteger> untestedFactors = factorResult.untestedFactors; // ArrayList would be faster
 			untestedFactors.add(N);
@@ -201,8 +202,10 @@ abstract public class FactorAlgorithm {
 					
 					BigInteger compositeFactor = factorResult.compositeFactors.firstKey();
 					int exp = factorResult.compositeFactors.removeAll(compositeFactor);
-					
-					FactorArguments args = new FactorArguments(compositeFactor, exp, smallestPossibleFactor);
+					args.N = compositeFactor;
+					args.NBits = compositeFactor.bitLength();
+					args.exp = exp;
+					args.smallestPossibleFactor = smallestPossibleFactor;
 					boolean foundFactor = searchFactors(args, factorResult);
 					if (DEBUG) LOG.debug("3: foundFactor = " + foundFactor + ", factorResult: " + factorResult);
 					if (!foundFactor) {
