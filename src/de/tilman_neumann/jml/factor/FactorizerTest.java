@@ -57,17 +57,17 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 1000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 20;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 1;
+	private static final int INCR_BITS = 10;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_COMPOSITES;
 	/** Test mode */
 	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
 
@@ -350,7 +350,9 @@ public class FactorizerTest {
 		}
 		
 		// Something went wrong above, so now we factor N with a safe algorithm. Strategies with a better performance certainly exist.
-		return FactorAlgorithm.DEFAULT.factor(N); // XXX do we want the control algorithm to log details if ANALYZE==true?
+		return FactorAlgorithm.DEFAULT.factor(N);
+		// XXX Do we want the verification factor algorithm to log details if ANALYZE==true?
+		// XXX It is not really nice to see SIQS been run when another algorithm was tested :-/
 	}
 	
 	/**
