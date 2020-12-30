@@ -302,11 +302,11 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 
 		// Modular curve loop:
 		while (true) {
-			EC++;
-			if (maxCurvesForN > 0 && EC >= maxCurvesForN) {
+			if (maxCurvesForN >= 0 && EC >= maxCurvesForN) {
 				return I_1; // stop ECM
 			}
-			
+			EC++;
+
 			long L1, L2, LS;
 			if (EC < 26) {
 				L1 = 2000; // Number of primes less than 2.000

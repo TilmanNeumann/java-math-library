@@ -153,9 +153,9 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
 			}
 
-			// LOG.debug("1: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result: " + result);
+			if (DEBUG) LOG.debug("1: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result: " + result);
 			tdiv.findSmallOddFactors(args, actualTdivLimit, result);
-			// LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result: " + result);
+			if (DEBUG) LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result: " + result);
 			if (ANALYZE) initialTdivDuration += timer.capture();
 
 			if (result.untestedFactors.isEmpty()) {
@@ -177,7 +177,9 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			args.NBits = N.bitLength();
 			args.exp = exp;
 			args.smallestPossibleFactor = result.smallestPossibleFactorRemaining;
+			if (DEBUG) LOG.debug("ecm started: result = " + result);
 			boolean factorFound = ecm.searchFactors(args, result); // TODO a parallel ECM implementation with numberOfThreads threads would be nice here
+			if (DEBUG) LOG.debug("ecm finished: result = " + result);
 			if (ANALYZE) ecmDuration += timer.capture();
 			if (factorFound) {
 				return true;
