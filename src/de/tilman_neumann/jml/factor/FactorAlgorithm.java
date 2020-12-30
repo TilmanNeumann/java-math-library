@@ -49,7 +49,6 @@ abstract public class FactorAlgorithm {
 	protected boolean useLegacyFactoring = true;
 
 	private BPSWTest bpsw = new BPSWTest();
-	protected TDiv tdiv = new TDiv();
 	
 	protected Integer tdivLimit;
 	
@@ -131,6 +130,7 @@ abstract public class FactorAlgorithm {
 					actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
 				}
 
+				TDiv tdiv = new TDiv().setTestLimit(actualTdivLimit);
 				N = tdiv.findSmallOddFactors(N, actualTdivLimit, primeFactors);
 				
 				if (N.equals(I_1)) {

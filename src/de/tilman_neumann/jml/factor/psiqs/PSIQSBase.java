@@ -40,6 +40,7 @@ import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
+import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.TimeUtil;
@@ -88,6 +89,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	protected MatrixSolver matrixSolver;
 	
 	protected PowerFinder powerFinder;
+	private TDiv tdiv = new TDiv();
 	private EllipticCurveMethod ecm = new EllipticCurveMethod(0);
 
 	private BPSWTest bpsw = new BPSWTest();

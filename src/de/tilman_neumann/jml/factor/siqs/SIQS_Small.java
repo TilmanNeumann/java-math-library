@@ -55,6 +55,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_1Large_UBI;
+import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.ConfigUtil;
@@ -88,6 +89,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	private AParamGenerator apg;
 	private SIQSPolyGenerator polyGenerator;
 	private PowerFinder powerFinder;
+	private TDiv tdiv = new TDiv();
 	private EllipticCurveMethod ecm = new EllipticCurveMethod(0);
 
 	// sieve
