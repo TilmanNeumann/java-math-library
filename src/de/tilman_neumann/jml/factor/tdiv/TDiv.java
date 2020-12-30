@@ -30,7 +30,7 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
  * Trial division for large arguments.
  * @author Tilman Neumann
  */
-public class TDiv extends FactorAlgorithm {
+public class TDiv /*extends FactorAlgorithm*/ {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(TDiv.class);
 	
@@ -38,7 +38,7 @@ public class TDiv extends FactorAlgorithm {
 
 	private int pLimit = Integer.MAX_VALUE;
 
-	@Override
+	//@Override
 	public String getName() {
 		return "TDiv";
 	}
@@ -172,7 +172,7 @@ public class TDiv extends FactorAlgorithm {
 	 * 
 	 * Very simple implementation just to complete the FactorAlgorithm interface.
 	 */
-	@Override
+	//@Override
 	public BigInteger findSingleFactor(BigInteger N) {
 		if (N.signum()<0) N = N.negate(); // sign does not matter
 		if (N.bitLength()<3) return I_1; // N<4 is not composite
