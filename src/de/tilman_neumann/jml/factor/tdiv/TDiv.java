@@ -99,7 +99,7 @@ public class TDiv extends FactorAlgorithm {
 				} while (div[1].equals(I_0));
 
 				// At least one division has occurred; check if we are done.
-				// XXX the following check could be improved comparing the bitLength of sqrt(N) and p_i, or the bitLength of N and p_i^2
+				// Probably the check could be improved but it wont make much difference because the divisions are much more expensive.
 				if (N.bitLength() < 63) {
 					long p_i_square = p_i *(long)p_i;
 					if (p_i_square > N.longValue()) {
@@ -148,7 +148,7 @@ public class TDiv extends FactorAlgorithm {
 				} while (div[1].equals(I_0));
 
 				// At least one division has occurred; check if we are done.
-				// XXX the following check could be improved comparing the bitLength of sqrt(N) and p_i, or the bitLength of N and p_i^2
+				// Probably the check could be improved but it wont make much difference because the divisions are much more expensive.
 				if (N.bitLength() < 63) {
 					long p_i_square = p_i *(long)p_i;
 					if (p_i_square > N.longValue()) {
