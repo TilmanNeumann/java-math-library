@@ -20,6 +20,8 @@ import java.util.SortedMap;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.base.UnsignedBigInt;
+import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
@@ -28,11 +30,28 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
  * Trial division for large arguments.
  * @author Tilman Neumann
  */
-public class TDiv {
+public class TDiv extends FactorAlgorithm {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(TDiv.class);
 	
 	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
+
+	private int pLimit = Integer.MAX_VALUE;
+
+	@Override
+	public String getName() {
+		return "TDiv";
+	}
+
+	/**
+	 * Set the upper limit of primes to be tested.
+	 * @param pLimit
+	 * @return this
+	 */
+	public TDiv setTestLimit(int pLimit) {
+		this.pLimit = pLimit;
+		return this;
+	}
 
 	/**
 	 * Tries to find small factors of a positive, possibly large argument N by doing trial division
@@ -103,13 +122,14 @@ public class TDiv {
 	 * 
 	 * @param args
 	 * @param limit
-	 * @param results a pre-initalized data structure to add results to
+	 * @param result a pre-initalized data structure to add results to
 	 * @return true if a factor has been found
 	 */
 	public boolean findSmallOddFactors(FactorArguments args, int limit, FactorResult result) {
 		SMALL_PRIMES.ensureLimit(limit);
 		
 		BigInteger N = args.N;
+		int Nexp = args.exp;
 		SortedMap<BigInteger, Integer> primeFactors = result.primeFactors;
 		
 		boolean found = false;
@@ -122,7 +142,7 @@ public class TDiv {
 				found = true;
 				
 				do {
-					addToMap(p_i_big, 1, primeFactors);
+					addToMap(p_i_big, Nexp, primeFactors);
 					N = div[0];
 					div = N.divideAndRemainder(p_i_big);
 				} while (div[1].equals(I_0));
@@ -134,7 +154,8 @@ public class TDiv {
 					if (p_i_square > N.longValue()) {
 						//LOG.debug("N=" + N + " < p^2=" + p_i_square);
 						// the remaining N is 1 or prime
-						if (N.compareTo(I_1)>0) addToMap(N, 1, primeFactors);
+						if (N.compareTo(I_1)>0) addToMap(N, Nexp, primeFactors);
+						result.smallestPossibleFactorRemaining = p_i; // may be helpful in following factor algorithms
 						return true;
 					}
 				}
@@ -142,8 +163,29 @@ public class TDiv {
 		}
 		
 		result.smallestPossibleFactorRemaining = p_i; // may be helpful in following factor algorithms
-		result.untestedFactors.add(N); // we do not know if the remaining N is prime or composite
+		result.untestedFactors.add(N, Nexp); // we do not know if the remaining N is prime or composite
 		return found;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Very simple implementation just to complete the FactorAlgorithm interface.
+	 */
+	@Override
+	public BigInteger findSingleFactor(BigInteger N) {
+		if (N.signum()<0) N = N.negate(); // sign does not matter
+		if (N.bitLength()<3) return I_1; // N<4 is not composite
+		if (!N.testBit(0)) return I_2; // N even
+		UnsignedBigInt N_UBI = new UnsignedBigInt(N);
+		
+		int i=1, p;
+		while ((p = SMALL_PRIMES.getPrime(i++)) <= pLimit) { // upper bound avoids positive int overflow
+			if (N_UBI.mod(p)==0) return BigInteger.valueOf(p);
+		}
+		
+		// nothing found up to pLimit
+		return I_1;
 	}
 
 	private void addToMap(BigInteger N, int exp, SortedMap<BigInteger, Integer> map) {

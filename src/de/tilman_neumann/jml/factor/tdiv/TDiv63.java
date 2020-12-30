@@ -36,12 +36,13 @@ public class TDiv63 extends FactorAlgorithm {
 	}
 
 	/**
-	 * Set the upper limit of primes to be tested in the next findSingleFactor() run.
-	 * 
+	 * Set the upper limit of primes to be tested.
 	 * @param pLimit
+	 * @return this
 	 */
-	public void setTestLimit(int pLimit) {
+	public TDiv63 setTestLimit(int pLimit) {
 		this.pLimit = pLimit;
+		return this;
 	}
 
 	@Override
