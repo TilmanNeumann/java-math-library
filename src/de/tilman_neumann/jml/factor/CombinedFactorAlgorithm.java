@@ -151,7 +151,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		if (NBits<50) return hart.findSingleFactor(N);
 		if (NBits<57) return pollardRhoR64Mul63.findSingleFactor(N);
 		if (NBits<63) return pollardRho64.findSingleFactor(N);
-		if (NBits<97) return siqs_smallArgs.findSingleFactor(N);
+		if (NBits<=150) return siqs_smallArgs.findSingleFactor(N);
 		return siqs_bigArgs.findSingleFactor(N);
 	}
 	
@@ -226,9 +226,11 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 				}
 			}
 
-			// SIQS / PSIQS
-			if (NBits<97) siqs_smallArgs.searchFactors(args, result);
-			else siqs_bigArgs.searchFactors(args, result); // TODO PSIQS with many threads is very slow for N around 100 bit
+			// SIQS / PSIQS: The crossover point seems to be at ~150 bit now, independently the number of threads.
+			// Strangely, my previous adjustment had the crossover point at 97 bit. Probably at that time I wrongly compared
+			// PSIQS(1 thread) with PSIQS(2 threads), but PSIQS(1 thread) also has a thread creation penalty that SIQS does not have.
+			if (NBits<=150) siqs_smallArgs.searchFactors(args, result);
+			else siqs_bigArgs.searchFactors(args, result);
 		}
 	}
 
