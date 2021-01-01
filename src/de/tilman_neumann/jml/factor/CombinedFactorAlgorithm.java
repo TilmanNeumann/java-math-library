@@ -13,6 +13,7 @@
  */
 package de.tilman_neumann.jml.factor;
 
+import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.assertEquals;
 
@@ -76,6 +77,9 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	private FactorAlgorithm siqs_bigArgs;
 
 	private BPSWTest bpsw = new BPSWTest();
+
+	// profiling
+	private long t0;
 
 	/**
 	 * Simple constructor, computing the amount of trial division automatically 
@@ -176,9 +180,11 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 				}
 				if (actualTdivLimit > result.smallestPossibleFactorRemaining) {
 					// there is still tdiv/EM work to do...
-					if (DEBUG) LOG.debug("1: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result: " + result);
+					if (DEBUG) LOG.debug("result before TDiv: " + result);
+					if (ANALYZE) t0 = System.currentTimeMillis();
 					tdiv.setTestLimit(actualTdivLimit).searchFactors(args, result);
-					if (DEBUG) LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result: " + result);
+					if (ANALYZE) LOG.debug("TDiv up to " + actualTdivLimit + " took " + (System.currentTimeMillis()-t0) + "ms");
+					if (DEBUG) LOG.debug("result after TDiv:  " + result);
 	
 					if (result.untestedFactors.isEmpty()) return; // N was "easy"
 	
@@ -198,9 +204,12 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 					args.exp = exp;
 					args.smallestPossibleFactor = result.smallestPossibleFactorRemaining;
 					
-					if (DEBUG) LOG.debug("ecm started: result = " + result);
+					if (DEBUG) LOG.debug("result before ECM: " + result);
+					if (ANALYZE) t0 = System.currentTimeMillis();
 					ecm.searchFactors(args, result); // TODO a parallel ECM implementation with numberOfThreads threads would be nice here
-					if (DEBUG) LOG.debug("ecm finished: result = " + result);
+					if (ANALYZE) LOG.debug("ECM took " + (System.currentTimeMillis()-t0) + "ms");
+					if (DEBUG) LOG.debug("result after ECM:  " + result);
+					
 					if (!result.compositeFactors.containsKey(N0)) {
 						// either tdiv or ECM found some factors
 						return;
