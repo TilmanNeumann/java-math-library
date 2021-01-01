@@ -14,7 +14,6 @@
 package de.tilman_neumann.jml.factor.siqs;
 
 import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
-import static org.junit.Assert.assertEquals;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.io.BufferedReader;
@@ -38,7 +37,6 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver02_BlockLanczos;
-import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
@@ -53,9 +51,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_nLarge_UBI;
-import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.powers.PurePowerTest;
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.TimeUtil;
@@ -69,9 +65,6 @@ public class SIQS extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(SIQS.class);
 	private static final boolean DEBUG = false;
 	private static final boolean TEST_SIEVE = false;
-
-	/** if true then search for small factors before PSIQS is run */
-	private boolean searchSmallFactors = true;
 	
 	private PurePowerTest powerTest = new PurePowerTest();
 	private KnuthSchroeppel multiplierFinder = new KnuthSchroeppel(); // used to compute the multiplier k
@@ -81,8 +74,6 @@ public class SIQS extends FactorAlgorithm {
 	private AParamGenerator apg;
 	private SIQSPolyGenerator polyGenerator;
 	private PowerFinder powerFinder;
-	private TDiv tdiv = new TDiv();
-	private EllipticCurveMethod ecm = new EllipticCurveMethod(0);
 
 	// sieve
 	private float Mmult;
@@ -98,8 +89,6 @@ public class SIQS extends FactorAlgorithm {
 	private int extraCongruences;
 	/** The solver used for smooth congruence equation systems. */
 	private MatrixSolver matrixSolver;
-	
-	private BPSWTest bpsw = new BPSWTest();
 
 	private int foundPerfectSmoothCount;
 	private int allPerfectSmoothCount;
@@ -108,7 +97,7 @@ public class SIQS extends FactorAlgorithm {
 	
 	// statistics
 	private Timer timer = new Timer();
-	private long initialTdivDuration, ecmDuration, powerTestDuration, initNDuration, ccDuration, solverDuration;
+	private long powerTestDuration, initNDuration, ccDuration, solverDuration;
 	private int solverRunCount;
 	
 	/**
@@ -125,11 +114,10 @@ public class SIQS extends FactorAlgorithm {
 	 * @param extraCongruences the number of surplus congruences we collect to have a greater chance that the equation system solves.
 	 * @param matrixSolver matrix solver for the smooth congruence equation system
 	 * @param useLegacyFactoring if true then factor() uses findSingleFactor(), otherwise searchFactors()
-	 * @param searchSmallFactors if true then search for small factors before PSIQS is run
 	 */
 	public SIQS(
 			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, PowerFinder powerFinder, SIQSPolyGenerator polyGenerator, 
-			Sieve sieve, TDiv_QS auxFactorizer, int extraCongruences, MatrixSolver matrixSolver, boolean useLegacyFactoring, boolean searchSmallFactors) {
+			Sieve sieve, TDiv_QS auxFactorizer, int extraCongruences, MatrixSolver matrixSolver, boolean useLegacyFactoring) {
 		
 		super(null, useLegacyFactoring);
 		
@@ -144,7 +132,6 @@ public class SIQS extends FactorAlgorithm {
 		this.extraCongruences = extraCongruences;
 		this.matrixSolver = matrixSolver;
 		apg = new AParamGenerator01(wantedQCount);
-		this.searchSmallFactors = searchSmallFactors;
 	}
 
 	@Override
@@ -158,55 +145,11 @@ public class SIQS extends FactorAlgorithm {
 	public void searchFactors(FactorArguments args, FactorResult result) {
 		if (ANALYZE) {
 			timer.start(); // start timer
-			initialTdivDuration = ecmDuration = powerTestDuration = initNDuration = ccDuration = solverDuration = 0;
+			powerTestDuration = initNDuration = ccDuration = solverDuration = 0;
 			solverRunCount = 0;
 		}
 
 		BigInteger N = args.N;
-		if (searchSmallFactors) {
-			int actualTdivLimit;
-			if (tdivLimit != null) {
-				// use "dictated" limit
-				actualTdivLimit = tdivLimit.intValue();
-			} else {
-				// Adjust tdivLimit=2^e by experimental results.
-				final double e = 10 + (args.NBits-45)*0.07407407407; // constant 0.07.. = 10/135
-				actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
-			}
-
-			// LOG.debug("1: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result = " + result);
-			tdiv.setTestLimit(actualTdivLimit).searchFactors(args, result);
-			// LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result = " + result);
-			if (ANALYZE) initialTdivDuration += timer.capture();
-
-			if (result.untestedFactors.isEmpty()) return; // N was "easy"
-			
-			// Otherwise we have to continue
-			N = result.untestedFactors.firstKey();
-			int exp = result.untestedFactors.removeAll(N);
-			if (DEBUG) assertEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
-			
-			if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
-				result.primeFactors.add(N);
-				return;
-			}
-
-			// ECM
-			args.N = N;
-			args.NBits = N.bitLength();
-			args.exp = exp;
-			args.smallestPossibleFactor = result.smallestPossibleFactorRemaining;
-
-			ecm.searchFactors(args, result);
-			if (ANALYZE) ecmDuration += timer.capture();
-			if (result.compositeFactors.containsKey(N)) {
-				// N could not be resolved by ECM and has been added to compositeFactors again...
-				result.compositeFactors.removeAll(N);
-			} else {
-				// ECM found some factors
-				return;
-			}
-		}
 		
 		// the quadratic sieve does not work for pure powers
 		PurePowerTest.Result purePower = powerTest.test(N);
@@ -483,7 +426,7 @@ public class SIQS extends FactorAlgorithm {
 			LOG.info("        " + ccReport.getSmoothQSignCounts());
 		}
 		LOG.info("    #solverRuns = " + solverRunCount + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
-		LOG.info("    Approximate phase timings: tdiv=" + initialTdivDuration + "ms, ecm=" + ecmDuration + "ms, powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + ccDuration + "ms, solver=" + solverDuration + "ms");
+		LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + ccDuration + "ms, solver=" + solverDuration + "ms");
 		LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(1));
 		LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(1));
 		LOG.info("    -> tdiv sub-timings: " + tdivReport.getPhaseTimings(1));
@@ -517,7 +460,7 @@ public class SIQS extends FactorAlgorithm {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		SIQS qs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver02_BlockLanczos(), false, true);
+		SIQS qs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver02_BlockLanczos(), false);
 		Timer timer = new Timer();
 		while(true) {
 			try {

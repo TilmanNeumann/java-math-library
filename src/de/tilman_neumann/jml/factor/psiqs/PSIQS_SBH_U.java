@@ -43,12 +43,11 @@ public class PSIQS_SBH_U extends PSIQSBase {
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param matrixSolver solver for smooth congruences matrix
 	 * @param useLegacyFactoring if true then factor() uses findSingleFactor(), otherwise searchFactors()
-	 * @param searchSmallFactors if true then search for small factors before SIQS or PSIQS is run
 	 */
 	public PSIQS_SBH_U(float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, int blockSize,
-					   int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver, boolean useLegacyFactoring, boolean searchSmallFactors) {
+					   int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver, boolean useLegacyFactoring) {
 		
-		super(Cmult, Mmult, maxQRestExponent, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount), useLegacyFactoring, searchSmallFactors);
+		super(Cmult, Mmult, maxQRestExponent, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount), useLegacyFactoring);
 		this.blockSize = blockSize;
 	}
 
