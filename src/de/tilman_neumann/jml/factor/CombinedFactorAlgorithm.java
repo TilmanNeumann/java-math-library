@@ -167,8 +167,6 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		else if (NBits<63) pollardRho64.searchFactors(args, result);
 		else {
 			if (searchSmallFactors) {
-				BigInteger N0 = args.N;
-				BigInteger N = args.N;
 				int actualTdivLimit;
 				if (tdivLimit != null) {
 					// use "dictated" limit
@@ -180,6 +178,8 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 				}
 				if (actualTdivLimit > result.smallestPossibleFactorRemaining) {
 					// there is still tdiv/EM work to do...
+					BigInteger N0 = args.N;
+					
 					if (DEBUG) LOG.debug("result before TDiv: " + result);
 					if (ANALYZE) t0 = System.currentTimeMillis();
 					tdiv.setTestLimit(actualTdivLimit).searchFactors(args, result);
@@ -189,7 +189,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 					if (result.untestedFactors.isEmpty()) return; // N was "easy"
 	
 					// Otherwise we continue
-					N = result.untestedFactors.firstKey();
+					BigInteger N = result.untestedFactors.firstKey();
 					int exp = result.untestedFactors.removeAll(N);
 					if (DEBUG) assertEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
 	
@@ -198,24 +198,30 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 						return;
 					}
 	
-					// ECM
+					// update factor arguments for ECM or SIQS
 					args.N = N;
 					args.NBits = N.bitLength();
 					args.exp = exp;
 					args.smallestPossibleFactor = result.smallestPossibleFactorRemaining;
 					
-					if (DEBUG) LOG.debug("result before ECM: " + result);
-					if (ANALYZE) t0 = System.currentTimeMillis();
-					ecm.searchFactors(args, result); // TODO a parallel ECM implementation with numberOfThreads threads would be nice here
-					if (ANALYZE) LOG.debug("ECM took " + (System.currentTimeMillis()-t0) + "ms");
-					if (DEBUG) LOG.debug("result after ECM:  " + result);
+					// Check if ECM makes sense for a number of the size of N
+					int maxCurvesForN = EllipticCurveMethod.computeMaxCurvesForN(N);
+					if (maxCurvesForN == 0) {
+						// ECM would create too much overhead for N, SIQS is faster
+						result.compositeFactors.add(N, args.exp);
+					} else {
+						if (DEBUG) LOG.debug("result before ECM: " + result);
+						if (ANALYZE) t0 = System.currentTimeMillis();
+						ecm.searchFactors(args, result); // TODO a parallel ECM implementation with numberOfThreads threads would be nice here
+						if (ANALYZE) LOG.debug("ECM took " + (System.currentTimeMillis()-t0) + "ms");
+						if (DEBUG) LOG.debug("result after ECM:  " + result);
+					}
 					
 					if (!result.compositeFactors.containsKey(N0)) {
-						// either tdiv or ECM found some factors
+						// either tdiv or ECM found some factors -> return immediately
 						return;
 					}
-
-					// Neither tdiv nor ECM found a factor. N0 has been added to compositeFactors again -> remove it and continue
+					// Neither tdiv nor ECM found a factor. N0 has been added to compositeFactors again -> remove it and continue with SIQS
 					result.compositeFactors.removeAll(N);
 				}
 			}

@@ -139,15 +139,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param result the result of the factoring attempt. Should be initialized only once by the caller to reduce overhead.
 	 */
 	public void searchFactors(FactorArguments args, FactorResult result) {
-		// Check if we want to do ECM at all
-		BigInteger N = args.N;
-		int maxCurvesForN = maxCurves != 0 ? maxCurves : computeMaxCurvesForN(N);
-		if (maxCurvesForN == 0) { // TODO Move this check to CombinedFactorAlgorithm.searchFactors()
-			// exit immediately, which saves some overhead and speeds up factoring small numbers
-			result.compositeFactors.add(N, args.exp);
-			return;
-		}
-		
 		// The elliptic curve counter should not be reset to 0 in fnECM() so that curves do not get tested twice, no matter how many factors N has.
 		EC = 0;
 		
@@ -161,7 +152,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		}
 		
 		// Retrieve the unfactored rest to continue. The exponent of N can not have changed.
-		N = result.untestedFactors.firstKey();
+		BigInteger N = result.untestedFactors.firstKey();
 		int Nexp = result.untestedFactors.removeAll(N);
 		if (DEBUG) assertEquals(args.exp, Nexp);
 		
@@ -191,7 +182,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			}
 
 			// ECM
-			maxCurvesForN = maxCurves!= 0 ? maxCurves : computeMaxCurvesForN(N);
+			int maxCurvesForN = maxCurves!= 0 ? maxCurves : computeMaxCurvesForN(N);
 			final BigInteger NN = fnECM(N, maxCurvesForN);
 			if (NN.equals(I_1)) {
 				// N is composite but could not be factored by ECM
