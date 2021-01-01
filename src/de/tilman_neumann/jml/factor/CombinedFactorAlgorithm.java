@@ -215,13 +215,14 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 						return;
 					}
 
-					// Neither tdiv nor ECM found a factor. N0 has been added to compositeFactors again -> remove it and continue with SIQS/PSIQS
+					// Neither tdiv nor ECM found a factor. N0 has been added to compositeFactors again -> remove it and continue
 					result.compositeFactors.removeAll(N);
 				}
 			}
 
+			// SIQS / PSIQS
 			if (NBits<97) siqs_smallArgs.searchFactors(args, result);
-			else siqs_bigArgs.searchFactors(args, result);
+			else siqs_bigArgs.searchFactors(args, result); // TODO PSIQS with many threads is very slow for N around 100 bit
 		}
 	}
 

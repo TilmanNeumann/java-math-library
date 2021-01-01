@@ -139,8 +139,15 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param result the result of the factoring attempt. Should be initialized only once by the caller to reduce overhead.
 	 */
 	public void searchFactors(FactorArguments args, FactorResult result) {
-		// Set up new N.
+		// Check if we want to do ECM at all
 		BigInteger N = args.N;
+		int maxCurvesForN = maxCurves != 0 ? maxCurves : computeMaxCurvesForN(N);
+		if (maxCurvesForN == 0) { // TODO Move this check to CombinedFactorAlgorithm.searchFactors()
+			// exit immediately, which saves some overhead and speeds up factoring small numbers
+			result.compositeFactors.add(N, args.exp);
+			return;
+		}
+		
 		// The elliptic curve counter should not be reset to 0 in fnECM() so that curves do not get tested twice, no matter how many factors N has.
 		EC = 0;
 		
@@ -184,7 +191,8 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			}
 
 			// ECM
-			final BigInteger NN = fnECM(N);
+			maxCurvesForN = maxCurves!= 0 ? maxCurves : computeMaxCurvesForN(N);
+			final BigInteger NN = fnECM(N, maxCurvesForN);
 			if (NN.equals(I_1)) {
 				// N is composite but could not be factored by ECM
 				addToMap(N, exp, failedComposites);
@@ -218,10 +226,23 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
 		EC = 0;
-		return fnECM(N);
+		int maxCurvesForN = maxCurves!= 0 ? maxCurves : computeMaxCurvesForN(N);
+		return fnECM(N, maxCurvesForN);
 	}
 
-	private BigInteger fnECM(BigInteger N) {
+	public static int computeMaxCurvesForN(BigInteger N) {
+		int NBits = N.bitLength();
+		// Dario Alpern's choice of (decimal digits -> maxCurves) was:
+		// 30->5, 35->8, 40->15, 45->25, 50->27, 55->32, 60->43, 65->70, 70->150, 75->300, 80->350, 85->600, 90->1500
+		// For N > 90 decimal digits the number of curves to run was unlimited, so his SIQS would never be called.
+		// The following re-estimate seems to work quite fine for any number of PSIQS threads. It is rather cautious because hitting hard semi-primes
+		// shall not let ECM waste more time than SIQS or PSIQS would need. Nonetheless, these few curves speed up factoring random composites a lot.
+		int maxCurvesForN = NBits>130 ? (int) Math.pow((NBits-130)/15, 1.61) : 0;
+		if (DEBUG) LOG.debug("ECM: NBits = " + NBits + ", maxCurvesForN = " + maxCurvesForN);
+		return maxCurvesForN;
+	}
+	
+	private BigInteger fnECM(BigInteger N, int maxCurvesForN) {
 		int[] A0 = new int[NLen];
 		int[] A02 = new int[NLen];
 		int[] A03 = new int[NLen];
@@ -283,18 +304,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		MultBigNbrModN(MontgomeryMultR1, MontgomeryMultR1, MontgomeryMultR2, dN);
 		montgomery.mul(MontgomeryMultR2, MontgomeryMultR2, MontgomeryMultAfterInv);
 		AddBigNbrModN(MontgomeryMultR1, MontgomeryMultR1, MontgomeryMultR2);
-		
-		int maxCurvesForN = maxCurves;
-		if (maxCurvesForN == 0) { // automatic computation requested
-			int NBits = N.bitLength();
-			// Dario Alpern's choice of (decimal digits -> maxCurves) was:
-			// 30->5, 35->8, 40->15, 45->25, 50->27, 55->32, 60->43, 65->70, 70->150, 75->300, 80->350, 85->600, 90->1500
-			// For N > 90 decimal digits the number of curves to run was unlimited, so his SIQS would never be called.
-			// The following re-estimate seems to work quite fine for any number of PSIQS threads. It is rather cautious because hitting hard semi-primes
-			// shall not let ECM waste more time than SIQS or PSIQS would need. Nonetheless, these few curves speed up factoring random composites a lot.
-			maxCurvesForN = NBits>130 ? (int) Math.pow((NBits-130)/15, 1.61) : 0;
-			if (DEBUG) LOG.debug("ECM: NBits = " + NBits + ", maxCurvesForN = " + maxCurvesForN);
-		}
 
 		// Modular curve loop:
 		while (true) {
