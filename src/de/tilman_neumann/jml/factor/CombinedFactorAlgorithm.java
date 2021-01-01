@@ -56,7 +56,6 @@ import de.tilman_neumann.util.TimeUtil;
  * @author Tilman Neumann
  */
 public class CombinedFactorAlgorithm extends FactorAlgorithm {
-	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
 	private static final boolean DEBUG = false;
 
@@ -202,13 +201,13 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 					if (DEBUG) LOG.debug("ecm started: result = " + result);
 					ecm.searchFactors(args, result); // TODO a parallel ECM implementation with numberOfThreads threads would be nice here
 					if (DEBUG) LOG.debug("ecm finished: result = " + result);
-					if (result.compositeFactors.containsKey(N0)) {
-						// Neither tdiv nor ECM found a factor and N0 has been added to compositeFactors again -> continue with SIQS/PSIQS
-						result.compositeFactors.removeAll(N);
-					} else {
+					if (!result.compositeFactors.containsKey(N0)) {
 						// either tdiv or ECM found some factors
 						return;
 					}
+
+					// Neither tdiv nor ECM found a factor. N0 has been added to compositeFactors again -> remove it and continue with SIQS/PSIQS
+					result.compositeFactors.removeAll(N);
 				}
 			}
 
