@@ -61,8 +61,7 @@ public class TDiv extends FactorAlgorithm {
 	public void factor(BigInteger N, SortedMultiset<BigInteger> primeFactors) {
 		FactorArguments args = new FactorArguments(N, 1, 2);
 		SortedMultiset<BigInteger> untestedFactors = new SortedMultiset_BottomUp<BigInteger>();
-		FactorResult result = new FactorResult(primeFactors, untestedFactors, null, -1); // tdiv does not add to compositeFactors
-		// TODO design issue! why declare smallestPossibleFactorRemaining here?
+		FactorResult result = new FactorResult(primeFactors, untestedFactors, null, 2); // tdiv does not add to compositeFactors
 		searchFactors(args, result);
 		if (!untestedFactors.isEmpty()) {
 			if (DEBUG) {
