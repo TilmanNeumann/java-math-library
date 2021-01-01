@@ -49,8 +49,8 @@ public class TDiv63 extends FactorAlgorithm {
 	public void factor(BigInteger Nbig, SortedMultiset<BigInteger> primeFactors) {
 		long N = Nbig.longValue();
 		
-		for (int i=0; ; i++) {
-			int p = SMALL_PRIMES.getPrime(i);
+		int i=1, p;
+		while ((p = SMALL_PRIMES.getPrime(i++)) <= pLimit) { // upper bound avoids positive int overflow
 			if (N%p == 0) {
 				int exp = 0;
 				do {
