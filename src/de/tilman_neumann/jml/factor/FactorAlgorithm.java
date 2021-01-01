@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
-import de.tilman_neumann.jml.factor.tdiv.TDiv;
+import de.tilman_neumann.jml.factor.tdiv.TDivOld;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -130,7 +130,7 @@ abstract public class FactorAlgorithm {
 					actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
 				}
 
-				TDiv tdiv = new TDiv().setTestLimit(actualTdivLimit);
+				TDivOld tdiv = new TDivOld().setTestLimit(actualTdivLimit);
 				N = tdiv.findSmallOddFactors(N, actualTdivLimit, primeFactors);
 				
 				if (N.equals(I_1)) {
@@ -206,12 +206,8 @@ abstract public class FactorAlgorithm {
 					args.NBits = compositeFactor.bitLength();
 					args.exp = exp;
 					args.smallestPossibleFactor = smallestPossibleFactor;
-					boolean foundFactor = searchFactors(args, factorResult);
-					if (DEBUG) LOG.debug("3: foundFactor = " + foundFactor + ", factorResult: " + factorResult);
-					if (!foundFactor) {
-						LOG.error("Factor algorithm " + getName() + " failed to find a factor of composite " + compositeFactor);
-						factorResult.primeFactors.add(compositeFactor, exp); // emergency response ;-)
-					} // else: found factors have been added to factorResult.untestedFactors with the given exponent
+					searchFactors(args, factorResult);
+					if (DEBUG) LOG.debug("3: factorResult: " + factorResult);
 					
 					smallestPossibleFactor = Math.max(smallestPossibleFactor, factorResult.smallestPossibleFactorRemaining);
 				}
@@ -220,31 +216,29 @@ abstract public class FactorAlgorithm {
 	}
 	
 	/**
-	 * Find a single factor of the given N, which is composite and odd.
-	 * @param N
-	 * @return factor
-	 */
-	abstract public BigInteger findSingleFactor(BigInteger N);
-	
-	/**
 	 * Try to find at least one factor of the given args.N, which is composite and odd.
 	 * This is a default implementation for algorithms that will only find a single factor or none at all.
 	 * For sub-algorithms that may find more factors at once this method should be overwritten appropriately.
 	 * 
 	 * @param args
 	 * @param result the result of the factoring attempt. Should be initialized only once by the caller to reduce overhead.
-	 * @return found a factor ?
 	 */
-	public boolean searchFactors(FactorArguments args, FactorResult result) {
+	public void searchFactors(FactorArguments args, FactorResult result) {
 		BigInteger N = args.N;
 		BigInteger factor1 = findSingleFactor(N);
 		if (factor1.compareTo(I_1) > 0 && factor1.compareTo(N) < 0) {
 			// We found a factor, but here we cannot know if it is prime or composite
 			result.untestedFactors.add(factor1, args.exp);
 			result.untestedFactors.add(N.divide(factor1), args.exp);
-			return true;
 		}
 
-		return false; // nothing found
+		// nothing found
 	}
+	
+	/**
+	 * Find a single factor of the given N, which is composite and odd.
+	 * @param N
+	 * @return factor
+	 */
+	abstract public BigInteger findSingleFactor(BigInteger N);
 }

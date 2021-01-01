@@ -140,20 +140,17 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	}
 	
 	@Override
-	public boolean searchFactors(FactorArguments args, FactorResult result) {
+	public void searchFactors(FactorArguments args, FactorResult result) {
 		int NBits = args.NBits;
 		if (NBits<32) {
 			// Find all remaining factors; these are known to be prime factors.
-			// The bound here is higher than in findSingleFactor() because here we find all factors in a single tdiv run.
-			int factorCountBefore = result.primeFactors.totalCount();
+			// The bit bound here is higher than in findSingleFactor() because here we find all factors in a single tdiv run.
 			tDiv31.factor(args.N, args.exp, result.primeFactors);
-			return result.primeFactors.totalCount() != factorCountBefore;
-		}
-		if (NBits<50) return hart.searchFactors(args, result);
-		if (NBits<57) return pollardRhoR64Mul63.searchFactors(args, result);
-		if (NBits<63) return pollardRho64.searchFactors(args, result);
-		if (NBits<97) return siqs_smallArgs.searchFactors(args, result);
-		return siqs_bigArgs.searchFactors(args, result);
+		} else if (NBits<50) hart.searchFactors(args, result);
+		else if (NBits<57) pollardRhoR64Mul63.searchFactors(args, result);
+		else if (NBits<63) pollardRho64.searchFactors(args, result);
+		else if (NBits<97) siqs_smallArgs.searchFactors(args, result);
+		else siqs_bigArgs.searchFactors(args, result);
 	}
 
 	/**

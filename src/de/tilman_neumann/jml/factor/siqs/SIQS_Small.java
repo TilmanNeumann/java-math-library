@@ -156,7 +156,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	}
 
 	@Override
-	public boolean searchFactors(FactorArguments args, FactorResult result) {
+	public void searchFactors(FactorArguments args, FactorResult result) {
 		if (ANALYZE) {
 			timer.start(); // start timer
 			initialTdivDuration = ecmDuration = powerTestDuration = initNDuration = ccDuration = solverDuration = 0;
@@ -176,14 +176,12 @@ public class SIQS_Small extends FactorAlgorithm {
 			}
 
 			// LOG.debug("1: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result = " + result);
-			tdiv.findSmallOddFactors(args, actualTdivLimit, result);
+			tdiv.setTestLimit(actualTdivLimit).searchFactors(args, result);
 			// LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result = " + result);
 			if (ANALYZE) initialTdivDuration += timer.capture();
 
-			if (result.untestedFactors.isEmpty()) {
-				// N was "easy"
-				return true;
-			}
+			if (result.untestedFactors.isEmpty()) return; // N was "easy"
+
 			// Otherwise we have to continue
 			N = result.untestedFactors.firstKey();
 			int exp = result.untestedFactors.removeAll(N);
@@ -191,7 +189,7 @@ public class SIQS_Small extends FactorAlgorithm {
 
 			if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
 				result.primeFactors.add(N);
-				return true;
+				return;
 			}
 
 			// ECM
@@ -200,13 +198,14 @@ public class SIQS_Small extends FactorAlgorithm {
 			args.exp = exp;
 			args.smallestPossibleFactor = result.smallestPossibleFactorRemaining;
 
-			boolean factorFound = ecm.searchFactors(args, result);
+			ecm.searchFactors(args, result);
 			if (ANALYZE) ecmDuration += timer.capture();
-			if (factorFound) {
-				return true;
-			} else {
+			if (result.compositeFactors.containsKey(N)) {
 				// N could not be resolved by ECM and has been added to compositeFactors again...
-				result.compositeFactors.remove(N);
+				result.compositeFactors.removeAll(N);
+			} else {
+				// ECM found some factors
+				return;
 			}
 		}
 		
@@ -215,7 +214,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		if (purePower!=null) {
 			// N is indeed a pure power. In contrast to findSingleFactor() we can also add the exponent, so following steps get faster
 			result.untestedFactors.add(purePower.base, purePower.exponent);
-			return true;
+			return;
 		} // else: no pure power, run quadratic sieve
 		if (ANALYZE) powerTestDuration += timer.capture();
 		
@@ -225,10 +224,10 @@ public class SIQS_Small extends FactorAlgorithm {
 			// We found a factor, but here we cannot know if it is prime or composite
 			result.untestedFactors.add(factor1, args.exp);
 			result.untestedFactors.add(N.divide(factor1), args.exp);
-			return true;
+			return;
 		}
 
-		return false; // nothing found
+		return; // nothing found
 	}
 
 	/**

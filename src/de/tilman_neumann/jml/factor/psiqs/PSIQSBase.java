@@ -134,7 +134,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	abstract public String getName();
 
 	@Override
-	public boolean searchFactors(FactorArguments args, FactorResult result) {
+	public void searchFactors(FactorArguments args, FactorResult result) {
 		if (ANALYZE) {
 			timer.start(); // start timer
 			initialTdivDuration = ecmDuration = powerTestDuration = initNDuration = createThreadDuration = 0;
@@ -148,28 +148,25 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 				actualTdivLimit = tdivLimit.intValue();
 			} else {
 				// Adjust tdivLimit=2^e by experimental results.
-				// XXX This estimate should take into account the number of threads.
 				final double e = 10 + (args.NBits-45)*0.07407407407; // constant 0.07.. = 10/135
 				actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
 			}
 
 			if (DEBUG) LOG.debug("1: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result: " + result);
-			tdiv.findSmallOddFactors(args, actualTdivLimit, result);
+			tdiv.setTestLimit(actualTdivLimit).searchFactors(args, result);
 			if (DEBUG) LOG.debug("2: N = " + N + ", actualTdivLimit = " + actualTdivLimit + ", result: " + result);
 			if (ANALYZE) initialTdivDuration += timer.capture();
 
-			if (result.untestedFactors.isEmpty()) {
-				// N was "easy"
-				return true;
-			}
+			if (result.untestedFactors.isEmpty()) return; // N was "easy"
+
 			// Otherwise we have to continue
 			N = result.untestedFactors.firstKey();
 			int exp = result.untestedFactors.removeAll(N);
-			if (DEBUG) assertEquals(1, exp); // looks save, otherwise we'ld have to consider exp below
-			
+			if (DEBUG) assertEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
+
 			if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
 				result.primeFactors.add(N);
-				return true;
+				return;
 			}
 
 			// ECM
@@ -177,15 +174,17 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			args.NBits = N.bitLength();
 			args.exp = exp;
 			args.smallestPossibleFactor = result.smallestPossibleFactorRemaining;
+			
 			if (DEBUG) LOG.debug("ecm started: result = " + result);
-			boolean factorFound = ecm.searchFactors(args, result); // TODO a parallel ECM implementation with numberOfThreads threads would be nice here
+			ecm.searchFactors(args, result); // TODO a parallel ECM implementation with numberOfThreads threads would be nice here
 			if (DEBUG) LOG.debug("ecm finished: result = " + result);
 			if (ANALYZE) ecmDuration += timer.capture();
-			if (factorFound) {
-				return true;
-			} else {
+			if (result.compositeFactors.containsKey(N)) {
 				// N could not be resolved by ECM and has been added to compositeFactors again...
-				result.compositeFactors.remove(N);
+				result.compositeFactors.removeAll(N);
+			} else {
+				// ECM found some factors
+				return;
 			}
 		}
 		
@@ -194,7 +193,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		if (purePower!=null) {
 			// N is indeed a pure power. In contrast to findSingleFactor() we can also add the exponent, so following steps get faster
 			result.untestedFactors.add(purePower.base, purePower.exponent);
-			return true;
+			return;
 		} // else: no pure power, run quadratic sieve
 		if (ANALYZE) powerTestDuration += timer.capture();
 		
@@ -204,10 +203,10 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			// We found a factor, but here we cannot know if it is prime or composite
 			result.untestedFactors.add(factor1, args.exp);
 			result.untestedFactors.add(N.divide(factor1), args.exp);
-			return true;
+			return;
 		}
 
-		return false; // nothing found
+		// nothing found
 	}
 
 	/**

@@ -37,6 +37,7 @@ import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.*;
 
 /**
  * <p>Use Elliptic Curve Method to find the prime number factors of a given BigInteger.</p>
@@ -68,7 +69,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 
 	private static final PrPTest prp = new PrPTest();
 	private static final PurePowerTest powerTest = new PurePowerTest();
-	private static final TDiv tdiv = new TDiv();
+	private static final TDiv tdiv = new TDiv().setTestLimit(131072);
 	private MontgomeryMult montgomery;
 
 	private static final double v[] =
@@ -136,35 +137,33 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * 
 	 * @param args
 	 * @param result the result of the factoring attempt. Should be initialized only once by the caller to reduce overhead.
-	 * @return true if ECM found some factors
 	 */
-	public boolean searchFactors(FactorArguments args, FactorResult result) {
+	public void searchFactors(FactorArguments args, FactorResult result) {
 		// Set up new N.
 		BigInteger N = args.N;
 		// The elliptic curve counter should not be reset to 0 in fnECM() so that curves do not get tested twice, no matter how many factors N has.
 		EC = 0;
 		
-		// Do trial division by all primes < 131072.
-		SortedMultiset<BigInteger> tdivFactors = new SortedMultiset_BottomUp<BigInteger>();
-		// Adding the factors found by trial division must take into account the multiplicity of N
-		N = tdiv.findSmallFactors(N, 131072, tdivFactors); // TODO take into account the amount of trial division done before
-		for (BigInteger tdivFactor : tdivFactors.keySet()) {
-			int tdivFactorExp = tdivFactors.get(tdivFactor);
-			result.primeFactors.add(tdivFactor, tdivFactorExp*args.exp);
-		}
-
-		if (N.equals(I_1)) {
-			return true;
+		// Do trial division by all primes < 131072. Found factors are added to result.primeFactors, the rest to result.untestedFactors.
+		tdiv.searchFactors(args, result);
+		if (result.untestedFactors.isEmpty()) return;
+		// Otherwise untestedFactors should contain exactly one integer > 131072^2, the unfactored rest
+		if (DEBUG) {
+			assertEquals(1, result.untestedFactors.size());
+			assertTrue(result.untestedFactors.firstKey().compareTo(BigInteger.valueOf(131072L^2)) > 0);
 		}
 		
-		// There are factors greater than 131071, and they may be prime or composite.
+		// Retrieve the unfactored rest to continue. The exponent of N can not have changed.
+		N = result.untestedFactors.firstKey();
+		int Nexp = result.untestedFactors.removeAll(N);
+		if (DEBUG) assertEquals(args.exp, Nexp);
+		
 		if (isProbablePrime(N)) {
 			addToMap(N, args.exp, result.primeFactors);
-			return true;
+			return;
 		}
 		
 		// N is composite -> do ECM
-		boolean factorFound = false;
 		SortedMultiset<BigInteger> compositesToTest = result.compositeFactors;
 		compositesToTest.add(N, args.exp); // we know that N is composite
 		
@@ -181,7 +180,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			if (r != null) {
 				// N is a pure power!
 				addToMapDependingOnPrimeTest(r.base, exp*r.exponent, result.primeFactors, compositesToTest);
-				factorFound = true;
 				continue; // test next composite
 			}
 
@@ -195,13 +193,11 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			// NN is a factor of N
 			addToMapDependingOnPrimeTest(NN, exp, result.primeFactors, compositesToTest);
 			addToMapDependingOnPrimeTest(N.divide(NN), exp, result.primeFactors, compositesToTest);
-			factorFound = true;
 		}
 		
 		// Before we finish, add all composites that could not be factored to result.compositeFactors.
 		// We want the product of result factors to match N, no matter what happened.
 		compositesToTest.addAll(failedComposites);
-		return factorFound;
 	}
 
 	private boolean isProbablePrime(BigInteger N) {
@@ -1762,12 +1758,8 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			long smallestPossibleFactor = 3;
 			FactorResult factorResult = new FactorResult(primeFactors, new SortedMultiset_BottomUp<BigInteger>(), new SortedMultiset_BottomUp<BigInteger>(), smallestPossibleFactor);
 			FactorArguments factorArgs = new FactorArguments(N, 1, smallestPossibleFactor);
-			boolean foundFactor = ecm.searchFactors(factorArgs, factorResult);
-			if (foundFactor) {
-				LOG.debug("N = " + N + ": " + factorResult.primeFactors + " * " + factorResult.compositeFactors);
-			} else {
-				LOG.debug("ECM did not find any factor for N = " + N);
-			}
+			ecm.searchFactors(factorArgs, factorResult);
+			LOG.debug("N = " + N + ": " + factorResult.primeFactors + " * " + factorResult.compositeFactors);
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("Test suite took " + (t1-t0) + "ms");

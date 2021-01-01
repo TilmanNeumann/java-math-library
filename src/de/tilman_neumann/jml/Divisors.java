@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.Stack;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -42,7 +41,7 @@ import de.tilman_neumann.util.ConfigUtil;
 public class Divisors {
 	private static final Logger LOG = Logger.getLogger(Divisors.class);
 
-	private static final TDiv tdiv = new TDiv();
+	private static final TDiv tdiv = new TDiv().setTestLimit(65536); // 65536 is enough to factor factorials
 	
 	/** {1} */
 	private static final SortedSet<BigInteger> ONE_AS_SET = oneAsSet();
@@ -502,8 +501,7 @@ public class Divisors {
 			
 			// third version gives A062569 at high speed
 			t0 = System.currentTimeMillis();
-			TreeMap<BigInteger, Integer> factors = new TreeMap<>();
-			tdiv.findSmallFactors(fac, 65536, factors); // ignore return value because fac is very smooth
+			SortedMap<BigInteger, Integer> factors = tdiv.factor(fac); // tdiv is sufficient because fac is very smooth
 			sigma = sumOfDivisors(factors);
 			t1 = System.currentTimeMillis();
 			LOG.info("sumOfDivisors_v3(" + n + "!) = " + sigma + " computed in " + (t1-t0) + "ms");
@@ -513,8 +511,7 @@ public class Divisors {
 	private static void testDivisors() {
 		for (int n=0; ; n++) {
 			BigInteger fac = Factorial.factorial(n);
-			SortedMap<BigInteger, Integer> factors = new TreeMap<>();
-			tdiv.findSmallFactors(fac, 65536, factors); // ignore return value because fac is very smooth
+			SortedMap<BigInteger, Integer> factors = tdiv.factor(fac); // tdiv is sufficient because fac is very smooth
 
 			// v1 is very slow...
 			//long t0 = System.currentTimeMillis();
@@ -568,8 +565,7 @@ public class Divisors {
 			long t1 = System.currentTimeMillis();
 			
 			// Much much faster!
-			SortedMap<BigInteger, Integer> factors = new TreeMap<>();
-			tdiv.findSmallFactors(fac, 65536, factors); // ignore return value because fac is very smooth
+			SortedMap<BigInteger, Integer> factors = tdiv.factor(fac); // tdiv is sufficient because fac is very smooth
 			SortedSet<BigInteger> divSet2 = getSmallDivisors/*_v2*/(fac, factors);
 			long t2 = System.currentTimeMillis();
 			
