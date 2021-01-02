@@ -57,11 +57,11 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1;
+	private static final int N_COUNT = 1000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 250;
+	private static final int START_BITS = 50;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 0;
+	private static final int INCR_BITS = 10;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
@@ -139,7 +139,7 @@ public class FactorizerTest {
 //			new TinyEcm64(),
 //			new TinyEcm64_MontSqr(),
 //			new TinyEcm64_MontInline(),
-//			new EllipticCurveMethod(0),
+			new EllipticCurveMethod(-1),
 			
 			// SIQS:
 			// * best until 220 bit: Sieve03gU + smallPowers + TDiv1L + Gauss
@@ -188,11 +188,8 @@ public class FactorizerTest {
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver02_BlockLanczos(), false), // best for large N
 
 			// Combination of best algorithms for all factor argument sizes
-			new CombinedFactorAlgorithm(6, 1<<16, true, true, true),
-			new CombinedFactorAlgorithm(6, 1<<16, true, false, true),
-			
-//			new CombinedFactorAlgorithm(6, null, true, true, true),
-//			new CombinedFactorAlgorithm(6, null, true, false, true),
+//			new CombinedFactorAlgorithm(6, 1<<16, true, true, true),
+//			new CombinedFactorAlgorithm(6, 1<<16, true, false, true),
 		};
 	}
 	

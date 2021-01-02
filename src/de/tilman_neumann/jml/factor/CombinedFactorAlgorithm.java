@@ -176,7 +176,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 					final double e = 10 + (args.NBits-45)*0.07407407407; // constant 0.07.. = 10/135
 					actualTdivLimit = (int) Math.min(1<<20, Math.pow(2, e)); // upper bound 2^20
 				}
-				if (actualTdivLimit > result.smallestPossibleFactorRemaining) {
+				if (actualTdivLimit > result.smallestPossibleFactor) {
 					// there is still tdiv/EM work to do...
 					BigInteger N0 = args.N;
 					
@@ -202,7 +202,6 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 					args.N = N;
 					args.NBits = N.bitLength();
 					args.exp = exp;
-					args.smallestPossibleFactor = result.smallestPossibleFactorRemaining;
 					
 					// Check if ECM makes sense for a number of the size of N
 					int maxCurvesForN = EllipticCurveMethod.computeMaxCurvesForN(N);

@@ -16,24 +16,24 @@ public class FactorResult {
 	public SortedMultiset<BigInteger> compositeFactors;
 	
 	/** the smallest factor that could occur in the unfactored rest, e.g. because smaller factors have been excluded by trial division */
-	public long smallestPossibleFactorRemaining;
+	public long smallestPossibleFactor;
 	
 	/**
 	 * Full constructor.
 	 * @param primeFactors prime factors found
 	 * @param untestedFactors factors found but not investigated for primeness
 	 * @param compositeFactors factors found that are certainly composite
-	 * @param smallestPossibleFactorRemaining the smallest factor that could occur in untestedFactors or compositeFactors
+	 * @param smallestPossibleFactor the smallest factor that could occur in untestedFactors or compositeFactors
 	 */
-	public FactorResult(SortedMultiset<BigInteger> primeFactors, SortedMultiset<BigInteger> untestedFactors, SortedMultiset<BigInteger> compositeFactors, long smallestPossibleFactorRemaining) {
+	public FactorResult(SortedMultiset<BigInteger> primeFactors, SortedMultiset<BigInteger> untestedFactors, SortedMultiset<BigInteger> compositeFactors, long smallestPossibleFactor) {
 		this.primeFactors = primeFactors;
 		this.untestedFactors = untestedFactors;
 		this.compositeFactors = compositeFactors;
-		this.smallestPossibleFactorRemaining = smallestPossibleFactorRemaining;
+		this.smallestPossibleFactor = smallestPossibleFactor;
 	}
 	
 	@Override
 	public String toString() {
-		return "primeFactors = " + primeFactors + ", untestedFactors = " + untestedFactors + ", compositeFactors = " + compositeFactors + ", smallestPossibleFactorRemaining = " + smallestPossibleFactorRemaining;
+		return "primeFactors = " + primeFactors + ", untestedFactors = " + untestedFactors + ", compositeFactors = " + compositeFactors + ", smallestPossibleFactor = " + smallestPossibleFactor;
 	}
 }

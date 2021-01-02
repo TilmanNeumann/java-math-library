@@ -155,14 +155,14 @@ public class TDivOld extends FactorAlgorithm {
 						//LOG.debug("N=" + N + " < p^2=" + p_i_square);
 						// the remaining N is 1 or prime
 						if (N.compareTo(I_1)>0) addToMap(N, Nexp, primeFactors);
-						result.smallestPossibleFactorRemaining = p_i; // may be helpful in following factor algorithms
+						result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
 						return true;
 					}
 				}
 			}
 		}
 		
-		result.smallestPossibleFactorRemaining = p_i; // may be helpful in following factor algorithms
+		result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
 		result.untestedFactors.add(N, Nexp); // we do not know if the remaining N is prime or composite
 		return found;
 	}

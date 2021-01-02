@@ -167,7 +167,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	
 	@Override
 	public void factor(BigInteger N, SortedMultiset<BigInteger> primeFactors) {
-		FactorArguments args = new FactorArguments(N, 1, 2);
+		FactorArguments args = new FactorArguments(N, 1);
 		SortedMultiset<BigInteger> compositeFactors = new SortedMultiset_BottomUp<BigInteger>();
 		FactorResult result = new FactorResult(primeFactors, new SortedMultiset_BottomUp<BigInteger>(), compositeFactors, 2);
 		searchFactors(args, result);
@@ -1773,10 +1773,8 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		long t0, t1;
 		t0 = System.currentTimeMillis();
 		for (BigInteger N : testNums) {
-			SortedMultiset<BigInteger> primeFactors = new SortedMultiset_BottomUp<BigInteger>();
-			long smallestPossibleFactor = 3;
-			FactorResult factorResult = new FactorResult(primeFactors, new SortedMultiset_BottomUp<BigInteger>(), new SortedMultiset_BottomUp<BigInteger>(), smallestPossibleFactor);
-			FactorArguments factorArgs = new FactorArguments(N, 1, smallestPossibleFactor);
+			FactorArguments factorArgs = new FactorArguments(N, 1);
+			FactorResult factorResult = new FactorResult(new SortedMultiset_BottomUp<BigInteger>(), new SortedMultiset_BottomUp<BigInteger>(), new SortedMultiset_BottomUp<BigInteger>(), 3);
 			ecm.searchFactors(factorArgs, factorResult);
 			LOG.debug("N = " + N + ": " + factorResult.primeFactors + " * " + factorResult.compositeFactors);
 		}
