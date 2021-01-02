@@ -111,7 +111,7 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 	 * @param permitUnsafeUsage if true then SIQS_Small (which is used for N > 310 bit to factor Q-rests) uses a sieve exploiting sun.misc.Unsafe features.
 	 */
 	public TDiv_QS_2Large_UBI(boolean permitUnsafeUsage) {
-		qsInternal = new SIQS_Small(0.305F, 0.37F, null, 0.16F, new SIQSPolyGenerator(), 10, permitUnsafeUsage, true);
+		qsInternal = new SIQS_Small(0.305F, 0.37F, null, 0.16F, new SIQSPolyGenerator(), 10, permitUnsafeUsage);
 	}
 
 	@Override

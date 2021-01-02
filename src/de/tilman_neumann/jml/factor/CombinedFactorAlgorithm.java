@@ -52,16 +52,17 @@ import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.TimeUtil;
 
 /**
- * Final combination of factor algorithms.
+ * Final combination of factor algorithms. Integrates trial division and ECM to search small factors of large numbers.
+ * As such it is the best algorithm for general factoring arguments.
  * 
  * @author Tilman Neumann
  */
 public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
 	private static final boolean DEBUG = false;
-
-	/** if true then search for small factors before PSIQS is run */
-	private boolean searchSmallFactors = true;
+	
+	/** If true then search for small factors before PSIQS is run. This is standard now. */
+	private static final boolean SEARCH_SMALL_FACTORS = true;
 
 	private TDiv31Barrett tDiv31 = new TDiv31Barrett();
 	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
@@ -87,26 +88,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	 * @param numberOfThreads the number of parallel threads for PSIQS
 	 */
 	public CombinedFactorAlgorithm(int numberOfThreads) {
-		this(numberOfThreads, true);
-	}
-	
-	/**
-	 * Simple constructor, computing the amount of trial division automatically.
-	 * @param numberOfThreads the number of parallel threads for PSIQS
-	 * @param permitUnsafeUsage
-	 */
-	public CombinedFactorAlgorithm(int numberOfThreads, boolean permitUnsafeUsage) {
-		this(numberOfThreads, null, permitUnsafeUsage);
-	}
-
-	/**
-	 * Simplified constructor.
-	 * @param numberOfThreads the number of parallel threads for PSIQS
-	 * @param tdivLimit limit of primes p for trial division; if null then the value is determined by best experimental results
-	 * @param permitUnsafeUsage if true then PSIQS_U using sun.misc.Unsafe features is used. This may be ~10% faster.
-	 */
-	public CombinedFactorAlgorithm(int numberOfThreads, Integer tdivLimit, boolean permitUnsafeUsage) {
-		this(numberOfThreads, tdivLimit, permitUnsafeUsage, true, true); // TODO switch useLegacyFactoring to false when the advanced approach has proven to be prolific
+		this(numberOfThreads, null, true);
 	}
 
 	/**
@@ -114,24 +96,21 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	 * @param numberOfThreads the number of parallel threads for PSIQS
 	 * @param tdivLimit limit of primes p for trial division; if null then the value is determined by best experimental results
 	 * @param permitUnsafeUsage if true then PSIQS_U using sun.misc.Unsafe features is used. This may be ~10% faster.
-	 * @param useLegacyFactoring if true then factor() uses findSingleFactor(), otherwise searchFactors()
-	 * @param searchSmallFactors if true then search for small factors before SIQS or PSIQS is run
 	 */
-	public CombinedFactorAlgorithm(int numberOfThreads, Integer tdivLimit, boolean permitUnsafeUsage, boolean useLegacyFactoring, boolean searchSmallFactors) {
-		super(tdivLimit, useLegacyFactoring);
-		this.searchSmallFactors = searchSmallFactors;
+	public CombinedFactorAlgorithm(int numberOfThreads, Integer tdivLimit, boolean permitUnsafeUsage) {
+		super(tdivLimit);
 		
-		siqs_smallArgs = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss(), useLegacyFactoring);
+		siqs_smallArgs = new SIQS(0.32F, 0.37F, null, 0.16F, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver01_Gauss());
 
 		if (numberOfThreads==1) {
 			// Avoid multi-thread overhead if the requested number of threads is 1
 			Sieve sieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
-			siqs_bigArgs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), sieve, new TDiv_QS_2Large_UBI(permitUnsafeUsage), 10, new MatrixSolver02_BlockLanczos(), useLegacyFactoring);
+			siqs_bigArgs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), sieve, new TDiv_QS_2Large_UBI(permitUnsafeUsage), 10, new MatrixSolver02_BlockLanczos());
 		} else {
 			if (permitUnsafeUsage) {
-				siqs_bigArgs = new PSIQS_U(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), useLegacyFactoring);
+				siqs_bigArgs = new PSIQS_U(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos());
 			} else {
-				siqs_bigArgs = new PSIQS(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos(), useLegacyFactoring);
+				siqs_bigArgs = new PSIQS(0.32F, 0.37F, null, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver02_BlockLanczos());
 			}
 		}
 	
@@ -140,8 +119,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		String modeStr = "mode = " + (useLegacyFactoring ? "legacy" : "advanced");
-		return "combi(" + (tdivLimit!=null ? tdivLimit : "auto") + ", " + modeStr + ", searchSmallFactors = " + searchSmallFactors + ")";
+		return "combi(" + (tdivLimit!=null ? tdivLimit : "auto") + ")";
 	}
 
 	@Override
@@ -166,7 +144,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		else if (NBits<57) pollardRhoR64Mul63.searchFactors(args, result);
 		else if (NBits<63) pollardRho64.searchFactors(args, result);
 		else {
-			if (searchSmallFactors) {
+			if (SEARCH_SMALL_FACTORS) {
 				int actualTdivLimit;
 				if (tdivLimit != null) {
 					// use "dictated" limit
@@ -367,7 +345,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
     	}
     	// run
     	long t0 = System.currentTimeMillis();
-    	CombinedFactorAlgorithm factorizer = new CombinedFactorAlgorithm(numberOfThreads, null, true, false, true);
+    	CombinedFactorAlgorithm factorizer = new CombinedFactorAlgorithm(numberOfThreads, null, true);
     	SortedMultiset<BigInteger> result = factorizer.factor(N);
 		long duration = System.currentTimeMillis()-t0;
 		String durationStr = TimeUtil.timeStr(duration);

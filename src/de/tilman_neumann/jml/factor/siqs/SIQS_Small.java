@@ -113,13 +113,12 @@ public class SIQS_Small extends FactorAlgorithm {
 	 * @param polyGenerator
 	 * @param extraCongruences the number of surplus congruences we collect to have a greater chance that the equation system solves.
 	 * @param permitUnsafeUsage if true then SIQS_Small uses a sieve exploiting sun.misc.Unsafe features. This may be ~10% faster.
-	 * @param useLegacyFactoring if true then factor() uses findSingleFactor(), otherwise searchFactors()
 	 */
 	public SIQS_Small(
 			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, SIQSPolyGenerator polyGenerator, int extraCongruences, 
-			boolean permitUnsafeUsage, boolean useLegacyFactoring) {
+			boolean permitUnsafeUsage) {
 		
-		super(null, useLegacyFactoring);
+		super(null);
 		
 		this.Cmult = Cmult;
 		this.Mmult = Mmult;
@@ -138,8 +137,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	@Override
 	public String getName() {
 		String maxQRestExponentStr = "maxQRestExponent=" + String.format("%.3f", maxQRestExponent);
-		String modeStr = "mode = " + (useLegacyFactoring ? "legacy" : "advanced");
-		return "SIQS_Small(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + maxQRestExponentStr + ", " + powerFinder.getName() + ", " + polyGenerator.getName() + ", " + sieve.getName() + ", " + auxFactorizer.getName() + ", " + matrixSolver.getName() + ", useUnsafe = " + useUnsafe + ", " + modeStr + ")";
+		return "SIQS_Small(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + maxQRestExponentStr + ", " + powerFinder.getName() + ", " + polyGenerator.getName() + ", " + sieve.getName() + ", " + auxFactorizer.getName() + ", " + matrixSolver.getName() + ", useUnsafe = " + useUnsafe + ")";
 	}
 
 	@Override
@@ -433,7 +431,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		SIQS_Small qs = new SIQS_Small(0.32F, 0.37F, null, null, new SIQSPolyGenerator(), 10, true, false);
+		SIQS_Small qs = new SIQS_Small(0.32F, 0.37F, null, null, new SIQSPolyGenerator(), 10, true);
 		Timer timer = new Timer();
 		while(true) {
 			try {
