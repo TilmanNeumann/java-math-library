@@ -164,6 +164,15 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	public String getName() {
 		return "ECM(maxCurves = " + maxCurves + ")";
 	}
+	
+	@Override
+	public void factor(BigInteger N, SortedMultiset<BigInteger> primeFactors) {
+		FactorArguments args = new FactorArguments(N, 1, 2);
+		SortedMultiset<BigInteger> compositeFactors = new SortedMultiset_BottomUp<BigInteger>();
+		FactorResult result = new FactorResult(primeFactors, new SortedMultiset_BottomUp<BigInteger>(), compositeFactors, 2);
+		searchFactors(args, result);
+		primeFactors.addAll(compositeFactors); // in case of maxCurves != -1 we can not guarantee that all prime factors are found
+	}
 
 	/**
 	 * Find small factors of some N. Returns found factors in <code>result.primeFactors</code> and eventually some
@@ -173,16 +182,14 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param result the result of the factoring attempt. Should be initialized only once by the caller to reduce overhead.
 	 */
 	public void searchFactors(FactorArguments args, FactorResult result) {
-		// The elliptic curve counter should not be reset to 0 in fnECM() so that curves do not get tested twice, no matter how many factors N has.
-		EC = 0;
-		
-		// Do trial division by all primes < 131072. Found factors are added to result.primeFactors, the rest to result.untestedFactors.
+		// Do trial division by all primes < 131072. This is required before doing ECM to prevent that Montgomery multiplication
+		// is called with 1-word arguments. Found factors are added to result.primeFactors, the rest to result.untestedFactors.
 		tdiv.searchFactors(args, result);
 		if (result.untestedFactors.isEmpty()) return;
-		// Otherwise untestedFactors should contain exactly one integer > 131072^2, the unfactored rest
+		// Otherwise untestedFactors should contain exactly one prime > 131072, or one composite > 131072^2, the unfactored rest
 		if (DEBUG) {
 			assertEquals(1, result.untestedFactors.size());
-			assertTrue(result.untestedFactors.firstKey().compareTo(BigInteger.valueOf(131072L^2)) > 0);
+			assertTrue(result.untestedFactors.firstKey().compareTo(BigInteger.valueOf(131072)) > 0);
 		}
 		
 		// Retrieve the unfactored rest to continue. The exponent of N can not have changed.
@@ -201,6 +208,9 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		
 		// here we store all composites ECM failed to factor
 		SortedMultiset<BigInteger> failedComposites = new SortedMultiset_BottomUp<BigInteger>();
+
+		// The elliptic curve counter should not be reset to 0 inside fnECM() so that curves do not get tested twice, no matter how many factors N has.
+		EC = 0;
 		
 		while (!compositesToTest.isEmpty()) {
 			// get next composite to test
@@ -233,26 +243,29 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		compositesToTest.addAll(failedComposites);
 	}
 
-	private boolean isProbablePrime(BigInteger N) {
+	@Override
+	public BigInteger findSingleFactor(BigInteger N) {
+		// TODO We'ld need trial division up to 131072 before doing ECM to prevent that Montgomery multiplication is called with 1-word arguments
+		
+		EC = 0;
+
+		int maxCurvesForN = maxCurves!= 0 ? maxCurves : computeMaxCurvesForN(N);
+		return fnECM(N, maxCurvesForN);
+	}
+
+	private static boolean isProbablePrime(BigInteger N) {
 		// XXX The 33-bit "guard" is only safe if we did tdiv for all p <= sqrt(2^33) before
 		return N.bitLength() <= 33 || prp.isProbablePrime(N);
 	}
 
-	private void addToMapDependingOnPrimeTest(BigInteger factor, int exp, SortedMap<BigInteger, Integer> primeFactors, SortedMap<BigInteger, Integer> compositeFactors) {
+	private static void addToMapDependingOnPrimeTest(BigInteger factor, int exp, SortedMap<BigInteger, Integer> primeFactors, SortedMap<BigInteger, Integer> compositeFactors) {
 		addToMap(factor, exp, isProbablePrime(factor) ? primeFactors : compositeFactors);
 	}
 	
-	private void addToMap(BigInteger N, int exp, SortedMap<BigInteger, Integer> map) {
+	private static void addToMap(BigInteger N, int exp, SortedMap<BigInteger, Integer> map) {
 		Integer oldExp = map.get(N);
 		// old entry is replaced if oldExp!=null
 		map.put(N, (oldExp == null) ? exp : oldExp+exp);
-	}
-
-	@Override
-	public BigInteger findSingleFactor(BigInteger N) {
-		EC = 0;
-		int maxCurvesForN = maxCurves!= 0 ? maxCurves : computeMaxCurvesForN(N);
-		return fnECM(N, maxCurvesForN);
 	}
 
 	public static int computeMaxCurvesForN(BigInteger N) {
