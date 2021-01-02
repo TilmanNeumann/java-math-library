@@ -53,6 +53,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	private static final boolean DEBUG = false;
 	
 	static final int NLen = 1200;
+	
 	private static final long DosALa32 = 1L << 32;
 	private static final long DosALa31 = 1L << 31;
 	private static final long DosALa62 = 1L << 62;
@@ -70,25 +71,11 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	private static final PrPTest prp = new PrPTest();
 	private static final PurePowerTest powerTest = new PurePowerTest();
 	private static final TDiv tdiv = new TDiv().setTestLimit(131072);
-	private MontgomeryMult montgomery;
 
-	private static final double v[] =
-		{ 1.61803398875, 1.72360679775, 1.618347119656, 1.617914406529, 1.612429949509,
-		  1.632839806089, 1.620181980807, 1.580178728295, 1.617214616534, 1.38196601125 };
-
-	private final long biTmp[] = new long[NLen];
-
-	// Used inside GCD calculations in multiple precision numbers
-	private final int CalcAuxGcdU[] = new int[NLen];
-	private final int CalcAuxGcdV[] = new int[NLen];
-	private final int CalcAuxGcdT[] = new int[NLen];
-	private final int GcdAccumulated[] = new int[NLen];
-	final int CalcBigNbr[] = new int[NLen];
-
-	private final long[] CalcAuxModInvA = new long[NLen];
-	private final long[] CalcAuxModInvB = new long[NLen];
-	private final long[] CalcAuxModInvMu = new long[NLen];
-	private final long[] CalcAuxModInvGamma = new long[NLen];
+	private static final double v[] = {
+			1.61803398875, 1.72360679775, 1.618347119656, 1.617914406529, 1.612429949509,
+			1.632839806089, 1.620181980807, 1.580178728295, 1.617214616534, 1.38196601125
+	};
 
 	/** input N as a BigNbr */
 	private final int TestNbr[] = new int[NLen];
@@ -97,13 +84,60 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	int NumberLength;
 	
 	/** the maximum number of curves to run. -1 means no limit, 0 automatic computation of the parameter, positive values are applied directly */
-	int maxCurves;
+	private int maxCurves;
+	
 	/** Elliptic curve counter */
-	int EC;
+	private int EC;
 	
-	private int[] fieldTX, fieldTZ, fieldUX, fieldUZ;
-	private int[] fieldAux1, fieldAux2, fieldAux3, fieldAux4;
+	private MontgomeryMult montgomery;
+
+	// big numbers used in gcd calculation
+	private final int[] CalcAuxGcdU = new int[NLen];
+	private final int[] CalcAuxGcdV = new int[NLen];
+	private final int[] CalcAuxGcdT = new int[NLen];
+	private final int[] GcdAccumulated = new int[NLen];
 	
+	// arrays used in modInverse calculation
+	private final long[] B = new long[NLen];
+	private final long[] CalcAuxModInvA = new long[NLen];
+	private final long[] CalcAuxModInvB = new long[NLen];
+	private final long[] CalcAuxModInvMu = new long[NLen];
+	private final long[] CalcAuxModInvGamma = new long[NLen];
+
+	// other arrays with unique usage
+	private final int[] A0 = new int[NLen];
+	private final int[] A02 = new int[NLen];
+	private final int[] A03 = new int[NLen];
+	private final int[] AA = new int[NLen];
+	private final int[] DX = new int[NLen];
+	private final int[] DZ = new int[NLen];
+	private final int[] GD = new int[NLen];
+	private final int[] M = new int[NLen];
+	private final int[] W1 = new int[NLen];
+	private final int[] W2 = new int[NLen];
+	private final int[] W3 = new int[NLen];
+	private final int[] W4 = new int[NLen];
+	private final int[] WX = new int[NLen];
+	private final int[] WZ = new int[NLen];
+	private final int[] X = new int[NLen];
+	private final int[] Z = new int[NLen];
+	private final int[] Xaux = new int[NLen];
+	private final int[] Zaux = new int[NLen];
+	private final int[][] root = new int[480][NLen];
+	private final byte[] sieve = new byte[23100];
+	private final byte[] sieve2310 = new byte[2310];
+	private final int[] sieveidx = new int[480];
+
+	// other arrays with multiple usage
+	private final int[] fieldTX = new int[NLen];
+	private final int[] fieldTZ = new int[NLen];
+	private final int[] fieldUX = new int[NLen];
+	private final int[] fieldUZ = new int[NLen];
+	private final int[] fieldAux1 = new int[NLen];
+	private final int[] fieldAux2 = new int[NLen];
+	private final int[] fieldAux3 = new int[NLen];
+	private final int[] fieldAux4 = new int[NLen];
+
 	static {
 		BigNbr1[0] = 1;
 		for (int i = 1; i < NLen; i++) {
@@ -234,36 +268,13 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	}
 	
 	private BigInteger fnECM(BigInteger N, int maxCurvesForN) {
-		int[] A0 = new int[NLen];
-		int[] A02 = new int[NLen];
-		int[] A03 = new int[NLen];
-		int[] AA = new int[NLen];
-		int[] DX = new int[NLen]; // zero-init required
-		int[] DZ = new int[NLen]; // zero-init required
-		int[] GD = new int[NLen]; // zero-init required
-		int[] M = new int[NLen]; // zero-init required
-		int[] TX = fieldTX = new int[NLen];
-		int[] TZ = fieldTZ = new int[NLen];
-		int[] UX = fieldUX = new int[NLen];
-		int[] UZ = fieldUZ = new int[NLen];
-		int[] W1 = new int[NLen];
-		int[] W2 = new int[NLen];
-		int[] W3 = new int[NLen]; // zero-init required
-		int[] W4 = new int[NLen]; // zero-init required
-		int[] WX = new int[NLen];
-		int[] WZ = new int[NLen];
-		int[] X = new int[NLen];
-		int[] Z = new int[NLen];
-		int[] Aux1 = fieldAux1 = new int[NLen];
-		int[] Aux2 = fieldAux2 = new int[NLen];
-		int[] Aux3 = fieldAux3 = new int[NLen];
-		fieldAux4 = new int[NLen];
-		int[] Xaux = new int[NLen];
-		int[] Zaux = new int[NLen];
-		int[][] root = new int[480][NLen];
-		byte[] sieve = new byte[23100];
-		byte[] sieve2310 = new byte[2310];
-		int[] sieveidx = new int[480];
+		int[] TX = fieldTX;
+		int[] TZ = fieldTZ;
+		int[] UX = fieldUX;
+		int[] UZ = fieldUZ;
+		int[] Aux1 = fieldAux1;
+		int[] Aux2 = fieldAux2;
+		int[] Aux3 = fieldAux3;
 		
 		// Compute NumberLength, the number of ints in which all computations are carried out
 		this.NumberLength = computeNumberLength(N.toByteArray().length * 8);
@@ -1315,11 +1326,6 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    int Yaah, Yabh, Ybah, Ybbh;
 	    int Ymb0h, Ygb0h;
 	    long Pr1, Pr2, Pr3, Pr4, Pr5, Pr6, Pr7;
-		long[] B = this.biTmp;
-		long[] CalcAuxModInvA = this.CalcAuxModInvA;
-		long[] CalcAuxModInvB = this.CalcAuxModInvB;
-		long[] CalcAuxModInvMu = this.CalcAuxModInvMu;
-	    long[] CalcAuxModInvGamma = this.CalcAuxModInvGamma;
 	    
 	    Convert31To32Bits(a, CalcAuxModInvA);
 	    Convert31To32Bits(b, CalcAuxModInvB);
