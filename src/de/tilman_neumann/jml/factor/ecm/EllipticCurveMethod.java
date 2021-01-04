@@ -321,13 +321,12 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		AddBigNbrModN(MontgomeryMultR1, MontgomeryMultR1, MontgomeryMultR2);
 
 		// Modular curve loop:
-		while (true) {
-			if (maxCurvesForN >= 0 && EC >= maxCurvesForN) {
-				return I_1; // stop ECM
-			}
+		while (maxCurvesForN==-1 || EC < maxCurvesForN) { // maxCurvesForN==-1 means "run until a factor is found"
 			EC++;
 
 			long L1; // step 1 prime bound
+			// The original estimate are the standard values for searching 15, 25, 35, 45-digit factors, see e.g.
+			// https://www.rieselprime.de/ziki/Elliptic_curve_method#Choosing_the_best_parameters_for_ECM
 			if (EC < 26) L1 = 2000;
 			else if (EC < 326) L1 = 50000;
 			else if (EC < 2000) L1 = 1000000; 
@@ -639,6 +638,8 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				}
 			} /* end for Pass */
 		} /* end curve calculation */
+		
+		return I_1; // no factor found
 	}
 	
 	private static void GenerateSieve(int initial, byte[] sieve, byte[] sieve2310, int[] SmallPrime) {
