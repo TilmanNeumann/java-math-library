@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
 /**
  * <p>Use Elliptic Curve Method to find the prime number factors of a given BigInteger.</p>
  *
- * @see <a href="https://en.wikipedia.org/wiki/Lenstra_elliptic_curve_factorization"> Wikipedia: Lenstra elliptic curve factorization </a>
+ * @see [Le] <a href="https://en.wikipedia.org/wiki/Lenstra_elliptic_curve_factorization"> Wikipedia: Lenstra elliptic curve factorization </a>
  * @see [CP] Richard Crandall, Carl Pomerance: "Prime Numbers: A Computational Perspective", Second Edition, chapter 7.4
  */
 public class EllipticCurveMethod extends FactorAlgorithm {
@@ -334,12 +334,9 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			long L2 = 100 * L1; // step 2 prime bound
 			long LS = (long) Math.ceil(Math.sqrt(L1));
 
-			// [CP], page 336 ff: Choose an elliptic pseudo-curve E_a,b(Z_n) = { (x,y) | y^2 = x^3 + ax + b} U {O},
-			// where O is the point at infinity, and a point P = (X, Z) on it.
-			// XXX what are the parameters a,b here ?
-			// XXX Some side conditions have to hold, too?
-			// 1. gcd(n, 6) = 1
-			// 2. gcd(4a^3 + 27b^2, n) = 1
+			// [Le] Pick a random elliptic curve over Z_N, with equation of the form y^2 = x^3 + ax + b (mod N) together with a
+			// non-trivial point P(x0, y0) on it. This can be done by first picking random x0, y0, a ∈ Z_N, and then setting
+			// b = y0^2 − x0^3 − a*x0 (mod N) to assure the point is on the curve.
 			LongToBigNbr(2 * (EC + 1), Aux1);
 			LongToBigNbr(3 * (EC + 1) * (EC + 1) - 1, Aux2);
 			ModInvBigNbr(Aux2, TestNbr, Aux2);
@@ -355,6 +352,11 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 				continue;
 			}
 			MultBigNbrByLongModN(A0, 4, Z, dN);
+			MultBigNbrByLongModN(A02, 3, Aux1, dN);
+			AddBigNbrModN(Aux1, MontgomeryMultR1, X);
+			// now we have determined the point P(X, Z)
+			
+			// compute Zimmermann's a,b parameters // XXX are these the curve parameters ?
 			MultBigNbrByLongModN(A02, 6, Aux1, dN);
 			SubtractBigNbrModN(MontgomeryMultR1, Aux1, Aux1);
 			montgomery.mul(A02, A02, Aux2);
@@ -363,14 +365,12 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 			MultBigNbrByLongModN(A03, 4, Aux2, dN);
 			ModInvBigNbr(Aux2, TestNbr, Aux2);
 			montgomery.mul(Aux2, MontgomeryMultAfterInv, Aux3);
-			montgomery.mul(Aux1, Aux3, A0);
+			montgomery.mul(Aux1, Aux3, A0); // Zimmermann's a
 			AddBigNbrModN(A0, MontgomeryMultR2, Aux1);
 			LongToBigNbr(4, Aux2);
 			ModInvBigNbr(Aux2, TestNbr, Aux3);
 			MultBigNbrModN(Aux3, MontgomeryMultR1, Aux2, dN);
-			montgomery.mul(Aux1, Aux2, bZi); // Zimmermann's b = (a+2)/4 mod n (fixed from now on)
-			MultBigNbrByLongModN(A02, 3, Aux1, dN);
-			AddBigNbrModN(Aux1, MontgomeryMultR1, X);
+			montgomery.mul(Aux1, Aux2, bZi); // Zimmermann's b = (a+2)/4 mod N (fixed from now on)
 			
 			/**************/
 			/* First step */
