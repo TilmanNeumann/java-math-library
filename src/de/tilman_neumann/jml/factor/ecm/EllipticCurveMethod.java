@@ -690,6 +690,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param zT
 	 * @param xT2
 	 * @param zT2
+	 * @param bZi Zimmermann's b = (a+2)/4 mod N
 	 */
 	private void prac(int n, int[] x, int[] z, int[] xT, int[] zT, int[] xT2, int[] zT2, int[] bZi) {
 		int d, e, r, i;
@@ -879,7 +880,7 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	 * @param z2 
 	 * @param x1 
 	 * @param z1 
-	 * @param bZi Zimmermann's b = (a+2)/4 mod n
+	 * @param bZi Zimmermann's b = (a+2)/4 mod N
 	 */
 	private void duplicate(int[] x2, int[] z2, int[] x1, int[] z1, int[] bZi) {
 		int[] u = fieldUZ;
