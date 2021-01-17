@@ -101,14 +101,26 @@ public class Lehman_AnalyzeModPowersOf2 {
 								//LOG.info("      quadratic residues % " + mod + " = " + QuadraticResidues.getQuadraticResidues(mod));
 								
 								// check the four next possibilities
-								test(N, n+1, mod<<1, kMod, aMod);
-								test(N, n+1, mod<<1, kMod+mod, aMod);
-								test(N, n+1, mod<<1, kMod, aMod+mod);
-								test(N, n+1, mod<<1, kMod+mod, aMod+mod);
-								// TODO Hmmm... All possibilities are always correct !?
-								
-								// TODO What if we do several of such steps ??
-								// e.g. test(N, n+2, mod<<2, kMod+mod, aMod+mod+2*mod);
+								if (mod <= 256) {
+									for (int k2 = 0; k2<mod; k2++) {
+										String qrForK = "";
+										for (int a2 = 0; a2<mod; a2++) {
+											long test2 = (a2*a2 - 4*k2*N) % mod;
+											if (test2 < 0) test2 += mod;
+											boolean isQuadraticResidue2 = QuadraticResiduesMod2PowN.isQuadraticResidueMod2PowN(BigInteger.valueOf(test2), n);
+											if (isQuadraticResidue2) {
+												if (k2==kMod && a2==aMod) {
+													qrForK += "#";
+												} else {
+													qrForK += "+";
+												}
+											} else {
+												qrForK += ".";
+											}
+										}
+										LOG.debug(qrForK);
+									}
+								}
 							}
 							return gcd; // removes the blur at even k ?
 						}
@@ -118,13 +130,6 @@ public class Lehman_AnalyzeModPowersOf2 {
 	    }
 		
 		return 0; // factoring failed
-	}
-	
-	private void test(long N, int n, long mod, long kMod, long aMod) {
-		long test = (aMod*aMod - 4*kMod*N) % mod;
-		if (test < 0) test += mod;
-		boolean isQuadraticResidue = QuadraticResiduesMod2PowN.isQuadraticResidueMod2PowN(BigInteger.valueOf(test), n);
-		LOG.info("      next: k%" + mod + " = " + kMod + ", a%" + mod + " = " + aMod + " -> test % " + mod + " = " + test + " is quadratic residue = " + isQuadraticResidue);
 	}
 
 	public static void main(String[] args) {
