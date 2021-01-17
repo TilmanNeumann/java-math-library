@@ -68,7 +68,7 @@ public class QuadraticResiduesMod2PowN {
 	 * @param n exponent of the modulus m=2^n
 	 * @return true if 'a' is a quadratic residue modulo 2^n
 	 */
-	public static boolean isQuadraticResidueMod2PowN(long a, int n) {
+	public static boolean isQuadraticResidueMod2PowN_v1(long a, int n) {
 		long m = 1L<<n;
 		if (a >= m) a &= (m - 1); // now 0 <= a < m
 		
@@ -88,13 +88,14 @@ public class QuadraticResiduesMod2PowN {
 
 	/**
 	 * Computes if 'a' is a quadratic residue modulo 2^n.
-	 * Iterative implementation for longs.
+	 * Implementation following https://en.wikipedia.org/wiki/Quadratic_residue.
+	 * Much faster than v1.
 	 * 
 	 * @param a argument
 	 * @param n exponent of the modulus m=2^n
 	 * @return true if 'a' is a quadratic residue modulo 2^n
 	 */
-	public static boolean isQuadraticResidueMod2PowN_v2(long a, int n) {
+	public static boolean isQuadraticResidueMod2PowN/*_v2*/(long a, int n) {
 		long m = 1L<<n;
 		if (a >= m) a &= (m - 1); // now 0 <= a < m
 		
@@ -153,7 +154,7 @@ public class QuadraticResiduesMod2PowN {
 		List<Long> list = new ArrayList<>();
 		long m = 1L<<n;
 		for (long a=0; a<m; a++) {
-			if (isQuadraticResidueMod2PowN_v2(a, n)) {
+			if (isQuadraticResidueMod2PowN/*_v2*/(a, n)) {
 				list.add(a);
 			}
 		}
