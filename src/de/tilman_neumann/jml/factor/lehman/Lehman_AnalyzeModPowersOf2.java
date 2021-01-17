@@ -147,10 +147,16 @@ public class Lehman_AnalyzeModPowersOf2 {
 									// Second relation:
 									// lim_{n->infinity} A1(n)/A3(n) = 12
 									// So (a^2 - 4kN) (mod 2^n) yields about 12 times more quadratic residues than general i.
-									// The exact relation is
+									// The exact relation for n>1 is
 									// A1(n) = 12*A3(n) - c*A2(n) = 12*A2(n)^2 - c*A2(n), with c=16 if n even, c=20 if n odd
-									if (n>1 && (n&1)==0) assertEquals(12*qrCount2*qrCount2 - 16*qrCount2, qrCount); // even n
-									if (n>1 && (n&1)==1) assertEquals(12*qrCount2*qrCount2 - 20*qrCount2, qrCount); // odd n
+									if (n>1) {
+										int c = (n&1)==0 ? 16 : 20;
+										assertEquals(12*qrCount2*qrCount2 - c*qrCount2, qrCount);
+									
+										// Setting the two relations for A1(n) equal gives A2(n) = A023105(n) = (2^n + c/2) / 6,
+										// which is the formula from David S. Dodson in http://oeis.org/search?q=A023105
+										assertEquals( ((1<<n) + c/2)/6, qrCount2);
+									}
 								}
 							}
 							
