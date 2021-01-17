@@ -26,7 +26,7 @@ import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 
 /**
- * An attempt to find a way to factorizations by considering a^2 - 4kN (mod m) for m=2, 4, 8, 16, 32, 64,...
+ * Analyze quadratic residues of a^2 - 4kN (mod m) for m=2, 4, 8, 16, 32, 64,...
  * @author Tilman Neumann
  */
 public class Lehman_AnalyzeModPowersOf2 {
@@ -95,33 +95,65 @@ public class Lehman_AnalyzeModPowersOf2 {
 								// -> we only have to search up to a%mod, k%mod !
 								assertEquals(testMod, testMod2);
 								
-								boolean isQuadraticResidue = QuadraticResiduesMod2PowN.isQuadraticResidueMod2PowN(BigInteger.valueOf(testMod2), n);
+								boolean isQuadraticResidue = QuadraticResiduesMod2PowN.isQuadraticResidueMod2PowN(testMod2, n);
 								//LOG.info("      isQuadraticResidue % " + mod + " = " + isQuadraticResidue);
 								assertTrue(isQuadraticResidue);
 								//LOG.info("      quadratic residues % " + mod + " = " + QuadraticResidues.getQuadraticResidues(mod));
 								
-								// check the four next possibilities
-								if (mod <= 256) {
+								if (mod <= 1<<13) { // for larger mods it gets notably slower
+									// count/plot quadratic residues of (a^2 - 4kN) (mod 2^n) for all (k, a) with k, a < mod
+									long qrCount = 0;
+									boolean plotArray = mod <= 256;
 									for (int k2 = 0; k2<mod; k2++) {
 										String qrForK = "";
 										for (int a2 = 0; a2<mod; a2++) {
 											long test2 = (a2*a2 - 4*k2*N) % mod;
 											if (test2 < 0) test2 += mod;
-											boolean isQuadraticResidue2 = QuadraticResiduesMod2PowN.isQuadraticResidueMod2PowN(BigInteger.valueOf(test2), n);
-											if (isQuadraticResidue2) {
-												if (k2==kMod && a2==aMod) {
-													qrForK += "#";
+											boolean isQuadraticResidue2 = QuadraticResiduesMod2PowN.isQuadraticResidueMod2PowN(test2, n);
+											if (isQuadraticResidue2) qrCount++;
+											if (plotArray) {
+												if (isQuadraticResidue2) {
+													if (k2==kMod && a2==aMod) {
+														qrForK += "#";
+													} else {
+														qrForK += "+";
+													}
 												} else {
-													qrForK += "+";
+													qrForK += ".";
 												}
-											} else {
-												qrForK += ".";
 											}
 										}
-										LOG.debug(qrForK);
+										if (plotArray) LOG.debug(qrForK);
+										// Result: The pattern of quadratic residues repeats 4 times each in k- and a-dimension!
 									}
+									LOG.debug("      #{quadratic residues of (a^2 - 4kN) (mod " + mod + ")} = " + qrCount);
+									
+									// compare with general quadratic residue count
+									long qrCount2 = 0;
+									for (int i = 0; i<mod; i++) {
+										boolean isQuadraticResidue2 = QuadraticResiduesMod2PowN.isQuadraticResidueMod2PowN(i, n);
+										if (isQuadraticResidue2) qrCount2++;
+									}
+									LOG.debug("      #{quadratic residues of i (mod " + mod + ")} = " + qrCount2 + ", square = " + qrCount2*qrCount2);
+									// Count results (for N odd semiprimes)
+									// n:                                       1, 2,  3,  4,   5,   6,    7,    8,     9,     10,     11,      12,      13,       14,       15,        16,         17,         ...
+									// A1(n) = (a2 - 4kN) (mod 2^n) QR count:   4, 16, 48, 128, 448, 1536, 5888, 22528, 89088, 352256, 1404928, 5603328, 22396928, 89522176, 358023168, 1431830528, 5727059968, ... = 2^(n+1) * A023105(n), for n>1
+									// A2(n) = i (mod 2^n) QR count:            2, 2,  3,  4,   7,   12,   23,   44,    87,    172,    343,     684,     1367,     2732,     5463,      10924,      21847,      ... = A023105(n)
+									// A3(n) = (i (mod 2^n) QR count)^2:        4, 4,  9,  16,  49,  144,  529,  1936,  7569,  29584,  117649,  467856,  1868689,  7463824,  29844369,  119333776,  477291409,  ...
+									// 
+									// First relation: A1(n) = 2^(n+1)*A2(n) for n>1
+									if (n>1) assertEquals(2*mod*qrCount2, qrCount);
+									
+									// Second relation:
+									// lim_{n->infinity} A1(n)/A3(n) = 12
+									// So (a^2 - 4kN) (mod 2^n) yields about 12 times more quadratic residues than general i.
+									// The exact relation is
+									// A1(n) = 12*A3(n) - c*A2(n) = 12*A2(n)^2 - c*A2(n), with c=16 if n even, c=20 if n odd
+									if (n>1 && (n&1)==0) assertEquals(12*qrCount2*qrCount2 - 16*qrCount2, qrCount); // even n
+									if (n>1 && (n&1)==1) assertEquals(12*qrCount2*qrCount2 - 20*qrCount2, qrCount); // odd n
 								}
 							}
+							
 							return gcd; // removes the blur at even k ?
 						}
 					}
