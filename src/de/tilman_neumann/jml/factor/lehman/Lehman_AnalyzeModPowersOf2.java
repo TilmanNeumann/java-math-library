@@ -152,10 +152,10 @@ public class Lehman_AnalyzeModPowersOf2 {
 									if (n>1) {
 										int c = (n&1)==0 ? 16 : 20;
 										assertEquals(12*qrCount2*qrCount2 - c*qrCount2, qrCount);
-									
+										
 										// Setting the two relations for A1(n) equal gives A2(n) = A023105(n) = (2^n + c/2) / 6,
 										// which is the formula from David S. Dodson in http://oeis.org/search?q=A023105
-										assertEquals( ((1<<n) + c/2)/6, qrCount2);
+										assertEquals(QuadraticResiduesMod2PowN.getNumberOfQuadraticResiduesMod2PowN(n), qrCount2);
 									}
 								}
 							}

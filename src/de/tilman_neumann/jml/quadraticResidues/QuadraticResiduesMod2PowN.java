@@ -35,6 +35,17 @@ public class QuadraticResiduesMod2PowN {
 	private static final boolean DEBUG = false;
 
 	/**
+	 * Compute A23105(n), the number of distinct quadratic residues mod 2^n, via the formula by David S. Dodson in http://oeis.org/search?q=A023105.
+	 * @param n The power of 2.
+	 * @return Number of distinct quadratic residues mod 2^n
+	 */
+	public static long getNumberOfQuadraticResiduesMod2PowN(int n) {
+		if (n==0) return 1;
+		int c = (n&1)==0 ? 16 : 20;
+		return ((1<<n) + c/2)/6;
+	}
+	
+	/**
 	 * Computes if 'a' is a quadratic residue modulo 2^n.
 	 * Iterative implementation for BigIntegers.
 	 * 
