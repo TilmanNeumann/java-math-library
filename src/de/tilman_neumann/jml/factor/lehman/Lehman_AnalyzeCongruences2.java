@@ -94,23 +94,19 @@ public class Lehman_AnalyzeCongruences2 {
 			double fourSqrtK = Math.sqrt(k<<4);
 			long sqrt4kN = (long) Math.ceil(Math.sqrt(fourKN));
 			long limit = (long) (sqrt4kN + sixthRoot / fourSqrtK);
-			for (long a0 = sqrt4kN; a0 <= limit; a0++) {
-				for (int adjust=0; adjust<m; adjust++) {
-					long a = a0 + adjust;
-					final long test = a*a - fourKN;
-					final long b = (long) Math.sqrt(test);
-					if (b*b == test) {
-						long gcd = gcdEngine.gcd(a+b, N);
-						if (gcd>1 && gcd<N) {
-							// congruences are the same for all odd k
-							if ((k & 1) == 1) {
-								// We know that all elements of an antidiagonal (a0, adjust) with a0 + adjust == a (mod m)
-								// represent the same "successful a". Thus we only need to store results for "a" !
-								long kNTerm = USE_kN_CONGRUENCES ? k*N : k+N;
-								counts[(int)(kNTerm%m)][(int)(a%m)]++;
-							}
-							return gcd; // removes the blur at even k!
+			// LOG.debug("k=" + k + ": aRange = " + (limit - sqrt4kN));
+			for (long a = sqrt4kN; a <= limit; a++) {
+				final long test = a*a - fourKN;
+				final long b = (long) Math.sqrt(test);
+				if (b*b == test) {
+					long gcd = gcdEngine.gcd(a+b, N);
+					if (gcd>1 && gcd<N) {
+						// congruences are the same for all odd k
+						if ((k & 1) == 1) {
+							long kNTerm = USE_kN_CONGRUENCES ? k*N : k+N;
+							counts[(int)(kNTerm%m)][(int)(a%m)]++;
 						}
+						return gcd; // removes the blur at even k
 					}
 				}
 			}
