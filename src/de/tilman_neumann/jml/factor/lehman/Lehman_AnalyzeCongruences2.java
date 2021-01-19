@@ -84,7 +84,7 @@ public class Lehman_AnalyzeCongruences2 {
 	private final Gcd63 gcdEngine = new Gcd63();
 	
 	private int[][] counts; // dimensions: kN%m, a%m
-	ArrayList<Integer>[] aForKN = null;
+	List<Integer>[] aForKN = null;
 
 	public long findSingleFactor(long N, int m) {
 		int cbrt = (int) Math.ceil(Math.cbrt(N));
@@ -132,12 +132,12 @@ public class Lehman_AnalyzeCongruences2 {
 			// extrapolate last m results
 			List<Integer>[] lastAForKN = null;
 			if (aForKN != null) {
-				lastAForKN = new List[m];
+				lastAForKN = createListArray(m);
 				int kN=0;
 				for (; kN<m/2; kN++) {
 					// copy old a-values
 					lastAForKN[kN] = new ArrayList<>();
-					ArrayList<Integer> lastAList = aForKN[kN];
+					List<Integer> lastAList = aForKN[kN];
 					if (lastAList != null && !lastAList.isEmpty()) {
 						lastAForKN[kN].addAll(lastAList);
 						// extend on horizontal axis
@@ -161,7 +161,7 @@ public class Lehman_AnalyzeCongruences2 {
 			
 			LOG.debug("Compute a-lists...");
 			String kNStr = USE_kN_CONGRUENCES ? "kN" : "k+N";
-			aForKN = new ArrayList[m];
+			aForKN = createListArray(m);
 			int totalACount = 0;
 			
 			for (int kN=0; kN<m; kN++) {
@@ -243,6 +243,12 @@ public class Lehman_AnalyzeCongruences2 {
 			LOG.info("totalDroppedACount = " + totalDroppedACount);
 			LOG.info("");
 		}
+	}
+	
+	// Encapsulate compiler warning and suppress it.
+	@SuppressWarnings("unchecked")
+	private static List<Integer>[] createListArray(int size) {
+		return new List[size];
 	}
 	
 	private static void computeHypotheticalACounts(int num) {
