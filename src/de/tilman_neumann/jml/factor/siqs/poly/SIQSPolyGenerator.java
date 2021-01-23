@@ -262,13 +262,9 @@ public class SIQSPolyGenerator {
 			// the modular inverse is small enough to fit into int, but for the product below we need long precision
 			long a_div_ql_modInv_ql = eea.modularInverse(a_div_ql.mod(ql_big).intValue(), ql);
 			
-			// Compute gamma according to Contini: Good for kN == 3, 5, 7 (mod 8).
-			// Using the smaller choice of gamma is optional but seems to improve performance.
+			// Compute gamma according to Contini: Using the smaller choice is optional but seems to improve performance.
 			int gamma = (int) ((t * a_div_ql_modInv_ql) % ql);
 			if (gamma > (ql>>1)) gamma = ql - gamma;
-
-			// Alternative: Compute gamma according to Kechlibar: Good for kN == 1 (mod 8)
-			//long gamma = t * a_div_ql_modInv_ql;
 
 			BigInteger Bl = a_div_ql.multiply(BigInteger.valueOf(gamma));
 			B2Array[l] = Bl.shiftLeft(1); // store 2 * B_l in B2[0]...B2[s-1] (the last one is only required to compute b below)
