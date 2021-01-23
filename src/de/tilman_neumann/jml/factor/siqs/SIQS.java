@@ -232,7 +232,7 @@ public class SIQS extends FactorAlgorithm {
 		
 		// Compute the d-parameter from kN: We choose d=2 if kN % 8 == 1, otherwise d=1. For the modulus we only need the lowest three bits.
 		int d = ((kN.intValue() & 7) == 1) ? 2 : 1;
-		if (DEBUG) LOG.debug("d = " + d);
+		/*if (DEBUG)*/ LOG.debug("d = " + d);
 
 		// Create the reduced prime base for kN:
 		primeBaseBuilder.computeReducedPrimeBase(kN, primeBaseSize, primesArray);

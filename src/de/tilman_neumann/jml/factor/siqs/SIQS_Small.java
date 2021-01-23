@@ -52,7 +52,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
-import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_1Large_UBI;
+import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_Small;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
@@ -128,7 +128,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		this.useUnsafe = permitUnsafeUsage;
 		this.sieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
 		this.congruenceCollector = new CongruenceCollector();
-		this.auxFactorizer = new TDiv_QS_1Large_UBI(); // using 1-partials or not makes hardly a difference for small N
+		this.auxFactorizer = new TDiv_QS_Small();
 		this.extraCongruences = extraCongruences;
 		this.matrixSolver = new MatrixSolver01_Gauss();
 		apg = new AParamGenerator01(wantedQCount);

@@ -42,12 +42,13 @@ public interface TDiv_QS {
 	/**
 	 * Set prime/power base, polynomial parameters and smallest x-solutions for a new a-parameter.
 	 * @param da d*a, with d = 1 or 2 depending on kN % 8
+	 * @param d the d-value
 	 * @param b the (first) b-parameter
 	 * @param primeSolutions
 	 * @param filteredBaseSize number of primes and powers use for sieving
 	 * @param unsievedBaseElements Prime base elements that were excluded from sieving, like the q's that give the a-parameter in SIQS
 	 */
-	void initializeForAParameter(BigInteger da, BigInteger b, SolutionArrays primeSolutions, int filteredBaseSize, int[] unsievedBaseElements);
+	void initializeForAParameter(BigInteger da, int d, BigInteger b, SolutionArrays primeSolutions, int filteredBaseSize, int[] unsievedBaseElements);
 	
 	/**
 	 * Set a new b-parameter.

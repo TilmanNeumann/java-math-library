@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.factor.siqs.tdiv;
 
 import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 import static org.junit.Assert.*;
 
@@ -64,7 +65,9 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 	// factor argument and polynomial parameters
 	private BigInteger kN;
 	private BigInteger da; // d*a with d = 1 or 2 depending on kN % 8
+	private int d; // the d-value;
 	private BigInteger bParam;
+	private BigInteger cParam; // c = (b^2-kN)/(da), division is exact
 
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
 	private double maxQRest;
@@ -134,9 +137,9 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 	}
 
 	@Override
-	public void initializeForAParameter(BigInteger da, BigInteger b, SolutionArrays solutionArrays, int filteredBaseSize, int[] unsievedBaseElements) {
+	public void initializeForAParameter(BigInteger da, int d, BigInteger b, SolutionArrays solutionArrays, int filteredBaseSize, int[] unsievedBaseElements) {
 		this.da = da;
-		bParam = b;
+		setBParameter(b);
 		primes = solutionArrays.primes;
 		exponents = solutionArrays.exponents;
 		pArray = solutionArrays.pArray;
@@ -152,6 +155,8 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 	@Override
 	public void setBParameter(BigInteger b) {
 		this.bParam = b;
+		if (DEBUG) assertTrue(b.multiply(b).subtract(kN).mod(da).equals(I_0));
+		this.cParam = b.multiply(b).subtract(kN).divide(da);
 	}
 
 	@Override
@@ -163,17 +168,30 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 		for (int x : xList) {
 			smallFactors.reset();
 			if (ANALYZE) testCount++;
-			BigInteger A = da.multiply(BigInteger.valueOf(x)).add(bParam); // A(x) = d*a*x+b, with d = 1 or 2 depending on kN % 8
-			BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
+			
+			// Compute A(x) = d*a*x+b, required in the final sqrt computation; d is 1 or 2 depending on kN % 8
+			BigInteger xBig = BigInteger.valueOf(x);
+			BigInteger dax = da.multiply(xBig);
+			BigInteger A = dax.add(bParam);
 			if (ANALYZE) aqDuration += timer.capture();
-			AQPair aqPair = test(A, Q, x);
+			
+			// Find factorization of Q(x) = A(x)^2 - kN. But the complete Q(x) is not required here,
+			// using the smaller Q(x)/da = da*x^2 + 2bx + c instead speeds up tdiv pass 2. 
+			// Note that test finds all factors of Q(x) nonetheless.
+			// Note also that unlike in MPQS, in SIQS we cannot continue working with Q(x)/da in later stages, because da is not a square
+			// and thus we could not combine relations from different a-parameters.
+			BigInteger Qdiva = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
+			AQPair aqPair = test(A, Qdiva, x);
 			if (ANALYZE) factorDuration += timer.capture();
+			
 			if (aqPair != null) {
 				// Q(x) was found sufficiently smooth to be considered a (partial) congruence
 				aqPairs.add(aqPair);
 				if (ANALYZE) sufficientSmoothCount++;
 				if (DEBUG) {
 					LOG.debug("Found congruence " + aqPair);
+					BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
+					assertEquals(Q, Qdiva.multiply(da));
 					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
 					SortedMultiset<Long> allQFactors = aqPair.getAllQFactors();
@@ -269,7 +287,10 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 			}
 		}
 		if (ANALYZE) pass2Duration += timer.capture();
-		if (Q_rest_UBI.isOne()) return new Smooth_Perfect(A, smallFactors);
+		if (Q_rest_UBI.isOne()) {
+			addCommonFactorsToSmallFactors();
+			return new Smooth_Perfect(A, smallFactors);
+		}
 		Q_rest = Q_rest_UBI.toBigInteger();
 		
 		// Division by all p<=pMax was not sufficient to factor Q completely.
@@ -284,7 +305,9 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 		if (restIsPrime) {
 			// Check that the simple prime test using pMaxSquare is correct
 			if (DEBUG) assertTrue(prpTest.isProbablePrime(Q_rest));
-			return (Q_rest.bitLength() > 31) ? null : new Partial_1Large(A, smallFactors, Q_rest.longValue());
+			if (Q_rest.bitLength() > 31) return null;
+			addCommonFactorsToSmallFactors();
+			return new Partial_1Large(A, smallFactors, Q_rest.longValue());
 		} // else: Q_rest is surely not prime
 
 		// Find a factor of Q_rest, where Q_rest is odd and has two+ factors, each greater than pMax.
@@ -311,9 +334,24 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 		if (factor2.bitLength() > 31) return null;
 		if (DEBUG) LOG.debug("test(): Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) = " + factor1 + " * " + factor2);
 		if (factor1.equals(factor2)) {
+			addCommonFactorsToSmallFactors();
 			return new Smooth_1LargeSquare(A, smallFactors, factor1.longValue());
 		}
+		addCommonFactorsToSmallFactors();
 		return new Partial_2Large(A, smallFactors, factor1.longValue(), factor2.longValue());
+	}
+	
+	/**
+	 * Add factors that all Q(x) for the same a-parameter have in common.
+	 * These are the q-values whose product gives the a-parameter and 2 if d==2.
+	 */
+	private void addCommonFactorsToSmallFactors() {
+		if (d==2) {
+			smallFactors.add(2);
+		}
+		for (int i=0; i<unsievedBaseElements.length; i++) {
+			smallFactors.add(unsievedBaseElements[i]);
+		}
 	}
 
 	@Override
