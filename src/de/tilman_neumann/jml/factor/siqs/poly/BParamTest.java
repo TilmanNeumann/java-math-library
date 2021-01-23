@@ -85,6 +85,7 @@ public class BParamTest {
 
 	void computeNextBParameter() {
 		int v = Integer.numberOfTrailingZeros(bIndex<<1);
+		LOG.info("v = " + v);
 		// bIndex/2^v is a half-integer. Therefore we have ceilTerm = ceil(bIndex/2^v) = bIndex/2^v + 1.
 		// If ceilTerm is even, then (-1)^ceilTerm is positive and B_l[v] must be added.
 		// Slightly faster is: if ceilTerm-1 = bIndex/2^v is odd then B_l[v] must be added.
