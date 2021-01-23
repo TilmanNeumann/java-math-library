@@ -140,8 +140,8 @@ public class SIQSPolyGenerator {
 		qCount = aParamGenerator.getQCount();
 		B2Array = new BigInteger[qCount];
 		B2Array_UBI = new UnsignedBigInt[qCount];
-		// set bIndex=maxBIndex=0 to indicate that the first polynomial is wanted
-		bIndex = maxBIndex = 0;
+		// set bIndex=maxBIndex to indicate that the first polynomial is wanted
+		bIndex = maxBIndex = 1<<(qCount-1); // 2^(qCount-1)
 		
 		// Allocate filtered base and solution arrays: The true size may be smaller if powers are filtered out, too.
 		int solutionsCount = mergedBaseSize - qCount;
@@ -174,7 +174,6 @@ public class SIQSPolyGenerator {
 			da = BigInteger.valueOf(d).multiply(a);
 			da_UBI = new UnsignedBigInt(da);
 			if (ANALYZE) aParamCount++;
-			maxBIndex = 1<<(qCount-1); // 2^(qCount-1)
 			if (ANALYZE) aDuration += timer.capture();
 			// compute the first b
 			computeFirstBParameter();
@@ -201,18 +200,19 @@ public class SIQSPolyGenerator {
 			tDivEngine.initializeForAParameter(da, d, b, solutionArrays, filteredBaseSize, filterResult.filteredOutBaseElements);
 			if (ANALYZE) firstXArrayDuration += timer.capture();
 		} else {
-			// compute the next b-parameter:
-			// the gray code v with 2^v || 2*i in [Contini97] is the exponent
-			// at which 2*i contains the 2. Here we have bIndex instead of Contini's "i".
+			// Compute the next b-parameter
 			if (ANALYZE) timer.capture();
+			// [Contini p.10, 2nd paragraph]: b_i+1 = b_i + 2*(-1)^ceil(i/2^v) * B_v, where v is a Gray code defined by 2^v || 2*i.
+			// Actually, v is the index of the first set bit of 2*i. Note that v==1 for any odd i.
+			// In the following we replace 'i' by bIndex. The Gray codes for all bIndex<maxBIndex could be computed in advance,
+			// but the following computation should be fast enough:
 			int v = Integer.numberOfTrailingZeros(bIndex<<1);
-			// bIndex/2^v is a half-integer. Therefore we have ceilTerm = ceil(bIndex/2^v) = bIndex/2^v + 1.
-			// If ceilTerm is even, then (-1)^ceilTerm is positive and B_l[v] must be added.
-			// Slightly faster is: if ceilTerm-1 = bIndex/2^v is odd then B_l[v] must be added.
-			boolean bParameterNeedsAddition = ((bIndex>>v) & 1) == 1;
+			// bIndex/2^v is a half-integer, thus ceil(bIndex/2^v) == bIndex/2^v + 1
+			// So (-1)^ceil(bIndex/2^v) == +1 if bIndex/2^v + 1 is even, or if bIndex/2^v is odd:
+			boolean grayCodeSignIsPositive = ((bIndex>>v) & 1) == 1;
 			// WARNING: In contrast to the description in [Contini p.10, 2nd paragraph],
 			// WARNING: b must not be computed (mod a) !
-			b = bParameterNeedsAddition ? b.add(B2Array[v-1]) : b.subtract(B2Array[v-1]);
+			b = grayCodeSignIsPositive ? b.add(B2Array[v-1]) : b.subtract(B2Array[v-1]);
 			tDivEngine.setBParameter(b);
 			if (ANALYZE) bParamCount++;
 			if (DEBUG) {
@@ -243,7 +243,7 @@ public class SIQSPolyGenerator {
 			// Since only the array-content is modified, the x-arrays in poly are updated implicitly.
 			// This approach would work in a multi-threaded SIQS implementation too, if we create a new thread for each new a-parameter.
 			// Note that fix prime divisors depend only on a and k -> they do not change at a new b-parameter.
-			computeNextXArrays(Bainv2Array[v-1], bParameterNeedsAddition);
+			computeNextXArrays(Bainv2Array[v-1], grayCodeSignIsPositive);
 			if (ANALYZE) nextXArrayDuration += timer.capture();
 		}
 	}
@@ -414,9 +414,9 @@ public class SIQSPolyGenerator {
 	/**
 	 * Update the entries of the solution arrays for the next b-parameter.
 	 * @param Bainv2Row Bainv2Array[v-1] with gray code v in [1, ..., qCount-1]
-	 * @param xArraysNeedSubtraction true if ceil(bIndex/2^v) is even, (-1)^ceil(bIndex/2^v) == +1
+	 * @param grayCodeSignIsPositive true if (-1)^ceil(bIndex/2^v) == +1
 	 */
-	private void computeNextXArrays(int[] Bainv2Row, boolean xArraysNeedSubtraction) { // performance-critical !
+	private void computeNextXArrays(int[] Bainv2Row, boolean grayCodeSignIsPositive) { // performance-critical !
 		// update solution arrays:
 		// Note that trial division needs the solutions for all primes p,
 		// even if the sieve leaves out the smallest p[i] with i < pMinIndex.
@@ -425,7 +425,7 @@ public class SIQSPolyGenerator {
 		int[] x2Array = solutionArrays.x2Array;
 		// WARNING: The correct case distinction depending on the sign of (-1)^ceil(bIndex/2^v)
 		// WARNING: is just the opposite of [Contini, table p.14, last 2 lines]
-		if (xArraysNeedSubtraction) {
+		if (grayCodeSignIsPositive) {
 			// (-1)^ceil(bIndex/2^v) == +1 -> Bainv2 must be subtracted
 			for (int pIndex=filteredBaseSize-1; pIndex>0; pIndex--) {
 				final int p = filteredPowers[pIndex];
