@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
+import static org.junit.Assert.assertTrue;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,6 +28,8 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * @author Tilman Neumann
  */
 public class Smooth_Composite implements Smooth {
+	private static final boolean DEBUG = false;
+	
 	private Integer[] oddExpElements;
 	private AQPair[] aqPairs;
 	/** congruences never change; therefore we must compute the hashCode only once. */
@@ -37,6 +41,7 @@ public class Smooth_Composite implements Smooth {
 	 */
 	public Smooth_Composite(Set<AQPair> aqPairs) {
 		this.aqPairs = new AQPair[aqPairs.size()];
+		if (DEBUG) assertTrue(aqPairs.size() > 1);
 		HashSet<Integer> smallFactorsWithOddExp = new HashSet<Integer>();
 		int aqPairCount = 0;
 		for (AQPair aqPair : aqPairs) {
@@ -87,6 +92,12 @@ public class Smooth_Composite implements Smooth {
 		return hashCode;
 	}
 	
+	/**
+	 * Checks if this composite smooth relation is equal to another object.</br>
+	 * 
+	 * Simple smooths (having exactly one AQPair) and composite smooths (having strictly more than one AQPair) can never be equal;
+	 * hence it is correct to have two separate equals() implementations that reject all objects of the other type.
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if (o==null || !(o instanceof Smooth_Composite)) return false;
