@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -37,6 +38,8 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 public class CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
+	
+	public static final boolean COUNT_CYCLES = false;
 
 	/** smooth congruences */
 	private ArrayList<Smooth> smoothCongruences;
@@ -51,6 +54,13 @@ public class CongruenceCollector {
 	/** factor tester */
 	private FactorTest factorTest;
 
+	// cycle counting
+	private int maxLargeFactors = 2; // could be made configurable
+	private HashMap<Long, Long> vertexMap; // contains edges: bigger to smaller prime; size is v = #vertices
+	private HashSet<Long> roots; // roots of disjoint compounds
+	private HashSet<Partial> relations; // all distinct relations
+	private int edgeCount;
+	
 	// statistics
 	private int perfectSmoothCount, totalPartialCount;
 	private int[] smoothFromPartialCounts, partialCounts;
@@ -67,6 +77,12 @@ public class CongruenceCollector {
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
 		
+		// cycle counting
+		vertexMap = new HashMap<>(); // bigger to smaller prime
+		roots = new HashSet<>();
+		relations = new HashSet<>();
+		edgeCount = 0;
+		 
 		// statistics
 		totalPartialCount = 0;
 		if (ANALYZE) {
@@ -108,9 +124,12 @@ public class CongruenceCollector {
 		
 		// otherwise aqPair must be a partial with at least one large factor.
 		Partial partial = (Partial) aqPair;
-		Long[] oddExpBigFactors = partial.getLargeFactorsWithOddExponent();
+		Long[] oddExpBigFactors = partial.getLargeFactorsWithOddExponent(); // TODO factors are not sorted bottom up, why?
 		int oddExpBigFactorsCount = oddExpBigFactors.length;
 		if (DEBUG) assertTrue(oddExpBigFactorsCount > 0);
+		
+		// use a standard cycle counting algorithm to verify that we find all possible independent relations
+		countIndependentCycles(partial);
 		
 		// Check if the partial helps to assemble a smooth congruence:
 		// First collect all partials that are somehow related to the new partial via big factors:
@@ -281,6 +300,105 @@ public class CongruenceCollector {
 	public CongruenceCollectorReport getReport() {
 		return new CongruenceCollectorReport(getPartialCongruenceCount(), smoothCongruences.size(), smoothFromPartialCounts, partialCounts, perfectSmoothCount,
 				                             oddExpBigFactorSizes, oddExpBigFactorSizes4Smooth, partialWithPositiveQCount, smoothWithPositiveQCount);
+	}
+	
+	/**
+	 * Counts the number of independent cycles in the partial relations.
+	 * @see [Lenstra, Manasse 1994: "Factoring With Two Large Primes", Mathematics of Computation, volume 63, number 208, page 789]
+	 */
+	private void countIndependentCycles(Partial partial) {
+		boolean added = relations.add(partial);
+		if (!added) {
+			// The partial is a duplicate of another relation we already have
+			LOG.error("Found duplicate relation!" + partial);
+			return;
+		}
+		
+		// We compute the following two variable once again,
+		// but that doesn't matter 'cause it's no production code
+		Long[] oddExpBigFactors = partial.getLargeFactorsWithOddExponent();
+		int oddExpBigFactorsCount = oddExpBigFactors.length;
+
+		// pad array with 1's to the length maxLargeFactors
+		Long[] largeFactors = new Long[maxLargeFactors];
+		int oneCount = maxLargeFactors-oddExpBigFactorsCount;
+		for (int i=0; i<oneCount; i++) {
+			largeFactors[i] = 1L;
+		}
+		for (int i=0; i<oddExpBigFactorsCount; i++) {
+			largeFactors[i+oneCount] = oddExpBigFactors[i];			
+		}
+		if (DEBUG) LOG.debug("Add largeFactors = " + Arrays.toString(oddExpBigFactors) + " = " + Arrays.toString(largeFactors));
+
+		// add vertices
+		for (int i=0; i<maxLargeFactors; i++) {
+			long largeFactor = largeFactors[i];
+			if (vertexMap.get(largeFactor) == null) {
+				// new vertex creates new compound
+				vertexMap.put(largeFactor, largeFactor); // v = v + 1
+				roots.add(largeFactor); // c = c + 1
+			}
+		}
+
+		// add edges
+		for (int i=0; i<maxLargeFactors; i++) {
+			long f1 = largeFactors[i];
+			for (int j=i+1; j<maxLargeFactors; j++) {
+				long f2 = largeFactors[j];
+				// find roots
+				long r1 = getRoot(f1);
+				long r2 = getRoot(f2);
+				// insert edge: the smaller root is made the parent of the larger root, and the larger root is no root anymore
+				if (r1 < r2) {
+					vertexMap.put(r2, r1);
+					roots.remove(r2); // c = c - 1
+				} else if (r1 > r2) {
+					vertexMap.put(r1, r2);
+					roots.remove(r1); // c = c - 1
+				} // else: r1 and r2 are in the same compound -> a cycle has been found
+				
+				// To speed up the process we could also set the "parents" of all vertexMap nodes passed in root finding to the new root
+				
+				edgeCount++;
+			}
+		}
+		if (maxLargeFactors==2) assertEquals(relations.size(), edgeCount);
+		if (DEBUG) {
+			LOG.debug(edgeCount + " edges");
+			LOG.debug(roots.size() + " roots = " + roots);
+			LOG.debug(vertexMap.size() + " vertices = " + vertexMap);
+			LOG.debug(relations.size() + " relations");
+		}
+	}
+	
+	/**
+	 * Find the root of a prime p in the edges graph.
+	 * @param p
+	 * @return root of p (may be p itself)
+	 */
+	private Long getRoot(long p) {
+		long q;
+		while ((q = vertexMap.get(p)) != p) {
+			p = q;
+		}
+		return p;
+	}
+
+	public String getCycleCountResult() {
+		int cycleCount; {
+			switch (maxLargeFactors) {
+			case 1:
+			case 2:
+				cycleCount = edgeCount + roots.size() - vertexMap.size();
+				return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + vertexMap.size() + " vertices)";
+			case 3:
+				// The "thought to be" formula from [Leyland, Lenstra, Dodson, Muffett, Wagstaff: "MPQS with three large primes", Lecture Notes in Computer Science, 2369, p.7]
+				cycleCount = edgeCount + roots.size() - vertexMap.size() - 2*relations.size();
+				return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + vertexMap.size() + " vertices - 2*" + relations.size() + " relations)";
+			default:
+				throw new IllegalStateException("cycle counting is not implemented yet for maxLargeFactors>3, but maxLargeFactors = " + maxLargeFactors);
+			}
+		}
 	}
 	
 	/**

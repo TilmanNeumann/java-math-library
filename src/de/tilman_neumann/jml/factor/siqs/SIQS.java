@@ -412,6 +412,7 @@ public class SIQS extends FactorAlgorithm {
 				LOG.info("        " + qRestSizes);
 			}
 		}
+		if (CongruenceCollector.COUNT_CYCLES) LOG.info("    cc: " + congruenceCollector.getCycleCountResult()); // add to ccReport?
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
 			LOG.info("        " + ccReport.getPartialBigFactorSizes());
@@ -428,6 +429,7 @@ public class SIQS extends FactorAlgorithm {
 		LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(1));
 		LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(1));
 		LOG.info("    -> tdiv sub-timings: " + tdivReport.getPhaseTimings(1));
+		
 		// CC and solver have no sub-timings yet
 	}
 	
