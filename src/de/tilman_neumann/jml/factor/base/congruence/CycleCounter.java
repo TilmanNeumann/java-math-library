@@ -8,6 +8,17 @@ import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Counts the number of independent cycles in the partial relations.
+ * So far it seems to work for 1- and 2-partials.
+ * 
+ * @see [Lenstra, Manasse 1994: "Factoring With Two Large Primes", Mathematics of Computation, volume 63, number 208, page 789]
+ * @see [Leyland, Lenstra, Dodson, Muffett, Wagstaff 2002: "MPQS with three large primes", Lecture Notes in Computer Science, 2369]
+ * 
+ * @author Tilman Neumann
+ */
+// TODO implement cycle-finding following [Lenstra, Manasse] and use that to verify that cycle-counting works for 2-partials
+// TODO fix cycle-counting for 3-partials
 public class CycleCounter {
 	private static final Logger LOG = Logger.getLogger(CycleCounter.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
@@ -34,8 +45,6 @@ public class CycleCounter {
 	/**
 	 * Counts the number of independent cycles in the partial relations.
 	 * @param partial the newest partial relation to add
-	 * 
-	 * @see [Lenstra, Manasse 1994: "Factoring With Two Large Primes", Mathematics of Computation, volume 63, number 208, page 789]
 	 */
 	public void countIndependentCycles(Partial partial) {
 		boolean added = relations.add(partial);
@@ -110,13 +119,30 @@ public class CycleCounter {
 	}
 	
 	/**
-	 * Find the root of a prime p in the edges graph.
+	 * Find the root of a prime p in the edges graph, permitting 1 as a root.
 	 * @param p
 	 * @return root of p (may be p itself)
 	 */
-	private Long getRoot(long p) {
+	// XXX allowing for 1 to be a root sounds wrong but yields just the number of smooths my algorithm derives from partials.
+	@SuppressWarnings("unused")
+	private Long getRoot_v1(long p) {
 		long q;
 		while ((q = vertexMap.get(p)) != p) {
+			p = q;
+		}
+		return p;
+	}
+
+	/**
+	 * Find the root of a prime p in the edges graph, not permitting 1 as a root.
+	 * @param p
+	 * @return root of p (may be p itself)
+	 */
+	// XXX Gives a somewhat bigger count than the number of smooths we actually derive from partials.
+	// So if root counting with this algorithm is correct, my current root-finding is sub-optimal.
+	private Long getRoot(long p) {
+		long q;
+		while ((q = vertexMap.get(p)) != p && q!=1) {
 			p = q;
 		}
 		return p;
