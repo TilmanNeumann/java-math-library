@@ -39,7 +39,7 @@ public class Smooth_Composite implements Smooth {
 	 * Constructor from several AQ-pairs.
 	 * @param aqPairs
 	 */
-	public Smooth_Composite(Set<AQPair> aqPairs) {
+	public Smooth_Composite(Set<? extends AQPair> aqPairs) {
 		this.aqPairs = new AQPair[aqPairs.size()];
 		if (DEBUG) assertTrue(aqPairs.size() > 1);
 		HashSet<Integer> smallFactorsWithOddExp = new HashSet<Integer>();
