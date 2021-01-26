@@ -2,9 +2,12 @@ package de.tilman_neumann.jml.factor.base.congruence;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -163,5 +166,76 @@ public class CycleCounter {
 				throw new IllegalStateException("cycle counting is not implemented yet for maxLargeFactors>3, but maxLargeFactors = " + maxLargeFactors);
 			}
 		}
+	}
+	
+	// implementation following Leyland et alea
+	public void findCycles() {
+		// create maps from large primes to partials, vice versa, and chains
+		// these are needed so we can remove elements without changing the relations itself
+		HashMap<Long, ArrayList<Partial>> largeFactors_2_partials = new HashMap<>();
+		HashMap<Partial, ArrayList<Long>> partials_2_largeFactors = new HashMap<>();
+		HashMap<Partial, ArrayList<Partial>> chains = new HashMap<>();
+		for (Partial newPartial : relations) {
+			Long[] oddExpBigFactors = newPartial.getLargeFactorsWithOddExponent();
+			ArrayList<Long> factorsList = new ArrayList<>(); // copy needed
+			for (Long oddExpBigFactor : oddExpBigFactors) {
+				factorsList.add(oddExpBigFactor);				
+				ArrayList<Partial> partialCongruenceList = largeFactors_2_partials.get(oddExpBigFactor);
+				// For large N, most large factors appear only once. Therefore we create an ArrayList with initialCapacity=1 to safe memory.
+				// Even less memory would be needed if we had a HashMap<Long, Object> oddExpBigFactors_2_partialCongruences
+				// and store AQPairs or AQPair[] in the Object part. But I do not want to break the generics...
+				if (partialCongruenceList==null) partialCongruenceList = new ArrayList<Partial>(1);
+				partialCongruenceList.add(newPartial);
+				largeFactors_2_partials.put(oddExpBigFactor, partialCongruenceList);
+			}
+			partials_2_largeFactors.put(newPartial, factorsList);
+			chains.put(newPartial, new ArrayList<>());
+		}
+		
+		// result
+		List<Smooth> smoothsFromPartials = new ArrayList<>();
+		
+		boolean tablesChanged;
+		do {
+			tablesChanged = false;
+			Iterator<Partial> r0Iter = partials_2_largeFactors.keySet().iterator();
+			while (r0Iter.hasNext()) {
+				Partial r0 = r0Iter.next();
+				ArrayList<Long> r0Factors = partials_2_largeFactors.get(r0);
+				if (r0Factors.size() == 1) {
+					Long p = r0Factors.get(0);
+					ArrayList<Partial> riList = largeFactors_2_partials.get(p);
+					for (Partial ri : riList) {
+						if (r0.equals(ri)) continue;
+						
+						ArrayList<Long> riFactors = partials_2_largeFactors.get(ri);
+						if (riFactors!=null && riFactors.size() == 1) {
+							// found cycle -> create new Smooth consisting of r0, ri and their chains
+							HashSet<Partial> allPartials = new HashSet<>();
+							allPartials.add(r0);
+							allPartials.addAll(chains.get(r0));
+							allPartials.add(ri);
+							allPartials.addAll(chains.get(ri));
+							Smooth smooth = new Smooth_Composite(allPartials);
+							smoothsFromPartials.add(smooth);
+							continue;
+						}
+						
+						// otherwise add r0 and its chain to the chain of ri
+						ArrayList<Partial> riChain = chains.get(ri);
+						riChain.add(r0);
+						riChain.addAll(chains.get(r0));
+						// delete p from the prime list of ri
+						if (riFactors != null) riFactors.remove(p);
+					}
+					// remove entry for p from 
+					r0Iter.remove();
+					riList.remove(r0); // remove r0 from entry keyed by p
+					tablesChanged = true;
+				}
+			}
+		} while (tablesChanged);
+		
+		LOG.debug("Found " + smoothsFromPartials.size() + " smooths from partials");
 	}
 }
