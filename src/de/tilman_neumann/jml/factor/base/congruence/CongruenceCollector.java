@@ -38,7 +38,7 @@ public class CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	
-	public static final boolean COUNT_CYCLES = true;
+	public static final boolean COUNT_CYCLES = false;
 
 	/** smooth congruences */
 	private ArrayList<Smooth> smoothCongruences;
@@ -47,13 +47,13 @@ public class CongruenceCollector {
 	 * Here we need a 1:n relation because one partial can have several big factors;
 	 * thus one big factor may be contained in many distinct partials.
 	 */
-	private HashMap<Long, ArrayList<Partial>> largeFactors_2_partials; // here HashMap is faster than TreeMap or LinkedHashMap
+	private HashMap<Long, ArrayList<Partial>> largeFactors_2_partials; // rbp !
 	/** A solver used to create smooth congruences from partials */
 	private PartialSolver partialSolver = new PartialSolver();
 	/** factor tester */
 	private FactorTest factorTest;
 	/** cycle counter */
-	private CycleCounter cycleCounter;
+	private CycleFinder cycleFinder;
 	
 	// statistics
 	private int perfectSmoothCount, totalPartialCount;
@@ -70,7 +70,7 @@ public class CongruenceCollector {
 		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
-		if (COUNT_CYCLES) cycleCounter = new CycleCounter(2);
+		if (COUNT_CYCLES) cycleFinder = new CycleFinder(2);
 		
 		// statistics
 		totalPartialCount = 0;
@@ -118,7 +118,7 @@ public class CongruenceCollector {
 		if (DEBUG) assertTrue(oddExpBigFactorsCount > 0);
 		
 		// use a standard cycle counting algorithm to verify that we find all possible independent relations
-		if (COUNT_CYCLES) cycleCounter.countIndependentCycles(partial);
+		if (COUNT_CYCLES) cycleFinder.countIndependentCycles(partial);
 		
 		// Check if the partial helps to assemble a smooth congruence:
 		// First collect all partials that are somehow related to the new partial via big factors:
@@ -276,6 +276,7 @@ public class CongruenceCollector {
 	 * @return smooth congruences found so far.
 	 */
 	public ArrayList<Smooth> getSmoothCongruences() {
+		// cycleFinder.findIndependentCycles(); // XXX could be called here
 		return smoothCongruences;
 	}
 	
@@ -292,7 +293,7 @@ public class CongruenceCollector {
 	}
 
 	public String getCycleCountResult() {
-		return cycleCounter.getCycleCountResult();
+		return cycleFinder.getCycleCountResult();
 	}
 	
 	/**
