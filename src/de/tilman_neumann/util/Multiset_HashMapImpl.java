@@ -120,6 +120,14 @@ public class Multiset_HashMapImpl<T> extends HashMap<T, Integer> implements Mult
 		}
 	}
 	
+	public void addAll(T[] values) {
+		if (values != null) {
+			for (T value : values) {
+				this.add(value);
+			}
+		}
+	}
+
 	public Integer remove(Object key) {
 		Integer oldMult = super.get(key);
 		if (oldMult!=null) {

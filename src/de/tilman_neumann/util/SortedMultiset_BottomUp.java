@@ -113,6 +113,14 @@ public class SortedMultiset_BottomUp<T extends Comparable<T>> extends TreeMap<T,
 		}
 	}
 	
+	public void addAll(T[] values) {
+		if (values != null) {
+			for (T value : values) {
+				this.add(value);
+			}
+		}
+	}
+
 	public Integer remove(Object key) {
 		Integer mult = this.get(key);
 		if (mult!=null) {

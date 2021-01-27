@@ -48,6 +48,12 @@ public interface Multiset<T> {
 	void addAll(Collection<T> values);
 
 	/**
+	 * Add all values of the given array.
+	 * @param values
+	 */
+	void addAll(T[] values);
+
+	/**
 	 * Returns the multiplicity of the given value.
 	 * 
 	 * The key is declared as Object and not as T to match exactly
