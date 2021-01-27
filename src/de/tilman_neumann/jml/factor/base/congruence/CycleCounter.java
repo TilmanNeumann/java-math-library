@@ -1,6 +1,6 @@
 package de.tilman_neumann.jml.factor.base.congruence;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+
+import de.tilman_neumann.util.SortedMultiset;
+import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 /**
  * Counts the number of independent cycles in the partial relations.
@@ -211,6 +214,18 @@ public class CycleCounter {
 						ArrayList<Long> riFactors = partials_2_largeFactors.get(ri);
 						if (riFactors!=null && riFactors.size() == 1) {
 							// found cycle -> create new Smooth consisting of r0, ri and their chains
+							if (DEBUG) {
+								SortedMultiset<Long> combinedLargeFactors = new SortedMultiset_BottomUp<Long>();
+								combinedLargeFactors.addAll(r0.getLargeFactorsWithOddExponent());
+								for (Partial partial : chains.get(r0)) combinedLargeFactors.addAll(partial.getLargeFactorsWithOddExponent());
+								combinedLargeFactors.addAll(ri.getLargeFactorsWithOddExponent());
+								for (Partial partial : chains.get(ri)) combinedLargeFactors.addAll(partial.getLargeFactorsWithOddExponent());
+								// test combinedLargeFactors
+								LOG.debug("combinedLargeFactors = " + combinedLargeFactors);
+								for (Long factor : combinedLargeFactors.keySet()) {
+									assertTrue((combinedLargeFactors.get(factor) & 1) == 0); // XXX wrong for some compositions at 200 bit
+								}
+							}
 							HashSet<Partial> allPartials = new HashSet<>();
 							allPartials.add(r0);
 							allPartials.addAll(chains.get(r0));
@@ -228,9 +243,9 @@ public class CycleCounter {
 						// delete p from the prime list of ri
 						if (riFactors != null) riFactors.remove(p);
 					}
-					// remove entry for p from 
-					r0Iter.remove();
-					riList.remove(r0); // remove r0 from entry keyed by p
+
+					r0Iter.remove(); // remove entry keyed by r0 from pbr (requires iterator.remove() so we can continue working with the outer collection)
+					riList.remove(r0); // remove entry for r0 keyed by p from rbp (riList is the set of entries keyed by p from rbp)
 					tablesChanged = true;
 				}
 			}
