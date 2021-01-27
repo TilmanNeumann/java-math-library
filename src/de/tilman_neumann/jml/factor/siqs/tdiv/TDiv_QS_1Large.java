@@ -97,6 +97,7 @@ public class TDiv_QS_1Large implements TDiv_QS {
 	@Override
 	public void initializeForAParameter(BigInteger da, int d, BigInteger b, SolutionArrays solutionArrays, int filteredBaseSize, int[] unsievedBaseElements) {
 		this.da = da;
+		this.d = d;
 		setBParameter(b);
 		primes = solutionArrays.primes;
 		exponents = solutionArrays.exponents;

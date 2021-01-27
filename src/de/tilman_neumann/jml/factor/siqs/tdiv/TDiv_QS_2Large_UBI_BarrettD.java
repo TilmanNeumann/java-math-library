@@ -14,8 +14,7 @@
 package de.tilman_neumann.jml.factor.siqs.tdiv;
 
 import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
-import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
-import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
@@ -139,6 +138,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 	@Override
 	public void initializeForAParameter(BigInteger da, int d, BigInteger b, SolutionArrays solutionArrays, int filteredBaseSize, int[] unsievedBaseElements) {
 		this.da = da;
+		this.d = d;
 		setBParameter(b);
 		primes = solutionArrays.primes;
 		exponents = solutionArrays.exponents;
