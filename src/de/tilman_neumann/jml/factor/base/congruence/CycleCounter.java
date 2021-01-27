@@ -201,7 +201,7 @@ public class CycleCounter {
 		boolean tablesChanged;
 		do {
 			tablesChanged = false;
-			Iterator<Partial> r0Iter = partials_2_largeFactors.keySet().iterator();
+			Iterator<Partial> r0Iter = partials_2_largeFactors.keySet().iterator(); // XXX need copy ?
 			while (r0Iter.hasNext()) {
 				Partial r0 = r0Iter.next();
 				ArrayList<Long> r0Factors = partials_2_largeFactors.get(r0);
@@ -211,21 +211,27 @@ public class CycleCounter {
 					for (Partial ri : riList) {
 						if (r0.equals(ri)) continue;
 						
+						// XXX ri is one of the partials that contains p, so riFactors should definitely not be null.
+						// But it is sometimes, and then, ri does have large factors nonetheless !!
 						ArrayList<Long> riFactors = partials_2_largeFactors.get(ri);
+						if (riFactors==null) LOG.debug("partial has no big factors ?? " + ri);
 						if (riFactors!=null && riFactors.size() == 1) {
 							// found cycle -> create new Smooth consisting of r0, ri and their chains
-							if (DEBUG) {
+//							if (DEBUG) {
 								SortedMultiset<Long> combinedLargeFactors = new SortedMultiset_BottomUp<Long>();
 								combinedLargeFactors.addAll(r0.getLargeFactorsWithOddExponent());
 								for (Partial partial : chains.get(r0)) combinedLargeFactors.addAll(partial.getLargeFactorsWithOddExponent());
 								combinedLargeFactors.addAll(ri.getLargeFactorsWithOddExponent());
 								for (Partial partial : chains.get(ri)) combinedLargeFactors.addAll(partial.getLargeFactorsWithOddExponent());
 								// test combinedLargeFactors
-								LOG.debug("combinedLargeFactors = " + combinedLargeFactors);
-								for (Long factor : combinedLargeFactors.keySet()) {
-									assertTrue((combinedLargeFactors.get(factor) & 1) == 0); // XXX wrong for some compositions at 200 bit
+								try {
+									for (Long factor : combinedLargeFactors.keySet()) {
+										assertTrue((combinedLargeFactors.get(factor) & 1) == 0); // XXX wrong for some compositions at 200 bit
+									}
+								} catch (AssertionError ae) {
+									LOG.debug("combinedLargeFactors = " + combinedLargeFactors);
 								}
-							}
+//							}
 							HashSet<Partial> allPartials = new HashSet<>();
 							allPartials.add(r0);
 							allPartials.addAll(chains.get(r0));
