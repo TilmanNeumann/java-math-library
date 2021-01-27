@@ -3,7 +3,6 @@ package de.tilman_neumann.jml.factor.base.congruence;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,7 +21,6 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * 
  * @author Tilman Neumann
  */
-// TODO implement cycle-counting for 3-partials
 // TODO implement cycle-finding following [LM94] for 2-partials
 public class CycleFinder {
 	private static final Logger LOG = Logger.getLogger(CycleFinder.class);
@@ -48,7 +46,7 @@ public class CycleFinder {
 	}
 	
 	/**
-	 * Counts the number of independent cycles in the partial relations following [LM94]. Works for 2 large primes.
+	 * Counts the number of independent cycles in the partial relations following [LM94], [LLDMW02]. Works for 2 and 3 large primes.
 	 * @param partial the newest partial relation to add
 	 */
 	public void countIndependentCycles(Partial partial) {
@@ -61,22 +59,13 @@ public class CycleFinder {
 		
 		// We compute the following two variable once again,
 		// but that doesn't matter 'cause it's no production code
-		Long[] oddExpBigFactors = partial.getLargeFactorsWithOddExponent();
-		int oddExpBigFactorsCount = oddExpBigFactors.length;
-
-		// pad array with 1's to the length maxLargeFactors
-		Long[] largeFactors = new Long[maxLargeFactors];
-		int oneCount = maxLargeFactors-oddExpBigFactorsCount;
-		for (int i=0; i<oneCount; i++) {
-			largeFactors[i] = 1L;
-		}
-		for (int i=0; i<oddExpBigFactorsCount; i++) {
-			largeFactors[i+oneCount] = oddExpBigFactors[i];			
-		}
-		if (DEBUG) LOG.debug("Add largeFactors = " + Arrays.toString(oddExpBigFactors) + " = " + Arrays.toString(largeFactors));
+		Long[] largeFactors = partial.getLargeFactorsWithOddExponent();
+		int largeFactorsCount = largeFactors.length;
 
 		// add vertices
-		for (int i=0; i<maxLargeFactors; i++) {
+		edges.put(1L, 1L); // v = 1
+		roots.add(1L); // c = 1
+		for (int i=0; i<largeFactorsCount; i++) {
 			long largeFactor = largeFactors[i];
 			if (edges.get(largeFactor) == null) {
 				// new vertex creates new compound
@@ -87,29 +76,16 @@ public class CycleFinder {
 		if (DEBUG) LOG.debug("after adding vertices: edges = " + edges + ", roots = " + roots);
 		
 		// add edges
-		for (int i=0; i<maxLargeFactors; i++) {
-			long f1 = largeFactors[i];
-			for (int j=i+1; j<maxLargeFactors; j++) {
-				long f2 = largeFactors[j];
-				if (f1 != f2) {
-					// find roots
-					long r1 = getRoot(f1);
-					long r2 = getRoot(f2);
-					if (DEBUG) LOG.debug("i="+i+", j=" + j + ": f1=" + f1 + ", f2=" + f2 + ", r1=" + r1 + ", r2=" + r2);
-					// insert edge: the smaller root is made the parent of the larger root, and the larger root is no root anymore
-					if (r1 < r2) {
-						edges.put(r2, r1);
-						roots.remove(r2);
-					} else if (r1 > r2) {
-						edges.put(r1, r2);
-						roots.remove(r1);
-					} // else: r1 and r2 are in the same compound -> a cycle has been found
-					
-					// To speed up the process we could also set the "parents" of all edges nodes passed in root finding to the new root
-				}
-				edgeCount++;
-			}
+		if (largeFactorsCount==1) {
+			insertEdge(1, largeFactors[0]);
+		} else if (largeFactorsCount==2) {
+			insertEdge(largeFactors[0], largeFactors[1]);
+		} else if (largeFactorsCount==3) {
+			insertEdge(largeFactors[0], largeFactors[1]);
+			insertEdge(largeFactors[0], largeFactors[2]);
+			insertEdge(largeFactors[1], largeFactors[2]);
 		}
+		edgeCount += maxLargeFactors==2 ? 1 : 3;
 		
 		if (DEBUG) {
 			if (maxLargeFactors==2) assertEquals(relations.size(), edgeCount);
@@ -120,6 +96,25 @@ public class CycleFinder {
 			LOG.debug(roots.size() + " roots = " + roots);
 			LOG.debug(edges.size() + " vertices = " + edges);
 			LOG.debug(relations.size() + " relations");
+		}
+	}
+	
+	void insertEdge(long f1, long f2) {
+		if (f1 != f2) {
+			// find roots
+			long r1 = getRoot(f1);
+			long r2 = getRoot(f2);
+			if (DEBUG) LOG.debug("f1=" + f1 + ", f2=" + f2 + ", r1=" + r1 + ", r2=" + r2);
+			// insert edge: the smaller root is made the parent of the larger root, and the larger root is no root anymore
+			if (r1 < r2) {
+				edges.put(r2, r1);
+				roots.remove(r2);
+			} else if (r1 > r2) {
+				edges.put(r1, r2);
+				roots.remove(r1);
+			} // else: r1 and r2 are in the same compound -> a cycle has been found
+			
+			// To speed up the process we could also set the "parents" of all edges nodes passed in root finding to the new root
 		}
 	}
 	
