@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -14,14 +13,15 @@ import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 /**
- * Algorithms to count and find independent cycles in the partial relations.
+ * Algorithms to count and find independent cycles in partial relations containing partials with 2 or 3 large primes.
  * 
  * @see [LM94] Lenstra, Manasse 1994: "Factoring With Two Large Primes", Mathematics of Computation, volume 63, number 208, page 789.
  * @see [LLDMW02] Leyland, Lenstra, Dodson, Muffett, Wagstaff 2002: "MPQS with three large primes", Lecture Notes in Computer Science, 2369.
  * 
  * @author Tilman Neumann
  */
-// TODO implement cycle-finding following [LM94] for 2-partials
+// TODO fix cycle counting for 3LP
+// TODO implement cycle-finding following [LM94] for 2LP
 public class CycleFinder {
 	private static final Logger LOG = Logger.getLogger(CycleFinder.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
@@ -35,7 +35,7 @@ public class CycleFinder {
 
 	/**
 	 * Full constructor.
-	 * @param maxLargeFactors the maximum number of large primes in partials:  1, 2 or 3
+	 * @param maxLargeFactors the maximum number of large primes in partials:  2 or 3
 	 */
 	public CycleFinder(int maxLargeFactors) {
 		this.maxLargeFactors = maxLargeFactors;
@@ -46,7 +46,9 @@ public class CycleFinder {
 	}
 	
 	/**
-	 * Counts the number of independent cycles in the partial relations following [LM94], [LLDMW02]. Works for 2 and 3 large primes.
+	 * Counts the number of independent cycles in the partial relations following [LM94], [LLDMW02].
+	 * Works for 2LP so far, but not for 3LP yet.
+	 * 
 	 * @param partial the newest partial relation to add
 	 */
 	public void countIndependentCycles(Partial partial) {
@@ -133,27 +135,30 @@ public class CycleFinder {
 	}
 
 	public String getCycleCountResult() {
+		int vertexCount = edges.size();
 		int cycleCount; {
 			switch (maxLargeFactors) {
 			case 1:
 			case 2:
-				cycleCount = edgeCount + roots.size() - edges.size();
-				return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + edges.size() + " vertices)";
+				cycleCount = edgeCount + roots.size() - vertexCount;
+				return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + vertexCount + " vertices)";
 			case 3:
 				// The "thought to be" formula from [LLDMW02], p.7
-				cycleCount = edgeCount + roots.size() - edges.size() - 2*relations.size();
-				return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + edges.size() + " vertices - 2*" + relations.size() + " relations)";
+				cycleCount = edgeCount + roots.size() - vertexCount - 2*relations.size();
+				return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + vertexCount + " vertices - 2*" + relations.size() + " relations)";
 			default:
-				throw new IllegalStateException("cycle counting is not implemented yet for maxLargeFactors>3, but maxLargeFactors = " + maxLargeFactors);
+				throw new IllegalStateException("cycle counting is only implemented for maxLargeFactors = 2 or 3, but maxLargeFactors = " + maxLargeFactors);
 			}
 		}
 	}
 	
 	/**
 	 * Finds independent cycles and uses them to combine partial to smooth relations, following [LLDMW02].
-	 * Tested with 2 large primes, and should work for 3 large primes, too.
+	 * Works for up to 3 large primes. (3LP tested with CFrac)
+	 * 
+	 * @return smooth relations found by combining partial relations
 	 */
-	public void findIndependentCycles() {
+	public ArrayList<Smooth> findIndependentCycles() {
 		// Create maps from large primes to partials, vice versa, and chains.
 		// These are needed so we can remove elements without changing the relations itself.
 		HashMap<Long, ArrayList<Partial>> rbp = new HashMap<>();
@@ -177,7 +182,7 @@ public class CycleFinder {
 		}
 		
 		// result
-		List<Smooth> smoothsFromPartials = new ArrayList<>();
+		ArrayList<Smooth> smoothsFromPartials = new ArrayList<>();
 		
 		boolean tablesChanged;
 		do {
@@ -245,5 +250,6 @@ public class CycleFinder {
 		} while (tablesChanged);
 		
 		LOG.debug("Found " + smoothsFromPartials.size() + " smooths from partials");
+		return smoothsFromPartials;
 	}
 }
