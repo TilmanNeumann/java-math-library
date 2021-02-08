@@ -75,7 +75,7 @@ public class CycleFinder {
 				roots.add(largeFactor); // c = c + 1
 			}
 		}
-		if (DEBUG) LOG.debug("after adding vertices: edges = " + edges + ", roots = " + roots);
+		//LOG.debug("after adding vertices: edges = " + edges + ", roots = " + roots);
 		
 		// add edges
 		if (largeFactorsCount==1) {
@@ -87,37 +87,41 @@ public class CycleFinder {
 			insertEdge(largeFactors[0], largeFactors[2]);
 			insertEdge(largeFactors[1], largeFactors[2]);
 		}
+		
 		edgeCount += maxLargeFactors==2 ? 1 : 3;
+		// XXX This gives a good approximation of #cycleCount for maxLargeFactors==3 but feels strange.
+		// Why should we count 3 edges for partials having only one big factor?
 		
 		if (DEBUG) {
 			if (maxLargeFactors==2) assertEquals(relations.size(), edgeCount);
 			if (maxLargeFactors==3) assertEquals(3*relations.size(), edgeCount);
 			// general case is maxLargeFactors*(maxLargeFactors-1)/2 ?
 			
-			LOG.debug(edgeCount + " edges");
-			LOG.debug(roots.size() + " roots = " + roots);
-			LOG.debug(edges.size() + " vertices = " + edges);
-			LOG.debug(relations.size() + " relations");
+			//LOG.debug(edgeCount + " edges");
+			//LOG.debug(roots.size() + " roots = " + roots);
+			//LOG.debug(edges.size() + " vertices = " + edges);
+			//LOG.debug(relations.size() + " relations");
 		}
 	}
 	
 	void insertEdge(long f1, long f2) {
-		if (f1 != f2) {
-			// find roots
-			long r1 = getRoot(f1);
-			long r2 = getRoot(f2);
-			if (DEBUG) LOG.debug("f1=" + f1 + ", f2=" + f2 + ", r1=" + r1 + ", r2=" + r2);
-			// insert edge: the smaller root is made the parent of the larger root, and the larger root is no root anymore
-			if (r1 < r2) {
-				edges.put(r2, r1);
-				roots.remove(r2);
-			} else if (r1 > r2) {
-				edges.put(r1, r2);
-				roots.remove(r1);
-			} // else: r1 and r2 are in the same compound -> a cycle has been found
-			
-			// To speed up the process we could also set the "parents" of all edges nodes passed in root finding to the new root
-		}
+		// find roots
+		long r1 = getRoot(f1);
+		long r2 = getRoot(f2);
+		//LOG.debug("f1=" + f1 + ", f2=" + f2 + ", r1=" + r1 + ", r2=" + r2);
+		
+		// insert edge: the smaller root is made the parent of the larger root, and the larger root is no root anymore
+		if (r1 < r2) {
+			assertTrue(f1 != f2);
+			edges.put(r2, r1);
+			roots.remove(r2);
+		} else if (r1 > r2) {
+			assertTrue(f1 != f2);
+			edges.put(r1, r2);
+			roots.remove(r1);
+		} // else: r1 and r2 are in the same compound -> a cycle has been found
+		
+		// For a speedup, we could also set the "parents" of (all edges passed in root finding) to the new root
 	}
 	
 	/**
