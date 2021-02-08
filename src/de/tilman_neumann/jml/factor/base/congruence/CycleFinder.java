@@ -82,6 +82,7 @@ public class CycleFinder {
 			if (DEBUG) assertTrue(largeFactors[0] > 1);
 			insertEdge(1, largeFactors[0]);
 		} else if (largeFactorsCount==2) {
+			if (DEBUG) assertTrue(largeFactors[0] != largeFactors[1]);
 			// The following is bad, leading constantly to #compounds=1
 //			if (maxLargeFactors==3) {
 //				insertEdge(1, largeFactors[0]);
@@ -89,6 +90,11 @@ public class CycleFinder {
 //			}
 			insertEdge(largeFactors[0], largeFactors[1]);
 		} else if (largeFactorsCount==3) {
+			if (DEBUG) {
+				assertTrue(largeFactors[0] != largeFactors[1]);
+				assertTrue(largeFactors[0] != largeFactors[2]);
+				assertTrue(largeFactors[1] != largeFactors[2]);
+			}
 			insertEdge(largeFactors[0], largeFactors[1]);
 			insertEdge(largeFactors[0], largeFactors[2]);
 			insertEdge(largeFactors[1], largeFactors[2]);
