@@ -98,6 +98,8 @@ public class CycleFinder {
 			insertEdge(largeFactors[0], largeFactors[1]);
 			insertEdge(largeFactors[0], largeFactors[2]);
 			insertEdge(largeFactors[1], largeFactors[2]);
+		} else {
+			LOG.warn("Holy shit, we found a " + largeFactorsCount + "-partial!");
 		}
 		
 		edgeCount += maxLargeFactors==2 ? 1 : 3;
