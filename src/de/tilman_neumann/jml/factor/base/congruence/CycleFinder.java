@@ -135,6 +135,8 @@ public class CycleFinder {
 	}
 
 	public String getCycleCountResult() {
+		if (DEBUG) testRoots(); // not the perfect place, but ok for the moment
+		
 		int vertexCount = edges.size();
 		int cycleCount; {
 			switch (maxLargeFactors) {
@@ -149,6 +151,19 @@ public class CycleFinder {
 			default:
 				throw new IllegalStateException("cycle counting is only implemented for maxLargeFactors = 2 or 3, but maxLargeFactors = " + maxLargeFactors);
 			}
+		}
+	}
+	
+	private void testRoots() {
+		HashSet<Long> roots2 = new HashSet<>();
+		for (Long vertex : edges.keySet()) {
+			roots2.add(getRoot(vertex));
+		}
+		if (roots.equals(roots2)) {
+			LOG.debug("All roots confirmed!");
+		} else {
+			LOG.debug("#roots computed originally = " + roots.size());
+			LOG.debug("#roots verified = " + roots2.size());
 		}
 	}
 	
