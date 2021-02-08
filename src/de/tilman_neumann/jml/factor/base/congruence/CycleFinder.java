@@ -112,11 +112,11 @@ public class CycleFinder {
 		
 		// insert edge: the smaller root is made the parent of the larger root, and the larger root is no root anymore
 		if (r1 < r2) {
-			assertTrue(f1 != f2);
+			if (DEBUG) assertTrue(f1 != f2);
 			edges.put(r2, r1);
 			roots.remove(r2);
 		} else if (r1 > r2) {
-			assertTrue(f1 != f2);
+			if (DEBUG) assertTrue(f1 != f2);
 			edges.put(r1, r2);
 			roots.remove(r1);
 		} // else: r1 and r2 are in the same compound -> a cycle has been found
