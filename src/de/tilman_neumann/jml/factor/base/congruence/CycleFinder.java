@@ -69,6 +69,7 @@ public class CycleFinder {
 		roots.add(1L); // c = 1
 		for (int i=0; i<largeFactorsCount; i++) {
 			long largeFactor = largeFactors[i];
+			if (DEBUG) assertTrue(largeFactor > 1);
 			if (edges.get(largeFactor) == null) {
 				// new vertex creates new compound
 				edges.put(largeFactor, largeFactor); // v = v + 1
