@@ -73,7 +73,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	private static final boolean DEBUG = false;
 	/**
 	 * SIQS_Small's own ANALYSIS flag should typically be turned off.
-	 * Turning it on may only make sense when it SIQS_Small runs standalone, e.g. for performance tests.
+	 * Turning it on may only make sense when SIQS_Small is run stand-alone, e.g. for performance tests.
 	 */
 	private static final boolean ANALYZE = false;
 
