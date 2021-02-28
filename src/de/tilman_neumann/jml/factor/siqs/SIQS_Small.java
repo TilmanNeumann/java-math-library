@@ -14,8 +14,8 @@
 package de.tilman_neumann.jml.factor.siqs;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static de.tilman_neumann.jml.factor.base.AnalysisOptions.ANALYZE_LARGE_FACTOR_SIZES;
-import static de.tilman_neumann.jml.factor.base.AnalysisOptions.ANALYZE_Q_SIGNS;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_LARGE_FACTOR_SIZES;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_Q_SIGNS;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

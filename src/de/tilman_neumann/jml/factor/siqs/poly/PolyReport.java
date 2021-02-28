@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.siqs.poly;
 
-import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 
 /**
  * Reports about a polynomial generator.

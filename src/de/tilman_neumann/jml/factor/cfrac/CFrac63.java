@@ -31,7 +31,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF63;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static de.tilman_neumann.jml.factor.base.AnalysisOptions.ANALYZE;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE;
 import static org.junit.Assert.*;
 
 /**

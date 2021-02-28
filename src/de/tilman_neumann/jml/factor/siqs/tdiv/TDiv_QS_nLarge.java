@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.siqs.tdiv;
 
-import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.*;
 

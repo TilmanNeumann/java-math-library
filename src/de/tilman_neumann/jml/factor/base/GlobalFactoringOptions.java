@@ -14,14 +14,14 @@
 package de.tilman_neumann.jml.factor.base;
 
 /**
- * Factoring analysis settings.
+ * Global factoring settings.
  * 
  * Code "guarded" with a static final boolean = false will be removed by the compiler.
- * Thus if turned off, analysis code does not decrement performance.
+ * Thus if turned off, such code does not decrement performance at all.
  * 
  * @author Tilman Neumann
  */
-public interface AnalysisOptions {
+public interface GlobalFactoringOptions {
 	/**
 	 * Basic analysis of timings and operations. This option is used by most or all factoring algorithms that collect relations.
 	 * In SIQS, the analysis includes number of polynomials, number of smooth and partial relations (also by large factor counts),
@@ -38,4 +38,11 @@ public interface AnalysisOptions {
 	 * A switch to additionally turn on analysis of the number of Q-values with positive and negative sign.
 	 */
 	static final boolean ANALYZE_Q_SIGNS = false;
+	
+	/**
+	 * A switch to turn on using the "fused multiply-add" operation defined in IEEE 754-2008.
+	 * Support requires Java 9 and a Intel Haswell or AMD Piledriver CPU or later.
+	 * If supported this means a speed improvement; otherwise the emulation is very very slow.
+	 */
+	static final boolean USE_FMA = false;
 }

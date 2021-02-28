@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.hart;
 
-import static de.tilman_neumann.jml.factor.base.AnalysisOptions.ANALYZE;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;

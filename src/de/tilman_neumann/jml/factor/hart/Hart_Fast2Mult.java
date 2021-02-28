@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.hart;
 
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.USE_FMA;
+
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
@@ -139,10 +141,9 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 		long k2 = K_MULT2;
 		try {
 			for (int i=1; ; i++, k1 += K_MULT1, k2 += K_MULT2) {
-				// using the fusedMultiplyAdd operation defined in IEEE 754-2008 gives ~ 4-8 % speedup
-				// but requires Java 9 and a Intel Haswell or AMD Piledriver CPU or later.
-				//a = (long) Math.fma(sqrt4N, sqrt1[i], ROUND_UP_DOUBLE);
-				a = (long) (sqrt4N * sqrt1[i] + ROUND_UP_DOUBLE);
+				// using the fusedMultiplyAdd operation defined in IEEE 754-2008 gives ~ 4-8 % speedup if supported
+				if (USE_FMA) a = (long) Math.fma(sqrt4N, sqrt1[i], ROUND_UP_DOUBLE);
+				if (!USE_FMA) a = (long) (sqrt4N * sqrt1[i] + ROUND_UP_DOUBLE);
 				a = adjustA(N, a, k1);
 				test = a*a - k1 * fourN;
 				b = (long) Math.sqrt(test);
@@ -152,8 +153,8 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 				// the second parallel 45 * i loop gives ~4 % speedup if we
 				// avoid that we hit the same values as in the first 315 * i case
 				if (sqrt2[i] > Double.MIN_VALUE) {
-					//a = (long) Math.fma(sqrt4N, sqrt2[i], ROUND_UP_DOUBLE);
-					a = (long) (sqrt4N * sqrt2[i] + ROUND_UP_DOUBLE);
+					if (USE_FMA) a = (long) Math.fma(sqrt4N, sqrt2[i], ROUND_UP_DOUBLE);
+					if (!USE_FMA) a = (long) (sqrt4N * sqrt2[i] + ROUND_UP_DOUBLE);
 					a = adjustA(N, a, k2);
 					test = a*a - k2 * fourN;
 					b = (long) Math.sqrt(test);

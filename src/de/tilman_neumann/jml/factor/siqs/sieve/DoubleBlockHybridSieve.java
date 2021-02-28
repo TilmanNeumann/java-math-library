@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
-import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;

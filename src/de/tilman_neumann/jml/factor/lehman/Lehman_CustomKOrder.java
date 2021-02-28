@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.USE_FMA;
+
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
@@ -178,7 +180,8 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		for (i=0; (k = kArray[i])<kTwoA; i++) {
 			final double sqrt4kN = sqrt4N * sqrts[i];
 			aStart = (long) (sqrt4kN + ROUND_UP_DOUBLE); // much faster than ceil() !
-			aLimit = (long) (sqrt4kN + sixthRootTerm * sqrtInvs[i]);
+			if (USE_FMA) aLimit = (long) Math.fma(sixthRootTerm, sqrtInvs[i], sqrt4kN);
+			if (!USE_FMA) aLimit = (long) (sixthRootTerm * sqrtInvs[i] + sqrt4kN);
 			if ((k & 1) == 0) {
 				// k even -> make sure aLimit is odd
 				aLimit |= 1L;
@@ -210,9 +213,11 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 		}
 
 		// big k: use improved congruences a == (k*N) (mod 2^s)
+		long a;
 		for ( ; (k = kArray[i])<kLimit; i++) { // XXX may throw ArrayIndexOutOfBoundsException if N or kLimit are too big
 			long kN = k*N;
-			long a = (long) (sqrt4N * sqrts[i] + ROUND_UP_DOUBLE);
+			if (USE_FMA) a = (long) Math.fma(sqrt4N, sqrts[i], ROUND_UP_DOUBLE);
+			if (!USE_FMA) a = (long) (sqrt4N * sqrts[i] + ROUND_UP_DOUBLE);
 			if ((k & 1) == 0) {
 				// k even -> make sure aLimit is odd
 				a |= 1L;

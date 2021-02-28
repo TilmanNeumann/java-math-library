@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
-import static de.tilman_neumann.jml.factor.base.AnalysisOptions.*;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 
 import java.util.Map;
 import java.util.TreeMap;
