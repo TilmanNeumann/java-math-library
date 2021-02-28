@@ -60,7 +60,7 @@ import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
 
 /**
- * Single-threaded SIQS implementations to be used to factor the Q(x)-rests in the trial division stage of SIQS/PSIQS.
+ * Single-threaded SIQS implementation used to factor the Q(x)-rests in the trial division stage of SIQS/PSIQS.
  * 
  * So far, the main purpose of this class is to prevent excessive logging when AnalysisOptions.ANALYZE == true and SIQS
  * trial division starts to use an nested SIQS to factor large Q rests. A second purpose would be to optimize
