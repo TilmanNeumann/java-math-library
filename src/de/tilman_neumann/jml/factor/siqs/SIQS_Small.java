@@ -217,7 +217,8 @@ public class SIQS_Small extends FactorAlgorithm {
 		double lnTerm = Math.sqrt(lnN * Math.log(lnN)); // (lnN)^0.5 * (lnlnN)^(1-0.5)
 		double primeBaseSize_dbl = Math.exp(Cmult * lnTerm);
 		if (primeBaseSize_dbl > Integer.MAX_VALUE) {
-			LOG.error("N=" + N + " (" + NBits + " bits) is too big for SIQS!");
+			// For Cmult=0.32 this condition takes effect at 996 bits; but long before we will get memory issues
+			LOG.error("N=" + N + " (" + NBits + " bits) is too big for SIQS_Small!");
 			return null;
 		}
 		int primeBaseSize = Math.max(30, (int) primeBaseSize_dbl); // min. size for very small N
