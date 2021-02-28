@@ -19,16 +19,13 @@ package de.tilman_neumann.jml.factor.base;
  * Code "guarded" with a static final boolean = false will be removed by the compiler.
  * Thus if turned off, analysis code does not decrement performance.
  * 
- * Note as well that we would never want to do analysis/profiling in nested algorithms like the internalQS called
- * by trial division to factor large Q rests, but it does not hurt either.
- * 
  * @author Tilman Neumann
  */
 public interface AnalysisOptions {
 	/**
-	 * Basic analysis includes number of polynomials, number of smooth and partial relations
-	 * (also by large factor counts), trials division results, solver runs and tested null-vectors,
-	 * and sub-phase timings.
+	 * Basic analysis of timings and operations. This option is used by most or all factoring algorithms that collect relations.
+	 * In SIQS, the analysis includes number of polynomials, number of smooth and partial relations (also by large factor counts),
+	 * trials division results, solver runs and tested null-vectors, and sub-phase timings.
 	 */
 	static final boolean ANALYZE = false;
 

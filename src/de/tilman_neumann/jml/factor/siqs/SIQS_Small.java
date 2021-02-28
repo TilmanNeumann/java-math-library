@@ -62,14 +62,20 @@ import de.tilman_neumann.util.Timer;
 /**
  * Single-threaded SIQS implementations to be used to factor the Q(x)-rests in the trial division stage of SIQS/PSIQS.
  * 
- * So far, this implementation almost matches the SIQS algorithm for general N, but there is a huge optimization potential for small N (say, below 100 bit).
+ * So far, the main purpose of this class is to prevent excessive logging when AnalysisOptions.ANALYZE == true and SIQS
+ * trial division starts to use an nested SIQS to factor large Q rests. A second purpose would be to optimize
+ * this class for the factorization of small N (say, below 100 bit).
  * 
  * @author Tilman Neumann
  */
 public class SIQS_Small extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(SIQS_Small.class);
 	private static final boolean DEBUG = false;
-	private static final boolean ANALYZE = false; // SIQS_Small needs it's own ANALYZE flag when run inside Tdiv_QS
+	/**
+	 * SIQS_Small's own ANALYSIS flag should typically be turned off.
+	 * Turning it on may only make sense when it SIQS_Small runs standalone, e.g. for performance tests.
+	 */
+	private static final boolean ANALYZE = false;
 
 	/** if true then SIQS_Small uses a sieve exploiting sun.misc.Unsafe features. This may be ~10% faster. */
 	private boolean useUnsafe;
