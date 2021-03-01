@@ -69,13 +69,6 @@ Here you have many options:
 The amount of analysis and logging can be influenced by setting the static variables in the AnalysisOptions interface. Typically one wants to have all those options set to false if `N_COUNT > 1`.
 
 
-## Remarks
-
-The quadratic sieve is still lacking the integration of ECM when it would be useful.
-So it will be quite efficient only for inputs having few small factors (in particular semiprimes),
-but not when the number of small prime factors is large.
-
-
 ## Authors
 
  **Tilman Neumann**
