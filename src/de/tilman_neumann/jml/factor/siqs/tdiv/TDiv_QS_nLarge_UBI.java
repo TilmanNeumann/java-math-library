@@ -298,7 +298,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 		// now we consider Q as sufficiently smooth. then we want to know all prime factors, as long as we do not find one that is too big to be useful.
 		if (DEBUG) LOG.debug("test(): pMax=" + pMax + " < Q_rest=" + Q_rest + " < maxQRest=" + maxQRest + " -> resolve all factors");
 		boolean isSmooth = factor_recurrent(Q_rest);
-		if (bigFactors.size()>2) LOG.debug("Found " + bigFactors.size() + " distinct big factors!");
+		if (DEBUG) if (bigFactors.size()>2) LOG.debug("Found " + bigFactors.size() + " distinct big factors!"); // 3LP start at ~330 bit with current settings
 		if (isSmooth) {
 			addCommonFactorsToSmallFactors();
 			return aqPairFactory.create(A, smallFactors, bigFactors);
