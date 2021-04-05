@@ -62,6 +62,14 @@ public class IndexSet  {
 		bitArray[longIndex] |= (1L<<restIndex); // set bit
 		if (x>biggestEntry) biggestEntry = x; // update biggest entry
 	}
+
+	public int getNumberOfSetBits() {
+		int numBits = 0;
+		for (int longIndex=biggestEntry>>6; longIndex>=0; longIndex--) {
+			numBits += Long.bitCount(bitArray[longIndex]);
+		}
+		return numBits;
+	}
 	
 	public boolean contains(Object o) {
 		LOG.debug("contains()", new Throwable()); // never used, method untested

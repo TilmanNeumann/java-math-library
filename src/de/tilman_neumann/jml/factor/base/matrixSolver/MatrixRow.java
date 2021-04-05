@@ -43,10 +43,20 @@ public class MatrixRow {
 		return rowIndexHistory.toList();
 	}
 	
+	/**
+	 * @return the highest index in this row of a column set to 1.
+	 */
 	public int getBiggestColumnIndex() {
 		return columnIndices.last();		
 	}
 
+	/**
+	 * @return the number of columns set to 1 in this row.
+	 */
+	public int getColumnCount() {
+		return columnIndices.getNumberOfSetBits();
+	}
+	
 	/**
 	 * Combine this and other in Z_2, modifying this.
 	 * The operation in Z_2 is equivalent to "xor".

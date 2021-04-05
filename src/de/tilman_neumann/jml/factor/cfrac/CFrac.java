@@ -35,7 +35,7 @@ import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF02;
 import de.tilman_neumann.jml.roots.SqrtExact;
@@ -343,7 +343,7 @@ public class CFrac extends FactorAlgorithm {
 	}
 	
 	private static void testInput() {
-		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver01_Gauss(), 5);
+		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver_Gauss02(), 5);
 		Timer timer = new Timer();
 		while(true) {
 			try {

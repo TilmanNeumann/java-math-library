@@ -37,7 +37,7 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver01_Gauss;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
@@ -136,7 +136,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		this.congruenceCollector = new CongruenceCollector();
 		this.auxFactorizer = new TDiv_QS_Small();
 		this.extraCongruences = extraCongruences;
-		this.matrixSolver = new MatrixSolver01_Gauss();
+		this.matrixSolver = new MatrixSolver_Gauss02();
 		apg = new AParamGenerator01(wantedQCount);
 	}
 

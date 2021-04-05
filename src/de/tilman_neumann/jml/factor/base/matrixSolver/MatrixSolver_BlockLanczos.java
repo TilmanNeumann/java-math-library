@@ -30,14 +30,14 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
  * 
  * @author Tilman Neumann
  */
-public class MatrixSolver02_BlockLanczos extends MatrixSolver {
+public class MatrixSolver_BlockLanczos extends MatrixSolver {
 	private static final boolean DEBUG = false;
 
 	private BlockLanczos blockLanczosSolver = new BlockLanczos();
 	
 	@Override
 	public String getName() {
-		return "solver02_BL";
+		return "BLSolver";
 	}
 	
 	@Override

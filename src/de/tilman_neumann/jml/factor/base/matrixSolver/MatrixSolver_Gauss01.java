@@ -30,13 +30,13 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
  * 
  * @author Tilman Neumann
  */
-public class MatrixSolver01_Gauss extends MatrixSolver {
+public class MatrixSolver_Gauss01 extends MatrixSolver {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = Logger.getLogger(MatrixSolver01_Gauss.class);
+	private static final Logger LOG = Logger.getLogger(MatrixSolver_Gauss01.class);
 	
 	@Override
 	public String getName() {
-		return "solver01_Gauss";
+		return "GaussSolver01";
 	}
 	
 	@Override
