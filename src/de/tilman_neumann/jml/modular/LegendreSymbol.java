@@ -17,8 +17,6 @@ import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 
 import java.math.BigInteger;
 
-import de.tilman_neumann.jml.modular.ModularPower;
-
 /**
  * Computation of the Legendre symbol using Eulers formula.
  * @author Tilman Neumann

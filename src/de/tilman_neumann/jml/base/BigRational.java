@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.precision.Precision;
 import de.tilman_neumann.jml.precision.Scale;
-import de.tilman_neumann.jml.base.BigDecimalMath;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 

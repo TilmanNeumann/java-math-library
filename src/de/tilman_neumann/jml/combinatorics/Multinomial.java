@@ -15,8 +15,6 @@ package de.tilman_neumann.jml.combinatorics;
 
 import java.math.BigInteger;
 
-import de.tilman_neumann.jml.combinatorics.Factorial;
-
 /**
  * Multinomial coefficient implementations.
  * 

@@ -17,7 +17,6 @@ import junit.framework.TestSuite;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.transcendental.ExpTest;
 import de.tilman_neumann.test.junit.PackageTest;
 import de.tilman_neumann.util.ReflectionUtil;
 

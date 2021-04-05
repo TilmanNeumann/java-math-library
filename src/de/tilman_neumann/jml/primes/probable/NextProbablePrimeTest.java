@@ -21,7 +21,6 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;

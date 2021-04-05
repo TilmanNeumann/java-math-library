@@ -16,9 +16,6 @@ package de.tilman_neumann.jml.primes.exact;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.primes.bounds.NthPrimeUpperBounds;
-import de.tilman_neumann.jml.primes.exact.CountingCallback;
-import de.tilman_neumann.jml.primes.exact.SegmentedSieve;
-import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static org.junit.Assert.*;

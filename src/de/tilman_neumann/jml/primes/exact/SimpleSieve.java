@@ -15,8 +15,6 @@ package de.tilman_neumann.jml.primes.exact;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.primes.exact.CountingCallback;
-import de.tilman_neumann.jml.primes.exact.SieveCallback;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**

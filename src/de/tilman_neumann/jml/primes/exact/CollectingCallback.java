@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.primes.exact;
 
-import de.tilman_neumann.jml.primes.exact.SieveCallback;
-
 public class CollectingCallback implements SieveCallback {
 	private int capacity;
 	public int count;

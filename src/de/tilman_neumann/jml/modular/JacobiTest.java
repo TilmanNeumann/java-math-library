@@ -20,7 +20,6 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.modular.JacobiSymbol;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.ConfigUtil;
 

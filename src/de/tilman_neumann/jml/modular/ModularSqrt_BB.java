@@ -17,9 +17,6 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.modular.JacobiSymbol;
-import de.tilman_neumann.jml.modular.ModularPower;
-
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.*;
 
