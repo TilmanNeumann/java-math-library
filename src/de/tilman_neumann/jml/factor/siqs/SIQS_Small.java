@@ -36,7 +36,7 @@ import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
@@ -102,7 +102,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^(extraCongruences+1)
 	private int extraCongruences;
 	/** The solver used for smooth congruence equation systems. */
-	private MatrixSolver matrixSolver;
+	private MatrixSolverBase01 matrixSolver;
 	
 	// statistics
 	private Timer timer = new Timer();

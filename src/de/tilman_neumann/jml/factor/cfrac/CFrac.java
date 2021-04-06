@@ -34,7 +34,7 @@ import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF02;
@@ -94,7 +94,7 @@ public class CFrac extends FactorAlgorithm {
 	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^(extraCongruences+1)
 	private int extraCongruences;
 	/** The solver used for smooth congruence equation systems. */
-	private MatrixSolver matrixSolver;
+	private MatrixSolverBase01 matrixSolver;
 
 	// profiling
 	private long startTime, linAlgStartTime;
@@ -112,7 +112,7 @@ public class CFrac extends FactorAlgorithm {
 	 * @param ks_adjust
 	 */
 	public CFrac(boolean use_all_i, int stopRoot, float stopMult, float C, float maxQRestExponent, 
-				 TDiv_CF auxFactorizer, int extraCongruences, MatrixSolver matrixSolver, int ks_adjust) {
+				 TDiv_CF auxFactorizer, int extraCongruences, MatrixSolverBase01 matrixSolver, int ks_adjust) {
 		
 		this.use_all_i = use_all_i;
 		this.stopRoot = stopRoot;

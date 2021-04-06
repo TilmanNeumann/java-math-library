@@ -35,9 +35,9 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
  * 
  * @author Tilman Neumann
  */
-abstract public class MatrixSolver {
+abstract public class MatrixSolverBase01 {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = Logger.getLogger(MatrixSolver.class);
+	private static final Logger LOG = Logger.getLogger(MatrixSolverBase01.class);
 
 	/** factor tester */
 	private FactorTest factorTest;

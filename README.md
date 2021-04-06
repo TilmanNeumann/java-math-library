@@ -86,6 +86,7 @@ Big thanks to
 * Graeme Willoughby for his great comments on the BigInteger algorithms in the SqrtInt, SqrtExact, Root and PurePowerTest classes
 * Thilo Harich for a great collaboration and his immense improvements on the Lehman factoring method
 * Ben Buhrow for his free, open source [tinyecm.c](https://www.mersenneforum.org/showpost.php?p=521028&postcount=84) and his comments on mersenneforum.org that helped a lot to improve the performance of my Java port
+* Dave McGuigan, who contributed a parallel Gaussian solver and even sped up my single-threaded Gaussian solver by a remarkable factor
 
 Some (other) third-party software reused in this library:
 * [Dario Alpern's ECM implementation](https://github.com/alpertron/calculators/blob/master/OldApplets/ecm.java),

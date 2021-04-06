@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
 import de.tilman_neumann.util.Timer;
 
 /**
@@ -44,7 +44,7 @@ public class CongruenceCollectorParallel extends CongruenceCollector {
 	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^(extraCongruences+1)
 	private int extraCongruences;
 	
-	private MatrixSolver matrixSolver;
+	private MatrixSolverBase01 matrixSolver;
 	
 	public BigInteger factor;
 	
@@ -64,7 +64,7 @@ public class CongruenceCollectorParallel extends CongruenceCollector {
 	 * @param matrixSolver
 	 * @param factorTest
 	 */
-	public void initialize(BigInteger N, int requiredSmoothCongruenceCount, MatrixSolver matrixSolver, FactorTest factorTest) {
+	public void initialize(BigInteger N, int requiredSmoothCongruenceCount, MatrixSolverBase01 matrixSolver, FactorTest factorTest) {
 		super.initialize(N, factorTest);
 		this.requiredSmoothCongruenceCount = requiredSmoothCongruenceCount + extraCongruences;
 		this.matrixSolver = matrixSolver;

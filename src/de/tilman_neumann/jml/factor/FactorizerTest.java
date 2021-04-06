@@ -181,10 +181,15 @@ public class FactorizerTest {
 			// * we need 0.14 < maxQRestExponent < 0.2; everything else is prohibitive; use null for dynamic determination
 			// * BlockLanczos is better than Gauss solver for N > 200 bit
 //			new PSIQS(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-			new PSIQS_U(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()), // best for large N
+
+			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss01()),
+			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss01b()),
+			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss02()),
+			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss(20, 100)),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
 //			new CombinedFactorAlgorithm(6, 1<<16, true),
