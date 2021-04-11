@@ -321,6 +321,9 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 				// TODO New fails that can not be cured with larger arrays
 				873351084013120721L, // 60 bit
 				3608228875180849937L, // 62 bit
+				
+				// Rare fail at 63 bits:
+				8940500625246794041L, 
 			};
 		
 		Hart_Fast2Mult holf = new Hart_Fast2Mult(false);
