@@ -57,11 +57,11 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1;
+	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 70;
+	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 10;
+	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
@@ -90,19 +90,20 @@ public class FactorizerTest {
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),
-			//new Hart_Fast(false), // best algorithm for semiprimes not having factors < cbrt(N), N<40 bit
+			new Hart_Fast(false), // best algorithm for semiprimes not having factors < cbrt(N), N<40 bit
 //			new Hart_Fast(true),
-			//new Hart_TDiv_Race(), // good for any kind of numbers < 50 bit
-			//new Hart_TDiv_Race2(), // good for semiprimes >= 45 bit, but fails for some N having small factors
-			//new Hart_Squarefree(false),
-//			new Hart_Fast2Mult(false),
+			new Hart_TDiv_Race(), // good for any kind of numbers < 50 bit
+			new Hart_TDiv_Race2(), // good for semiprimes >= 45 bit, but fails for some N having small factors
+			new Hart_Squarefree(false),
+			new Hart_Fast2Mult(false),
+			new Hart_Fast2Mult_FMA(false),
 
 			// Lehman
 			//new Lehman_Simple(false),
 			//new Lehman_Smith(false),
-			//new Lehman_Fast(false), // the variant implemented by bsquared
+			new Lehman_Fast(false), // the variant implemented by bsquared
 			//new Lehman_Fast(true),
-//			new Lehman_CustomKOrder(false), // best algorithm for semiprimes not having factors < cbrt(N) at 40 to 50 bit
+			new Lehman_CustomKOrder(false), // best algorithm for semiprimes not having factors < cbrt(N) at 40 to 50 bit
 
 			// PollardRho
 			//new PollardRho(),
@@ -110,9 +111,10 @@ public class FactorizerTest {
 			//new PollardRhoBrent(),
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
-			//new PollardRhoBrentMontgomery63(), // first long version, not optimized any further
-//			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 50 to 57 bit
-//			new PollardRhoBrentMontgomery64(), // best algorithm for N from 58 to 62 bit
+			new PollardRhoBrentMontgomery63(), // first long version, not optimized any further
+			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 50 to 57 bit
+			new PollardRhoBrentMontgomery64(), // best algorithm for N from 58 to 62 bit
+			new PollardRhoBrentMontgomery64_MH(), // best algorithm for N from 58 to 62 bit
 			
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
@@ -136,11 +138,13 @@ public class FactorizerTest {
 
 			// ECM
 //			new TinyEcm63(),
-//			new TinyEcm64(),
+			new TinyEcm64(),
 //			new TinyEcm64_MontSqr(),
 //			new TinyEcm64_MontInline(),
 //			new EllipticCurveMethod(-1),
-			
+			new TinyEcm64_v2(),
+			new TinyEcm64_MH(),
+
 			// SIQS:
 			// * best until 220 bit: Sieve03gU + smallPowers + TDiv1L + Gauss
 			// * best for 230, 240 bit: Sieve03gU + smallPowers + TDivnL + BL
@@ -181,15 +185,15 @@ public class FactorizerTest {
 			// * we need 0.14 < maxQRestExponent < 0.2; everything else is prohibitive; use null for dynamic determination
 			// * BlockLanczos is better than Gauss solver for N > 200 bit
 //			new PSIQS(0.32F, 0.37F, null, null, 6, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()), // best for large N
 
-			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss01()),
-			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss01b()),
-			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss02()),
-			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss(20, 100)),
+//			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss01()),
+//			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss01b()),
+//			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss02()),
+//			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss(20, 100)),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
 //			new CombinedFactorAlgorithm(6, 1<<16, true),

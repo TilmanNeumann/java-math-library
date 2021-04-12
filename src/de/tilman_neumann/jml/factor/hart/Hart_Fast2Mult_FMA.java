@@ -23,47 +23,15 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Pretty simple yet fast variant of Hart's one line factorizer.
- * This implementations introduces some improvements that make it the fastest factoring algorithm
- * for numbers with more then 20? and less then 50 bit.
- * It avoids the complexity of calculating the square root when factoring multiple numbers,
- * by storing the square roots of k in the main loop. This has the highest performance impact.
- *
- * But there are some other improvements:
- *
- * It uses an optimized trial division algorithm to factorize small numbers.
- *
- * After calculating a number 'a' above sqrt(4*m*k) a will be adjusted to satisfy
- * some modulus a power of 2 argument.
- * It reuses the idea of rounding up by adding a well chosen constant (Warren D. Smith)
- *
- * We choose k to be a multiple of 315 = 3*3*5*7 and 45 = 3*3*5 this causes that
- * a^2 - 4kn = b^2 mod 3*3*5*7 or 3*3*5 which increases the chance to find a solution a^2 - 4kn = b^2 pretty much.
- * We iterate over k1 = 315 * i and k2 = 45 * i in parallel, but make sure that k2 != k1.
- *
- * General idea of this implementation:
- *
- * It tires to find solutions for a^2 - 4*m*i*n = b^2 from fermat we then know that
- * gcd(a+b, n) and gcd(a-b, n) are divisors of n.
- *
- * This is done by one simple loop over k were we generate numbers a = sqrt(4*m*k*n).
- * By storing sqrt(k) in an array this can be calculated fast.
- *
- * Compared with the regular Lehman algorithm, the Hart algorithm does not
- * need a second loop to iterate over the numbers 'a' for a given 'k' in the equation a^2 - 4kn.
- * This means that the upper bound for this loop - which would be a expensive sqrt call - does not has to be calculated.
- *
- * For each k the value sqrt(k) in order to determine a = ceil(sqrt(4kn))
- * the sqrt will be calculated only once and then stored in an array. This speeds up the sieving buy
- * a big factor since calculating the sqrt is expensive.
- *
- *
- * For any kind of test numbers except very hard semiprimes, Hart_TDiv_Race will be faster.
+ * A variant of Hard_Fast2Mult using Math.fma().
+ * Very slow if Math.fma() is not supported by hardware and intrinsics.
+ * Support requires an Intel Haswell or AMD Piledriver CPU or later, and typically Java 10+ (depends on the VM).
+ * If supported we may see only a minor speedup or none at all on more recent hardware (Ryzen 3900X).
  *
  * @authors Thilo Harich & Tilman Neumann
  */
-public class Hart_Fast2Mult extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Hart_Fast2Mult.class);
+public class Hart_Fast2Mult_FMA extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Hart_Fast2Mult_FMA.class);
 
 	// k multipliers.
 	private static final long K_MULT1 = 3465;
@@ -91,7 +59,7 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 	 * With doTDivFirst=false, this implementation is pretty fast for hard semiprimes.
 	 * But the smaller possible factors get, it will become slower and slower.
 	 */
-	public Hart_Fast2Mult(boolean doTDivFirst) {
+	public Hart_Fast2Mult_FMA(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// Precompute sqrts for all k < I_MAX
 		sqrt1 = new double[I_MAX];
@@ -106,7 +74,7 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "Hart_Fast2Mult(" + doTDivFirst + ")";
+		return "Hart_Fast2Mult_FMA(" + doTDivFirst + ")";
 	}
 
 	@Override
@@ -139,7 +107,8 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 		long k2 = K_MULT2;
 		try {
 			for (int i=1; ; i++, k1 += K_MULT1, k2 += K_MULT2) {
-				a = adjustA(N, (long) (sqrt4N * sqrt1[i] + ROUND_UP_DOUBLE), k1);
+				// using the fusedMultiplyAdd operation defined in IEEE 754-2008 may give a small speedup if supported
+				a = adjustA(N, (long) Math.fma(sqrt4N, sqrt1[i], ROUND_UP_DOUBLE), k1);
 				test = a*a - k1 * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test && (gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) {
@@ -148,7 +117,7 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 				// the second parallel 45 * i loop gives ~4 % speedup if we
 				// avoid that we hit the same values as in the first 315 * i case
 				if (sqrt2[i] > Double.MIN_VALUE) {
-					a = adjustA(N, (long) (sqrt4N * sqrt2[i] + ROUND_UP_DOUBLE), k2);
+					a = adjustA(N, (long) Math.fma(sqrt4N, sqrt2[i], ROUND_UP_DOUBLE), k2);
 					test = a*a - k2 * fourN;
 					b = (long) Math.sqrt(test);
 					if (b*b == test && (gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) {
@@ -321,7 +290,7 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 				9170754184293724117L, // 63 bit
 			};
 		
-		Hart_Fast2Mult holf = new Hart_Fast2Mult(false);
+		Hart_Fast2Mult_FMA holf = new Hart_Fast2Mult_FMA(false);
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);

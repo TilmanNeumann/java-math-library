@@ -38,11 +38,4 @@ public interface GlobalFactoringOptions {
 	 * A switch to additionally turn on analysis of the number of Q-values with positive and negative sign.
 	 */
 	static final boolean ANALYZE_Q_SIGNS = false;
-	
-	/**
-	 * A switch to turn on using the "fused multiply-add" operation defined in IEEE 754-2008.
-	 * Support requires Java 9 and a Intel Haswell or AMD Piledriver CPU or later.
-	 * If supported this means a speed improvement; otherwise the emulation is very very slow.
-	 */
-	static final boolean USE_FMA = false;
 }
