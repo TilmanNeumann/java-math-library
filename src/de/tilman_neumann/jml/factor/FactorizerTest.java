@@ -90,12 +90,12 @@ public class FactorizerTest {
 			
 			// Hart's one line factorizer
 			//new Hart_Simple(),
-			new Hart_Fast(false), // best algorithm for semiprimes not having factors < cbrt(N), N<40 bit
+			new Hart_Fast(false),
 //			new Hart_Fast(true),
-			new Hart_TDiv_Race(), // good for any kind of numbers < 50 bit
-			new Hart_TDiv_Race2(), // good for semiprimes >= 45 bit, but fails for some N having small factors
+			new Hart_TDiv_Race(), 
+			new Hart_TDiv_Race2(),
 			new Hart_Squarefree(false),
-			new Hart_Fast2Mult(false),
+			new Hart_Fast2Mult(false), // best algorithm for semiprime N < 48 bit
 			new Hart_Fast2Mult_FMA(false),
 
 			// Lehman
@@ -103,7 +103,7 @@ public class FactorizerTest {
 			//new Lehman_Smith(false),
 			new Lehman_Fast(false), // the variant implemented by bsquared
 			//new Lehman_Fast(true),
-			new Lehman_CustomKOrder(false), // best algorithm for semiprimes not having factors < cbrt(N) at 40 to 50 bit
+			new Lehman_CustomKOrder(false),
 
 			// PollardRho
 			//new PollardRho(),
@@ -111,10 +111,10 @@ public class FactorizerTest {
 			//new PollardRhoBrent(),
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
-			new PollardRhoBrentMontgomery63(), // first long version, not optimized any further
-			new PollardRhoBrentMontgomeryR64Mul63(), // best algorithm for N from 50 to 57 bit
-			new PollardRhoBrentMontgomery64(), // best algorithm for N from 58 to 62 bit
-			new PollardRhoBrentMontgomery64_MH(), // best algorithm for N from 58 to 62 bit
+			new PollardRhoBrentMontgomery63(),
+			new PollardRhoBrentMontgomeryR64Mul63(),
+			new PollardRhoBrentMontgomery64(),
+			new PollardRhoBrentMontgomery64_MH(),
 			
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
@@ -141,8 +141,8 @@ public class FactorizerTest {
 			new TinyEcm64(),
 //			new TinyEcm64_MontSqr(),
 //			new TinyEcm64_MontInline(),
+			new TinyEcm64_MH(), // best algorithm for N from 48 to 62 bit
 //			new EllipticCurveMethod(-1),
-			new TinyEcm64_MH(),
 
 			// SIQS:
 			// * best until 220 bit: Sieve03gU + smallPowers + TDiv1L + Gauss
