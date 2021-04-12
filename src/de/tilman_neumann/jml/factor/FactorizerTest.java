@@ -84,7 +84,7 @@ public class FactorizerTest {
 			// Trial division
 //			new TDiv31(),
 //			new TDiv31Inverse(),
-//			new TDiv31Barrett(), // Fastest algorithm for N <= 26 bit
+//			new TDiv31Barrett(), // Fastest algorithm for N < 29 bit
 //			new TDiv63Inverse(1<<21),
 //			new TDiv().setTestLimit(1<<20),
 			
@@ -94,8 +94,8 @@ public class FactorizerTest {
 //			new Hart_Fast(true),
 			new Hart_TDiv_Race(), 
 			new Hart_TDiv_Race2(),
-			new Hart_Squarefree(false),
-			new Hart_Fast2Mult(false), // best algorithm for semiprime N < 48 bit
+			new Hart_Squarefree(false), // best algorithm for semiprime N for 29 to 37 bit
+			new Hart_Fast2Mult(false), // best algorithm for semiprime N for 38 to 47 bit
 			new Hart_Fast2Mult_FMA(false),
 
 			// Lehman
