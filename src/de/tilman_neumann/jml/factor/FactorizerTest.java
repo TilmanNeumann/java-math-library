@@ -142,7 +142,6 @@ public class FactorizerTest {
 //			new TinyEcm64_MontSqr(),
 //			new TinyEcm64_MontInline(),
 //			new EllipticCurveMethod(-1),
-			new TinyEcm64_v2(),
 			new TinyEcm64_MH(),
 
 			// SIQS:
