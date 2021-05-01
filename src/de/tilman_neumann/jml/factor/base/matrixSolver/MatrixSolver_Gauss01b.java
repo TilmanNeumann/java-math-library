@@ -27,6 +27,7 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 /**
  * A simple congruence equation system solver, doing Gaussian elimination.
  * Much faster than the first version due to improvements by Dave McGuigan.
+ * Best single-threaded Gaussian solver for N<=250 bit so far.
  * 
  * @author Tilman Neumann, Dave McGuigan
  */
