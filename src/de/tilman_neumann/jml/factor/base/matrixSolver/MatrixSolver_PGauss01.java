@@ -1,6 +1,6 @@
 /*
- * PSIQS 4.0 is a Java library for integer factorization, including a parallel self-initializing quadratic sieve (SIQS).
- * Copyright (C) 2018  Tilman Neumann (www.tilman-neumann.de)
+ * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
+ * Copyright (C) 2018 Tilman Neumann (www.tilman-neumann.de)
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -30,34 +30,28 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
  * 
  * @author David McGuigan (adapted from Tilman Neumann Gauss)
  */
-public class MatrixSolver_PGauss extends MatrixSolverBase02 {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = Logger.getLogger(MatrixSolver_PGauss.class);
+public class MatrixSolver_PGauss01 extends MatrixSolverBase02 {
 
-	int solveThreads = 8;
-	int lockBlock = 100;  // number of pivot rows locked at a time
+	private static final Logger LOG = Logger.getLogger(MatrixSolver_PGauss01.class);
 
-	public MatrixSolver_PGauss() {
-		super();	
-	}
+	final int solveThreads;
 
-	public MatrixSolver_PGauss(int threads, int lockBlock) {
+	public MatrixSolver_PGauss01(int threads) {
 		super();
 		this.solveThreads = threads;
-		this.lockBlock = lockBlock;
 	}
 
 	@Override
 	public String getName() {
-		return "PGaussSolver("+solveThreads+","+lockBlock+")";
+		return "PGaussSolver01(" + solveThreads + ")";
 	}
 
-		
+	
 	// the threads need access to these
 	List<Smooth> congruences;  // input list of congruences, needed when a null vector is found
 	List<MatrixRow> rows;      // input list of rows, needed when a null vector is found
 	private MatrixRow[] pivotRowsForColumns; // storage for the pivot rows as they are found
-	private ReentrantLock[] locks;  // for guarding writing to pivotRowsForColumns
+	private ReentrantLock[] columnLocks;  // for guarding writing to pivotRowsForColumns
 
 	private volatile FactorException factorFound;  // needed to pass the exception back from the threads
 	
@@ -74,37 +68,33 @@ public class MatrixSolver_PGauss extends MatrixSolverBase02 {
 	// the pivot row for further rows having that column
 	private class PivotThread extends Thread {
 
-		public PivotThread() {
-			super();
-		}
-		
-
-		public void process(MatrixRow row) throws FactorException {
+		public void process(int rowIndex) throws FactorException {
+			MatrixRow row = rows.get(rowIndex);
 			int columnIndex = row.getBiggestColumnIndex();
-			while(columnIndex >= 0) {
-				MatrixRow pivot = pivotRowsForColumns[columnIndex];
-				if(pivot == null) {
-					int lock = columnIndex/lockBlock;
-					locks[lock].lock();
+			while (columnIndex >= 0) {
+				MatrixRow pivotRow = pivotRowsForColumns[columnIndex];
+				if (pivotRow == null) {
+					columnLocks[columnIndex].lock();
 					try {
-						pivot = pivotRowsForColumns[columnIndex];
-						if(pivot == null) {
+						pivotRow = pivotRowsForColumns[columnIndex];
+						if (pivotRow == null) {
 							pivotRowsForColumns[columnIndex] = row;
+							// TODO addXor with other pivot rows ?
 							return;
 						}
 					} finally {
-						locks[lock].unlock();
+						columnLocks[columnIndex].unlock();
 					}
 				}
 				
-				// solution operations taken directly from original MatrixSolver_Gauss01 ++
-				row.addXor(pivot); // This operation should be fast!
+				// solution operations taken directly from original MatrixSolver_Gauss01
+				row.addXor(pivotRow); // This operation should be fast!
 				if (row.isNullVector()) {
 					//LOG.debug("solve(): 5: Found null-vector: " + row);
 					// Found null vector -> recover the set of AQ-pairs from its row index history
 					HashSet<AQPair> totalAQPairs = new HashSet<AQPair>(); // Set required for the "xor"-operation below
-					for (int rowIndex : row.getRowIndexHistoryAsList()) {
-						Smooth congruence = congruences.get(rowIndex);
+					for (int rowIndex2 : row.getRowIndexHistoryAsList()) {
+						Smooth congruence = congruences.get(rowIndex2);
 						// add the new AQ-pairs via "xor"
 						congruence.addMyAQPairsViaXor(totalAQPairs);
 					}
@@ -121,13 +111,13 @@ public class MatrixSolver_PGauss extends MatrixSolverBase02 {
 		@Override
 		public void run() {
 			
-			while(factorFound == null) {
+			while (factorFound == null) {
 				int rowNum = getNextRow();
-				if(rowNum>=rows.size()) {
+				if (rowNum>=rows.size()) {
 					return;
 				}
 				try {
-					process(rows.get(rowNum));
+					process(rowNum);
 				} catch (FactorException e) {
 					// trap the exception so run() is compatible with override
 					factorFound = e;
@@ -149,13 +139,12 @@ public class MatrixSolver_PGauss extends MatrixSolverBase02 {
 		this.congruences = congruences;
 		this.rows = createMatrix(congruences, factors_2_columnIndices); // create the matrix
 		
-		int numColumn = factors_2_columnIndices.size();
-		pivotRowsForColumns = new MatrixRow[numColumn];
+		int numColumns = factors_2_columnIndices.size();
+		pivotRowsForColumns = new MatrixRow[numColumns];
 		
-		int numLocks = (numColumn+lockBlock-1)/lockBlock;
-		locks = new ReentrantLock[numLocks];
-		for(int i=0; i<numLocks; i++) {
-			locks[i] = new ReentrantLock();
+		columnLocks = new ReentrantLock[numColumns];
+		for (int i=0; i<numColumns; i++) {
+			columnLocks[i] = new ReentrantLock();
 		}
 
 		//set up for iteration
@@ -164,22 +153,22 @@ public class MatrixSolver_PGauss extends MatrixSolverBase02 {
 		
 		// release the hounds!
 		PivotThread[] threads = new PivotThread[solveThreads];
-		for(int i=0; i<solveThreads; i++) {
+		for (int i=0; i<solveThreads; i++) {
 			threads[i] = new PivotThread();
 			threads[i].setName("S-"+i);
 			threads[i].start();
 		}
 
 		// take a nap while the threads work
-		for(PivotThread t : threads) {
+		for (PivotThread t : threads) {
 			try {
 				t.join();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.debug(e, e);
 			}
 		}
-		if(factorFound != null) {
+		
+		if (factorFound != null) {
 			throw factorFound;  // pass on the exception found by the threads
 		}
 	}
