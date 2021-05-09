@@ -78,8 +78,10 @@ public class MatrixSolver_PGauss01 extends MatrixSolverBase02 {
 					try {
 						pivotRow = pivotRowsForColumns[columnIndex];
 						if (pivotRow == null) {
+							// If we assign 'row' as a new pivot row, it can't be combined anymore via addXor() with pivot rows for other columns.
+							// This seems safe though because Gauss reduction only combines rows having the same highest column index.
+							// Previous pivot rows do not satisfy that criterion.
 							pivotRowsForColumns[columnIndex] = row;
-							// TODO addXor with other pivot rows ?
 							return;
 						}
 					} finally {
