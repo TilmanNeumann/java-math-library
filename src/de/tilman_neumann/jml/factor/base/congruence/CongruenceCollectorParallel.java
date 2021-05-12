@@ -41,7 +41,7 @@ public class CongruenceCollectorParallel extends CongruenceCollector {
 	// The number of congruences we need to find before we try to solve the smooth congruence equation system:
 	// We want: #equations = #variables + some extra congruences
 	private int requiredSmoothCongruenceCount;
-	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^(extraCongruences+1)
+	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^-(extraCongruences+1)
 	private int extraCongruences;
 	
 	private MatrixSolverBase01 matrixSolver;
