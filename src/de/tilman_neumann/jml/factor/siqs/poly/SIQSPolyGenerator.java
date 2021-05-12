@@ -147,7 +147,7 @@ public class SIQSPolyGenerator {
 		int solutionsCount = mergedBaseSize - qCount;
 		solutionArrays = new SolutionArrays(solutionsCount, qCount);
 		// Bainv2: full initialization.
-		// The sub-arrays are in reverse order compared to [Contini], which almost doubles the speed of nextXArrays().
+		// The array indices are in reverse order compared to [Contini], which almost doubles the speed of nextXArrays().
 		// The maximum v value is qCount-1 -> allocation with qCount-1 is sufficient.
 		Bainv2Array = new int[qCount-1][solutionsCount];
 
