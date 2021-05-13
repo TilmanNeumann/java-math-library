@@ -147,12 +147,12 @@ public class SIQS extends FactorAlgorithm {
 		
 		// the quadratic sieve does not work for pure powers
 		PurePowerTest.Result purePower = powerTest.test(N);
+		if (ANALYZE) powerTestDuration += timer.capture();
 		if (purePower!=null) {
 			// N is indeed a pure power. In contrast to findSingleFactor() we can also add the exponent, so following steps get faster
 			result.untestedFactors.add(purePower.base, purePower.exponent);
 			return;
 		} // else: no pure power, run quadratic sieve
-		if (ANALYZE) powerTestDuration += timer.capture();
 		
 		// run quadratic sieve
 		BigInteger factor1 = findSingleFactorInternal(N);
@@ -180,11 +180,11 @@ public class SIQS extends FactorAlgorithm {
 
 		// the quadratic sieve does not work for pure powers; check that first:
 		PurePowerTest.Result purePower = powerTest.test(N);
+		if (ANALYZE) powerTestDuration += timer.capture();
 		if (purePower!=null) {
 			// N is indeed a pure power -> return a factor that is about sqrt(N)
 			return purePower.base.pow(purePower.exponent>>1);
 		} // else: no pure power, run quadratic sieve
-		if (ANALYZE) powerTestDuration += timer.capture();
 		
 		// run quadratic sieve
 		return findSingleFactorInternal(N);
@@ -297,7 +297,6 @@ public class SIQS extends FactorAlgorithm {
 			if (TEST_SIEVE) testSieve(aqPairs, adjustedSieveArraySize);
 
 			// add all congruences
-			if (ANALYZE) timer.capture();
 			congruenceCollector.collectAndProcessAQPairs(aqPairs);
 			if (congruenceCollector.factor != null) {
 				BigInteger factor = congruenceCollector.factor;
