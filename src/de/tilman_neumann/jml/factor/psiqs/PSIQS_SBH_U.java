@@ -15,7 +15,7 @@ package de.tilman_neumann.jml.factor.psiqs;
 
 import java.math.BigInteger;
 
-import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorParallel;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
@@ -58,7 +58,7 @@ public class PSIQS_SBH_U extends PSIQSBase {
 
 	protected PSIQSThreadBase createThread(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
-			AParamGenerator apg, CongruenceCollectorParallel cc, int threadIndex) {
+			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		
 		return new PSIQSThread_SBH_U(k, N, kN, d, sieveParams, baseArrays, blockSize, apg, cc, threadIndex);
 	}

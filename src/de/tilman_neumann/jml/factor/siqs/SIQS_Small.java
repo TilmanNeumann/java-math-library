@@ -20,20 +20,17 @@ import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_Q
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
@@ -99,14 +96,12 @@ public class SIQS_Small extends FactorAlgorithm {
 	private TDiv_QS auxFactorizer;
 	// collects the congruences we find
 	private CongruenceCollector congruenceCollector;
-	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^(extraCongruences+1)
-	private int extraCongruences;
 	/** The solver used for smooth congruence equation systems. */
 	private MatrixSolverBase01 matrixSolver;
 	
 	// statistics
 	private Timer timer = new Timer();
-	private long powerTestDuration, initNDuration, ccDuration, solverDuration;
+	private long powerTestDuration, initNDuration;
 	private int solverRunCount;
 	
 	/**
@@ -133,9 +128,8 @@ public class SIQS_Small extends FactorAlgorithm {
 		this.polyGenerator = polyGenerator;
 		this.useUnsafe = permitUnsafeUsage;
 		this.sieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
-		this.congruenceCollector = new CongruenceCollector();
+		this.congruenceCollector = new CongruenceCollector(extraCongruences);
 		this.auxFactorizer = new TDiv_QS_Small();
-		this.extraCongruences = extraCongruences;
 		this.matrixSolver = new MatrixSolver_Gauss02();
 		apg = new AParamGenerator01(wantedQCount);
 	}
@@ -150,7 +144,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	public void searchFactors(FactorArguments args, FactorResult result) {
 		if (ANALYZE) {
 			timer.start(); // start timer
-			powerTestDuration = initNDuration = ccDuration = solverDuration = 0;
+			powerTestDuration = initNDuration = 0;
 			solverRunCount = 0;
 		}
 
@@ -174,7 +168,7 @@ public class SIQS_Small extends FactorAlgorithm {
 			return;
 		}
 
-		return; // nothing found
+		// nothing found
 	}
 
 	/**
@@ -185,7 +179,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	public BigInteger findSingleFactor(BigInteger N) {
 		if (ANALYZE) {
 			timer.start(); // start timer
-			powerTestDuration = initNDuration = ccDuration = solverDuration = 0;
+			powerTestDuration = initNDuration = 0;
 			solverRunCount = 0;
 		}
 
@@ -223,10 +217,6 @@ public class SIQS_Small extends FactorAlgorithm {
 		}
 		int primeBaseSize = Math.max(30, (int) primeBaseSize_dbl); // min. size for very small N
 		int[] primesArray = new int[primeBaseSize];
-
-		// The number of congruences we need to find before we try to solve the smooth congruence equation system:
-		// We want: #equations = #variables + some extra congruences
-		int requiredSmoothCongruenceCount = primeBaseSize + extraCongruences;
 
 		// compute Knuth-Schroppel multiplier
 		int k = multiplierFinder.computeMultiplier(N);
@@ -269,8 +259,8 @@ public class SIQS_Small extends FactorAlgorithm {
 		// initialize sub-algorithms for new N
 		apg.initialize(k, N, kN, d, primeBaseSize, primesArray, tArray, adjustedSieveArraySize); // must be done before polyGenerator initialization where qCount is required
 		FactorTest factorTest = new FactorTest01(N);
-		congruenceCollector.initialize(N, factorTest);
 		matrixSolver.initialize(N, factorTest);
+		congruenceCollector.initialize(N, primeBaseSize, matrixSolver, factorTest);
 
 		// compute some basic parameters for N
 		SieveParams sieveParams = new SieveParams(kN, primesArray, primeBaseSize, adjustedSieveArraySize, maxQRest, 127);
@@ -291,68 +281,30 @@ public class SIQS_Small extends FactorAlgorithm {
 		polyGenerator.initializeForN(k, N, kN, d, sieveParams, baseArrays, apg, sieve, auxFactorizer);
 		if (ANALYZE) initNDuration += timer.capture();
 
-		try {
-			while (true) {
-				// create new polynomial Q(x)
-				polyGenerator.nextPolynomial(); // sets filtered prime base in SIQS
-	
-				// run sieve and get the sieve locations x where Q(x) is sufficiently smooth
-				List<Integer> smoothXList = sieve.sieve();
-				//LOG.debug("Sieve found " + smoothXList.size() + " Q(x) smooth enough to be passed to trial division.");
+		while (true) {
+			// create new polynomial Q(x)
+			polyGenerator.nextPolynomial(); // sets filtered prime base in SIQS
 
-				// trial division stage: produce AQ-pairs
-				List<AQPair> aqPairs = this.auxFactorizer.testList(smoothXList);
-				//LOG.debug("Trial division found " + aqPairs.size() + " Q(x) smooth enough for a congruence.");
+			// run sieve and get the sieve locations x where Q(x) is sufficiently smooth
+			List<Integer> smoothXList = sieve.sieve();
+			//LOG.debug("Sieve found " + smoothXList.size() + " Q(x) smooth enough to be passed to trial division.");
 
-				// add all congruences
-				if (ANALYZE) timer.capture();
-				for (AQPair aqPair : aqPairs) {
-					boolean addedSmooth = congruenceCollector.add(aqPair);
-					if (addedSmooth) {
-						int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();
-						if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
-							// Try to solve equation system
-							if (ANALYZE) {
-								ccDuration += timer.capture();
-								solverRunCount++;
-								if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
-							}
-							ArrayList<Smooth> congruences = congruenceCollector.getSmoothCongruences();
-							matrixSolver.solve(congruences); // throws FactorException
-							
-							// If we get here then there was no FactorException
-							if (DEBUG) {
-								// Log all congruences
-								LOG.debug("Failed solver run with " + smoothCongruenceCount + " congruences:");
-								for (Smooth smooth : congruences) {
-									LOG.debug("    " + smooth.toString());
-								}
-							}
-							
-							if (ANALYZE) solverDuration += timer.capture();
-							// Extend equation system and continue searching smooth congruences
-							requiredSmoothCongruenceCount += extraCongruences;
-						}
-					}
-				}
-				if (ANALYZE) ccDuration += timer.capture();
-				if (DEBUG) {
-					if (ANALYZE) LOG.debug(polyGenerator.getName() + ": " + polyGenerator.getReport().getOperationDetails());
-					LOG.debug("Sieve found " + smoothXList.size() + " smooth x, tDiv let " + aqPairs.size() + " pass.");
-					LOG.debug("-> Now in total we have found " + congruenceCollector.getSmoothCongruenceCount() + " / " + requiredSmoothCongruenceCount + " smooth congruences and " + congruenceCollector.getPartialCongruenceCount() + " partials.");
-				}
-			} // end poly
-		} catch (FactorException fe) {
-			BigInteger factor = fe.getFactor();
-			if (ANALYZE) {
-				solverDuration += timer.capture();
-				logResults(N, k, kN, factor, primeBaseSize, pMax, adjustedSieveArraySize);
+			// trial division stage: produce AQ-pairs
+			List<AQPair> aqPairs = this.auxFactorizer.testList(smoothXList);
+			//LOG.debug("Trial division found " + aqPairs.size() + " Q(x) smooth enough for a congruence.");
+
+			// add all congruences
+			if (ANALYZE) timer.capture();
+			congruenceCollector.collectAndProcessAQPairs(aqPairs);
+			if (congruenceCollector.factor != null) {
+				BigInteger factor = congruenceCollector.factor;
+				if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, pMax, adjustedSieveArraySize);
+				
+				// release memory after a factorization; this improves the accuracy of timings when several algorithms are tested in parallel
+				this.cleanUp();
+				// done
+				return factor;
 			}
-			
-			// release native memory after each Q-rest factorization
-			this.sieve.cleanUp();
-			// done
-			return factor;
 		}
 	}
 
@@ -401,16 +353,14 @@ public class SIQS_Small extends FactorAlgorithm {
 			LOG.info("        " + ccReport.getSmoothQSignCounts());
 		}
 		LOG.info("    #solverRuns = " + solverRunCount + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
-		LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + ccDuration + "ms, solver=" + solverDuration + "ms");
+		LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + congruenceCollector.getCollectDuration() + "ms, solver=" + congruenceCollector.getSolverDuration() + "ms");
 		LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(1));
 		LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(1));
 		LOG.info("    -> tdiv sub-timings: " + tdivReport.getPhaseTimings(1));
+		
 		// CC and solver have no sub-timings yet
 	}
 	
-	/**
-	 * Clean up after a factorization of N.
-	 */
 	public void cleanUp() {
 		apg.cleanUp();
 		polyGenerator.cleanUp();

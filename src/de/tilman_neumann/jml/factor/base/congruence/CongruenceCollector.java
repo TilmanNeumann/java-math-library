@@ -20,13 +20,16 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
+import de.tilman_neumann.util.Timer;
 
 /**
  * Collects smooth and partial congruences, and assembles partials to smooth congruences on-the-fly.
@@ -52,15 +55,61 @@ public class CongruenceCollector {
 	private PartialSolver partialSolver = new PartialSolver();
 	/** factor tester */
 	private FactorTest factorTest;
-	/** cycle counter */
+	/** cycle counter/finder (experimental) */
 	private CycleFinder cycleFinder;
 	
+	// The number of congruences we need to find before we try to solve the smooth congruence equation system:
+	// We want: #equations = #variables + some extra congruences
+	private int requiredSmoothCongruenceCount;
+	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^-(extraCongruences+1)
+	private int extraCongruences;
+	
+	private MatrixSolverBase01 matrixSolver;
+	
+	// Storing a found factor in this class permits it to be retrieved by multiple threads
+	public BigInteger factor;
+
 	// statistics
 	private int perfectSmoothCount, totalPartialCount;
 	private int[] smoothFromPartialCounts, partialCounts;
 	private Multiset<Integer> oddExpBigFactorSizes4Smooth, oddExpBigFactorSizes;
 	private int partialWithPositiveQCount, smoothWithPositiveQCount;
 	
+	private Timer timer = new Timer();
+	private long ccDuration, solverDuration;
+	private int solverRunCount;
+
+	/**
+	 * Default constructor that expects 10 more equations than variables to run the matrix solver.
+	 */
+	public CongruenceCollector() {
+		this(10);
+	}
+
+	/**
+	 * Full constructor.
+	 * @param extraCongruences The difference #equations-#variables required before the solver is started.
+	 */
+	public CongruenceCollector(int extraCongruences) {
+		this.extraCongruences = extraCongruences;
+	}
+	
+	/**
+	 * Initialize congruence collector for a new N.
+	 * @param N
+	 * @param primeBaseSize
+	 * @param matrixSolver
+	 * @param factorTest
+	 */
+	public void initialize(BigInteger N, int primeBaseSize, MatrixSolverBase01 matrixSolver, FactorTest factorTest) {
+		this.initialize(N, factorTest);
+		this.requiredSmoothCongruenceCount = primeBaseSize + extraCongruences;
+		this.matrixSolver = matrixSolver;
+		ccDuration = solverDuration = 0;
+		solverRunCount = 0;
+		factor = null;
+	}
+
 	/**
 	 * Initialize congruence collector for a new N.
 	 * @param N
@@ -91,7 +140,56 @@ public class CongruenceCollector {
 			smoothWithPositiveQCount = 0;
 		}
 	}
-	
+
+	/**
+	 * Collect AQ pairs and run the matrix solver if appropriate.
+	 * In a multi-threaded algorithm, this method needs to be run from inside a synchronized block.
+	 * @param aqPairs
+	 */
+	public void collectAndProcessAQPairs(List<AQPair> aqPairs) {
+		//LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
+		try {
+			// Add new data to the congruenceCollector and eventually run the matrix solver.
+			if (ANALYZE) timer.capture();
+			for (AQPair aqPair : aqPairs) {
+				boolean addedSmooth = add(aqPair);
+				if (addedSmooth) {
+					int smoothCongruenceCount = getSmoothCongruenceCount();
+					if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
+						// Try to solve equation system
+						if (ANALYZE) {
+							ccDuration += timer.capture();
+							solverRunCount++;
+							if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
+						}
+						ArrayList<Smooth> congruences = getSmoothCongruences();
+						// The matrix solver should also run synchronized, because blocking the other threads
+						// means that the current thread can run at a higher clock rate.
+						matrixSolver.solve(congruences); // throws FactorException
+						
+						// If we get here then there was no FactorException
+						if (DEBUG) {
+							// Log all congruences
+							LOG.debug("Failed solver run with " + smoothCongruenceCount + " congruences:");
+							for (Smooth smooth : congruences) {
+								LOG.debug("    " + smooth.toString());
+							}
+						}
+
+						if (ANALYZE) solverDuration += timer.capture();
+						// Extend equation system and continue searching smooth congruences
+						requiredSmoothCongruenceCount += extraCongruences;
+					}
+				}
+			}
+			if (ANALYZE) ccDuration += timer.capture();
+		} catch (FactorException fe) {
+			factor = fe.getFactor();
+			if (ANALYZE) solverDuration += timer.capture();
+			return;
+		}
+	}
+
 	/**
 	 * Add a new elementary partial or smooth congruence.
 	 * @param aqPair
@@ -266,6 +364,13 @@ public class CongruenceCollector {
 	}
 
 	/**
+	 * @return number of smooth congruences required before the matrix solver is called
+	 */
+	public int getRequiredSmoothCongruenceCount() {
+		return requiredSmoothCongruenceCount;
+	}
+
+	/**
 	 * @return number of smooth congruences found so far.
 	 */
 	public int getSmoothCongruenceCount() {
@@ -296,6 +401,18 @@ public class CongruenceCollector {
 		return cycleFinder.getCycleCountResult();
 	}
 	
+	public long getCollectDuration() {
+		return ccDuration;
+	}
+	
+	public long getSolverDuration() {
+		return solverDuration;
+	}
+	
+	public int getSolverRunCount() {
+		return solverRunCount;
+	}
+
 	/**
 	 * Release memory after a factorization.
 	 */

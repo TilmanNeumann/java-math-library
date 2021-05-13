@@ -19,7 +19,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorParallel;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
@@ -41,7 +41,7 @@ abstract public class PSIQSThreadBase extends Thread {
 	protected SIQSPolyGenerator polyGenerator;
 	protected Sieve sieve;
 	protected TDiv_QS auxFactorizer;
-	private CongruenceCollectorParallel cc;
+	private CongruenceCollector congruenceCollector;
 	private boolean finishNow = false;
 
 	/**
@@ -62,7 +62,7 @@ abstract public class PSIQSThreadBase extends Thread {
 	public PSIQSThreadBase(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, 
 			BaseArrays baseArrays, AParamGenerator apg, SIQSPolyGenerator polyGenerator,
-			Sieve sieve, TDiv_QS tdiv, CongruenceCollectorParallel cc, int threadIndex) {
+			Sieve sieve, TDiv_QS tdiv, CongruenceCollector cc, int threadIndex) {
 		
 		// set thread name
 		super("T-" + threadIndex);
@@ -71,7 +71,7 @@ abstract public class PSIQSThreadBase extends Thread {
 		this.polyGenerator = polyGenerator;
 		this.sieve = sieve;
 		this.auxFactorizer = tdiv;
-		this.cc = cc;
+		this.congruenceCollector = cc;
 		
 		// initialize polynomial generator and sub-engines
 		// apg is already initialized and the same object for all threads -> a-parameter generation is synchronized on it
@@ -93,14 +93,14 @@ abstract public class PSIQSThreadBase extends Thread {
 
 			if (aqPairs.size()>0) {
 				// add all congruences synchronized and notify control thread
-				synchronized (cc) {
-					if (cc.factor == null) {
-						cc.collectAndProcessAQPairs(aqPairs);
+				synchronized (congruenceCollector) {
+					if (congruenceCollector.factor == null) {
+						congruenceCollector.collectAndProcessAQPairs(aqPairs);
 					}
-					if (cc.factor != null) {
+					if (congruenceCollector.factor != null) {
 						finishNow = true;
-						if (DEBUG) LOG.debug("Thread " + getName() + " found factor " + cc.factor + " and is done.");
-						cc.notify();
+						if (DEBUG) LOG.debug("Thread " + getName() + " found factor " + congruenceCollector.factor + " and is done.");
+						congruenceCollector.notify();
 					}
 				}
 			}
