@@ -143,10 +143,12 @@ public class CFrac63 extends FactorAlgorithm {
 		this.combinedPrimesSet = new HashSet<Integer>();
 		this.matrixSolver.initialize(N, factorTest);
 
-		// max iterations: there is no need to account for k, because expansions of smooth kN are typically not longer than those for N.
-		// long maxI is sufficient to hold any practicable number of iteration steps (~9.22*10^18);
-		// stopRoot must be chosen appropriately such that there is no overflow of long values.
-		// with stopRoot=5, the overflow of longs starts at N~6.67 * 10^94...
+		// Max iterations per multiplier:
+		// * Multiplier switching seems to useful for small factor arguments only (<60 bit), but it may be worth to keep it for further experiments
+		// * There is no need to account for k in the computation of maxI, because expansions of smooth kN are typically not longer than those for N.
+		// * long maxI is sufficient to hold any practicable number of iteration steps (~9.22*10^18);
+		// * stopRoot must be chosen appropriately such that there is no overflow of long values.
+		//   With stopRoot=5, the overflow of longs starts at N~6.67 * 10^94...
 		this.maxI = (long) (stopMult*Math.pow(N_dbl, 1.0/stopRoot));
 		
 		// compute multiplier k: though k=1 is better than Knuth-Schroeppel for N<47 bits,

@@ -48,11 +48,13 @@ import de.tilman_neumann.util.Timer;
  * CFrac = Shanks' SQUFOF algorithm + carry along continuant recurrence + collect smooth relations + LinAlg solver.<br/><br/>
  * 
  * The original CFrac was implemented by Morrison&Brillhart intending to factor the 7.th Fermat number F7 with 39 digits (~130 bits).
- * Now this number can be factored in about three seconds.
+ * Now this number can be factored single-threaded in a second or a few.
  * 
- * Stopping criterion for a single k: after complete period or at a maximum number of iterations.
- *
  * Since 2017-09 Knuth-Schroeppel multipliers have been implemented, too.
+ * 
+ * Stopping criterion for a single multiplier k: after complete period or at a maximum number of iterations.
+ * Switching multipliers seems to improve performance for small factor arguments (<60 bits) only;
+ * nonetheless we keep the code for possible further experiments.
  * 
  * @author Tilman Neumann
  */
@@ -159,10 +161,12 @@ public class CFrac extends FactorAlgorithm {
 		this.combinedPrimesSet = new HashSet<Integer>();
 		this.matrixSolver.initialize(N, factorTest);
 
-		// max iterations: there is no need to account for k, because expansions of smooth kN are typically not longer than those for N.
-		// long maxI is sufficient to hold any practicable number of iteration steps (~9.22*10^18);
-		// stopRoot must be chosen appropriately such that there is no overflow of long values.
-		// with stopRoot=5, the overflow of longs starts at N~6.67 * 10^94...
+		// Max iterations per multiplier:
+		// * Multiplier switching seems to useful for small factor arguments only (<60 bit), but it may be worth to keep it for further experiments
+		// * There is no need to account for k in the computation of maxI, because expansions of smooth kN are typically not longer than those for N.
+		// * long maxI is sufficient to hold any practicable number of iteration steps (~9.22*10^18);
+		// * stopRoot must be chosen appropriately such that there is no overflow of long values.
+		//   With stopRoot=5, the overflow of longs starts at N~6.67 * 10^94...
 		this.maxI = (long) (stopMult*Math.pow(N_dbl, 1.0/stopRoot));
 		
 		// compute multiplier k: though k=1 is better than Knuth-Schroeppel for N<47 bits,
