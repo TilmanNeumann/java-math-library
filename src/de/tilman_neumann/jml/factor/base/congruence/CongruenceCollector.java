@@ -65,6 +65,7 @@ public class CongruenceCollector {
 	private int extraCongruences;
 	
 	private MatrixSolverBase01 matrixSolver;
+	private boolean solverStarted = false;
 	
 	// Storing a found factor in this class permits it to be retrieved by multiple threads
 	public BigInteger factor;
@@ -140,56 +141,92 @@ public class CongruenceCollector {
 			smoothWithPositiveQCount = 0;
 		}
 	}
-
+	
 	/**
 	 * Collect AQ pairs and run the matrix solver if appropriate.
-	 * In a multi-threaded algorithm, this method needs to be run from inside a synchronized block.
+	 * In a multi-threaded factoring algorithm, this method needs to be run in a block synchronized on this.
+	 * This also speeds up single-threaded solvers like Block-Lanczos, because on modern CPUs single threads run at a higher clock rate.
 	 * @param aqPairs
+	 * @output this.factor
 	 */
 	public void collectAndProcessAQPairs(List<AQPair> aqPairs) {
 		//LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
 		try {
-			// Add new data to the congruenceCollector and eventually run the matrix solver.
-			if (ANALYZE) timer.capture();
 			for (AQPair aqPair : aqPairs) {
-				boolean addedSmooth = add(aqPair);
-				if (addedSmooth) {
-					int smoothCongruenceCount = getSmoothCongruenceCount();
-					if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
-						// Try to solve equation system
-						if (ANALYZE) {
-							ccDuration += timer.capture();
-							solverRunCount++;
-							if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
-						}
-						ArrayList<Smooth> congruences = getSmoothCongruences();
-						// The matrix solver should also run synchronized, because blocking the other threads
-						// means that the current thread can run at a higher clock rate.
-						matrixSolver.solve(congruences); // throws FactorException
-						
-						// If we get here then there was no FactorException
-						if (DEBUG) {
-							// Log all congruences
-							LOG.debug("Failed solver run with " + smoothCongruenceCount + " congruences:");
-							for (Smooth smooth : congruences) {
-								LOG.debug("    " + smooth.toString());
-							}
-						}
-
-						if (ANALYZE) solverDuration += timer.capture();
-						// Extend equation system and continue searching smooth congruences
-						requiredSmoothCongruenceCount += extraCongruences;
-					}
-				}
+				collectAndProcessAQPairInternal(aqPair);
 			}
-			if (ANALYZE) ccDuration += timer.capture();
 		} catch (FactorException fe) {
-			factor = fe.getFactor();
-			if (ANALYZE) solverDuration += timer.capture();
-			return;
+			finishAfterFactorWasFound(fe);
 		}
 	}
 
+	/**
+	 * Collect a single AQ pair and run the matrix solver if appropriate.
+	 * In a multi-threaded factoring algorithm, this method needs to be run in a block synchronized on this.
+	 * This also speeds up single-threaded solvers like Block-Lanczos, because on modern CPUs single threads run at a higher clock rate.
+	 * @param aqPair
+	 * @output this.factor
+	 */
+	public void collectAndProcessAQPair(AQPair aqPair) {
+		//LOG.debug("add new AQ-pair to CC");
+		try {
+			collectAndProcessAQPairInternal(aqPair);
+		} catch (FactorException fe) {
+			finishAfterFactorWasFound(fe);
+		}
+	}
+
+	/**
+	 * Collect a single AQ pair and run the matrix solver if appropriate.
+	 * @param aqPair
+	 * @throws FactorException if a factor has been found, either from a square congruence or in a matrix solver run
+	 */
+	private void collectAndProcessAQPairInternal(AQPair aqPair) throws FactorException {
+		if (ANALYZE) timer.capture();
+		boolean addedSmooth = add(aqPair); // throws FactorException
+		if (addedSmooth) {
+			int smoothCongruenceCount = getSmoothCongruenceCount();
+			if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
+				// Try to solve equation system
+				if (ANALYZE) {
+					solverStarted = true;
+					ccDuration += timer.capture();
+					solverRunCount++;
+					if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
+				}
+				ArrayList<Smooth> congruences = getSmoothCongruences();
+				matrixSolver.solve(congruences); // throws FactorException
+				// If we get here, then the matrix solver run failed to find a factor
+				if (DEBUG) {
+					// Log all congruences
+					LOG.debug("Failed solver run with " + smoothCongruenceCount + " congruences:");
+					for (Smooth smooth : congruences) {
+						LOG.debug("    " + smooth.toString());
+					}
+				}
+				if (ANALYZE) {
+					solverDuration += timer.capture();
+					solverStarted = false;
+				}
+				// Extend equation system and continue searching smooth congruences
+				requiredSmoothCongruenceCount += extraCongruences;
+			}
+		}
+		if (ANALYZE) ccDuration += timer.capture();
+	}
+
+	private void finishAfterFactorWasFound(FactorException fe) {
+		factor = fe.getFactor();
+		if (ANALYZE) {
+			if (solverStarted) { // factor found by matrix solver
+				solverDuration += timer.capture();
+				solverStarted = false;
+			} else { // factor found from square congruence
+				ccDuration += timer.capture();
+			}
+		}
+	}
+	
 	/**
 	 * Add a new elementary partial or smooth congruence.
 	 * @param aqPair
