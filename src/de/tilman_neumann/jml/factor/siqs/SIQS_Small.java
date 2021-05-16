@@ -299,8 +299,10 @@ public class SIQS_Small extends FactorAlgorithm {
 				BigInteger factor = congruenceCollector.factor;
 				if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, pMax, adjustedSieveArraySize);
 				
-				// release memory after a factorization; this improves the accuracy of timings when several algorithms are tested in parallel
-				this.cleanUp();
+				// ATTENTION: SIQS_Small is only used to factor auxiliary Q-numbers for N with 320 bit or more.
+				// ATTENTION: After a Q-factorization we only want to clean up the sieve, in case it allocated native memory!
+				// ATTENTION: This behavior is different from SIQS or PSIQS.
+				this.sieve.cleanUp();
 				// done
 				return factor;
 			}
@@ -363,7 +365,9 @@ public class SIQS_Small extends FactorAlgorithm {
 	public void cleanUp() {
 		apg.cleanUp();
 		polyGenerator.cleanUp();
-		// the sieve is not cleaned here but after each Q-rest factorization, just in case it is using native memory
+		// ATTENTION: This is the cleanup after a complete N was factorized.
+		// ATTENTION: But SIQS_Small is only used to factor auxiliary Q-numbers for N >= 320 bit.
+		// ATTENTION: In case it uses native memory, we clean the sieve of SIQS-Small after each Q-factorization, not here.
 		auxFactorizer.cleanUp();
 		congruenceCollector.cleanUp();
 		matrixSolver.cleanUp();
