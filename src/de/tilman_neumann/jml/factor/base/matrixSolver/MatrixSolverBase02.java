@@ -180,7 +180,7 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 	
 	/**
 	 * Remove singletons by maintaining a structure of what primes have been seen
-	 * multiple times. When a prime is first seen the congurence is held as a 
+	 * multiple times. When a prime is first seen the congruence is held as a 
 	 * possible singleton. When a prime has been matched, processing of the current 
 	 * congruence and held congruence can proceed. Any other congruences with that
 	 * prime seen after matching can just proceed.
@@ -224,15 +224,15 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 				}
 				// the current entry may have examined all it's primes
 				if (entry != null) {
-					if(entry.currentPrimeIndex>=entry.congruence.getMatrixElements().length) {
+					if (entry.currentPrimeIndex>=entry.congruence.getMatrixElements().length) {
 						// every factor seen at least twice
 						noSingles.add(entry.congruence);
 						entry = null;						
 					}
 				}
-				// if teh current entry is complete, see it there's more in the stack to do.
+				// if the current entry is complete, see it there's more in the stack to do.
 				if (entry == null) {
-					if(stack.size()>0) {
+					if (stack.size()>0) {
 						entry = stack.removeFirst();
 					}
 				}

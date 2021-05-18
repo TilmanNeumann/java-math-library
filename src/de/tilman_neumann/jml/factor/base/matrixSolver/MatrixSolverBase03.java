@@ -166,7 +166,7 @@ abstract public class MatrixSolverBase03 extends MatrixSolverBase01 {
 				}
 			}
 			
-			factors_2_indices= new HashMap<Integer,Integer>(oddExpFactors.size());
+			factors_2_indices = new HashMap<Integer,Integer>(oddExpFactors.size());
 			int index = 0;
 			for (Integer f : oddExpFactors) {
 				factors_2_indices.put(f, index++);
@@ -196,7 +196,7 @@ abstract public class MatrixSolverBase03 extends MatrixSolverBase01 {
 	
 	/**
 	 * Remove singletons by maintaining a structure of what primes have been seen
-	 * multiple times. When a prime is first seen the congurence is held as a 
+	 * multiple times. When a prime is first seen the congruence is held as a 
 	 * possible singleton. When a prime has been matched, processing of the current 
 	 * congruence and held congruence can proceed. Any other congruences with that
 	 * prime seen after matching can just proceed.
@@ -246,7 +246,7 @@ abstract public class MatrixSolverBase03 extends MatrixSolverBase01 {
 						entry = null;						
 					}
 				}
-				// if teh current entry is complete, see it there's more in the stack to do.
+				// if the current entry is complete, see it there's more in the stack to do.
 				if (entry == null) {
 					if (stack.size()>0) {
 						entry = stack.removeFirst();
