@@ -98,9 +98,9 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 		List<Smooth> noSingletons = new ArrayList<Smooth>(congruences.size());
 		int nextPrimeIndex = 0;
 		Map<Integer,Integer> primeIndexMap = new HashMap<Integer,Integer>(congruences.size());
-		for(Smooth congruence : congruences) {
-			for(Integer p : congruence.getMatrixElements()) {
-				if(!primeIndexMap.containsKey(p)) {
+		for (Smooth congruence : congruences) {
+			for (Integer p : congruence.getMatrixElements()) {
+				if (!primeIndexMap.containsKey(p)) {
 					primeIndexMap.put(p, nextPrimeIndex++);
 				}
 			}
@@ -111,19 +111,19 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 		final int DELTA = 0;
 		int lastSize = congruences.size();
 		noSingletons = removeSingletons(congruences, primeIndexMap);
-		while(lastSize-noSingletons.size()>DELTA) {
+		while (lastSize-noSingletons.size()>DELTA) {
 			lastSize = noSingletons.size();
 			noSingletons = removeSingletons(noSingletons, primeIndexMap);
 		}
 
 		// 2. Re-map odd-exp-elements to column indices and sort if appropriate.		
 		Map<Integer, Integer> factors_2_indices;
-		if(sortIndices()) {
+		if (sortIndices()) {
 			Map<Integer,IntHolder> oddExpFactors = new HashMap<Integer,IntHolder>(primeIndexMap.size());
 			for (Smooth congruence : noSingletons) {
-				for(int f : congruence.getMatrixElements()) {
+				for (int f : congruence.getMatrixElements()) {
 					IntHolder h = oddExpFactors.get(f);
-					if(h == null) {
+					if (h == null) {
 						oddExpFactors.put(f, new IntHolder());
 					} else {
 						h.increment();
@@ -135,7 +135,7 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 			Set<Map.Entry<Integer,IntHolder>> l = oddExpFactors.entrySet();
 			Object[] sorted = l.toArray();
 			Arrays.sort(sorted,new CompareEntry());
-			for(int index=0; index<sorted.length; index++) {
+			for (int index=0; index<sorted.length; index++) {
 				@SuppressWarnings("unchecked")
 				Entry<Integer,IntHolder> e = (Entry<Integer,IntHolder>)sorted[index];
 				factors_2_indices.put(e.getKey(), index);
@@ -143,14 +143,14 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 		} else {
 			Set<Integer> oddExpFactors = new HashSet<Integer>(primeIndexMap.size());
 			for (Smooth congruence : noSingletons) {
-				for(int f : congruence.getMatrixElements()) {
+				for (int f : congruence.getMatrixElements()) {
 					oddExpFactors.add(f);
 				}
 			}
 			
 			factors_2_indices= new HashMap<Integer,Integer>(oddExpFactors.size());
 			int index = 0;
-			for(Integer f : oddExpFactors) {
+			for (Integer f : oddExpFactors) {
 				factors_2_indices.put(f, index++);
 			}
 			
@@ -158,7 +158,7 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 
 		// 4+5. Create & solve matrix
 		try {
-		solve(noSingletons, factors_2_indices);
+			solve(noSingletons, factors_2_indices);
 		} catch (FactorException e) {
 			throw e;
 		} catch (Exception ee) {
@@ -193,18 +193,18 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 		LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
 		StackEntry[] onHold = new StackEntry[primeIndexMap.size()];
 		boolean[] haveMatch = new boolean[primeIndexMap.size()];
-		for(Smooth congruence : congruences) {
+		for (Smooth congruence : congruences) {
 			StackEntry entry = new StackEntry(congruence,0);
-			while(entry != null) {
+			while (entry != null) {
 				Smooth currentCongruence = entry.congruence;
 				int factor = currentCongruence.getMatrixElements()[entry.currentPrimeIndex];
 				int ci = primeIndexMap.get(factor);
-				if(haveMatch[ci]) {
+				if (haveMatch[ci]) {
 					// This prime has been seen multiple times, just check the next prime.
 					entry.currentPrimeIndex++;
 				} else {
 					// This prime hasn't been matched yet.
-					if(onHold[ci] == null) {
+					if (onHold[ci] == null) {
 						// First time seeing this prime. Hang on to the congruence.
 						onHold[ci] = entry;
 						entry = null;
@@ -214,7 +214,7 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 						haveMatch[ci] = true;
 						StackEntry held = onHold[ci];
 						held.currentPrimeIndex++;
-						if(held.currentPrimeIndex>=held.congruence.getMatrixElements().length) {
+						if (held.currentPrimeIndex>=held.congruence.getMatrixElements().length) {
 							noSingles.add(held.congruence);
 						} else {
 							stack.addFirst(held);
@@ -223,7 +223,7 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 					}
 				}
 				// the current entry may have examined all it's primes
-				if(entry != null) {
+				if (entry != null) {
 					if(entry.currentPrimeIndex>=entry.congruence.getMatrixElements().length) {
 						// every factor seen at least twice
 						noSingles.add(entry.congruence);
@@ -231,7 +231,7 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 					}
 				}
 				// if teh current entry is complete, see it there's more in the stack to do.
-				if(entry == null) {
+				if (entry == null) {
 					if(stack.size()>0) {
 						entry = stack.removeFirst();
 					}
