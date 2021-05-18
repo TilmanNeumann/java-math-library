@@ -226,7 +226,7 @@ abstract public class MatrixSolverBase03 extends MatrixSolverBase01 {
 						entry = null;
 					} else {
 						// Second time seeing this prime. It's now matched. 
-						// Stack the held congurence for further processing.
+						// Stack the held congruence for further processing.
 						haveMatch[ci] = true;
 						StackEntry held = onHold[ci];
 						held.currentPrimeIndex++;
