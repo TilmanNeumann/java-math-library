@@ -40,11 +40,6 @@ public class MatrixSolver_Gauss02 extends MatrixSolverBase02 {
 	}
 
 	@Override
-	public boolean sortIndices() {
-		return true;
-	}
-
-	@Override
 	protected void solve(List<Smooth> congruences, Map<Integer, Integer> factors_2_columnIndices) throws FactorException {
 		// create matrix
 		List<MatrixRow> rows = RichMatrixFactory.createMatrix(congruences, factors_2_columnIndices);

@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -73,43 +72,26 @@ abstract public class MatrixSolverBase02 extends MatrixSolver {
 		}
 
 		// 2. Re-map odd-exp-elements to column indices and sort if appropriate.		
-		Map<Integer, Integer> factors_2_indices;
-		if (sortIndices()) {
-			Map<Integer,IntHolder> oddExpFactors = new HashMap<Integer,IntHolder>(primeIndexMap.size());
-			for (Smooth congruence : noSingletons) {
-				for (int f : congruence.getMatrixElements()) {
-					IntHolder h = oddExpFactors.get(f);
-					if (h == null) {
-						oddExpFactors.put(f, new IntHolder());
-					} else {
-						h.increment();
-					}
+		Map<Integer,IntHolder> oddExpFactors = new HashMap<Integer,IntHolder>(primeIndexMap.size());
+		for (Smooth congruence : noSingletons) {
+			for (int f : congruence.getMatrixElements()) {
+				IntHolder h = oddExpFactors.get(f);
+				if (h == null) {
+					oddExpFactors.put(f, new IntHolder());
+				} else {
+					h.increment();
 				}
 			}
-			
-			factors_2_indices= new HashMap<Integer,Integer>(oddExpFactors.size());
-			Set<Map.Entry<Integer,IntHolder>> l = oddExpFactors.entrySet();
-			Object[] sorted = l.toArray();
-			Arrays.sort(sorted, new CompareEntry());
-			for (int index=0; index<sorted.length; index++) {
-				@SuppressWarnings("unchecked")
-				Entry<Integer,IntHolder> e = (Entry<Integer,IntHolder>)sorted[index];
-				factors_2_indices.put(e.getKey(), index);
-			}
-		} else {
-			Set<Integer> oddExpFactors = new HashSet<Integer>(primeIndexMap.size());
-			for (Smooth congruence : noSingletons) {
-				for (int f : congruence.getMatrixElements()) {
-					oddExpFactors.add(f);
-				}
-			}
-			
-			factors_2_indices = new HashMap<Integer,Integer>(oddExpFactors.size());
-			int index = 0;
-			for (Integer f : oddExpFactors) {
-				factors_2_indices.put(f, index++);
-			}
-			
+		}
+		
+		Map<Integer, Integer> factors_2_indices = new HashMap<Integer,Integer>(oddExpFactors.size());
+		Set<Map.Entry<Integer,IntHolder>> l = oddExpFactors.entrySet();
+		Object[] sorted = l.toArray();
+		Arrays.sort(sorted, new CompareEntry());
+		for (int index=0; index<sorted.length; index++) {
+			@SuppressWarnings("unchecked")
+			Entry<Integer,IntHolder> e = (Entry<Integer,IntHolder>)sorted[index];
+			factors_2_indices.put(e.getKey(), index);
 		}
 
 		// 4+5. Create & solve matrix
@@ -186,9 +168,4 @@ abstract public class MatrixSolverBase02 extends MatrixSolver {
 		
 		return noSingles;
 	}
-
-	/**
-	 * Returns true if this solver benefits from sorting the prime indices
-	 */
-	public abstract boolean sortIndices();
 }
