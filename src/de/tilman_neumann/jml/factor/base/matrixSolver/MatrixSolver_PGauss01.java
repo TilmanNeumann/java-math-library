@@ -1,6 +1,6 @@
 /*
- * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann (www.tilman-neumann.de)
+ * PSIQS 4.0 is a Java library for integer factorization, including a parallel self-initializing quadratic sieve (SIQS).
+ * Copyright (C) 2018  Tilman Neumann (www.tilman-neumann.de)
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -28,9 +28,9 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 /**
  * A congruence equation system solver doing Gaussian elimination in parallel.
  * 
- * @author David McGuigan (adapted from Tilman Neumann Gauss)
+ * @author David McGuigan (adapted from Tilman Neumann's single-threaded Gauss solver)
  */
-public class MatrixSolver_PGauss01 extends MatrixSolverBase02 {
+public class MatrixSolver_PGauss01 extends MatrixSolverBase03 {
 
 	private static final Logger LOG = Logger.getLogger(MatrixSolver_PGauss01.class);
 
@@ -43,15 +43,14 @@ public class MatrixSolver_PGauss01 extends MatrixSolverBase02 {
 
 	@Override
 	public String getName() {
-		return "PGaussSolver01(" + solveThreads + ")";
+		return "PGaussSolver01("+solveThreads+")";
 	}
-
-	
+		
 	// the threads need access to these
 	List<Smooth> congruences;  // input list of congruences, needed when a null vector is found
 	List<MatrixRow> rows;      // input list of rows, needed when a null vector is found
 	private MatrixRow[] pivotRowsForColumns; // storage for the pivot rows as they are found
-	private ReentrantLock[] columnLocks;  // for guarding writing to pivotRowsForColumns
+	private ReentrantLock[] locks;  // for guarding writing to pivotRowsForColumns
 
 	private volatile FactorException factorFound;  // needed to pass the exception back from the threads
 	
@@ -67,52 +66,58 @@ public class MatrixSolver_PGauss01 extends MatrixSolverBase02 {
 	// if it's the first row to be resolved down to a column, it becomes
 	// the pivot row for further rows having that column
 	private class PivotThread extends Thread {
-
+		
 		public void process(int rowIndex) throws FactorException {
 			MatrixRow row = rows.get(rowIndex);
 			int columnIndex = row.getBiggestColumnIndex();
+			MatrixRow possibleSolution = null;
 			while (columnIndex >= 0) {
-				MatrixRow pivotRow = pivotRowsForColumns[columnIndex];
-				if (pivotRow == null) {
-					columnLocks[columnIndex].lock();
-					try {
-						pivotRow = pivotRowsForColumns[columnIndex];
-						if (pivotRow == null) {
-							// If we assign 'row' as a new pivot row, it can't be combined anymore via addXor() with pivot rows for other columns.
-							// This seems safe though because Gauss reduction only combines rows having the same highest column index.
-							// Previous pivot rows do not satisfy that criterion.
-							pivotRowsForColumns[columnIndex] = row;
-							return;
-						}
-					} finally {
-						columnLocks[columnIndex].unlock();
+				int lockColumn = columnIndex;
+				MatrixRow pivot;
+				locks[lockColumn].lock();
+				try {
+					pivot = pivotRowsForColumns[columnIndex];
+					if (pivot == null) {
+						pivotRowsForColumns[columnIndex] = row;
+						return;
 					}
-				}
+					if (row.getColumnCount()<pivot.getColumnCount()) {
+						// switch pivots
+						MatrixRow t = pivot;
+						pivot = row;
+						pivotRowsForColumns[columnIndex] = row;
+						row = t;
+					}			
 				
-				// solution operations taken directly from original MatrixSolver_Gauss01
-				row.addXor(pivotRow); // This operation should be fast!
-				if (row.isNullVector()) {
-					//LOG.debug("solve(): 5: Found null-vector: " + row);
-					// Found null vector -> recover the set of AQ-pairs from its row index history
-					HashSet<AQPair> totalAQPairs = new HashSet<AQPair>(); // Set required for the "xor"-operation below
-					for (int rowIndex2 : row.getRowIndexHistoryAsList()) {
-						Smooth congruence = congruences.get(rowIndex2);
-						// add the new AQ-pairs via "xor"
-						congruence.addMyAQPairsViaXor(totalAQPairs);
+					// solution operations taken directly from original MatrixSolver_Gauss01 ++
+					row.addXor(pivot); // This operation should be fast!
+					if (!row.isNullVector()) {
+						columnIndex = row.getBiggestColumnIndex();
+					} else {
+						possibleSolution = row;
+						break;
 					}
-					// "return" the AQ-pairs of the null vector
-					processNullVector(totalAQPairs);
-					return;
-				} else {
-					// else: current row is not a null-vector, keep trying to reduce
-					columnIndex = row.getBiggestColumnIndex();
+				} finally {
+					locks[lockColumn].unlock();
 				}
-			}	
+			}
+			
+			if (possibleSolution != null) {
+				//LOG.debug("solve(): 5: Found null-vector: " + row);
+				// Found null vector -> recover the set of AQ-pairs from its row index history
+				HashSet<AQPair> totalAQPairs = new HashSet<AQPair>(); // Set required for the "xor"-operation below
+				for (int rowIndex2 : possibleSolution.getRowIndexHistoryAsList()) {
+					Smooth congruence = congruences.get(rowIndex2);
+					// add the new AQ-pairs via "xor"
+					congruence.addMyAQPairsViaXor(totalAQPairs);
+				}
+				// "return" the AQ-pairs of the null vector
+				processNullVector(totalAQPairs);
+			}
 		}
 
 		@Override
 		public void run() {
-			
 			while (factorFound == null) {
 				int rowNum = getNextRow();
 				if (rowNum>=rows.size()) {
@@ -127,7 +132,6 @@ public class MatrixSolver_PGauss01 extends MatrixSolverBase02 {
 			}
 		}		
 	}
-
 	
 	@Override
 	public boolean sortIndices() {
@@ -141,12 +145,12 @@ public class MatrixSolver_PGauss01 extends MatrixSolverBase02 {
 		this.congruences = congruences;
 		this.rows = createMatrix(congruences, factors_2_columnIndices); // create the matrix
 		
-		int numColumns = factors_2_columnIndices.size();
-		pivotRowsForColumns = new MatrixRow[numColumns];
+		int numColumn = factors_2_columnIndices.size();
+		pivotRowsForColumns = new MatrixRow[numColumn];
 		
-		columnLocks = new ReentrantLock[numColumns];
-		for (int i=0; i<numColumns; i++) {
-			columnLocks[i] = new ReentrantLock();
+		locks = new ReentrantLock[numColumn];
+		for (int i=0; i<numColumn; i++) {
+			locks[i] = new ReentrantLock();
 		}
 
 		//set up for iteration

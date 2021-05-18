@@ -25,9 +25,9 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 
 /**
- * A congruence equation system solver, doing Gaussian elimination.
+ * A single-threaded congruence equation system solver, doing Gaussian elimination.
  * Much faster than the first version due to improvements by Dave McGuigan.
- * Best single-threaded Gaussian solver for N<=250 bit so far.
+ * Best single-threaded Gaussian solver for about N<=130 bit.
  * 
  * @author Tilman Neumann, Dave McGuigan
  */
@@ -51,11 +51,11 @@ public class MatrixSolver_Gauss02 extends MatrixSolverBase02 {
 		List<MatrixRow> rows = createMatrix(congruences, factors_2_columnIndices);
 		// solve
 		MatrixRow[] pivotRowsForColumns = new MatrixRow[factors_2_columnIndices.size()]; // storage for the pivot rows as they are found
-		for(MatrixRow row : rows) {
+		for (MatrixRow row : rows) {
 			int columnIndex = row.getBiggestColumnIndex();
-			while(columnIndex >= 0) {
+			while (columnIndex >= 0) {
 				MatrixRow pivot = pivotRowsForColumns[columnIndex];
-				if(pivot == null) {
+				if (pivot == null) {
 					pivotRowsForColumns[columnIndex] = row;
 					break;
 				}

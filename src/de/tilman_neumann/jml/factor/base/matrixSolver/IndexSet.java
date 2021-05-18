@@ -39,6 +39,8 @@ public class IndexSet  {
 	private int numberOfBits;
 	private int numberOfLongs;
 	private int biggestEntry; // biggestEntry = -1 indicates that no bit is set / the "set" is empty
+	private boolean dirty;
+	private int setCount;
 
 	/**
 	 * Standard constructor, creates an empty bit array capable to hold the given numberOfBits.
@@ -50,6 +52,8 @@ public class IndexSet  {
 		this.numberOfLongs = (numberOfBits+63)>>6; // ceil(numberOfBits/64)
 		this.bitArray = new long[numberOfLongs];
 		this.biggestEntry = -1; // no bit set
+		this.dirty = true;
+		this.setCount = 0;
 	}
 	
 	/**
@@ -61,14 +65,18 @@ public class IndexSet  {
 		int restIndex = x-(longIndex<<6); // x-64*longIndex
 		bitArray[longIndex] |= (1L<<restIndex); // set bit
 		if (x>biggestEntry) biggestEntry = x; // update biggest entry
+		dirty = true;  // need to recount set bits on next use
 	}
 
 	public int getNumberOfSetBits() {
-		int numBits = 0;
-		for (int longIndex=biggestEntry>>6; longIndex>=0; longIndex--) {
-			numBits += Long.bitCount(bitArray[longIndex]);
+		if(dirty) {
+			setCount = 0;
+			for (int longIndex=biggestEntry>>6; longIndex>=0; longIndex--) {
+				setCount += Long.bitCount(bitArray[longIndex]);
+			}
+			dirty = false;
 		}
-		return numBits;
+		return setCount;
 	}
 	
 	public boolean contains(Object o) {
@@ -96,6 +104,8 @@ public class IndexSet  {
 	public void addXor(IndexSet other) {
 		if (numberOfBits!=other.numberOfBits) throw new IllegalArgumentException("IndexSet.addXor(): the argument has a different size!");
 	
+		dirty = true;  // need to recount set bits on next use
+		
 		int xMax = Math.max(biggestEntry, other.biggestEntry);
 		int maxLongIndex = xMax>>6; // xMax/64
 		for (int longIndex=maxLongIndex; longIndex>=0; longIndex--) {
