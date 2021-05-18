@@ -13,7 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.base.matrixSolver;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +41,7 @@ public class MatrixSolver_Gauss01 extends MatrixSolverBase01 {
 	@Override
 	protected void solve(List<Smooth> congruences, Map<Integer, Integer> factors_2_columnIndices) throws FactorException {
 		// create matrix
-		List<MatrixRow> rows = createMatrix(congruences, factors_2_columnIndices);
+		List<MatrixRow> rows = RichMatrixFactory.createMatrix(congruences, factors_2_columnIndices);
 		// solve
 		while (rows.size()>0) {
 			// Find pivot column index and row:
@@ -94,49 +93,5 @@ public class MatrixSolver_Gauss01 extends MatrixSolverBase01 {
 				} // else: current row does not have the pivotColumnIndex -> just keep it
 			}
 		}
-	}
-
-	/**
-	 * Create the matrix.
-	 * @param congruences
-	 * @param factors_2_columnIndices
-	 * @return
-	 */
-	private List<MatrixRow> createMatrix(List<Smooth> congruences, Map<Integer, Integer> factors_2_columnIndices) {
-		ArrayList<MatrixRow> matrixRows = new ArrayList<MatrixRow>(congruences.size()); // ArrayList is faster than LinkedList, even with many remove() operations
-		int rowIndex = 0;
-		int numberOfRows = congruences.size();
-		for (Smooth congruence : congruences) {
-			// row entries = set of column indices where the congruence has a factor with odd exponent
-			IndexSet columnIndicesFromOddExpFactors = createColumnIndexSetFromCongruence(congruence, factors_2_columnIndices);
-			// initial row history = the current row index
-			IndexSet rowIndexHistory = createRowIndexHistory(numberOfRows, rowIndex++);
-			MatrixRow matrixRow = new MatrixRow(columnIndicesFromOddExpFactors, rowIndexHistory);
-			matrixRows.add(matrixRow);
-		}
-		//LOG.debug("constructed matrix with " + matrixRows.size() + " rows and " + factors_2_columnIndices.size() + " columns");
-		return matrixRows;
-	}
-
-	/**
-	 * Create the set of matrix column indices from the factors that the congruence has with odd exponent.
-	 * @param congruence
-	 * @param factors_2_columnIndices
-	 * @return set of column indices
-	 */
-	private IndexSet createColumnIndexSetFromCongruence(Smooth congruence, Map<Integer, Integer> factors_2_columnIndices) {
-		Integer[] oddExpFactors = congruence.getMatrixElements();
-		IndexSet columnIndexBitset = new IndexSet(factors_2_columnIndices.size());
-		for (Integer oddExpFactor : oddExpFactors) {
-			columnIndexBitset.add(factors_2_columnIndices.get(oddExpFactor));
-		}
-		return columnIndexBitset;
-	}
-	
-	private IndexSet createRowIndexHistory(int numberOfRows, int rowIndex) {
-		IndexSet rowIndexHistory = new IndexSet(numberOfRows);
-		rowIndexHistory.add(rowIndex);
-		//LOG.debug("numberOfRows=" + numberOfRows + ", rowIndex=" + rowIndex + " -> rowIndexHistory = " + rowIndexHistory);
-		return rowIndexHistory;
 	}
 }
