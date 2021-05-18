@@ -16,7 +16,6 @@ package de.tilman_neumann.jml.factor.base.matrixSolver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -29,6 +28,9 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
+import de.tilman_neumann.jml.factor.base.matrixSolver.util.CompareEntry;
+import de.tilman_neumann.jml.factor.base.matrixSolver.util.IntHolder;
+import de.tilman_neumann.jml.factor.base.matrixSolver.util.StackEntry;
 
 /**
  * Base implementation for a congruence equation system (the "LinAlg phase matrix") solver.
@@ -39,33 +41,7 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(MatrixSolverBase02.class);
-	
-	public abstract String getName();
-
-	private class IntHolder {
-		int value;
 		
-		public IntHolder() {
-			value = 1;
-		}
-		
-		public void increment() {
-			value++;
-		}
-	}
-	
-	public class CompareEntry implements Comparator<Object> {
-
-		@Override
-		public int compare(Object o1, Object o2) {
-			@SuppressWarnings("unchecked")
-			Entry<Integer,IntHolder> e1 = (Entry<Integer,IntHolder>)o1;
-			@SuppressWarnings("unchecked")
-			Entry<Integer,IntHolder> e2 = (Entry<Integer,IntHolder>)o2;
-			return e2.getValue().value-e1.getValue().value;
-		}
-		
-	}
 	/**
 	 * Main method to solve a congruence equation system.
 	 * @param congruences the congruences forming the equation system
@@ -114,7 +90,7 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 			factors_2_indices= new HashMap<Integer,Integer>(oddExpFactors.size());
 			Set<Map.Entry<Integer,IntHolder>> l = oddExpFactors.entrySet();
 			Object[] sorted = l.toArray();
-			Arrays.sort(sorted,new CompareEntry());
+			Arrays.sort(sorted, new CompareEntry());
 			for (int index=0; index<sorted.length; index++) {
 				@SuppressWarnings("unchecked")
 				Entry<Integer,IntHolder> e = (Entry<Integer,IntHolder>)sorted[index];
@@ -128,7 +104,7 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 				}
 			}
 			
-			factors_2_indices= new HashMap<Integer,Integer>(oddExpFactors.size());
+			factors_2_indices = new HashMap<Integer,Integer>(oddExpFactors.size());
 			int index = 0;
 			for (Integer f : oddExpFactors) {
 				factors_2_indices.put(f, index++);
@@ -146,17 +122,6 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 			throw ee;
 		}
 	}
-	
-	private class StackEntry {
-		public Smooth congruence;
-		public int currentPrimeIndex;
-		public StackEntry(Smooth congruence, int currentPrimeIndex) {
-			this.congruence = congruence;
-			this.currentPrimeIndex = currentPrimeIndex;
-		}	
-	}
-	
-
 	
 	/**
 	 * Remove singletons by maintaining a structure of what primes have been seen

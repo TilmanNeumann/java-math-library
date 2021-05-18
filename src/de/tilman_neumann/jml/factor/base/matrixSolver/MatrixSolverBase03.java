@@ -13,13 +13,10 @@
  */
 package de.tilman_neumann.jml.factor.base.matrixSolver;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,6 +26,9 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
+import de.tilman_neumann.jml.factor.base.matrixSolver.util.CompareCongruence;
+import de.tilman_neumann.jml.factor.base.matrixSolver.util.CompareEntry;
+import de.tilman_neumann.jml.factor.base.matrixSolver.util.IntHolder;
 
 /**
  * Base implementation for a congruence equation system (the "LinAlg phase matrix") solver.
@@ -36,47 +36,10 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
  * 
  * @author Tilman Neumann, Dave McGuigan
  */
-abstract public class MatrixSolverBase03 extends MatrixSolverBase01 {
+abstract public class MatrixSolverBase03 extends MatrixSolverBase02 {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(MatrixSolverBase03.class);
 	
-	public abstract String getName();
-
-	private class IntHolder {
-		int value;
-		
-		public IntHolder() {
-			value = 1;
-		}
-		
-		public void increment() {
-			value++;
-		}
-	}
-	
-	public class CompareEntry implements Comparator<Object> {
-
-		@Override
-		public int compare(Object o1, Object o2) {
-			@SuppressWarnings("unchecked")
-			Entry<Integer,IntHolder> e1 = (Entry<Integer,IntHolder>)o1;
-			@SuppressWarnings("unchecked")
-			Entry<Integer,IntHolder> e2 = (Entry<Integer,IntHolder>)o2;
-			return e2.getValue().value-e1.getValue().value;
-		}
-		
-	}
-	
-	public class CompareCongruence implements Comparator<Object> {
-
-		@Override
-		public int compare(Object o1, Object o2) {
-			Smooth s1 = (Smooth)o1;
-			Smooth s2 = (Smooth)o2;
-			return s1.getMatrixElements().length-s2.getMatrixElements().length;
-		}	
-	}
-
 	/**
 	 * Main method to solve a congruence equation system.
 	 * @param congruences the congruences forming the equation system
@@ -132,7 +95,7 @@ abstract public class MatrixSolverBase03 extends MatrixSolverBase01 {
 			factors_2_indices= new HashMap<Integer,Integer>(oddExpFactors.size());
 			Set<Map.Entry<Integer,IntHolder>> l = oddExpFactors.entrySet();
 			Object[] sorted = l.toArray();
-			Arrays.sort(sorted,new CompareEntry());
+			Arrays.sort(sorted, new CompareEntry());
 			for (int index=0; index<sorted.length; index++) {
 				@SuppressWarnings("unchecked")
 				Entry<Integer,IntHolder> e = (Entry<Integer,IntHolder>)sorted[index];
@@ -164,82 +127,4 @@ abstract public class MatrixSolverBase03 extends MatrixSolverBase01 {
 			throw ee;
 		}
 	}
-	
-	private class StackEntry {
-		public Smooth congruence;
-		public int currentPrimeIndex;
-		public StackEntry(Smooth congruence, int currentPrimeIndex) {
-			this.congruence = congruence;
-			this.currentPrimeIndex = currentPrimeIndex;
-		}	
-	}
-	
-	/**
-	 * Remove singletons by maintaining a structure of what primes have been seen
-	 * multiple times. When a prime is first seen the congruence is held as a 
-	 * possible singleton. When a prime has been matched, processing of the current 
-	 * congruence and held congruence can proceed. Any other congruences with that
-	 * prime seen after matching can just proceed.
-	 * @param congruences - collecting to be reduced
-	 * @param primeIndexMap - Map of primes to unique indexes
-	 * @return list of entries with singletons removed.
-	 */
-	public List<Smooth> removeSingletons(Collection<? extends Smooth> congruences, Map<Integer,Integer> primeIndexMap) {
-		List<Smooth> noSingles = new ArrayList<Smooth>(congruences.size());
-		LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
-		StackEntry[] onHold = new StackEntry[primeIndexMap.size()];
-		boolean[] haveMatch = new boolean[primeIndexMap.size()];
-		for (Smooth congruence : congruences) {
-			StackEntry entry = new StackEntry(congruence,0);
-			while (entry != null) {
-				Smooth currentCongruence = entry.congruence;
-				int factor = currentCongruence.getMatrixElements()[entry.currentPrimeIndex];
-				int ci = primeIndexMap.get(factor);
-				if (haveMatch[ci]) {
-					// This prime has been seen multiple times, just check the next prime.
-					entry.currentPrimeIndex++;
-				} else {
-					// This prime hasn't been matched yet.
-					if (onHold[ci] == null) {
-						// First time seeing this prime. Hang on to the congruence.
-						onHold[ci] = entry;
-						entry = null;
-					} else {
-						// Second time seeing this prime. It's now matched. 
-						// Stack the held congruence for further processing.
-						haveMatch[ci] = true;
-						StackEntry held = onHold[ci];
-						held.currentPrimeIndex++;
-						if (held.currentPrimeIndex>=held.congruence.getMatrixElements().length) {
-							noSingles.add(held.congruence);
-						} else {
-							stack.addFirst(held);
-						}
-						entry.currentPrimeIndex++;
-					}
-				}
-				// the current entry may have examined all it's primes
-				if (entry != null) {
-					if (entry.currentPrimeIndex>=entry.congruence.getMatrixElements().length) {
-						// every factor seen at least twice
-						noSingles.add(entry.congruence);
-						entry = null;						
-					}
-				}
-				// if the current entry is complete, see it there's more in the stack to do.
-				if (entry == null) {
-					if (stack.size()>0) {
-						entry = stack.removeFirst();
-					}
-				}
-			}
-		}
-		
-		return noSingles;
-	}
-
-	/**
-	 * Returns true if this solver benefits from sorting the prime indices
-	 */
-	public abstract boolean sortIndices();
 }
