@@ -28,7 +28,7 @@ import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.siqs.KnuthSchroeppel;
 import de.tilman_neumann.jml.factor.siqs.ModularSqrtsEngine;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
@@ -79,7 +79,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	// collects the congruences we find
 	private CongruenceCollector congruenceCollector;
 	/** The solver used for smooth congruence equation systems. */
-	protected MatrixSolverBase01 matrixSolver;
+	protected MatrixSolver matrixSolver;
 	
 	protected PowerFinder powerFinder;
 
@@ -101,7 +101,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	 */
 	public PSIQSBase(
 			float Cmult, float Mmult, Float maxQRestExponent, int numberOfThreads, Integer d,
-			PowerFinder powerFinder, MatrixSolverBase01 matrixSolver, AParamGenerator apg) {
+			PowerFinder powerFinder, MatrixSolver matrixSolver, AParamGenerator apg) {
 		
 		super(null);
 		

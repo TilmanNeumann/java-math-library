@@ -38,7 +38,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.util.StackEntry;
  * 
  * @author Tilman Neumann, Dave McGuigan
  */
-abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
+abstract public class MatrixSolverBase02 extends MatrixSolver {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(MatrixSolverBase02.class);
 		
@@ -133,7 +133,7 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 	 * @param primeIndexMap - Map of primes to unique indexes
 	 * @return list of entries with singletons removed.
 	 */
-	public List<Smooth> removeSingletons(Collection<? extends Smooth> congruences, Map<Integer,Integer> primeIndexMap) {
+	protected List<Smooth> removeSingletons(Collection<? extends Smooth> congruences, Map<Integer,Integer> primeIndexMap) {
 		List<Smooth> noSingles = new ArrayList<Smooth>(congruences.size());
 		LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
 		StackEntry[] onHold = new StackEntry[primeIndexMap.size()];

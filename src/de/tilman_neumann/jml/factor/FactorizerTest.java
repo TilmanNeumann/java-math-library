@@ -189,9 +189,9 @@ public class FactorizerTest {
 //			new PSIQS_U(0.32F, 0.37F, null, null, 6, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_SBH_U(0.32F, 0.37F, null, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()), // best for large N
 
-//			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss01()),
-//			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss01b()),
-//			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss02()),
+			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss01()),
+			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss02()),
+			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_Gauss03()),
 			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss01(5)),
 			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss01(10)),
 			new PSIQS_U(0.32F, 0.37F, null, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss01(20)),

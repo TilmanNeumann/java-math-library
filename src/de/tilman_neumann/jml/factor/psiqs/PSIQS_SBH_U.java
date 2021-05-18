@@ -16,7 +16,7 @@ package de.tilman_neumann.jml.factor.psiqs;
 import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
@@ -44,7 +44,7 @@ public class PSIQS_SBH_U extends PSIQSBase {
 	 * @param matrixSolver solver for smooth congruences matrix
 	 */
 	public PSIQS_SBH_U(float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, int blockSize,
-					   int numberOfThreads, PowerFinder powerFinder, MatrixSolverBase01 matrixSolver) {
+					   int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
 		
 		super(Cmult, Mmult, maxQRestExponent, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount));
 		this.blockSize = blockSize;

@@ -26,7 +26,7 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF63;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
@@ -67,7 +67,7 @@ public class HartLA63 extends FactorAlgorithm {
 	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^(extraCongruences+1)
 	private int extraCongruences;
 	/** The solver used for smooth congruence equation systems. */
-	private MatrixSolverBase01 matrixSolver;
+	private MatrixSolver matrixSolver;
 
 	private final Gcd63 gcdEngine = new Gcd63();
 
@@ -96,7 +96,7 @@ public class HartLA63 extends FactorAlgorithm {
 	 * @param extraCongruences the number of surplus congruences we collect to have a greater chance that the equation system solves.
 	 * @param matrixSolver matrix solver for the smooth congruence equation system
 	 */
-	public HartLA63(float C, float maxQRestExponent, TDiv_CF63 auxFactorizer, int extraCongruences, MatrixSolverBase01 matrixSolver) {
+	public HartLA63(float C, float maxQRestExponent, TDiv_CF63 auxFactorizer, int extraCongruences, MatrixSolver matrixSolver) {
 
 		this.C = C;
 		this.maxQRestExponent = maxQRestExponent;

@@ -13,21 +13,16 @@
  */
 package de.tilman_neumann.jml.factor.base.matrixSolver;
 
-import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE;
-
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
-import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 
 /**
@@ -35,27 +30,9 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
  * 
  * @author Tilman Neumann
  */
-abstract public class MatrixSolverBase01 {
+abstract public class MatrixSolverBase01 extends MatrixSolver {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(MatrixSolverBase01.class);
-
-	/** factor tester */
-	private FactorTest factorTest;
-
-	// for debugging only
-	private int testedNullVectorCount;
-	
-	public abstract String getName();
-	
-	/**
-	 * Initialize for a new N.
-	 * @param N
-	 * @param factorTest
-	 */
-	public void initialize(BigInteger N, FactorTest factorTest) {
-		this.factorTest = factorTest;
-		if (ANALYZE) this.testedNullVectorCount = 0;
-	}
 
 	/**
 	 * Main method to solve a congruence equation system.
@@ -91,7 +68,7 @@ abstract public class MatrixSolverBase01 {
 	 * @param congruences 
 	 * @param oddExpFactors_2_congruences 
 	 */
-	protected void removeSingletons(List<Smooth> congruences, Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
+	private void removeSingletons(List<Smooth> congruences, Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
 		// Parse all congruences as long as we find a singleton in a complete pass
 		boolean foundSingleton;
 		do {
@@ -145,41 +122,12 @@ abstract public class MatrixSolverBase01 {
 	 * @param oddExpFactors_2_congruences unsorted map from factors to the congruences in which they appear with odd exponent
 	 * @return map from factors to column indices
 	 */
-	protected Map<Integer, Integer> createFactor2ColumnIndexMap(Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
+	private Map<Integer, Integer> createFactor2ColumnIndexMap(Map<Integer, ArrayList<Smooth>> oddExpFactors_2_congruences) {
 		int index = 0;
 		Map<Integer, Integer> factors_2_columnIndices = new HashMap<Integer, Integer>();
 		for (Integer factor : oddExpFactors_2_congruences.keySet()) {
 			factors_2_columnIndices.put(factor, index++);
 		}
 		return factors_2_columnIndices;
-	}
-
-	/**
-	 * Create the matrix from the pre-processed congruences and solve it.
-	 * @param congruences
-	 * @param factors_2_columnIndices map from factors to matrix column indices
-	 * @throws FactorException 
-	 */
-	abstract protected void solve(List<Smooth> congruences, Map<Integer, Integer> factors_2_columnIndices) throws FactorException;
-
-	public void processNullVector(Set<AQPair> aqPairs) throws FactorException {
-		// found square congruence -> check for factor
-		if (ANALYZE) testedNullVectorCount++;
-		factorTest.testForFactor(aqPairs);
-		// no factor exception -> drop improper square congruence
-	}
-	
-	/**
-	 * @return the number of solver runs needed (so far). Is not populated (i.e. 0) if ANALYZE_SOLVER_RUNS==false.
-	 */
-	public int getTestedNullVectorCount() {
-		return testedNullVectorCount;
-	}
-	
-	/**
-	 * Release memory after a factorization.
-	 */
-	public void cleanUp() {
-		factorTest = null;
 	}
 }

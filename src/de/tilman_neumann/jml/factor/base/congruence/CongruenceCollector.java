@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.util.Timer;
@@ -64,7 +64,7 @@ public class CongruenceCollector {
 	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^-(extraCongruences+1)
 	private int extraCongruences;
 	
-	private MatrixSolverBase01 matrixSolver;
+	private MatrixSolver matrixSolver;
 	
 	// Storing a found factor in this class permits it to be retrieved by multiple threads
 	public BigInteger factor;
@@ -101,7 +101,7 @@ public class CongruenceCollector {
 	 * @param matrixSolver
 	 * @param factorTest
 	 */
-	public void initialize(BigInteger N, int primeBaseSize, MatrixSolverBase01 matrixSolver, FactorTest factorTest) {
+	public void initialize(BigInteger N, int primeBaseSize, MatrixSolver matrixSolver, FactorTest factorTest) {
 		this.initialize(N, factorTest);
 		this.requiredSmoothCongruenceCount = primeBaseSize + extraCongruences;
 		this.matrixSolver = matrixSolver;

@@ -34,7 +34,7 @@ import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBase01;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
@@ -85,7 +85,7 @@ public class SIQS extends FactorAlgorithm {
 	// collects the congruences we find
 	private CongruenceCollector congruenceCollector;
 	/** The solver used for smooth congruence equation systems. */
-	private MatrixSolverBase01 matrixSolver;
+	private MatrixSolver matrixSolver;
 
 	private int foundPerfectSmoothCount;
 	private int allPerfectSmoothCount;
@@ -113,7 +113,7 @@ public class SIQS extends FactorAlgorithm {
 	 */
 	public SIQS(
 			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, PowerFinder powerFinder, SIQSPolyGenerator polyGenerator, 
-			Sieve sieve, TDiv_QS auxFactorizer, int extraCongruences, MatrixSolverBase01 matrixSolver) {
+			Sieve sieve, TDiv_QS auxFactorizer, int extraCongruences, MatrixSolver matrixSolver) {
 		
 		super(null);
 		
