@@ -13,9 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.base.matrixSolver;
 
-import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE;
-
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +28,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
-import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 
 /**
@@ -43,24 +39,8 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(MatrixSolverBase02.class);
-
-	/** factor tester */
-	private FactorTest factorTest;
-
-	// for debugging only
-	private int testedNullVectorCount;
 	
 	public abstract String getName();
-	
-	/**
-	 * Initialize for a new N.
-	 * @param N
-	 * @param factorTest
-	 */
-	public void initialize(BigInteger N, FactorTest factorTest) {
-		this.factorTest = factorTest;
-		if (ANALYZE) this.testedNullVectorCount = 0;
-	}
 
 	private class IntHolder {
 		int value;
@@ -246,34 +226,4 @@ abstract public class MatrixSolverBase02 extends MatrixSolverBase01 {
 	 * Returns true if this solver benefits from sorting the prime indices
 	 */
 	public abstract boolean sortIndices();
-	
-
-	/**
-	 * Create the matrix from the pre-processed congruences and solve it.
-	 * @param congruences
-	 * @param factors_2_columnIndices map from factors to matrix column indices
-	 * @throws FactorException 
-	 */
-	abstract protected void solve(List<Smooth> congruences, Map<Integer, Integer> factors_2_columnIndices) throws FactorException;
-
-	public void processNullVector(Set<AQPair> aqPairs) throws FactorException {
-		// found square congruence -> check for factor
-		if (ANALYZE) testedNullVectorCount++;
-		factorTest.testForFactor(aqPairs);
-		// no factor exception -> drop improper square congruence
-	}
-	
-	/**
-	 * @return the number of solver runs needed (so far). Is not populated (i.e. 0) if ANALYZE_SOLVER_RUNS==false.
-	 */
-	public int getTestedNullVectorCount() {
-		return testedNullVectorCount;
-	}
-	
-	/**
-	 * Release memory after a factorization.
-	 */
-	public void cleanUp() {
-		factorTest = null;
-	}
 }
