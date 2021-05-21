@@ -50,7 +50,6 @@ abstract public class MatrixSolverBase02 extends MatrixSolver {
 		//LOG.debug("#congruences = " + congruences.size());
 		
 		// 1. remove singletons
-		List<Smooth> noSingletons = new ArrayList<Smooth>(congruences.size());
 		int nextPrimeIndex = 0;
 		Map<Integer,Integer> primeIndexMap = new HashMap<Integer,Integer>(congruences.size());
 		for (Smooth congruence : congruences) {
@@ -65,11 +64,14 @@ abstract public class MatrixSolverBase02 extends MatrixSolver {
 		// number of congruences gets large.
 		final int DELTA = 0;
 		int lastSize = congruences.size();
-		noSingletons = removeSingletons(congruences, primeIndexMap);
+		List<Smooth> noSingletons = removeSingletons(congruences, primeIndexMap);
 		while (lastSize-noSingletons.size()>DELTA) {
 			lastSize = noSingletons.size();
 			noSingletons = removeSingletons(noSingletons, primeIndexMap);
 		}
+		
+		// Sort smooths? Gives a nice improvement for large N in version 03
+		sortSmooths(noSingletons);
 
 		// 2. Re-map odd-exp-elements to column indices and sort if appropriate.		
 		Map<Integer,IntHolder> oddExpFactors = new HashMap<Integer,IntHolder>(primeIndexMap.size());
@@ -95,16 +97,9 @@ abstract public class MatrixSolverBase02 extends MatrixSolver {
 		}
 
 		// 4+5. Create & solve matrix
-		try {
-			solve(noSingletons, factors_2_indices);
-		} catch (FactorException e) {
-			throw e;
-		} catch (Exception ee) {
-			ee.printStackTrace();
-			throw ee;
-		}
+		solve(noSingletons, factors_2_indices);
 	}
-	
+	 
 	/**
 	 * Remove singletons by maintaining a structure of what primes have been seen
 	 * multiple times. When a prime is first seen the congruence is held as a 
@@ -168,4 +163,16 @@ abstract public class MatrixSolverBase02 extends MatrixSolver {
 		
 		return noSingles;
 	}
+	
+	protected void sortSmooths(List<Smooth> list) {
+		// in this version we keep the sorting as is
+	}
+
+	/**
+	 * Create the matrix from the pre-processed congruences and solve it.
+	 * @param congruences
+	 * @param factors_2_columnIndices map from factors to matrix column indices
+	 * @throws FactorException 
+	 */
+	abstract protected void solve(List<Smooth> congruences, Map<Integer, Integer> factors_2_columnIndices) throws FactorException;
 }

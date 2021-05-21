@@ -130,4 +130,12 @@ abstract public class MatrixSolverBase01 extends MatrixSolver {
 		}
 		return factors_2_columnIndices;
 	}
+
+	/**
+	 * Create the matrix from the pre-processed congruences and solve it.
+	 * @param congruences
+	 * @param factors_2_columnIndices map from factors to matrix column indices
+	 * @throws FactorException 
+	 */
+	abstract protected void solve(List<Smooth> congruences, Map<Integer, Integer> factors_2_columnIndices) throws FactorException;
 }
