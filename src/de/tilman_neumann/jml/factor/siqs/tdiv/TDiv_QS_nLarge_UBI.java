@@ -44,6 +44,7 @@ import de.tilman_neumann.util.Timer;
 
 /**
  * A trial division engine where partials can have several large factors.
+ * For SIQS this means that partials with 3 large primes could appearc starting at N >= 320 bit.
  * 
  * Division is carried out in two stages:
  * Stage 1 identifies prime factors of Q, applying long-valued Barrett reduction
@@ -53,6 +54,16 @@ import de.tilman_neumann.util.Timer;
  * 
  * @author Tilman Neumann
  */
+// TODO PSIQS does not work correctly with 3LP relations yet.
+// Up to 1917309933207159193848096265773632935599188083482002960344787838591765195842266925748265126622930670869363 (350 bit) everything seems to work fine,
+// and indeed already 1605 smooth relations involving 3-partials were found on that test number.
+// But for larger numbers, it seems that PSIQS does not terminate at all or needs much more time than expected. This happened for
+// * N = 2066866710502282532505449833332089238312935374491943311610655981052809337971646998610592281303116906350078621 (360 bit)
+//       factoring run canceled after 4h:20m (expected was ~ 2h:35m)
+// * N = 2329368635231975676293761934643288685426331453276223657636089483987557954943374857353742871103536418615759037457 (370 bit)
+//       factoring run canceled after ~16h (expected was ~ 5h:30m)
+// This happened regardless of the solver used (BlockKanczos or PGauss), thus something seems to be wrong with the relations created, or even during the process of creating the relations.
+// I didn't investigate the issue any further yet.
 public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	private static final Logger LOG = Logger.getLogger(TDiv_QS_nLarge_UBI.class);
 	private static final boolean DEBUG = false;
