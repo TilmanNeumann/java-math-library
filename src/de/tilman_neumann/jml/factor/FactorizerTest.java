@@ -219,7 +219,11 @@ public class FactorizerTest {
 			factorSetArray = new SortedMultiset_BottomUp[N_COUNT];
 		}
 
-		LOG.info("Test N with " + bits + " bits, e.g. N = " + testNumbers[0]);
+		if (N_COUNT > 1) {
+			LOG.info("Test N with " + bits + " bit, e.g. N = " + testNumbers[0]);
+		} else {
+			LOG.info("Test N = " + testNumbers[0] + " (" + bits + " bit)");
+		}
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
 		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<Long, List<FactorAlgorithm>>();
