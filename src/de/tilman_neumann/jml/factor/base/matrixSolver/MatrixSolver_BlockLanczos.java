@@ -30,7 +30,7 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
  * 
  * @author Tilman Neumann
  */
-public class MatrixSolver_BlockLanczos extends MatrixSolverBase01 {
+public class MatrixSolver_BlockLanczos extends MatrixSolverBase03 {
 	private static final boolean DEBUG = false;
 
 	private BlockLanczos blockLanczosSolver = new BlockLanczos();
