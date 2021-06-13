@@ -38,6 +38,10 @@ public class Sieve03gU implements Sieve {
 	private static final boolean DEBUG = false;
 	private static final Unsafe UNSAFE = UnsafeUtil.getUnsafe();
 
+	private static final long LONG_MASK =   0x8080808080808080L;
+	private static final long UPPER_MASK =  0x8080808000000000L;
+	private static final long LOWER_MASK =          0x80808080L;
+
 	// prime base
 	private int primeBaseSize;
 	/** we do not sieve with primes p_i, i<pMinIndex */
@@ -188,34 +192,50 @@ public class Sieve03gU implements Sieve {
 
 		// collect results: we check 8 sieve locations in one long
 		List<Integer> smoothXList = new ArrayList<Integer>();
-		long y0, y1;
-		for (long x=sieveArrayAddress+sieveArraySize; x>sieveArrayAddress; ) {
-			if ((((y0 = UNSAFE.getLong(x-=8)) | (y1 = UNSAFE.getLong(x-=8))) & 0x8080808080808080L) != 0) {
-				// at least one of the tested Q(x) is sufficiently smooth to be passed to trial division
-				final int relativeX = (int) (x-sieveArrayAddress);
-				if ((y0 & 0x8080808080808080L) != 0) {
-					final int y00 = (int) (y0 & 0x80808080L);
-					final int y01 = (int) (y0 >> 32);
-					if ((y00 &       0x80) != 0) smoothXList.add(relativeX+8);
-					if ((y00 &     0x8000) != 0) smoothXList.add(relativeX+9);
-					if ((y00 &   0x800000) != 0) smoothXList.add(relativeX+10);
-					if ((y00 & 0x80000000) != 0) smoothXList.add(relativeX+11);
-					if ((y01 &       0x80) != 0) smoothXList.add(relativeX+12);
-					if ((y01 &     0x8000) != 0) smoothXList.add(relativeX+13);
-					if ((y01 &   0x800000) != 0) smoothXList.add(relativeX+14);
-					if ((y01 & 0x80000000) != 0) smoothXList.add(relativeX+15);
-				}
-				if ((y1 & 0x8080808080808080L) != 0) {
-					final int y10 = (int) (y1 & 0x80808080L);
-					final int y11 = (int) (y1 >> 32);
-					if ((y10 &       0x80) != 0) smoothXList.add(relativeX);
-					if ((y10 &     0x8000) != 0) smoothXList.add(relativeX+1);
-					if ((y10 &   0x800000) != 0) smoothXList.add(relativeX+2);
-					if ((y10 & 0x80000000) != 0) smoothXList.add(relativeX+3);
-					if ((y11 &       0x80) != 0) smoothXList.add(relativeX+4);
-					if ((y11 &     0x8000) != 0) smoothXList.add(relativeX+5);
-					if ((y11 &   0x800000) != 0) smoothXList.add(relativeX+6);
-					if ((y11 & 0x80000000) != 0) smoothXList.add(relativeX+7);
+		long x = sieveArrayAddress-8;
+		while (x<sieveArrayAddress+sieveArraySize-8) {
+			long t = UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8); 
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			if((t & LONG_MASK) == 0) continue;
+			
+			// back up to get the last 8 and look in more detail
+			x -= 256;
+			
+			for(int l=0; l<32; l++) {				
+				final long y = UNSAFE.getLong(x+=8);
+				final int relativeX = (int) (x-sieveArrayAddress);		
+				if((y&LONG_MASK) != 0) {
+					testLongPositive(y, relativeX, smoothXList);
 				}
 			}
 		}
@@ -288,33 +308,50 @@ public class Sieve03gU implements Sieve {
 		if (ANALYZE) sieveDuration += timer.capture();
 
 		// collect results
-		for (long x=sieveArrayAddress+sieveArraySize; x>sieveArrayAddress; ) {
-			if ((((y0 = UNSAFE.getLong(x-=8)) | (y1 = UNSAFE.getLong(x-=8))) & 0x8080808080808080L) != 0) {
-				// at least one of the tested Q(x) is sufficiently smooth to be passed to trial division
-				final int relativeX = (int) (x-sieveArrayAddress);
-				if ((y0 & 0x8080808080808080L) != 0) {
-					final int y00 = (int) (y0 & 0x80808080L);
-					final int y01 = (int) (y0 >> 32);
-					if ((y00 &       0x80) != 0) smoothXList.add(-(relativeX+8));
-					if ((y00 &     0x8000) != 0) smoothXList.add(-(relativeX+9));
-					if ((y00 &   0x800000) != 0) smoothXList.add(-(relativeX+10));
-					if ((y00 & 0x80000000) != 0) smoothXList.add(-(relativeX+11));
-					if ((y01 &       0x80) != 0) smoothXList.add(-(relativeX+12));
-					if ((y01 &     0x8000) != 0) smoothXList.add(-(relativeX+13));
-					if ((y01 &   0x800000) != 0) smoothXList.add(-(relativeX+14));
-					if ((y01 & 0x80000000) != 0) smoothXList.add(-(relativeX+15));
-				}
-				if ((y1 & 0x8080808080808080L) != 0) {
-					final int y10 = (int) (y1 & 0x80808080L);
-					final int y11 = (int) (y1 >> 32);
-					if ((y10 &       0x80) != 0) smoothXList.add(- relativeX   );
-					if ((y10 &     0x8000) != 0) smoothXList.add(-(relativeX+1));
-					if ((y10 &   0x800000) != 0) smoothXList.add(-(relativeX+2));
-					if ((y10 & 0x80000000) != 0) smoothXList.add(-(relativeX+3));
-					if ((y11 &       0x80) != 0) smoothXList.add(-(relativeX+4));
-					if ((y11 &     0x8000) != 0) smoothXList.add(-(relativeX+5));
-					if ((y11 &   0x800000) != 0) smoothXList.add(-(relativeX+6));
-					if ((y11 & 0x80000000) != 0) smoothXList.add(-(relativeX+7));
+		x = sieveArrayAddress-8;
+		while (x<sieveArrayAddress+sieveArraySize-8) {
+			long t = UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8); 
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			t |= UNSAFE.getLong(x+=8);
+			if((t & LONG_MASK) == 0) continue;
+			
+			// back up to get the last 8 and look in more detail
+			x -= 256;
+			
+			for(int l=0; l<32; l++) {
+				final long y = UNSAFE.getLong(x+=8);
+				final int relativeX = (int) (x-sieveArrayAddress);		
+				if((y&LONG_MASK) != 0) {
+					testLongNegative(y, relativeX, smoothXList);
 				}
 			}
 		}
@@ -328,16 +365,40 @@ public class Sieve03gU implements Sieve {
 	 */
 	private void initializeSieveArray(int sieveArraySize) {
 		// Overwrite existing arrays with initializer. We know that sieve array size is a multiple of 256.
-		// XXX We could use setMemory() to initialize the whole sieve array. This is indeed a bit faster,
-		//     but for some reason the collect phase is slowing down much more if we do that...
-		UNSAFE.setMemory(sieveArrayAddress, 256, initializer);
-		int filled = 256;
-		int unfilled = sieveArraySize-filled;
-		while (unfilled>0) {
-			int fillNext = Math.min(unfilled, filled);
-			UNSAFE.copyMemory(sieveArrayAddress, sieveArrayAddress + filled, fillNext);
-			filled += fillNext;
-			unfilled = sieveArraySize-filled;
+		UNSAFE.setMemory(sieveArrayAddress, sieveArraySize, initializer);		
+	}
+
+	private void testLongPositive(long y, int relativeX, List<Integer> smoothXList) {
+		if ((y & LOWER_MASK) != 0) {
+			final int y0 = (int) (y);
+			if ((y0 &       0x80) != 0) smoothXList.add(relativeX  );
+			if ((y0 &     0x8000) != 0) smoothXList.add(relativeX+1);
+			if ((y0 &   0x800000) != 0) smoothXList.add(relativeX+2);
+			if ((y0 & 0x80000000) != 0) smoothXList.add(relativeX+3);
+		}
+		if((y & UPPER_MASK) != 0) {
+			final int y1 = (int) (y >> 32);
+			if ((y1 &       0x80) != 0) smoothXList.add(relativeX+4);
+			if ((y1 &     0x8000) != 0) smoothXList.add(relativeX+5);
+			if ((y1 &   0x800000) != 0) smoothXList.add(relativeX+6);
+			if ((y1 & 0x80000000) != 0) smoothXList.add(relativeX+7);
+		}
+	}
+	
+	private void testLongNegative(long y, int relativeX, List<Integer> smoothXList) {
+		if ((y & LOWER_MASK) != 0) {
+			final int y0 = (int) (y);
+			if ((y0 &       0x80) != 0) smoothXList.add(-(relativeX  ));
+			if ((y0 &     0x8000) != 0) smoothXList.add(-(relativeX+1));
+			if ((y0 &   0x800000) != 0) smoothXList.add(-(relativeX+2));
+			if ((y0 & 0x80000000) != 0) smoothXList.add(-(relativeX+3));
+		}
+		if((y & UPPER_MASK) != 0) {
+			final int y1 = (int) (y >> 32);
+			if ((y1 &       0x80) != 0) smoothXList.add(-(relativeX+4));
+			if ((y1 &     0x8000) != 0) smoothXList.add(-(relativeX+5));
+			if ((y1 &   0x800000) != 0) smoothXList.add(-(relativeX+6));
+			if ((y1 & 0x80000000) != 0) smoothXList.add(-(relativeX+7));
 		}
 	}
 	
