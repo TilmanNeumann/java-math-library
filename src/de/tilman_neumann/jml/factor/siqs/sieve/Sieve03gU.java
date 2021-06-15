@@ -161,6 +161,8 @@ public class Sieve03gU implements Sieve {
 			UNSAFE.putByte(x1Addr+p, (byte) (UNSAFE.getByte(x1Addr+p) + logP));
 			UNSAFE.putByte(x2Addr+p, (byte) (UNSAFE.getByte(x2Addr+p) + logP));
 		}
+		// Unrolling the loop with four large prime bounds looks beneficial for N>=340 bit
+		
 		// Positive x, small primes:
 		for ( ; i>=pMinIndex; i--) {
 			final int p = pArray[i];
