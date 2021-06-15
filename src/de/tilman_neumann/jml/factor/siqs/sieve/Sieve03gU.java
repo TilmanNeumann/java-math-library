@@ -144,10 +144,8 @@ public class Sieve03gU implements Sieve {
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
 			x2Addr = sieveArrayAddress + x2Array[i];
 			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			x1Addr += p;
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr += p;
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+			UNSAFE.putByte(x1Addr+p, (byte) (UNSAFE.getByte(x1Addr+p) + logP));
+			UNSAFE.putByte(x2Addr+p, (byte) (UNSAFE.getByte(x2Addr+p) + logP));
 		}
 		for ( ; i>=p3Index; i--) {
 			final int p = pArray[i];
@@ -160,10 +158,8 @@ public class Sieve03gU implements Sieve {
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
 			x2Addr += p;
 			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			x1Addr += p;
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr += p;
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+			UNSAFE.putByte(x1Addr+p, (byte) (UNSAFE.getByte(x1Addr+p) + logP));
+			UNSAFE.putByte(x2Addr+p, (byte) (UNSAFE.getByte(x2Addr+p) + logP));
 		}
 		// Positive x, small primes:
 		for ( ; i>=pMinIndex; i--) {
@@ -261,10 +257,8 @@ public class Sieve03gU implements Sieve {
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
 			x2Addr = sieveArrayAddress + p - x2Array[i];
 			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			x1Addr += p;
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr += p;
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+			UNSAFE.putByte(x1Addr+p, (byte) (UNSAFE.getByte(x1Addr+p) + logP));
+			UNSAFE.putByte(x2Addr+p, (byte) (UNSAFE.getByte(x2Addr+p) + logP));
 		}
 		for (; i>=p3Index; i--) {
 			final int p = pArray[i];
@@ -277,10 +271,8 @@ public class Sieve03gU implements Sieve {
 			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
 			x2Addr += p;
 			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			x1Addr += p;
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr += p;
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+			UNSAFE.putByte(x1Addr+p, (byte) (UNSAFE.getByte(x1Addr+p) + logP));
+			UNSAFE.putByte(x2Addr+p, (byte) (UNSAFE.getByte(x2Addr+p) + logP));
 		}
 		// negative x, small primes:
 		for (; i>=pMinIndex; i--) {
