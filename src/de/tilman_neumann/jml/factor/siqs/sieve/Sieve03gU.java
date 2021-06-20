@@ -46,6 +46,7 @@ public class Sieve03gU implements Sieve {
 	private static final long LOWER_MASK =          0x80808080L;
 
 	private BigInteger daParam, bParam, cParam, kN;
+	private int d;
 
 	// prime base
 	private int primeBaseSize;
@@ -98,7 +99,8 @@ public class Sieve03gU implements Sieve {
 	}
 
 	@Override
-	public void initializeForAParameter(BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+		this.d = d;
 		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
 		int[] pArray = solutionArrays.pArray;

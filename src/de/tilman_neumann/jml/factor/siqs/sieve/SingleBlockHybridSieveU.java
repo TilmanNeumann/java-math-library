@@ -45,6 +45,7 @@ public class SingleBlockHybridSieveU implements Sieve {
 	private static final Unsafe UNSAFE = UnsafeUtil.getUnsafe();
 
 	private BigInteger daParam, bParam, cParam, kN;
+	private int d;
 
 	// prime base
 	private int primeBaseSize;
@@ -133,7 +134,8 @@ public class SingleBlockHybridSieveU implements Sieve {
 	}
 
 	@Override
-	public void initializeForAParameter(BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+		this.d = d;
 		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
 		int[] pArray = solutionArrays.pArray;

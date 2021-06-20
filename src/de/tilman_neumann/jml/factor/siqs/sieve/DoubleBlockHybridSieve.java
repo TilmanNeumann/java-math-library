@@ -42,6 +42,7 @@ public class DoubleBlockHybridSieve implements Sieve {
 	private static final boolean DEBUG = false;
 
 	private BigInteger daParam, bParam, cParam, kN;
+	private int d;
 
 	// prime base
 	private int solutionCount;
@@ -136,7 +137,8 @@ public class DoubleBlockHybridSieve implements Sieve {
 	}
 
 	@Override
-	public void initializeForAParameter(BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+		this.d = d;
 		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
 		int[] pArray = solutionArrays.pArray;

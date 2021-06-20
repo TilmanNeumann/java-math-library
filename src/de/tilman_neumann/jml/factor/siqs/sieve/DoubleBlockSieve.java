@@ -38,6 +38,7 @@ public class DoubleBlockSieve implements Sieve {
 	private static final boolean DEBUG = false;
 
 	private BigInteger daParam, bParam, cParam, kN;
+	private int d;
 
 	// prime base
 	private int filteredBaseSize;
@@ -135,7 +136,8 @@ public class DoubleBlockSieve implements Sieve {
 	}
 	
 	@Override
-	public void initializeForAParameter(BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+		this.d = d;
 		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
 		this.filteredBaseSize = filteredBaseSize;

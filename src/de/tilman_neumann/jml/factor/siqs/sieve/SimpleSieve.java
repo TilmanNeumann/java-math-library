@@ -36,6 +36,7 @@ public class SimpleSieve implements Sieve {
 	private static final byte[] ZERO_ARRAY_256 = new byte[256];
 
 	private BigInteger daParam, bParam, cParam, kN;
+	private int d;
 
 	// prime base
 	private int primeBaseSize;
@@ -68,7 +69,8 @@ public class SimpleSieve implements Sieve {
 	}
 
 	@Override
-	public void initializeForAParameter(BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+		this.d = d;
 		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
 		this.primeBaseSize = filteredBaseSize;

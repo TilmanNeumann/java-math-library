@@ -48,7 +48,8 @@ public class Sieve03hU implements Sieve {
 	private static final double LN2 = Math.log(2.0);
 	
 	private BigInteger daParam, bParam, cParam, kN, smallPrimesProd;
-	
+	private int d;
+
 	private double logPMultiplier;
 	private int tdivTestMinLogPSum;
 	private int logQDivAEstimate;
@@ -114,7 +115,8 @@ public class Sieve03hU implements Sieve {
 	}
 
 	@Override
-	public void initializeForAParameter(BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+		this.d = d;
 		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
 		int[] pArray = solutionArrays.pArray;
@@ -448,6 +450,16 @@ public class Sieve03hU implements Sieve {
 		// XXX Probably the score is always rising because the estimate was the maximal Q/a value?
 		//     In that case this score adjustment would be useless
 		int truelogQDivASize = (int) (Qdiva.bitLength() * logPMultiplier);
+		if (DEBUG) {
+			// TODO Unexpected! We can get much bigger truelogQDivASize than expected, like 196 bit instead of logQDivAEstimate=182 bit
+			//      This is probably an error, implying some improvement potential.
+			// LOG.debug("estimated Q/a size = " + logQDivAEstimate + ", true Q/a size = " + truelogQDivASize);
+			if (truelogQDivASize > logQDivAEstimate + 2) {
+				LOG.error("XXX d=" + d + ": logQDivAEstimate = " + logQDivAEstimate + ", but truelogQDivASize = " + truelogQDivASize);
+			}
+			assertTrue(truelogQDivASize <= logQDivAEstimate + 2);
+		}
+		
 		int adjustedScore2 = (int) (adjustedScore + this.logQDivAEstimate - truelogQDivASize);
 		if (DEBUG) LOG.debug("adjust Q/a size: adjustedScore1 = " + adjustedScore + ", logQDivAEstimate = " + logQDivAEstimate + ", truelogQDivASize = " + truelogQDivASize + " -> adjustedScore2 = " + adjustedScore2);
 
