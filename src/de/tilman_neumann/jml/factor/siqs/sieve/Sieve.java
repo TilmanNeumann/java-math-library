@@ -13,6 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
@@ -31,22 +32,30 @@ public interface Sieve {
 	/**
 	 * Initialize for a new N. In PSIQS, this method is called for each thread, so things that can be computed before should be computed before.
 	 * @param sieveParams basic sieve parameters for a new N
+	 * @param primesArray the prime base before filtering the elements of the a-parameter
 	 * @param mergedBaseSize size of prime/power base after merging, before filtering
 	 */
-	void initializeForN(SieveParams sieveParams, int mergedBaseSize);
+	void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize);
 	
 	/**
 	 * Set (filtered) prime base and smallest x1, x2 solutions for a new a-parameter.
+	 * @param daParam d*a, where 'a' is the a-parameter and d=2 if kN==1 (mod 8), d=1 else
 	 * @param primeSolutions
 	 * @param filteredBaseSize number of primes and powers use for sieving
 	 */
-	void initializeForAParameter(SolutionArrays primeSolutions, int filteredBaseSize);
-	
+	void initializeForAParameter(BigInteger daParam, SolutionArrays primeSolutions, int filteredBaseSize);
+
+	/**
+	 * Pass the b-parameter to the sieve.
+	 * @param b
+	 */
+	public void setBParameter(BigInteger b);
+
 	/**
 	 * Sieve for a new set of x1, x2 solutions.
 	 * @return list of sieve locations x where Q(x) is smooth enough to be passed to trial division
 	 */
-	List<Integer> sieve();
+	List<SmoothCandidate> sieve();
 
 	/**
 	 * @return description of the durations of the individual sub-phases

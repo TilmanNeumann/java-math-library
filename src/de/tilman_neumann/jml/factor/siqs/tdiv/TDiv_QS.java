@@ -18,6 +18,7 @@ import java.util.List;
 
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
+import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 
 /**
  * Interface for trial division engines to find the factorization of smooth Q(x) with given x.
@@ -35,9 +36,9 @@ public interface TDiv_QS {
 	 * Initialize this trial division engine for a new N.
 	 * @param N_dbl
 	 * @param kN multiplier k (typically Knuth-Schroeppel) * factor argument N
-	 * @param maxQRest the biggest QRest admitted for a smooth relation
+	 * @param smoothBound the biggest QRest admitted for a smooth relation
 	 */
-	public void initializeForN(double N_dbl, BigInteger kN, double maxQRest);
+	public void initializeForN(double N_dbl, BigInteger kN, double smoothBound);
 
 	/**
 	 * Set prime/power base, polynomial parameters and smallest x-solutions for a new a-parameter.
@@ -51,18 +52,12 @@ public interface TDiv_QS {
 	void initializeForAParameter(BigInteger da, int d, BigInteger b, SolutionArrays primeSolutions, int filteredBaseSize, int[] unsievedBaseElements);
 	
 	/**
-	 * Set a new b-parameter.
-	 * @param b
-	 */
-	void setBParameter(BigInteger b);
-	
-	/**
 	 * Test if Q(x) is smooth (factors completely over the prime base) or "sufficiently smooth" (factors almost over the prime base)
 	 * for all x in the given list.
-	 * @param xList
+	 * @param smoothCandidates
 	 * @return the AQ-pairs where Q is at least "sufficiently smooth"
 	 */
-	List<AQPair> testList(List<Integer> xList);
+	List<AQPair> testList(List<SmoothCandidate> smoothCandidates);
 	
 	/**
 	 * @return a description of the performed tests.

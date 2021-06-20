@@ -13,9 +13,12 @@
  */
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +43,8 @@ public class SingleBlockHybridSieveU implements Sieve {
 	private static final Logger LOG = Logger.getLogger(SingleBlockHybridSieveU.class);
 	private static final boolean DEBUG = false;
 	private static final Unsafe UNSAFE = UnsafeUtil.getUnsafe();
+
+	private BigInteger daParam, bParam, cParam, kN;
 
 	// prime base
 	private int primeBaseSize;
@@ -72,6 +77,8 @@ public class SingleBlockHybridSieveU implements Sieve {
 	private long[] xNegArray;
 	private int[] dPosArray;
 	private int[] dNegArray;
+	
+	private List<SmoothCandidate> smoothCandidates = new ArrayList<>();
 
 	private BinarySearch binarySearch = new BinarySearch();
 
@@ -93,7 +100,8 @@ public class SingleBlockHybridSieveU implements Sieve {
 	}
 	
 	@Override
-	public void initializeForN(SieveParams sieveParams, int mergedBaseSize) {
+	public void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize) {
+		this.kN = sieveParams.kN;
 		this.pMinIndex = sieveParams.pMinIndex;
 		int pMax = sieveParams.pMax;
 		this.initializer = sieveParams.initializer;
@@ -125,7 +133,8 @@ public class SingleBlockHybridSieveU implements Sieve {
 	}
 
 	@Override
-	public void initializeForAParameter(SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
 		int[] pArray = solutionArrays.pArray;
 		this.primeBaseSize = filteredBaseSize;
@@ -144,7 +153,14 @@ public class SingleBlockHybridSieveU implements Sieve {
 	}
 
 	@Override
-	public List<Integer> sieve() {
+	public void setBParameter(BigInteger b) {
+		this.bParam = b;
+		if (DEBUG) assertTrue(b.multiply(b).subtract(kN).mod(daParam).equals(I_0));
+		this.cParam = b.multiply(b).subtract(kN).divide(daParam);
+	}
+
+	@Override
+	public List<SmoothCandidate> sieve() {
 		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
 		
@@ -171,7 +187,7 @@ public class SingleBlockHybridSieveU implements Sieve {
 		if (ANALYZE) initDuration += timer.capture();
 
 		// Sieve with positive x, large primes:
-		List<Integer> smoothXList = new ArrayList<Integer>();
+		smoothCandidates.clear();
 		final byte[] logPArray = solutionArrays.logPArray;
 		int i;
 		long x1Addr, x2Addr;
@@ -236,26 +252,26 @@ public class SingleBlockHybridSieveU implements Sieve {
 					if ((y0 & 0x8080808080808080L) != 0) {
 						final int y00 = (int) (y0 & 0x80808080L);
 						final int y01 = (int) (y0 >> 32);
-						if ((y00 &       0x80) != 0) smoothXList.add(relativeX+8);
-						if ((y00 &     0x8000) != 0) smoothXList.add(relativeX+9);
-						if ((y00 &   0x800000) != 0) smoothXList.add(relativeX+10);
-						if ((y00 & 0x80000000) != 0) smoothXList.add(relativeX+11);
-						if ((y01 &       0x80) != 0) smoothXList.add(relativeX+12);
-						if ((y01 &     0x8000) != 0) smoothXList.add(relativeX+13);
-						if ((y01 &   0x800000) != 0) smoothXList.add(relativeX+14);
-						if ((y01 & 0x80000000) != 0) smoothXList.add(relativeX+15);
+						if ((y00 &       0x80) != 0) addSmoothCandidate(relativeX+8 ,  y00      & 0xFF);
+						if ((y00 &     0x8000) != 0) addSmoothCandidate(relativeX+9 , (y00>> 8) & 0xFF);
+						if ((y00 &   0x800000) != 0) addSmoothCandidate(relativeX+10, (y00>>16) & 0xFF);
+						if ((y00 & 0x80000000) != 0) addSmoothCandidate(relativeX+11, (y00>>24) & 0xFF);
+						if ((y01 &       0x80) != 0) addSmoothCandidate(relativeX+12,  y01      & 0xFF);
+						if ((y01 &     0x8000) != 0) addSmoothCandidate(relativeX+13, (y01>> 8) & 0xFF);
+						if ((y01 &   0x800000) != 0) addSmoothCandidate(relativeX+14, (y01>>16) & 0xFF);
+						if ((y01 & 0x80000000) != 0) addSmoothCandidate(relativeX+15, (y01>>24) & 0xFF);
 					}
 					if ((y1 & 0x8080808080808080L) != 0) {
 						final int y10 = (int) (y1 & 0x80808080L);
 						final int y11 = (int) (y1 >> 32);
-						if ((y10 &       0x80) != 0) smoothXList.add(relativeX);
-						if ((y10 &     0x8000) != 0) smoothXList.add(relativeX+1);
-						if ((y10 &   0x800000) != 0) smoothXList.add(relativeX+2);
-						if ((y10 & 0x80000000) != 0) smoothXList.add(relativeX+3);
-						if ((y11 &       0x80) != 0) smoothXList.add(relativeX+4);
-						if ((y11 &     0x8000) != 0) smoothXList.add(relativeX+5);
-						if ((y11 &   0x800000) != 0) smoothXList.add(relativeX+6);
-						if ((y11 & 0x80000000) != 0) smoothXList.add(relativeX+7);
+						if ((y10 &       0x80) != 0) addSmoothCandidate(relativeX  ,  y10      & 0xFF);
+						if ((y10 &     0x8000) != 0) addSmoothCandidate(relativeX+1, (y10>> 8) & 0xFF);
+						if ((y10 &   0x800000) != 0) addSmoothCandidate(relativeX+2, (y10>>16) & 0xFF);
+						if ((y10 & 0x80000000) != 0) addSmoothCandidate(relativeX+3, (y10>>24) & 0xFF);
+						if ((y11 &       0x80) != 0) addSmoothCandidate(relativeX+4,  y11      & 0xFF);
+						if ((y11 &     0x8000) != 0) addSmoothCandidate(relativeX+5, (y11>> 8) & 0xFF);
+						if ((y11 &   0x800000) != 0) addSmoothCandidate(relativeX+6, (y11>>16) & 0xFF);
+						if ((y11 & 0x80000000) != 0) addSmoothCandidate(relativeX+7, (y11>>24) & 0xFF);
 					}
 				}
 			}
@@ -326,32 +342,32 @@ public class SingleBlockHybridSieveU implements Sieve {
 					if ((y0 & 0x8080808080808080L) != 0) {
 						final int y00 = (int) (y0 & 0x80808080L);
 						final int y01 = (int) (y0 >> 32);
-						if ((y00 &       0x80) != 0) smoothXList.add(-(relativeX+8));
-						if ((y00 &     0x8000) != 0) smoothXList.add(-(relativeX+9));
-						if ((y00 &   0x800000) != 0) smoothXList.add(-(relativeX+10));
-						if ((y00 & 0x80000000) != 0) smoothXList.add(-(relativeX+11));
-						if ((y01 &       0x80) != 0) smoothXList.add(-(relativeX+12));
-						if ((y01 &     0x8000) != 0) smoothXList.add(-(relativeX+13));
-						if ((y01 &   0x800000) != 0) smoothXList.add(-(relativeX+14));
-						if ((y01 & 0x80000000) != 0) smoothXList.add(-(relativeX+15));
+						if ((y00 &       0x80) != 0) addSmoothCandidate(-(relativeX+8) ,  y00      & 0xFF);
+						if ((y00 &     0x8000) != 0) addSmoothCandidate(-(relativeX+9) , (y00>> 8) & 0xFF);
+						if ((y00 &   0x800000) != 0) addSmoothCandidate(-(relativeX+10), (y00>>16) & 0xFF);
+						if ((y00 & 0x80000000) != 0) addSmoothCandidate(-(relativeX+11), (y00>>24) & 0xFF);
+						if ((y01 &       0x80) != 0) addSmoothCandidate(-(relativeX+12),  y01      & 0xFF);
+						if ((y01 &     0x8000) != 0) addSmoothCandidate(-(relativeX+13), (y01>> 8) & 0xFF);
+						if ((y01 &   0x800000) != 0) addSmoothCandidate(-(relativeX+14), (y01>>16) & 0xFF);
+						if ((y01 & 0x80000000) != 0) addSmoothCandidate(-(relativeX+15), (y01>>24) & 0xFF);
 					}
 					if ((y1 & 0x8080808080808080L) != 0) {
 						final int y10 = (int) (y1 & 0x80808080L);
 						final int y11 = (int) (y1 >> 32);
-						if ((y10 &       0x80) != 0) smoothXList.add(- relativeX   );
-						if ((y10 &     0x8000) != 0) smoothXList.add(-(relativeX+1));
-						if ((y10 &   0x800000) != 0) smoothXList.add(-(relativeX+2));
-						if ((y10 & 0x80000000) != 0) smoothXList.add(-(relativeX+3));
-						if ((y11 &       0x80) != 0) smoothXList.add(-(relativeX+4));
-						if ((y11 &     0x8000) != 0) smoothXList.add(-(relativeX+5));
-						if ((y11 &   0x800000) != 0) smoothXList.add(-(relativeX+6));
-						if ((y11 & 0x80000000) != 0) smoothXList.add(-(relativeX+7));
+						if ((y10 &       0x80) != 0) addSmoothCandidate(- relativeX   ,  y10      & 0xFF);
+						if ((y10 &     0x8000) != 0) addSmoothCandidate(-(relativeX+1), (y10>> 8) & 0xFF);
+						if ((y10 &   0x800000) != 0) addSmoothCandidate(-(relativeX+2), (y10>>16) & 0xFF);
+						if ((y10 & 0x80000000) != 0) addSmoothCandidate(-(relativeX+3), (y10>>24) & 0xFF);
+						if ((y11 &       0x80) != 0) addSmoothCandidate(-(relativeX+4),  y11      & 0xFF);
+						if ((y11 &     0x8000) != 0) addSmoothCandidate(-(relativeX+5), (y11>> 8) & 0xFF);
+						if ((y11 &   0x800000) != 0) addSmoothCandidate(-(relativeX+6), (y11>>16) & 0xFF);
+						if ((y11 & 0x80000000) != 0) addSmoothCandidate(-(relativeX+7), (y11>>24) & 0xFF);
 					}
 				}
 			}
 			if (ANALYZE) collectDuration += timer.capture();
 		}
-		return smoothXList;
+		return smoothCandidates;
 	}
 	
 	/**
@@ -454,7 +470,16 @@ public class SingleBlockHybridSieveU implements Sieve {
 			unfilled = sieveArraySize-filled;
 		}
 	}
-	
+
+	private void addSmoothCandidate(int x, int score) {
+		//Compute Q(x)/a:
+		BigInteger xBig = BigInteger.valueOf(x);
+		BigInteger dax = daParam.multiply(xBig);
+		BigInteger A = dax.add(bParam);
+		BigInteger Qdiva = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
+		smoothCandidates.add(new SmoothCandidate(x, Qdiva, A));
+	}
+
 	@Override
 	public SieveReport getReport() {
 		return new SieveReport(initDuration, sieveDuration, collectDuration);

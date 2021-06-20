@@ -25,6 +25,7 @@ import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.PolyReport;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
+import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
@@ -84,11 +85,11 @@ abstract public class PSIQSThreadBase extends Thread {
 			polyGenerator.nextPolynomial();
 			
 			// run sieve and get the sieve locations x where Q(x) is sufficiently smooth
-			List<Integer> smoothXList = sieve.sieve();
+			List<SmoothCandidate> smoothCandidates = sieve.sieve();
 			//LOG.debug("Sieve found " + smoothXList.size() + " Q(x) smooth enough to be passed to trial division.");
 
 			// trial division stage: produce AQ-pairs
-			List<AQPair> aqPairs = auxFactorizer.testList(smoothXList);
+			List<AQPair> aqPairs = auxFactorizer.testList(smoothCandidates);
 			//LOG.debug("Trial division found " + aqPairs.size() + " Q(x) smooth enough for a congruence.");
 
 			if (aqPairs.size()>0) {

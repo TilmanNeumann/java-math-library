@@ -32,9 +32,9 @@ public interface TDiv_CF63 {
 	/**
 	 * Initialize for a new N.
 	 * @param N
-	 * @param maxQRest
+	 * @param smoothBound
 	 */
-	public void initialize(BigInteger N, double maxQRest);
+	public void initialize(BigInteger N, double smoothBound);
 
 	/**
 	 * Initialize this factorizer for a new k; in particular set the prime base to be used for trial division.

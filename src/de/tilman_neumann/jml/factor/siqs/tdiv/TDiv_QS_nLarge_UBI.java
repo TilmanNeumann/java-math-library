@@ -36,6 +36,7 @@ import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63
 import de.tilman_neumann.jml.factor.siqs.SIQS_Small;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
+import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset;
@@ -44,7 +45,6 @@ import de.tilman_neumann.util.Timer;
 
 /**
  * A trial division engine where partials can have several large factors.
- * For SIQS this means that partials with 3 large primes could appearc starting at N >= 320 bit.
  * 
  * Division is carried out in two stages:
  * Stage 1 identifies prime factors of Q, applying long-valued Barrett reduction
@@ -72,11 +72,9 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	private BigInteger kN;
 	private BigInteger da; // d*a with d = 1 or 2 depending on kN % 8
 	private int d; // the d-value;
-	private BigInteger bParam;
-	private BigInteger cParam; // c = (b^2-kN)/(da), division is exact
 
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
-	private double maxQRest;
+	private double smoothBound;
 
 	// prime base
 	private int[] primes;
@@ -124,7 +122,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	 * @param permitUnsafeUsage if true then SIQS_Small (which is used for N > 310 bit to factor Q-rests) uses a sieve exploiting sun.misc.Unsafe features.
 	 */
 	public TDiv_QS_nLarge_UBI(boolean permitUnsafeUsage) {
-		qsInternal = new SIQS_Small(0.305F, 0.37F, null, 0.16F, new SIQSPolyGenerator(), 10, permitUnsafeUsage);
+		qsInternal = new SIQS_Small(0.305F, 0.37F, null, new SIQSPolyGenerator(), 10, permitUnsafeUsage);
 	}
 
 	@Override
@@ -133,10 +131,10 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	}
 
 	@Override
-	public void initializeForN(double N_dbl, BigInteger kN, double maxQRest) {
+	public void initializeForN(double N_dbl, BigInteger kN, double smoothBound) {
 		// the biggest unfactored rest where some Q is considered smooth enough for a congruence.
-		this.maxQRest = maxQRest;
-		if (DEBUG) LOG.debug("maxQRest = " + maxQRest + " (" + (64 - Long.numberOfLeadingZeros((long)maxQRest)) + " bits)");
+		this.smoothBound = smoothBound;
+		if (DEBUG) LOG.debug("smoothBound = " + smoothBound + " (" + (64 - Long.numberOfLeadingZeros((long)smoothBound)) + " bits)");
 		this.kN = kN;
 		// statistics
 		if (ANALYZE) testCount = sufficientSmoothCount = 0;
@@ -148,7 +146,6 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	public void initializeForAParameter(BigInteger da, int d, BigInteger b, SolutionArrays solutionArrays, int filteredBaseSize, int[] unsievedBaseElements) {
 		this.da = da;
 		this.d = d;
-		setBParameter(b);
 		primes = solutionArrays.primes;
 		exponents = solutionArrays.exponents;
 		pArray = solutionArrays.pArray;
@@ -162,35 +159,27 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	}
 
 	@Override
-	public void setBParameter(BigInteger b) {
-		this.bParam = b;
-		if (DEBUG) assertTrue(b.multiply(b).subtract(kN).mod(da).equals(I_0));
-		this.cParam = b.multiply(b).subtract(kN).divide(da);
-	}
-
-	@Override
-	public List<AQPair> testList(List<Integer> xList) {
+	public List<AQPair> testList(List<SmoothCandidate> smoothCandidates) {
 		if (ANALYZE) timer.capture();
 
 		// do trial division with sieve result
 		ArrayList<AQPair> aqPairs = new ArrayList<AQPair>();
-		for (int x : xList) {
+		for (SmoothCandidate smoothCandidate : smoothCandidates) {
+			int x = smoothCandidate.x;
+			BigInteger A = smoothCandidate.A;
+			BigInteger Qdiva = smoothCandidate.QdivA;
 			smallFactors.reset();
 			bigFactors.reset();
-			if (ANALYZE) testCount++;
-			
-			// Compute A(x) = d*a*x+b, required in the final sqrt computation; d is 1 or 2 depending on kN % 8
-			BigInteger xBig = BigInteger.valueOf(x);
-			BigInteger dax = da.multiply(xBig);
-			BigInteger A = dax.add(bParam);
-			if (ANALYZE) aqDuration += timer.capture();
+			if (ANALYZE) {
+				testCount++;
+				aqDuration += timer.capture();
+			}
 			
 			// Find factorization of Q(x) = A(x)^2 - kN. But the complete Q(x) is not required here,
 			// using the smaller Q(x)/da = da*x^2 + 2bx + c instead speeds up tdiv pass 2. 
 			// Note that test finds all factors of Q(x) nonetheless.
 			// Note also that unlike in MPQS, in SIQS we cannot continue working with Q(x)/da in later stages, because da is not a square
 			// and thus we could not combine relations from different a-parameters.
-			BigInteger Qdiva = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
 			AQPair aqPair = test(A, Qdiva, x);
 			if (ANALYZE) factorDuration += timer.capture();
 			
@@ -304,10 +293,10 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 		
 		// Division by all p<=pMax was not sufficient to factor Q completely.
 		// The remaining Q_rest is either a prime > pMax, or a composite > pMax^2.
-		if (Q_rest.doubleValue() >= maxQRest) return null; // Q is not sufficiently smooth
+		if (Q_rest.doubleValue() >= smoothBound) return null; // Q is not sufficiently smooth
 		
 		// now we consider Q as sufficiently smooth. then we want to know all prime factors, as long as we do not find one that is too big to be useful.
-		if (DEBUG) LOG.debug("test(): pMax=" + pMax + " < Q_rest=" + Q_rest + " < maxQRest=" + maxQRest + " -> resolve all factors");
+		if (DEBUG) LOG.debug("test(): pMax=" + pMax + " < Q_rest=" + Q_rest + " < smoothBound=" + smoothBound + " -> resolve all factors");
 		boolean isSmooth = factor_recurrent(Q_rest);
 		if (DEBUG) if (bigFactors.size()>2) LOG.debug("Found " + bigFactors.size() + " distinct big factors!"); // 3LP start at ~330 bit with current settings
 		if (isSmooth) {

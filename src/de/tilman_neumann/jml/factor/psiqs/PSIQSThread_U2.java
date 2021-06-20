@@ -16,45 +16,36 @@ package de.tilman_neumann.jml.factor.psiqs;
 import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
-import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
-import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
+import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
+import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03hU;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
+import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI;
 
 /**
- * Multi-threaded SIQS using the single block hybrid sieve.
- * 
+ * A polynomial generation/sieve/trial division thread using Sieve03gU.
  * @author Tilman Neumann
  */
-public class PSIQS_SBH_U extends PSIQSBase {
-	private int blockSize;
+public class PSIQSThread_U2 extends PSIQSThreadBase {
 
 	/**
 	 * Standard constructor.
-	 * @param Cmult multiplier for prime base size
-	 * @param Mmult multiplier for sieve array size
-	 * @param wantedQCount hypercube dimension (null for automatic selection)
-	 * @param blockSize wanted sieve block size in byte
-	 * @param numberOfThreads
-	 * @param powerFinder algorithm to add powers to the primes used for sieving
-	 * @param matrixSolver solver for smooth congruences matrix
+	 * @param k
+	 * @param N
+	 * @param kN
+	 * @param d the d-parameter of quadratic polynomials Q(x) = (d*a*x + b)^2 - kN; typically 1 or 2
+	 * @param sieveParams basic sieve parameters
+	 * @param baseArrays primes, power arrays after adding powers
+	 * @param apg
+	 * @param cc congruence collector, also runs the matrix solver
+	 * @param threadIndex
 	 */
-	public PSIQS_SBH_U(float Cmult, float Mmult, Integer wantedQCount, int blockSize, int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
-		super(Cmult, Mmult, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount));
-		this.blockSize = blockSize;
-	}
-
-	@Override
-	public String getName() {
-		return "PSIQS_SBH_U(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", blockSize=" + blockSize + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
-	}
-
-	protected PSIQSThreadBase createThread(
+	public PSIQSThread_U2(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		
-		return new PSIQSThread_SBH_U(k, N, kN, d, sieveParams, baseArrays, blockSize, apg, cc, threadIndex);
+		super(k, N, kN, d, sieveParams, baseArrays, apg, new SIQSPolyGenerator(), new Sieve03hU(),
+			  new TDiv_QS_2Large_UBI(true), cc, threadIndex);
 	}
 }

@@ -45,7 +45,9 @@ import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
+import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
+import de.tilman_neumann.jml.factor.siqs.sieve.SieveParamsFactory01;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
@@ -76,8 +78,6 @@ public class SIQS extends FactorAlgorithm {
 
 	// sieve
 	private float Mmult;
-	private Float maxQRestExponent0;
-	private float maxQRestExponent;
 	private Sieve sieve;
 	
 	// trial division engine
@@ -102,8 +102,6 @@ public class SIQS extends FactorAlgorithm {
 	 * @param Cmult multiplier for prime base size
 	 * @param Mmult multiplier for sieve array size
 	 * @param wantedQCount the wanted number of q whose product gives the a-parameter
-	 * @param maxQRestExponent A Q with unfactored rest QRest is considered smooth if QRest <= N^maxQRestExponent.
-	 *                         Good values are 0.16..0.19; null means that it is determined automatically.
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param polyGenerator
 	 * @param sieve the sieve algorithm
@@ -112,14 +110,13 @@ public class SIQS extends FactorAlgorithm {
 	 * @param matrixSolver matrix solver for the smooth congruence equation system
 	 */
 	public SIQS(
-			float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent, PowerFinder powerFinder, SIQSPolyGenerator polyGenerator, 
-			Sieve sieve, TDiv_QS auxFactorizer, int extraCongruences, MatrixSolver matrixSolver) {
+			float Cmult, float Mmult, Integer wantedQCount, PowerFinder powerFinder, SIQSPolyGenerator polyGenerator, Sieve sieve, 
+			TDiv_QS auxFactorizer, int extraCongruences, MatrixSolver matrixSolver) {
 		
 		super(null);
 		
 		this.Cmult = Cmult;
 		this.Mmult = Mmult;
-		this.maxQRestExponent0 = maxQRestExponent;
 		this.powerFinder = powerFinder;
 		this.polyGenerator = polyGenerator;
 		this.sieve = sieve;
@@ -131,8 +128,7 @@ public class SIQS extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		String maxQRestExponentStr = "maxQRestExponent=" + String.format("%.3f", maxQRestExponent);
-		return "SIQS(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + maxQRestExponentStr + ", " + powerFinder.getName() + ", " + polyGenerator.getName() + ", " + sieve.getName() + ", " + auxFactorizer.getName() + ", " + matrixSolver.getName() + ")";
+		return "SIQS(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount()+ ", " + powerFinder.getName() + ", " + polyGenerator.getName() + ", " + sieve.getName() + ", " + auxFactorizer.getName() + ", " + matrixSolver.getName() + ")";
 	}
 
 	@Override
@@ -242,14 +238,6 @@ public class SIQS extends FactorAlgorithm {
 		}
 		int adjustedSieveArraySize = (int) (proposedSieveArraySize & 0x7FFFFF00);
 		if (DEBUG) LOG.debug("N=" + N + ", k=" + k + ": pMax=" + pMax + ", sieve array size was adjusted from " + proposedSieveArraySize + " to " + adjustedSieveArraySize);
-		
-		// compute biggest QRest admitted for a smooth relation
-		if (maxQRestExponent0 != null) {
-			maxQRestExponent = maxQRestExponent0;
-		} else {
-			maxQRestExponent = (NBits<=150) ? 0.16F : 0.16F + (NBits-150.0F)/5250;
-		}
-		double maxQRest = Math.pow(N_dbl, maxQRestExponent);
 
 		// initialize sub-algorithms for new N
 		apg.initialize(k, N, kN, d, primeBaseSize, primesArray, tArray, adjustedSieveArraySize); // must be done before polyGenerator initialization where qCount is required
@@ -258,7 +246,8 @@ public class SIQS extends FactorAlgorithm {
 		congruenceCollector.initialize(N, primeBaseSize, matrixSolver, factorTest);
 
 		// compute some basic parameters for N
-		SieveParams sieveParams = new SieveParams(kN, primesArray, primeBaseSize, adjustedSieveArraySize, maxQRest, 127);
+		SieveParams sieveParams = SieveParamsFactory01.create(N_dbl, NBits, kN, primesArray, primeBaseSize, adjustedSieveArraySize);
+		
 		// compute logP array
 		byte[] logPArray = computeLogPArray(primesArray, primeBaseSize, sieveParams.lnPMultiplier);
 		// compute reciprocals of primes
@@ -288,7 +277,7 @@ public class SIQS extends FactorAlgorithm {
 			polyGenerator.nextPolynomial(); // sets filtered prime base in SIQS
 
 			// run sieve and get the sieve locations x where Q(x) is sufficiently smooth
-			List<Integer> smoothXList = sieve.sieve();
+			List<SmoothCandidate> smoothXList = sieve.sieve();
 			//LOG.debug("Sieve found " + smoothXList.size() + " Q(x) smooth enough to be passed to trial division.");
 
 			// trial division stage: produce AQ-pairs
@@ -335,11 +324,11 @@ public class SIQS extends FactorAlgorithm {
 			if (aqPair instanceof Smooth) foundPerfectSmoothCount++;
 		}
 		foundAQPairsCount += foundAQPairs.size();
-		ArrayList<Integer> allXList = new ArrayList<Integer>();
-		allXList.add(0);
+		ArrayList<SmoothCandidate> allXList = new ArrayList<>();
+		allXList.add(new SmoothCandidate(0));
 		for (int x=1; x<sieveArraySize; x++) {
-			allXList.add(x);
-			allXList.add(-x);
+			allXList.add(new SmoothCandidate(x));
+			allXList.add(new SmoothCandidate(-x));
 		}
 		List<AQPair> allAQPairs = this.auxFactorizer.testList(allXList);
 		for (AQPair aqPair : allAQPairs) {
@@ -421,7 +410,7 @@ public class SIQS extends FactorAlgorithm {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		SIQS qs = new SIQS(0.32F, 0.37F, null, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos());
+		SIQS qs = new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos());
 		Timer timer = new Timer();
 		while(true) {
 			try {

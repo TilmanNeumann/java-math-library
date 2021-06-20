@@ -68,7 +68,7 @@ public class CFrac63 extends FactorAlgorithm {
 
 	// factorizer for Q
 	private TDiv_CF63 auxFactorizer;
-	private float maxQRestExponent;
+	private float smoothBoundExponent;
 	
 	// collects the congruences we find
 	private CongruenceCollector congruenceCollector;
@@ -89,20 +89,20 @@ public class CFrac63 extends FactorAlgorithm {
 	 * @param stopRoot order of the root to compute the maximum number of iterations
 	 * @param stopMult multiplier to compute the maximum number of iterations
 	 * @param C multiplier for prime base size
-	 * @param maxQRestExponent
+	 * @param smoothBoundExponent
 	 * @param auxFactorizer the algorithm to find smooth Q
 	 * @param extraCongruences the number of surplus congruences we collect to have a greater chance that the equation system solves.
 	 * @param matrixSolver matrix solver for the smooth congruence equation system
 	 * @param ks_adjust
 	 */
-	public CFrac63(boolean use_all_i, int stopRoot, float stopMult, float C, float maxQRestExponent,
+	public CFrac63(boolean use_all_i, int stopRoot, float stopMult, float C, float smoothBoundExponent,
 				   TDiv_CF63 auxFactorizer, int extraCongruences, MatrixSolver matrixSolver, int ks_adjust) {
 
 		this.use_all_i = use_all_i;
 		this.stopRoot = stopRoot;
 		this.stopMult = stopMult;
 		this.C = C;
-		this.maxQRestExponent = maxQRestExponent;
+		this.smoothBoundExponent = smoothBoundExponent;
 		this.auxFactorizer = auxFactorizer;
 		this.congruenceCollector = new CongruenceCollector();
 		this.extraCongruences = extraCongruences;
@@ -112,7 +112,7 @@ public class CFrac63 extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "CFrac63(all_i=" + use_all_i + ", ks_adjust=" + ks_adjust + ", stop=(" + stopRoot + ", " + stopMult + "), C=" + C + ", maxSuSmoothExp=" + maxQRestExponent + ", " + auxFactorizer.getName() + ")";
+		return "CFrac63(all_i=" + use_all_i + ", ks_adjust=" + ks_adjust + ", stop=(" + stopRoot + ", " + stopMult + "), C=" + C + ", maxSuSmoothExp=" + smoothBoundExponent + ", " + auxFactorizer.getName() + ")";
 	}
 	
 	/**
@@ -134,10 +134,10 @@ public class CFrac63 extends FactorAlgorithm {
 		this.primesArray = new int[primeBaseSize];
 
 		// compute the biggest unfactored rest where some Q is still considered "sufficiently smooth".
-		double maxQRest = Math.pow(N_dbl, maxQRestExponent);
+		double smoothBound = Math.pow(N_dbl, smoothBoundExponent);
 		
 		// initialize sub-algorithms for N
-		this.auxFactorizer.initialize(N, maxQRest);
+		this.auxFactorizer.initialize(N, smoothBound);
 		FactorTest factorTest = new FactorTest01(N);
 		this.congruenceCollector.initialize(N, factorTest);
 		this.combinedPrimesSet = new HashSet<Integer>();

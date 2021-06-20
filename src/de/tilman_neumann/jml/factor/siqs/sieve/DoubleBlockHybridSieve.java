@@ -13,9 +13,12 @@
  */
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +40,8 @@ import de.tilman_neumann.util.Timer;
 public class DoubleBlockHybridSieve implements Sieve {
 	private static final Logger LOG = Logger.getLogger(DoubleBlockHybridSieve.class);
 	private static final boolean DEBUG = false;
+
+	private BigInteger daParam, bParam, cParam, kN;
 
 	// prime base
 	private int solutionCount;
@@ -69,6 +74,8 @@ public class DoubleBlockHybridSieve implements Sieve {
 	private int[] dPosArray;
 	private int[] dNegArray;
 
+	private List<SmoothCandidate> smoothCandidates = new ArrayList<>();
+
 	private BinarySearch binarySearch = new BinarySearch();
 
 	// timings
@@ -92,7 +99,8 @@ public class DoubleBlockHybridSieve implements Sieve {
 	}
 	
 	@Override
-	public void initializeForN(SieveParams sieveParams, int mergedBaseSize) {
+	public void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize) {
+		this.kN = sieveParams.kN;
 		this.pMinIndex = sieveParams.pMinIndex;
 		int pMax = sieveParams.pMax;
 		initializer = sieveParams.getInitializerBlock();
@@ -128,7 +136,8 @@ public class DoubleBlockHybridSieve implements Sieve {
 	}
 
 	@Override
-	public void initializeForAParameter(SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
 		int[] pArray = solutionArrays.pArray;
 		this.solutionCount = filteredBaseSize;
@@ -150,7 +159,14 @@ public class DoubleBlockHybridSieve implements Sieve {
 	}
 
 	@Override
-	public List<Integer> sieve() {
+	public void setBParameter(BigInteger b) {
+		this.bParam = b;
+		if (DEBUG) assertTrue(b.multiply(b).subtract(kN).mod(daParam).equals(I_0));
+		this.cParam = b.multiply(b).subtract(kN).divide(daParam);
+	}
+
+	@Override
+	public List<SmoothCandidate> sieve() {
 		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
 		
@@ -176,7 +192,7 @@ public class DoubleBlockHybridSieve implements Sieve {
 		if (ANALYZE) initDuration += timer.capture();
 
 		// Sieve with positive x, large primes:
-		List<Integer> smoothXList = new ArrayList<Integer>();
+		smoothCandidates.clear();
 		final byte[] logPArray = solutionArrays.logPArray;
 		int i;
 		for (i=solutionCount-1; i>=p1Index; i--) {
@@ -237,10 +253,10 @@ public class DoubleBlockHybridSieve implements Sieve {
 				// So we have to use 'or'. More than 4 'or's do not pay out.
 				if (((sieveBlock[x--] | sieveBlock[x--] | sieveBlock[x--] | sieveBlock[x--]) & 0x80) != 0) {
 					// at least one of the tested Q(x) is sufficiently smooth to be passed to trial division!
-					if (sieveBlock[x+1] < 0) smoothXList.add(x+b2Offset1);
-					if (sieveBlock[x+2] < 0) smoothXList.add(x+b2Offset2);
-					if (sieveBlock[x+3] < 0) smoothXList.add(x+b2Offset3);
-					if (sieveBlock[x+4] < 0) smoothXList.add(x+b2Offset4);
+					if (sieveBlock[x+1] < 0) addSmoothCandidate(x+b2Offset1, sieveBlock[x+1] & 0xFF);
+					if (sieveBlock[x+2] < 0) addSmoothCandidate(x+b2Offset2, sieveBlock[x+2] & 0xFF);
+					if (sieveBlock[x+3] < 0) addSmoothCandidate(x+b2Offset3, sieveBlock[x+3] & 0xFF);
+					if (sieveBlock[x+4] < 0) addSmoothCandidate(x+b2Offset4, sieveBlock[x+4] & 0xFF);
 				}
 			} // end for (x)
 			if (ANALYZE) collectDuration += timer.capture();
@@ -308,15 +324,15 @@ public class DoubleBlockHybridSieve implements Sieve {
 				// So we have to use 'or'. More than 4 'or's do not pay out.
 				if (((sieveBlock[x--] | sieveBlock[x--] | sieveBlock[x--] | sieveBlock[x--]) & 0x80) != 0) {
 					// at least one of the tested Q(-x) is sufficiently smooth to be passed to trial division!
-					if (sieveBlock[x+1] < 0) smoothXList.add(-(x+b2Offset1));
-					if (sieveBlock[x+2] < 0) smoothXList.add(-(x+b2Offset2));
-					if (sieveBlock[x+3] < 0) smoothXList.add(-(x+b2Offset3));
-					if (sieveBlock[x+4] < 0) smoothXList.add(-(x+b2Offset4));
+					if (sieveBlock[x+1] < 0) addSmoothCandidate(-(x+b2Offset1), sieveBlock[x+1] & 0xFF);
+					if (sieveBlock[x+2] < 0) addSmoothCandidate(-(x+b2Offset2), sieveBlock[x+2] & 0xFF);
+					if (sieveBlock[x+3] < 0) addSmoothCandidate(-(x+b2Offset3), sieveBlock[x+3] & 0xFF);
+					if (sieveBlock[x+4] < 0) addSmoothCandidate(-(x+b2Offset4), sieveBlock[x+4] & 0xFF);
 				}
 			} // end for (x)
 			if (ANALYZE) collectDuration += timer.capture();
 		}
-		return smoothXList;
+		return smoothCandidates;
 	}
 	
 	/**
@@ -473,6 +489,15 @@ public class DoubleBlockHybridSieve implements Sieve {
 			} // end if (x2 == x1)
 			xNegArray[r] = x-B;
 		}
+	}
+
+	private void addSmoothCandidate(int x, int score) {
+		//Compute Q(x)/a:
+		BigInteger xBig = BigInteger.valueOf(x);
+		BigInteger dax = daParam.multiply(xBig);
+		BigInteger A = dax.add(bParam);
+		BigInteger Qdiva = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
+		smoothCandidates.add(new SmoothCandidate(x, Qdiva, A));
 	}
 
 	/**

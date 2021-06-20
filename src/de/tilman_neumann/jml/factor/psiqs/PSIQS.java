@@ -35,22 +35,17 @@ public class PSIQS extends PSIQSBase {
 	 * @param Cmult multiplier for prime base size
 	 * @param Mmult multiplier for sieve array size
 	 * @param wantedQCount hypercube dimension (null for automatic selection)
-	 * @param maxQRestExponent A Q with unfactored rest QRest is considered smooth if QRest <= N^maxQRestExponent.
-	 *                         Good values are 0.16..0.19; null means that it is determined automatically.
 	 * @param numberOfThreads
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param matrixSolver solver for smooth congruences matrix
 	 */
-	public PSIQS(float Cmult, float Mmult, Integer wantedQCount, Float maxQRestExponent,
-				 int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
-		
-		super(Cmult, Mmult, maxQRestExponent, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount));
+	public PSIQS(float Cmult, float Mmult, Integer wantedQCount, int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
+		super(Cmult, Mmult, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount));
 	}
 
 	@Override
 	public String getName() {
-		String maxQRestExponentStr = "maxQRestExponent=" + String.format("%.3f", maxQRestExponent);
-		return "PSIQS(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + maxQRestExponentStr + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
+		return "PSIQS(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
 	}
 
 	@Override

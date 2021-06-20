@@ -36,8 +36,8 @@ import sun.misc.Unsafe;
  * 
  * @author Tilman Neumann
  */
-public class Sieve03gU implements Sieve {
-	private static final Logger LOG = Logger.getLogger(Sieve03gU.class);
+public class Sieve03hU implements Sieve {
+	private static final Logger LOG = Logger.getLogger(Sieve03hU.class);
 	private static final boolean DEBUG = false;
 	private static final Unsafe UNSAFE = UnsafeUtil.getUnsafe();
 
@@ -45,8 +45,14 @@ public class Sieve03gU implements Sieve {
 	private static final long UPPER_MASK =  0x8080808000000000L;
 	private static final long LOWER_MASK =          0x80808080L;
 
-	private BigInteger daParam, bParam, cParam, kN;
-
+	private static final double LN2 = Math.log(2.0);
+	
+	private BigInteger daParam, bParam, cParam, kN, smallPrimesProd;
+	
+	private double logPMultiplier;
+	private int tdivTestMinLogPSum;
+	private int logQDivAEstimate;
+	
 	// prime base
 	private int primeBaseSize;
 	/** we do not sieve with primes p_i, i<pMinIndex */
@@ -76,13 +82,23 @@ public class Sieve03gU implements Sieve {
 	
 	@Override
 	public String getName() {
-		return "sieve03gU";
+		return "sieve03hU";
 	}
 	
 	@Override
 	public void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize) {
 		this.kN = sieveParams.kN;
 		this.pMinIndex = sieveParams.pMinIndex;
+		this.logPMultiplier = sieveParams.lnPMultiplier * LN2;
+		this.tdivTestMinLogPSum = sieveParams.tdivTestMinLogPSum;
+		this.logQDivAEstimate = sieveParams.logQdivAEstimate;
+		
+		// compute product of unsieved primes
+		smallPrimesProd = BigInteger.valueOf(primesArray[pMinIndex-1]);
+		for (int i=pMinIndex-2; i>=0; i--) {
+			smallPrimesProd = smallPrimesProd.multiply(BigInteger.valueOf(primesArray[i]));
+		}
+
 		int pMax = sieveParams.pMax;
 		this.initializer = sieveParams.initializer;
 
@@ -416,9 +432,27 @@ public class Sieve03gU implements Sieve {
 		BigInteger dax = daParam.multiply(xBig);
 		BigInteger A = dax.add(bParam);
 		BigInteger Qdiva = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
-		smoothCandidates.add(new SmoothCandidate(x, Qdiva, A));
-	}
 
+		// Replace estimated small factor contribution by the true one:
+		// The score has to rise if the true small factor contribution is greater than expected.
+		BigInteger gcd = Qdiva.gcd(smallPrimesProd);
+		int logSmallPSum = (int) (gcd.bitLength() * logPMultiplier);
+		int adjustedScore = score - ((int)initializer) + logSmallPSum;
+		//LOG.debug("score = " + score + ", adjustedScore = " + adjustedScore);
+		if (DEBUG) LOG.debug("adjust initializer: original score = " + score + ", initializer = " + (int)initializer + ", logSmallPSum = " + logSmallPSum + " -> adjustedScore1 = " + adjustedScore);
+		
+		// Replace estimated QdivA size by the true one:
+		// The score has to rise if the true QdivA size is smaller than expected, because then we have less to factor
+		int truelogQDivASize = (int) (Qdiva.bitLength() * logPMultiplier);
+		int adjustedScore2 = (int) (adjustedScore + this.logQDivAEstimate - truelogQDivASize);
+		if (DEBUG) LOG.debug("adjust Q/a size: adjustedScore1 = " + adjustedScore + ", logQDivAEstimate = " + logQDivAEstimate + ", truelogQDivASize = " + truelogQDivASize + " -> adjustedScore2 = " + adjustedScore2);
+
+		if (adjustedScore2 > tdivTestMinLogPSum) {
+			if (DEBUG) LOG.debug("adjustedScore2 = " + adjustedScore2 + " is greater than tdivTestMinLogPSum = " + tdivTestMinLogPSum + " -> pass Q to tdiv");
+			smoothCandidates.add(new SmoothCandidate(x, Qdiva, A));
+		}
+	}
+	
 	@Override
 	public SieveReport getReport() {
 		return new SieveReport(initDuration, sieveDuration, collectDuration);

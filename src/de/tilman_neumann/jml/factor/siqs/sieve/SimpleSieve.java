@@ -13,8 +13,11 @@
  */
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
+import static org.junit.Assert.assertTrue;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +30,12 @@ import de.tilman_neumann.util.Timer;
  * @author Tilman Neumann
  */
 public class SimpleSieve implements Sieve {
+	private static final boolean DEBUG = false;
+	
 	/** basic building block for fast zero-initialization of sieve array */
 	private static final byte[] ZERO_ARRAY_256 = new byte[256];
+
+	private BigInteger daParam, bParam, cParam, kN;
 
 	// prime base
 	private int primeBaseSize;
@@ -40,7 +47,8 @@ public class SimpleSieve implements Sieve {
 	/** the arrays holding logP sums for all x */
 	private byte[] sieveArray_pos = null; // null indicates that allocation is required
 	private byte[] sieveArray_neg;
-	
+	private List<SmoothCandidate> smoothCandidates = new ArrayList<>();
+
 	// timings
 	private Timer timer = new Timer();
 	private long initDuration, sieveDuration, collectDuration;
@@ -52,20 +60,29 @@ public class SimpleSieve implements Sieve {
 	}
 	
 	@Override
-	public void initializeForN(SieveParams sieveParams, int mergedBaseSize) {
+	public void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize) {
+		this.kN = sieveParams.kN;
 		this.sieveArraySize = sieveParams.sieveArraySize;
 
 		if (ANALYZE) initDuration = sieveDuration = collectDuration = 0;
 	}
 
 	@Override
-	public void initializeForAParameter(SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
 		this.primeBaseSize = filteredBaseSize;
 	}
 
 	@Override
-	public List<Integer> sieve() {
+	public void setBParameter(BigInteger b) {
+		this.bParam = b;
+		if (DEBUG) assertTrue(b.multiply(b).subtract(kN).mod(daParam).equals(I_0));
+		this.cParam = b.multiply(b).subtract(kN).divide(daParam);
+	}
+
+	@Override
+	public List<SmoothCandidate> sieve() {
 		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
 		if (ANALYZE) initDuration += timer.capture();
@@ -112,22 +129,22 @@ public class SimpleSieve implements Sieve {
 		if (ANALYZE) sieveDuration += timer.capture();
 
 		// collect results
-		List<Integer> smoothXList = new ArrayList<Integer>();
+		smoothCandidates.clear();
 		// let the sieve entry counter x run down to 0 is much faster because of the simpler exit condition
 		for (int x=sieveArraySize-1; x>=0; x--) {
 			// collect positive x
 			if ((sieveArray_pos[x] & 0xFF) > 128) {
 				// Q is sufficiently smooth to be passed to trial division!
-				smoothXList.add(x);
+				addSmoothCandidate(x, sieveArray_pos[x] & 0xFF);
 			}
 			// collect negative x
 			if ((sieveArray_neg[x] & 0xFF) > 128) {
 				// Q(-x) is sufficiently smooth to be passed to trial division!
-				smoothXList.add(-x);
+				addSmoothCandidate(-x, sieveArray_neg[x] & 0xFF);
 			}
 		} // end for (x)
 		if (ANALYZE) collectDuration += timer.capture();
-		return smoothXList;
+		return smoothCandidates;
 	}
 
 	/**
@@ -154,6 +171,15 @@ public class SimpleSieve implements Sieve {
 			}
 			System.arraycopy(sieveArray_pos, 0, sieveArray_neg, 0, sieveArraySize);
 		}
+	}
+
+	private void addSmoothCandidate(int x, int score) {
+		//Compute Q(x)/a:
+		BigInteger xBig = BigInteger.valueOf(x);
+		BigInteger dax = daParam.multiply(xBig);
+		BigInteger A = dax.add(bParam);
+		BigInteger Qdiva = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
+		smoothCandidates.add(new SmoothCandidate(x, Qdiva, A));
 	}
 
 	@Override

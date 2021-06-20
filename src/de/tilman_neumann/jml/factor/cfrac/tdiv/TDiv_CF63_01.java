@@ -41,7 +41,7 @@ public class TDiv_CF63_01 implements TDiv_CF63 {
 	private int[] primesArray;
 	
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
-	private double maxQRest;
+	private double smoothBound;
 
 	// result: two arrays that are reused, their content is _copied_ to AQ-pairs
 	private SortedIntegerArray smallFactors = new SortedIntegerArray();
@@ -51,8 +51,8 @@ public class TDiv_CF63_01 implements TDiv_CF63 {
 		return "TDiv63-01";
 	}
 
-	public void initialize(BigInteger N, double maxQRest) {
-		this.maxQRest = maxQRest;
+	public void initialize(BigInteger N, double smoothBound) {
+		this.smoothBound = smoothBound;
 	}
 	
 	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray) {
@@ -118,7 +118,7 @@ public class TDiv_CF63_01 implements TDiv_CF63 {
 		
 		// trial division was not sufficient to factor Q completely.
 		// the remaining Q is either a prime > pMax, or a composite > pMax^2.
-		if (bitLength(Q_rest) > 31 || Q_rest > maxQRest) return null; // Q is not sufficiently smooth
+		if (bitLength(Q_rest) > 31 || Q_rest > smoothBound) return null; // Q is not sufficiently smooth
 	
 		// Q is sufficiently smooth
 		return new Partial_1Large(A, smallFactors, (int)Q_rest);

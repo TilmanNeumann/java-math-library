@@ -34,7 +34,7 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 /**
  * Experimental Hart algorithm assembling square congruences from smooth congruences.
  * 
- * For small N, parameter optimization leads to C=0 and maxQRestExponent=0, indicating that the
+ * For small N, parameter optimization leads to C=0 and smoothBoundExponent=0, indicating that the
  * square test is the only thing that matters and such that the orginal Hart algorithm is much better.
  * 
  * For larger N, CFrac seems to be certainly faster.
@@ -57,7 +57,7 @@ public class HartLA63 extends FactorAlgorithm {
 
 	// factorizer for Q
 	private TDiv_CF63 auxFactorizer;
-	private float maxQRestExponent;
+	private float smoothBoundExponent;
 	
 	// collects the congruences we find
 	private CongruenceCollector congruenceCollector;
@@ -91,15 +91,15 @@ public class HartLA63 extends FactorAlgorithm {
 	/**
 	 * Standard constructor.
 	 * @param C multiplier for prime base size
-	 * @param maxQRestExponent
+	 * @param smoothBoundExponent
 	 * @param auxFactorizer the algorithm to find smooth Q
 	 * @param extraCongruences the number of surplus congruences we collect to have a greater chance that the equation system solves.
 	 * @param matrixSolver matrix solver for the smooth congruence equation system
 	 */
-	public HartLA63(float C, float maxQRestExponent, TDiv_CF63 auxFactorizer, int extraCongruences, MatrixSolver matrixSolver) {
+	public HartLA63(float C, float smoothBoundExponent, TDiv_CF63 auxFactorizer, int extraCongruences, MatrixSolver matrixSolver) {
 
 		this.C = C;
-		this.maxQRestExponent = maxQRestExponent;
+		this.smoothBoundExponent = smoothBoundExponent;
 		this.auxFactorizer = auxFactorizer;
 		this.congruenceCollector = new CongruenceCollector();
 		this.extraCongruences = extraCongruences;
@@ -114,7 +114,7 @@ public class HartLA63 extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "HartLA63(C=" + C + ", maxSuSmoothExp=" + maxQRestExponent + ", " + auxFactorizer.getName() + ")";
+		return "HartLA63(C=" + C + ", maxSuSmoothExp=" + smoothBoundExponent + ", " + auxFactorizer.getName() + ")";
 	}
 	
 	/**
@@ -136,10 +136,10 @@ public class HartLA63 extends FactorAlgorithm {
 		this.primesArray = new int[primeBaseSize];
 
 		// compute the biggest unfactored rest where some Q is still considered "sufficiently smooth".
-		double maxQRest = Math.pow(N_dbl, maxQRestExponent);
+		double smoothBound = Math.pow(N_dbl, smoothBoundExponent);
 		
 		// initialize sub-algorithms for N
-		this.auxFactorizer.initialize(N, maxQRest);
+		this.auxFactorizer.initialize(N, smoothBound);
 		FactorTest factorTest = new FactorTest01(N);
 		this.congruenceCollector.initialize(N, factorTest);
 		this.matrixSolver.initialize(N, factorTest);

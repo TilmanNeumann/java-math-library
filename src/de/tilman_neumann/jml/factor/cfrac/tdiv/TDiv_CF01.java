@@ -43,7 +43,7 @@ public class TDiv_CF01 implements TDiv_CF {
 	private int[] primesArray_int;
 	
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
-	private double maxQRest;
+	private double smoothBound;
 
 	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
 	private UnsignedBigInt quot = new UnsignedBigInt(new int[50]);
@@ -56,8 +56,8 @@ public class TDiv_CF01 implements TDiv_CF {
 		return "TDiv01";
 	}
 
-	public void initialize(BigInteger N, double maxQRest) {
-		this.maxQRest = maxQRest;
+	public void initialize(BigInteger N, double smoothBound) {
+		this.smoothBound = smoothBound;
 	}
 	
 	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray) {
@@ -151,7 +151,7 @@ public class TDiv_CF01 implements TDiv_CF {
 
 		// trial division was not sufficient to factor Q completely.
 		// the remaining Q is either a prime > pMax, or a composite > pMax^2.
-		if (Q_rest.bitLength()>31 || Q_rest.doubleValue() > maxQRest) return null; // Q is not sufficiently smooth
+		if (Q_rest.bitLength()>31 || Q_rest.doubleValue() > smoothBound) return null; // Q is not sufficiently smooth
 		
 		// Q is sufficiently smooth
 		return new Partial_1Large(A, smallFactors, Q_rest.intValue());

@@ -36,6 +36,7 @@ import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.PolyReport;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
+import de.tilman_neumann.jml.factor.siqs.sieve.SieveParamsFactory01;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.powers.PurePowerTest;
@@ -73,8 +74,6 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 	// sieve configuration
 	protected float Mmult;
-	private Float maxQRestExponent0;
-	protected float maxQRestExponent;
 	
 	// collects the congruences we find
 	private CongruenceCollector congruenceCollector;
@@ -91,23 +90,18 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	 * Standard constructor.
 	 * @param Cmult multiplier for prime base size
 	 * @param Mmult multiplier for sieve array size
-	 * @param maxQRestExponent A Q with unfactored rest QRest is considered smooth if QRest <= N^maxQRestExponent.
-	 *                         Good values are 0.16..0.19; null means that it is determined automatically.
 	 * @param numberOfThreads
 	 * @param d the d-parameter of quadratic polynomials Q(x) = (d*a*x + b)^2 - kN; may be null for automatic derivation
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param matrixSolver solver for smooth congruences matrix
 	 * @param apg a-parameter generator
 	 */
-	public PSIQSBase(
-			float Cmult, float Mmult, Float maxQRestExponent, int numberOfThreads, Integer d,
-			PowerFinder powerFinder, MatrixSolver matrixSolver, AParamGenerator apg) {
+	public PSIQSBase(float Cmult, float Mmult, int numberOfThreads, Integer d, PowerFinder powerFinder, MatrixSolver matrixSolver, AParamGenerator apg) {
 		
 		super(null);
 		
 		this.Cmult = Cmult;
 		this.Mmult = Mmult;
-		this.maxQRestExponent0 = maxQRestExponent;
 		this.numberOfThreads = numberOfThreads;
 		this.d0 = d;
 		this.powerFinder = powerFinder;
@@ -229,14 +223,6 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		}
 		int adjustedSieveArraySize = (int) (proposedSieveArraySize & 0x7FFFFF00);
 		if (DEBUG) LOG.debug("N=" + N + ", k=" + k + ": pMax=" + pMax + ", sieve array size was adjusted from " + proposedSieveArraySize + " to " + adjustedSieveArraySize);
-		
-		// compute biggest QRest admitted for a smooth relation
-		if (maxQRestExponent0 != null) {
-			maxQRestExponent = maxQRestExponent0;
-		} else {
-			maxQRestExponent = (NBits<=150) ? 0.16F : 0.16F + (NBits-150.0F)/5250;
-		}
-		double maxQRest = Math.pow(N_dbl, maxQRestExponent);
 
 		// initialize sub-algorithms for new N
 		apg.initialize(k, N, kN, d, primeBaseSize, primesArray, tArray, adjustedSieveArraySize); // must be done before polyGenerator initialization where qCount is required
@@ -245,7 +231,8 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		congruenceCollector.initialize(N, primeBaseSize, matrixSolver, factorTest);
 
 		// compute some basic parameters for N
-		SieveParams sieveParams = new SieveParams(kN, primesArray, primeBaseSize, adjustedSieveArraySize, maxQRest, 127);
+		SieveParams sieveParams = SieveParamsFactory01.create(N_dbl, NBits, kN, primesArray, primeBaseSize, adjustedSieveArraySize);
+		
 		// compute logP array
 		byte[] logPArray = computeLogPArray(primesArray, primeBaseSize, sieveParams.lnPMultiplier);
 		// compute reciprocals of primes

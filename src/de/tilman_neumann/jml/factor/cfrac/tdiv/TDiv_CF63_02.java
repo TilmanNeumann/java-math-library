@@ -48,7 +48,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 	private long pMaxSquare;
 
 	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
-	private double maxQRest;
+	private double smoothBound;
 
 	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
 	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
@@ -67,8 +67,8 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 		return "TDiv63-02";
 	}
 
-	public void initialize(BigInteger N, double maxQRest) {
-		this.maxQRest = maxQRest;
+	public void initialize(BigInteger N, double smoothBound) {
+		this.smoothBound = smoothBound;
 	}
 
 	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray) {
@@ -137,7 +137,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 
 		// trial division was not sufficient to factor Q completely.
 		// the remaining Q is either a prime > pMax, or a composite > pMax^2.
-		if (Q_rest > maxQRest) return null; // Q is not sufficiently smooth
+		if (Q_rest > smoothBound) return null; // Q is not sufficiently smooth
 		 
 		// now we consider Q as sufficiently smooth. then we want to know all prime factors, as long as we do not find one that is too big to be useful.
 		//LOG.debug("before factor_recurrent()");
@@ -162,7 +162,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 			return true;
 		} // else: Q_rest is surely not prime
 
-		// Find a factor of Q_rest, where Q_rest is pMax < Q_rest <= maxQRest, composite and odd.
+		// Find a factor of Q_rest, where Q_rest is pMax < Q_rest <= smoothBound, composite and odd.
 		long factor1;
 		int Q_rest_bits = bitLength(Q_rest);
 		if (Q_rest_bits < 25) {

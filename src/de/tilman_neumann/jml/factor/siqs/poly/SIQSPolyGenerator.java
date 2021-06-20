@@ -129,10 +129,10 @@ public class SIQSPolyGenerator {
 		
 		// initialize sub-engines
 		this.aParamGenerator = aParamGenerator;
-		sieveEngine.initializeForN(sieveParams, mergedBaseSize);
+		sieveEngine.initializeForN(sieveParams, baseArrays.primes, mergedBaseSize);
 		this.sieveEngine = sieveEngine;
 		final double N_dbl = N.doubleValue();
-		tDivEngine.initializeForN(N_dbl, kN, sieveParams.maxQRest);
+		tDivEngine.initializeForN(N_dbl, kN, sieveParams.smoothBound);
 		this.tDivEngine = tDivEngine;
 
 		// B2: the array needs one more element because used indices start at 1.
@@ -196,7 +196,8 @@ public class SIQSPolyGenerator {
 			// compute ainvp[], Bainv2[][] and solution x-arrays for a and first b
 			computeFirstXArrays();
 			// pass data to sub-engines
-			sieveEngine.initializeForAParameter(solutionArrays, filteredBaseSize);
+			sieveEngine.initializeForAParameter(da, solutionArrays, filteredBaseSize);
+			sieveEngine.setBParameter(b);
 			tDivEngine.initializeForAParameter(da, d, b, solutionArrays, filteredBaseSize, filterResult.filteredOutBaseElements);
 			if (ANALYZE) firstXArrayDuration += timer.capture();
 		} else {
@@ -213,7 +214,7 @@ public class SIQSPolyGenerator {
 			// WARNING: In contrast to the description in [Contini p.10, 2nd paragraph],
 			// WARNING: b must not be computed (mod a) !
 			b = grayCodeSignIsPositive ? b.add(B2Array[v-1]) : b.subtract(B2Array[v-1]);
-			tDivEngine.setBParameter(b);
+			sieveEngine.setBParameter(b);
 			if (ANALYZE) bParamCount++;
 			if (DEBUG) {
 				//LOG.debug("a = " + a + ", b = " + b);
