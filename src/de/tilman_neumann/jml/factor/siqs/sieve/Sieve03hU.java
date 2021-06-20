@@ -435,6 +435,8 @@ public class Sieve03hU implements Sieve {
 
 		// Replace estimated small factor contribution by the true one:
 		// The score has to rise if the true small factor contribution is greater than expected.
+		// XXX do trial division so we already get the small prime factors?
+		// XXX or even do Bernsteinisms here?
 		BigInteger gcd = Qdiva.gcd(smallPrimesProd);
 		int logSmallPSum = (int) (gcd.bitLength() * logPMultiplier);
 		int adjustedScore = score - ((int)initializer) + logSmallPSum;
@@ -443,6 +445,8 @@ public class Sieve03hU implements Sieve {
 		
 		// Replace estimated QdivA size by the true one:
 		// The score has to rise if the true QdivA size is smaller than expected, because then we have less to factor
+		// XXX Probably the score is always rising because the estimate was the maximal Q/a value?
+		//     In that case this score adjustment would be useless
 		int truelogQDivASize = (int) (Qdiva.bitLength() * logPMultiplier);
 		int adjustedScore2 = (int) (adjustedScore + this.logQDivAEstimate - truelogQDivASize);
 		if (DEBUG) LOG.debug("adjust Q/a size: adjustedScore1 = " + adjustedScore + ", logQDivAEstimate = " + logQDivAEstimate + ", truelogQDivASize = " + truelogQDivASize + " -> adjustedScore2 = " + adjustedScore2);

@@ -21,6 +21,8 @@ import org.apache.log4j.Logger;
  * Factory to compute some basic parameters for the sieve.
  * Version 01 is based on an estimate of the maximal tdiv rest allowed for smooth relations. This has been adjusted by experiments.
  * 
+ * @see [Contini]: Scott Patrick Contini, "Factoring Integers with the self-initializing quadraric sieve", Master thesis, University of Georgia, 1997
+ * 
  * @author Tilman Neumann
  */
 public class SieveParamsFactory01 {
@@ -39,8 +41,9 @@ public class SieveParamsFactory01 {
 		int pMin = primeBase[pMinIndex];
 		int pMax = primeBase[primeBaseSize-1];
 		
-		// Compute ln(Q/a), the natural logarithm of average (Q/a)-values,
-		// estimated according to the papers of Contini, Pomerance and Silverman as ln(Q/a) = ln(M) + ln(kN)/2 - 1/2.
+		// Compute ln(Q/a), the natural logarithm of maximal (Q/a)-values,
+		// estimated according to the papers of [Contini] (p.7), Pomerance and Silverman as ln(Q/a) = ln(M) + ln(kN)/2 - 1/2.
+		// XXX use the correct size for d=2
 		double lnQdivAEstimate = Math.log(sieveArraySize) + Math.log(kN.doubleValue())/2 - 0.5;
 		
 		// Compute the minimal sum of ln(p_i) values required for a Q to pass the sieve.
@@ -78,6 +81,8 @@ public class SieveParamsFactory01 {
 			int p = primesArray[i];
 			lnSmallPSum += Math.log(p) / p;
 		}
+		// XXX also add the contribution of the q-params? (they are not sieved with either)
+		
 		// convert value from base e to wanted log base
 		double logSmallPSum = lnSmallPSum / lnLogBase;
 		// compute initializerValue, rounded; combining doubles is more accurate than combining ints
