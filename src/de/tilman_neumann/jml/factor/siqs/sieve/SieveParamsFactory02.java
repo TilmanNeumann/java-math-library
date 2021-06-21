@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 public class SieveParamsFactory02 {
 	private static final Logger LOG = Logger.getLogger(SieveParamsFactory02.class);
 	private static final boolean DEBUG = false;
+	private static final double LN_SQRT_2 = Math.log(Math.sqrt(2)); // ~0.34657
 	
 	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int[] primeBase, int primeBaseSize, int sieveArraySize) {
 		
@@ -49,9 +50,9 @@ public class SieveParamsFactory02 {
 		int pMax = primeBase[primeBaseSize-1];
 		
 		// Compute ln(Q/a), the natural logarithm of maximal (Q/a)-values,
-		// estimated according to the papers of [Contini] (p.7), Pomerance and Silverman as ln(Q/a) = ln(M) + ln(kN)/2 - 1/2.
+		// estimated according to the papers of [Contini] (p.7), Pomerance and Silverman as ln(Q/a) = ln(M) + ln(kN)/2 - ln(sqrt(2)).
 		// XXX use the correct size for d=2
-		double lnQdivAEstimate = Math.log(sieveArraySize) + Math.log(kN.doubleValue())/2 - 0.5;
+		double lnQdivAEstimate = Math.log(sieveArraySize) + Math.log(kN.doubleValue())/2 - LN_SQRT_2;
 		
 		// Compute the minimal sum of ln(p_i) values required for a Q to pass the sieve.
 		double minLnPSum = lnQdivAEstimate - Math.log(sieveHitBound);

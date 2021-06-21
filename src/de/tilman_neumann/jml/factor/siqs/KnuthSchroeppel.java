@@ -47,8 +47,10 @@ public class KnuthSchroeppel {
 	private static final double C_1   = 2.0 * Math.log(2) + 0.2;
 	private static final double C_5   = 1.0 * Math.log(2);
 	private static final double C_3_7 = 0.5 * Math.log(2);
-	// Penalty weight: 0.35 is better than 0.5 proposed by literature
-	private static final double PENALTY_WEIGHT = 0.35;
+	
+	// Penalty weight: Literature seems to propose 0.5=ld(sqrt(2)), but probably they were using the binary logarithm.
+	// With the natural logarithm, experiments confirmed 0.35 to be better than 0.5, and indeed ld(sqrt(2))=0.3465...
+	private static final double PENALTY_WEIGHT = Math.log(Math.sqrt(2));
 
 	// 10000 primes would always be enough, but using the auto-expanding sieve facade is nicer
 	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
