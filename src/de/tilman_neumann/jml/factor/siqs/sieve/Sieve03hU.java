@@ -50,9 +50,11 @@ public class Sieve03hU implements Sieve {
 	private BigInteger daParam, bParam, cParam, kN, smallPrimesProd;
 	private int d;
 
-	private double logPMultiplier;
+	/** multiplier to convert dual logarithms (e.g. bit length) to the scaled log that yields a sieve hit if the sieve array entry x >= 128 */
+	private double ld2logPMultiplier;
+	
 	private int tdivTestMinLogPSum;
-	private int logQDivAEstimate;
+	private int logQdivDaEstimate;
 	
 	// prime base
 	private int primeBaseSize;
@@ -90,9 +92,9 @@ public class Sieve03hU implements Sieve {
 	public void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize) {
 		this.kN = sieveParams.kN;
 		this.pMinIndex = sieveParams.pMinIndex;
-		this.logPMultiplier = sieveParams.lnPMultiplier * LN2;
+		this.ld2logPMultiplier = sieveParams.lnPMultiplier * LN2;
 		this.tdivTestMinLogPSum = sieveParams.tdivTestMinLogPSum;
-		this.logQDivAEstimate = sieveParams.logQdivAEstimate;
+		this.logQdivDaEstimate = sieveParams.logQdivDaEstimate;
 		
 		// compute product of unsieved primes
 		smallPrimesProd = BigInteger.valueOf(primesArray[pMinIndex-1]);
@@ -429,43 +431,42 @@ public class Sieve03hU implements Sieve {
 	}
 
 	private void addSmoothCandidate(int x, int score) {
-		//Compute Q(x)/a:
+		// Compute Q(x)/(da): Note that if kN==1 (mod 8), then d=2 and Q(x) divides not just a but 2a
 		BigInteger xBig = BigInteger.valueOf(x);
 		BigInteger dax = daParam.multiply(xBig);
 		BigInteger A = dax.add(bParam);
-		BigInteger Qdiva = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
+		BigInteger QDivDa = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
 
 		// Replace estimated small factor contribution by the true one:
 		// The score has to rise if the true small factor contribution is greater than expected.
 		// XXX do trial division so we already get the small prime factors?
 		// XXX or even do Bernsteinisms here?
-		BigInteger gcd = Qdiva.gcd(smallPrimesProd);
-		int logSmallPSum = (int) (gcd.bitLength() * logPMultiplier);
+		BigInteger gcd = QDivDa.gcd(smallPrimesProd);
+		int logSmallPSum = (int) (gcd.bitLength() * ld2logPMultiplier);
 		int adjustedScore = score - ((int)initializer) + logSmallPSum;
 		//LOG.debug("score = " + score + ", adjustedScore = " + adjustedScore);
 		if (DEBUG) LOG.debug("adjust initializer: original score = " + score + ", initializer = " + (int)initializer + ", logSmallPSum = " + logSmallPSum + " -> adjustedScore1 = " + adjustedScore);
 		
-		// Replace estimated QdivA size by the true one:
-		// The score has to rise if the true QdivA size is smaller than expected, because then we have less to factor
-		// XXX Probably the score is always rising because the estimate was the maximal Q/a value?
-		//     In that case this score adjustment would be useless
-		int truelogQDivASize = (int) (Qdiva.bitLength() * logPMultiplier);
+		// Replace estimated QDivDa size by the true one.
+		// The score has to rise if the true QDivDa size is smaller than expected, because then we have less to factor.
+		// We would always expect that trueLogQDivDaSize <= logQdivDaEstimate, because the latter is supposed to be an upper bound.
+		// But actually we can get much bigger trueLogQDivDaSize values than expected, like 196 bit instead of logQdivDaEstimate=182 bit.
+		// XXX This may be caused by imperfect aParam or bParam choices, but should get investigated.
+		int trueLogQDivDaSize = (int) (QDivDa.bitLength() * ld2logPMultiplier);
 		if (DEBUG) {
-			// TODO Unexpected! We can get much bigger truelogQDivASize than expected, like 196 bit instead of logQDivAEstimate=182 bit
-			//      This is probably an error, implying some improvement potential.
-			// LOG.debug("estimated Q/a size = " + logQDivAEstimate + ", true Q/a size = " + truelogQDivASize);
-			if (truelogQDivASize > logQDivAEstimate + 2) {
-				LOG.error("XXX d=" + d + ": logQDivAEstimate = " + logQDivAEstimate + ", but truelogQDivASize = " + truelogQDivASize);
+			if (trueLogQDivDaSize > logQdivDaEstimate + 2) { // +2 -> don't log too much :-/
+				LOG.error("d=" + d + ": logQdivDaEstimate = " + logQdivDaEstimate + ", but trueLogQDivDaSize = " + trueLogQDivDaSize);
 			}
-			assertTrue(truelogQDivASize <= logQDivAEstimate + 2);
+			assertTrue(trueLogQDivDaSize <= logQdivDaEstimate + 2); // fails sometimes
 		}
 		
-		int adjustedScore2 = (int) (adjustedScore + this.logQDivAEstimate - truelogQDivASize);
-		if (DEBUG) LOG.debug("adjust Q/a size: adjustedScore1 = " + adjustedScore + ", logQDivAEstimate = " + logQDivAEstimate + ", truelogQDivASize = " + truelogQDivASize + " -> adjustedScore2 = " + adjustedScore2);
+		int adjustedScore2 = (int) (adjustedScore + this.logQdivDaEstimate - trueLogQDivDaSize);
+		if (DEBUG) LOG.debug("adjust Q/a size: adjustedScore1 = " + adjustedScore + ", logQdivDaEstimate = " + logQdivDaEstimate + ", truelogQDivASize = " + trueLogQDivDaSize + " -> adjustedScore2 = " + adjustedScore2);
 
+		// If we always had trueLogQDivDaSize <= logQdivDaEstimate, then this check would be useless, because the adjusted score could only rise
 		if (adjustedScore2 > tdivTestMinLogPSum) {
 			if (DEBUG) LOG.debug("adjustedScore2 = " + adjustedScore2 + " is greater than tdivTestMinLogPSum = " + tdivTestMinLogPSum + " -> pass Q to tdiv");
-			smoothCandidates.add(new SmoothCandidate(x, Qdiva, A));
+			smoothCandidates.add(new SmoothCandidate(x, QDivDa, A));
 		}
 	}
 	

@@ -49,21 +49,21 @@ public class SieveParamsFactory02 {
 		int pMin = primeBase[pMinIndex];
 		int pMax = primeBase[primeBaseSize-1];
 		
-		// Compute ln(Q/a), the natural logarithm of maximal (Q/a)-values,
-		// estimated according to the papers of [Contini] (p.7), Pomerance and Silverman as ln(Q/a) = ln(M) + ln(kN)/2 - ln(sqrt(2)).
+		// Compute ln(Q/(da)), the natural logarithm of maximal Q/(da)-values,
+		// estimated for d=1 according to the papers of [Contini] (p.7), Pomerance and Silverman as ln(Q/a) = ln(M) + ln(kN)/2 - ln(sqrt(2)).
 		// XXX use the correct size for d=2
-		double lnQdivAEstimate = Math.log(sieveArraySize) + Math.log(kN.doubleValue())/2 - LN_SQRT_2;
+		double lnQdivDaEstimate = Math.log(sieveArraySize) + Math.log(kN.doubleValue())/2 - LN_SQRT_2;
 		
 		// Compute the minimal sum of ln(p_i) values required for a Q to pass the sieve.
-		double minLnPSum = lnQdivAEstimate - Math.log(sieveHitBound);
+		double minLnPSum = lnQdivDaEstimate - Math.log(sieveHitBound);
 		
 		// convert the sieve bound from natural logarithm to the actual logBase:
 		double lnLogBase = minLnPSum / 127; // normalizer to be used as a divisor for p_i values
 		double minLogPSum = minLnPSum / lnLogBase; // ~ 127
 		
-		double tdivTestMinLnPSum = lnQdivAEstimate - Math.log(tdivTestBound);
+		double tdivTestMinLnPSum = lnQdivDaEstimate - Math.log(tdivTestBound);
 		int tdivTestMinLogPSum = (int) (tdivTestMinLnPSum / lnLogBase);
-		int logQdivAEstimate = (int) (lnQdivAEstimate / lnLogBase);
+		int logQdivDaEstimate = (int) (lnQdivDaEstimate / lnLogBase);
 
 		if (DEBUG) {
 			float logBase = (float) Math.exp(lnLogBase);
@@ -72,7 +72,7 @@ public class SieveParamsFactory02 {
 		byte initializer = computeInitializerValue(primeBase, pMinIndex, minLogPSum, lnLogBase);
 		float lnPMultiplier = (float) (1.0/lnLogBase); // normalizer to be used as a multiplier for p_i values (faster than a divisor)
 		
-		return new SieveParams(kN, pMinIndex, pMin, pMax, sieveArraySize, sieveHitBound, tdivTestBound, smoothBound, logQdivAEstimate, tdivTestMinLogPSum, initializer, lnPMultiplier);
+		return new SieveParams(kN, pMinIndex, pMin, pMax, sieveArraySize, sieveHitBound, tdivTestBound, smoothBound, logQdivDaEstimate, tdivTestMinLogPSum, initializer, lnPMultiplier);
 	}
 	
 	/**

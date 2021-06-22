@@ -32,8 +32,8 @@ public class SieveParams {
 	public int sieveArraySize;
 	/** maximal Q_rest for a sieve hit, to pass Q to trial division, to accept a relation as smooth */
 	public double sieveHitBound, tdivTestBound, smoothBound;
-	/** the scaled logarithm of the avg. Q/a size */
-	public int logQdivAEstimate;
+	/** the scaled logarithm of the avg. Q/(da) size */
+	public int logQdivDaEstimate;
 	/** scaled minimum logPSum to pass a sieve hit to tdiv */
 	public int tdivTestMinLogPSum;
 	/** sieve array initializer value */
@@ -42,7 +42,7 @@ public class SieveParams {
 	public float lnPMultiplier;
 	
 	public SieveParams(BigInteger kN, int pMinIndex, int pMin, int pMax, int sieveArraySize, double sieveHitBound, double tdivTestBound, double smoothBound,
-			int logQdivAEstimate, int tdivTestMinLogPSum, byte initializer, float lnPMultiplier) {
+			int logQdivDaEstimate, int tdivTestMinLogPSum, byte initializer, float lnPMultiplier) {
 		this.kN = kN;
 		this.pMinIndex = pMinIndex;
 		this.pMin = pMin;
@@ -51,7 +51,7 @@ public class SieveParams {
 		this.sieveHitBound = sieveHitBound;
 		this.tdivTestBound = tdivTestBound;
 		this.smoothBound = smoothBound;
-		this.logQdivAEstimate = logQdivAEstimate;
+		this.logQdivDaEstimate = logQdivDaEstimate;
 		this.tdivTestMinLogPSum = tdivTestMinLogPSum;
 		this.initializer = initializer;
 		this.lnPMultiplier = lnPMultiplier;
