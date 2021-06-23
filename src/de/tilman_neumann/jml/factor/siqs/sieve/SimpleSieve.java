@@ -180,8 +180,8 @@ public class SimpleSieve implements Sieve {
 		BigInteger xBig = BigInteger.valueOf(x);
 		BigInteger dax = daParam.multiply(xBig);
 		BigInteger A = dax.add(bParam);
-		BigInteger Qdiva = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
-		smoothCandidates.add(new SmoothCandidate(x, Qdiva, A));
+		BigInteger QDivDa = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
+		smoothCandidates.add(new SmoothCandidate(x, QDivDa, A));
 	}
 
 	@Override

@@ -22,20 +22,20 @@ import java.math.BigInteger;
 public class SmoothCandidate {
 	/** The sieve location */
 	public int x;
-	/** Q(x)/a, where a is the a-parameter of the polynomial */
-	public BigInteger QdivA;
+	/** Q(x)/(da), where a is the a-parameter of the polynomial and d==2 for kN==1 (mod 8), 2 else */
+	public BigInteger QDivDa;
 	/** A(x) = d*a*x + b */
 	public BigInteger A;
 	
 	public SmoothCandidate(int x) {
 		this.x = x;
-		this.QdivA = null;
+		this.QDivDa = null;
 		this.A = null;
 	}
 
-	public SmoothCandidate(int x, BigInteger QdivA, BigInteger A) {
+	public SmoothCandidate(int x, BigInteger QDivDa, BigInteger A) {
 		this.x = x;
-		this.QdivA = QdivA;
+		this.QDivDa = QDivDa;
 		this.A = A;
 	}
 }

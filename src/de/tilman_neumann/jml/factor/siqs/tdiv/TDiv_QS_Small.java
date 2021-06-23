@@ -122,14 +122,14 @@ public class TDiv_QS_Small implements TDiv_QS {
 		for (SmoothCandidate smoothCandidate : smoothCandidates) {
 			int x = smoothCandidate.x;
 			BigInteger A = smoothCandidate.A;
-			BigInteger Qdiva = smoothCandidate.QdivA;
+			BigInteger QDivDa = smoothCandidate.QDivDa;
 			smallFactors.reset();
 			if (ANALYZE) {
 				testCount++;
 				aqDuration += timer.capture();
 			}
 			
-			AQPair aqPair = test(A, Qdiva, x);
+			AQPair aqPair = test(A, QDivDa, x);
 			if (ANALYZE) factorDuration += timer.capture();
 			if (aqPair != null) {
 				// Q(x) was found sufficiently smooth to be considered a (partial) congruence
@@ -138,7 +138,7 @@ public class TDiv_QS_Small implements TDiv_QS {
 				if (DEBUG) {
 					LOG.debug("Found congruence " + aqPair);
 					BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
-					assertEquals(Q, Qdiva.multiply(da));
+					assertEquals(Q, QDivDa.multiply(da));
 					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
 					SortedMultiset<Long> allQFactors = aqPair.getAllQFactors();

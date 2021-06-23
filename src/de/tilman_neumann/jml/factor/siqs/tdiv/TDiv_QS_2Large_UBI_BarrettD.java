@@ -159,7 +159,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 		for (SmoothCandidate smoothCandidate : smoothCandidates) {
 			int x = smoothCandidate.x;
 			BigInteger A = smoothCandidate.A;
-			BigInteger Qdiva = smoothCandidate.QdivA;
+			BigInteger QDivDa = smoothCandidate.QDivDa;
 			smallFactors.reset();
 			if (ANALYZE) {
 				testCount++;
@@ -171,7 +171,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 			// Note that test finds all factors of Q(x) nonetheless.
 			// Note also that unlike in MPQS, in SIQS we cannot continue working with Q(x)/da in later stages, because da is not a square
 			// and thus we could not combine relations from different a-parameters.
-			AQPair aqPair = test(A, Qdiva, x);
+			AQPair aqPair = test(A, QDivDa, x);
 			if (ANALYZE) factorDuration += timer.capture();
 			
 			if (aqPair != null) {
@@ -181,7 +181,7 @@ public class TDiv_QS_2Large_UBI_BarrettD implements TDiv_QS {
 				if (DEBUG) {
 					LOG.debug("Found congruence " + aqPair);
 					BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
-					assertEquals(Q, Qdiva.multiply(da));
+					assertEquals(Q, QDivDa.multiply(da));
 					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
 					SortedMultiset<Long> allQFactors = aqPair.getAllQFactors();

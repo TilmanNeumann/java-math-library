@@ -111,7 +111,9 @@ public class AParamGenerator01 implements AParamGenerator {
 		this.primesArray = primesArray;
 		this.tArray = tArray;
 		
-		// compute expected best a-parameter. The constant 2 has been confirmed experimentally.
+		// Compute expected best a-parameter:
+		// In case of d=2 we choose the a-parameter factor 2 smaller such that the (theoretically) maximal size of Q(x)/(da) is the same as for d=1.
+		// The leading constant 2 has been confirmed by experiments, too.
 		this.best_a = Math.sqrt(2*kN.doubleValue()) / (d*(double)sieveArraySize);
 		// estimate best qCount if it was not given
 		qCount = (wanted_qCount != null) ? wanted_qCount : estimateQCount(kN.bitLength());

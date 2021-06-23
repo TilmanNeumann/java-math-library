@@ -31,7 +31,7 @@ public class SieveParamsFactory02 {
 	private static final boolean DEBUG = false;
 	private static final double LN_SQRT_2 = Math.log(Math.sqrt(2)); // ~0.34657
 	
-	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int[] primeBase, int primeBaseSize, int sieveArraySize) {
+	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int d, int[] primeBase, int primeBaseSize, int sieveArraySize) {
 		
 		// compute biggest QRest admitted for a smooth relation
 		double smoothBoundExponent = (NBits<=150) ? 0.15 : 0.15 + (NBits-150.0)/5250;
