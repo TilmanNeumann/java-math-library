@@ -431,7 +431,7 @@ public class Sieve03hU implements Sieve {
 	}
 
 	private void addSmoothCandidate(int x, int score) {
-		// Compute Q(x)/(da): Note that if kN==1 (mod 8), then d=2 and Q(x) divides not just a but 2a
+		// Compute Q(x)/(da): If kN==1 (mod 8), then d=2 and Q(x) is divisible not just by 'a' but by 2a
 		BigInteger xBig = BigInteger.valueOf(x);
 		BigInteger dax = daParam.multiply(xBig);
 		BigInteger A = dax.add(bParam);
