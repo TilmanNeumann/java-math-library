@@ -331,6 +331,8 @@ public class SIQS_Small extends FactorAlgorithm {
 		}
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
+			LOG.info("        " + ccReport.getPartialQRestSizes());
+			LOG.info("        " + ccReport.getSmoothQRestSizes());
 			LOG.info("        " + ccReport.getPartialBigFactorSizes());
 			LOG.info("        " + ccReport.getSmoothBigFactorSizes());
 			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles());

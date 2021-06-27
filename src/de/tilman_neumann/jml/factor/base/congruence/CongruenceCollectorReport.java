@@ -26,13 +26,16 @@ public class CongruenceCollectorReport {
 	private int[] smoothFromPartialCounts;
 	private int[] partialCounts;
 	private int perfectSmoothCount;
-	private Multiset<Integer> oddExpBigFactorSizes;
-	private Multiset<Integer> oddExpBigFactorSizes4Smooth;
+	private Multiset<Integer> qRestSizes;
+	private Multiset<Integer> qRestSizes4Smooth;
+	private Multiset<Integer> bigFactorSizes;
+	private Multiset<Integer> bigFactorSizes4Smooth;
 	private int partialWithPositiveQCount;
 	private int smoothWithPositiveQCount;
 	
 	public CongruenceCollectorReport(int partialCount, int smoothCount, int[] smoothFromPartialCounts, int[] partialCounts, int perfectSmoothCount,
-			                         Multiset<Integer> oddExpBigFactorSizes, Multiset<Integer> oddExpBigFactorSizes4Smooth,
+			                         Multiset<Integer> qRestSizes, Multiset<Integer> qRestSizes4Smooth,
+			                         Multiset<Integer> bigFactorSizes, Multiset<Integer> bigFactorSizes4Smooth,
 			                         int partialWithPositiveQCount, int smoothWithPositiveQCount) {
 		
 		this.partialCount = partialCount;
@@ -40,8 +43,10 @@ public class CongruenceCollectorReport {
 		this.smoothFromPartialCounts = smoothFromPartialCounts;
 		this.partialCounts = partialCounts;
 		this.perfectSmoothCount = perfectSmoothCount;
-		this.oddExpBigFactorSizes = oddExpBigFactorSizes;
-		this.oddExpBigFactorSizes4Smooth = oddExpBigFactorSizes4Smooth;
+		this.qRestSizes = qRestSizes;
+		this.qRestSizes4Smooth = qRestSizes4Smooth;
+		this.bigFactorSizes = bigFactorSizes;
+		this.bigFactorSizes4Smooth = bigFactorSizes4Smooth;
 		this.partialWithPositiveQCount = partialWithPositiveQCount;
 		this.smoothWithPositiveQCount = smoothWithPositiveQCount;
 	}
@@ -61,24 +66,32 @@ public class CongruenceCollectorReport {
 		return "found " + smoothCount + " smooth congruences and " + partialCount + " partials";
 	}
 	
+	public String getPartialQRestSizes() {
+		return "QRest sizes of collected partials: " + qRestSizes;
+	}
+	
+	public String getSmoothQRestSizes() {
+		return "QRest sizes of discovered smooths: " + qRestSizes4Smooth;
+	}
+
 	public String getPartialBigFactorSizes() {
-		return "Big factor sizes of collected partials: " + oddExpBigFactorSizes;
+		return "Big factor sizes of collected partials: " + bigFactorSizes;
 	}
 	
 	public String getSmoothBigFactorSizes() {
-		return "Big factor sizes of discovered smooths: " + oddExpBigFactorSizes4Smooth;
+		return "Big factor sizes of discovered smooths: " + bigFactorSizes4Smooth;
 	}
-	
+
 	public String getSmoothBigFactorPercentiles() {
 		int[] percentiles = new int[] {80, 90, 95, 98, 99};
-		int totalFactor4SmoothCount = oddExpBigFactorSizes4Smooth.totalCount();
+		int totalFactor4SmoothCount = bigFactorSizes4Smooth.totalCount();
 		TreeMap<Integer, Integer> resultMap = new TreeMap<>();
 		for (int i=0; i<percentiles.length; i++) {
 			int requiredCount = (int) Math.ceil((totalFactor4SmoothCount * percentiles[i]) / 100.0);
 			int count = 0;
 			// factor sizes are sorted bottom-up
-			for (int factorSize : oddExpBigFactorSizes4Smooth.keySet()) {
-				int sizeCount = oddExpBigFactorSizes4Smooth.get(factorSize);
+			for (int factorSize : bigFactorSizes4Smooth.keySet()) {
+				int sizeCount = bigFactorSizes4Smooth.get(factorSize);
 				count += sizeCount;
 				if (count > requiredCount) {
 					resultMap.put(percentiles[i], factorSize);
@@ -92,7 +105,7 @@ public class CongruenceCollectorReport {
 	public String getNonIntFactorPercentages() {
 		int totalPartialBigFactorCount = 0;
 		int nonIntPartialBigFactorCount = 0;
-		for (Map.Entry<Integer, Integer> entry : oddExpBigFactorSizes.entrySet()) {
+		for (Map.Entry<Integer, Integer> entry : bigFactorSizes.entrySet()) {
 			int size = entry.getKey();
 			int count = entry.getValue();
 			totalPartialBigFactorCount += count;
@@ -104,7 +117,7 @@ public class CongruenceCollectorReport {
 		
 		int totalSmoothBigFactorCount = 0;
 		int nonIntSmoothBigFactorCount = 0;
-		for (Map.Entry<Integer, Integer> entry : oddExpBigFactorSizes4Smooth.entrySet()) {
+		for (Map.Entry<Integer, Integer> entry : bigFactorSizes4Smooth.entrySet()) {
 			int size = entry.getKey();
 			int count = entry.getValue();
 			totalSmoothBigFactorCount += count;

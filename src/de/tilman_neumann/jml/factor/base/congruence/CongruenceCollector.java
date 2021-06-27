@@ -13,6 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static org.junit.Assert.*;
 
@@ -72,7 +73,8 @@ public class CongruenceCollector {
 	// statistics
 	private int perfectSmoothCount, totalPartialCount;
 	private int[] smoothFromPartialCounts, partialCounts;
-	private Multiset<Integer> oddExpBigFactorSizes4Smooth, oddExpBigFactorSizes;
+	private Multiset<Integer> qRestSizes4Smooth, qRestSizes;
+	private Multiset<Integer> bigFactorSizes4Smooth, bigFactorSizes;
 	private int partialWithPositiveQCount, smoothWithPositiveQCount;
 	
 	private Timer timer = new Timer();
@@ -130,9 +132,11 @@ public class CongruenceCollector {
 			partialCounts = new int[3];
 		}
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
-			// collected vs. useful partials
-			oddExpBigFactorSizes4Smooth = new SortedMultiset_BottomUp<Integer>();
-			oddExpBigFactorSizes = new SortedMultiset_BottomUp<Integer>();
+			// collected vs. useful smooths and partials
+			qRestSizes4Smooth = new SortedMultiset_BottomUp<Integer>();
+			qRestSizes = new SortedMultiset_BottomUp<Integer>();
+			bigFactorSizes4Smooth = new SortedMultiset_BottomUp<Integer>();
+			bigFactorSizes = new SortedMultiset_BottomUp<Integer>();
 		}
 		if (ANALYZE_Q_SIGNS) {
 			// Q-analysis
@@ -203,16 +207,16 @@ public class CongruenceCollector {
 		
 		// otherwise aqPair must be a partial with at least one large factor.
 		Partial partial = (Partial) aqPair;
-		Long[] oddExpBigFactors = partial.getLargeFactorsWithOddExponent(); // TODO factors are not sorted bottom up, why? And why Long[], not long[] ?
-		int oddExpBigFactorsCount = oddExpBigFactors.length;
-		if (DEBUG) assertTrue(oddExpBigFactorsCount > 0);
+		Long[] bigFactors = partial.getLargeFactorsWithOddExponent(); // TODO factors are not sorted bottom up, why? And why Long[], not long[] ?
+		int bigFactorsCount = bigFactors.length;
+		if (DEBUG) assertTrue(bigFactorsCount > 0);
 		
 		// use a standard cycle counting algorithm to verify that we find all possible independent relations
 		if (COUNT_CYCLES) cycleFinder.countIndependentCycles(partial);
 		
 		// Check if the partial helps to assemble a smooth congruence:
 		// First collect all partials that are somehow related to the new partial via big factors:
-		HashSet<Partial> relatedPartials = findRelatedPartials(oddExpBigFactors); // oddExpBigFactors is not modified in the method
+		HashSet<Partial> relatedPartials = findRelatedPartials(bigFactors); // bigFactors is not modified in the method
 		if (DEBUG) LOG.debug("#relatedPartials = " + relatedPartials.size());
 		if (relatedPartials.size()>0) {
 			// We found some "old" partials that share at least one big factor with the new partial.
@@ -241,10 +245,13 @@ public class CongruenceCollector {
 				if (addedCount>0) {
 					if (ANALYZE_LARGE_FACTOR_SIZES) {
 						// register size of large factors that helped to find smooths
-						for (Long oddExpBigFactor : oddExpBigFactors) {
-							int oddExpBigFactorBits = 64 - Long.numberOfLeadingZeros(oddExpBigFactor);
-							oddExpBigFactorSizes4Smooth.add(oddExpBigFactorBits);
+						BigInteger prod = I_1;
+						for (Long bigFactor : bigFactors) {
+							int bigFactorBits = 64 - Long.numberOfLeadingZeros(bigFactor);
+							bigFactorSizes4Smooth.add(bigFactorBits);
+							prod = prod.multiply(BigInteger.valueOf(bigFactor));
 						}
+						qRestSizes4Smooth.add(prod.bitLength());
 					}
 					return true;
 				}
@@ -255,10 +262,10 @@ public class CongruenceCollector {
 		}
 		
 		// We were not able to construct a smooth congruence with the new partial, so just keep the partial:
-		addPartial(partial, oddExpBigFactors);
+		addPartial(partial, bigFactors);
 		totalPartialCount++;
 		if (DEBUG) LOG.debug("Found new partial relation " + aqPair + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + totalPartialCount);
-		if (ANALYZE) partialCounts[oddExpBigFactorsCount-1]++;
+		if (ANALYZE) partialCounts[bigFactorsCount-1]++;
 		return false; // no smooth added
 	}
 	
@@ -320,22 +327,25 @@ public class CongruenceCollector {
 		return true;
 	}
 	
-	private void addPartial(Partial newPartial, Long[] oddExpBigFactors) {
-		for (Long oddExpBigFactor : oddExpBigFactors) {
-			ArrayList<Partial> partialCongruenceList = largeFactors_2_partials.get(oddExpBigFactor);
+	private void addPartial(Partial newPartial, Long[] bigFactors) {
+		for (Long bigFactor : bigFactors) {
+			ArrayList<Partial> partialCongruenceList = largeFactors_2_partials.get(bigFactor);
 			// For large N, most large factors appear only once. Therefore we create an ArrayList with initialCapacity=1 to safe memory.
-			// Even less memory would be needed if we had a HashMap<Long, Object> oddExpBigFactors_2_partialCongruences
+			// Even less memory would be needed if we had a HashMap<Long, Object> bigFactors_2_partialCongruences
 			// and store AQPairs or AQPair[] in the Object part. But I do not want to break the generics...
 			if (partialCongruenceList==null) partialCongruenceList = new ArrayList<Partial>(1);
 			partialCongruenceList.add(newPartial);
-			largeFactors_2_partials.put(oddExpBigFactor, partialCongruenceList);
+			largeFactors_2_partials.put(bigFactor, partialCongruenceList);
 		}
 		
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
-			for (Long oddExpBigFactor : oddExpBigFactors) {
-				int oddExpBigFactorBits = 64 - Long.numberOfLeadingZeros(oddExpBigFactor);
-				oddExpBigFactorSizes.add(oddExpBigFactorBits);
+			BigInteger prod = I_1;
+			for (Long bigFactor : bigFactors) {
+				int bigFactorBits = 64 - Long.numberOfLeadingZeros(bigFactor);
+				bigFactorSizes.add(bigFactorBits);
+				prod = prod.multiply(BigInteger.valueOf(bigFactor));
 			}
+			qRestSizes.add(prod.bitLength());
 		}
 
 		if (ANALYZE_Q_SIGNS) {
@@ -344,13 +354,13 @@ public class CongruenceCollector {
 	}
 	
 	@SuppressWarnings("unused")
-	private void dropPartial(Partial partial, Long[] oddExpBigFactors) {
-		for (Long oddExpBigFactor : oddExpBigFactors) {
-			ArrayList<Partial> partialCongruenceList = largeFactors_2_partials.get(oddExpBigFactor);
+	private void dropPartial(Partial partial, Long[] bigFactors) {
+		for (Long bigFactor : bigFactors) {
+			ArrayList<Partial> partialCongruenceList = largeFactors_2_partials.get(bigFactor);
 			partialCongruenceList.remove(partial);
 			if (partialCongruenceList.size()==0) {
 				// partialCongruenceList is empty now -> drop the whole entry
-				largeFactors_2_partials.remove(oddExpBigFactor);
+				largeFactors_2_partials.remove(bigFactor);
 			}
 		}
 	}
@@ -386,7 +396,7 @@ public class CongruenceCollector {
 
 	public CongruenceCollectorReport getReport() {
 		return new CongruenceCollectorReport(getPartialCongruenceCount(), smoothCongruences.size(), smoothFromPartialCounts, partialCounts, perfectSmoothCount,
-				                             oddExpBigFactorSizes, oddExpBigFactorSizes4Smooth, partialWithPositiveQCount, smoothWithPositiveQCount);
+											 qRestSizes, qRestSizes4Smooth, bigFactorSizes, bigFactorSizes4Smooth, partialWithPositiveQCount, smoothWithPositiveQCount);
 	}
 
 	public String getCycleCountResult() {
