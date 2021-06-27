@@ -15,8 +15,6 @@ package de.tilman_neumann.jml.factor.siqs.tdiv;
 
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 
-import de.tilman_neumann.util.Multiset;
-
 public class TDivReport {
 	private long testCount;
 	private long sufficientSmoothCount;
@@ -25,9 +23,8 @@ public class TDivReport {
 	private long pass2Duration;
 	private long primeTestDuration;
 	private long factorDuration;
-	private Multiset<Integer> qRestSizes;
 	
-	public TDivReport(long testCount, long sufficientSmoothCount, long aqDuration, long pass1Duration, long pass2Duration, long primeTestDuration, long factorDuration, Multiset<Integer> qRestSizes) {
+	public TDivReport(long testCount, long sufficientSmoothCount, long aqDuration, long pass1Duration, long pass2Duration, long primeTestDuration, long factorDuration) {
 		if (ANALYZE) {
 			this.testCount = testCount;
 			this.sufficientSmoothCount = sufficientSmoothCount;
@@ -37,7 +34,6 @@ public class TDivReport {
 			this.primeTestDuration = primeTestDuration;
 			this.factorDuration = factorDuration;
 		}
-		if (ANALYZE_LARGE_FACTOR_SIZES) this.qRestSizes = qRestSizes;
 	}
 	
 	/**
@@ -54,7 +50,6 @@ public class TDivReport {
 			this.primeTestDuration += other.primeTestDuration;
 			this.factorDuration += other.factorDuration;
 		}
-		if (ANALYZE_LARGE_FACTOR_SIZES) this.qRestSizes.addAll(other.qRestSizes);
 	}
 
 	public String getOperationDetails() {
@@ -68,11 +63,5 @@ public class TDivReport {
 	
 	public String getPhaseTimings(int numberOfThreads) {
 		return "AQ=" + aqDuration/numberOfThreads + "ms, pass1=" + pass1Duration/numberOfThreads + "ms, pass2=" + pass2Duration/numberOfThreads + "ms, primeTest=" + primeTestDuration/numberOfThreads + "ms, factor=" + factorDuration/numberOfThreads + "ms";
-	}
-	
-	public String getQRestSizes() {
-		// the first statement can get optimized away...
-		if (ANALYZE_LARGE_FACTOR_SIZES) return (qRestSizes!=null && qRestSizes.size()>0) ? "Q_rest sizes in bits: " + qRestSizes : null;
-		return null;
 	}
 }

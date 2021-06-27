@@ -356,12 +356,6 @@ public class SIQS extends FactorAlgorithm {
 		LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
 		LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
-		if (ANALYZE_LARGE_FACTOR_SIZES) {
-			String qRestSizes = tdivReport.getQRestSizes();
-			if (qRestSizes != null) {
-				LOG.info("        " + qRestSizes);
-			}
-		}
 		if (CongruenceCollector.COUNT_CYCLES) LOG.info("    cc: " + congruenceCollector.getCycleCountResult()); // add to ccReport?
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ANALYZE_LARGE_FACTOR_SIZES) {

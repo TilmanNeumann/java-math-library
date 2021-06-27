@@ -350,7 +350,6 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
 		LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
-		if (ANALYZE_LARGE_FACTOR_SIZES) LOG.info("        " +  tdivReport.getQRestSizes());
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
 			LOG.info("        " + ccReport.getPartialQRestSizes());

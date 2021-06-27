@@ -40,9 +40,7 @@ import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
-import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.util.Timer;
 
 /**
@@ -106,7 +104,6 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 	private Timer timer = new Timer();
 	private long testCount, sufficientSmoothCount;
 	private long aqDuration, pass1Duration, pass2Duration, primeTestDuration, factorDuration;
-	private Multiset<Integer> qRestSizes;
 
 	/**
 	 * Full constructor.
@@ -130,7 +127,6 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		// statistics
 		if (ANALYZE) testCount = sufficientSmoothCount = 0;
 		if (ANALYZE) aqDuration = pass1Duration = pass2Duration = primeTestDuration = factorDuration = 0;
-		if (ANALYZE_LARGE_FACTOR_SIZES) qRestSizes = new SortedMultiset_BottomUp<>();
 	}
 
 	@Override
@@ -303,7 +299,6 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		// -> trial division is no help here.
 		BigInteger factor1;
 		int Q_rest_bits = Q_rest.bitLength();
-		if (ANALYZE_LARGE_FACTOR_SIZES) qRestSizes.add(Q_rest_bits);
 		if (Q_rest_bits<50) {
 			if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use hart");
 			factor1 = hart.findSingleFactor(Q_rest);
@@ -354,7 +349,7 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 	
 	@Override
 	public TDivReport getReport() {
-		return new TDivReport(testCount, sufficientSmoothCount, aqDuration, pass1Duration, pass2Duration, primeTestDuration, factorDuration, qRestSizes);
+		return new TDivReport(testCount, sufficientSmoothCount, aqDuration, pass1Duration, pass2Duration, primeTestDuration, factorDuration);
 	}
 	
 	@Override

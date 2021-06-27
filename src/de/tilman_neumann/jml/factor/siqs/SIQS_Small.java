@@ -323,12 +323,6 @@ public class SIQS_Small extends FactorAlgorithm {
 		LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
 		LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
-		if (ANALYZE_LARGE_FACTOR_SIZES) {
-			String qRestSizes = tdivReport.getQRestSizes();
-			if (qRestSizes != null) {
-				LOG.info("        " + qRestSizes);
-			}
-		}
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
 			LOG.info("        " + ccReport.getPartialQRestSizes());
