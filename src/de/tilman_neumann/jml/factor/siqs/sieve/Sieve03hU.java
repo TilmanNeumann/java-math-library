@@ -13,8 +13,9 @@
  */
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
@@ -24,15 +25,16 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.BinarySearch;
+import de.tilman_neumann.jml.base.UnsignedBigInt;
+import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.UnsafeUtil;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.util.Timer;
 import sun.misc.Unsafe;
 
 /**
- * Derivative of Sieve03g holding the sieve array in native memory.
- * 
- * Both the sieve core and the collect phase are notably faster than in Sieve03g !
+ * A refinement of Sieve03gU selecting the sieve hits passed to trial division in a better way.
+ * Needs to be used together with TDiv_QS_2Large_UBI2.
  * 
  * @author Tilman Neumann
  */
@@ -47,7 +49,7 @@ public class Sieve03hU implements Sieve {
 
 	private static final double LN2 = Math.log(2.0);
 	
-	private BigInteger daParam, bParam, cParam, kN, smallPrimesProd;
+	private BigInteger daParam, bParam, cParam, kN;
 	private int d;
 
 	/** multiplier to convert dual logarithms (e.g. bit length) to the scaled log that yields a sieve hit if the sieve array entry x >= 128 */
@@ -65,6 +67,7 @@ public class Sieve03hU implements Sieve {
 	private int p2Index;
 	private int p3Index;
 	private int[] minSolutionCounts_m3;
+	private double[] smallPrimesLogPArray;
 	
 	private SolutionArrays solutionArrays;
 
@@ -76,6 +79,16 @@ public class Sieve03hU implements Sieve {
 	private long sieveArrayAddress;
 
 	private List<SmoothCandidate> smoothCandidates = new ArrayList<>();
+
+	/** buffers for trial division engine. */
+	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
+	private UnsignedBigInt quotient_UBI = new UnsignedBigInt(new int[50]);
+
+	/** the indices of the primes found to divide Q in pass 1 */
+	private int[] pass2PrimeIndices = new int[100];
+	private int[] pass2Primes = new int[100];
+	private int[] pass2Powers = new int[100];
+	private int[] pass2Exponents = new int[100];
 
 	private BinarySearch binarySearch = new BinarySearch();
 
@@ -95,20 +108,18 @@ public class Sieve03hU implements Sieve {
 		this.ld2logPMultiplier = sieveParams.lnPMultiplier * LN2;
 		this.tdivTestMinLogPSum = sieveParams.tdivTestMinLogPSum;
 		this.logQdivDaEstimate = sieveParams.logQdivDaEstimate;
-		
-		// compute product of unsieved primes
-		smallPrimesProd = BigInteger.valueOf(primesArray[pMinIndex-1]);
-		for (int i=pMinIndex-2; i>=0; i--) {
-			smallPrimesProd = smallPrimesProd.multiply(BigInteger.valueOf(primesArray[i]));
-		}
-
-		int pMax = sieveParams.pMax;
 		this.initializer = sieveParams.initializer;
-
+		
+		this.smallPrimesLogPArray = new double[pMinIndex];
+		for (int i=pMinIndex-1; i>=0; i--) {
+			smallPrimesLogPArray[i] = Math.log(primesArray[i]) * sieveParams.lnPMultiplier;
+		}
+		
 		// Allocate sieve array: Typically SIQS adjusts such that pMax/sieveArraySize = 2.5 to 5.0.
 		// For large primes with 0 or 1 sieve locations we need to allocate pMax+1 entries;
 		// For primes p[i], i<p1Index, we need p[i]+sieveArraySize = 2*sieveArraySize entries.
 		this.sieveArraySize = sieveParams.sieveArraySize;
+		int pMax = sieveParams.pMax;
 		int sieveAllocationSize = Math.max(pMax+1, 2*sieveArraySize);
 		sieveArrayAddress = UnsafeUtil.allocateMemory(sieveAllocationSize);
 		if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
@@ -431,7 +442,7 @@ public class Sieve03hU implements Sieve {
 	}
 
 	private void addSmoothCandidate(int x, int score) {
-		// Compute Q(x)/(da): If kN==1 (mod 8), then d=2 and Q(x) is divisible not just by 'a' but by 2a
+		// Compute Q(x)/(da): Note that if kN==1 (mod 8), then d=2 and Q(x) divides not just a but 2a
 		BigInteger xBig = BigInteger.valueOf(x);
 		BigInteger dax = daParam.multiply(xBig);
 		BigInteger A = dax.add(bParam);
@@ -439,14 +450,14 @@ public class Sieve03hU implements Sieve {
 
 		// Replace estimated small factor contribution by the true one:
 		// The score has to rise if the true small factor contribution is greater than expected.
-		// XXX do trial division so we already get the small prime factors?
-		// XXX or even do Bernsteinisms here?
-		BigInteger gcd = QDivDa.gcd(smallPrimesProd);
-		int logSmallPSum = (int) (gcd.bitLength() * ld2logPMultiplier);
+		// XXX Could we do Bernsteinisms here?
+		SmallFactorsTDivResult smallFactorsTDivResult = tdivBySmallPrimes(A, QDivDa, x);
+		int logSmallPSum = (int) smallFactorsTDivResult.logPSum;
 		int adjustedScore = score - ((int)initializer) + logSmallPSum;
-		//LOG.debug("score = " + score + ", adjustedScore = " + adjustedScore);
 		if (DEBUG) LOG.debug("adjust initializer: original score = " + score + ", initializer = " + (int)initializer + ", logSmallPSum = " + logSmallPSum + " -> adjustedScore1 = " + adjustedScore);
 		
+		// XXX Also correct the contribution of the q-params whose product gives the a-parameter?
+
 		// Replace estimated QDivDa size by the true one.
 		// The score has to rise if the true QDivDa size is smaller than expected, because then we have less to factor.
 		// We would always expect that trueLogQDivDaSize <= logQdivDaEstimate, because the latter is supposed to be an upper bound.
@@ -466,10 +477,98 @@ public class Sieve03hU implements Sieve {
 		// If we always had trueLogQDivDaSize <= logQdivDaEstimate, then this check would be useless, because the adjusted score could only rise
 		if (adjustedScore2 > tdivTestMinLogPSum) {
 			if (DEBUG) LOG.debug("adjustedScore2 = " + adjustedScore2 + " is greater than tdivTestMinLogPSum = " + tdivTestMinLogPSum + " -> pass Q to tdiv");
-			smoothCandidates.add(new SmoothCandidate(x, QDivDa, A));
+			smoothCandidates.add(new SmoothCandidate(x, smallFactorsTDivResult.Q_rest, A, smallFactorsTDivResult.smallFactors));
 		}
 	}
 	
+	private SmallFactorsTDivResult tdivBySmallPrimes(BigInteger A, BigInteger QDivDa, int x) {
+		SmallFactorsTDivResult smallFactorsTDivResult = new SmallFactorsTDivResult();
+		SortedIntegerArray smallFactors = smallFactorsTDivResult.smallFactors;
+		// For more precision, here we compute the logPSum in doubles instead of using solutionArrays.logPArray
+		double logPSum = 0;
+		
+		// sign
+		BigInteger Q_rest = QDivDa;
+		if (QDivDa.signum() < 0) {
+			smallFactors.add(-1);
+			Q_rest = QDivDa.negate();
+		}
+		
+		// Remove multiples of 2
+		int lsb = Q_rest.getLowestSetBit();
+		if (lsb > 0) {
+			smallFactors.add(2, (short)lsb);
+			logPSum += smallPrimesLogPArray[0] * lsb;
+			Q_rest = Q_rest.shiftRight(lsb);
+		}
+
+		// Pass 1: Test solution arrays.
+		// IMPORTANT: Java gives x % p = x for |x| < p, and we have many p bigger than any sieve array entry.
+		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
+		int pass2Count = 0;
+		int[] pArray = solutionArrays.pArray;
+		int[] primes = solutionArrays.primes;
+		int[] exponents = solutionArrays.exponents;
+		long[] pinvArrayL = solutionArrays.pinvArrayL;
+		int[] x1Array = solutionArrays.x1Array, x2Array = solutionArrays.x2Array;
+		
+		final int xAbs = x<0 ? -x : x;
+		for (int pIndex = pMinIndex-1; pIndex > 0; pIndex--) { // p[0]=2 was already tested
+			int p = pArray[pIndex];
+			int xModP;
+			if (xAbs<p) {
+				xModP = x<0 ? x+p : x;
+			} else {
+				// Compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
+				// We can use the long-variant here because x*m will never overflow positive long values.
+				final long m = pinvArrayL[pIndex];
+				final long q = ((x*m)>>>32);
+				xModP = (int) (x - q * p);
+				if (xModP<0) xModP += p;
+				else if (xModP>=p) xModP -= p;
+				if (DEBUG) {
+					assertTrue(0<=xModP && xModP<p);
+					int xModP2 = x % p;
+					if (xModP2<0) xModP2 += p;
+					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
+					assertEquals(xModP2, xModP);
+				}
+			}
+			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
+				pass2PrimeIndices[pass2Count] = pIndex;
+				pass2Primes[pass2Count] = primes[pIndex];
+				pass2Exponents[pass2Count] = exponents[pIndex];
+				pass2Powers[pass2Count++] = p;
+				// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
+			}
+		}
+
+		// Pass 2: Reduce Q by the pass2Primes and collect small factors
+		Q_rest_UBI.set(Q_rest);
+		for (int pass2Index = 0; pass2Index < pass2Count; pass2Index++) {
+			int p = pass2Powers[pass2Index];
+			int rem;
+			while ((rem = Q_rest_UBI.divideAndRemainder(p, quotient_UBI)) == 0) {
+				// the division was exact. assign quotient to Q_rest and add p to factors
+				UnsignedBigInt tmp = Q_rest_UBI;
+				Q_rest_UBI = quotient_UBI;
+				quotient_UBI = tmp;
+				smallFactors.add(pass2Primes[pass2Index], (short)pass2Exponents[pass2Index]);
+				logPSum += smallPrimesLogPArray[pass2PrimeIndices[pass2Index]] * pass2Exponents[pass2Index];
+				if (DEBUG) {
+					BigInteger pBig = BigInteger.valueOf(p);
+					BigInteger[] div = Q_rest.divideAndRemainder(pBig);
+					assertEquals(div[1].intValue(), rem);
+					Q_rest = div[0];
+				}
+			}
+		}
+
+		smallFactorsTDivResult.Q_rest = Q_rest_UBI.toBigInteger();
+		smallFactorsTDivResult.logPSum = logPSum;
+		return smallFactorsTDivResult;
+	}
+
 	@Override
 	public SieveReport getReport() {
 		return new SieveReport(initDuration, sieveDuration, collectDuration);

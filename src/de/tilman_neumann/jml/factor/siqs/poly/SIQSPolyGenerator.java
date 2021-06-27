@@ -132,7 +132,7 @@ public class SIQSPolyGenerator {
 		sieveEngine.initializeForN(sieveParams, baseArrays.primes, mergedBaseSize);
 		this.sieveEngine = sieveEngine;
 		final double N_dbl = N.doubleValue();
-		tDivEngine.initializeForN(N_dbl, kN, sieveParams.smoothBound);
+		tDivEngine.initializeForN(N_dbl, kN, sieveParams);
 		this.tDivEngine = tDivEngine;
 
 		// B2: the array needs one more element because used indices start at 1.

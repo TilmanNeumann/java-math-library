@@ -33,7 +33,8 @@ public class SieveParamsFactory01 {
 	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int[] primeBase, int primeBaseSize, int sieveArraySize) {
 		
 		// compute biggest QRest admitted for a smooth relation
-		double smoothBoundExponent = (NBits<=150) ? 0.16 : 0.16 + (NBits-150.0)/5250;
+		double progessivePart = (NBits<=150) ? 0 : (NBits-150.0)/5250;
+		double smoothBoundExponent = 0.16 + progessivePart;
 		double smoothBound = Math.pow(N_dbl, smoothBoundExponent);
 		
 		// pMinIndex ~ primeBaseSize^0.33 looks clearly better than primeBaseSize^0.3 or primeBaseSize^0.36.

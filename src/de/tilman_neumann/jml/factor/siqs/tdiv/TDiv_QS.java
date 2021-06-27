@@ -18,6 +18,7 @@ import java.util.List;
 
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
+import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 
 /**
@@ -36,9 +37,9 @@ public interface TDiv_QS {
 	 * Initialize this trial division engine for a new N.
 	 * @param N_dbl
 	 * @param kN multiplier k (typically Knuth-Schroeppel) * factor argument N
-	 * @param smoothBound the biggest QRest admitted for a smooth relation
+	 * @param sieveParams the biggest QRest admitted for a smooth relation
 	 */
-	public void initializeForN(double N_dbl, BigInteger kN, double smoothBound);
+	public void initializeForN(double N_dbl, BigInteger kN, SieveParams sieveParams);
 
 	/**
 	 * Set prime/power base, polynomial parameters and smallest x-solutions for a new a-parameter.

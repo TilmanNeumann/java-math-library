@@ -17,32 +17,10 @@ import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 
-/**
- * A sieve hit that is a candidate to yield a smooth relation.
- * @author Tilman Neumann
- */
-public class SmoothCandidate {
-	/** The sieve location */
-	public int x;
-	/** The rest of Q(x)/(da) that still needs to get factorized, where a is the a-parameter of the polynomial and d==2 for kN==1 (mod 8), 2 else */
-	public BigInteger QRest;
-	/** A(x) = d*a*x + b */
-	public BigInteger A;
-	/** Small factors found by trial dividing small primes */
-	public SortedIntegerArray smallFactors;
+public class SmallFactorsTDivResult {
 	
-	public SmoothCandidate(int x) {
-		this(x, null, null, null);
-	}
-
-	public SmoothCandidate(int x, BigInteger QRest, BigInteger A) {
-		this(x, QRest, A, null);
-	}
-
-	public SmoothCandidate(int x, BigInteger QRest, BigInteger A, SortedIntegerArray smallFactors) {
-		this.x = x;
-		this.QRest = QRest;
-		this.A = A;
-		this.smallFactors = smallFactors;
-	}
+	public BigInteger Q_rest;
+	public SortedIntegerArray smallFactors = new SortedIntegerArray();
+	public double logPSum = 0;
+	
 }

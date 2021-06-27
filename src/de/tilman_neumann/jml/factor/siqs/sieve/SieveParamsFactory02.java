@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 /**
  * Factory to compute some basic parameters for the sieve.
  * Version 02 differentiates between the maximum bounds for sieve hits, smooth candidates, and smooths relations.
- * This is faster than version 01 for N>=300bit.
  * 
  * @see [Contini]: Scott Patrick Contini, "Factoring Integers with the self-initializing quadraric sieve", Master thesis, University of Georgia, 1997
  * 
@@ -29,18 +28,25 @@ import org.apache.log4j.Logger;
 public class SieveParamsFactory02 {
 	private static final Logger LOG = Logger.getLogger(SieveParamsFactory02.class);
 	private static final boolean DEBUG = false;
-	private static final double LN_SQRT_2 = Math.log(Math.sqrt(2)); // ~0.34657
 	
 	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int d, int[] primeBase, int primeBaseSize, int sieveArraySize) {
 		
-		// compute biggest QRest admitted for a smooth relation
-		double smoothBoundExponent = (NBits<=150) ? 0.15 : 0.15 + (NBits-150.0)/5250;
-		double sieveHitExp = smoothBoundExponent + 0.015;
-		double tdivTestExp = smoothBoundExponent + 0.015;
-
-		double smoothBound = Math.pow(N_dbl, smoothBoundExponent);
+		// Compute biggest QRest admitted for a smooth relation.
+		// The following (sieveHitExp, tdivTestExp, smoothBoundExponent) constant triples have been tested so far:
+		// (0.17 , 0.155, 0.14) : best until 330 bit
+		// (0.165, 0.165, 0.15) : not so good
+		// (0.165, 0.155, 0.145): third best for not too large N
+		// (0.165, 0.15 , 0.14) : overall good, best at a 340 bit test
+		// (0.16,  0.16,  0.14 ): ok at large N
+		// (0.16,  0.145, 0.13 ): not so good
+		double progessivePart = (NBits<=150) ? 0 : (NBits-150.0)/5250;
+		double sieveHitExp = 0.165 + progessivePart;
+		double tdivTestExp = 0.15 + progessivePart;
+		double smoothBoundExponent = 0.14 + progessivePart;
+		
 		double sieveHitBound = Math.pow(N_dbl, sieveHitExp);
 		double tdivTestBound = Math.pow(N_dbl, tdivTestExp);
+		double smoothBound = Math.pow(N_dbl, smoothBoundExponent);
 		if (DEBUG) LOG.debug("sieveHitBound = " + sieveHitBound + ", tdivTestBound = " + tdivTestBound + ", smoothBound = " + smoothBound);
 		
 		// pMinIndex ~ primeBaseSize^0.33 looks clearly better than primeBaseSize^0.3 or primeBaseSize^0.36.
@@ -49,10 +55,10 @@ public class SieveParamsFactory02 {
 		int pMin = primeBase[pMinIndex];
 		int pMax = primeBase[primeBaseSize-1];
 		
-		// Compute ln(Q/(da)), the natural logarithm of maximal Q/(da)-values,
-		// estimated for d=1 according to the papers of [Contini] (p.7), Pomerance and Silverman as ln(Q/a) = ln(M) + ln(kN)/2 - ln(sqrt(2)).
-		// XXX use the correct size for d=2
-		double lnQdivDaEstimate = Math.log(sieveArraySize) + Math.log(kN.doubleValue())/2 - LN_SQRT_2;
+		// Compute ln(Q/(da)), the natural logarithm of (theoretically) maximal Q/(da)-values:
+		// ln(Q/a)    = ln(M) + ln(kN)/2 - ln(sqrt(2)) if d=1, as proposed by [Contini] (p.7), Pomerance and Silverman,
+		// ln(Q/(2a)) = ln(M) + ln(kN)/2 - ln(sqrt(8)) if d=2.
+		double lnQdivDaEstimate = Math.log(sieveArraySize * Math.sqrt(kN.doubleValue()/2) / d);
 		
 		// Compute the minimal sum of ln(p_i) values required for a Q to pass the sieve.
 		double minLnPSum = lnQdivDaEstimate - Math.log(sieveHitBound);

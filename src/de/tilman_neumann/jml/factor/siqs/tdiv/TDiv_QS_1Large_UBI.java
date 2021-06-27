@@ -30,6 +30,7 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
+import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.Timer;
@@ -89,10 +90,10 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 	}
 
 	@Override
-	public void initializeForN(double N_dbl, BigInteger kN, double smoothBound) {
+	public void initializeForN(double N_dbl, BigInteger kN, SieveParams sieveParams) {
 		// the biggest unfactored rest where some Q is considered smooth enough for a congruence.
-		this.smoothBound = smoothBound;
-		if (DEBUG) LOG.debug("smoothBound = " + smoothBound + " (" + (64 - Long.numberOfLeadingZeros((long)smoothBound)) + " bits)");
+		this.smoothBound = sieveParams.smoothBound;
+		if (DEBUG) LOG.debug("smoothBound = " + sieveParams + " (" + (64 - Long.numberOfLeadingZeros((long)smoothBound)) + " bits)");
 		this.kN = kN;
 		// statistics
 		if (ANALYZE) testCount = sufficientSmoothCount = 0;
@@ -122,7 +123,7 @@ public class TDiv_QS_1Large_UBI implements TDiv_QS {
 		for (SmoothCandidate smoothCandidate : smoothCandidates) {
 			int x = smoothCandidate.x;
 			BigInteger A = smoothCandidate.A;
-			BigInteger QDivDa = smoothCandidate.QDivDa;
+			BigInteger QDivDa = smoothCandidate.QRest;
 			smallFactors.reset();
 			if (ANALYZE) {
 				testCount++;
