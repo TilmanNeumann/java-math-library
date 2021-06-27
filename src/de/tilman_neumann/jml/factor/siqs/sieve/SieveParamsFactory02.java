@@ -32,16 +32,10 @@ public class SieveParamsFactory02 {
 	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int d, int[] primeBase, int primeBaseSize, int sieveArraySize) {
 		
 		// Compute biggest QRest admitted for a smooth relation.
-		// The following (sieveHitExp, tdivTestExp, smoothBoundExponent) constant triples have been tested so far:
-		// (0.17 , 0.155, 0.14) : best until 330 bit
-		// (0.165, 0.165, 0.15) : not so good
-		// (0.165, 0.155, 0.145): third best for not too large N
-		// (0.165, 0.15 , 0.14) : overall good, best at a 340 bit test
-		// (0.16,  0.16,  0.14 ): ok at large N
-		// (0.16,  0.145, 0.13 ): not so good
+		// The triples (sieveHitExp, tdivTestExp, smoothBoundExponent) are important tuning parameters.
 		double progessivePart = (NBits<=150) ? 0 : (NBits-150.0)/5250;
-		double sieveHitExp = 0.165 + progessivePart;
-		double tdivTestExp = 0.15 + progessivePart;
+		double sieveHitExp = 0.20 + progessivePart;
+		double tdivTestExp = 0.14 + progessivePart;
 		double smoothBoundExponent = 0.14 + progessivePart;
 		
 		double sieveHitBound = Math.pow(N_dbl, sieveHitExp);
