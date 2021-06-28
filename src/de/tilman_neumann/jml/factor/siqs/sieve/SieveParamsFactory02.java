@@ -29,6 +29,9 @@ public class SieveParamsFactory02 {
 	private static final Logger LOG = Logger.getLogger(SieveParamsFactory02.class);
 	private static final boolean DEBUG = false;
 	
+	/** A small degree of freedom. It hardly matters which small value we choose, e.g. 0, 1 or 8 seem to perform very similar */
+	private static final int FREE_UNITS = 1;
+	
 	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int d, int[] primeBase, int primeBaseSize, int sieveArraySize, int qCount, double best_q) {
 		
 		// Compute biggest QRest admitted for a smooth relation.
@@ -58,7 +61,7 @@ public class SieveParamsFactory02 {
 		double minLnPSum = lnQdivDaEstimate - Math.log(sieveHitBound);
 		
 		// convert the sieve bound from natural logarithm to the actual logBase:
-		float lnPMultiplier = (float) (127.0/minLnPSum); // multiplier to convert natural logs to scaled logs (where we get a sieve hit if scaled log >= 128)
+		float lnPMultiplier = (float) ((128.0-FREE_UNITS)/minLnPSum); // multiplier to convert natural logs to scaled logs (where we get a sieve hit if scaled log >= 128)
 		
 		double tdivTestMinLnPSum = lnQdivDaEstimate - Math.log(tdivTestBound);
 		int tdivTestMinLogPSum = (int) (tdivTestMinLnPSum * lnPMultiplier);
@@ -95,8 +98,8 @@ public class SieveParamsFactory02 {
 		
 		// convert value from base e to wanted log base
 		double unsievedLogPSum = unsievedLnPSum * lnPMultiplier;
-		// compute initializerValue, rounded; +1 = 128-127
-		byte initializerValue = (byte) (unsievedLogPSum + 1.5);
+		// compute initializerValue, rounded
+		byte initializerValue = (byte) (unsievedLogPSum + FREE_UNITS + 0.5);
 		if (DEBUG) LOG.debug("initializerValue = " + initializerValue);
 		return initializerValue;
 	}
