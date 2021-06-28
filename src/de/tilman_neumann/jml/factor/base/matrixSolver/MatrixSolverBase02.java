@@ -112,11 +112,12 @@ abstract public class MatrixSolverBase02 extends MatrixSolver {
 	 */
 	protected List<Smooth> removeSingletons(Collection<? extends Smooth> congruences, Map<Integer,Integer> primeIndexMap) {
 		List<Smooth> noSingles = new ArrayList<Smooth>(congruences.size());
-		LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
-		StackEntry[] onHold = new StackEntry[primeIndexMap.size()];
+		LinkedList<StackEntry<Smooth>> stack = new LinkedList<>();
+		@SuppressWarnings("unchecked")
+		StackEntry<Smooth>[] onHold = new StackEntry[primeIndexMap.size()];
 		boolean[] haveMatch = new boolean[primeIndexMap.size()];
 		for (Smooth congruence : congruences) {
-			StackEntry entry = new StackEntry(congruence,0);
+			StackEntry<Smooth> entry = new StackEntry<Smooth>(congruence,0);
 			while (entry != null) {
 				Smooth currentCongruence = entry.congruence;
 				int factor = currentCongruence.getMatrixElements()[entry.currentPrimeIndex];
@@ -134,7 +135,7 @@ abstract public class MatrixSolverBase02 extends MatrixSolver {
 						// Second time seeing this prime. It's now matched. 
 						// Stack the held congruence for further processing.
 						haveMatch[ci] = true;
-						StackEntry held = onHold[ci];
+						StackEntry<Smooth> held = onHold[ci];
 						held.currentPrimeIndex++;
 						if (held.currentPrimeIndex>=held.congruence.getMatrixElements().length) {
 							noSingles.add(held.congruence);

@@ -13,15 +13,14 @@
  */
 package de.tilman_neumann.jml.factor.base.matrixSolver.util;
 
-import de.tilman_neumann.jml.factor.base.congruence.Smooth;
-
 /**
  * @author David McGuigan
+ * @param T the class of stack entries
  */
-public class StackEntry {
-	public Smooth congruence;
+public class StackEntry<T> {
+	public T congruence;
 	public int currentPrimeIndex;
-	public StackEntry(Smooth congruence, int currentPrimeIndex) {
+	public StackEntry(T congruence, int currentPrimeIndex) {
 		this.congruence = congruence;
 		this.currentPrimeIndex = currentPrimeIndex;
 	}	
