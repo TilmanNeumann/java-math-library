@@ -246,7 +246,7 @@ public class SIQS extends FactorAlgorithm {
 		congruenceCollector.initialize(N, primeBaseSize, matrixSolver, factorTest);
 
 		// compute some basic parameters for N
-		SieveParams sieveParams = SieveParamsFactory01.create(N_dbl, NBits, kN, primesArray, primeBaseSize, adjustedSieveArraySize);
+		SieveParams sieveParams = SieveParamsFactory01.create(N_dbl, NBits, kN, d, primesArray, primeBaseSize, adjustedSieveArraySize);
 		
 		// compute logP array
 		byte[] logPArray = computeLogPArray(primesArray, primeBaseSize, sieveParams.lnPMultiplier);

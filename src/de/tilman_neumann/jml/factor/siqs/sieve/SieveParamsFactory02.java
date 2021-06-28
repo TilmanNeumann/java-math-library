@@ -58,19 +58,18 @@ public class SieveParamsFactory02 {
 		double minLnPSum = lnQdivDaEstimate - Math.log(sieveHitBound);
 		
 		// convert the sieve bound from natural logarithm to the actual logBase:
-		double lnLogBase = minLnPSum / 127; // normalizer to be used as a divisor for p_i values
-		double minLogPSum = minLnPSum / lnLogBase; // ~ 127
+		float lnPMultiplier = (float) (127.0/minLnPSum); // multiplier to convert natural logs to scaled logs (where we get a sieve hit if scaled log >= 128)
 		
 		double tdivTestMinLnPSum = lnQdivDaEstimate - Math.log(tdivTestBound);
-		int tdivTestMinLogPSum = (int) (tdivTestMinLnPSum / lnLogBase);
-		int logQdivDaEstimate = (int) (lnQdivDaEstimate / lnLogBase);
+		int tdivTestMinLogPSum = (int) (tdivTestMinLnPSum * lnPMultiplier);
+		int logQdivDaEstimate = (int) (lnQdivDaEstimate * lnPMultiplier);
 
 		if (DEBUG) {
+			double lnLogBase = 1.0 / lnPMultiplier; // normalizer to be used as a divisor for p_i values
 			float logBase = (float) Math.exp(lnLogBase);
-			LOG.debug("logBase=" + logBase + ", lnLogBase=" + lnLogBase + ", minLnPSum = " + minLnPSum + ", minLogPSum = " + minLogPSum);
+			LOG.debug("logBase=" + logBase + ", lnLogBase=" + lnLogBase + ", minLnPSum = " + minLnPSum + ", minLogPSum = 127");
 		}
-		byte initializer = computeInitializerValue(primeBase, pMinIndex, minLogPSum, lnLogBase, qCount, best_q);
-		float lnPMultiplier = (float) (1.0/lnLogBase); // normalizer to be used as a multiplier for p_i values (faster than a divisor)
+		byte initializer = computeInitializerValue(primeBase, pMinIndex, lnPMultiplier, qCount, best_q);
 		
 		return new SieveParams(kN, pMinIndex, pMin, pMax, sieveArraySize, sieveHitBound, tdivTestBound, smoothBound, logQdivDaEstimate, tdivTestMinLogPSum, initializer, lnPMultiplier);
 	}
@@ -79,26 +78,25 @@ public class SieveParamsFactory02 {
 	 * Compute the initializer value.
 	 * @param primesArray prime base
 	 * @param pMinIndex the index of the first prime used for sieving
-	 * @param minLogPSum the minimal logPSum required to get a sieve hit
-	 * @param lnLogBase
+	 * @param lnPMultiplier multiplier to convert natural log to scaled log
 	 * @param qCount the number of q-parameters whose product gives the a-parameter
 	 * @param best_q the estimated optimal size of q-parameters
 	 * @return initializer byte value
 	 */
-	private static byte computeInitializerValue(int[] primesArray, int pMinIndex, double minLogPSum, double lnLogBase, int qCount, double best_q) {
+	private static byte computeInitializerValue(int[] primesArray, int pMinIndex, double lnPMultiplier, int qCount, double best_q) {
 		// compute contribution of small primes in nats
-		double lnSmallPSum = 0;
+		double unsievedLnPSum = 0;
 		for (int i=pMinIndex-1; i>=0; i--) {
 			int p = primesArray[i];
-			lnSmallPSum += Math.log(p) / p;
+			unsievedLnPSum += Math.log(p) / p;
 		}
 		// also add the contribution of the q-params (they are not sieved with either)
-		lnSmallPSum += qCount * Math.log(best_q) / best_q;
+		unsievedLnPSum += qCount * Math.log(best_q) / best_q;
 		
 		// convert value from base e to wanted log base
-		double logSmallPSum = lnSmallPSum / lnLogBase;
-		// compute initializerValue, rounded; combining doubles is more accurate than combining ints
-		byte initializerValue = (byte) (128 - minLogPSum + logSmallPSum + 0.5);
+		double unsievedLogPSum = unsievedLnPSum * lnPMultiplier;
+		// compute initializerValue, rounded; +1 = 128-127
+		byte initializerValue = (byte) (unsievedLogPSum + 1.5);
 		if (DEBUG) LOG.debug("initializerValue = " + initializerValue);
 		return initializerValue;
 	}
