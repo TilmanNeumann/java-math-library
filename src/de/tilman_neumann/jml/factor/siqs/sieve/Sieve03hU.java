@@ -89,12 +89,12 @@ public class Sieve03hU implements Sieve {
 	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
 	private UnsignedBigInt quotient_UBI = new UnsignedBigInt(new int[50]);
 
-	/** the indices of the primes found to divide Q in pass 1 */
-	private int[] pass2PrimeIndices = new int[100];
+	/** the primes found to divide Q in pass 1 */
 	private int[] pass2Primes = new int[100];
 	private int[] pass2Powers = new int[100];
 	private int[] pass2Exponents = new int[100];
-
+	private double[] pass2LogPArray = new double[100];
+	
 	private BinarySearch binarySearch = new BinarySearch();
 
 	// timings
@@ -544,9 +544,9 @@ public class Sieve03hU implements Sieve {
 				}
 			}
 			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
-				pass2PrimeIndices[pass2Count] = pIndex;
 				pass2Primes[pass2Count] = primes[pIndex];
 				pass2Exponents[pass2Count] = exponents[pIndex];
+				pass2LogPArray[pass2Count] = smallPrimesLogPArray[pIndex];
 				pass2Powers[pass2Count++] = p;
 				// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
 			}
@@ -563,7 +563,7 @@ public class Sieve03hU implements Sieve {
 				Q_rest_UBI = quotient_UBI;
 				quotient_UBI = tmp;
 				smallFactors.add(pass2Primes[pass2Index], (short)pass2Exponents[pass2Index]);
-				logPSum += smallPrimesLogPArray[pass2PrimeIndices[pass2Index]] * pass2Exponents[pass2Index];
+				logPSum += pass2LogPArray[pass2Index] * pass2Exponents[pass2Index];
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = Q_rest.divideAndRemainder(pBig);
