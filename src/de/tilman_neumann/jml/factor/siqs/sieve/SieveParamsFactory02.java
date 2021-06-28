@@ -34,12 +34,12 @@ public class SieveParamsFactory02 {
 		// Compute biggest QRest admitted for a smooth relation.
 		// The triples (sieveHitExp, tdivTestExp, smoothBoundExponent) are important tuning parameters.
 		double progessivePart = (NBits<=150) ? 0 : (NBits-150.0)/5250;
-		double sieveHitExp = 0.20 + progessivePart;
-		double tdivTestExp = 0.14 + progessivePart;
+		double sieveHitExponent = 0.20 + progessivePart;
+		double tdivTestExponent = 0.14 + progessivePart;
 		double smoothBoundExponent = 0.14 + progessivePart;
 		
-		double sieveHitBound = Math.pow(N_dbl, sieveHitExp);
-		double tdivTestBound = Math.pow(N_dbl, tdivTestExp);
+		double sieveHitBound = Math.pow(N_dbl, sieveHitExponent);
+		double tdivTestBound = Math.pow(N_dbl, tdivTestExponent);
 		double smoothBound = Math.pow(N_dbl, smoothBoundExponent);
 		if (DEBUG) LOG.debug("sieveHitBound = " + sieveHitBound + ", tdivTestBound = " + tdivTestBound + ", smoothBound = " + smoothBound);
 		
