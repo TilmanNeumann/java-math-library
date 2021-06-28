@@ -121,13 +121,13 @@ public class Sieve03g implements Sieve {
 	}
 
 	@Override
-	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize, int[] qArray) {
 		this.d = d;
 		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
-		int[] pArray = solutionArrays.pArray;
 		this.primeBaseSize = filteredBaseSize;
 		
+		int[] pArray = solutionArrays.pArray;
 		this.p1Index = binarySearch.getInsertPosition(pArray, primeBaseSize, sieveArraySize);
 		this.p2Index = binarySearch.getInsertPosition(pArray, p1Index, (sieveArraySize+1)/2);
 		this.p3Index = binarySearch.getInsertPosition(pArray, p2Index, (sieveArraySize+2)/3);

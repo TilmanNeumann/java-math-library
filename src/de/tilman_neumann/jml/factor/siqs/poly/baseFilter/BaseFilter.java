@@ -32,12 +32,12 @@ public interface BaseFilter {
 	public static class Result {
 		public SolutionArrays solutionArrays;
 		public int filteredBaseSize;
-		public int[] filteredOutBaseElements;
+		public int[] qArray;
 		
-		public Result(SolutionArrays solutionArrays, int filteredBaseSize, int[] filteredOutBaseElements) {
+		public Result(SolutionArrays solutionArrays, int filteredBaseSize, int[] qArray) {
 			this.solutionArrays = solutionArrays;
 			this.filteredBaseSize = filteredBaseSize;
-			this.filteredOutBaseElements = filteredOutBaseElements;
+			this.qArray = qArray;
 		}
 	}
 	

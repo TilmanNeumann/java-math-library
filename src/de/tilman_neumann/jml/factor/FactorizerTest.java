@@ -193,6 +193,7 @@ public class FactorizerTest {
 
 			// (0.31, 0.37) is way better than (0.32, 0.37) for PSIQS_U2 !!
 			new PSIQS_U2(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss01(10)),
+			new PSIQS_U3(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss01(10)),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
 //			new CombinedFactorAlgorithm(6, 1<<16, true),

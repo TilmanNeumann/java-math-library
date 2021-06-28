@@ -43,8 +43,9 @@ public interface Sieve {
 	 * @param daParam d*a, where 'a' is the a-parameter and d=2 if kN==1 (mod 8), d=1 else
 	 * @param primeSolutions
 	 * @param filteredBaseSize number of primes and powers use for sieving
+	 * @param qArray the q-parameters whose product is the a-parameter
 	 */
-	void initializeForAParameter(int d, BigInteger daParam, SolutionArrays primeSolutions, int filteredBaseSize);
+	void initializeForAParameter(int d, BigInteger daParam, SolutionArrays primeSolutions, int filteredBaseSize, int[] qArray);
 
 	/**
 	 * Pass the b-parameter to the sieve.

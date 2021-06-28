@@ -29,7 +29,7 @@ public class SieveParamsFactory02 {
 	private static final Logger LOG = Logger.getLogger(SieveParamsFactory02.class);
 	private static final boolean DEBUG = false;
 	
-	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int d, int[] primeBase, int primeBaseSize, int sieveArraySize) {
+	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int d, int[] primeBase, int primeBaseSize, int sieveArraySize, int qCount, double best_q) {
 		
 		// Compute biggest QRest admitted for a smooth relation.
 		// The triples (sieveHitExp, tdivTestExp, smoothBoundExponent) are important tuning parameters.
@@ -69,7 +69,7 @@ public class SieveParamsFactory02 {
 			float logBase = (float) Math.exp(lnLogBase);
 			LOG.debug("logBase=" + logBase + ", lnLogBase=" + lnLogBase + ", minLnPSum = " + minLnPSum + ", minLogPSum = " + minLogPSum);
 		}
-		byte initializer = computeInitializerValue(primeBase, pMinIndex, minLogPSum, lnLogBase);
+		byte initializer = computeInitializerValue(primeBase, pMinIndex, minLogPSum, lnLogBase, qCount, best_q);
 		float lnPMultiplier = (float) (1.0/lnLogBase); // normalizer to be used as a multiplier for p_i values (faster than a divisor)
 		
 		return new SieveParams(kN, pMinIndex, pMin, pMax, sieveArraySize, sieveHitBound, tdivTestBound, smoothBound, logQdivDaEstimate, tdivTestMinLogPSum, initializer, lnPMultiplier);
@@ -79,18 +79,21 @@ public class SieveParamsFactory02 {
 	 * Compute the initializer value.
 	 * @param primesArray prime base
 	 * @param pMinIndex the index of the first prime used for sieving
-	 * @param minLogPSum
+	 * @param minLogPSum the minimal logPSum required to get a sieve hit
 	 * @param lnLogBase
+	 * @param qCount the number of q-parameters whose product gives the a-parameter
+	 * @param best_q the estimated optimal size of q-parameters
 	 * @return initializer byte value
 	 */
-	private static byte computeInitializerValue(int[] primesArray, int pMinIndex, double minLogPSum, double lnLogBase) {
+	private static byte computeInitializerValue(int[] primesArray, int pMinIndex, double minLogPSum, double lnLogBase, int qCount, double best_q) {
 		// compute contribution of small primes in nats
 		double lnSmallPSum = 0;
 		for (int i=pMinIndex-1; i>=0; i--) {
 			int p = primesArray[i];
 			lnSmallPSum += Math.log(p) / p;
 		}
-		// XXX also add the contribution of the q-params? (they are not sieved with either)
+		// also add the contribution of the q-params (they are not sieved with either)
+		lnSmallPSum += qCount * Math.log(best_q) / best_q;
 		
 		// convert value from base e to wanted log base
 		double logSmallPSum = lnSmallPSum / lnLogBase;

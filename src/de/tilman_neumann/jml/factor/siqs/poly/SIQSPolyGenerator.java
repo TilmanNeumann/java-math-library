@@ -196,9 +196,9 @@ public class SIQSPolyGenerator {
 			// compute ainvp[], Bainv2[][] and solution x-arrays for a and first b
 			computeFirstXArrays();
 			// pass data to sub-engines
-			sieveEngine.initializeForAParameter(d, da, solutionArrays, filteredBaseSize);
+			sieveEngine.initializeForAParameter(d, da, solutionArrays, filteredBaseSize, filterResult.qArray);
 			sieveEngine.setBParameter(b);
-			tDivEngine.initializeForAParameter(da, d, b, solutionArrays, filteredBaseSize, filterResult.filteredOutBaseElements);
+			tDivEngine.initializeForAParameter(da, d, b, solutionArrays, filteredBaseSize, filterResult.qArray);
 			if (ANALYZE) firstXArrayDuration += timer.capture();
 		} else {
 			// Compute the next b-parameter

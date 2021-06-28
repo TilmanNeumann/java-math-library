@@ -194,17 +194,10 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 	private AQPair test(BigInteger A, BigInteger Q, int x) {
 		BigInteger Q_rest = Q;
 
-		// Unsieved prime base elements are added directly to pass 2.
-		int pass2Count = 0;
-		for (; pass2Count<unsievedBaseElements.length; pass2Count++) {
-			pass2Primes[pass2Count] = unsievedBaseElements[pass2Count];
-			pass2Powers[pass2Count] = unsievedBaseElements[pass2Count];
-			pass2Exponents[pass2Count] = 1;
-		}
-		
 		// Pass 1: Test solution arrays.
 		// IMPORTANT: Java gives x % p = x for |x| < p, and we have many p bigger than any sieve array entry.
 		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
+		int pass2Count = 0;
 		final int xAbs = x<0 ? -x : x;
 		for (int pIndex = baseSize-1; pIndex >= pMinIndex; pIndex--) { // small primes have already been tested
 			int p = pArray[pIndex];

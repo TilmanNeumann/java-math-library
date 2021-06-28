@@ -232,7 +232,7 @@ abstract public class PSIQSBase2 extends FactorAlgorithm {
 		congruenceCollector.initialize(N, primeBaseSize, matrixSolver, factorTest);
 
 		// compute some basic parameters for N
-		SieveParams sieveParams = SieveParamsFactory02.create(N_dbl, NBits, kN, d, primesArray, primeBaseSize, adjustedSieveArraySize);
+		SieveParams sieveParams = SieveParamsFactory02.create(N_dbl, NBits, kN, d, primesArray, primeBaseSize, adjustedSieveArraySize, apg.getQCount(), apg.getBestQ());
 
 		// compute logP array
 		byte[] logPArray = computeLogPArray(primesArray, primeBaseSize, sieveParams.lnPMultiplier);

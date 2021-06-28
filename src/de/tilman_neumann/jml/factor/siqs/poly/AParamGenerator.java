@@ -48,10 +48,15 @@ public interface AParamGenerator {
 	BigInteger computeNextAParameter();
 	
 	/**
+	 * @return approximate optimal size of q-parameters
+	 */
+	double getBestQ();
+	
+	/**
 	 * @return number of primes <code>s</code> with <code>a-parameter = q_1 * ... * q_s</code>
 	 */
 	int getQCount();
-	
+
 	/**
 	 * @return the q-values that give the <code>a-parameter = q_1 * ... * q_s</code>
 	 */

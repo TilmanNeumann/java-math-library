@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -52,6 +52,8 @@ public class Sieve03hU implements Sieve {
 	private BigInteger daParam, bParam, cParam, kN;
 	private int d;
 
+	/** multiplier to convert natural logarithms to the scaled log that yields a sieve hit if the sieve array entry x >= 128 */
+	private double ln2logPMultiplier;
 	/** multiplier to convert dual logarithms (e.g. bit length) to the scaled log that yields a sieve hit if the sieve array entry x >= 128 */
 	private double ld2logPMultiplier;
 	
@@ -71,6 +73,9 @@ public class Sieve03hU implements Sieve {
 	
 	private SolutionArrays solutionArrays;
 
+	private int[] qArray;
+	private double[] logQArray;
+	
 	// sieve
 	private int sieveArraySize;
 	/** the value to initializate the sieve array with */
@@ -105,6 +110,7 @@ public class Sieve03hU implements Sieve {
 	public void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize) {
 		this.kN = sieveParams.kN;
 		this.pMinIndex = sieveParams.pMinIndex;
+		this.ln2logPMultiplier = sieveParams.lnPMultiplier;
 		this.ld2logPMultiplier = sieveParams.lnPMultiplier * LN2;
 		this.tdivTestMinLogPSum = sieveParams.tdivTestMinLogPSum;
 		this.logQdivDaEstimate = sieveParams.logQdivDaEstimate;
@@ -128,13 +134,18 @@ public class Sieve03hU implements Sieve {
 	}
 
 	@Override
-	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize, int[] qArray) {
 		this.d = d;
 		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
-		int[] pArray = solutionArrays.pArray;
 		this.primeBaseSize = filteredBaseSize;
+		this.qArray = qArray;
+		logQArray = new double[qArray.length];
+		for (int i=0; i<qArray.length; i++) {
+			logQArray[i] =  Math.log(qArray[i]) * ln2logPMultiplier;
+		}
 		
+		int[] pArray = solutionArrays.pArray;
 		this.p1Index = binarySearch.getInsertPosition(pArray, primeBaseSize, sieveArraySize);
 		this.p2Index = binarySearch.getInsertPosition(pArray, p1Index, (sieveArraySize+1)/2);
 		this.p3Index = binarySearch.getInsertPosition(pArray, p2Index, (sieveArraySize+2)/3);
@@ -442,22 +453,20 @@ public class Sieve03hU implements Sieve {
 	}
 
 	private void addSmoothCandidate(int x, int score) {
-		// Compute Q(x)/(da): Note that if kN==1 (mod 8), then d=2 and Q(x) divides not just a but 2a
+		// Compute Q(x)/(da): If kN==1 (mod 8), then d=2 and Q(x) is divisible not just by 'a' but by 2a
 		BigInteger xBig = BigInteger.valueOf(x);
 		BigInteger dax = daParam.multiply(xBig);
 		BigInteger A = dax.add(bParam);
 		BigInteger QDivDa = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
 
-		// Replace estimated small factor contribution by the true one:
-		// The score has to rise if the true small factor contribution is greater than expected.
+		// Replace estimates of unsieved prime base element (small primes, q-parameters) contributions to logPSum
+		// by the true ones: The score has to rise if the true contribution is greater than expected.
 		// XXX Could we do Bernsteinisms here?
-		SmallFactorsTDivResult smallFactorsTDivResult = tdivBySmallPrimes(A, QDivDa, x);
+		SmallFactorsTDivResult smallFactorsTDivResult = tdivUnsievedPrimeBaseElements(A, QDivDa, x);
 		int logSmallPSum = (int) smallFactorsTDivResult.logPSum;
 		int adjustedScore = score - ((int)initializer) + logSmallPSum;
 		if (DEBUG) LOG.debug("adjust initializer: original score = " + score + ", initializer = " + (int)initializer + ", logSmallPSum = " + logSmallPSum + " -> adjustedScore1 = " + adjustedScore);
 		
-		// XXX Also correct the contribution of the q-params whose product gives the a-parameter?
-
 		// Replace estimated QDivDa size by the true one.
 		// The score has to rise if the true QDivDa size is smaller than expected, because then we have less to factor.
 		// We would always expect that trueLogQDivDaSize <= logQdivDaEstimate, because the latter is supposed to be an upper bound.
@@ -481,7 +490,7 @@ public class Sieve03hU implements Sieve {
 		}
 	}
 	
-	private SmallFactorsTDivResult tdivBySmallPrimes(BigInteger A, BigInteger QDivDa, int x) {
+	private SmallFactorsTDivResult tdivUnsievedPrimeBaseElements(BigInteger A, BigInteger QDivDa, int x) {
 		SmallFactorsTDivResult smallFactorsTDivResult = new SmallFactorsTDivResult();
 		SortedIntegerArray smallFactors = smallFactorsTDivResult.smallFactors;
 		// For more precision, here we compute the logPSum in doubles instead of using solutionArrays.logPArray
@@ -501,7 +510,7 @@ public class Sieve03hU implements Sieve {
 			logPSum += smallPrimesLogPArray[0] * lsb;
 			Q_rest = Q_rest.shiftRight(lsb);
 		}
-
+		
 		// Pass 1: Test solution arrays.
 		// IMPORTANT: Java gives x % p = x for |x| < p, and we have many p bigger than any sieve array entry.
 		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
@@ -555,6 +564,26 @@ public class Sieve03hU implements Sieve {
 				quotient_UBI = tmp;
 				smallFactors.add(pass2Primes[pass2Index], (short)pass2Exponents[pass2Index]);
 				logPSum += smallPrimesLogPArray[pass2PrimeIndices[pass2Index]] * pass2Exponents[pass2Index];
+				if (DEBUG) {
+					BigInteger pBig = BigInteger.valueOf(p);
+					BigInteger[] div = Q_rest.divideAndRemainder(pBig);
+					assertEquals(div[1].intValue(), rem);
+					Q_rest = div[0];
+				}
+			}
+		}
+
+		// Finally reduce Q by q-parameters
+		for (int i=0; i<qArray.length; i++) {
+			int p = qArray[i];
+			int rem;
+			while ((rem = Q_rest_UBI.divideAndRemainder(p, quotient_UBI)) == 0) {
+				// the division was exact. assign quotient to Q_rest and add p to factors
+				UnsignedBigInt tmp = Q_rest_UBI;
+				Q_rest_UBI = quotient_UBI;
+				quotient_UBI = tmp;
+				smallFactors.add(qArray[i]);
+				logPSum += logQArray[i];
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = Q_rest.divideAndRemainder(pBig);

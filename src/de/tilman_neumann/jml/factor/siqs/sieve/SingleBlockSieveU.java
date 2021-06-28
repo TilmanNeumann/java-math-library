@@ -131,7 +131,7 @@ public class SingleBlockSieveU implements Sieve {
 	}
 
 	@Override
-	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize) {
+	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize, int[] qArray) {
 		this.d = d;
 		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
