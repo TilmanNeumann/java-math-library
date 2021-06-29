@@ -46,9 +46,9 @@ public class SieveParamsFactory02 {
 		double smoothBound = Math.pow(N_dbl, smoothBoundExponent);
 		if (DEBUG) LOG.debug("sieveHitBound = " + sieveHitBound + ", tdivTestBound = " + tdivTestBound + ", smoothBound = " + smoothBound);
 		
-		// pMinIndex ~ primeBaseSize^0.33 looks clearly better than primeBaseSize^0.3 or primeBaseSize^0.36.
+		// pMinIndex/pMin is an important tuning parameter. After the correction of sieve hit scores introduced in Sieve03hU, the exponent could be raised from 0.33 to 0.43.
 		// We avoid p[0]==2 which is not used in several sieves.
-		int pMinIndex = Math.max(1, (int) Math.cbrt(primeBaseSize));
+		int pMinIndex = Math.max(1, (int) Math.pow(primeBaseSize, 0.43));
 		int pMin = primeBase[pMinIndex];
 		int pMax = primeBase[primeBaseSize-1];
 		
