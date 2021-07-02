@@ -13,6 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
@@ -36,15 +37,21 @@ public class SieveParamsFactory02 {
 		
 		// Compute biggest QRest admitted for a smooth relation.
 		// The triples (sieveHitExp, tdivTestExp, smoothBoundExponent) are important tuning parameters.
-		double progessivePart = (NBits<=150) ? 0 : (NBits-150.0)/5250;
-		double sieveHitExponent = 0.20 + progessivePart;
-		double tdivTestExponent = 0.14 + progessivePart;
-		double smoothBoundExponent = 0.14 + progessivePart;
+		double progessivePart = (NBits<=150) ? 0 : (NBits-150.0)*0.045/150;
+		double sieveHitExponent = 0.21 + progessivePart;
+		double tdivTestExponent = (NBits<250) ? 0.12 : 0.16; // at 250 bit 2LP kick in!
+		double smoothBoundExponent = tdivTestExponent;
 		
 		double sieveHitBound = Math.pow(N_dbl, sieveHitExponent);
 		double tdivTestBound = Math.pow(N_dbl, tdivTestExponent);
 		double smoothBound = Math.pow(N_dbl, smoothBoundExponent);
-		if (DEBUG) LOG.debug("sieveHitBound = " + sieveHitBound + ", tdivTestBound = " + tdivTestBound + ", smoothBound = " + smoothBound);
+		if (DEBUG) {
+			LOG.debug("sieveHitBound = " + sieveHitBound + ", tdivTestBound = " + tdivTestBound + ", smoothBound = " + smoothBound);
+			int sieveHitBits = BigDecimal.valueOf(sieveHitBound).toBigInteger().bitLength();
+			int tdivTestBits = BigDecimal.valueOf(tdivTestBound).toBigInteger().bitLength();
+			int smoothBoundBits = BigDecimal.valueOf(smoothBound).toBigInteger().bitLength();
+			LOG.debug("sieveHitBits = " + sieveHitBits + ", tdivTestBits = " + tdivTestBits + ", smoothBoundBits = " + smoothBoundBits);
+		}
 		
 		// pMinIndex/pMin is an important tuning parameter. After the correction of sieve hit scores introduced in Sieve03hU, the exponent could be raised from 0.33 to 0.43.
 		// We avoid p[0]==2 which is not used in several sieves.

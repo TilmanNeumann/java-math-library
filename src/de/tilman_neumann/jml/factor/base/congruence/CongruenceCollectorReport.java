@@ -32,11 +32,13 @@ public class CongruenceCollectorReport {
 	private Multiset<Integer> bigFactorSizes4Smooth;
 	private int partialWithPositiveQCount;
 	private int smoothWithPositiveQCount;
+	private Multiset<Integer>[] qRestSizes4SmoothFromLPCount;
 	
 	public CongruenceCollectorReport(int partialCount, int smoothCount, int[] smoothFromPartialCounts, int[] partialCounts, int perfectSmoothCount,
 			                         Multiset<Integer> qRestSizes, Multiset<Integer> qRestSizes4Smooth,
 			                         Multiset<Integer> bigFactorSizes, Multiset<Integer> bigFactorSizes4Smooth,
-			                         int partialWithPositiveQCount, int smoothWithPositiveQCount) {
+			                         int partialWithPositiveQCount, int smoothWithPositiveQCount,
+			                         Multiset<Integer>[] qRestSizes4SmoothFromLPCount) {
 		
 		this.partialCount = partialCount;
 		this.smoothCount = smoothCount;
@@ -49,6 +51,7 @@ public class CongruenceCollectorReport {
 		this.bigFactorSizes4Smooth = bigFactorSizes4Smooth;
 		this.partialWithPositiveQCount = partialWithPositiveQCount;
 		this.smoothWithPositiveQCount = smoothWithPositiveQCount;
+		this.qRestSizes4SmoothFromLPCount = qRestSizes4SmoothFromLPCount;
 	}
 	
 	public String getOperationDetails() {
@@ -74,6 +77,21 @@ public class CongruenceCollectorReport {
 		return "QRest sizes of discovered smooths: " + qRestSizes4Smooth;
 	}
 
+	/**
+	 * @return a string pointing out the required QRest bit sizes to find certain percentiles of all smooth congruences.
+	 */
+	public String getSmoothQRestPercentiles() {
+		return "Required QRest sizes for smooth percentiles = " + computePercentiles(qRestSizes4Smooth);
+	}
+
+	/**
+	 * @param lpCount number of large primes in the partial that lead to a smooth congruence
+	 * @return a string pointing out the required QRest bit sizes to find certain percentiles of all smooth congruences.
+	 */
+	public String getSmoothQRestPercentiles(int lpCount) {
+		return "Required QRest sizes for smooth percentiles from " + lpCount + " large primes = " + computePercentiles(qRestSizes4SmoothFromLPCount[lpCount]);
+	}
+
 	public String getPartialBigFactorSizes() {
 		return "Big factor sizes of collected partials: " + bigFactorSizes;
 	}
@@ -82,16 +100,23 @@ public class CongruenceCollectorReport {
 		return "Big factor sizes of discovered smooths: " + bigFactorSizes4Smooth;
 	}
 
+	/**
+	 * @return a string pointing out the required big factor bit sizes to find certain percentiles of all smooth congruences.
+	 */
 	public String getSmoothBigFactorPercentiles() {
+		return "Required large factor sizes for smooth percentiles = " + computePercentiles(bigFactorSizes4Smooth);
+	}
+	
+	private static TreeMap<Integer, Integer> computePercentiles(Multiset<Integer> bitsizeCounts) {
 		int[] percentiles = new int[] {80, 90, 95, 98, 99};
-		int totalFactor4SmoothCount = bigFactorSizes4Smooth.totalCount();
+		int totalCount = bitsizeCounts.totalCount();
 		TreeMap<Integer, Integer> resultMap = new TreeMap<>();
 		for (int i=0; i<percentiles.length; i++) {
-			int requiredCount = (int) Math.ceil((totalFactor4SmoothCount * percentiles[i]) / 100.0);
+			int requiredCount = (int) Math.ceil((totalCount * percentiles[i]) / 100.0);
 			int count = 0;
 			// factor sizes are sorted bottom-up
-			for (int factorSize : bigFactorSizes4Smooth.keySet()) {
-				int sizeCount = bigFactorSizes4Smooth.get(factorSize);
+			for (int factorSize : bitsizeCounts.keySet()) {
+				int sizeCount = bitsizeCounts.get(factorSize);
 				count += sizeCount;
 				if (count > requiredCount) {
 					resultMap.put(percentiles[i], factorSize);
@@ -99,9 +124,12 @@ public class CongruenceCollectorReport {
 				}
 			}
 		}
-		return "Required large factor sizes for smooth percentiles = " + resultMap;
+		return resultMap;
 	}
 	
+	/**
+	 * @return a string pointing out how many factors>31bit contributed to collected partial and smooth relations.
+	 */
 	public String getNonIntFactorPercentages() {
 		int totalPartialBigFactorCount = 0;
 		int nonIntPartialBigFactorCount = 0;

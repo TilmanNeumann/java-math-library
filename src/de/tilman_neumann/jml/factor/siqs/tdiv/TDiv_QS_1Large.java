@@ -17,6 +17,7 @@ import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class TDiv_QS_1Large implements TDiv_QS {
 	private BigInteger da; // d*a with d = 1 or 2 depending on kN % 8
 	private int d; // the d-value;
 	
-	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
+	/** Q is sufficiently smooth if the unfactored QRest is smaller than this bound depending on N */
 	private double smoothBound;
 
 	// prime base
@@ -87,7 +88,7 @@ public class TDiv_QS_1Large implements TDiv_QS {
 	public void initializeForN(double N_dbl, BigInteger kN, SieveParams sieveParams) {
 		// the biggest unfactored rest where some Q is considered smooth enough for a congruence.
 		this.smoothBound = sieveParams.smoothBound;
-		if (DEBUG) LOG.debug("smoothBound = " + sieveParams + " (" + (64 - Long.numberOfLeadingZeros((long)smoothBound)) + " bits)");
+		if (DEBUG) LOG.debug("smoothBound = " + smoothBound + " (" + BigDecimal.valueOf(smoothBound).toBigInteger().bitLength() + " bits)");
 		this.kN = kN;
 		// statistics
 		if (ANALYZE) testCount = sufficientSmoothCount = 0;
@@ -159,17 +160,17 @@ public class TDiv_QS_1Large implements TDiv_QS {
 	
 	private AQPair test(BigInteger A, BigInteger Q, int x) {
 		// sign
-		BigInteger Q_rest = Q;
+		BigInteger QRest = Q;
 		if (Q.signum() < 0) {
 			smallFactors.add(-1);
-			Q_rest = Q.negate();
+			QRest = Q.negate();
 		}
 		
 		// Remove multiples of 2
-		int lsb = Q_rest.getLowestSetBit();
+		int lsb = QRest.getLowestSetBit();
 		if (lsb > 0) {
 			smallFactors.add(2, (short)lsb);
-			Q_rest = Q_rest.shiftRight(lsb);
+			QRest = QRest.shiftRight(lsb);
 		}
 
 		// Unsieved prime base elements are added directly to pass 2.
@@ -219,27 +220,27 @@ public class TDiv_QS_1Large implements TDiv_QS {
 		for (int pass2Index = 0; pass2Index < pass2Count; pass2Index++) {
 			BigInteger pBig = BigInteger.valueOf(pass2Powers[pass2Index]);
 			while (true) {
-				div = Q_rest.divideAndRemainder(pBig);
+				div = QRest.divideAndRemainder(pBig);
 				if (div[1].compareTo(I_0)>0) break;
 				smallFactors.add(pass2Primes[pass2Index], (short)pass2Exponents[pass2Index]);
-				Q_rest = div[0];
+				QRest = div[0];
 			}
 		}
 		if (ANALYZE) pass2Duration += timer.capture();
-		if (Q_rest.equals(I_1)) {
+		if (QRest.equals(I_1)) {
 			addCommonFactorsToSmallFactors();
 			return new Smooth_Perfect(A, smallFactors);
 		}
 		
 		// Division by all p<=pMax was not sufficient to factor Q completely.
-		// The remaining Q_rest is either a prime > pMax, or a composite > pMax^2.
-		if (Q_rest.bitLength()>31 || Q_rest.doubleValue() >= smoothBound) return null; // Q is not sufficiently smooth
+		// The remaining QRest is either a prime > pMax, or a composite > pMax^2.
+		if (QRest.bitLength()>31 || QRest.doubleValue() >= smoothBound) return null; // Q is not sufficiently smooth
 		// Note: We could as well use pMax^c with c~1.75 as threshold. Larger factors do not help to find smooth congruences.
 	
 		// Q is sufficiently smooth
-		if (DEBUG) LOG.debug("Sufficient smooth big factor = " + Q_rest);
+		if (DEBUG) LOG.debug("Sufficient smooth big factor = " + QRest);
 		addCommonFactorsToSmallFactors();
-		return new Partial_1Large(A, smallFactors, Q_rest.longValue());
+		return new Partial_1Large(A, smallFactors, QRest.longValue());
 	}
 	
 	/**

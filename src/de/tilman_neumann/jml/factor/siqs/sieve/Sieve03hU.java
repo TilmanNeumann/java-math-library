@@ -556,8 +556,7 @@ public class Sieve03hU implements Sieve {
 		Q_rest_UBI.set(Q_rest);
 		for (int pass2Index = 0; pass2Index < pass2Count; pass2Index++) {
 			int p = pass2Powers[pass2Index];
-			int rem;
-			while ((rem = Q_rest_UBI.divideAndRemainder(p, quotient_UBI)) == 0) {
+			while (Q_rest_UBI.divideAndRemainder(p, quotient_UBI) == 0) {
 				// the division was exact. assign quotient to Q_rest and add p to factors
 				UnsignedBigInt tmp = Q_rest_UBI;
 				Q_rest_UBI = quotient_UBI;
@@ -567,7 +566,7 @@ public class Sieve03hU implements Sieve {
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = Q_rest.divideAndRemainder(pBig);
-					assertEquals(div[1].intValue(), rem);
+					assertEquals(div[1].intValue(), 0);
 					Q_rest = div[0];
 				}
 			}
@@ -576,8 +575,7 @@ public class Sieve03hU implements Sieve {
 		// Finally reduce Q by q-parameters
 		for (int i=0; i<qArray.length; i++) {
 			int p = qArray[i];
-			int rem;
-			while ((rem = Q_rest_UBI.divideAndRemainder(p, quotient_UBI)) == 0) {
+			while (Q_rest_UBI.divideAndRemainder(p, quotient_UBI) == 0) {
 				// the division was exact. assign quotient to Q_rest and add p to factors
 				UnsignedBigInt tmp = Q_rest_UBI;
 				Q_rest_UBI = quotient_UBI;
@@ -587,7 +585,7 @@ public class Sieve03hU implements Sieve {
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = Q_rest.divideAndRemainder(pBig);
-					assertEquals(div[1].intValue(), rem);
+					assertEquals(div[1].intValue(), 0);
 					Q_rest = div[0];
 				}
 			}

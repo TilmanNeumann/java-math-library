@@ -17,6 +17,7 @@ import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	private BigInteger da; // d*a with d = 1 or 2 depending on kN % 8
 	private int d; // the d-value;
 
-	/** Q is sufficiently smooth if the unfactored Q_rest is smaller than this bound depending on N */
+	/** Q is sufficiently smooth if the unfactored QRest is smaller than this bound depending on N */
 	private double smoothBound;
 
 	// prime base
@@ -82,11 +83,11 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	private long[] pinvArrayL;
 	private int baseSize;
 	private int pMax;
-	private BigInteger pMaxSquare;
+	private long pMaxSquare;
 	private int[] unsievedBaseElements;
 
 	/** buffers for trial division engine. */
-	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
+	private UnsignedBigInt QRest_UBI = new UnsignedBigInt(new int[50]);
 	private UnsignedBigInt quotient_UBI = new UnsignedBigInt(new int[50]);
 
 	/** the indices of the primes found to divide Q in pass 1 */
@@ -132,7 +133,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	public void initializeForN(double N_dbl, BigInteger kN, SieveParams sieveParams) {
 		// the biggest unfactored rest where some Q is considered smooth enough for a congruence.
 		this.smoothBound = sieveParams.smoothBound;
-		if (DEBUG) LOG.debug("smoothBound = " + sieveParams + " (" + (64 - Long.numberOfLeadingZeros((long)smoothBound)) + " bits)");
+		if (DEBUG) LOG.debug("smoothBound = " + smoothBound + " (" + BigDecimal.valueOf(smoothBound).toBigInteger().bitLength() + " bits)");
 		this.kN = kN;
 		// statistics
 		if (ANALYZE) testCount = sufficientSmoothCount = 0;
@@ -151,7 +152,7 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 		x1Array = solutionArrays.x1Array;
 		x2Array = solutionArrays.x2Array;
 		pMax = primes[baseSize-1];
-		pMaxSquare = BigInteger.valueOf(pMax * (long) pMax);
+		pMaxSquare = pMax * (long) pMax;
 		this.unsievedBaseElements = unsievedBaseElements;
 	}
 
@@ -207,17 +208,17 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	
 	private AQPair test(BigInteger A, BigInteger Q, int x) {
 		// sign
-		BigInteger Q_rest = Q;
+		BigInteger QRest = Q;
 		if (Q.signum() < 0) {
 			smallFactors.add(-1);
-			Q_rest = Q.negate();
+			QRest = Q.negate();
 		}
 		
 		// Remove multiples of 2
-		int lsb = Q_rest.getLowestSetBit();
+		int lsb = QRest.getLowestSetBit();
 		if (lsb > 0) {
 			smallFactors.add(2, (short)lsb);
-			Q_rest = Q_rest.shiftRight(lsb);
+			QRest = QRest.shiftRight(lsb);
 		}
 
 		// Unsieved prime base elements are added directly to pass 2.
@@ -263,38 +264,37 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 		if (ANALYZE) pass1Duration += timer.capture();
 
 		// Pass 2: Reduce Q by the pass2Primes and collect small factors
-		Q_rest_UBI.set(Q_rest);
+		QRest_UBI.set(QRest);
 		for (int pass2Index = 0; pass2Index < pass2Count; pass2Index++) {
 			int p = pass2Powers[pass2Index];
-			int rem;
-			while ((rem = Q_rest_UBI.divideAndRemainder(p, quotient_UBI)) == 0) {
-				// the division was exact. assign quotient to Q_rest and add p to factors
-				UnsignedBigInt tmp = Q_rest_UBI;
-				Q_rest_UBI = quotient_UBI;
+			while (QRest_UBI.divideAndRemainder(p, quotient_UBI) == 0) {
+				// the division was exact. assign quotient to QRest and add p to factors
+				UnsignedBigInt tmp = QRest_UBI;
+				QRest_UBI = quotient_UBI;
 				quotient_UBI = tmp;
 				smallFactors.add(pass2Primes[pass2Index], (short)pass2Exponents[pass2Index]);
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
-					BigInteger[] div = Q_rest.divideAndRemainder(pBig);
-					assertEquals(div[1].intValue(), rem);
-					Q_rest = div[0];
+					BigInteger[] div = QRest.divideAndRemainder(pBig);
+					assertEquals(div[1].intValue(), 0);
+					QRest = div[0];
 				}
 			}
 		}
 		if (ANALYZE) pass2Duration += timer.capture();
-		if (Q_rest_UBI.isOne()) {
+		if (QRest_UBI.isOne()) {
 			addCommonFactorsToSmallFactors();
 			return new Smooth_Perfect(A, smallFactors);
 		}
-		Q_rest = Q_rest_UBI.toBigInteger();
+		QRest = QRest_UBI.toBigInteger();
 		
 		// Division by all p<=pMax was not sufficient to factor Q completely.
-		// The remaining Q_rest is either a prime > pMax, or a composite > pMax^2.
-		if (Q_rest.doubleValue() >= smoothBound) return null; // Q is not sufficiently smooth
+		// The remaining QRest is either a prime > pMax, or a composite > pMax^2.
+		if (QRest.doubleValue() >= smoothBound) return null; // Q is not sufficiently smooth
 		
 		// now we consider Q as sufficiently smooth. then we want to know all prime factors, as long as we do not find one that is too big to be useful.
-		if (DEBUG) LOG.debug("test(): pMax=" + pMax + " < Q_rest=" + Q_rest + " < smoothBound=" + smoothBound + " -> resolve all factors");
-		boolean isSmooth = factor_recurrent(Q_rest);
+		if (DEBUG) LOG.debug("test(): pMax=" + pMax + " < QRest=" + QRest + " < smoothBound=" + smoothBound + " -> resolve all factors");
+		boolean isSmooth = factor_recurrent(QRest);
 		if (DEBUG) if (bigFactors.size()>2) LOG.debug("Found " + bigFactors.size() + " distinct big factors!"); // 3LP start at ~330 bit with current settings
 		if (isSmooth) {
 			addCommonFactorsToSmallFactors();
@@ -303,40 +303,41 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 		return null;
 	}
 
-	private boolean factor_recurrent(BigInteger Q_rest) {
+	private boolean factor_recurrent(BigInteger QRest) {
 		// Here we need a prime test, because factor algorithms may not return when called with a prime argument.
-		boolean restIsPrime = Q_rest.compareTo(pMaxSquare)<0 || prpTest.isProbablePrime(Q_rest);
+		double QRestDbl = QRest.doubleValue();
+		boolean restIsPrime = QRestDbl < pMaxSquare || prpTest.isProbablePrime(QRest);
 		if (ANALYZE) primeTestDuration += timer.capture();
 		if (restIsPrime) {
 			// Check that the simple prime test using pMaxSquare is correct
-			if (DEBUG) assertTrue(prpTest.isProbablePrime(Q_rest));
-			if (Q_rest.bitLength() > 31) return false;
-			bigFactors.add(Q_rest.longValue());
+			if (DEBUG) assertTrue(prpTest.isProbablePrime(QRest));
+			if (QRest.bitLength() > 31) return false;
+			bigFactors.add(QRest.longValue());
 			return true;
-		} // else: Q_rest is surely not prime
+		} // else: QRest is surely not prime
 		
-		// Find a factor of Q_rest, where Q_rest is odd and has two+ factors, each greater than pMax.
-		// This starts to happen at N >= 200 bit where we have pMax ~ 17 bit, thus Q_rest >= 34 bit
+		// Find a factor of QRest, where QRest is odd and has two+ factors, each greater than pMax.
+		// This starts to happen at N >= 200 bit where we have pMax ~ 17 bit, thus QRest >= 34 bit
 		// -> trial division is no help here.
 		BigInteger factor1;
-		int Q_rest_bits = Q_rest.bitLength();
-		if (Q_rest_bits<50) {
-			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use hart");
-			factor1 = hart.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits<57) {
-			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use pollardRhoR64Mul63");
-			factor1 = pollardRhoR64Mul63.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits<63) {
-			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use pollardRho64");
-			factor1 = pollardRho64.findSingleFactor(Q_rest);
+		int QRestBits = QRest.bitLength();
+		if (QRestBits<50) {
+			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use hart");
+			factor1 = hart.findSingleFactor(QRest);
+		} else if (QRestBits<57) {
+			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use pollardRhoR64Mul63");
+			factor1 = pollardRhoR64Mul63.findSingleFactor(QRest);
+		} else if (QRestBits<63) {
+			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use pollardRho64");
+			factor1 = pollardRho64.findSingleFactor(QRest);
 		} else {
-			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) not prime -> use qsInternal");
-			factor1 = qsInternal.findSingleFactor(Q_rest);
+			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use qsInternal");
+			factor1 = qsInternal.findSingleFactor(QRest);
 		}
 		if (ANALYZE) factorDuration += timer.capture();
 		// Here we can not exclude factors > 31 bit because they may have 2 prime factors themselves.
-		BigInteger factor2 = Q_rest.divide(factor1);
-		if (DEBUG) LOG.debug("factor_recurrent(): Q_rest = " + Q_rest + " (" + Q_rest_bits + " bits) = " + factor1 + " * " + factor2);
+		BigInteger factor2 = QRest.divide(factor1);
+		if (DEBUG) LOG.debug("factor_recurrent(): QRest = " + QRest + " (" + QRestBits + " bits) = " + factor1 + " * " + factor2);
 		return factor_recurrent(factor1) && factor_recurrent(factor2);
 	}
 	

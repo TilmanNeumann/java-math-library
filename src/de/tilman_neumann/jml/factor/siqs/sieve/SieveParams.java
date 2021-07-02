@@ -30,8 +30,14 @@ public class SieveParams {
 	public int pMax;
 	/** the size of the sieve array (per sign) */
 	public int sieveArraySize;
-	/** maximal Q_rest for a sieve hit, to pass Q to trial division, to accept a relation as smooth */
-	public double sieveHitBound, tdivTestBound, smoothBound;
+	
+	/** maximal QRest for a sieve hit */
+	public double sieveHitBound;
+	/** maximal QRest to pass Q to trial division */
+	public double tdivTestBound;
+	/** maximal QRest to accept any kind of relation as smooth enough */
+	public double smoothBound;
+	
 	/** the scaled logarithm of the avg. Q/(da) size */
 	public int logQdivDaEstimate;
 	/** scaled minimum logPSum to pass a sieve hit to tdiv */

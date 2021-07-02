@@ -76,6 +76,7 @@ public class CongruenceCollector {
 	private Multiset<Integer> qRestSizes4Smooth, qRestSizes;
 	private Multiset<Integer> bigFactorSizes4Smooth, bigFactorSizes;
 	private int partialWithPositiveQCount, smoothWithPositiveQCount;
+	private Multiset<Integer>[] qRestSizes4SmoothFromLPCount;
 	
 	private Timer timer = new Timer();
 	private long ccDuration, solverDuration;
@@ -133,6 +134,12 @@ public class CongruenceCollector {
 		}
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
 			// collected vs. useful smooths and partials
+			int maxLPCount = 3;
+			qRestSizes4SmoothFromLPCount = new SortedMultiset_BottomUp[maxLPCount]; // works up to 3LP
+			for (int i=0; i<maxLPCount; i++) {
+				qRestSizes4SmoothFromLPCount[i] = new SortedMultiset_BottomUp<Integer>();
+			}
+			
 			qRestSizes4Smooth = new SortedMultiset_BottomUp<Integer>();
 			qRestSizes = new SortedMultiset_BottomUp<Integer>();
 			bigFactorSizes4Smooth = new SortedMultiset_BottomUp<Integer>();
@@ -252,6 +259,7 @@ public class CongruenceCollector {
 							prod = prod.multiply(BigInteger.valueOf(bigFactor));
 						}
 						qRestSizes4Smooth.add(prod.bitLength());
+						qRestSizes4SmoothFromLPCount[bigFactors.length].add(prod.bitLength());
 					}
 					return true;
 				}
@@ -396,7 +404,8 @@ public class CongruenceCollector {
 
 	public CongruenceCollectorReport getReport() {
 		return new CongruenceCollectorReport(getPartialCongruenceCount(), smoothCongruences.size(), smoothFromPartialCounts, partialCounts, perfectSmoothCount,
-											 qRestSizes, qRestSizes4Smooth, bigFactorSizes, bigFactorSizes4Smooth, partialWithPositiveQCount, smoothWithPositiveQCount);
+											 qRestSizes, qRestSizes4Smooth, bigFactorSizes, bigFactorSizes4Smooth, partialWithPositiveQCount, smoothWithPositiveQCount,
+											 qRestSizes4SmoothFromLPCount);
 	}
 
 	public String getCycleCountResult() {
