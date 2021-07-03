@@ -566,17 +566,7 @@ public class DoubleBlockHybridSieveU implements Sieve {
 	 */
 	private void initializeSieveArray(int sieveArraySize) {
 		// Overwrite existing arrays with initializer. We know that sieve array size is a multiple of 256.
-		// XXX We could use setMemory() to initialize the whole sieve array. This is indeed a bit faster,
-		//     but for some reason the collect phase is slowing down much more if we do that...
-		UNSAFE.setMemory(sieveArrayAddress, 256, initializer);
-		int filled = 256;
-		int unfilled = sieveArraySize-filled;
-		while (unfilled>0) {
-			int fillNext = Math.min(unfilled, filled);
-			UNSAFE.copyMemory(sieveArrayAddress, sieveArrayAddress + filled, fillNext);
-			filled += fillNext;
-			unfilled = sieveArraySize-filled;
-		}
+		UNSAFE.setMemory(sieveArrayAddress, sieveArraySize, initializer);		
 	}
 	
 	@Override
