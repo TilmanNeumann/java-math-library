@@ -353,16 +353,12 @@ abstract public class PSIQSBase2 extends FactorAlgorithm {
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
-			for (int i=0; i<3; i++) {
-				LOG.info("        " + ccReport.getSmoothQRestPercentiles(i));
-			}
-			
-			LOG.info("        " + ccReport.getSmoothQRestPercentiles());
-			LOG.info("        " + ccReport.getPartialQRestSizes());
-			LOG.info("        " + ccReport.getSmoothQRestSizes());
-			LOG.info("        " + ccReport.getPartialBigFactorSizes());
-			LOG.info("        " + ccReport.getSmoothBigFactorSizes());
-			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles());
+			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(1));
+			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(2));
+			LOG.info("        " + ccReport.getSmoothQRestPercentiles(1));
+			LOG.info("        " + ccReport.getSmoothQRestPercentiles(2));
+			LOG.info("        " + ccReport.getPartialBigFactorPercentiles());
+			LOG.info("        " + ccReport.getPartialQRestPercentiles());
 			LOG.info("        " + ccReport.getNonIntFactorPercentages());
 		}
 		if (ANALYZE_Q_SIGNS) {

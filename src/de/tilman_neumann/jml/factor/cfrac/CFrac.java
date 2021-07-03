@@ -200,10 +200,14 @@ public class CFrac extends FactorAlgorithm {
 					CongruenceCollectorReport ccReport = congruenceCollector.getReport();
 					LOG.info("    cc: " + ccReport.getOperationDetails());
 					if (ANALYZE_LARGE_FACTOR_SIZES) {
-						LOG.info("        " + ccReport.getPartialQRestSizes());
-						LOG.info("        " + ccReport.getSmoothQRestSizes());
-						LOG.info("        " + ccReport.getPartialBigFactorSizes());
-						LOG.info("        " + ccReport.getSmoothBigFactorSizes());
+						for (int i=1; i<=4; i++) {
+							LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(i));
+						}
+						for (int i=1; i<=4; i++) {
+							LOG.info("        " + ccReport.getSmoothQRestPercentiles(i));
+						}
+						LOG.info("        " + ccReport.getPartialBigFactorPercentiles());
+						LOG.info("        " + ccReport.getPartialQRestPercentiles());
 						LOG.info("        " + ccReport.getNonIntFactorPercentages());
 					}
 					if (ANALYZE_Q_SIGNS) {
