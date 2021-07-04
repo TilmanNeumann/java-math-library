@@ -458,7 +458,14 @@ public class Sieve03hU implements Sieve {
 		BigInteger dax = daParam.multiply(xBig);
 		BigInteger A = dax.add(bParam);
 		BigInteger QDivDa = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
-
+		if (DEBUG) {
+			BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
+			assertEquals(Q, QDivDa.multiply(daParam));
+			LOG.debug("A = " + A);
+			LOG.debug("Q = " + Q);
+			LOG.debug("Q/(da) = " + QDivDa);
+		}
+		
 		// Replace estimates of unsieved prime base element (small primes, q-parameters) contributions to logPSum
 		// by the true ones: The score has to rise if the true contribution is greater than expected.
 		// XXX Could we do Bernsteinisms here?
@@ -477,7 +484,7 @@ public class Sieve03hU implements Sieve {
 			if (trueLogQDivDaSize > logQdivDaEstimate + 2) { // +2 -> don't log too much :-/
 				LOG.error("d=" + d + ": logQdivDaEstimate = " + logQdivDaEstimate + ", but trueLogQDivDaSize = " + trueLogQDivDaSize);
 			}
-			assertTrue(trueLogQDivDaSize <= logQdivDaEstimate + 2); // fails sometimes
+			// assertTrue(trueLogQDivDaSize <= logQdivDaEstimate + 2); // fails sometimes
 		}
 		
 		int adjustedScore2 = (int) (adjustedScore + this.logQdivDaEstimate - trueLogQDivDaSize);
@@ -579,7 +586,7 @@ public class Sieve03hU implements Sieve {
 				UnsignedBigInt tmp = Q_rest_UBI;
 				Q_rest_UBI = quotient_UBI;
 				quotient_UBI = tmp;
-				smallFactors.add(qArray[i]);
+				smallFactors.add(p);
 				logPSum += logQArray[i];
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);

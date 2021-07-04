@@ -96,6 +96,7 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 
 	// small factors found by testing some x, their content is _copied_ to AQ-pairs
 	private SortedIntegerArray smallFactors;
+	private BigInteger smallFactorsProd; // only for debugging
 	
 	// statistics
 	private Timer timer = new Timer();
@@ -152,11 +153,20 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 		for (SmoothCandidate smoothCandidate : smoothCandidates) {
 			int x = smoothCandidate.x;
 			BigInteger A = smoothCandidate.A;
-			BigInteger QDivDa = smoothCandidate.QRest;
+			BigInteger QRest = smoothCandidate.QRest;
 			smallFactors = smoothCandidate.smallFactors;
 			if (ANALYZE) {
 				testCount++;
 				aqDuration += timer.capture();
+			}
+			if (DEBUG) {
+				// compute product of initial smallFactors before we add more of them
+				smallFactorsProd = I_1;
+				int smallFactorsCount = smallFactors.size();
+				for (int i=0; i<smallFactorsCount; i++) {
+					BigInteger elem = BigInteger.valueOf(smallFactors.get(i)).pow(smallFactors.getExponent(i));
+					smallFactorsProd = smallFactorsProd.multiply(elem);
+				}
 			}
 			
 			// Find factorization of Q(x) = A(x)^2 - kN. But the complete Q(x) is not required here,
@@ -164,7 +174,7 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 			// Note that test finds all factors of Q(x) nonetheless.
 			// Note also that unlike in MPQS, in SIQS we cannot continue working with Q(x)/da in later stages, because da is not a square
 			// and thus we could not combine relations from different a-parameters.
-			AQPair aqPair = test(A, QDivDa, x);
+			AQPair aqPair = test(A, QRest, x);
 			if (ANALYZE) factorDuration += timer.capture();
 			
 			if (aqPair != null) {
@@ -174,6 +184,11 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 				if (DEBUG) {
 					LOG.debug("Found congruence " + aqPair);
 					BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
+					LOG.debug("A = " + A);
+					LOG.debug("Q = " + Q);
+					BigInteger QDivDa = QRest.multiply(smallFactorsProd);
+					LOG.debug("Q/(da) = " + QDivDa);
+
 					assertEquals(Q, QDivDa.multiply(da));
 					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
@@ -192,8 +207,8 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 		return aqPairs;
 	}
 	
-	private AQPair test(BigInteger A, BigInteger Q, int x) {
-		BigInteger QRest = Q;
+	private AQPair test(BigInteger A, BigInteger QRest0, int x) {
+		BigInteger QRest = QRest0; // keep initial QRest0 for logging below
 
 		// Pass 1: Test solution arrays.
 		// IMPORTANT: Java gives x % p = x for |x| < p, and we have many p bigger than any sieve array entry.
@@ -298,10 +313,10 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 		if (DEBUG) {
 			LOG.debug("test(): QRest = " + QRest + " (" + QRestBits + " bits) = " + factor1 + " * " + factor2);
 			if (factor1.intValue() < pMax) {
-				LOG.error("kN=" + kN + ", Q=" + Q + ": factor1 = " + factor1 + ", but we have done tdiv until " + pMax + "?");
+				LOG.error("kN=" + kN + ", QRest0=" + QRest0 + ": factor1 = " + factor1 + ", but we have done tdiv until " + pMax + "?");
 			}
 			if (factor2.intValue() < pMax) {
-				LOG.error("kN=" + kN + ", Q=" + Q + ": factor2 = " + factor2 + ", but we have done tdiv until " + pMax + "?");
+				LOG.error("kN=" + kN + ", QRest0=" + QRest0 + ": factor2 = " + factor2 + ", but we have done tdiv until " + pMax + "?");
 			}
 		}
 		
