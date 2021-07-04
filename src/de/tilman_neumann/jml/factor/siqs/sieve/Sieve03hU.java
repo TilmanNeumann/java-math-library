@@ -491,8 +491,7 @@ public class Sieve03hU implements Sieve {
 	}
 	
 	private SmallFactorsTDivResult tdivUnsievedPrimeBaseElements(BigInteger A, BigInteger QDivDa, int x) {
-		SmallFactorsTDivResult smallFactorsTDivResult = new SmallFactorsTDivResult();
-		SortedIntegerArray smallFactors = smallFactorsTDivResult.smallFactors;
+		SortedIntegerArray smallFactors = new SortedIntegerArray();
 		// For more precision, here we compute the logPSum in doubles instead of using solutionArrays.logPArray
 		double logPSum = 0;
 		
@@ -591,9 +590,7 @@ public class Sieve03hU implements Sieve {
 			}
 		}
 
-		smallFactorsTDivResult.Q_rest = Q_rest_UBI.toBigInteger();
-		smallFactorsTDivResult.logPSum = logPSum;
-		return smallFactorsTDivResult;
+		return new SmallFactorsTDivResult(Q_rest_UBI.toBigInteger(), smallFactors, logPSum);
 	}
 
 	@Override

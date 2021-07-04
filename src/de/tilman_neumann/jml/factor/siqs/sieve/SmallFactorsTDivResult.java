@@ -20,7 +20,12 @@ import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 public class SmallFactorsTDivResult {
 	
 	public BigInteger Q_rest;
-	public SortedIntegerArray smallFactors = new SortedIntegerArray();
+	public SortedIntegerArray smallFactors;
 	public double logPSum = 0;
 	
+	public SmallFactorsTDivResult(BigInteger Q_rest, SortedIntegerArray smallFactors, double logPSum) {
+		this.Q_rest = Q_rest;
+		this.smallFactors = smallFactors;
+		this.logPSum = logPSum;
+	}
 }
