@@ -55,6 +55,9 @@ public class SIQSPolyGenerator {
 	/** the d-parameter of the polynomial Q(x) = (d*a*x + b)^2 - kN. d is 2 if kN == 1 (mod 8), otherwise 1 */
 	private int d;
 	
+	@SuppressWarnings("unused") // may be useful in the future
+	private int sieveArraySize;
+	
 	// prime base
 	private int mergedBaseSize;
 	private BaseArrays baseArrays;
@@ -126,6 +129,7 @@ public class SIQSPolyGenerator {
 		
 		this.baseArrays = baseArrays;
 		this.mergedBaseSize = baseArrays.primes.length;
+		this.sieveArraySize = sieveParams.sieveArraySize;
 		
 		// initialize sub-engines
 		this.aParamGenerator = aParamGenerator;
