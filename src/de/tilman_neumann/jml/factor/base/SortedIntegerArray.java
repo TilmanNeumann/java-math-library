@@ -34,6 +34,18 @@ public class SortedIntegerArray {
 	}
 	
 	/**
+	 * Copy constructor.
+	 * @param original
+	 */
+	public SortedIntegerArray(SortedIntegerArray original) {
+		this.factors = new int[50];
+		this.exponents = new short[50];
+		this.size = original.size;
+		System.arraycopy(original.factors, 0, this.factors, 0, size);
+		System.arraycopy(original.exponents, 0, this.exponents, 0, size);
+	}
+
+	/**
 	 * reset() must be called before using for a new Q.
 	 */
 	public void reset() {
