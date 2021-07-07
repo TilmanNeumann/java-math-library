@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.util.Timer;
 
@@ -61,7 +62,7 @@ public class SimpleSieve implements Sieve {
 	}
 	
 	@Override
-	public void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize) {
+	public void initializeForN(SieveParams sieveParams, BaseArrays baseArrays, int mergedBaseSize) {
 		this.kN = sieveParams.kN;
 		this.sieveArraySize = sieveParams.sieveArraySize;
 

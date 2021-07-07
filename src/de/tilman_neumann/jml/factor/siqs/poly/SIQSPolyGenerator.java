@@ -133,7 +133,7 @@ public class SIQSPolyGenerator {
 		
 		// initialize sub-engines
 		this.aParamGenerator = aParamGenerator;
-		sieveEngine.initializeForN(sieveParams, baseArrays.primes, mergedBaseSize);
+		sieveEngine.initializeForN(sieveParams, baseArrays, mergedBaseSize);
 		this.sieveEngine = sieveEngine;
 		final double N_dbl = N.doubleValue();
 		tDivEngine.initializeForN(N_dbl, kN, sieveParams);

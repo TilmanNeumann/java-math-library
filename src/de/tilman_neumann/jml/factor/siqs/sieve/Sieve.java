@@ -16,6 +16,7 @@ package de.tilman_neumann.jml.factor.siqs.sieve;
 import java.math.BigInteger;
 import java.util.List;
 
+import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 
 /**
@@ -32,10 +33,10 @@ public interface Sieve {
 	/**
 	 * Initialize for a new N. In PSIQS, this method is called for each thread, so things that can be computed before should be computed before.
 	 * @param sieveParams basic sieve parameters for a new N
-	 * @param primesArray the prime base before filtering the elements of the a-parameter
-	 * @param mergedBaseSize size of prime/power base after merging, before filtering
+	 * @param baseArrays the prime base, modular sqrt's, logP-values etc. before filtering out the q-parameters
+	 * @param mergedBaseSize size of the prime base (after eventually merging primes and powers), before filtering q-parameters
 	 */
-	void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize);
+	void initializeForN(SieveParams sieveParams, BaseArrays baseArrays, int mergedBaseSize);
 	
 	/**
 	 * Set (filtered) prime base and smallest x1, x2 solutions for a new a-parameter.

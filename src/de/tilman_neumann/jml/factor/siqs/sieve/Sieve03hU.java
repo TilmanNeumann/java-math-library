@@ -28,6 +28,7 @@ import de.tilman_neumann.jml.BinarySearch;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.UnsafeUtil;
+import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.util.Timer;
 import sun.misc.Unsafe;
@@ -70,6 +71,8 @@ public class Sieve03hU implements Sieve {
 	private int p3Index;
 	private int[] minSolutionCounts_m3;
 	private double[] smallPrimesLogPArray;
+	private int[] logPBounds;
+	private int logPBoundCount;
 	
 	private SolutionArrays solutionArrays;
 
@@ -107,7 +110,7 @@ public class Sieve03hU implements Sieve {
 	}
 	
 	@Override
-	public void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize) {
+	public void initializeForN(SieveParams sieveParams, BaseArrays baseArrays, int mergedBaseSize) {
 		this.kN = sieveParams.kN;
 		this.pMinIndex = sieveParams.pMinIndex;
 		this.ln2logPMultiplier = sieveParams.lnPMultiplier;
@@ -116,9 +119,10 @@ public class Sieve03hU implements Sieve {
 		this.logQdivDaEstimate = sieveParams.logQdivDaEstimate;
 		this.initializer = sieveParams.initializer;
 		
+		int[] primes = baseArrays.primes;
 		this.smallPrimesLogPArray = new double[pMinIndex];
 		for (int i=pMinIndex-1; i>=0; i--) {
-			smallPrimesLogPArray[i] = Math.log(primesArray[i]) * sieveParams.lnPMultiplier;
+			smallPrimesLogPArray[i] = Math.log(primes[i]) * sieveParams.lnPMultiplier;
 		}
 		
 		// Allocate sieve array: Typically SIQS adjusts such that pMax/sieveArraySize = 2.5 to 5.0.
@@ -140,6 +144,8 @@ public class Sieve03hU implements Sieve {
 		this.solutionArrays = solutionArrays;
 		this.primeBaseSize = filteredBaseSize;
 		this.qArray = qArray;
+		
+		// compute scaled log-values for the q-parameters
 		logQArray = new double[qArray.length];
 		for (int i=0; i<qArray.length; i++) {
 			logQArray[i] =  Math.log(qArray[i]) * ln2logPMultiplier;
@@ -151,6 +157,24 @@ public class Sieve03hU implements Sieve {
 		this.p3Index = binarySearch.getInsertPosition(pArray, p2Index, (sieveArraySize+2)/3);
 		if (DEBUG) LOG.debug("primeBaseSize=" + primeBaseSize + ", p1Index=" + p1Index + ", p2Index=" + p2Index + ", p3Index=" + p3Index);
 		
+		// compute indices i where logPArray[i] == 1 + logPArray[i-1]; exception being logPBounds[0] which must be p1Index
+		byte[] logPArray = solutionArrays.logPArray;
+		int logPMax = logPArray[filteredBaseSize-1] & 0xFF;
+		int logPAtP1 = logPArray[p1Index-1] & 0xFF;
+		if (DEBUG) LOG.debug("logPMax = " + logPMax + ", logPAtP1 = " + logPAtP1);
+		logPBoundCount = logPMax - logPAtP1 + 1;
+		logPBounds = new int[logPBoundCount];
+		logPBounds[logPBoundCount-1] = filteredBaseSize;
+		if (DEBUG) LOG.debug("filteredBaseSize = " + filteredBaseSize);
+		int logP = logPMax;
+		int lastBound = filteredBaseSize;
+		for (int i=logPBoundCount-1; i>0; i--) {
+			lastBound = logPBounds[i] = binarySearch.getInsertPosition(logPArray, lastBound, --logP);
+			if (DEBUG) LOG.debug("logPBound[" + i + "] = " + logPBounds[i] + ", logP[" + logPBounds[i] + "] = " + logPArray[logPBounds[i]] + ", logP[" + (logPBounds[i]-1) + "] = " + logPArray[logPBounds[i]-1]);
+		}
+		logPBounds[0] = p1Index;
+		if (DEBUG) LOG.debug("logPBound[0] = " + p1Index);
+
 		// The minimum number of x-solutions in the sieve array is floor(sieveArraySize/p).
 		// E.g. for p=3, sieveArraySize=8 there are solutions (0, 3, 6), (1, 4, 7), (2, 5)  <-- 8 is not in sieve array anymore
 		// -> minSolutionCount = 2
@@ -184,16 +208,21 @@ public class Sieve03hU implements Sieve {
 		final int[] x1Array = solutionArrays.x1Array;
 		final int[] x2Array = solutionArrays.x2Array;
 		final byte[] logPArray = solutionArrays.logPArray;
-		int i, j;
+		int j;
 		long x1Addr, x2Addr;
-		for (i=primeBaseSize-1; i>=p1Index; i--) {
-			// x1 == x2 happens only if p divides k -> for large primes p > k there are always 2 distinct solutions.
-			// x1, x2 may exceed sieveArraySize, but we allocated the arrays somewhat bigger to save the size checks.
-			final byte logP = logPArray[i];
-			x1Addr = sieveArrayAddress + x1Array[i];
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr = sieveArrayAddress + x2Array[i];
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+		
+		int i = primeBaseSize-1;
+		for (int lpbc=logPBoundCount-1; lpbc>=0; lpbc--) {
+			int logPBound = logPBounds[lpbc];
+			byte logP = logPArray[i];
+			for (; i>=logPBound; i--) {
+				// x1 == x2 happens only if p divides k -> for large primes p > k there are always 2 distinct solutions.
+				// x1, x2 may exceed sieveArraySize, but we allocated the arrays somewhat bigger to save the size checks.
+				x1Addr = sieveArrayAddress + x1Array[i];
+				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
+				x2Addr = sieveArrayAddress + x2Array[i];
+				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+			}
 		}
 		for ( ; i>=p2Index; i--) {
 			final int p = pArray[i];
@@ -301,13 +330,17 @@ public class Sieve03hU implements Sieve {
 		if (ANALYZE) initDuration += timer.capture();
 
 		// negative x, large primes:
-		for (i=primeBaseSize-1; i>=p1Index; i--) {
-			final int p = pArray[i];
-			final byte logP = logPArray[i];
-			x1Addr = sieveArrayAddress + p - x1Array[i];
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr = sieveArrayAddress + p - x2Array[i];
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+		i = primeBaseSize-1;
+		for (int lpbc=logPBoundCount-1; lpbc>=0; lpbc--) {
+			int logPBound = logPBounds[lpbc];
+			byte logP = logPArray[i];
+			for (; i>=logPBound; i--) {
+				final int p = pArray[i];
+				x1Addr = sieveArrayAddress + p - x1Array[i];
+				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
+				x2Addr = sieveArrayAddress + p - x2Array[i];
+				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+			}
 		}
 		for (; i>=p2Index; i--) {
 			final int p = pArray[i];

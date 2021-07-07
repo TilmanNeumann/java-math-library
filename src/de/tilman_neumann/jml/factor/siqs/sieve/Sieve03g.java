@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.BinarySearch;
+import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.util.Timer;
 
@@ -103,7 +104,7 @@ public class Sieve03g implements Sieve {
 	}
 	
 	@Override
-	public void initializeForN(SieveParams sieveParams, int[] primesArray, int mergedBaseSize) {
+	public void initializeForN(SieveParams sieveParams, BaseArrays baseArrays, int mergedBaseSize) {
 		this.kN = sieveParams.kN;
 		this.pMinIndex = sieveParams.pMinIndex;
 		int pMax = sieveParams.pMax;

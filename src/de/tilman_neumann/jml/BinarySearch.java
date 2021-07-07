@@ -63,6 +63,40 @@ public class BinarySearch {
 		return left;
 	}
 	
+	/**
+	 * Find the insert position for x into array given that array is sorted bottom-up.
+	 * 
+	 * More precisely:
+	 * If array[maxIndex-1] >  x, return the index of the first entry of array[0].. array[maxIndex-1] greater than x.
+	 * If array[maxIndex-1] <= x, return maxIndex.
+	 * 
+	 * @param array
+	 * @param maxIndex the maximum index to consider, exclusive (may be smaller than the array size)
+	 * @param x
+	 * @return the insert position
+	 */
+	public int getInsertPosition(byte[] array, int maxIndex, int x) {
+		if (maxIndex<=0 || array[maxIndex-1] <= x) return maxIndex;
+		int left = 0;
+		int right = maxIndex-1;
+		int median;
+		do {
+			median = (left+right)>>1; // floor
+			if (array[median] <= x) {
+				// the tested element was smaller or equal -> the right insert position must be higher than median
+				left = median + 1;
+			} else {
+				// the tested element was bigger-> median could be the right insert position or too big
+				right = median;
+			}
+		} while (left!=right);
+		if (DEBUG) {
+			if (left>0)	assertTrue(array[left-1] <= x);
+			assertTrue(x < array[left]);
+		}
+		return left;
+	}
+
 	private static void testSingleArg(BinarySearch bs, int[] array, int maxIndex, int x) {
 		int index = bs.getInsertPosition(array, maxIndex, x);
 		LOG.info("index of '" + x + "' in " + Arrays.toString(array) + " (maxIndex=" + maxIndex + ") = " + index);
