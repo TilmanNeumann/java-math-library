@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -214,9 +215,12 @@ public class CongruenceCollector {
 		
 		// otherwise aqPair must be a partial with at least one large factor.
 		Partial partial = (Partial) aqPair;
-		Long[] bigFactors = partial.getLargeFactorsWithOddExponent(); // TODO factors are not sorted bottom up, why? And why Long[], not long[] ?
-		int bigFactorsCount = bigFactors.length;
-		if (DEBUG) assertTrue(bigFactorsCount > 0);
+		// we use Long[] and not long[] for bigFactors, because in the following they will be used a lot in Collections
+		final Long[] bigFactors = partial.getLargeFactorsWithOddExponent();
+		if (DEBUG) {
+			LOG.debug("bigFactors = " + Arrays.toString(bigFactors));
+			assertTrue(bigFactors.length > 0);
+		}
 		
 		// use a standard cycle counting algorithm to verify that we find all possible independent relations
 		if (COUNT_CYCLES) cycleFinder.countIndependentCycles(partial);
@@ -273,7 +277,7 @@ public class CongruenceCollector {
 		addPartial(partial, bigFactors);
 		totalPartialCount++;
 		if (DEBUG) LOG.debug("Found new partial relation " + aqPair + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + totalPartialCount);
-		if (ANALYZE) partialCounts[bigFactorsCount-1]++;
+		if (ANALYZE) partialCounts[bigFactors.length-1]++;
 		return false; // no smooth added
 	}
 	

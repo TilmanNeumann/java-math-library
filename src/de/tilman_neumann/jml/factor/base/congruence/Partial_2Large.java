@@ -36,9 +36,14 @@ public class Partial_2Large extends Partial {
 	 */
 	public Partial_2Large(BigInteger A, SortedIntegerArray smallFactors, long bigFactor1, long bigFactor2) {
 		super(A, smallFactors);
-		// we have 2 large factor
-		this.bigFactor1 = bigFactor1;
-		this.bigFactor2 = bigFactor2;
+		// we have 2 large factor; guarantee that bigFactor1 is the smaller one
+		if (bigFactor1 <= bigFactor2) {
+			this.bigFactor1 = bigFactor1;
+			this.bigFactor2 = bigFactor2;
+		} else {
+			this.bigFactor1 = bigFactor2;
+			this.bigFactor2 = bigFactor1;
+		}
 	}
 
 	@Override
