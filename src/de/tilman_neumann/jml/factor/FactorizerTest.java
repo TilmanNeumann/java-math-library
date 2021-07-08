@@ -165,25 +165,10 @@ public class FactorizerTest {
 //			new SIQS(0.32F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver_Gauss02()),
 //			new SIQS(0.32F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
 //			new SIQS(0.32F, 0.37F, null, new AllPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-			
-			// segmented sieve: slower; best block size is about 32k
-//			new SIQS(0.32F, 0.385F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SingleBlockSieve(32768), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.32F, 0.385F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SingleBlockSieveU(32768), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.32F, 0.41F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new DoubleBlockSieve(32768, 131072), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-			
-			// hybrid sieves:
-			// * single block hybrid is (almost?) level with Sieve03g
-			// * best block size is about 32k (my processor has 16kB L1 cache, 128kB L2-cache per thread)
-//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SingleBlockHybridSieve(32768), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SingleBlockHybridSieveU(32768), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new DoubleBlockHybridSieve(32768, 131072), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new DoubleBlockHybridSieveU(32768, 131072), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
 
 			// improved SIQS
-//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_Gauss02()),
+//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_Gauss02()),
 //			new SIQS2(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss02()),
-//			new SIQS2(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03iU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss02()),
-//			new SIQS2(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03iU2(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss02()),
 
 			// Multi-threaded SIQS:
 			// * 4/6 threads takes over at N around 100 bit (more exact estimates: 4 threads best for N>=88 bits, 6 threads for N>=112 bits)
@@ -194,7 +179,6 @@ public class FactorizerTest {
 //			new PSIQS_U(0.32F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.32F, 0.37F, null, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.32F, 0.37F, null, 6, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
-//			new PSIQS_SBH_U(0.32F, 0.37F, null, 32768, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()), // best for large N
 
 			new PSIQS_U(0.32F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 
