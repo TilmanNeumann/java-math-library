@@ -34,8 +34,38 @@ import de.tilman_neumann.util.Timer;
 import sun.misc.Unsafe;
 
 /**
- * A refinement of Sieve03gU selecting the sieve hits passed to trial division in a better way.
- * Needs to be used together with TDiv_QS_2Large_UBI2.
+ * Advanced sieve implementation using sun.misc.Unsafe to control the sieve array.
+ * 
+ * This is a monolithic sieve. I didn't manage yet to implement a successful segmented sieve. Maybe Java prevents it by using most
+ * of the L1 and L2 caches for the JVM itself.
+ * 
+ * Some ingredients that make it quite fast nonetheless:
+ * -> The smallest primes are not used for sieving ("small primes variant").
+ *    A prime p makes an overall contribution proportional to log(p)/p to the sieve array,
+ *    but the runtime of sieving with a prime p is proportional to sieveArraySize/p.
+ *    Thus sieving with small primes is less effective, and skipping them improves performance.
+ *    
+ * -> Let counters run down -> simpler termination condition
+ * 
+ * -> Initialize the sieve array such that a sieve hit is achieved if (logPSum & 0x80) != 0,
+ *    and then use the or-trick in sieve:collect.
+ *    
+ * -> precompute minSolutionCounts for all p
+ * 
+ * -> allocate sieveArray with pMax extra entries to save size checks
+ * 
+ * -> sieve positive x-values first, then negative x-values. Surprising improvement.
+ * 
+ * -> Special treatment for large primes having 0-1 solutions for each of x1, x2 inside the sieve array.
+ *    ("unrolling of large primes")
+ * 
+ * -> Collect smooth Q(x) for pos/neg x independently -> another small improvement
+ * 
+ * -> Initialization is done independently for pos/neg x, too -> now only 1 sieve array is needed
+ * 
+ * -> sieve with all primes as if they have 2 x-solutions
+ * 
+ * -> adjust sieve scores by true Q/(da) size, true small prime logPSum contribution, true q-parameter logPSum contribution
  * 
  * @author Tilman Neumann
  */
