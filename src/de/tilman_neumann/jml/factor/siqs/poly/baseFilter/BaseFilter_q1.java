@@ -36,7 +36,6 @@ public class BaseFilter_q1 implements BaseFilter {
 		int[] mergedPowers = baseArrays.pArray;
 		int[] mergedTArray = baseArrays.tArray;
 		byte[] mergedlogPArray = baseArrays.logPArray;
-		double[] mergedPinvArrayD = baseArrays.pinvArrayD;
 		long[] mergedPinvArrayL = baseArrays.pinvArrayL;
 		
 		int[] filteredPrimes = solutionArrays.primes;
@@ -44,7 +43,6 @@ public class BaseFilter_q1 implements BaseFilter {
 		int[] filteredPowers = solutionArrays.pArray;
 		int[] filteredTArray = solutionArrays.tArray;
 		byte[] filteredLogPArray = solutionArrays.logPArray;
-		double[] filteredPinvArrayD = solutionArrays.pinvArrayD;
 		long[] filteredPinvArrayL = solutionArrays.pinvArrayL;
 
 		int filteredOutCount = 0;
@@ -68,7 +66,6 @@ public class BaseFilter_q1 implements BaseFilter {
 				System.arraycopy(mergedPowers, srcPos, filteredPowers, destPos, length);
 				System.arraycopy(mergedTArray, srcPos, filteredTArray, destPos, length);
 				System.arraycopy(mergedlogPArray, srcPos, filteredLogPArray, destPos, length);
-				System.arraycopy(mergedPinvArrayD, srcPos, filteredPinvArrayD, destPos, length);
 				System.arraycopy(mergedPinvArrayL, srcPos, filteredPinvArrayL, destPos, length);
 				lastqIndex = i;
 				filteredOutCount++;
@@ -84,7 +81,6 @@ public class BaseFilter_q1 implements BaseFilter {
 			System.arraycopy(mergedPowers, srcPos, filteredPowers, destPos, length);
 			System.arraycopy(mergedTArray, srcPos, filteredTArray, destPos, length);
 			System.arraycopy(mergedlogPArray, srcPos, filteredLogPArray, destPos, length);
-			System.arraycopy(mergedPinvArrayD, srcPos, filteredPinvArrayD, destPos, length);
 			System.arraycopy(mergedPinvArrayL, srcPos, filteredPinvArrayL, destPos, length);
 		}
 		int filteredBaseSize = mergedBaseSize - filteredOutCount;

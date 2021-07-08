@@ -36,6 +36,6 @@ public class NoPowerFinder implements PowerFinder {
 			exponents[i] = 1;
 		}
 		
-		return new BaseArrays(primes, exponents, primes, tArray, logPArray, pinvArrayD, pinvArrayL);
+		return new BaseArrays(primes, exponents, primes, tArray, logPArray, pinvArrayL);
 	}
 }

@@ -36,7 +36,6 @@ public class BaseFilter_q2 implements BaseFilter {
 		int[] mergedPowers = baseArrays.pArray;
 		int[] mergedTArray = baseArrays.tArray;
 		byte[] mergedlogPArray = baseArrays.logPArray;
-		double[] mergedPinvArrayD = baseArrays.pinvArrayD;
 		long[] mergedPinvArrayL = baseArrays.pinvArrayL;
 
 		int[] filteredPrimes = solutionArrays.primes;
@@ -44,7 +43,6 @@ public class BaseFilter_q2 implements BaseFilter {
 		int[] filteredPowers = solutionArrays.pArray;
 		int[] filteredTArray = solutionArrays.tArray;
 		byte[] filteredLogPArray = solutionArrays.logPArray;
-		double[] filteredPinvArrayD = solutionArrays.pinvArrayD;
 		long[] filteredPinvArrayL = solutionArrays.pinvArrayL;
 
 		// Collect q in a hash set to permit fast filtering of powers of q
@@ -62,7 +60,6 @@ public class BaseFilter_q2 implements BaseFilter {
 				filteredPowers[filteredBaseSize] = mergedPowers[i];
 				filteredTArray[filteredBaseSize] = mergedTArray[i];
 				filteredLogPArray[filteredBaseSize] = mergedlogPArray[i];
-				filteredPinvArrayD[filteredBaseSize] = mergedPinvArrayD[i];
 				filteredPinvArrayL[filteredBaseSize] = mergedPinvArrayL[i];
 				filteredBaseSize++;
 			}
