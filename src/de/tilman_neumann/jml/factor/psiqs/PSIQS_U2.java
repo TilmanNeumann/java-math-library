@@ -80,7 +80,7 @@ public class PSIQS_U2 extends PSIQSBase2 {
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		Timer timer = new Timer();
-		PSIQS_U2 qs = new PSIQS_U2(0.32F, 0.37F, null, 6, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+		PSIQS_U2 qs = new PSIQS_U2(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 
 		while(true) {
 			try {
