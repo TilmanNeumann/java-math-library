@@ -205,12 +205,9 @@ public class CongruenceCollector {
 		if (aqPair instanceof Smooth) {
 			Smooth smooth = (Smooth) aqPair;
 			boolean added = addSmooth(smooth);
-			if (added) {
-				if (DEBUG) LOG.debug("Found new smooth congruence " + smooth + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-				if (ANALYZE) perfectSmoothCount++;
-				return true;
-			}
-			return false;
+			if (DEBUG) if (added) LOG.debug("Found new smooth congruence " + smooth + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+			if (ANALYZE) if (added) perfectSmoothCount++;
+			return added;
 		}
 		
 		// otherwise aqPair must be a partial with at least one large factor.
