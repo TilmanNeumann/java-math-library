@@ -33,9 +33,9 @@ abstract public class SomePowerFinder implements PowerFinder {
 	private static final boolean DEBUG = false;
 
 	@Override
-	public BaseArrays addPowers(BigInteger kN, int[] primes, int[] tArray, byte[] logPArray, double[] reciprocals, long[] pinvs, int primeBaseSize, SieveParams sieveParams) {
+	public BaseArrays addPowers(BigInteger kN, int[] primes, int[] tArray, byte[] logPArray, long[] pinvs, int primeBaseSize, SieveParams sieveParams) {
 		TreeSet<PowerEntry> powers = findPowers(kN, primes, tArray, primeBaseSize, sieveParams);
-		return mergePrimesAndPowers(primes, tArray, logPArray, reciprocals, pinvs, primeBaseSize, powers);
+		return mergePrimesAndPowers(primes, tArray, logPArray, pinvs, primeBaseSize, powers);
 	}
 
 	/**
@@ -55,11 +55,12 @@ abstract public class SomePowerFinder implements PowerFinder {
 	 * @param primesArray
 	 * @param tArray
 	 * @param logPArray
+	 * @param pinvArrayL 2^32/p_i, required by Barrett reduction
 	 * @param primeBaseSize
 	 * @param powerEntries
 	 * @return
 	 */
-	private BaseArrays mergePrimesAndPowers(int[] primesArray, int[] tArray, byte[] logPArray, double[] pinvArrayD, long[] pinvArrayL, int primeBaseSize, TreeSet<PowerEntry> powerEntries) {
+	private BaseArrays mergePrimesAndPowers(int[] primesArray, int[] tArray, byte[] logPArray, long[] pinvArrayL, int primeBaseSize, TreeSet<PowerEntry> powerEntries) {
 		int powerCount = powerEntries.size();
 		BaseArrays baseArrays = new BaseArrays(primeBaseSize + powerCount);
 		int[] mergedPrimes = baseArrays.primes;

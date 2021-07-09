@@ -31,8 +31,7 @@ public interface PowerFinder {
 	 * @param primes
 	 * @param tArray
 	 * @param logPArray
-	 * @param pinvArrayD
-	 * @param pinvArrayL
+	 * @param pinvArrayL 2^32/p_i, required by Barrett reduction
 	 * @param primeBaseSize
 	 * @param sieveParams basic sieve parameters
 	 * @return BaseArrays containing powers
@@ -42,8 +41,7 @@ public interface PowerFinder {
 			int[] primes, 
 			int[] tArray, 
 			byte[] logPArray,
-			double[] pinvArrayD, 
 			long[] pinvArrayL,
-			int primeBaseSize, 
+			int primeBaseSize,
 			SieveParams sieveParams);
 }

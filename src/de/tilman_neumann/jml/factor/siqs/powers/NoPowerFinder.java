@@ -29,7 +29,18 @@ public class NoPowerFinder implements PowerFinder {
 		return "noPowers";
 	}
 	
-	public BaseArrays addPowers(BigInteger kN, int[] primes, int[] tArray, byte[] logPArray, double[] pinvArrayD, long[] pinvArrayL, int primeBaseSize, SieveParams sieveParams) {
+	/**
+	 * Find powers and add them to the prime base.
+	 * @param kN
+	 * @param primes
+	 * @param tArray
+	 * @param logPArray
+	 * @param pinvArrayL 2^32/p_i, required by Barrett reduction
+	 * @param primeBaseSize
+	 * @param sieveParams basic sieve parameters
+	 * @return BaseArrays containing powers
+	 */
+	public BaseArrays addPowers(BigInteger kN, int[] primes, int[] tArray, byte[] logPArray, long[] pinvArrayL, int primeBaseSize, SieveParams sieveParams) {
 		//all exponents are 1
 		int [] exponents = new int[primeBaseSize];
 		for (int i=primeBaseSize-1; i >= 0; i--) {
