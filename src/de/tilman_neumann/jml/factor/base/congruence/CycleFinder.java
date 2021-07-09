@@ -262,7 +262,7 @@ public class CycleFinder {
 					riChain.add(r0);
 					riChain.addAll(chains.get(r0));
 					// delete p from the prime list of ri
-					if (riFactors != null) riFactors.remove(p);
+					riFactors.remove(p);
 				} // end for ri
 
 				// "the entry keyed by r0 is deleted from pbr";
