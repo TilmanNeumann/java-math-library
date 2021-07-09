@@ -29,6 +29,9 @@ public class SieveParamsFactory01 {
 	private static final Logger LOG = Logger.getLogger(SieveParamsFactory01.class);
 	private static final boolean DEBUG = false;
 	
+	/** A small degree of freedom. It hardly matters which small value we choose, e.g. 0, 1 or 8 seem to perform very similar */
+	private static final int FREE_UNITS = 1;
+	
 	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int d, int[] primeBase, int primeBaseSize, int sieveArraySize) {
 		
 		// Compute biggest QRest admitted for a smooth relation.
@@ -75,16 +78,16 @@ public class SieveParamsFactory01 {
 	 */
 	private static byte computeInitializerValue(int[] primesArray, int pMinIndex, double lnPMultiplier) {
 		// compute contribution of small primes in nats
-		double lnSmallPSum = 0;
+		double unsievedLnPSum = 0;
 		for (int i=pMinIndex-1; i>=0; i--) {
 			int p = primesArray[i];
-			lnSmallPSum += Math.log(p) / p;
+			unsievedLnPSum += Math.log(p) / p;
 		}
 		
 		// convert value from base e to wanted log base
-		double logSmallPSum = lnSmallPSum * lnPMultiplier;
-		// compute initializerValue, rounded; +1 = 128-127
-		byte initializerValue = (byte) (logSmallPSum + 1.5);
+		double unsievedLogPSum = unsievedLnPSum * lnPMultiplier;
+		// compute initializerValue, rounded
+		byte initializerValue = (byte) (unsievedLogPSum + FREE_UNITS + 0.5);
 		if (DEBUG) LOG.debug("initializerValue = " + initializerValue);
 		return initializerValue;
 	}
