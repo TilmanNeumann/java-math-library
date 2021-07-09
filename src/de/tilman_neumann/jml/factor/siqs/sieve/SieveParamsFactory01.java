@@ -54,7 +54,7 @@ public class SieveParamsFactory01 {
 		double minLnPSum = lnQdivDaEstimate - Math.log(smoothBound);
 		
 		// convert the sieve bound from natural logarithm to the actual logBase:
-		float lnPMultiplier = (float) (127.0/minLnPSum); // multiplier to convert natural logs to scaled logs (where we get a sieve hit if scaled log >= 128)
+		float lnPMultiplier = (float) ((128.0-FREE_UNITS)/minLnPSum); // multiplier to convert natural logs to scaled logs (where we get a sieve hit if scaled log >= 128)
 		
 		int tdivTestMinLogPSum = (int) (minLnPSum * lnPMultiplier); // floor, is typically 126 or 127
 		int logQdivDaEstimate = (int) (lnQdivDaEstimate * lnPMultiplier);
