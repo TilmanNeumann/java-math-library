@@ -55,7 +55,7 @@ public class SieveParamsFactory02 {
 		
 		// pMinIndex/pMin is an important tuning parameter. After the correction of sieve hit scores introduced in Sieve03hU, the exponent could be raised from 0.33 to 0.43.
 		// We avoid p[0]==2 which is not used in several sieves.
-		int pMinIndex = Math.max(1, (int) Math.pow(primeBaseSize, 0.43));
+		int pMinIndex = Math.max(1, (int) Math.pow(primeBaseSize, 0.47));
 		int pMin = primeBase[pMinIndex];
 		int pMax = primeBase[primeBaseSize-1];
 		
