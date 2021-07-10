@@ -268,9 +268,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 		BigInteger factor = congruenceCollector.factor;
 		
-		if (ANALYZE) {
-			logResults(N, k, kN, factor, primeBaseSize, pMax, adjustedSieveArraySize, threadArray, numberOfThreads);
-		}
+		if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, sieveParams, threadArray, numberOfThreads);
 		
 		// kill all threads & release memory
 		long killStart = System.currentTimeMillis();
@@ -324,7 +322,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
    		if (DEBUG) LOG.debug("thread " + t.getName() + " has been killed.");
 	}
 	
-	private void logResults(BigInteger N, int k, BigInteger kN, BigInteger factor, int primeBaseSize, int pMax, int adjustedSieveArraySize, PSIQSThreadBase[] threadArray, int numberOfThreads) {
+	private void logResults(BigInteger N, int k, BigInteger kN, BigInteger factor, int primeBaseSize, SieveParams sieveParams, PSIQSThreadBase[] threadArray, int numberOfThreads) {
 		// assemble reports from all threads
 		PolyReport polyReport = threadArray[0].getPolyReport();
 		SieveReport sieveReport = threadArray[0].getSieveReport();
@@ -344,8 +342,9 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		// report results
 		LOG.info(getName() + ":");
 		LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " (" + N.bitLength() + " bits) in " + TimeUtil.timeStr(timer.totalRuntime()));
-		int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
-		LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
+		int pMinBits = 32 - Integer.numberOfLeadingZeros(sieveParams.pMin);
+		int pMaxBits = 32 - Integer.numberOfLeadingZeros(sieveParams.pMax);
+		LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMin = " + sieveParams.pMin + " (" + pMinBits + " bits), pMax = " + sieveParams.pMax + " (" + pMaxBits + " bits), sieveArraySize = " + sieveParams.sieveArraySize);
 		LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 		LOG.info("    cc: " + ccReport.getOperationDetails());

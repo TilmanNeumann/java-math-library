@@ -282,7 +282,7 @@ public class SIQS_Small extends FactorAlgorithm {
 			congruenceCollector.collectAndProcessAQPairs(aqPairs);
 			if (congruenceCollector.factor != null) {
 				BigInteger factor = congruenceCollector.factor;
-				if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, pMax, adjustedSieveArraySize);
+				if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, sieveParams);
 				
 				// ATTENTION: SIQS_Small is only used to factor auxiliary Q-numbers for N with 320 bit or more.
 				// ATTENTION: After a Q-factorization we only want to clean up the sieve, in case it allocated native memory!
@@ -302,7 +302,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		return logPArray;
 	}
 
-	private void logResults(BigInteger N, int k, BigInteger kN, BigInteger factor, int primeBaseSize, int pMax, int adjustedSieveArraySize) {
+	private void logResults(BigInteger N, int k, BigInteger kN, BigInteger factor, int primeBaseSize, SieveParams sieveParams) {
 		// get all reports
 		PolyReport polyReport = polyGenerator.getReport();
 		SieveReport sieveReport = sieve.getReport();
@@ -317,8 +317,9 @@ public class SIQS_Small extends FactorAlgorithm {
 		// report results
 		LOG.info(getName() + ":");
 		LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " (" + N.bitLength() + " bits) in " + TimeUtil.timeStr(timer.totalRuntime()));
-		int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
-		LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
+		int pMinBits = 32 - Integer.numberOfLeadingZeros(sieveParams.pMin);
+		int pMaxBits = 32 - Integer.numberOfLeadingZeros(sieveParams.pMax);
+		LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMin = " + sieveParams.pMin + " (" + pMinBits + " bits), pMax = " + sieveParams.pMax + " (" + pMaxBits + " bits), sieveArraySize = " + sieveParams.sieveArraySize);
 		LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 		LOG.info("    cc: " + ccReport.getOperationDetails());

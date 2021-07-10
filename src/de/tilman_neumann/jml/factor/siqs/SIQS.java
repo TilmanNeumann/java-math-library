@@ -287,7 +287,7 @@ public class SIQS extends FactorAlgorithm {
 			congruenceCollector.collectAndProcessAQPairs(aqPairs);
 			if (congruenceCollector.factor != null) {
 				BigInteger factor = congruenceCollector.factor;
-				if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, pMax, adjustedSieveArraySize);
+				if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, sieveParams);
 
 				if (TEST_SIEVE) {
 					float perfectSmoothPercentage = foundPerfectSmoothCount*100 / (float) allPerfectSmoothCount;
@@ -335,7 +335,7 @@ public class SIQS extends FactorAlgorithm {
 		allAQPairsCount += allAQPairs.size();
 	}
 
-	private void logResults(BigInteger N, int k, BigInteger kN, BigInteger factor, int primeBaseSize, int pMax, int adjustedSieveArraySize) {
+	private void logResults(BigInteger N, int k, BigInteger kN, BigInteger factor, int primeBaseSize, SieveParams sieveParams) {
 		// get all reports
 		PolyReport polyReport = polyGenerator.getReport();
 		SieveReport sieveReport = sieve.getReport();
@@ -350,8 +350,9 @@ public class SIQS extends FactorAlgorithm {
 		// report results
 		LOG.info(getName() + ":");
 		LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " (" + N.bitLength() + " bits) in " + TimeUtil.timeStr(timer.totalRuntime()));
-		int pMaxBits = 32 - Integer.numberOfLeadingZeros(pMax);
-		LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMax = " + pMax + " (" + pMaxBits + " bits), sieveArraySize = " + adjustedSieveArraySize);
+		int pMinBits = 32 - Integer.numberOfLeadingZeros(sieveParams.pMin);
+		int pMaxBits = 32 - Integer.numberOfLeadingZeros(sieveParams.pMax);
+		LOG.info("    multiplier k = " + k + ", kN%8 = " + kN.mod(I_8) + ", primeBaseSize = " + primeBaseSize + ", pMin = " + sieveParams.pMin + " (" + pMinBits + " bits), pMax = " + sieveParams.pMax + " (" + pMaxBits + " bits), sieveArraySize = " + sieveParams.sieveArraySize);
 		LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 		if (CongruenceCollector.COUNT_CYCLES) LOG.info("    cc: " + congruenceCollector.getCycleCountResult()); // add to ccReport?
