@@ -103,6 +103,7 @@ public class Sieve03hU implements Sieve {
 	private double[] smallPrimesLogPArray;
 	private int[] logPBounds;
 	private int logPBoundCount;
+	private byte maxLogP;
 	
 	private SolutionArrays solutionArrays;
 
@@ -148,6 +149,7 @@ public class Sieve03hU implements Sieve {
 		this.tdivTestMinLogPSum = sieveParams.tdivTestMinLogPSum;
 		this.logQdivDaEstimate = sieveParams.logQdivDaEstimate;
 		this.initializer = sieveParams.initializer;
+		this.maxLogP = baseArrays.logPArray[mergedBaseSize-1];
 		
 		int[] primes = baseArrays.primes;
 		this.smallPrimesLogPArray = new double[pMinIndex];
@@ -241,17 +243,19 @@ public class Sieve03hU implements Sieve {
 		int j;
 		long x1Addr, x2Addr;
 		
+		// for large primes we don't need to access the logPArray at all
+		byte bigLogP = maxLogP;
+		
 		int i = primeBaseSize-1;
-		for (int lpbc=logPBoundCount-1; lpbc>=0; lpbc--) {
+		for (int lpbc=logPBoundCount-1; lpbc>=0; lpbc--, bigLogP--) {
 			int logPBound = logPBounds[lpbc];
-			byte logP = logPArray[i];
 			for (; i>=logPBound; i--) {
 				// x1 == x2 happens only if p divides k -> for large primes p > k there are always 2 distinct solutions.
 				// x1, x2 may exceed sieveArraySize, but we allocated the arrays somewhat bigger to save the size checks.
 				x1Addr = sieveArrayAddress + x1Array[i];
-				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
+				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + bigLogP));
 				x2Addr = sieveArrayAddress + x2Array[i];
-				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + bigLogP));
 			}
 		}
 		for ( ; i>=p2Index; i--) {
@@ -360,16 +364,16 @@ public class Sieve03hU implements Sieve {
 		if (ANALYZE) initDuration += timer.capture();
 
 		// negative x, large primes:
+		bigLogP = maxLogP;
 		i = primeBaseSize-1;
-		for (int lpbc=logPBoundCount-1; lpbc>=0; lpbc--) {
+		for (int lpbc=logPBoundCount-1; lpbc>=0; lpbc--, bigLogP--) {
 			int logPBound = logPBounds[lpbc];
-			byte logP = logPArray[i];
 			for (; i>=logPBound; i--) {
 				final int p = pArray[i];
 				x1Addr = sieveArrayAddress + p - x1Array[i];
-				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
+				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + bigLogP));
 				x2Addr = sieveArrayAddress + p - x2Array[i];
-				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + bigLogP));
 			}
 		}
 		for (; i>=p2Index; i--) {
