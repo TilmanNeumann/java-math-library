@@ -73,7 +73,7 @@ public class PSIQS_U2 extends PSIQSBase2 {
 	/**
 	 * Stand-alone test. 
 	 * Should only be called with semiprime arguments.
-	 * For general arguments, use CombinedFactorAlgorithm with searchSmallFactors==true.
+	 * For general arguments use class CombinedFactorAlgorithm.
 	 * 
 	 * @param args ignored
 	 */
