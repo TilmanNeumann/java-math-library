@@ -51,8 +51,8 @@ import de.tilman_neumann.util.SortedMultiset;
  * 
  * @author Tilman Neumann
  */
-public class PollardRhoBrentMontgomery64_MH extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(PollardRhoBrentMontgomery64_MH.class);
+public class PollardRhoBrentMontgomery64_MH2 extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(PollardRhoBrentMontgomery64_MH2.class);
 	private static final boolean DEBUG = false;
 
 	private static final Rng RNG = new Rng();
@@ -68,7 +68,7 @@ public class PollardRhoBrentMontgomery64_MH extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "PollardRhoBrentMontgomery64_MH";
+		return "PollardRhoBrentMontgomery64_MH2";
 	}
 	
 	@Override
@@ -169,17 +169,21 @@ public class PollardRhoBrentMontgomery64_MH extends FactorAlgorithm {
 	 */
 	public static long montMul64(long a, long b, long N, long Nhat) {
 		// Step 1: Compute a*b
-		Uint128 ab = Uint128.mul64_MH(a, b);
+		Uint128 ab = Uint128.mul64_MH2(a, b); // TODO inline
 		
 		// Step 2: Compute t = ab * (-1/N) mod R
 		// Since R=2^64, "x mod R" just means to get the low part of x.
 		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
 		// but even better, the long product just gives the low part -> we can get rid of one expensive mul64().
-		long t = ab.getLow() * Nhat;
+		long abLow = a * b;
+		long t = abLow * Nhat;
+		Uint128 tN = Uint128.mul64_MH(t, N); // TODO inline
+		long low = abLow + tN.getLow();
+		long high = ab.getHigh() + tN.getHigh();
 		
 		// Step 3: Compute r = (a*b + t*N) / R
 		// Since R=2^64, "x / R" just means to get the high part of x.
-		long r = ab.add_getHigh(Uint128.mul64_MH(t, N));
+		long r = (low+Long.MIN_VALUE < abLow+Long.MIN_VALUE) ? high + 1 : high;
 		// If the correct result is c, then now r==c or r==c+N.
 		// This is fine for this factoring algorithm, because r will 
 		// * either be subjected to another Montgomery multiplication mod N,
@@ -226,7 +230,7 @@ public class PollardRhoBrentMontgomery64_MH extends FactorAlgorithm {
 			}
 			
 			long start = System.currentTimeMillis();
-			SortedMultiset<BigInteger> result = new PollardRhoBrentMontgomery64_MH().factor(n);
+			SortedMultiset<BigInteger> result = new PollardRhoBrentMontgomery64_MH2().factor(n);
 			LOG.info("Factored " + n + " = " + result.toString() + " in " + (System.currentTimeMillis()-start) + " ms");
 
 		} // next input...

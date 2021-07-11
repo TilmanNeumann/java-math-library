@@ -57,11 +57,11 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1;
+	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 200;
+	private static final int START_BITS = 40;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 10;
+	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
@@ -95,7 +95,7 @@ public class FactorizerTest {
 //			new Hart_TDiv_Race(), 
 //			new Hart_TDiv_Race2(),
 //			new Hart_Squarefree(false), // best algorithm for semiprime N for 29 to 37 bit
-//			new Hart_Fast2Mult(false), // best algorithm for semiprime N for 38 to 47 bit
+			new Hart_Fast2Mult(false), // best algorithm for semiprime N for 38 to 45 bit
 //			new Hart_Fast2Mult_FMA(false),
 
 			// Lehman
@@ -114,7 +114,8 @@ public class FactorizerTest {
 //			new PollardRhoBrentMontgomery63(),
 //			new PollardRhoBrentMontgomeryR64Mul63(),
 //			new PollardRhoBrentMontgomery64(),
-//			new PollardRhoBrentMontgomery64_MH(),
+			new PollardRhoBrentMontgomery64_MH(),
+			new PollardRhoBrentMontgomery64_MH2(),
 			
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
@@ -141,7 +142,8 @@ public class FactorizerTest {
 //			new TinyEcm64(),
 //			new TinyEcm64_MontSqr(),
 //			new TinyEcm64_MontInline(),
-//			new TinyEcm64_MH(), // best algorithm for N from 48 to 62 bit
+			new TinyEcm64_MH(),
+			new TinyEcm64_MHInlined(), // best algorithm for N from 46 to 62 bit
 //			new EllipticCurveMethod(-1),
 
 			// SIQS:
@@ -180,10 +182,10 @@ public class FactorizerTest {
 //			new PSIQS_U(0.32F, 0.37F, null, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.32F, 0.37F, null, 6, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
 
-			new PSIQS_U(0.32F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_U(0.32F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 
 			// (0.31, 0.37) and (0.31, 0.365) are way better than (0.32, 0.37) for PSIQS_U2 !!
-			new PSIQS_U2(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_U2(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
 //			new CombinedFactorAlgorithm(6, 1<<16, true),
