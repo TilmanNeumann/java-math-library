@@ -38,7 +38,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
-import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
+import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator02;
 import de.tilman_neumann.jml.factor.siqs.poly.PolyReport;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
@@ -123,7 +123,7 @@ public class SIQS2 extends FactorAlgorithm {
 		this.congruenceCollector = new CongruenceCollector(extraCongruences);
 		this.auxFactorizer = auxFactorizer;
 		this.matrixSolver = matrixSolver;
-		apg = new AParamGenerator01(wantedQCount);
+		apg = new AParamGenerator02(wantedQCount);
 	}
 
 	@Override
