@@ -59,7 +59,7 @@ public class FactorizerTest {
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 40;
+	private static final int START_BITS = 30;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
@@ -111,11 +111,10 @@ public class FactorizerTest {
 			//new PollardRhoBrent(),
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
-//			new PollardRhoBrentMontgomery63(),
 //			new PollardRhoBrentMontgomeryR64Mul63(),
-//			new PollardRhoBrentMontgomery64(),
+			new PollardRhoBrentMontgomery64(),
 			new PollardRhoBrentMontgomery64_MH(),
-			new PollardRhoBrentMontgomery64_MH2(),
+			new PollardRhoBrentMontgomery64_MHInlined(),
 			
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
@@ -138,10 +137,7 @@ public class FactorizerTest {
 //			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver_Gauss02(), 12),
 
 			// ECM
-//			new TinyEcm63(),
-//			new TinyEcm64(),
-//			new TinyEcm64_MontSqr(),
-//			new TinyEcm64_MontInline(),
+			new TinyEcm64(),
 			new TinyEcm64_MH(),
 			new TinyEcm64_MHInlined(), // best algorithm for N from 46 to 62 bit
 //			new EllipticCurveMethod(-1),

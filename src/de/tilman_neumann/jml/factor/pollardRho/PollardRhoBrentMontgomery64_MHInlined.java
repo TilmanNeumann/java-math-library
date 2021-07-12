@@ -35,7 +35,15 @@ import de.tilman_neumann.util.SortedMultiset;
  * The main reason why Montgomery multiplication is helpful for Pollard-Rho is that
  * no conversions to/from Montgomery form are required.
  * 
- * This implementation is long-based and uses the Montgomery reducer R=2^63.
+ * In this implementation I managed to use the Montgomery reducer R=2^64, which simplifies
+ * the Montgomery multiplication a good deal.
+ * 
+ * Another small performance improvement stems from using the polynomial x*(x+1) instead of x^2+c,
+ * which saves us the addition modulo N after each Montgomery multiplication.
+ * 
+ * This variant of PollardRhoBrentMontgomery64 uses Math.multiplyHigh().
+ * It is about factor 1.4 faster than without if intrinsics for that function are supported.
+ * Typically this requires Java 10 and not too oldish hardware.
  * 
  * @see [Richard P. Brent: An improved Monte Carlo Factorization Algorithm, 1980]
  * @see [http://projecteuler.chat/viewtopic.php?t=3776]
@@ -43,17 +51,14 @@ import de.tilman_neumann.util.SortedMultiset;
  * 
  * @author Tilman Neumann
  */
-public class PollardRhoBrentMontgomery63 extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(PollardRhoBrentMontgomery63.class);
+public class PollardRhoBrentMontgomery64_MHInlined extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(PollardRhoBrentMontgomery64_MHInlined.class);
 	private static final boolean DEBUG = false;
 
 	private static final Rng RNG = new Rng();
 
-	// Reducer constants
-	private static final long R = 1L << 63; // The reducer, a power of 2
-	private static final int R_BITS = 63;
-	private static final long R_MASK = R-1; // 0x7FFFFFFFFFFFFFFFL, helps to compute x mod R = x & (R - 1)
-	private static final long R_HALF = 1L << 62;
+	// The reducer R is 2^64, but the only constant still required is the half of it.
+	private static final long R_HALF = 1L << 63;
 
 	private long N;
 
@@ -63,7 +68,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "PollardRhoBrentMontgomery63";
+		return "PollardRhoBrentMontgomery64_MHInlined";
 	}
 	
 	@Override
@@ -82,31 +87,31 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithm {
 
 		// number of iterations before gcd tests.
         // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
-    	final int m = 100;
+		final int Nbits = 64 - Long.numberOfLeadingZeros(N);
+    	final int m = 2*Nbits;
 
         do {
-	        // Start with random y, c from [0, N).
-        	long c = RNG.nextLong(N);
+	        // start with random y from [0, N)
             long y = RNG.nextLong(N);
-
+            assertTrue(y >=0);
         	int r = 1;
         	long q = 1;
         	do {
 	    	    x = y;
-	    	    for (int i=1; i<=r; i++) {
-	    	        y = addModN(montgomeryMult(y, y), c);
+	    	    for (int i=r; i>0; i--) {
+	    	        y = montMul64(y, y+1, N, minusNInvModR);
 	    	    }
 	    	    int k = 0;
 	    	    do {
 	    	        ys = y;
 	    	        final int iMax = Math.min(m, r-k);
-	    	        for (int i=1; i<=iMax; i++) {
-	    	            y = addModN(montgomeryMult(y, y), c);
+	    	        for (int i=iMax; i>0; i--) {
+	    	            y = montMul64(y, y+1, N, minusNInvModR);
 	    	            final long diff = x<y ? y-x : x-y;
-	    	            q = montgomeryMult(diff, q);
+	    	            q = montMul64(diff, q, N, minusNInvModR);
 	    	        }
 	    	        G = gcd.gcd(q, N);
-	    	        // if q==0 then G==N -> the loop will be left and restarted with new y, c
+	    	        // if q==0 then G==N -> the loop will be left and restarted with new y
 	    	        k += m;
 		    	    //LOG.info("r = " + r + ", k = " + k);
 	    	    } while (k<r && G==1);
@@ -115,7 +120,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithm {
 	    	} while (G==1);
 	    	if (G==N) {
 	    	    do {
-	    	        ys = addModN(montgomeryMult(ys, ys), c);
+	    	        ys = montMul64(ys, ys+1, N, minusNInvModR);
     	            final long diff = x<ys ? ys-x : x-ys;
 	    	        G = gcd.gcd(diff, N);
 	    	    } while (G==1);
@@ -127,11 +132,11 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithm {
 	}
 	
 	/**
-	 * Finds (1/R) mod N and (-1/N) mod R for odd N and R=2^63.
+	 * Finds (1/R) mod N and (-1/N) mod R for odd N and R=2^64.
 	 * 
-	 * EEA63 would not work with R=2^63 because R overflows positive longs.
-	 * But the algorithm from http://coliru.stacked-crooked.com/a/f57f11426d06acd8
-	 * (which refers to "hackers delight") can deal with R=2^63.
+	 * As before, EEA63 would not work for R=2^64, but with a minor modification
+	 * the algorithm from http://coliru.stacked-crooked.com/a/f57f11426d06acd8
+	 * still works for R=2^64.
 	 */
 	private void setUpMontgomeryMult() {
 		// initialization
@@ -139,7 +144,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithm {
 	    long u = 1;
 	    long v = 0;
 	    
-	    while (a > 0) {
+	    while (a != 0) { // modification
 	        a >>>= 1;
 	        if ((u & 1) == 0) {
 	            u >>>= 1;
@@ -155,45 +160,53 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithm {
 	}
 
 	/**
-	 * Montgomery multiplication modulo N, using reducer R=2^63.
-	 * Inputs and output are in Montgomery form and in the range [0, N).
-	 * 
+	 * Montgomery multiplication of a*b mod n. ("mulredcx" in Yafu)
 	 * @param a
 	 * @param b
-	 * @return
+	 * @param N
+	 * @param Nhat complement of N mod 2^64
+	 * @return Montgomery multiplication of a*b mod n
 	 */
-	private long montgomeryMult(final long a, final long b) {
+	public static long montMul64(long a, long b, long N, long Nhat) {
 		// Step 1: Compute a*b
-		Uint128 ab = Uint128.mul63(a, b);
+		long abHigh = Math.multiplyHigh(a, b);
+		if (a<0) abHigh += b;
+		
 		// Step 2: Compute t = ab * (-1/N) mod R
-		// Since R is a power of 2, "mod R" can be computed by "& R_MASK".
-		long t = Uint128.mul63(ab.and(R_MASK), minusNInvModR).and(R_MASK);
-		// Step 3: Compute reduced = (a*b + t*N) / R
-		// Since R is a power of 2, "/ R" can be computed by "shiftRight(R_BITS)".
-		long reduced = ab.add(Uint128.mul63(t, N)).shiftRight(R_BITS).getLow();
-		long result = reduced<N ? reduced : reduced-N;
+		// Since R=2^64, "x mod R" just means to get the low part of x.
+		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
+		// but even better, the long product just gives the low part -> we can get rid of one expensive mul64().
+		long abLow = a * b;
+		long t = abLow * Nhat;
+		final long tNLow = t*N;
+		long tNHigh = Math.multiplyHigh(t, N);
+		if (t<0) tNHigh += N;
+		Uint128 tN = new Uint128(tNHigh, tNLow); // for some reason, removing this object seems to degrade performance
+		
+		// Step 3: Compute r = (a*b + t*N) / R
+		// Since R=2^64, "x / R" just means to get the high part of x.
+		long low = abLow + tN.getLow();
+		long high = abHigh + tN.getHigh();
+		long r = (low+Long.MIN_VALUE < abLow+Long.MIN_VALUE) ? high + 1 : high;
+		// If the correct result is c, then now r==c or r==c+N.
+		// This is fine for this factoring algorithm, because r will 
+		// * either be subjected to another Montgomery multiplication mod N,
+		// * or to a gcd(r, N), where it doesn't matter if we test gcd(c, N) or gcd(c+N, N).
 		
 		if (DEBUG) {
-			//LOG.debug(a + " * " + b + " = " + result);
+			//LOG.debug(a + " * " + b + " = " + r);
 			assertTrue(a >= 0 && a<N);
 			assertTrue(b >= 0 && b<N);
-			assertTrue(result >= 0 && result < N);
+			
+			// In a general Montgomery multiplication we would still have to check
+			r = r<N ? r : r-N;
+			// to satisfy
+			assertTrue(r >= 0 && r < N);
 		}
 		
-		return result;
+		return r;
 	}
 
-	/**
-	 * Addition modulo N, with <code>a, b < N</code>.
-	 * @param a
-	 * @param b
-	 * @return (a+b) mod N
-	 */
-	private long addModN(long a, long b) {
-		long sum = a+b;
-		return sum<N ? sum : sum-N;
-	}
-	
 	/**
 	 * Test.
 	 * Test numbers:
@@ -221,7 +234,7 @@ public class PollardRhoBrentMontgomery63 extends FactorAlgorithm {
 			}
 			
 			long start = System.currentTimeMillis();
-			SortedMultiset<BigInteger> result = new PollardRhoBrentMontgomery63().factor(n);
+			SortedMultiset<BigInteger> result = new PollardRhoBrentMontgomery64_MHInlined().factor(n);
 			LOG.info("Factored " + n + " = " + result.toString() + " in " + (System.currentTimeMillis()-start) + " ms");
 
 		} // next input...
