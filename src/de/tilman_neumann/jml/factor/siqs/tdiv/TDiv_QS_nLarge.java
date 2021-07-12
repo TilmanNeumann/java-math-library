@@ -30,9 +30,8 @@ import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
-import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
-import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
-import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
+import de.tilman_neumann.jml.factor.ecm.TinyEcm64_MHInlined;
+import de.tilman_neumann.jml.factor.hart.Hart_Fast2Mult;
 import de.tilman_neumann.jml.factor.siqs.SIQS_Small;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
@@ -80,10 +79,9 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 
 	private PrPTest prpTest = new PrPTest();
 	
-	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
-	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
-	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
-	// Nested SIQS is required only for approximately N>310 bit.
+	private Hart_Fast2Mult hart = new Hart_Fast2Mult(false);
+	private TinyEcm64_MHInlined tinyEcm = new TinyEcm64_MHInlined();
+	// Nested SIQS is required for quite large N only, > 350 bit ?
 	private SIQS_Small qsInternal;
 
 	// smallest solutions of Q(x) == A(x)^2 (mod p)
@@ -296,15 +294,12 @@ public class TDiv_QS_nLarge implements TDiv_QS {
 		// -> trial division is no help here.
 		BigInteger factor1;
 		int QRestBits = QRest.bitLength();
-		if (QRestBits<50) {
+		if (QRestBits<46) {
 			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use hart");
 			factor1 = hart.findSingleFactor(QRest);
-		} else if (QRestBits<57) {
-			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use pollardRhoR64Mul63");
-			factor1 = pollardRhoR64Mul63.findSingleFactor(QRest);
 		} else if (QRestBits<63) {
-			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use pollardRho64");
-			factor1 = pollardRho64.findSingleFactor(QRest);
+			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use tinyEcm");
+			factor1 = tinyEcm.findSingleFactor(QRest);
 		} else {
 			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use qsInternal");
 			factor1 = qsInternal.findSingleFactor(QRest);

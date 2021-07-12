@@ -66,7 +66,7 @@ public class BatchFactorizer {
 		test(numberOfThreads, fileName);
 	}
 	
-	private static void test (int numberOfThreads, String fileName) {
+	private static void test(int numberOfThreads, String fileName) {
 		// We read and report all input numbers first, to be sure they were read correctly
 		// if some problem occurs in the factor tests
 		LOG.info("Reading test numbers from file " + fileName + ":");

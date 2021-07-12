@@ -30,9 +30,8 @@ import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
 import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
-import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
-import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
-import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
+import de.tilman_neumann.jml.factor.ecm.TinyEcm64_MHInlined;
+import de.tilman_neumann.jml.factor.hart.Hart_Fast2Mult;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS_U;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
@@ -66,9 +65,8 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	private static final boolean SEARCH_SMALL_FACTORS = true;
 
 	private TDiv31Barrett tDiv31 = new TDiv31Barrett();
-	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
-	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
-	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
+	private Hart_Fast2Mult hart = new Hart_Fast2Mult(false);
+	private TinyEcm64_MHInlined tinyEcm = new TinyEcm64_MHInlined();
 	private TDiv tdiv = new TDiv();
 	private EllipticCurveMethod ecm = new EllipticCurveMethod(0);
 
@@ -130,9 +128,8 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	public BigInteger findSingleFactor(BigInteger N) {
 		int NBits = N.bitLength();
 		if (NBits<25) return tDiv31.findSingleFactor(N);
-		if (NBits<50) return hart.findSingleFactor(N);
-		if (NBits<57) return pollardRhoR64Mul63.findSingleFactor(N);
-		if (NBits<63) return pollardRho64.findSingleFactor(N);
+		if (NBits<46) return hart.findSingleFactor(N);
+		if (NBits<63) return tinyEcm.findSingleFactor(N);
 		if (NBits<=150) return siqs_smallArgs.findSingleFactor(N);
 		return siqs_bigArgs.findSingleFactor(N);
 	}
@@ -144,9 +141,9 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 			// Find all remaining factors; these are known to be prime factors.
 			// The bit bound here is higher than in findSingleFactor() because here we find all factors in a single tdiv run.
 			tDiv31.factor(args.N, args.exp, result.primeFactors);
-		} else if (NBits<50) hart.searchFactors(args, result);
-		else if (NBits<57) pollardRhoR64Mul63.searchFactors(args, result);
-		else if (NBits<63) pollardRho64.searchFactors(args, result);
+		}
+		else if (NBits<46) hart.searchFactors(args, result);
+		else if (NBits<63) tinyEcm.searchFactors(args, result);
 		else {
 			if (SEARCH_SMALL_FACTORS) {
 				int actualTdivLimit;
