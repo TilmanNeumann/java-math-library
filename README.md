@@ -35,7 +35,9 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Releases
 
-* v1.0: Integrated and adjusted Dario Alpern's ECM in class CombinedFactorAlgorithm. From now on, <strong>Java 9</strong> is required!
+* v1.1: Faster sieve for large N, speedup close to factor 2 at 360 bit inputs. Improved Gaussian solvers (by Dave McGuigan), including a parallel Gaussian solver that outperforms Block-Lanczos until about 375 bit on a Ryzen 3900X with 20 threads.
+From now on, <strong>Java 10</strong> is required!
+* v1.0: Integrated and adjusted Dario Alpern's ECM in class CombinedFactorAlgorithm.
 * v0.9.11: Added SSOZJ, a fast twin prime sieve; guard analysis code by final static booleans, so that the code is removed by the compiler when the boolean is set to false.
 * v0.9.10: Added port of Ben Buhrow's tinyecm.c.
 * v0.9.9.3: Added Hart's "one line factorizer"; simplified FactorAlgorithm type hierarchy.
@@ -53,7 +55,7 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 Clone the repository, create a plain Java project importing it, make sure that 'src' is the source folder of your project, and add the jars from the lib-folder to your classpath. 
 
-You will need <strong>Java 9</strong> or higher for the project to compile. (Java 9 is required to support Math.fma())
+You will need <strong>Java 10</strong> or higher for the project to compile. (Java 10 is required to support intrinsics for Math.multiplyHigh())
 
 There is no documentation and no support, so you should be ready to start exploring the source code.
 
