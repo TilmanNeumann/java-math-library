@@ -19,12 +19,12 @@ import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
-import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
+import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03hU;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
-import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI;
+import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI2;
 
 /**
- * A polynomial generation/sieve/trial division thread using Sieve03gU.
+ * A polynomial generation/sieve/trial division thread using Sieve03hU.
  * @author Tilman Neumann
  */
 public class PSIQSThread_U extends PSIQSThreadBase {
@@ -45,7 +45,7 @@ public class PSIQSThread_U extends PSIQSThreadBase {
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		
-		super(k, N, kN, d, sieveParams, baseArrays, apg, new SIQSPolyGenerator(), new Sieve03gU(),
-			  new TDiv_QS_2Large_UBI(true), cc, threadIndex);
+		super(k, N, kN, d, sieveParams, baseArrays, apg, new SIQSPolyGenerator(), new Sieve03hU(),
+			  new TDiv_QS_2Large_UBI2(true), cc, threadIndex);
 	}
 }

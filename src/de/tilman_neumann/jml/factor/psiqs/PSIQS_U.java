@@ -24,7 +24,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
-import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
+import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator02;
 import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
@@ -34,7 +34,7 @@ import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
 
 /**
- * Multi-threaded SIQS using Sieve03gU.
+ * Multi-threaded SIQS using Sieve03hU.
  * 
  * @author Tilman Neumann
  */
@@ -52,7 +52,7 @@ public class PSIQS_U extends PSIQSBase {
 	 * @param matrixSolver solver for smooth congruences matrix
 	 */
 	public PSIQS_U(float Cmult, float Mmult, Integer wantedQCount, int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
-		super(Cmult, Mmult, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount));
+		super(Cmult, Mmult, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator02(wantedQCount));
 	}
 
 	@Override
@@ -80,7 +80,8 @@ public class PSIQS_U extends PSIQSBase {
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		Timer timer = new Timer();
-		PSIQS_U qs = new PSIQS_U(0.32F, 0.37F, null, 6, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+		// conservative choice of number of threads; put there what you have
+		PSIQS_U qs = new PSIQS_U(0.31F, 0.37F, null, 4, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 
 		while(true) {
 			try {

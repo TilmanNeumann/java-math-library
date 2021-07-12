@@ -57,11 +57,11 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 1;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 30;
+	private static final int START_BITS = 200;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 1;
+	private static final int INCR_BITS = 10;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
@@ -95,7 +95,7 @@ public class FactorizerTest {
 //			new Hart_TDiv_Race(), 
 //			new Hart_TDiv_Race2(),
 //			new Hart_Squarefree(false), // best algorithm for semiprime N for 29 to 37 bit
-			new Hart_Fast2Mult(false), // best algorithm for semiprime N for 38 to 45 bit
+//			new Hart_Fast2Mult(false), // best algorithm for semiprime N for 38 to 45 bit
 //			new Hart_Fast2Mult_FMA(false),
 
 			// Lehman
@@ -112,9 +112,9 @@ public class FactorizerTest {
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
 //			new PollardRhoBrentMontgomeryR64Mul63(),
-			new PollardRhoBrentMontgomery64(),
-			new PollardRhoBrentMontgomery64_MH(),
-			new PollardRhoBrentMontgomery64_MHInlined(),
+//			new PollardRhoBrentMontgomery64(),
+//			new PollardRhoBrentMontgomery64_MH(),
+//			new PollardRhoBrentMontgomery64_MHInlined(),
 			
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
@@ -137,54 +137,37 @@ public class FactorizerTest {
 //			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver_Gauss02(), 12),
 
 			// ECM
-			new TinyEcm64(),
-			new TinyEcm64_MH(),
-			new TinyEcm64_MHInlined(), // best algorithm for N from 46 to 62 bit
+//			new TinyEcm64(),
+//			new TinyEcm64_MH(),
+//			new TinyEcm64_MHInlined(), // best algorithm for N from 46 to 62 bit
 //			new EllipticCurveMethod(-1),
 
 			// SIQS:
-			// * best until 220 bit: Sieve03gU + smallPowers + TDiv1L + Gauss
-			// * best for 230, 240 bit: Sieve03gU + smallPowers + TDivnL + BL
-			// * best for >= 250 bit: (Sieve03gU or SingleBlockHybridSieve) + (noPowers or smallPowers) + (TDiv2L or TDivnL) + BL
-//			new SIQS_Small(0.305F, 0.37F, null, new SIQSPolyGenerator(), 10, true),
-
+			// small N
+//			new SIQS_Small(0.32F, 0.37F, null, new SIQSPolyGenerator(), 10, true),
 //			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new SimpleSieve(), new TDiv_QS_1Large(), 10, new MatrixSolver_Gauss02()),
 //			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver_Gauss02()),
 //			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large(), 10, new MatrixSolver_Gauss02()),
 //			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver_Gauss02()),
 			
-//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_nLarge(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_BlockLanczos()),
+			// large N
+//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_BlockLanczos()),
+//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_BlockLanczos()),
+//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss03()),
 
 			// sieving with prime powers: best sieve for small N!
-//			new SIQS(0.32F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver_Gauss02()),
-//			new SIQS(0.32F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.32F, 0.37F, null, new AllPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-
-			// improved SIQS
-//			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_Gauss02()),
-//			new SIQS2(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss02()),
+//			new SIQS(0.31F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss03()),
+//			new SIQS(0.31F, 0.37F, null, new AllPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss03()),
 
 			// Multi-threaded SIQS:
-			// * 4/6 threads takes over at N around 100 bit (more exact estimates: 4 threads best for N>=88 bits, 6 threads for N>=112 bits)
-			// * we need 0.14 < smoothBoundExponent < 0.2; everything else is prohibitive; use null for dynamic determination
-			// * BlockLanczos is better than Gauss solver for N > 200 bit
-//			new PSIQS(0.32F, 0.37F, null, 6, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-//			new PSIQS_U(0.32F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss01(10)),
-//			new PSIQS_U(0.32F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-//			new PSIQS_U(0.32F, 0.37F, null, 6, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
-//			new PSIQS_U(0.32F, 0.37F, null, 6, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
-
-//			new PSIQS_U(0.32F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-
-			// (0.31, 0.37) and (0.31, 0.365) are way better than (0.32, 0.37) for PSIQS_U2 !!
-//			new PSIQS_U2(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS(0.32F, 0.37F, null, 16, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+			new PSIQS_U(0.31F, 0.37F, null, 16, new NoPowerFinder(), new MatrixSolver_PGauss01(16)),
+			new PSIQS_U(0.31F, 0.37F, null, 16, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_U(0.31F, 0.37F, null, 16, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_U(0.31F, 0.37F, null, 16, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
-//			new CombinedFactorAlgorithm(6, 1<<16, true),
+//			new CombinedFactorAlgorithm(16, 1<<16, true),
 		};
 	}
 	

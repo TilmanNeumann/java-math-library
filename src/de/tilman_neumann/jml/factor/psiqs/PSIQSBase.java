@@ -36,7 +36,7 @@ import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.PolyReport;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
-import de.tilman_neumann.jml.factor.siqs.sieve.SieveParamsFactory01;
+import de.tilman_neumann.jml.factor.siqs.sieve.SieveParamsFactory02;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.powers.PurePowerTest;
@@ -231,7 +231,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		congruenceCollector.initialize(N, primeBaseSize, matrixSolver, factorTest);
 
 		// compute some basic parameters for N
-		SieveParams sieveParams = SieveParamsFactory01.create(N_dbl, NBits, kN, d, primesArray, primeBaseSize, adjustedSieveArraySize);
+		SieveParams sieveParams = SieveParamsFactory02.create(N_dbl, NBits, kN, d, primesArray, primeBaseSize, adjustedSieveArraySize, apg.getQCount(), apg.getBestQ());
 		
 		// compute logP array
 		byte[] logPArray = computeLogPArray(primesArray, primeBaseSize, sieveParams.lnPMultiplier);

@@ -38,20 +38,20 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
-import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
+import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator02;
 import de.tilman_neumann.jml.factor.siqs.poly.PolyReport;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
-import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
+import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03hU;
 import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
-import de.tilman_neumann.jml.factor.siqs.sieve.SieveParamsFactory01;
+import de.tilman_neumann.jml.factor.siqs.sieve.SieveParamsFactory02;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
-import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_nLarge_UBI;
+import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
@@ -123,7 +123,7 @@ public class SIQS extends FactorAlgorithm {
 		this.congruenceCollector = new CongruenceCollector(extraCongruences);
 		this.auxFactorizer = auxFactorizer;
 		this.matrixSolver = matrixSolver;
-		apg = new AParamGenerator01(wantedQCount);
+		apg = new AParamGenerator02(wantedQCount);
 	}
 
 	@Override
@@ -246,7 +246,7 @@ public class SIQS extends FactorAlgorithm {
 		congruenceCollector.initialize(N, primeBaseSize, matrixSolver, factorTest);
 
 		// compute some basic parameters for N
-		SieveParams sieveParams = SieveParamsFactory01.create(N_dbl, NBits, kN, d, primesArray, primeBaseSize, adjustedSieveArraySize);
+		SieveParams sieveParams = SieveParamsFactory02.create(N_dbl, NBits, kN, d, primesArray, primeBaseSize, adjustedSieveArraySize, apg.getQCount(), apg.getBestQ());
 		
 		// compute logP array
 		byte[] logPArray = computeLogPArray(primesArray, primeBaseSize, sieveParams.lnPMultiplier);
@@ -406,7 +406,7 @@ public class SIQS extends FactorAlgorithm {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		SIQS qs = new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_nLarge_UBI(true), 10, new MatrixSolver_BlockLanczos());
+		SIQS qs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_BlockLanczos());
 		Timer timer = new Timer();
 		while(true) {
 			try {
