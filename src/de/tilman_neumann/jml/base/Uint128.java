@@ -215,21 +215,6 @@ public class Uint128 {
 
 		return new Uint128(r_hi, r_lo);
 	}
-	
-	public static Uint128 mul64_MH2(long a, long b) {
-//		final long r_lo = a*b;
-		long r_hi = Math.multiplyHigh(a, b);
-		if (a<0) r_hi += b;
-		
-		if (DEBUG) {
-			// compare to pure Java implementation
-			Uint128 testResult = mul64(a, b);
-			assertEquals(testResult.high, r_hi);
-//			assertEquals(testResult.low, r_lo);
-		}
-
-		return new Uint128(r_hi, 0);
-	}
 
 	/**
 	 * The square of an unsigned 64 bit integer.
