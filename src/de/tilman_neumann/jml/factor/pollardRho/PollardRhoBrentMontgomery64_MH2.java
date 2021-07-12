@@ -178,7 +178,10 @@ public class PollardRhoBrentMontgomery64_MH2 extends FactorAlgorithm {
 		// but even better, the long product just gives the low part -> we can get rid of one expensive mul64().
 		long abLow = a * b;
 		long t = abLow * Nhat;
-		Uint128 tN = Uint128.mul64_MH(t, N); // TODO inline
+		final long tNLow = t*N;
+		long tNHigh = Math.multiplyHigh(t, N);
+		if (t<0) tNHigh += N;
+		Uint128 tN = new Uint128(tNHigh, tNLow); // for some reason, removing this object seems to degrade performance
 		
 		// Step 3: Compute r = (a*b + t*N) / R
 		// Since R=2^64, "x / R" just means to get the high part of x.
