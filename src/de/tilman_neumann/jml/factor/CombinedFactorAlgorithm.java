@@ -32,7 +32,6 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
 import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.ecm.TinyEcm64_MHInlined;
 import de.tilman_neumann.jml.factor.hart.Hart_Fast2Mult;
-import de.tilman_neumann.jml.factor.psiqs.PSIQS_g;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS_h;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS_hU;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
@@ -45,7 +44,6 @@ import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03h;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03hU;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_1Large_UBI;
-import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI2;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Barrett;
@@ -206,9 +204,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 				}
 			}
 
-			// SIQS / PSIQS: The crossover point seems to be at ~150 bit now, independently the number of threads.
-			// Strangely, my previous adjustment had the crossover point at 97 bit. Probably at that time I wrongly compared
-			// PSIQS(1 thread) with PSIQS(2 threads), but PSIQS(1 thread) also has a thread creation penalty that SIQS does not have.
+			// SIQS / PSIQS: The crossover point needs checking
 			if (NBits<=150) siqs_smallArgs.searchFactors(args, result);
 			else siqs_bigArgs.searchFactors(args, result);
 		}
