@@ -27,7 +27,7 @@ import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI;
  * A polynomial generation/sieve/trial division thread using Sieve03g.
  * @author Tilman Neumann
  */
-public class PSIQSThread extends PSIQSThreadBase {
+public class PSIQSThread_g extends PSIQSThreadBase {
 
 	/**
 	 * Standard constructor.
@@ -41,7 +41,7 @@ public class PSIQSThread extends PSIQSThreadBase {
 	 * @param cc congruence collector, also runs the matrix solver
 	 * @param threadIndex
 	 */
-	public PSIQSThread(
+	public PSIQSThread_g(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		

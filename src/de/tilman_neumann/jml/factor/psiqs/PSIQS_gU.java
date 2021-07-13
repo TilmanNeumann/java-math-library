@@ -16,36 +16,43 @@ package de.tilman_neumann.jml.factor.psiqs;
 import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
-import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
-import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03hU;
+import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
+import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
-import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI2;
 
 /**
- * A polynomial generation/sieve/trial division thread using Sieve03hU.
+ * Multi-threaded SIQS using Sieve03g.
+ * 
  * @author Tilman Neumann
  */
-public class PSIQSThread_U extends PSIQSThreadBase {
+public class PSIQS_gU extends PSIQSBase {
 
 	/**
 	 * Standard constructor.
-	 * @param k
-	 * @param N
-	 * @param kN
-	 * @param d the d-parameter of quadratic polynomials Q(x) = (d*a*x + b)^2 - kN; typically 1 or 2
-	 * @param sieveParams basic sieve parameters
-	 * @param baseArrays primes, power arrays after adding powers
-	 * @param apg
-	 * @param cc congruence collector, also runs the matrix solver
-	 * @param threadIndex
+	 * @param Cmult multiplier for prime base size
+	 * @param Mmult multiplier for sieve array size
+	 * @param wantedQCount hypercube dimension (null for automatic selection)
+	 * @param numberOfThreads
+	 * @param powerFinder algorithm to add powers to the primes used for sieving
+	 * @param matrixSolver solver for smooth congruences matrix
 	 */
-	public PSIQSThread_U(
+	public PSIQS_gU(float Cmult, float Mmult, Integer wantedQCount, int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
+		super(Cmult, Mmult, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator01(wantedQCount));
+	}
+
+	@Override
+	public String getName() {
+		return "PSIQS_gU(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
+	}
+
+	@Override
+	protected PSIQSThreadBase createThread(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		
-		super(k, N, kN, d, sieveParams, baseArrays, apg, new SIQSPolyGenerator(), new Sieve03hU(),
-			  new TDiv_QS_2Large_UBI2(true), cc, threadIndex);
+		return new PSIQSThread_gU(k, N, kN, d, sieveParams, baseArrays, apg, cc, threadIndex);
 	}
 }

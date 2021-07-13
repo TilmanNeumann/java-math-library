@@ -27,59 +27,55 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.BinarySearch;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
-import de.tilman_neumann.jml.factor.base.UnsafeUtil;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.util.Timer;
-import sun.misc.Unsafe;
 
 /**
- * Advanced sieve implementation using sun.misc.Unsafe to control the sieve array.
+ * Advanced non-segmented sieve implementation.
  * 
- * This is a monolithic sieve. I didn't manage yet to implement a successful segmented sieve. Maybe Java prevents it by using most
- * of the L1 and L2 caches for the JVM itself.
- * 
- * Some ingredients that make it quite fast nonetheless:
- * -> The smallest primes are not used for sieving ("small primes variant").
+ * Version 03:
+ * -> The smallest primes are not used for sieving.
  *    A prime p makes an overall contribution proportional to log(p)/p to the sieve array,
  *    but the runtime of sieving with a prime p is proportional to sieveArraySize/p.
  *    Thus sieving with small primes is less effective, and skipping them improves performance.
- *    
  * -> Let counters run down -> simpler termination condition
+ * -> Faster zero-initialization of sieve array with System.arrayCopy().
  * 
- * -> Initialize the sieve array such that a sieve hit is achieved if (logPSum & 0x80) != 0,
+ * Version 03b:
+ * -> Initialize sieve array such that a sieve hit is achieved if (logPSum & 0x80) != 0,
  *    and then use the or-trick in sieve:collect.
- *    
  * -> precompute minSolutionCounts for all p
- * 
  * -> allocate sieveArray with pMax extra entries to save size checks
  * 
+ * Version 03c:
  * -> sieve positive x-values first, then negative x-values. Surprising improvement.
  * 
+ * Version 03d:
  * -> Special treatment for large primes having 0-1 solutions for each of x1, x2 inside the sieve array.
- *    ("unrolling of large primes")
+ *    This is the biggest performance improvement since the 1.0.2 release!
  * 
+ * Version 03e:
  * -> Collect smooth Q(x) for pos/neg x independently -> another small improvement
  * 
- * -> Initialization is done independently for pos/neg x, too -> now only 1 sieve array is needed
+ * Version 03f:
+ * -> Initialization is be done independently for pos/neg x, too -> now only 1 sieve array is needed!
  * 
+ * Version 03g:
+ * -> further unrolling of large primes
  * -> sieve with all primes as if they have 2 x-solutions
  * 
- * -> adjust sieve scores by true Q/(da) size, true small prime logPSum contribution, true q-parameter logPSum contribution
+ * Version 03h:
+ * -> unroll largest primes with the same logP value
  * 
  * @author Tilman Neumann
  */
-public class Sieve03hU implements Sieve {
-	private static final Logger LOG = Logger.getLogger(Sieve03hU.class);
+public class Sieve03h implements Sieve {
+	private static final Logger LOG = Logger.getLogger(Sieve03h.class);
 	private static final boolean DEBUG = false;
-	private static final Unsafe UNSAFE = UnsafeUtil.getUnsafe();
-
-	private static final long LONG_MASK =   0x8080808080808080L;
-	private static final long UPPER_MASK =  0x8080808000000000L;
-	private static final long LOWER_MASK =          0x80808080L;
 
 	private static final double LN2 = Math.log(2.0);
-	
+
 	private BigInteger daParam, bParam, cParam, kN;
 	private int d;
 
@@ -112,10 +108,12 @@ public class Sieve03hU implements Sieve {
 	
 	// sieve
 	private int sieveArraySize;
-	/** the value to initializate the sieve array with */
-	private byte initializer;
-	/** base address of the sieve array holding logP sums for all x */
-	private long sieveArrayAddress;
+	/** the initalizer value */
+	private byte initializerValue;
+	/** basic building block for fast initialization of sieve array */
+	private byte[] initializerBlock;
+	/** the array holding logP sums for all x */
+	private byte[] sieveArray;
 
 	private List<SmoothCandidate> smoothCandidates = new ArrayList<>();
 
@@ -137,7 +135,7 @@ public class Sieve03hU implements Sieve {
 	
 	@Override
 	public String getName() {
-		return "sieve03hU";
+		return "sieve03h";
 	}
 	
 	@Override
@@ -148,7 +146,8 @@ public class Sieve03hU implements Sieve {
 		this.ld2logPMultiplier = sieveParams.lnPMultiplier * LN2;
 		this.tdivTestMinLogPSum = sieveParams.tdivTestMinLogPSum;
 		this.logQdivDaEstimate = sieveParams.logQdivDaEstimate;
-		this.initializer = sieveParams.initializer;
+		initializerValue = sieveParams.initializer;
+		initializerBlock = sieveParams.getInitializerBlock();
 		this.maxLogP = baseArrays.logPArray[mergedBaseSize-1];
 		
 		int[] primes = baseArrays.primes;
@@ -163,7 +162,7 @@ public class Sieve03hU implements Sieve {
 		this.sieveArraySize = sieveParams.sieveArraySize;
 		int pMax = sieveParams.pMax;
 		int sieveAllocationSize = Math.max(pMax+1, 2*sieveArraySize);
-		sieveArrayAddress = UnsafeUtil.allocateMemory(sieveAllocationSize);
+		sieveArray = new byte[sieveAllocationSize];
 		if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
 
 		if (ANALYZE) initDuration = sieveDuration = collectDuration = 0;
@@ -235,8 +234,7 @@ public class Sieve03hU implements Sieve {
 		final int[] x1Array = solutionArrays.x1Array;
 		final int[] x2Array = solutionArrays.x2Array;
 		final byte[] logPArray = solutionArrays.logPArray;
-		int j;
-		long x1Addr, x2Addr;
+		int x1, x2, j;
 		
 		// for large primes we don't need to access the logPArray at all
 		byte bigLogP = maxLogP;
@@ -247,109 +245,68 @@ public class Sieve03hU implements Sieve {
 			for (; i>=logPBound; i--) {
 				// x1 == x2 happens only if p divides k -> for large primes p > k there are always 2 distinct solutions.
 				// x1, x2 may exceed sieveArraySize, but we allocated the arrays somewhat bigger to save the size checks.
-				x1Addr = sieveArrayAddress + x1Array[i];
-				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + bigLogP));
-				x2Addr = sieveArrayAddress + x2Array[i];
-				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + bigLogP));
+				sieveArray[x1Array[i]] += bigLogP;
+				sieveArray[x2Array[i]] += bigLogP;
 			}
 		}
 		for ( ; i>=p2Index; i--) {
 			final int p = pArray[i];
 			final byte logP = logPArray[i];
-			x1Addr = sieveArrayAddress + x1Array[i];
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr = sieveArrayAddress + x2Array[i];
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			UNSAFE.putByte(x1Addr+p, (byte) (UNSAFE.getByte(x1Addr+p) + logP));
-			UNSAFE.putByte(x2Addr+p, (byte) (UNSAFE.getByte(x2Addr+p) + logP));
+			x1 = x1Array[i];
+			x2 = x2Array[i];
+			sieveArray[x1] += logP;
+			sieveArray[x2] += logP;
+			sieveArray[x1+p] += logP;
+			sieveArray[x2+p] += logP;
 		}
 		for ( ; i>=p3Index; i--) {
 			final int p = pArray[i];
 			final byte logP = logPArray[i];
-			x1Addr = sieveArrayAddress + x1Array[i];
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr = sieveArrayAddress + x2Array[i];
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			x1Addr += p;
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr += p;
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			UNSAFE.putByte(x1Addr+p, (byte) (UNSAFE.getByte(x1Addr+p) + logP));
-			UNSAFE.putByte(x2Addr+p, (byte) (UNSAFE.getByte(x2Addr+p) + logP));
+			x1 = x1Array[i];
+			x2 = x2Array[i];
+			sieveArray[x1] += logP;
+			sieveArray[x2] += logP;
+			sieveArray[x1+p] += logP;
+			sieveArray[x2+p] += logP;
+			final int p2 = p<<1;
+			sieveArray[x1+p2] += logP;
+			sieveArray[x2+p2] += logP;
 		}
-		// Unrolling the loop with four large prime bounds looks beneficial for N>=340 bit
-		
 		// Positive x, small primes:
 		for ( ; i>=pMinIndex; i--) {
 			final int p = pArray[i];
 			final byte logP = logPArray[i];
-			x1Addr = sieveArrayAddress + x1Array[i];
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr = sieveArrayAddress + x2Array[i];
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			x1Addr += p;
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr += p;
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			x1Addr += p;
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr += p;
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+			x1 = x1Array[i];
+			x2 = x2Array[i];
+			// Solution x1 == x2 happens in any of (basic QS, MPQS, SIQS) if p divides k.
+			// But there are very few of such primes (none if k==1), so we are better off avoiding that case distinction.
+			// The last x may exceed sieveArraySize, but we allocated the arrays somewhat bigger to save the size checks.
+			sieveArray[x1] += logP;
+			sieveArray[x2] += logP;
+			sieveArray[x1+p] += logP;
+			sieveArray[x2+p] += logP;
+			final int p2 = p<<1;
+			sieveArray[x1+=p2] += logP;
+			sieveArray[x2+=p2] += logP;
 			for (j=minSolutionCounts_m3[i]; j>=0; j--) {
-				x1Addr += p;
-				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-				x2Addr += p;
-				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+				sieveArray[x1+=p] += logP;
+				sieveArray[x2+=p] += logP;
 			}
 		} // end for (p)
 		if (ANALYZE) sieveDuration += timer.capture();
 
-		// collect results: we check 8 sieve locations in one long
+		// collect results
 		smoothCandidates.clear();
-		long x = sieveArrayAddress-8;
-		while (x<sieveArrayAddress+sieveArraySize-8) {
-			long t = UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8); 
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			if((t & LONG_MASK) == 0) continue;
-			
-			// back up to get the last 8 and look in more detail
-			x -= 256;
-			
-			for(int l=0; l<32; l++) {				
-				final long y = UNSAFE.getLong(x+=8);
-				if((y & LONG_MASK) != 0) {
-					testLongPositive(y, (int) (x-sieveArrayAddress));
-				}
+		// let the sieve entry counter x run down to 0 is much faster because of the simpler exit condition
+		for (int x=sieveArraySize-1; x>=0; ) {
+			// Unfortunately, in Java we can not cast byte[] to int[] or long[].
+			// So we have to use 'or'. More than 4 'or's do not pay out.
+			if (((sieveArray[x--] | sieveArray[x--] | sieveArray[x--] | sieveArray[x--]) & 0x80) != 0) {
+				// at least one of the tested Q(x) is sufficiently smooth to be passed to trial division!
+				if (sieveArray[x+1] < 0) addSmoothCandidate(x+1, sieveArray[x+1] & 0xFF);
+				if (sieveArray[x+2] < 0) addSmoothCandidate(x+2, sieveArray[x+2] & 0xFF);
+				if (sieveArray[x+3] < 0) addSmoothCandidate(x+3, sieveArray[x+3] & 0xFF);
+				if (sieveArray[x+4] < 0) addSmoothCandidate(x+4, sieveArray[x+4] & 0xFF);
 			}
 		}
 		if (ANALYZE) collectDuration += timer.capture();
@@ -365,152 +322,84 @@ public class Sieve03hU implements Sieve {
 			int logPBound = logPBounds[lpbc];
 			for (; i>=logPBound; i--) {
 				final int p = pArray[i];
-				x1Addr = sieveArrayAddress + p - x1Array[i];
-				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + bigLogP));
-				x2Addr = sieveArrayAddress + p - x2Array[i];
-				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + bigLogP));
+				sieveArray[p-x1Array[i]] += bigLogP;
+				sieveArray[p-x2Array[i]] += bigLogP;
 			}
 		}
 		for (; i>=p2Index; i--) {
 			final int p = pArray[i];
 			final byte logP = logPArray[i];
-			x1Addr = sieveArrayAddress + p - x1Array[i];
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr = sieveArrayAddress + p - x2Array[i];
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			UNSAFE.putByte(x1Addr+p, (byte) (UNSAFE.getByte(x1Addr+p) + logP));
-			UNSAFE.putByte(x2Addr+p, (byte) (UNSAFE.getByte(x2Addr+p) + logP));
+			x1 = p-x1Array[i];
+			x2 = p-x2Array[i];
+			sieveArray[x1] += logP;
+			sieveArray[x2] += logP;
+			sieveArray[x1+p] += logP;
+			sieveArray[x2+p] += logP;
 		}
 		for (; i>=p3Index; i--) {
 			final int p = pArray[i];
 			final byte logP = logPArray[i];
-			x1Addr = sieveArrayAddress + p - x1Array[i];
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr = sieveArrayAddress + p - x2Array[i];
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			x1Addr += p;
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr += p;
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			UNSAFE.putByte(x1Addr+p, (byte) (UNSAFE.getByte(x1Addr+p) + logP));
-			UNSAFE.putByte(x2Addr+p, (byte) (UNSAFE.getByte(x2Addr+p) + logP));
+			x1 = p-x1Array[i];
+			x2 = p-x2Array[i];
+			sieveArray[x1] += logP;
+			sieveArray[x2] += logP;
+			sieveArray[x1+p] += logP;
+			sieveArray[x2+p] += logP;
+			final int p2 = p<<1;
+			sieveArray[x1+p2] += logP;
+			sieveArray[x2+p2] += logP;
 		}
 		// negative x, small primes:
 		for (; i>=pMinIndex; i--) {
 			final int p = pArray[i];
 			final byte logP = logPArray[i];
-			x1Addr = sieveArrayAddress + p - x1Array[i];
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr = sieveArrayAddress + p - x2Array[i];
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			x1Addr += p;
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr += p;
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
-			x1Addr += p;
-			UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-			x2Addr += p;
-			UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+			x1 = p-x1Array[i];
+			x2 = p-x2Array[i];
+			sieveArray[x1] += logP;
+			sieveArray[x2] += logP;
+			sieveArray[x1+p] += logP;
+			sieveArray[x2+p] += logP;
+			final int p2 = p<<1;
+			sieveArray[x1+=p2] += logP;
+			sieveArray[x2+=p2] += logP;
 			for (j=minSolutionCounts_m3[i]; j>=0; j--) {
-				x1Addr += p;
-				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + logP));
-				x2Addr += p;
-				UNSAFE.putByte(x2Addr, (byte) (UNSAFE.getByte(x2Addr) + logP));
+				sieveArray[x1+=p] += logP;
+				sieveArray[x2+=p] += logP;
 			}
 		} // end for (p)
 		if (ANALYZE) sieveDuration += timer.capture();
 
 		// collect results
-		x = sieveArrayAddress-8;
-		while (x<sieveArrayAddress+sieveArraySize-8) {
-			long t = UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8); 
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			t |= UNSAFE.getLong(x+=8);
-			if((t & LONG_MASK) == 0) continue;
-			
-			// back up to get the last 8 and look in more detail
-			x -= 256;
-			
-			for(int l=0; l<32; l++) {
-				final long y = UNSAFE.getLong(x+=8);
-				if((y & LONG_MASK) != 0) {
-					testLongNegative(y, (int) (x-sieveArrayAddress));
-				}
+		// let the sieve entry counter x run down to 0 is much faster because of the simpler exit condition
+		for (int x=sieveArraySize-1; x>=0; ) {
+			// Unfortunately, in Java we can not cast byte[] to int[] or long[].
+			// So we have to use 'or'. More than 4 'or's do not pay out.
+			if (((sieveArray[x--] | sieveArray[x--] | sieveArray[x--] | sieveArray[x--]) & 0x80) != 0) {
+				// at least one of the tested Q(-x) is sufficiently smooth to be passed to trial division!
+				if (sieveArray[x+1] < 0) addSmoothCandidate(-(x+1), sieveArray[x+1] & 0xFF);
+				if (sieveArray[x+2] < 0) addSmoothCandidate(-(x+2), sieveArray[x+2] & 0xFF);
+				if (sieveArray[x+3] < 0) addSmoothCandidate(-(x+3), sieveArray[x+3] & 0xFF);
+				if (sieveArray[x+4] < 0) addSmoothCandidate(-(x+4), sieveArray[x+4] & 0xFF);
 			}
 		}
 		if (ANALYZE) collectDuration += timer.capture();
 		return smoothCandidates;
 	}
-	
+
 	/**
 	 * Initialize the sieve array(s) with the initializer value computed before.
 	 * @param sieveArraySize
 	 */
 	private void initializeSieveArray(int sieveArraySize) {
-		// Overwrite existing arrays with initializer. We know that sieve array size is a multiple of 256.
-		UNSAFE.setMemory(sieveArrayAddress, sieveArraySize, initializer);		
-	}
-
-	private void testLongPositive(long y, int x) {
-		if ((y & LOWER_MASK) != 0) {
-			final int y0 = (int) y;
-			if ((y0 &       0x80) != 0) addSmoothCandidate(x  ,  y0      & 0xFF);
-			if ((y0 &     0x8000) != 0) addSmoothCandidate(x+1, (y0>> 8) & 0xFF);
-			if ((y0 &   0x800000) != 0) addSmoothCandidate(x+2, (y0>>16) & 0xFF);
-			if ((y0 & 0x80000000) != 0) addSmoothCandidate(x+3, (y0>>24) & 0xFF);
-		}
-		if((y & UPPER_MASK) != 0) {
-			final int y1 = (int) (y >> 32);
-			if ((y1 &       0x80) != 0) addSmoothCandidate(x+4,  y1      & 0xFF);
-			if ((y1 &     0x8000) != 0) addSmoothCandidate(x+5, (y1>> 8) & 0xFF);
-			if ((y1 &   0x800000) != 0) addSmoothCandidate(x+6, (y1>>16) & 0xFF);
-			if ((y1 & 0x80000000) != 0) addSmoothCandidate(x+7, (y1>>24) & 0xFF);
-		}
-	}
-	
-	private void testLongNegative(long y, int x) {
-		if ((y & LOWER_MASK) != 0) {
-			final int y0 = (int) y;
-			if ((y0 &       0x80) != 0) addSmoothCandidate(- x   ,  y0      & 0xFF);
-			if ((y0 &     0x8000) != 0) addSmoothCandidate(-(x+1), (y0>> 8) & 0xFF);
-			if ((y0 &   0x800000) != 0) addSmoothCandidate(-(x+2), (y0>>16) & 0xFF);
-			if ((y0 & 0x80000000) != 0) addSmoothCandidate(-(x+3), (y0>>24) & 0xFF);
-		}
-		if((y & UPPER_MASK) != 0) {
-			final int y1 = (int) (y >> 32);
-			if ((y1 &       0x80) != 0) addSmoothCandidate(-(x+4),  y1      & 0xFF);
-			if ((y1 &     0x8000) != 0) addSmoothCandidate(-(x+5), (y1>> 8) & 0xFF);
-			if ((y1 &   0x800000) != 0) addSmoothCandidate(-(x+6), (y1>>16) & 0xFF);
-			if ((y1 & 0x80000000) != 0) addSmoothCandidate(-(x+7), (y1>>24) & 0xFF);
+		// overwrite existing arrays with initializer. we know that sieve array size is a multiple of 256
+		System.arraycopy(initializerBlock, 0, sieveArray, 0, 256);
+		int filled = 256;
+		int unfilled = sieveArraySize-filled;
+		while (unfilled>0) {
+			int fillNext = Math.min(unfilled, filled);
+			System.arraycopy(sieveArray, 0, sieveArray, filled, fillNext);
+			filled += fillNext;
+			unfilled = sieveArraySize-filled;
 		}
 	}
 
@@ -533,8 +422,8 @@ public class Sieve03hU implements Sieve {
 		// XXX Could we do Bernsteinisms here?
 		SmallFactorsTDivResult smallFactorsTDivResult = tdivUnsievedPrimeBaseElements(A, QDivDa, x);
 		int logSmallPSum = (int) smallFactorsTDivResult.logPSum;
-		int adjustedScore = score - ((int)initializer) + logSmallPSum;
-		if (DEBUG) LOG.debug("adjust initializer: original score = " + score + ", initializer = " + (int)initializer + ", logSmallPSum = " + logSmallPSum + " -> adjustedScore1 = " + adjustedScore);
+		int adjustedScore = score - ((int)initializerValue) + logSmallPSum;
+		if (DEBUG) LOG.debug("adjust initializer: original score = " + score + ", initializer = " + (int)initializerValue + ", logSmallPSum = " + logSmallPSum + " -> adjustedScore1 = " + adjustedScore);
 		
 		// Replace estimated QDivDa size by the true one.
 		// The score has to rise if the true QDivDa size is smaller than expected, because then we have less to factor.
@@ -671,6 +560,6 @@ public class Sieve03hU implements Sieve {
 	public void cleanUp() {
 		solutionArrays = null;
 		minSolutionCounts_m3 = null;
-		UnsafeUtil.freeMemory(sieveArrayAddress);
+		sieveArray = null;
 	}
 }

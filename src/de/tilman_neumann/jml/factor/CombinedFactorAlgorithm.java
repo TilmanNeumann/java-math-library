@@ -32,8 +32,9 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
 import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.ecm.TinyEcm64_MHInlined;
 import de.tilman_neumann.jml.factor.hart.Hart_Fast2Mult;
-import de.tilman_neumann.jml.factor.psiqs.PSIQS;
-import de.tilman_neumann.jml.factor.psiqs.PSIQS_U;
+import de.tilman_neumann.jml.factor.psiqs.PSIQS_g;
+import de.tilman_neumann.jml.factor.psiqs.PSIQS_h;
+import de.tilman_neumann.jml.factor.psiqs.PSIQS_hU;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
@@ -41,9 +42,11 @@ import de.tilman_neumann.jml.factor.siqs.powers.PowerOfSmallPrimesFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03g;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
+import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03h;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03hU;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_1Large_UBI;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI;
+import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI2;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Barrett;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
@@ -105,16 +108,15 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		if (numberOfThreads==1) {
 			// Avoid multi-thread overhead if the requested number of threads is 1
 			if (permitUnsafeUsage) {
-				siqs_bigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI(permitUnsafeUsage), 10, new MatrixSolver_BlockLanczos());
+				siqs_bigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(permitUnsafeUsage), 10, new MatrixSolver_BlockLanczos());
 			} else {
-				// XXX Here we'ld need some Sieve03h
-				siqs_bigArgs = new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_2Large_UBI(permitUnsafeUsage), 10, new MatrixSolver_BlockLanczos());
+				siqs_bigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03h(), new TDiv_QS_2Large_UBI2(permitUnsafeUsage), 10, new MatrixSolver_BlockLanczos());
 			}
 		} else {
 			if (permitUnsafeUsage) {
-				siqs_bigArgs = new PSIQS_U(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+				siqs_bigArgs = new PSIQS_hU(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 			} else {
-				siqs_bigArgs = new PSIQS(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+				siqs_bigArgs = new PSIQS_h(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 			}
 		}
 	}

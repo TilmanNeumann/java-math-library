@@ -151,20 +151,22 @@ public class FactorizerTest {
 //			new SIQS(0.32F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_1Large_UBI(), 10, new MatrixSolver_Gauss02()),
 			
 			// large N
-//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_BlockLanczos()),
-//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss03()),
+//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_PGauss01(12)),
+//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_PGauss01(12)),
+//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03h(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_PGauss01(12)),
+//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_PGauss01(12)),
 
 			// sieving with prime powers: best sieve for small N!
 //			new SIQS(0.31F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss03()),
 //			new SIQS(0.31F, 0.37F, null, new AllPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss03()),
 
 			// Multi-threaded SIQS:
-//			new PSIQS(0.32F, 0.37F, null, 16, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-			new PSIQS_U(0.31F, 0.37F, null, 16, new NoPowerFinder(), new MatrixSolver_PGauss01(16)),
-			new PSIQS_U(0.31F, 0.37F, null, 16, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-//			new PSIQS_U(0.31F, 0.37F, null, 16, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
-//			new PSIQS_U(0.31F, 0.37F, null, 16, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
+			new PSIQS_g(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+			new PSIQS_gU(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+			new PSIQS_h(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+			new PSIQS_hU(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_hU(0.31F, 0.37F, null, 20, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_hU(0.31F, 0.37F, null, 20, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
 //			new CombinedFactorAlgorithm(16, 1<<16, true),
