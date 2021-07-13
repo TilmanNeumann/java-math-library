@@ -34,7 +34,7 @@ import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
 
 /**
- * Multi-threaded SIQS using Sieve03hU.
+ * Multi-threaded SIQS using Sieve03h.
  * 
  * @author Tilman Neumann
  */
