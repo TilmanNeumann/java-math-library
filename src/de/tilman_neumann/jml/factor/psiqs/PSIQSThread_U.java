@@ -24,10 +24,10 @@ import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI2;
 
 /**
- * A polynomial generation/sieve/trial division thread using Sieve03hU.
+ * A polynomial generation/sieve/trial division thread using the fastest sieve depending on sun.misc.Unsafe.
  * @author Tilman Neumann
  */
-public class PSIQSThread_hU extends PSIQSThreadBase {
+public class PSIQSThread_U extends PSIQSThreadBase {
 
 	/**
 	 * Standard constructor.
@@ -41,7 +41,7 @@ public class PSIQSThread_hU extends PSIQSThreadBase {
 	 * @param cc congruence collector, also runs the matrix solver
 	 * @param threadIndex
 	 */
-	public PSIQSThread_hU(
+	public PSIQSThread_U(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		

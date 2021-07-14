@@ -34,13 +34,13 @@ import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
 
 /**
- * Multi-threaded SIQS using Sieve03hU.
+ * Multi-threaded SIQS using the fastest sieve depending on sun.misc.Unsafe.
  * 
  * @author Tilman Neumann
  */
-public class PSIQS_hU extends PSIQSBase {
+public class PSIQS_U extends PSIQSBase {
 
-	private static final Logger LOG = Logger.getLogger(PSIQS_hU.class);
+	private static final Logger LOG = Logger.getLogger(PSIQS_U.class);
 
 	/**
 	 * Standard constructor.
@@ -51,13 +51,13 @@ public class PSIQS_hU extends PSIQSBase {
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param matrixSolver solver for smooth congruences matrix
 	 */
-	public PSIQS_hU(float Cmult, float Mmult, Integer wantedQCount, int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
+	public PSIQS_U(float Cmult, float Mmult, Integer wantedQCount, int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
 		super(Cmult, Mmult, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator02(wantedQCount));
 	}
 
 	@Override
 	public String getName() {
-		return "PSIQS_hU(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
+		return "PSIQS_U(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class PSIQS_hU extends PSIQSBase {
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		
-		return new PSIQSThread_hU(k, N, kN, d, sieveParams, baseArrays, apg, cc, threadIndex);
+		return new PSIQSThread_U(k, N, kN, d, sieveParams, baseArrays, apg, cc, threadIndex);
 	}
 
 	// Standalone test --------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ public class PSIQS_hU extends PSIQSBase {
     	ConfigUtil.initProject();
 		Timer timer = new Timer();
 		// conservative choice of number of threads; put there what you have
-		PSIQS_hU qs = new PSIQS_hU(0.31F, 0.37F, null, 4, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+		PSIQS_U qs = new PSIQS_U(0.31F, 0.37F, null, 4, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 
 		while(true) {
 			try {

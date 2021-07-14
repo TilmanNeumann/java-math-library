@@ -32,8 +32,8 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
 import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.ecm.TinyEcm64_MHInlined;
 import de.tilman_neumann.jml.factor.hart.Hart_Fast2Mult;
-import de.tilman_neumann.jml.factor.psiqs.PSIQS_h;
-import de.tilman_neumann.jml.factor.psiqs.PSIQS_hU;
+import de.tilman_neumann.jml.factor.psiqs.PSIQS;
+import de.tilman_neumann.jml.factor.psiqs.PSIQS_U;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
@@ -112,9 +112,9 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 			}
 		} else {
 			if (permitUnsafeUsage) {
-				siqs_bigArgs = new PSIQS_hU(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+				siqs_bigArgs = new PSIQS_U(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 			} else {
-				siqs_bigArgs = new PSIQS_h(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+				siqs_bigArgs = new PSIQS(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 			}
 		}
 	}
