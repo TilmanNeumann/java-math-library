@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import de.tilman_neumann.util.Multiset;
+import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 public class CongruenceCollectorReport {
 	private int partialCount;
@@ -32,13 +33,12 @@ public class CongruenceCollectorReport {
 	private int partialWithPositiveQCount;
 	private int smoothWithPositiveQCount;
 	private Multiset<Integer>[] qRestSizes4SmoothFromLPCount;
-	private Multiset<Integer>[] bigFactors4SmoothFromLPCount;
+	private Multiset<Integer>[] bigFactorSizes4SmoothFromLPCount;
 	
 	public CongruenceCollectorReport(int partialCount, int smoothCount, int[] smoothFromPartialCounts, int[] partialCounts, int perfectSmoothCount,
 			                         Multiset<Integer> qRestSizes, Multiset<Integer> bigFactorSizes,
-			                         Multiset<Integer> bigFactorSizes4Smooth, int partialWithPositiveQCount,
-			                         int smoothWithPositiveQCount, Multiset<Integer>[] qRestSizes4SmoothFromLPCount,
-			                         Multiset<Integer>[] bigFactors4SmoothFromLPCount) {
+			                         int partialWithPositiveQCount, int smoothWithPositiveQCount,
+			                         Multiset<Integer>[] qRestSizes4SmoothFromLPCount, Multiset<Integer>[] bigFactorSizes4SmoothFromLPCount) {
 		
 		this.partialCount = partialCount;
 		this.smoothCount = smoothCount;
@@ -47,11 +47,22 @@ public class CongruenceCollectorReport {
 		this.perfectSmoothCount = perfectSmoothCount;
 		this.qRestSizes = qRestSizes;
 		this.bigFactorSizes = bigFactorSizes;
-		this.bigFactorSizes4Smooth = bigFactorSizes4Smooth;
 		this.partialWithPositiveQCount = partialWithPositiveQCount;
 		this.smoothWithPositiveQCount = smoothWithPositiveQCount;
 		this.qRestSizes4SmoothFromLPCount = qRestSizes4SmoothFromLPCount;
-		this.bigFactors4SmoothFromLPCount = bigFactors4SmoothFromLPCount;
+		this.bigFactorSizes4SmoothFromLPCount = bigFactorSizes4SmoothFromLPCount;
+		this.bigFactorSizes4Smooth = aggregateCounts(bigFactorSizes4SmoothFromLPCount);
+	}
+	
+	private Multiset<Integer> aggregateCounts(Multiset<Integer>[] multisetArray) {
+		Multiset<Integer> aggregated = new SortedMultiset_BottomUp<Integer>();
+		for (int i=0; i<multisetArray.length; i++) {
+			Multiset<Integer> multiset = multisetArray[i];
+			if (multiset != null) {
+				aggregated.addAll(multiset);
+			}
+		}
+		return aggregated;
 	}
 	
 	public String getOperationDetails() {
@@ -82,7 +93,7 @@ public class CongruenceCollectorReport {
 	 * @return a string pointing out the required big factor bit sizes to find certain percentiles of all smooth congruences.
 	 */
 	public String getSmoothBigFactorPercentiles(int lpCount) {
-		return "Required big factor sizes for smooth percentiles from " + lpCount + " large primes = " + computePercentiles(bigFactors4SmoothFromLPCount[lpCount]);
+		return "Required big factor sizes for smooth percentiles from " + lpCount + " large primes = " + computePercentiles(bigFactorSizes4SmoothFromLPCount[lpCount]);
 	}
 	
 	public String getPartialQRestPercentiles() {

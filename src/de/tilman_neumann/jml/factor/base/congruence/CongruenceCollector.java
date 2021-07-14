@@ -74,8 +74,8 @@ public class CongruenceCollector {
 	// statistics
 	private int perfectSmoothCount, totalPartialCount;
 	private int[] smoothFromPartialCounts, partialCounts;
-	private Multiset<Integer> qRestSizes, bigFactorSizes, bigFactorSizes4Smooth;
-	private Multiset<Integer>[] qRestSizes4SmoothFromLPCount, bigFactors4SmoothFromLPCount;
+	private Multiset<Integer> qRestSizes, bigFactorSizes;
+	private Multiset<Integer>[] qRestSizes4SmoothFromLPCount, bigFactorSizes4SmoothFromLPCount;
 	private int partialWithPositiveQCount, smoothWithPositiveQCount;
 	
 	private Timer timer = new Timer();
@@ -136,14 +136,13 @@ public class CongruenceCollector {
 			// collected vs. useful smooths and partials
 			int maxLPCount = 5; // works up to 4LP
 			qRestSizes4SmoothFromLPCount = new SortedMultiset_BottomUp[maxLPCount];
-			bigFactors4SmoothFromLPCount = new SortedMultiset_BottomUp[maxLPCount];
+			bigFactorSizes4SmoothFromLPCount = new SortedMultiset_BottomUp[maxLPCount];
 			for (int i=0; i<maxLPCount; i++) {
 				qRestSizes4SmoothFromLPCount[i] = new SortedMultiset_BottomUp<Integer>();
-				bigFactors4SmoothFromLPCount[i] = new SortedMultiset_BottomUp<Integer>();
+				bigFactorSizes4SmoothFromLPCount[i] = new SortedMultiset_BottomUp<Integer>();
 			}
 			
 			qRestSizes = new SortedMultiset_BottomUp<Integer>();
-			bigFactorSizes4Smooth = new SortedMultiset_BottomUp<Integer>();
 			bigFactorSizes = new SortedMultiset_BottomUp<Integer>();
 		}
 		if (ANALYZE_Q_SIGNS) {
@@ -256,8 +255,7 @@ public class CongruenceCollector {
 						BigInteger prod = I_1;
 						for (Long bigFactor : bigFactors) {
 							int bigFactorBits = 64 - Long.numberOfLeadingZeros(bigFactor);
-							bigFactorSizes4Smooth.add(bigFactorBits);
-							bigFactors4SmoothFromLPCount[bigFactors.length].add(bigFactorBits);
+							bigFactorSizes4SmoothFromLPCount[bigFactors.length].add(bigFactorBits);
 							prod = prod.multiply(BigInteger.valueOf(bigFactor));
 						}
 						qRestSizes4SmoothFromLPCount[bigFactors.length].add(prod.bitLength());
@@ -405,8 +403,8 @@ public class CongruenceCollector {
 
 	public CongruenceCollectorReport getReport() {
 		return new CongruenceCollectorReport(getPartialCongruenceCount(), smoothCongruences.size(), smoothFromPartialCounts, partialCounts, perfectSmoothCount,
-											 qRestSizes, bigFactorSizes, bigFactorSizes4Smooth, partialWithPositiveQCount, smoothWithPositiveQCount,
-											 qRestSizes4SmoothFromLPCount, bigFactors4SmoothFromLPCount);
+											 qRestSizes, bigFactorSizes, partialWithPositiveQCount, smoothWithPositiveQCount, qRestSizes4SmoothFromLPCount,
+											 bigFactorSizes4SmoothFromLPCount);
 	}
 
 	public String getCycleCountResult() {
