@@ -56,10 +56,12 @@ public class CongruenceCollectorReport {
 	
 	private Multiset<Integer> aggregateCounts(Multiset<Integer>[] multisetArray) {
 		Multiset<Integer> aggregated = new SortedMultiset_BottomUp<Integer>();
-		for (int i=0; i<multisetArray.length; i++) {
-			Multiset<Integer> multiset = multisetArray[i];
-			if (multiset != null) {
-				aggregated.addAll(multiset);
+		if (multisetArray != null) {
+			for (int i=0; i<multisetArray.length; i++) {
+				Multiset<Integer> multiset = multisetArray[i];
+				if (multiset != null) {
+					aggregated.addAll(multiset);
+				}
 			}
 		}
 		return aggregated;
