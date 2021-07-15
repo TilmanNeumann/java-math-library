@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.BinarySearch;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
@@ -59,6 +60,9 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 	private BigInteger da; // d*a with d = 1 or 2 depending on kN % 8
 	private int d; // the d-value;
 
+	// sieve array
+	private int sieveArraySize;
+	
 	/** Q is sufficiently smooth if the unfactored QRest is smaller than this bound depending on N */
 	private double smoothBound;
 
@@ -72,7 +76,9 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 	private long pMaxSquare;
 	private int[] unsievedBaseElements;
 	private int pMinIndex;
-	
+	/** p_i with i>p1Index have at most 1 solution in the sieve array for each of x1, x2 */
+	private int p1Index;
+
 	/** buffers for trial division engine. */
 	private UnsignedBigInt QRest_UBI = new UnsignedBigInt(new int[50]);
 	private UnsignedBigInt quotient_UBI = new UnsignedBigInt(new int[50]);
@@ -96,6 +102,8 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 	private SortedIntegerArray smallFactors;
 	private BigInteger smallFactorsProd; // only for debugging
 	
+	private BinarySearch binarySearch = new BinarySearch();
+
 	// statistics
 	private Timer timer = new Timer();
 	private long testCount, sufficientSmoothCount;
@@ -115,12 +123,14 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 	}
 
 	@Override
-	public void initializeForN(double N_dbl, BigInteger kN, SieveParams sieveParams) {
+	public void initializeForN(double N_dbl, SieveParams sieveParams) {
 		// the biggest unfactored rest where some Q is considered smooth enough for a congruence.
 		this.smoothBound = sieveParams.smoothBound;
 		if (DEBUG) LOG.debug("smoothBound = " + smoothBound + " (" + BigDecimal.valueOf(smoothBound).toBigInteger().bitLength() + " bits)");
 		this.pMinIndex = sieveParams.pMinIndex;
-		this.kN = kN;
+		this.kN = sieveParams.kN;
+		this.sieveArraySize = sieveParams.sieveArraySize;
+		
 		// statistics
 		if (ANALYZE) testCount = sufficientSmoothCount = 0;
 		if (ANALYZE) aqDuration = pass1Duration = pass2Duration = primeTestDuration = factorDuration = 0;
@@ -139,6 +149,7 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 		x2Array = solutionArrays.x2Array;
 		pMax = primes[baseSize-1];
 		pMaxSquare = pMax * (long) pMax;
+		this.p1Index = binarySearch.getInsertPosition(pArray, baseSize, sieveArraySize);
 		this.unsievedBaseElements = unsievedBaseElements;
 	}
 
@@ -212,8 +223,20 @@ public class TDiv_QS_2Large_UBI2 implements TDiv_QS {
 		// IMPORTANT: Java gives x % p = x for |x| < p, and we have many p bigger than any sieve array entry.
 		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
 		int pass2Count = 0;
+		int pIndex = baseSize-1;
+		for ( ; pIndex >= p1Index; pIndex--) {
+			// for pIndex > p1Index, we know that |x| < sieveArraySize < p
+			int xModP = x<0 ? x+pArray[pIndex] : x;
+			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
+				pass2Primes[pass2Count] = primes[pIndex];
+				pass2Exponents[pass2Count] = exponents[pIndex];
+				pass2Powers[pass2Count++] = pArray[pIndex];
+				// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
+			}
+		}
+		
 		final int xAbs = x<0 ? -x : x;
-		for (int pIndex = baseSize-1; pIndex >= pMinIndex; pIndex--) { // small primes have already been tested
+		for ( ; pIndex >= pMinIndex; pIndex--) { // small primes have already been tested
 			int p = pArray[pIndex];
 			int xModP;
 			if (xAbs<p) {

@@ -128,11 +128,12 @@ public class TDiv_QS_nLarge_UBI implements TDiv_QS {
 	}
 
 	@Override
-	public void initializeForN(double N_dbl, BigInteger kN, SieveParams sieveParams) {
+	public void initializeForN(double N_dbl, SieveParams sieveParams) {
 		// the biggest unfactored rest where some Q is considered smooth enough for a congruence.
 		this.smoothBound = sieveParams.smoothBound;
 		if (DEBUG) LOG.debug("smoothBound = " + smoothBound + " (" + BigDecimal.valueOf(smoothBound).toBigInteger().bitLength() + " bits)");
-		this.kN = kN;
+		this.kN = sieveParams.kN;
+		
 		// statistics
 		if (ANALYZE) testCount = sufficientSmoothCount = 0;
 		if (ANALYZE) aqDuration = pass1Duration = pass2Duration = primeTestDuration = factorDuration = 0;

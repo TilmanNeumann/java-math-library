@@ -36,10 +36,9 @@ public interface TDiv_QS {
 	/**
 	 * Initialize this trial division engine for a new N.
 	 * @param N_dbl
-	 * @param kN multiplier k (typically Knuth-Schroeppel) * factor argument N
 	 * @param sieveParams the biggest QRest admitted for a smooth relation
 	 */
-	public void initializeForN(double N_dbl, BigInteger kN, SieveParams sieveParams);
+	public void initializeForN(double N_dbl, SieveParams sieveParams);
 
 	/**
 	 * Set prime/power base, polynomial parameters and smallest x-solutions for a new a-parameter.
