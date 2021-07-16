@@ -1,23 +1,20 @@
 # java-math-library
 
-This library is quite focused on number theory, but not necessarily limited to it.
-It is based on PSIQS 4.0 and as such provides some pretty good methods for integer factorization.
-If you are interested in factoring then have a look at the following classes:
-* TDiv31Inverse
-* TDiv63Inverse
-* Hart\_Fast2Mult
-* Lehman_CustomKOrder
-* SquFoF31Preload
-* SquFoF63
-* PollardRhoBrentMontgomeryR64Mul63
-* PollardRhoBrentMontgomery64
-* PollardRhoBrent
-* TinyEcm64
-* CFrac63
-* CFrac
-* SIQS (single-threaded)
-* PSIQS (multi-threaded)
-* PSIQS_U (multi-threaded, using sun.misc.Unsafe)
+This library is quite focused on number theory and particularly integer factorization, but not necessarily limited to it.
+
+It provides some pretty fast implementations of various factoring algorithms, including the classes
+* <strong>TDiv31Barrett</strong>: Trial division for numbers < 32 bit using long valued Barrett reduction
+* <strong>Hart\_Fast2Mult</strong>: Highly optimized "Hart's one-line factorizer" for numbers <= 62 bit
+* <strong>Lehman_Fast</strong>, <strong>Lehman_CustomKOrder</strong>: Fast Lehman implementations for numbers <= 62 bit
+* <strong>SquFoF31Preload</strong>, <strong>SquFoF63</strong>: SquFoF implementations for numbers <= 52 rsp. 90 bit
+* <strong>PollardRhoBrentMontgomery64_MHInlined</strong>: Highly optimized Pollard-Rho for numbers <= 62 bit.
+* <strong>TinyEcm64_MHInlined</strong>: Highly optimized Java version of YaFu's tinyEcm.c for numbers <= 62 bit.
+* <strong>CFrac</strong>: CFrac implementation working on BigIntegers internally.
+* <strong>SIQS</strong>: Fast single-threaded self-initializing quadratic sieve (SIQS).
+* <strong>PSIQS</strong>: Fast multi-threaded SIQS.
+* <strong>PSIQS_U</strong>: Faster multi-threaded SIQS, using native memory access via sun.misc.Unsafe.
+
+My current factoring record is factoring a 400 bit (121 decimal digits) hard semiprime in 2 days 8 hours on a Ryzen 9 3900X with 20 sieve threads.
 
 The factoring methods are used to implement a fast sumOfDivisors() function.
 
