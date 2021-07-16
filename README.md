@@ -28,17 +28,6 @@ More special contents are a fast generator for the partitions of multipartite nu
 implementations of smooth number sequences like CANs (colossally abundant numbers) and SHCNs (superior highly composite numbers).
 
 
-## Factoring records
-
-My current factoring record is the 400 bit (121 decimal digits) hard semiprime
-<code>
-1830579336380661228946399959861611337905178485105549386694491711628042180605636192081652243693741094118383699736168785617 
-= 785506617513464525087105385677215644061830019071786760495463 * 2330444194315502255622868487811486748081284934379686652689159
-</code><br />
-
-Its factorization took 2 days 8 hours on a Ryzen 9 3900X with 20 sieve threads. That was using jml 1.0, it should be notably faster now.
-
-
 ## Releases
 
 * v1.1: Faster sieve for large N, speedup close to factor 2 at 360 bit inputs. Improved Gaussian solvers (by Dave McGuigan), including a parallel Gaussian solver that outperforms Block-Lanczos until about 375 bit on a Ryzen 3900X with 20 threads.
@@ -75,6 +64,17 @@ Here you have many options:
 * Adjusting the static variables `TEST_NUMBER_NATURE` and `TEST_MODE` lets you choose the nature of test numbers (random, semi-prime, etc.) and if you want a complete factorization or only the first factor.
 
 The amount of analysis and logging can be influenced by setting the static variables in the GlobalFactoringOptions interface. Typically one wants to have all those options set to false if `N_COUNT > 1`.
+
+
+## Factoring records
+
+My current factoring record is the 400 bit (121 decimal digits) hard semiprime
+<code>
+1830579336380661228946399959861611337905178485105549386694491711628042180605636192081652243693741094118383699736168785617 
+= 785506617513464525087105385677215644061830019071786760495463 * 2330444194315502255622868487811486748081284934379686652689159
+</code><br />
+
+Its factorization took 2 days 8 hours on a Ryzen 9 3900X with 20 sieve threads. That was using jml 1.0, it should be notably faster now.
 
 
 ## Authors
