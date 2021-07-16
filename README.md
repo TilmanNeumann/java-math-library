@@ -3,18 +3,16 @@
 This library is quite focused on number theory and particularly integer factorization, but not necessarily limited to it.
 
 It provides some pretty fast implementations of various factoring algorithms, including the classes
-* <strong>TDiv31Barrett</strong>: Trial division for numbers < 32 bit using long valued Barrett reduction
-* <strong>Hart\_Fast2Mult</strong>: Highly optimized "Hart's one-line factorizer" for numbers <= 62 bit
-* <strong>Lehman_Fast</strong>, <strong>Lehman_CustomKOrder</strong>: Fast Lehman implementations for numbers <= 62 bit
-* <strong>SquFoF31Preload</strong>, <strong>SquFoF63</strong>: SquFoF implementations for numbers <= 52 rsp. 90 bit
-* <strong>PollardRhoBrentMontgomery64_MHInlined</strong>: Highly optimized Pollard-Rho for numbers <= 62 bit.
-* <strong>TinyEcm64_MHInlined</strong>: Highly optimized Java version of YaFu's tinyEcm.c for numbers <= 62 bit.
-* <strong>CFrac</strong>: CFrac implementation working on BigIntegers internally.
-* <strong>SIQS</strong>: Fast single-threaded self-initializing quadratic sieve (SIQS).
-* <strong>PSIQS</strong>: Fast multi-threaded SIQS.
-* <strong>PSIQS_U</strong>: Faster multi-threaded SIQS, using native memory access via sun.misc.Unsafe.
-
-My current factoring record is a 400 bit (121 decimal digits) hard semiprime, factored in 2 days 8 hours on a Ryzen 9 3900X with 20 sieve threads.
+* TDiv31Barrett: Trial division for numbers < 32 bit using long valued Barrett reduction
+* Hart\_Fast2Mult: Highly optimized "Hart's one-line factorizer" for numbers <= 62 bit
+* Lehman_Fast, Lehman_CustomKOrder: Fast Lehman implementations for numbers <= 62 bit
+* SquFoF31Preload, SquFoF63: SquFoF implementations for numbers <= 52 rsp. 90 bit
+* PollardRhoBrentMontgomery64_MHInlined: Highly optimized Pollard-Rho for numbers <= 62 bit.
+* TinyEcm64_MHInlined: Highly optimized Java version of YaFu's tinyEcm.c for numbers <= 62 bit.
+* CFrac63, CFrac: CFrac implementations working on longs rsp. BigIntegers internally.
+* SIQS: Single-threaded self-initializing quadratic sieve (SIQS).
+* PSIQS: Multi-threaded SIQS.
+* PSIQS_U: Faster multi-threaded SIQS, using native memory access via sun.misc.Unsafe.
 
 The factoring methods are used to implement a fast sumOfDivisors() function.
 
@@ -28,6 +26,17 @@ Other noteworthy parts of this library are sqrt(), nth_root(), ln() and exp() fu
 
 More special contents are a fast generator for the partitions of multipartite numbers and 
 implementations of smooth number sequences like CANs (colossally abundant numbers) and SHCNs (superior highly composite numbers).
+
+
+## Factoring records
+
+My current factoring record is the 400 bit (121 decimal digits) hard semiprime
+<code>
+1830579336380661228946399959861611337905178485105549386694491711628042180605636192081652243693741094118383699736168785617 
+= 785506617513464525087105385677215644061830019071786760495463 * 2330444194315502255622868487811486748081284934379686652689159
+</code><br />
+
+Its factorization took 2 days 8 hours on a Ryzen 9 3900X with 20 sieve threads. That was using jml 1.0, it should be notably faster now.
 
 
 ## Releases
