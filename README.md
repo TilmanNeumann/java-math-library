@@ -14,7 +14,7 @@ It provides some pretty fast implementations of various factoring algorithms, in
 * <strong>PSIQS</strong>: Fast multi-threaded SIQS.
 * <strong>PSIQS_U</strong>: Faster multi-threaded SIQS, using native memory access via sun.misc.Unsafe.
 
-My current factoring record is factoring a 400 bit (121 decimal digits) hard semiprime in 2 days 8 hours on a Ryzen 9 3900X with 20 sieve threads.
+My current factoring record is a 400 bit (121 decimal digits) hard semiprime, factored in 2 days 8 hours on a Ryzen 9 3900X with 20 sieve threads.
 
 The factoring methods are used to implement a fast sumOfDivisors() function.
 
