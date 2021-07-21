@@ -65,6 +65,8 @@ Here you have many options:
 
 The amount of analysis and logging can be influenced by setting the static variables in the GlobalFactoringOptions interface. Typically one wants to have all those options set to false if `N_COUNT > 1`.
 
+Note that for factoring very large numbers with multi-threaded algorithms like PSIQS, PSIQS_U, CombinedFactorAlgorithm or BatchFactorizer, the number of threads should not exceed the number of physical cores of your computer. The number size bound where this effect sets in seems to depend mostly on the L3 cache of your computer. The cause is explained well in [SMT disadvantages](https://en.wikipedia.org/wiki/Simultaneous_multithreading#Disadvantages).
+
 
 ## Factoring records
 
@@ -74,7 +76,7 @@ My current factoring record is the 400 bit (121 decimal digits) hard semiprime
 = 785506617513464525087105385677215644061830019071786760495463 * 2330444194315502255622868487811486748081284934379686652689159
 </code><br />
 
-Its factorization took 2 days 8 hours on a Ryzen 9 3900X with 20 sieve threads. That was using jml 1.0, it should be notably faster now.
+Its factorization took about 37.5 hours on a Ryzen 9 3900X with 20 sieve threads using jml 1.1.
 
 
 ## Authors
