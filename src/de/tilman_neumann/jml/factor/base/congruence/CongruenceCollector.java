@@ -135,10 +135,10 @@ public class CongruenceCollector {
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
 			// collected vs. useful smooths and partials
 			int maxLPCount = 5; // works up to 4LP
-			smoothQRestSizes = new SortedMultiset_BottomUp[maxLPCount];
-			smoothBigFactorSizes = new SortedMultiset_BottomUp[maxLPCount];
-			partialQRestSizes = new SortedMultiset_BottomUp[maxLPCount];
-			partialBigFactorSizes = new SortedMultiset_BottomUp[maxLPCount];
+			smoothQRestSizes = createSizeCountsArray(maxLPCount);
+			smoothBigFactorSizes = createSizeCountsArray(maxLPCount);
+			partialQRestSizes = createSizeCountsArray(maxLPCount);
+			partialBigFactorSizes = createSizeCountsArray(maxLPCount);
 			for (int i=0; i<maxLPCount; i++) {
 				smoothQRestSizes[i] = new SortedMultiset_BottomUp<Integer>();
 				smoothBigFactorSizes[i] = new SortedMultiset_BottomUp<Integer>();
@@ -151,6 +151,11 @@ public class CongruenceCollector {
 			partialWithPositiveQCount = 0;
 			smoothWithPositiveQCount = 0;
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private SortedMultiset_BottomUp<Integer>[] createSizeCountsArray(int maxLPCount) {
+		return new SortedMultiset_BottomUp[maxLPCount];
 	}
 	
 	/**
