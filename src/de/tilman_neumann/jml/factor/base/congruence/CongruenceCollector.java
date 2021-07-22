@@ -74,8 +74,8 @@ public class CongruenceCollector {
 	// statistics
 	private int perfectSmoothCount, totalPartialCount;
 	private int[] smoothFromPartialCounts, partialCounts;
-	private Multiset<Integer> qRestSizes, bigFactorSizes;
-	private Multiset<Integer>[] qRestSizes4SmoothFromLPCount, bigFactorSizes4SmoothFromLPCount;
+	private Multiset<Integer>[] partialQRestSizes, partialBigFactorSizes;
+	private Multiset<Integer>[] smoothQRestSizes, smoothBigFactorSizes;
 	private int partialWithPositiveQCount, smoothWithPositiveQCount;
 	
 	private Timer timer = new Timer();
@@ -135,15 +135,16 @@ public class CongruenceCollector {
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
 			// collected vs. useful smooths and partials
 			int maxLPCount = 5; // works up to 4LP
-			qRestSizes4SmoothFromLPCount = new SortedMultiset_BottomUp[maxLPCount];
-			bigFactorSizes4SmoothFromLPCount = new SortedMultiset_BottomUp[maxLPCount];
+			smoothQRestSizes = new SortedMultiset_BottomUp[maxLPCount];
+			smoothBigFactorSizes = new SortedMultiset_BottomUp[maxLPCount];
+			partialQRestSizes = new SortedMultiset_BottomUp[maxLPCount];
+			partialBigFactorSizes = new SortedMultiset_BottomUp[maxLPCount];
 			for (int i=0; i<maxLPCount; i++) {
-				qRestSizes4SmoothFromLPCount[i] = new SortedMultiset_BottomUp<Integer>();
-				bigFactorSizes4SmoothFromLPCount[i] = new SortedMultiset_BottomUp<Integer>();
+				smoothQRestSizes[i] = new SortedMultiset_BottomUp<Integer>();
+				smoothBigFactorSizes[i] = new SortedMultiset_BottomUp<Integer>();
+				partialQRestSizes[i] = new SortedMultiset_BottomUp<Integer>();
+				partialBigFactorSizes[i] = new SortedMultiset_BottomUp<Integer>();
 			}
-			
-			qRestSizes = new SortedMultiset_BottomUp<Integer>();
-			bigFactorSizes = new SortedMultiset_BottomUp<Integer>();
 		}
 		if (ANALYZE_Q_SIGNS) {
 			// Q-analysis
@@ -255,10 +256,10 @@ public class CongruenceCollector {
 						BigInteger prod = I_1;
 						for (Long bigFactor : bigFactors) {
 							int bigFactorBits = 64 - Long.numberOfLeadingZeros(bigFactor);
-							bigFactorSizes4SmoothFromLPCount[bigFactors.length].add(bigFactorBits);
+							smoothBigFactorSizes[bigFactors.length].add(bigFactorBits);
 							prod = prod.multiply(BigInteger.valueOf(bigFactor));
 						}
-						qRestSizes4SmoothFromLPCount[bigFactors.length].add(prod.bitLength());
+						smoothQRestSizes[bigFactors.length].add(prod.bitLength());
 					}
 					return true;
 				}
@@ -349,10 +350,10 @@ public class CongruenceCollector {
 			BigInteger prod = I_1;
 			for (Long bigFactor : bigFactors) {
 				int bigFactorBits = 64 - Long.numberOfLeadingZeros(bigFactor);
-				bigFactorSizes.add(bigFactorBits);
+				partialBigFactorSizes[bigFactors.length].add(bigFactorBits);
 				prod = prod.multiply(BigInteger.valueOf(bigFactor));
 			}
-			qRestSizes.add(prod.bitLength());
+			partialQRestSizes[bigFactors.length].add(prod.bitLength());
 		}
 
 		if (ANALYZE_Q_SIGNS) {
@@ -403,8 +404,8 @@ public class CongruenceCollector {
 
 	public CongruenceCollectorReport getReport() {
 		return new CongruenceCollectorReport(getPartialCongruenceCount(), smoothCongruences.size(), smoothFromPartialCounts, partialCounts, perfectSmoothCount,
-											 qRestSizes, bigFactorSizes, partialWithPositiveQCount, smoothWithPositiveQCount, qRestSizes4SmoothFromLPCount,
-											 bigFactorSizes4SmoothFromLPCount);
+											 partialQRestSizes, partialBigFactorSizes, smoothQRestSizes, smoothBigFactorSizes, partialWithPositiveQCount,
+											 smoothWithPositiveQCount);
 	}
 
 	public String getCycleCountResult() {

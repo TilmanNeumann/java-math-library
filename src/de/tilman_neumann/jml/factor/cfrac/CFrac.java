@@ -206,8 +206,12 @@ public class CFrac extends FactorAlgorithm {
 						for (int i=1; i<=4; i++) {
 							LOG.info("        " + ccReport.getSmoothQRestPercentiles(i));
 						}
-						LOG.info("        " + ccReport.getPartialBigFactorPercentiles());
-						LOG.info("        " + ccReport.getPartialQRestPercentiles());
+						for (int i=1; i<=4; i++) {
+							LOG.info("        " + ccReport.getPartialBigFactorPercentiles(i));
+						}
+						for (int i=1; i<=4; i++) {
+							LOG.info("        " + ccReport.getPartialQRestPercentiles(i));
+						}
 						LOG.info("        " + ccReport.getNonIntFactorPercentages());
 					}
 					if (ANALYZE_Q_SIGNS) {

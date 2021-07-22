@@ -329,8 +329,10 @@ public class SIQS_Small extends FactorAlgorithm {
 			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(2));
 			LOG.info("        " + ccReport.getSmoothQRestPercentiles(1));
 			LOG.info("        " + ccReport.getSmoothQRestPercentiles(2));
-			LOG.info("        " + ccReport.getPartialBigFactorPercentiles());
-			LOG.info("        " + ccReport.getPartialQRestPercentiles());
+			LOG.info("        " + ccReport.getPartialBigFactorPercentiles(1));
+			LOG.info("        " + ccReport.getPartialBigFactorPercentiles(2));
+			LOG.info("        " + ccReport.getPartialQRestPercentiles(1));
+			LOG.info("        " + ccReport.getPartialQRestPercentiles(2));
 			LOG.info("        " + ccReport.getNonIntFactorPercentages());
 		}
 		if (ANALYZE_Q_SIGNS) {
