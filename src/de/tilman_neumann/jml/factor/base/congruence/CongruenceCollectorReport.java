@@ -87,7 +87,7 @@ public class CongruenceCollectorReport {
 	 * @return a string pointing out the required QRest bit sizes to find certain percentiles of all smooth congruences.
 	 */
 	public String getSmoothQRestPercentiles(int lpCount) {
-		return "Required QRest sizes for smooth percentiles from " + lpCount + " large primes = " + computePercentiles(qRestSizes4SmoothFromLPCount[lpCount]);
+		return "QRest bit size percentiles of smooths from " + lpCount + " large primes = " + computePercentiles(qRestSizes4SmoothFromLPCount[lpCount]);
 	}
 
 	/**
@@ -95,15 +95,15 @@ public class CongruenceCollectorReport {
 	 * @return a string pointing out the required big factor bit sizes to find certain percentiles of all smooth congruences.
 	 */
 	public String getSmoothBigFactorPercentiles(int lpCount) {
-		return "Required big factor sizes for smooth percentiles from " + lpCount + " large primes = " + computePercentiles(bigFactorSizes4SmoothFromLPCount[lpCount]);
+		return "Big factor bit size percentiles of smooths from " + lpCount + " large primes = " + computePercentiles(bigFactorSizes4SmoothFromLPCount[lpCount]);
 	}
 	
 	public String getPartialQRestPercentiles() {
-		return "QRest sizes of collected partial percentiles: " + computePercentiles(qRestSizes);
+		return "QRest bit size percentiles of collected partials: " + computePercentiles(qRestSizes);
 	}
 
 	public String getPartialBigFactorPercentiles() {
-		return "Big factor sizes of collected partial percentiles: " + computePercentiles(bigFactorSizes);
+		return "Big factor bit size percentiles of collected partials: " + computePercentiles(bigFactorSizes);
 	}
 
 	private static TreeMap<Integer, Integer> computePercentiles(Multiset<Integer> bitsizeCounts) {
