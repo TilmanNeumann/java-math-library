@@ -133,18 +133,12 @@ public class CongruenceCollector {
 			partialCounts = new int[3];
 		}
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
-			// collected vs. useful smooths and partials
+			// collected vs. useful big factor and QRest bit sizes distinguished by the number of large primes
 			int maxLPCount = 5; // works up to 4LP
 			smoothQRestSizes = createSizeCountsArray(maxLPCount);
 			smoothBigFactorSizes = createSizeCountsArray(maxLPCount);
 			partialQRestSizes = createSizeCountsArray(maxLPCount);
 			partialBigFactorSizes = createSizeCountsArray(maxLPCount);
-			for (int i=0; i<maxLPCount; i++) {
-				smoothQRestSizes[i] = new SortedMultiset_BottomUp<Integer>();
-				smoothBigFactorSizes[i] = new SortedMultiset_BottomUp<Integer>();
-				partialQRestSizes[i] = new SortedMultiset_BottomUp<Integer>();
-				partialBigFactorSizes[i] = new SortedMultiset_BottomUp<Integer>();
-			}
 		}
 		if (ANALYZE_Q_SIGNS) {
 			// Q-analysis
@@ -155,7 +149,11 @@ public class CongruenceCollector {
 	
 	@SuppressWarnings("unchecked")
 	private SortedMultiset_BottomUp<Integer>[] createSizeCountsArray(int maxLPCount) {
-		return new SortedMultiset_BottomUp[maxLPCount];
+		SortedMultiset_BottomUp<Integer>[] array = new SortedMultiset_BottomUp[maxLPCount];
+		for (int i=0; i<maxLPCount; i++) {
+			array[i] = new SortedMultiset_BottomUp<Integer>();
+		}
+		return array;
 	}
 	
 	/**
@@ -396,7 +394,7 @@ public class CongruenceCollector {
 	 * @return smooth congruences found so far.
 	 */
 	public ArrayList<Smooth> getSmoothCongruences() {
-		// cycleFinder.findIndependentCycles(); // XXX could be called here
+		// cycleFinder.findIndependentCycles(); // XXX experimental: could be called here
 		return smoothCongruences;
 	}
 	
@@ -409,10 +407,10 @@ public class CongruenceCollector {
 
 	public CongruenceCollectorReport getReport() {
 		return new CongruenceCollectorReport(getPartialCongruenceCount(), smoothCongruences.size(), smoothFromPartialCounts, partialCounts, perfectSmoothCount,
-											 partialQRestSizes, partialBigFactorSizes, smoothQRestSizes, smoothBigFactorSizes, partialWithPositiveQCount,
-											 smoothWithPositiveQCount);
+											 partialQRestSizes, partialBigFactorSizes, smoothQRestSizes, smoothBigFactorSizes, partialWithPositiveQCount, smoothWithPositiveQCount);
 	}
 
+	// XXX experimental
 	public String getCycleCountResult() {
 		return cycleFinder.getCycleCountResult();
 	}
