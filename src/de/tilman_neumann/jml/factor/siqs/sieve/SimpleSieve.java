@@ -51,7 +51,8 @@ public class SimpleSieve implements Sieve {
 	private byte[] sieveArray_neg;
 	private List<SmoothCandidate> smoothCandidates = new ArrayList<>();
 
-	// timings
+	// statistics
+	private long sieveHitCount;
 	private Timer timer = new Timer();
 	private long initDuration, sieveDuration, collectDuration;
 	
@@ -66,7 +67,10 @@ public class SimpleSieve implements Sieve {
 		this.kN = sieveParams.kN;
 		this.sieveArraySize = sieveParams.sieveArraySize;
 
-		if (ANALYZE) initDuration = sieveDuration = collectDuration = 0;
+		if (ANALYZE) {
+			sieveHitCount = 0;
+			initDuration = sieveDuration = collectDuration = 0;
+		}
 	}
 
 	@Override
@@ -177,7 +181,9 @@ public class SimpleSieve implements Sieve {
 	}
 
 	private void addSmoothCandidate(int x, int score) {
-		//Compute Q(x)/a:
+		if (ANALYZE) sieveHitCount++;
+		
+		// Compute Q(x)/a:
 		BigInteger xBig = BigInteger.valueOf(x);
 		BigInteger dax = daParam.multiply(xBig);
 		BigInteger A = dax.add(bParam);
@@ -187,7 +193,7 @@ public class SimpleSieve implements Sieve {
 
 	@Override
 	public SieveReport getReport() {
-		return new SieveReport(initDuration, sieveDuration, collectDuration);
+		return new SieveReport(sieveHitCount, initDuration, sieveDuration, collectDuration);
 	}
 	
 	@Override

@@ -14,11 +14,14 @@
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
 public class SieveReport {
+	private long sieveHitCount;
+	
 	private long initDuration;
 	private long sieveDuration;
 	private long collectDuration;
 
-	public SieveReport(long initDuration, long sieveDuration, long collectDuration) {
+	public SieveReport(long sieveHitCount, long initDuration, long sieveDuration, long collectDuration) {
+		this.sieveHitCount = sieveHitCount;
 		this.initDuration = initDuration;
 		this.sieveDuration = sieveDuration;
 		this.collectDuration = collectDuration;
@@ -29,6 +32,7 @@ public class SieveReport {
 	 * @param other another report added to this
 	 */
 	public void add(SieveReport other) {
+		this.sieveHitCount += other.sieveHitCount;
 		this.initDuration += other.initDuration;
 		this.sieveDuration += other.sieveDuration;
 		this.collectDuration += other.collectDuration;
@@ -38,6 +42,10 @@ public class SieveReport {
 		return (initDuration + sieveDuration + collectDuration)/numberOfThreads;
 	}
 
+	public String getOperationDetails() {
+		return "found " + sieveHitCount + " sieve hits";
+	}
+	
 	public String getPhaseTimings(int numberOfThreads) {
 		return "init=" + initDuration/numberOfThreads + "ms, sieve=" + sieveDuration/numberOfThreads + "ms, collect=" + collectDuration/numberOfThreads + "ms";
 	}

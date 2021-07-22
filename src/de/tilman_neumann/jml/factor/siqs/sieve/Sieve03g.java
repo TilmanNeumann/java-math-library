@@ -94,7 +94,8 @@ public class Sieve03g implements Sieve {
 
 	private BinarySearch binarySearch = new BinarySearch();
 
-	// timings
+	// statistics
+	private long sieveHitCount;
 	private Timer timer = new Timer();
 	private long initDuration, sieveDuration, collectDuration;
 	
@@ -109,7 +110,7 @@ public class Sieve03g implements Sieve {
 		this.pMinIndex = sieveParams.pMinIndex;
 		int pMax = sieveParams.pMax;
 		initializer = sieveParams.getInitializerBlock();
-
+		
 		// Allocate sieve array: Typically SIQS adjusts such that pMax/sieveArraySize = 2.5 to 5.0.
 		// For large primes with 0 or 1 sieve locations we need to allocate pMax+1 entries;
 		// For primes p[i], i<p1Index, we need p[i]+sieveArraySize = 2*sieveArraySize entries.
@@ -118,7 +119,10 @@ public class Sieve03g implements Sieve {
 		sieveArray = new byte[sieveAllocationSize];
 		if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
 
-		if (ANALYZE) initDuration = sieveDuration = collectDuration = 0;
+		if (ANALYZE) {
+			sieveHitCount = 0;
+			initDuration = sieveDuration = collectDuration = 0;
+		}
 	}
 
 	@Override
@@ -304,7 +308,9 @@ public class Sieve03g implements Sieve {
 	}
 
 	private void addSmoothCandidate(int x, int score) {
-		//Compute Q(x)/a:
+		if (ANALYZE) sieveHitCount++;
+		
+		// Compute Q(x)/a:
 		BigInteger xBig = BigInteger.valueOf(x);
 		BigInteger dax = daParam.multiply(xBig);
 		BigInteger A = dax.add(bParam);
@@ -331,7 +337,7 @@ public class Sieve03g implements Sieve {
 	
 	@Override
 	public SieveReport getReport() {
-		return new SieveReport(initDuration, sieveDuration, collectDuration);
+		return new SieveReport(sieveHitCount, initDuration, sieveDuration, collectDuration);
 	}
 	
 	@Override

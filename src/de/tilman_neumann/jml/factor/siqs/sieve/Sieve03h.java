@@ -129,7 +129,8 @@ public class Sieve03h implements Sieve {
 	
 	private BinarySearch binarySearch = new BinarySearch();
 
-	// timings
+	// statistics
+	private long sieveHitCount;
 	private Timer timer = new Timer();
 	private long initDuration, sieveDuration, collectDuration;
 	
@@ -165,7 +166,10 @@ public class Sieve03h implements Sieve {
 		sieveArray = new byte[sieveAllocationSize];
 		if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
 
-		if (ANALYZE) initDuration = sieveDuration = collectDuration = 0;
+		if (ANALYZE) {
+			sieveHitCount = 0;
+			initDuration = sieveDuration = collectDuration = 0;
+		}
 	}
 
 	@Override
@@ -404,6 +408,8 @@ public class Sieve03h implements Sieve {
 	}
 
 	private void addSmoothCandidate(int x, int score) {
+		if (ANALYZE) sieveHitCount++;
+		
 		// Compute Q(x)/(da): If kN==1 (mod 8), then d=2 and Q(x) is divisible not just by 'a' but by 2a
 		BigInteger xBig = BigInteger.valueOf(x);
 		BigInteger dax = daParam.multiply(xBig);
@@ -553,7 +559,7 @@ public class Sieve03h implements Sieve {
 	
 	@Override
 	public SieveReport getReport() {
-		return new SieveReport(initDuration, sieveDuration, collectDuration);
+		return new SieveReport(sieveHitCount, initDuration, sieveDuration, collectDuration);
 	}
 	
 	@Override
