@@ -545,8 +545,10 @@ public class Sieve03hU implements Sieve {
 		// Replace estimated QDivDa size by the true one.
 		// The score has to rise if the true QDivDa size is smaller than expected, because then we have less to factor.
 		// We would always expect that trueLogQDivDaSize <= logQdivDaEstimate, because the latter is supposed to be an upper bound.
-		// But actually we can get much bigger trueLogQDivDaSize values than expected, like 196 bit instead of logQdivDaEstimate=182 bit.
-		// XXX This may be caused by imperfect aParam or bParam choices, but should get investigated.
+		// But actually we can get much bigger trueLogQDivDaSize values than expected, like trueLogQDivDaSize - logQdivDaEstimate > 18 (and in bits this is a considerably bigger number like 45)
+		// This only happens for Q(x)<0. True a-parameters should not be the cause, they use to be close to the optimum.
+		// Thus either I plugged the 'k' into the formulas in a naive way, or the estimate of Contini, Pomerance etc. is not a true upper bound.
+		// TODO continue investigation
 		int trueLogQDivDaSize = (int) (QDivDa.bitLength() * ld2logPMultiplier);
 		if (DEBUG) {
 			if (trueLogQDivDaSize > logQdivDaEstimate + 2) { // +2 -> don't log too much :-/
