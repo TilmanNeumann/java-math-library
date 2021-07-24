@@ -54,7 +54,7 @@ public class CongruenceCollector {
 	 */
 	private HashMap<Long, ArrayList<Partial>> largeFactors_2_partials; // rbp !
 	/** A solver used to create smooth congruences from partials */
-	private PartialSolver partialSolver = new PartialSolver();
+	private PartialSolver partialSolver = new PartialSolver01();
 	/** factor tester */
 	private FactorTest factorTest;
 	/** cycle counter/finder (experimental) */

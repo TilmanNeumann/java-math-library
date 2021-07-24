@@ -56,6 +56,22 @@ public class IndexSet  {
 		this.setCount = 0;
 	}
 	
+	public void setBits(int newBits) {
+		if(newBits != this.numberOfBits) { 
+			numberOfLongs = (newBits+63)>>6; // ceil(numberOfBits/64)
+			if(numberOfLongs > bitArray.length) {
+				this.bitArray = new long[numberOfLongs];
+			}
+			this.numberOfBits = newBits;
+		}
+		for(int i=0; i<numberOfLongs; i++) {
+			bitArray[i] = 0L;
+		}
+		this.biggestEntry = -1; // no bit set
+		this.dirty = true;
+		this.setCount = 0;
+	}
+	
 	/**
 	 * Add a single element x to this index set.
 	 * @param x
@@ -102,7 +118,9 @@ public class IndexSet  {
 	}
 
 	public void addXor(IndexSet other) {
-		if (numberOfBits!=other.numberOfBits) throw new IllegalArgumentException("IndexSet.addXor(): the argument has a different size!");
+		if (numberOfBits!=other.numberOfBits) {
+			throw new IllegalArgumentException("IndexSet.addXor(): the argument has a different size!");
+		}
 	
 		dirty = true;  // need to recount set bits on next use
 		

@@ -39,6 +39,14 @@ public class MatrixRow {
 		this.rowIndexHistory = rowIndexHistory;
 	}
 	
+	public IndexSet getColumnIndices() {
+		return columnIndices;
+	}
+	
+	public IndexSet getRowIndexHistory() {
+		return rowIndexHistory;
+	}
+	
 	public ArrayList<Integer> getRowIndexHistoryAsList() {
 		return rowIndexHistory.toList();
 	}
