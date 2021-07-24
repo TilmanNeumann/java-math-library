@@ -76,7 +76,7 @@ My current factoring record is the 400 bit (121 decimal digits) hard semiprime
 = 785506617513464525087105385677215644061830019071786760495463 * 2330444194315502255622868487811486748081284934379686652689159
 </code><br />
 
-Its factorization took about 37.5 hours on a Ryzen 9 3900X with 20 sieve threads using jml 1.1.
+Its factorization took less than 22 hours on a Ryzen 9 3900X with 12 sieve threads using jml 1.1. See [factoring report on mersenneforum.org](https://www.mersenneforum.org/showthread.php?p=583868#post583868).
 
 
 ## Authors
