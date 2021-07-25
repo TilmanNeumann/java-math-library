@@ -103,7 +103,6 @@ public class SIQS_Small extends FactorAlgorithm {
 	// statistics
 	private Timer timer = new Timer();
 	private long powerTestDuration, initNDuration;
-	private int solverRunCount;
 	
 	/**
 	 * Standard constructor.
@@ -140,7 +139,6 @@ public class SIQS_Small extends FactorAlgorithm {
 		if (ANALYZE) {
 			timer.start(); // start timer
 			powerTestDuration = initNDuration = 0;
-			solverRunCount = 0;
 		}
 
 		BigInteger N = args.N;
@@ -175,7 +173,6 @@ public class SIQS_Small extends FactorAlgorithm {
 		if (ANALYZE) {
 			timer.start(); // start timer
 			powerTestDuration = initNDuration = 0;
-			solverRunCount = 0;
 		}
 
 		// the quadratic sieve does not work for pure powers; check that first:
@@ -340,7 +337,7 @@ public class SIQS_Small extends FactorAlgorithm {
 			LOG.info("        " + ccReport.getPartialQSignCounts());
 			LOG.info("        " + ccReport.getSmoothQSignCounts());
 		}
-		LOG.info("    #solverRuns = " + solverRunCount + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
+		LOG.info("    #solverRuns = " + congruenceCollector.getSolverRunCount() + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
 		LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + congruenceCollector.getCollectDuration() + "ms, solver=" + congruenceCollector.getSolverDuration() + "ms");
 		LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(1));
 		LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(1));
