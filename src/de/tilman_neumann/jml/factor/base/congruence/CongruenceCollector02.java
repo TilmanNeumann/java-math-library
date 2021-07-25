@@ -29,11 +29,11 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.util.Timer;
 
 /**
- * Collects smooth and partial congruences, and assembles partials to smooth congruences on-the-fly.
- * Partials may have any number of large factors.
+ * Collects smooth and partial congruences, uses cycle counting and finding algorithms instead of partial solver.
  * 
  * @author Tilman Neumann
  */
+// TODO experimental, still buggy
 public class CongruenceCollector02 implements CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector02.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
