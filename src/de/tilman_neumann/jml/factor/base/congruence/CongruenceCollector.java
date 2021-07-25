@@ -234,27 +234,24 @@ public class CongruenceCollector {
 			// Since relatedPartials is a set, we can not get duplicate AQ-pairs.
 			relatedPartials.add(partial);
 			// Solve partial congruence equation system
-			ArrayList<Smooth> foundSmooths = partialSolver.solve(relatedPartials); // throws FactorException
-			if (foundSmooths.size()>0) {
-				// We found one or more smooths from the new partial
-				int addedCount = 0;
-				for (Smooth foundSmooth : foundSmooths) {
-					if (addSmooth(foundSmooth)) {
-						if (ANALYZE) {
-							// count kind of partials that helped to find smooths
-							int maxLargeFactorCount = 0;
-							for (AQPair aqPairFromSmooth : foundSmooth.getAQPairs()) {
-								int largeFactorCount = aqPairFromSmooth.getNumberOfLargeQFactors();
-								if (largeFactorCount > maxLargeFactorCount) maxLargeFactorCount = largeFactorCount;
-							}
-							smoothFromPartialCounts[maxLargeFactorCount-1]++;
-							if (DEBUG) LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+			Smooth foundSmooth = partialSolver.solve(relatedPartials); // throws FactorException
+			if (foundSmooth != null) {
+				// We found a smooth from the new partial
+				boolean added = addSmooth(foundSmooth);
+				if (ANALYZE) {
+					if (added) {
+						// count kind of partials that helped to find smooths
+						int maxLargeFactorCount = 0;
+						for (AQPair aqPairFromSmooth : foundSmooth.getAQPairs()) {
+							int largeFactorCount = aqPairFromSmooth.getNumberOfLargeQFactors();
+							if (largeFactorCount > maxLargeFactorCount) maxLargeFactorCount = largeFactorCount;
 						}
-						addedCount++; // increment counter if foundSmooth was really added
+						smoothFromPartialCounts[maxLargeFactorCount-1]++;
+						if (DEBUG) LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
 					}
 				}
-				if (addedCount>0) {
-					if (ANALYZE_LARGE_FACTOR_SIZES) {
+				if (ANALYZE_LARGE_FACTOR_SIZES) {
+					if (added) {
 						// register size of large factors that helped to find smooths
 						BigInteger prod = I_1;
 						for (Long bigFactor : bigFactors) {
@@ -264,9 +261,8 @@ public class CongruenceCollector {
 						}
 						smoothQRestSizes[bigFactors.length].add(prod.bitLength());
 					}
-					return true;
 				}
-				return false;
+				return added;
 				// Not adding the new partial is sufficient to keep the old partials linear independent,
 				// which is required to avoid duplicate solutions.
 			}

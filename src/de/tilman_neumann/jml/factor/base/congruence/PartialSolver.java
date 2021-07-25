@@ -13,7 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -24,11 +23,16 @@ import java.util.Collection;
 public interface PartialSolver {
 
 	/**
+	 * @return the name of the algorithm
+	 */
+	String getName();
+
+	/**
 	 * Solve a partial congruence equation system.
 	 * @param congruences the partial congruence equation system
 	 * @return list of smooth congruences found
 	 */
-	ArrayList<Smooth> solve(Collection<? extends Partial> congruences);
+	Smooth solve(Collection<? extends Partial> congruences);
 	
 	/**
 	 * Release memory after a factorization.

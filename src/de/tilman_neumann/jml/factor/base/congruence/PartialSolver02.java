@@ -30,40 +30,55 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixRow;
  * 
  * @author Tilman Neumann, Dave McGuigan
  */
-public class PartialSolver02 {
-	@SuppressWarnings("unused")
+public class PartialSolver02 implements PartialSolver {
 	private static final Logger LOG = Logger.getLogger(PartialSolver02.class);
 
+	private static final boolean DEBUG = false;
+	
+	private static final int INIT_PARTIALS = 300;
+	private static final int INIT_ROWS = 20;
+	private static final int INIT_COLUMNS = 200;
+
+	// Class for holding counts when doing original removeSingletons. Holder class
+	// is better than mapping counts as integers since increments/decrements don't
+	// need to be remapped.
+	class IntHolder {
+		int value;
+		public IntHolder(int v) {
+			value = v;
+		}
+	}
+
+	@Override
 	public String getName() {
 		return "PartialSolver02";
 	}
 
-	static final int INIT_PARTIALS = 300;
-	int numRows;
-	Partial[] congruencesCopy = new Partial[INIT_PARTIALS];
+	private int numRows;
+	private Partial[] congruencesCopy = new Partial[INIT_PARTIALS];
 		
-	static final int INIT_ROWS = 20;
-	MatrixRow[] matrixRows = new MatrixRow[INIT_ROWS];
+	private MatrixRow[] matrixRows = new MatrixRow[INIT_ROWS];
 	{
 		for(int i=0; i<INIT_ROWS; i++) {
 			matrixRows[i] = new MatrixRow(new IndexSet(0), new IndexSet(0));
 		}
 	}
-	static final int INIT_COLUMNS = 200;
-	MatrixRow[] pivotRows = new MatrixRow[INIT_COLUMNS];
+	private MatrixRow[] pivotRows = new MatrixRow[INIT_COLUMNS];
+
+	private Partial[] stackCongruence = new Partial[50];
+	private int[] stackCurrentPrimeIndex = new int[50];
 	
-	
-	/**
-	 * Solve a partial congruence equation system.
-	 * @param congruences the partial congruence equation system
-	 * @return list of smooth congruences found
-	 */
+	private Partial[] onHoldCongruence = new Partial[0];
+	private int[] onHoldCurrentPrimeIndex = new int[0];
+	private boolean[] haveMatch = new boolean[0];
+
+	@Override
 	public Smooth solve(Collection<? extends Partial> congruences) {
 		// 1. Create
 		// a) a copy of the congruences list, to avoid that the original list is modified during singleton removal.
 		// b) a map from (primes with odd power) to congruences. A sorted TreeMap would be nice because then
 		//    small primes get small indices in step 4, but experiments showed that HashMap is faster.
-		//LOG.debug("#congruences = " + congruences.size());
+		if (DEBUG) LOG.debug("#congruences = " + congruences.size());
 		if(congruences.size()>congruencesCopy.length) {
 			congruencesCopy = congruences.toArray(new Partial[congruences.size()]);
 			numRows = congruences.size();
@@ -168,7 +183,7 @@ public class PartialSolver02 {
 	 * 
 	 * @param largeFactors_2_partialsCount 
 	 */
-	protected void removeSingletons(Map<Long, IntHolder> largeFactors_2_partialsCount) {
+	private void removeSingletons(Map<Long, IntHolder> largeFactors_2_partialsCount) {
 		// Parse all congruences as long as we find a singleton in a complete pass
 		boolean foundSingleton;
 		do {
@@ -179,7 +194,7 @@ public class PartialSolver02 {
 					IntHolder count = largeFactors_2_partialsCount.get(oddExpFactor);
 					if (count.value==1) {
 						// found singleton -> remove from list
-						//LOG.debug("Found singleton -> remove " + congruence);
+						if (DEBUG) LOG.debug("Found singleton -> remove " + congruence);
 						//congruenceIter.remove();
 						congruencesCopy[i] = congruencesCopy[--numRows];
 						i--; // backup so can be incremented by loop and check the "new" ith entry
@@ -192,19 +207,11 @@ public class PartialSolver02 {
 			} // one pass finished
 		} while (foundSingleton && numRows>0);
 		// now all singletons have been removed from congruences.
-		//LOG.debug("#congruences after removing singletons: " + congruences.size());
+		if (DEBUG) LOG.debug("#congruences after removing singletons: " + numRows);
 		return;
 	}
-
-	Partial[] stackCongruence = new Partial[50];
-	int[] stackCurrentPrimeIndex = new int[50];
-	
-	Partial[] onHoldCongruence = new Partial[0];
-	int[] onHoldCurrentPrimeIndex = new int[0];
-	boolean[] haveMatch = new boolean[0];
 		
-	protected void removeSingletonsLarge(Map<Long, Integer> factors_2_columnIndices) {
-
+	private void removeSingletonsLarge(Map<Long, Integer> factors_2_columnIndices) {
 		int tos = -1;
 		if(factors_2_columnIndices.size()>onHoldCongruence.length) {
 			onHoldCongruence = new Partial[factors_2_columnIndices.size()*2];
@@ -282,16 +289,6 @@ public class PartialSolver02 {
 		return;
 	}
 	
-	// Class for holding counts when doing original removeSingletons. Holder class
-	// is better than mapping counts as integers since increments/decrements don't
-	// need to be remapped.
-	class IntHolder {
-		int value;
-		public IntHolder(int v) {
-			value = v;
-		}
-	}
-	
 	private void addToColumn2RowCountMap(Partial congruence, Map<Long, IntHolder> largeFactors_2_partialsCount) {
 		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
 			IntHolder count = largeFactors_2_partialsCount.get(factor);
@@ -320,7 +317,7 @@ public class PartialSolver02 {
 	 * @param largeFactors_2_partialsCount unsorted map from factors to the congruences in which they appear with odd exponent
 	 * @return map from factors to column indices
 	 */
-	protected Map<Long,Integer> createFactor2ColumnIndexMap(Map<Long, IntHolder> largeFactors_2_partialsCount) {
+	private Map<Long,Integer> createFactor2ColumnIndexMap(Map<Long, IntHolder> largeFactors_2_partialsCount) {
 		int index = 0;
 		Map<Long,Integer> factors_2_columnIndices = new HashMap<Long,Integer>();
 		for (Long factor : largeFactors_2_partialsCount.keySet()) {
@@ -334,7 +331,7 @@ public class PartialSolver02 {
 	 * @param congruencesCopy
 	 * @param factors_2_columnIndices map from factors to matrix column indices
 	 */
-	protected Smooth solve(Map<Long, Integer> factors_2_columnIndices) {
+	private Smooth solve(Map<Long, Integer> factors_2_columnIndices) {
 		// create matrix
 		createMatrix(factors_2_columnIndices);
 
@@ -353,7 +350,7 @@ public class PartialSolver02 {
 	 * @param congruencesCopy
 	 * @param factors_2_columnIndices map from factors to matrix column indices
 	 */
-	protected Smooth solveSmall(Map<Long, Integer> factors_2_columnIndices) {
+	private Smooth solveSmall(Map<Long, Integer> factors_2_columnIndices) {
 
 		// solve the long way
 		for(int i=0; i<numRows; i++) {
@@ -364,7 +361,7 @@ public class PartialSolver02 {
 			// because the insort operation is more expensive then iterating over all rows.
 			// Now check if there is a row having a bigger column
 			for(int j=i+1; j<numRows; j++) {
-				//LOG.debug("row = " + rows[j]);
+				if (DEBUG) LOG.debug("row = " + matrixRows[j]);
 				int biggestColumnIndex = matrixRows[j].getBiggestColumnIndex();
 				if (biggestColumnIndex > pivotColumnIndex) {
 					// Found a new pivot candidate
@@ -379,15 +376,15 @@ public class PartialSolver02 {
 			matrixRows[i] = pivotRow; //don't need to set [i] since never referenced again
 			for(int j=i+1; j<numRows; j++) {
 				MatrixRow row = matrixRows[j];
-				//LOG.debug("solve(): 3: current row " + row);
+				if (DEBUG) LOG.debug("solve(): 3: current row " + row);
 				if (row.getBiggestColumnIndex() == pivotColumnIndex) {
-					//LOG.debug("solve(): 4: current row has pivotColumnIndex");
+					if (DEBUG) LOG.debug("solve(): 4: current row has pivotColumnIndex");
 					// Add the pivot row to the current row in Z_2 ("xor"):
 					// We can modify the current row object because its old state is not required anymore,
 					// and because working on it does not affect the original congruences.
 					row.addXor(pivotRow); // This operation should be fast!
 					if (row.isNullVector()) {
-						//LOG.debug("solve(): 5: Found null-vector: " + row);
+						if (DEBUG) LOG.debug("solve(): 5: Found null-vector: " + row);
 						// Found null vector -> recover the set of AQ-pairs from its row index history
 						HashSet<AQPair> totalAQPairs = new HashSet<AQPair>(); // Set required for the "xor"-operation below
 						for (int rowIndex : row.getRowIndexHistoryAsList()) {
@@ -406,7 +403,7 @@ public class PartialSolver02 {
 		return null;
 	}
 	
-	protected Smooth solveLarge(Map<Long, Integer> factors_2_columnIndices) {
+	private Smooth solveLarge(Map<Long, Integer> factors_2_columnIndices) {
 
 		// solve the long way
 		if(pivotRows.length<factors_2_columnIndices.size()) {
@@ -429,7 +426,7 @@ public class PartialSolver02 {
 				// solution operations taken directly from MatrixSolver_Gauss01 ++
 				row.addXor(pivot); // This operation should be fast!
 				if (row.isNullVector()) {
-					//LOG.debug("solve(): 5: Found null-vector: " + row);
+					if (DEBUG) LOG.debug("solve(): 5: Found null-vector: " + row);
 					// Found null vector -> recover the set of AQ-pairs from its row index history
 					HashSet<AQPair> totalAQPairs = new HashSet<AQPair>(); // Set required for the "xor"-operation below
 					for (int rowIndex : row.getRowIndexHistoryAsList()) {
@@ -472,7 +469,7 @@ public class PartialSolver02 {
 			createRowIndexHistory(numRows, i, matrixRows[i]);
 //			matrixRows[i] = new MatrixRow(columnIndexBitset,rowIndexHistory);
 		}
-		//LOG.debug("constructed matrix with " + matrixRows.size() + " rows and " + factors_2_columnIndices.size() + " columns");
+		if (DEBUG) LOG.debug("constructed matrix with " + numRows + " rows and " + factors_2_columnIndices.size() + " columns");
 		return;
 	}
 	
@@ -495,16 +492,12 @@ public class PartialSolver02 {
 		IndexSet rowIndexHistory = row.getRowIndexHistory(); 
 		rowIndexHistory.setBits(numberOfRows);
 		rowIndexHistory.add(rowIndex);
-		//LOG.debug("numberOfRows=" + numberOfRows + ", rowIndex=" + rowIndex + " -> rowIndexHistory = " + rowIndexHistory);
+		if (DEBUG) LOG.debug("numberOfRows=" + numberOfRows + ", rowIndex=" + rowIndex + " -> rowIndexHistory = " + rowIndexHistory);
 		return;
 	}
 	
-	/**
-	 * Release memory after a factorization.
-	 */
+	@Override
 	public void cleanUp() {
-//		for(int i=0; i<rowsOrig; i++) {
-//			matrixRows[i] = null;
-//		}
+		// nothing to do here
 	}
 }
