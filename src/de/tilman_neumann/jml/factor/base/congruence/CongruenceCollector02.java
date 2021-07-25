@@ -34,6 +34,7 @@ import de.tilman_neumann.util.Timer;
  * 
  * @author Tilman Neumann
  */
+// XXX Experimental
 public class CongruenceCollector02 implements CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector02.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
@@ -144,9 +145,14 @@ public class CongruenceCollector02 implements CongruenceCollector {
 				if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
 					if (DEBUG) LOG.debug("Cycle counter: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + getSmoothCongruenceCount() + ", #smoothsFromPartials = " + smoothFromPartialsCount + ", #totalSmooths = " + smoothCongruenceCount);
 					ArrayList<Smooth> congruences = getSmoothCongruences();
+					//long t0 = System.currentTimeMillis();
 					ArrayList<Smooth> smoothsFromPartials = cycleFinder.findIndependentCycles();
+					//long t1 = System.currentTimeMillis();
+					//LOG.debug("cycle finding took " + (t1-t0) + " ms");
 					ArrayList<Smooth> allSmooths = new ArrayList<Smooth>(congruences);
 					allSmooths.addAll(smoothsFromPartials);
+					//long t2 = System.currentTimeMillis();
+					//LOG.debug("combining smooths took " + (t2-t1) + " ms");
 					if (DEBUG) LOG.debug("Cycle finder: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + congruences.size() + ", #smoothsFromPartials = " + smoothsFromPartials.size() + ", #totalSmooths = " + allSmooths.size());
 					
 					// Try to solve equation system
