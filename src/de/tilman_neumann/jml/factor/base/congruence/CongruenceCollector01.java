@@ -178,7 +178,6 @@ public class CongruenceCollector01 implements CongruenceCollector {
 				testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
 				solverDuration += timer.capture();
 			}
-			return;
 		}
 	}
 	
