@@ -32,7 +32,9 @@ public class CycleFinder {
 	private HashSet<Long> roots; // roots of disjoint compounds
 	private HashSet<Partial> relations; // all distinct relations
 	private int edgeCount;
-
+	// the number of smooths from partials found
+	private int cycleCount;
+	
 	/**
 	 * Full constructor.
 	 * @param maxLargeFactors the maximum number of large primes in partials:  2 or 3
@@ -43,6 +45,7 @@ public class CycleFinder {
 		roots = new HashSet<>();
 		relations = new HashSet<>();
 		edgeCount = 0;
+		cycleCount = 0;
 	}
 	
 	/**
@@ -50,13 +53,14 @@ public class CycleFinder {
 	 * Works for 2LP so far, but not for 3LP yet.
 	 * 
 	 * @param partial the newest partial relation to add
+	 * @return the updated number of smooths from partials
 	 */
-	public void countIndependentCycles(Partial partial) {
+	public int addPartial(Partial partial) {
 		boolean added = relations.add(partial);
 		if (!added) {
 			// The partial is a duplicate of another relation we already have
 			LOG.error("Found duplicate relation!" + partial);
-			return;
+			return cycleCount;
 		}
 		
 		// We compute the following two variable once again,
@@ -117,6 +121,10 @@ public class CycleFinder {
 			//LOG.debug(edges.size() + " vertices = " + edges);
 			//LOG.debug(relations.size() + " relations");
 		}
+		
+		// update cycle count
+		cycleCount = getCycleCount();
+		return cycleCount;
 	}
 	
 	void insertEdge(long f1, long f2) {
@@ -153,25 +161,39 @@ public class CycleFinder {
 		return p;
 	}
 
+
+	private int getCycleCount() {
+		int vertexCount = edges.size();
+		switch (maxLargeFactors) {
+		case 1:
+		case 2:
+			return edgeCount + roots.size() - vertexCount;
+		case 3:
+			// The "thought to be" formula from [LLDMW02], p.7
+			return edgeCount + roots.size() - vertexCount - 2*relations.size();
+		default:
+			throw new IllegalStateException("cycle counting is only implemented for maxLargeFactors = 2 or 3, but maxLargeFactors = " + maxLargeFactors);
+		}
+	}
+
 	public String getCycleCountResult() {
 		if (DEBUG) testRoots(); // not the perfect place, but ok for the moment
 		
 		int vertexCount = edges.size();
-		int cycleCount; {
-			switch (maxLargeFactors) {
-			case 1:
-			case 2:
-				cycleCount = edgeCount + roots.size() - vertexCount;
-				return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + vertexCount + " vertices)";
-			case 3:
-				// The "thought to be" formula from [LLDMW02], p.7
-				cycleCount = edgeCount + roots.size() - vertexCount - 2*relations.size();
-				return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + vertexCount + " vertices - 2*" + relations.size() + " relations)";
-			default:
-				throw new IllegalStateException("cycle counting is only implemented for maxLargeFactors = 2 or 3, but maxLargeFactors = " + maxLargeFactors);
-			}
+		int cycleCount;
+		switch (maxLargeFactors) {
+		case 1:
+		case 2:
+			cycleCount = edgeCount + roots.size() - vertexCount;
+			return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + vertexCount + " vertices)";
+		case 3:
+			// The "thought to be" formula from [LLDMW02], p.7
+			cycleCount = edgeCount + roots.size() - vertexCount - 2*relations.size();
+			return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + vertexCount + " vertices - 2*" + relations.size() + " relations)";
+		default:
+			throw new IllegalStateException("cycle counting is only implemented for maxLargeFactors = 2 or 3, but maxLargeFactors = " + maxLargeFactors);
 		}
-	}
+}
 	
 	private void testRoots() {
 		HashSet<Long> roots2 = new HashSet<>();
@@ -285,5 +307,12 @@ public class CycleFinder {
 		
 		LOG.debug("Found " + smoothsFromPartials.size() + " smooths from partials");
 		return smoothsFromPartials;
+	}
+	
+	/**
+	 * @return number of partial congruences found so far.
+	 */
+	public int getPartialCongruenceCount() {
+		return relations.size();
 	}
 }

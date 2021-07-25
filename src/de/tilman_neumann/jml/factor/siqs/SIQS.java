@@ -29,7 +29,7 @@ import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
@@ -83,7 +83,7 @@ public class SIQS extends FactorAlgorithm {
 	// trial division engine
 	private TDiv_QS auxFactorizer;
 	// collects the congruences we find
-	private CongruenceCollector congruenceCollector;
+	private CongruenceCollector01 congruenceCollector;
 	/** The solver used for smooth congruence equation systems. */
 	private MatrixSolver matrixSolver;
 
@@ -120,7 +120,7 @@ public class SIQS extends FactorAlgorithm {
 		this.powerFinder = powerFinder;
 		this.polyGenerator = polyGenerator;
 		this.sieve = sieve;
-		this.congruenceCollector = new CongruenceCollector(extraCongruences);
+		this.congruenceCollector = new CongruenceCollector01(extraCongruences);
 		this.auxFactorizer = auxFactorizer;
 		this.matrixSolver = matrixSolver;
 		apg = new AParamGenerator02(wantedQCount);
@@ -356,7 +356,6 @@ public class SIQS extends FactorAlgorithm {
 		LOG.info("    polyGenerator: " + polyReport.getOperationDetails());
 		LOG.info("    sieve: Found " + sieveReport.getOperationDetails());
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
-		if (CongruenceCollector.COUNT_CYCLES) LOG.info("    cc: " + congruenceCollector.getCycleCountResult()); // add to ccReport?
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
 			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(1));

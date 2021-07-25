@@ -24,7 +24,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
-import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
@@ -76,7 +76,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	protected float Mmult;
 	
 	// collects the congruences we find
-	private CongruenceCollector congruenceCollector;
+	private CongruenceCollector01 congruenceCollector;
 	/** The solver used for smooth congruence equation systems. */
 	protected MatrixSolver matrixSolver;
 	
@@ -105,7 +105,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		this.numberOfThreads = numberOfThreads;
 		this.d0 = d;
 		this.powerFinder = powerFinder;
-		this.congruenceCollector = new CongruenceCollector(10);
+		this.congruenceCollector = new CongruenceCollector01(10);
 		this.matrixSolver = matrixSolver;
 		this.apg = apg;
 		this.multiplierFinder = new KnuthSchroeppel();
@@ -295,7 +295,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 	abstract protected PSIQSThreadBase createThread(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
-			AParamGenerator apg, CongruenceCollector cc, int threadIndex);
+			AParamGenerator apg, CongruenceCollector01 cc, int threadIndex);
 	
 	private void killThread(PSIQSThreadBase t) {
     	while (t.isAlive()) {

@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
@@ -101,7 +102,7 @@ public class HartLA63 extends FactorAlgorithm {
 		this.C = C;
 		this.smoothBoundExponent = smoothBoundExponent;
 		this.auxFactorizer = auxFactorizer;
-		this.congruenceCollector = new CongruenceCollector();
+		this.congruenceCollector = new CongruenceCollector01();
 		this.extraCongruences = extraCongruences;
 		this.matrixSolver = matrixSolver;
 		

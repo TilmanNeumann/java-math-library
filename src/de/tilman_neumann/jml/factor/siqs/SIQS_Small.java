@@ -29,7 +29,7 @@ import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
@@ -95,7 +95,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	// trial division engine
 	private TDiv_QS auxFactorizer;
 	// collects the congruences we find
-	private CongruenceCollector congruenceCollector;
+	private CongruenceCollector01 congruenceCollector;
 	/** The solver used for smooth congruence equation systems. */
 	private MatrixSolver matrixSolver;
 	
@@ -123,7 +123,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		this.polyGenerator = polyGenerator;
 		this.useUnsafe = permitUnsafeUsage;
 		this.sieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
-		this.congruenceCollector = new CongruenceCollector(extraCongruences);
+		this.congruenceCollector = new CongruenceCollector01(extraCongruences);
 		this.auxFactorizer = new TDiv_QS_Small();
 		this.matrixSolver = new MatrixSolver_Gauss02();
 		apg = new AParamGenerator01(wantedQCount);

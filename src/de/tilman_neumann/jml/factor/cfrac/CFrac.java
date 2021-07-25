@@ -30,6 +30,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
@@ -122,7 +123,7 @@ public class CFrac extends FactorAlgorithm {
 		this.C = C;
 		this.smoothBoundExponent = smoothBoundExponent;
 		this.auxFactorizer = auxFactorizer;
-		this.congruenceCollector = new CongruenceCollector();
+		this.congruenceCollector = new CongruenceCollector01();
 		this.extraCongruences = extraCongruences;
 		this.matrixSolver = matrixSolver;
 		this.ks_adjust = ks_adjust;
