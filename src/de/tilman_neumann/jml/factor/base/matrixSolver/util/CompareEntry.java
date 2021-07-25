@@ -16,6 +16,8 @@ package de.tilman_neumann.jml.factor.base.matrixSolver.util;
 import java.util.Comparator;
 import java.util.Map.Entry;
 
+import de.tilman_neumann.jml.factor.base.IntHolder;
+
 /**
  * @author David McGuigan
  */

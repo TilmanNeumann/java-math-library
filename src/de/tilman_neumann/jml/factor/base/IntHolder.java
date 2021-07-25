@@ -11,19 +11,18 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.factor.base.matrixSolver.util;
+package de.tilman_neumann.jml.factor.base;
 
 /**
+ * Class for holding counts. A holder class is better performance-wise than mapping counts as integers
+ * since increments/decrements don't need to be remapped.
+ * 
  * @author David McGuigan
  */
 public class IntHolder {
 	public int value;
 	
-	public IntHolder() {
-		value = 1;
-	}
-	
-	public void increment() {
-		value++;
+	public IntHolder(int v) {
+		value = v;
 	}
 }

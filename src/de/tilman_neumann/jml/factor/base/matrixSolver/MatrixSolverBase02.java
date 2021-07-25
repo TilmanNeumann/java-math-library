@@ -26,9 +26,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorException;
+import de.tilman_neumann.jml.factor.base.IntHolder;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 import de.tilman_neumann.jml.factor.base.matrixSolver.util.CompareEntry;
-import de.tilman_neumann.jml.factor.base.matrixSolver.util.IntHolder;
 import de.tilman_neumann.jml.factor.base.matrixSolver.util.StackEntry;
 
 /**
@@ -79,9 +79,9 @@ abstract public class MatrixSolverBase02 extends MatrixSolver {
 			for (int f : congruence.getMatrixElements()) {
 				IntHolder h = oddExpFactors.get(f);
 				if (h == null) {
-					oddExpFactors.put(f, new IntHolder());
+					oddExpFactors.put(f, new IntHolder(1));
 				} else {
-					h.increment();
+					h.value++;
 				}
 			}
 		}
