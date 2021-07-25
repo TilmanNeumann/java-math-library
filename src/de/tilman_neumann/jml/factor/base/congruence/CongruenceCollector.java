@@ -63,6 +63,11 @@ public interface CongruenceCollector {
 	 */
 	int getPartialCongruenceCount();
 
+	/**
+	 * @return the factor that was found or null
+	 */
+	BigInteger getFactor();
+	
 	CongruenceCollectorReport getReport();
 
 	long getCollectDuration();

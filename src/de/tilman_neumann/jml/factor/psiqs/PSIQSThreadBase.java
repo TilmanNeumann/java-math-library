@@ -19,7 +19,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
@@ -42,7 +42,7 @@ abstract public class PSIQSThreadBase extends Thread {
 	protected SIQSPolyGenerator polyGenerator;
 	protected Sieve sieve;
 	protected TDiv_QS auxFactorizer;
-	private CongruenceCollector01 congruenceCollector;
+	private CongruenceCollector congruenceCollector;
 	private boolean finishNow = false;
 
 	/**
@@ -63,7 +63,7 @@ abstract public class PSIQSThreadBase extends Thread {
 	public PSIQSThreadBase(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, 
 			BaseArrays baseArrays, AParamGenerator apg, SIQSPolyGenerator polyGenerator,
-			Sieve sieve, TDiv_QS tdiv, CongruenceCollector01 cc, int threadIndex) {
+			Sieve sieve, TDiv_QS tdiv, CongruenceCollector cc, int threadIndex) {
 		
 		// set thread name
 		super("T-" + threadIndex);
@@ -95,12 +95,12 @@ abstract public class PSIQSThreadBase extends Thread {
 			if (aqPairs.size()>0) {
 				// add all congruences synchronized and notify control thread
 				synchronized (congruenceCollector) {
-					if (congruenceCollector.factor == null) {
+					if (congruenceCollector.getFactor() == null) {
 						congruenceCollector.collectAndProcessAQPairs(aqPairs);
 					}
-					if (congruenceCollector.factor != null) {
+					if (congruenceCollector.getFactor() != null) {
 						finishNow = true;
-						if (DEBUG) LOG.debug("Thread " + getName() + " found factor " + congruenceCollector.factor + " and is done.");
+						if (DEBUG) LOG.debug("Thread " + getName() + " found factor " + congruenceCollector.getFactor() + " and is done.");
 						congruenceCollector.notify();
 					}
 				}

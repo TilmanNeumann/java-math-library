@@ -24,6 +24,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
@@ -76,7 +77,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	protected float Mmult;
 	
 	// collects the congruences we find
-	private CongruenceCollector01 congruenceCollector;
+	private CongruenceCollector congruenceCollector;
 	/** The solver used for smooth congruence equation systems. */
 	protected MatrixSolver matrixSolver;
 	
@@ -256,7 +257,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 		// Wait until a factor has been found. For small N, a factor may be found before the control thread waits!
 		synchronized (congruenceCollector) {
-			while (congruenceCollector.factor == null) {
+			while (congruenceCollector.getFactor() == null) {
 				try {
 					congruenceCollector.wait(); // is woken up by notify() when a factor was found
 					//LOG.debug("Control thread got notified...");
@@ -266,7 +267,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 			}
 		}
 
-		BigInteger factor = congruenceCollector.factor;
+		BigInteger factor = congruenceCollector.getFactor();
 		
 		if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, sieveParams, threadArray, numberOfThreads);
 		
@@ -295,7 +296,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 
 	abstract protected PSIQSThreadBase createThread(
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
-			AParamGenerator apg, CongruenceCollector01 cc, int threadIndex);
+			AParamGenerator apg, CongruenceCollector cc, int threadIndex);
 	
 	private void killThread(PSIQSThreadBase t) {
     	while (t.isAlive()) {

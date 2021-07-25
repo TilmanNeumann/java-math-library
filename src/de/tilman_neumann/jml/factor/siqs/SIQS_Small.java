@@ -29,6 +29,7 @@ import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
@@ -95,7 +96,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	// trial division engine
 	private TDiv_QS auxFactorizer;
 	// collects the congruences we find
-	private CongruenceCollector01 congruenceCollector;
+	private CongruenceCollector congruenceCollector;
 	/** The solver used for smooth congruence equation systems. */
 	private MatrixSolver matrixSolver;
 	
@@ -280,8 +281,8 @@ public class SIQS_Small extends FactorAlgorithm {
 
 			// add all congruences
 			congruenceCollector.collectAndProcessAQPairs(aqPairs);
-			if (congruenceCollector.factor != null) {
-				BigInteger factor = congruenceCollector.factor;
+			BigInteger factor = congruenceCollector.getFactor();
+			if (factor != null) {
 				if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, sieveParams);
 				
 				// ATTENTION: SIQS_Small is only used to factor auxiliary Q-numbers for N with 320 bit or more.

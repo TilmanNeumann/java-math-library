@@ -364,6 +364,11 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	}
 
 	@Override
+	public BigInteger getFactor() {
+		return factor;
+	}
+	
+	@Override
 	public CongruenceCollectorReport getReport() {
 		return new CongruenceCollectorReport(getPartialCongruenceCount(), smoothCongruences.size(), smoothFromPartialCounts, partialCounts, perfectSmoothCount,
 											 partialQRestSizes, partialBigFactorSizes, smoothQRestSizes, smoothBigFactorSizes, partialWithPositiveQCount, smoothWithPositiveQCount);
