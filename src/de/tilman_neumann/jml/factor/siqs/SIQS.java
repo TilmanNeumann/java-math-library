@@ -370,7 +370,7 @@ public class SIQS extends FactorAlgorithm {
 			LOG.info("        " + ccReport.getPartialQSignCounts());
 			LOG.info("        " + ccReport.getSmoothQSignCounts());
 		}
-		LOG.info("    #solverRuns = " + congruenceCollector.getSolverRunCount() + ", #tested null vectors = " + matrixSolver.getTestedNullVectorCount());
+		LOG.info("    #solverRuns = " + congruenceCollector.getSolverRunCount() + ", #tested null vectors = " + congruenceCollector.getTestedNullVectorCount());
 		LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + congruenceCollector.getCollectDuration() + "ms, solver=" + congruenceCollector.getSolverDuration() + "ms");
 		LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(1));
 		LOG.info("    -> sieve sub-timings: " + sieveReport.getPhaseTimings(1));

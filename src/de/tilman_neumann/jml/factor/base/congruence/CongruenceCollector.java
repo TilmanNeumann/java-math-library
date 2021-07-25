@@ -74,7 +74,15 @@ public interface CongruenceCollector {
 
 	long getSolverDuration();
 
+	/**
+	 * @return the number of solvers runs required to find a factor (should be 1)
+	 */
 	int getSolverRunCount();
+
+	/**
+	 * @return the number of null vector tests required to find a factor
+	 */
+	int getTestedNullVectorCount();
 
 	/**
 	 * Release memory after a factorization.

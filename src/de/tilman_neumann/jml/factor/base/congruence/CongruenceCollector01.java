@@ -76,7 +76,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	
 	private Timer timer = new Timer();
 	private long ccDuration, solverDuration;
-	private int solverRunCount;
+	private int solverRunCount, testedNullVectorCount;
 
 	/**
 	 * Default constructor that expects 10 more equations than variables to run the matrix solver.
@@ -99,7 +99,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		this.requiredSmoothCongruenceCount = primeBaseSize + extraCongruences;
 		this.matrixSolver = matrixSolver;
 		ccDuration = solverDuration = 0;
-		solverRunCount = 0;
+		solverRunCount = testedNullVectorCount = 0;
 		factor = null;
 	}
 
@@ -162,7 +162,10 @@ public class CongruenceCollector01 implements CongruenceCollector {
 						// The matrix solver should also run synchronized, because blocking the other threads
 						// means that the current thread can run at a higher clock rate.
 						matrixSolver.solve(congruences); // throws FactorException
-						if (ANALYZE) solverDuration += timer.capture();
+						if (ANALYZE) {
+							testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
+							solverDuration += timer.capture();
+						}
 						// Extend equation system and continue searching smooth congruences
 						requiredSmoothCongruenceCount += extraCongruences;
 					}
@@ -171,7 +174,10 @@ public class CongruenceCollector01 implements CongruenceCollector {
 			if (ANALYZE) ccDuration += timer.capture();
 		} catch (FactorException fe) {
 			factor = fe.getFactor();
-			if (ANALYZE) solverDuration += timer.capture();
+			if (ANALYZE) {
+				testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
+				solverDuration += timer.capture();
+			}
 			return;
 		}
 	}
@@ -389,6 +395,11 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		return solverRunCount;
 	}
 
+	@Override
+	public int getTestedNullVectorCount() {
+		return testedNullVectorCount;
+	}
+	
 	@Override
 	public void cleanUp() {
 		smoothCongruences = null;
