@@ -305,7 +305,7 @@ public class CycleFinder {
 			} // end while r0
 		} while (tablesChanged);
 		
-		LOG.debug("Found " + smoothsFromPartials.size() + " smooths from partials");
+		if (DEBUG) LOG.debug("Found " + smoothsFromPartials.size() + " smooths from partials");
 		return smoothsFromPartials;
 	}
 	

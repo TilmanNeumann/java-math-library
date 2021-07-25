@@ -25,7 +25,6 @@ import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
-import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
@@ -97,7 +96,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 	 * @param matrixSolver solver for smooth congruences matrix
 	 * @param apg a-parameter generator
 	 */
-	public PSIQSBase(float Cmult, float Mmult, int numberOfThreads, Integer d, PowerFinder powerFinder, MatrixSolver matrixSolver, AParamGenerator apg) {
+	public PSIQSBase(float Cmult, float Mmult, int numberOfThreads, Integer d, PowerFinder powerFinder, MatrixSolver matrixSolver, AParamGenerator apg, CongruenceCollector cc) {
 		
 		super(null);
 		
@@ -106,7 +105,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		this.numberOfThreads = numberOfThreads;
 		this.d0 = d;
 		this.powerFinder = powerFinder;
-		this.congruenceCollector = new CongruenceCollector01(10);
+		this.congruenceCollector = cc;
 		this.matrixSolver = matrixSolver;
 		this.apg = apg;
 		this.multiplierFinder = new KnuthSchroeppel();

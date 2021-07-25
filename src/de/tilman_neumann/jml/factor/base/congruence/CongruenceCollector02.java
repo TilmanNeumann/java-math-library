@@ -30,10 +30,10 @@ import de.tilman_neumann.util.Timer;
 
 /**
  * Collects smooth and partial congruences, uses cycle counting and finding algorithms instead of partial solver.
+ * Works only for <= 2 large primes.
  * 
  * @author Tilman Neumann
  */
-// TODO experimental, still buggy
 public class CongruenceCollector02 implements CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector02.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
@@ -139,20 +139,25 @@ public class CongruenceCollector02 implements CongruenceCollector {
 			if (ANALYZE) timer.capture();
 			for (AQPair aqPair : aqPairs) {
 				add(aqPair);
+				
 				int smoothCongruenceCount = getSmoothCongruenceCount() + smoothFromPartialsCount;
 				if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
+					if (DEBUG) LOG.debug("Cycle counter: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + getSmoothCongruenceCount() + ", #smoothsFromPartials = " + smoothFromPartialsCount + ", #totalSmooths = " + smoothCongruenceCount);
+					ArrayList<Smooth> congruences = getSmoothCongruences();
+					ArrayList<Smooth> smoothsFromPartials = cycleFinder.findIndependentCycles();
+					ArrayList<Smooth> allSmooths = new ArrayList<Smooth>(congruences);
+					allSmooths.addAll(smoothsFromPartials);
+					if (DEBUG) LOG.debug("Cycle finder: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + congruences.size() + ", #smoothsFromPartials = " + smoothsFromPartials.size() + ", #totalSmooths = " + allSmooths.size());
+					
 					// Try to solve equation system
 					if (ANALYZE) {
 						ccDuration += timer.capture();
 						solverRunCount++;
 						if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
 					}
-					ArrayList<Smooth> congruences = getSmoothCongruences();
-					ArrayList<Smooth> smoothsFromPartials = cycleFinder.findIndependentCycles();
-					smoothsFromPartials.addAll(congruences);
 					// The matrix solver should also run synchronized, because blocking the other threads
 					// means that the current thread can run at a higher clock rate.
-					matrixSolver.solve(congruences); // throws FactorException
+					matrixSolver.solve(allSmooths); // throws FactorException
 					if (ANALYZE) {
 						testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
 						solverDuration += timer.capture();
