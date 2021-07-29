@@ -184,6 +184,8 @@ public class CFrac extends FactorAlgorithm {
 
 			// Create the reduced prime base for kN:
 			primeBaseBuilder.computeReducedPrimeBase(kN, primeBaseSize, primesArray);
+			LOG.debug("pMax = " + primesArray[primeBaseSize-1]);
+			
 			// add new reduced prime base to the combined prime base
 			for (int i=0; i<primeBaseSize; i++) combinedPrimesSet.add(primesArray[i]);
 			// we want: #equations = #variables + some extra congruences
@@ -357,6 +359,9 @@ public class CFrac extends FactorAlgorithm {
 		return product.compareTo(N)<0 ? product : product.mod(N);
 	}
 	
+	// Some test numbers to debug cycle counting with 3LP:
+	// 1131700560863845693969719287759517367069129639 (150 bit)
+	// 1240365498452764190513871432931316765426281182537733 (170 bit)
 	private static void testInput() {
 		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver_Gauss02(), 5);
 		Timer timer = new Timer();
