@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -70,17 +71,19 @@ public class CycleFinder {
 		// but that doesn't matter 'cause it's no production code
 		Long[] largeFactors = partial.getLargeFactorsWithOddExponent();
 		int largeFactorsCount = largeFactors.length;
-		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("add " + largeFactorsCount + "-LP...");
+		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("Add " + largeFactorsCount + "-LP with large factors " + Arrays.toString(largeFactors));
 		
 		// add vertices and find their roots
 		edges.put(1L, 1L); // v = 1
 		roots.add(1L); // c = 1
+		boolean[] isNewVertex = new boolean[largeFactorsCount];
 		long[] vertexRoots = new long[largeFactorsCount];
 		for (int i=0; i<largeFactorsCount; i++) {
 			long largeFactor = largeFactors[i];
 			if (DEBUG) assertTrue(largeFactor > 1);
-			if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug(largeFactor + " is new vertex? " + (edges.get(largeFactor) == null));
-			if (edges.get(largeFactor) == null) {
+			isNewVertex[i] = (edges.get(largeFactor) == null);
+			if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug(largeFactor + " is new vertex? " + isNewVertex[i]);
+			if (isNewVertex[i]) {
 				// new vertex creates new component
 				edges.put(largeFactor, largeFactor); // v = v + 1
 				roots.add(largeFactor); // c = c + 1
@@ -112,10 +115,25 @@ public class CycleFinder {
 		// update edge count and cycle count
 		int vertexCount = edges.size();
 		if (maxLargeFactors==2) {
-			edgeCount++;
+			if (largeFactorsCount==2) {
+				edgeCount++;
+			} else {
+				edgeCount++;
+			}
 			cycleCount = edgeCount + roots.size() - vertexCount;
 		} else if (maxLargeFactors==3) {
-			edgeCount += largeFactorsCount==3 ? 3 : 2; // XXX Why do we count 2 edges for partials having only one big factor?
+			if (largeFactorsCount==3) {
+				edgeCount += 3;
+			} else if (largeFactorsCount==2) {
+				if (!isNewVertex[0] && !isNewVertex[1] && (vertexRoots[0]==vertexRoots[1]) ) {
+					// both vertices were already known and in the same component
+					edgeCount += 2; // XXX do +1 only ?
+				} else {
+					edgeCount += 2;
+				}
+			} else {
+				edgeCount += 2; // XXX Why do we count 2 edges for partials having only one big factor?
+			}
 			// The "thought to be" formula from [LLDMW02], p.7 // XXX modified
 			cycleCount = edgeCount + roots.size() - vertexCount - /*2**/relations.size(); // XXX modified
 		}

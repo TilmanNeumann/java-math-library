@@ -234,7 +234,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 						if (DEBUG || DEBUG_3LP_CYCLE_COUNTING) {
 							LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
 							for (Partial par : relatedPartials) {
-								LOG.debug("    related partial = " + par);
+								LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
 							}
 						}
 					}
