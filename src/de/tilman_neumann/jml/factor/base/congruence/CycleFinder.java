@@ -36,6 +36,7 @@ public class CycleFinder {
 	private int edgeCount;
 	// the number of smooths from partials found
 	private int cycleCount;
+	private int lastCorrectSmoothCount;
 	
 	/**
 	 * Full constructor.
@@ -48,6 +49,7 @@ public class CycleFinder {
 		relations = new HashSet<>();
 		edgeCount = 0;
 		cycleCount = 0;
+		lastCorrectSmoothCount = 0;
 	}
 	
 	/**
@@ -59,6 +61,9 @@ public class CycleFinder {
 	 * @return the updated number of smooths from partials
 	 */
 	public int addPartial(Partial partial, int correctSmoothCount) {
+		boolean correctSmoothCountIncr = correctSmoothCount > lastCorrectSmoothCount;
+		lastCorrectSmoothCount = correctSmoothCount;
+		int lastCycleCount = cycleCount;
 		
 		boolean added = relations.add(partial);
 		if (!added) {
@@ -148,9 +153,10 @@ public class CycleFinder {
 			String cycleCountFormula = "#edges + #roots - #vertices - #relations"; // XXX was "- 2*#relations"
 			LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size()   + " ->  cycleCount = " + cycleCountFormula + " = " + cycleCount);
 
-			if (cycleCount != correctSmoothCount) {
+			boolean cycleCountIncr = cycleCount > lastCycleCount;
+			if (correctSmoothCountIncr != cycleCountIncr) {
 				LOG.debug("ERROR: " + partial.getNumberOfLargeQFactors() + "-partial " + partial + " led to incorrect cycle count update!");
-				System.exit(0);
+//				System.exit(0);
 			}
 			
 			LOG.debug("-------------------------------------------------------------");
