@@ -233,9 +233,9 @@ public class CongruenceCollector01 implements CongruenceCollector {
 						totalSmoothFromPartialCount++;
 						if (DEBUG || DEBUG_3LP_CYCLE_COUNTING) {
 							LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-							for (Partial par : relatedPartials) {
-								LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
-							}
+//							for (Partial par : relatedPartials) {
+//								LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
+//							}
 						}
 					}
 				}
@@ -252,7 +252,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 					}
 				}
 				
-				if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder.addPartial(partial, totalSmoothFromPartialCount);
+				if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder.addPartial(partial, totalSmoothFromPartialCount, relatedPartials);
 				return added;
 				// Not adding the new partial is sufficient to keep the old partials linear independent,
 				// which is required to avoid duplicate solutions.
@@ -265,7 +265,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		if (DEBUG) LOG.debug("Found new partial relation " + aqPair + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + totalPartialCount);
 		if (ANALYZE) partialCounts[bigFactors.length-1]++;
 		
-		if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder.addPartial(partial, totalSmoothFromPartialCount);
+		if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder.addPartial(partial, totalSmoothFromPartialCount, relatedPartials);
 		return false; // no smooth added
 	}
 	

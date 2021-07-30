@@ -60,8 +60,8 @@ public class CycleFinder {
 	 * @param correctSmoothCount the correct number of smooths from partials (only for debugging)
 	 * @return the updated number of smooths from partials
 	 */
-	public int addPartial(Partial partial, int correctSmoothCount) {
-		boolean correctSmoothCountIncr = correctSmoothCount > lastCorrectSmoothCount;
+	public int addPartial(Partial partial, int correctSmoothCount, HashSet<Partial> relatedPartials) {
+		int correctSmoothCountIncr = correctSmoothCount - lastCorrectSmoothCount;
 		lastCorrectSmoothCount = correctSmoothCount;
 		int lastCycleCount = cycleCount;
 		
@@ -120,9 +120,8 @@ public class CycleFinder {
 		// update edge count and cycle count
 		int vertexCount = edges.size();
 		if (maxLargeFactors==2) {
-			edgeCount++;
-			// standard formula: #cycles = #edges + #components - #vertices
-			cycleCount = edgeCount + roots.size() - vertexCount;
+			// standard formula: #cycles = #edges (one per relation) + #components - #vertices
+			cycleCount = relations.size() + roots.size() - vertexCount;
 		} else if (maxLargeFactors==3) {
 			if (largeFactorsCount==3) {
 				edgeCount += 3;
@@ -136,8 +135,10 @@ public class CycleFinder {
 			} else {
 				edgeCount += 2; // XXX Why do we count 2 edges for partials having only one big factor?
 			}
-			// The "thought to be" formula from [LLDMW02], p.7 // XXX modified
-			cycleCount = edgeCount + roots.size() - vertexCount - /*2**/relations.size(); // XXX modified
+			// The "thought to be" formula from [LLDMW02], p.7
+//			cycleCount = edgeCount + roots.size() - vertexCount - 2*relations.size(); // XXX needs to add 1 more to edgeCount for each relation
+			cycleCount = edgeCount + roots.size() - vertexCount - relations.size(); // XXX modified; works more or less with current edge count
+//			cycleCount = relations.size() + roots.size() - vertexCount; // XXX same formula as for 2LP, does not need edgeCount at all!
 		}
 
 		if (DEBUG_3LP_CYCLE_COUNTING) {
@@ -150,12 +151,17 @@ public class CycleFinder {
 			LOG.debug(relations.size() + " relations");
 
 			LOG.debug("correctSmoothCount = " + correctSmoothCount);
-			String cycleCountFormula = "#edges + #roots - #vertices - #relations"; // XXX was "- 2*#relations"
-			LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size()   + " ->  cycleCount = " + cycleCountFormula + " = " + cycleCount);
+//			String cycleCountFormula = "#edges + #roots - #vertices - 2*#relations"; // XXX original from [LLDMW02], p.7
+			String cycleCountFormula = "#edges + #roots - #vertices - #relations"; // XXX modified
+//			String cycleCountFormula = "#edges + #roots - #vertices"; // XXX same formula as for 2LP
+			LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
 
-			boolean cycleCountIncr = cycleCount > lastCycleCount;
+			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
 				LOG.debug("ERROR: " + partial.getNumberOfLargeQFactors() + "-partial " + partial + " led to incorrect cycle count update!");
+//				for (Partial par : relatedPartials) {
+//					LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
+//				}
 //				System.exit(0);
 			}
 			
