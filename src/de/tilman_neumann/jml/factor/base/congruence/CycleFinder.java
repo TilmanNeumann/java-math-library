@@ -115,11 +115,8 @@ public class CycleFinder {
 		// update edge count and cycle count
 		int vertexCount = edges.size();
 		if (maxLargeFactors==2) {
-			if (largeFactorsCount==2) {
-				edgeCount++;
-			} else {
-				edgeCount++;
-			}
+			edgeCount++;
+			// standard formula: #cycles = #edges + #components - #vertices
 			cycleCount = edgeCount + roots.size() - vertexCount;
 		} else if (maxLargeFactors==3) {
 			if (largeFactorsCount==3) {
