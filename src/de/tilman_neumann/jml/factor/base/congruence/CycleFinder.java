@@ -1,6 +1,7 @@
 package de.tilman_neumann.jml.factor.base.congruence;
 
 import static org.junit.Assert.*;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,8 +21,8 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * 
  * @author Tilman Neumann
  */
-// TODO fix cycle counting for 3LP
-// TODO implement cycle-finding following [LM94] for 2LP
+// TODO fix cycle counting for 3LP: There seems to be some degree of freedom where to add some things -> I want to see and count the edges !
+// TODO implement cycle-finding following [LM94] for 2LP ?
 public class CycleFinder {
 	private static final Logger LOG = Logger.getLogger(CycleFinder.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
@@ -29,7 +30,7 @@ public class CycleFinder {
 	// cycle counting
 	private int maxLargeFactors;
 	private HashMap<Long, Long> edges; // contains edges: bigger to smaller prime; size is v = #vertices
-	private HashSet<Long> roots; // roots of disjoint compounds
+	private HashSet<Long> roots; // roots of disjoint components
 	private HashSet<Partial> relations; // all distinct relations
 	private int edgeCount;
 	// the number of smooths from partials found
@@ -53,13 +54,15 @@ public class CycleFinder {
 	 * Works for 2LP so far, but not for 3LP yet.
 	 * 
 	 * @param partial the newest partial relation to add
+	 * @param correctSmoothCount the correct number of smooths from partials (only for debugging)
 	 * @return the updated number of smooths from partials
 	 */
-	public int addPartial(Partial partial) {
+	public int addPartial(Partial partial, int correctSmoothCount) {
+		
 		boolean added = relations.add(partial);
 		if (!added) {
 			// The partial is a duplicate of another relation we already have
-			LOG.error("Found duplicate relation!" + partial);
+			LOG.error("Found duplicate relation: " + partial);
 			return cycleCount;
 		}
 		
@@ -67,86 +70,130 @@ public class CycleFinder {
 		// but that doesn't matter 'cause it's no production code
 		Long[] largeFactors = partial.getLargeFactorsWithOddExponent();
 		int largeFactorsCount = largeFactors.length;
-
-		// add vertices
+		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("add " + largeFactorsCount + "-LP...");
+		
+		// add vertices and find their roots
 		edges.put(1L, 1L); // v = 1
 		roots.add(1L); // c = 1
+		long[] vertexRoots = new long[largeFactorsCount];
 		for (int i=0; i<largeFactorsCount; i++) {
 			long largeFactor = largeFactors[i];
 			if (DEBUG) assertTrue(largeFactor > 1);
+			if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug(largeFactor + " is new vertex? " + (edges.get(largeFactor) == null));
 			if (edges.get(largeFactor) == null) {
-				// new vertex creates new compound
+				// new vertex creates new component
 				edges.put(largeFactor, largeFactor); // v = v + 1
 				roots.add(largeFactor); // c = c + 1
+				vertexRoots[i] = largeFactor;
+			} else {
+				vertexRoots[i] = getRoot(largeFactor);
 			}
 		}
 		//LOG.debug("after adding vertices: edges = " + edges + ", roots = " + roots);
-		
+
 		// add edges
 		if (largeFactorsCount==1) {
 			if (DEBUG) assertTrue(largeFactors[0] > 1);
-			insertEdge(1, largeFactors[0]);
+			insertEdge(1, vertexRoots[0]);
 		} else if (largeFactorsCount==2) {
 			if (DEBUG) assertTrue(largeFactors[0] != largeFactors[1]);
-			// The following is bad, leading constantly to #compounds=1
-//			if (maxLargeFactors==3) {
-//				insertEdge(1, largeFactors[0]);
-//				insertEdge(1, largeFactors[1]);
-//			}
-			insertEdge(largeFactors[0], largeFactors[1]);
+			insertEdge(vertexRoots[0], vertexRoots[1]);
 		} else if (largeFactorsCount==3) {
 			if (DEBUG) {
 				assertTrue(largeFactors[0] != largeFactors[1]);
 				assertTrue(largeFactors[0] != largeFactors[2]);
 				assertTrue(largeFactors[1] != largeFactors[2]);
 			}
-			insertEdge(largeFactors[0], largeFactors[1]);
-			insertEdge(largeFactors[0], largeFactors[2]);
-			insertEdge(largeFactors[1], largeFactors[2]);
+			insertEdges3(vertexRoots[0], vertexRoots[1], vertexRoots[2]);
 		} else {
 			LOG.warn("Holy shit, we found a " + largeFactorsCount + "-partial!");
 		}
 		
-		edgeCount += maxLargeFactors==2 ? 1 : 3;
-		// XXX This gives a good approximation of #cycleCount for maxLargeFactors==3 but feels strange.
-		// Why should we count 3 edges for partials having only one big factor?
-		
-		if (DEBUG) {
-			if (maxLargeFactors==2) assertEquals(relations.size(), edgeCount);
-			if (maxLargeFactors==3) assertEquals(3*relations.size(), edgeCount);
-			// general case is maxLargeFactors*(maxLargeFactors-1)/2 ?
+		// update edge count and cycle count
+		int vertexCount = edges.size();
+		if (maxLargeFactors==2) {
+			edgeCount++;
+			cycleCount = edgeCount + roots.size() - vertexCount;
+		} else if (maxLargeFactors==3) {
+			edgeCount += largeFactorsCount==3 ? 3 : 2; // XXX Why do we count 2 edges for partials having only one big factor?
+			// The "thought to be" formula from [LLDMW02], p.7 // XXX modified
+			cycleCount = edgeCount + roots.size() - vertexCount - /*2**/relations.size(); // XXX modified
+		}
+
+		if (DEBUG_3LP_CYCLE_COUNTING) {
+			LOG.debug("edgeCount = " + edgeCount);
+			LOG.debug(roots.size() + " roots = " + roots);
+			LOG.debug(edges.size() + " vertices = " + edges );
+			LOG.debug(relations.size() + " relations");
+
+			LOG.debug("correctSmoothCount = " + correctSmoothCount);
+			String cycleCountFormula = "#edges + #roots - #vertices - #relations"; // XXX was "- 2*#relations"
+			LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size()   + " ->  cycleCount = " + cycleCountFormula + " = " + cycleCount);
+
+			if (cycleCount != correctSmoothCount) {
+				LOG.debug("ERROR: " + partial.getNumberOfLargeQFactors() + "-partial " + partial + " led to incorrect cycle count update!");
+				System.exit(0);
+			}
 			
-			//LOG.debug(edgeCount + " edges");
-			//LOG.debug(roots.size() + " roots = " + roots);
-			//LOG.debug(edges.size() + " vertices = " + edges);
-			//LOG.debug(relations.size() + " relations");
+			LOG.debug("-------------------------------------------------------------");
 		}
 		
-		// update cycle count
-		cycleCount = getCycleCount();
 		return cycleCount;
 	}
 	
-	void insertEdge(long f1, long f2) {
-		// find roots
-		long r1 = getRoot(f1);
-		long r2 = getRoot(f2);
-		//LOG.debug("f1=" + f1 + ", f2=" + f2 + ", r1=" + r1 + ", r2=" + r2);
-		
+	private void insertEdge(long r1, long r2) {
+		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("r1=" + r1 + ", r2=" + r2);
+
 		// insert edge: the smaller root is made the parent of the larger root, and the larger root is no root anymore
 		if (r1 < r2) {
-			if (DEBUG) assertTrue(f1 != f2);
 			edges.put(r2, r1);
 			roots.remove(r2);
 		} else if (r1 > r2) {
-			if (DEBUG) assertTrue(f1 != f2);
 			edges.put(r1, r2);
 			roots.remove(r1);
-		} // else: r1 and r2 are in the same compound -> a cycle has been found
+		} else {
+			// else: r1 and r2 are in the same component -> a cycle has been found
+			if (DEBUG_3LP_CYCLE_COUNTING) {
+				LOG.debug("roots are equal! r1 = " + r1 + ", r2 = " + r2);
+				LOG.debug("-> " + r1 + " is new root? " + !roots.contains(r1));
+			}
+		}
 		
 		// For a speedup, we could also set the "parents" of (all edges passed in root finding) to the new root
 	}
 	
+	private void insertEdges3(long r1, long r2, long r3) {
+		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("r1=" + r1 + ", r2=" + r2 + ", r3=" + r3);
+	
+		// insert edge: the smallest root is made the parent of the other two, the larger root are dropped
+		if (r1 < r2) {
+			if (r1 < r3) { // r1 is the smallest root
+				edges.put(r2, r1);
+				edges.put(r3, r1);
+				roots.remove(r2);
+				roots.remove(r3);
+			} else { // r3 is the smallest root
+				edges.put(r1, r3);
+				edges.put(r2, r3);
+				roots.remove(r1);
+				roots.remove(r2);
+			}
+		} else {
+			if (r2 < r3) { // r2 is the smallest root
+				edges.put(r1, r2);
+				edges.put(r3, r2);
+				roots.remove(r1);
+				roots.remove(r3);
+			} else { // r3 is the smallest root
+				edges.put(r1, r3);
+				edges.put(r2, r3);
+				roots.remove(r1);
+				roots.remove(r2);
+			}
+		}
+		// XXX do we not have to consider cases where some or all roots are equal?
+	}
+
 	/**
 	 * Find the root of a prime p in the edges graph.
 	 * @param p
@@ -154,46 +201,9 @@ public class CycleFinder {
 	 */
 	private Long getRoot(long p) {
 		long q;
-		// Not permitting 1 as a root promised finding more smooths, but unfortunately it seems to be wrong
-		//while ((q = edges.get(p)) != p && q!=1) p = q;
-		// The following works
 		while ((q = edges.get(p)) != p) p = q;
 		return p;
 	}
-
-
-	private int getCycleCount() {
-		int vertexCount = edges.size();
-		switch (maxLargeFactors) {
-		case 1:
-		case 2:
-			return edgeCount + roots.size() - vertexCount;
-		case 3:
-			// The "thought to be" formula from [LLDMW02], p.7
-			return edgeCount + roots.size() - vertexCount - 2*relations.size();
-		default:
-			throw new IllegalStateException("cycle counting is only implemented for maxLargeFactors = 2 or 3, but maxLargeFactors = " + maxLargeFactors);
-		}
-	}
-
-	public String getCycleCountResult() {
-		if (DEBUG) testRoots(); // not the perfect place, but ok for the moment
-		
-		int vertexCount = edges.size();
-		int cycleCount;
-		switch (maxLargeFactors) {
-		case 1:
-		case 2:
-			cycleCount = edgeCount + roots.size() - vertexCount;
-			return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + vertexCount + " vertices)";
-		case 3:
-			// The "thought to be" formula from [LLDMW02], p.7
-			cycleCount = edgeCount + roots.size() - vertexCount - 2*relations.size();
-			return "maxLargeFactors=" + maxLargeFactors + ": #independent cycles = " + cycleCount + " (" + edgeCount + " edges + " + roots.size() + " compounds - " + vertexCount + " vertices - 2*" + relations.size() + " relations)";
-		default:
-			throw new IllegalStateException("cycle counting is only implemented for maxLargeFactors = 2 or 3, but maxLargeFactors = " + maxLargeFactors);
-		}
-}
 	
 	private void testRoots() {
 		HashSet<Long> roots2 = new HashSet<>();

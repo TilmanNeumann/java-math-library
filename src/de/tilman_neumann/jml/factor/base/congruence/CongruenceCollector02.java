@@ -104,7 +104,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 		// statistics
 		if (ANALYZE) {
 			perfectSmoothCount = 0;
-			// zero-initialized smoothFromPartialCounts: index 0 -> from 1-partials, index 1 -> from 2-partials, index 2 -> from 2-partials
+			// zero-initialized smoothFromPartialCounts: index 0 -> from 1-partials, index 1 -> from 2-partials, index 2 -> from 3-partials
 			smoothFromPartialCounts = new int[3];
 			partialCounts = new int[3];
 		}
@@ -195,7 +195,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 		
 		// otherwise aqPair must be a partial with at least one large factor.
 		Partial partial = (Partial) aqPair;
-		int newCount = cycleFinder.addPartial(partial);
+		int newCount = cycleFinder.addPartial(partial, /* dummy, no debugging in this class yet*/ -12345);
 		boolean added = newCount > smoothFromPartialsCount;
 		smoothFromPartialsCount = newCount;
 		return added;

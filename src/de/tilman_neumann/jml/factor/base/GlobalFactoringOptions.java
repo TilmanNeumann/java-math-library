@@ -31,11 +31,19 @@ public interface GlobalFactoringOptions {
 
 	/**
 	 * A switch to additionally turn on analysis of the size of large factors that yield smooth relations.
+	 * This option needs ANALYZE as well.
 	 */
 	static final boolean ANALYZE_LARGE_FACTOR_SIZES = false;
 	
 	/**
 	 * A switch to additionally turn on analysis of the number of Q-values with positive and negative sign.
+	 * This option needs ANALYZE as well.
 	 */
 	static final boolean ANALYZE_Q_SIGNS = false;
+	
+	/**
+	 * Debug the cycle counting algorithm for 3 large primes?
+	 * This option needs ANALYZE as well.
+	 */
+	static final boolean DEBUG_3LP_CYCLE_COUNTING = false;
 }

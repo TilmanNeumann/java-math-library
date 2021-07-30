@@ -68,7 +68,9 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	public BigInteger factor;
 
 	// statistics
-	private int perfectSmoothCount, totalPartialCount;
+	private int totalPartialCount; // standard
+	private int perfectSmoothCount; // needs ANALYZE
+	private int totalSmoothFromPartialCount; // needs ANALYZE and DEBUG_3LP_CYCLE_COUNTING
 	private int[] smoothFromPartialCounts, partialCounts;
 	private Multiset<Integer>[] partialQRestSizes, partialBigFactorSizes;
 	private Multiset<Integer>[] smoothQRestSizes, smoothBigFactorSizes;
@@ -77,6 +79,9 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	private Timer timer = new Timer();
 	private long ccDuration, solverDuration;
 	private int solverRunCount, testedNullVectorCount;
+	
+	/** cycle counter/finder (experimental, only used here if DEBUG_3LP_CYCLE_COUNTING==true) */
+	private CycleFinder cycleFinder;
 
 	/**
 	 * Default constructor that expects 10 more equations than variables to run the matrix solver.
@@ -108,12 +113,14 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
+		if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder = new CycleFinder(3);
 		
 		// statistics
 		totalPartialCount = 0;
 		if (ANALYZE) {
 			perfectSmoothCount = 0;
-			// zero-initialized smoothFromPartialCounts: index 0 -> from 1-partials, index 1 -> from 2-partials, index 2 -> from 2-partials
+			totalSmoothFromPartialCount = 0;
+			// zero-initialized smoothFromPartialCounts: index 0 -> from 1-partials, index 1 -> from 2-partials, index 2 -> from 3-partials
 			smoothFromPartialCounts = new int[3];
 			partialCounts = new int[3];
 		}
@@ -223,7 +230,13 @@ public class CongruenceCollector01 implements CongruenceCollector {
 							if (largeFactorCount > maxLargeFactorCount) maxLargeFactorCount = largeFactorCount;
 						}
 						smoothFromPartialCounts[maxLargeFactorCount-1]++;
-						if (DEBUG) LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+						totalSmoothFromPartialCount++;
+						if (DEBUG || DEBUG_3LP_CYCLE_COUNTING) {
+							LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+							for (Partial par : relatedPartials) {
+								LOG.debug("    related partial = " + par);
+							}
+						}
 					}
 				}
 				if (ANALYZE_LARGE_FACTOR_SIZES) {
@@ -238,6 +251,8 @@ public class CongruenceCollector01 implements CongruenceCollector {
 						smoothQRestSizes[bigFactors.length].add(prod.bitLength());
 					}
 				}
+				
+				if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder.addPartial(partial, totalSmoothFromPartialCount);
 				return added;
 				// Not adding the new partial is sufficient to keep the old partials linear independent,
 				// which is required to avoid duplicate solutions.
@@ -249,6 +264,8 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		totalPartialCount++;
 		if (DEBUG) LOG.debug("Found new partial relation " + aqPair + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + totalPartialCount);
 		if (ANALYZE) partialCounts[bigFactors.length-1]++;
+		
+		if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder.addPartial(partial, totalSmoothFromPartialCount);
 		return false; // no smooth added
 	}
 	
