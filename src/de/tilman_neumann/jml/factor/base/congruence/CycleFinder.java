@@ -155,7 +155,8 @@ public class CycleFinder {
 			String cycleCountFormula = "#edges + #roots - #vertices - #relations"; // XXX modified
 //			String cycleCountFormula = "#edges + #roots - #vertices"; // XXX same formula as for 2LP
 			LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
-
+			LOG.debug("#rootsFromVertices = " + getRootsFromVertices().size());
+			
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
 				LOG.debug("ERROR: " + partial.getNumberOfLargeQFactors() + "-partial " + partial + " led to incorrect cycle count update!");
@@ -195,33 +196,32 @@ public class CycleFinder {
 	private void insertEdges3(long r1, long r2, long r3) {
 		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("r1=" + r1 + ", r2=" + r2 + ", r3=" + r3);
 	
-		// insert edge: the smallest root is made the parent of the other two, the larger root are dropped
+		// insert edge: the smallest root is made the parent of the other two, the larger roots are dropped
 		if (r1 < r2) {
 			if (r1 < r3) { // r1 is the smallest root
 				edges.put(r2, r1);
 				edges.put(r3, r1);
 				roots.remove(r2);
 				roots.remove(r3);
-			} else { // r3 is the smallest root
+			} else { // r3 <= r1 is the smallest root
 				edges.put(r1, r3);
 				edges.put(r2, r3);
-				roots.remove(r1);
+				if (r3 != r1) roots.remove(r1);
 				roots.remove(r2);
 			}
-		} else {
-			if (r2 < r3) { // r2 is the smallest root
+		} else { // r2 <= r1
+			if (r2 < r3) { // r2 <= r1 is the smallest root
 				edges.put(r1, r2);
 				edges.put(r3, r2);
-				roots.remove(r1);
+				if (r2 != r1) roots.remove(r1);
 				roots.remove(r3);
-			} else { // r3 is the smallest root
+			} else { // r3 <= r1, r2 is the smallest root
 				edges.put(r1, r3);
 				edges.put(r2, r3);
-				roots.remove(r1);
-				roots.remove(r2);
+				if (r3 != r1) roots.remove(r1);
+				if (r3 != r2) roots.remove(r2);
 			}
 		}
-		// XXX do we not have to consider cases where some or all roots are equal?
 	}
 
 	/**
@@ -235,17 +235,13 @@ public class CycleFinder {
 		return p;
 	}
 	
-	private void testRoots() {
-		HashSet<Long> roots2 = new HashSet<>();
-		for (Long vertex : edges.keySet()) {
-			roots2.add(getRoot(vertex));
+	private HashSet<Long> getRootsFromVertices() {
+		HashSet<Long> roots = new HashSet<>();
+		for (long vertex : edges.keySet()) {
+			long r = getRoot(vertex);
+			roots.add(r);
 		}
-		if (roots.equals(roots2)) {
-			LOG.debug("All roots confirmed!");
-		} else {
-			LOG.debug("#roots computed originally = " + roots.size());
-			LOG.debug("#roots verified = " + roots2.size());
-		}
+		return roots;
 	}
 	
 	/**
