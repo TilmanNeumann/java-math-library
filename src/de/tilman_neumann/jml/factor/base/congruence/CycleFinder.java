@@ -122,8 +122,11 @@ public class CycleFinder {
 
 		if (DEBUG_3LP_CYCLE_COUNTING) {
 			LOG.debug("edgeCount = " + edgeCount);
-			LOG.debug(roots.size() + " roots = " + roots);
-			LOG.debug(edges.size() + " vertices = " + edges );
+			int rootCount = roots.size();
+			String rootsStr = rootCount<100 ? rootCount + " roots = " + roots : rootCount + " roots";
+			LOG.debug(rootsStr);
+			String vertexStr = vertexCount<100 ? vertexCount + " vertices = " + edges : vertexCount + " vertices";
+			LOG.debug(vertexStr);
 			LOG.debug(relations.size() + " relations");
 
 			LOG.debug("correctSmoothCount = " + correctSmoothCount);
