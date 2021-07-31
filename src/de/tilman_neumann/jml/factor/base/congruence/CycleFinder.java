@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -99,6 +101,8 @@ public class CycleFinder {
 		}
 		//LOG.debug("after adding vertices: edges = " + edges + ", roots = " + roots);
 
+		LOG.debug("vertexRoots = " + Arrays.toString(vertexRoots));
+		
 		// add edges
 		if (largeFactorsCount==1) {
 			if (DEBUG) assertTrue(largeFactors[0] > 1);
@@ -124,7 +128,15 @@ public class CycleFinder {
 			cycleCount = relations.size() + roots.size() - vertexCount;
 		} else if (maxLargeFactors==3) {
 			if (largeFactorsCount==3) {
-				edgeCount += 3;
+//				if (!isNewVertex[0] && !isNewVertex[1] && !isNewVertex[2] ) {
+				if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
+					edgeCount += 2;
+				} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
+					edgeCount += 3;
+				} else {
+					edgeCount += 3;
+				}
+
 			} else if (largeFactorsCount==2) {
 				if (!isNewVertex[0] && !isNewVertex[1] && (vertexRoots[0]==vertexRoots[1]) ) {
 					// both vertices were already known and in the same component
@@ -160,9 +172,17 @@ public class CycleFinder {
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
 				LOG.debug("ERROR: " + partial.getNumberOfLargeQFactors() + "-partial " + partial + " led to incorrect cycle count update!");
-//				for (Partial par : relatedPartials) {
-//					LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
-//				}
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				ArrayList<Partial> congruencesCopy = new ArrayList(relatedPartials.size());
+				Map<Long, ArrayList<Partial>> largeFactors_2_partials = new HashMap<>();
+				for (Partial congruence : relatedPartials) {
+					congruencesCopy.add(congruence);
+					addToColumn2RowMap(congruence, largeFactors_2_partials);
+				}
+				removeSingletons(congruencesCopy, largeFactors_2_partials);
+				for (Partial par : congruencesCopy) {
+					LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
+				}
 //				System.exit(0);
 			}
 			
@@ -172,14 +192,71 @@ public class CycleFinder {
 		return cycleCount;
 	}
 	
+	/**
+	 * Remove singletons from <code>congruences</code>.
+	 * This can reduce the size of the equation system; actually it never diminishes the difference (#eqs - #vars).
+	 * It is very fast, too - like 60ms for a matrix for which solution via Gauss elimination takes 1 minute.
+	 * 
+	 * @param congruences 
+	 * @param largeFactors_2_partials 
+	 */
+	private void removeSingletons(List<Partial> congruences, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
+		// Parse all congruences as long as we find a singleton in a complete pass
+		boolean foundSingleton;
+		do {
+			foundSingleton = false;
+			Iterator<? extends Partial> congruenceIter = congruences.iterator();
+			while (congruenceIter.hasNext()) {
+				Partial congruence = congruenceIter.next();
+				for (Long oddExpFactor : congruence.getLargeFactorsWithOddExponent()) {
+					if (largeFactors_2_partials.get(oddExpFactor).size()==1) {
+						// found singleton -> remove from list
+						if (DEBUG) LOG.debug("Found singleton -> remove " + congruence);
+						congruenceIter.remove();
+						// remove from oddExpFactors_2_congruences so we can detect further singletons
+						removeFromColumn2RowMap(congruence, largeFactors_2_partials);
+						foundSingleton = true;
+						break;
+					}
+				}
+			} // one pass finished
+		} while (foundSingleton && congruences.size()>0);
+		// now all singletons have been removed from congruences.
+		if (DEBUG) LOG.debug("#congruences after removing singletons: " + congruences.size());
+	}
+	
+	private void addToColumn2RowMap(Partial congruence, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
+		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
+			ArrayList<Partial> congruenceList = largeFactors_2_partials.get(factor);
+			if (congruenceList == null) {
+				congruenceList = new ArrayList<Partial>();
+				largeFactors_2_partials.put(factor, congruenceList);
+			}
+			congruenceList.add(congruence);
+		}
+	}
+	
+	private void removeFromColumn2RowMap(Partial congruence, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
+		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
+			ArrayList<Partial> congruenceList = largeFactors_2_partials.get(factor);
+			congruenceList.remove(congruence);
+			if (congruenceList.size()==0) {
+				// there are no more congruences with the current factor
+				largeFactors_2_partials.remove(factor);
+			}
+		}
+	}
+
 	private void insertEdge(long r1, long r2) {
 		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("r1=" + r1 + ", r2=" + r2);
 
 		// insert edge: the smaller root is made the parent of the larger root, and the larger root is no root anymore
 		if (r1 < r2) {
 			edges.put(r2, r1);
+			LOG.debug("roots contains r2=" + r2 + ": " + roots.contains(r2));
 			roots.remove(r2);
 		} else if (r1 > r2) {
+			LOG.debug("roots contains r1=" + r1 + ": " + roots.contains(r1));
 			edges.put(r1, r2);
 			roots.remove(r1);
 		} else {
@@ -187,6 +264,7 @@ public class CycleFinder {
 			if (DEBUG_3LP_CYCLE_COUNTING) {
 				LOG.debug("roots are equal! r1 = " + r1 + ", r2 = " + r2);
 				LOG.debug("-> " + r1 + " is new root? " + !roots.contains(r1));
+//				if (r1!=1) roots.remove(r1); // XXX
 			}
 		}
 		
