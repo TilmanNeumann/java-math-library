@@ -267,7 +267,7 @@ public class CycleFinder {
 				edges.put(r2, r1);
 				edges.put(r3, r1);
 				roots.remove(r2);
-				roots.remove(r3);
+				roots.remove(r3); // XXX
 			} else { // r3 <= r1 is the smallest root
 				edges.put(r1, r3);
 				edges.put(r2, r3);
