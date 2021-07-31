@@ -27,9 +27,18 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 // TODO fix cycle counting for 3LP: There seems to be some degree of freedom where to add some things -> I want to see and count the edges !
 // TODO implement cycle-finding following [LM94] for 2LP ?
 public class CycleFinder {
+	
+	enum FORMULA {
+		DLP,
+		INTERMEDIATE,
+		TLP
+	}
+	
 	private static final Logger LOG = Logger.getLogger(CycleFinder.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 
+	private static FORMULA formula = FORMULA.TLP;
+	
 	// cycle counting
 	private int maxLargeFactors;
 	private HashMap<Long, Long> edges; // contains edges: bigger to smaller prime; size is v = #vertices
@@ -127,30 +136,43 @@ public class CycleFinder {
 			// standard formula: #cycles = #edges (one per relation) + #components - #vertices
 			cycleCount = relations.size() + roots.size() - vertexCount;
 		} else if (maxLargeFactors==3) {
-			if (largeFactorsCount==3) {
-//				if (!isNewVertex[0] && !isNewVertex[1] && !isNewVertex[2] ) {
-				if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
-					edgeCount += 2;
-				} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
-					edgeCount += 3;
-				} else {
-					edgeCount += 3;
-				}
-
-			} else if (largeFactorsCount==2) {
-				if (!isNewVertex[0] && !isNewVertex[1] && (vertexRoots[0]==vertexRoots[1]) ) {
-					// both vertices were already known and in the same component
-					edgeCount += 2; // XXX do +1 only ?
-				} else {
-					edgeCount += 2;
-				}
-			} else {
-				edgeCount += 2; // XXX Why do we count 2 edges for partials having only one big factor?
+			switch (formula) {
+			case DLP: {
+				// same formula as for 2LP, does not need edgeCount at all!
+				cycleCount = relations.size() + roots.size() - vertexCount; 
+				break;
 			}
-			// The "thought to be" formula from [LLDMW02], p.7
-//			cycleCount = edgeCount + roots.size() - vertexCount - 2*relations.size(); // XXX needs to add 1 more to edgeCount for each relation
-			cycleCount = edgeCount + roots.size() - vertexCount - relations.size(); // XXX modified; works more or less with current edge count
-//			cycleCount = relations.size() + roots.size() - vertexCount; // XXX same formula as for 2LP, does not need edgeCount at all!
+			case INTERMEDIATE: {
+				if (largeFactorsCount==3) {
+//					if (!isNewVertex[0] && !isNewVertex[1] && !isNewVertex[2] ) {
+					if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
+						edgeCount += 2;
+					} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
+						edgeCount += 3;
+					} else {
+						edgeCount += 3;
+					}
+
+				} else if (largeFactorsCount==2) {
+					if (!isNewVertex[0] && !isNewVertex[1] && (vertexRoots[0]==vertexRoots[1]) ) {
+						// both vertices were already known and in the same component
+						edgeCount += 2; // XXX do +1 only ?
+					} else {
+						edgeCount += 2;
+					}
+				} else {
+					edgeCount += 2; // XXX Why do we count 2 edges for partials having only one big factor?
+				}
+				cycleCount = edgeCount + roots.size() - vertexCount - relations.size();
+				break;
+			}
+			case TLP: {
+				edgeCount += 3;
+				// The "thought to be" formula from [LLDMW02], p.7
+				cycleCount = edgeCount + roots.size() - vertexCount - 2*relations.size();
+				break;
+			}
+			}
 		}
 
 		if (DEBUG_3LP_CYCLE_COUNTING) {
@@ -163,12 +185,32 @@ public class CycleFinder {
 			LOG.debug(relations.size() + " relations");
 
 			LOG.debug("correctSmoothCount = " + correctSmoothCount);
-//			String cycleCountFormula = "#edges + #roots - #vertices - 2*#relations"; // XXX original from [LLDMW02], p.7
-			String cycleCountFormula = "#edges + #roots - #vertices - #relations"; // XXX modified
-//			String cycleCountFormula = "#edges + #roots - #vertices"; // XXX same formula as for 2LP
-			LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
+
+			switch (formula) {
+			case DLP: {
+				// same formula as for 2LP, does not need edgeCount at all!
+				String cycleCountFormula = "#edges + #roots - #vertices";
+				LOG.debug("#edges=" + relations.size()  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
+				// 150 bit: 273 instead of 274 cycles, 23 errors (12 down, 11 up)
+				break;
+			}
+			case INTERMEDIATE: {
+				String cycleCountFormula = "#edges + #roots - #vertices - #relations";
+				LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
+				// 150 bit: 287 instead of 274 cycles, 13 errors (all up)
+				break;
+			}
+			case TLP: {
+				// original from [LLDMW02], p.7
+				String cycleCountFormula = "#edges + #roots - #vertices - 2*#relations";
+				LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
+				// 150 bit: 273 instead of 274 cycles, 23 errors (12 down, 11 up)
+				break;
+			}
+			}
+
 			LOG.debug("#rootsFromVertices = " + getRootsFromVertices().size());
-			
+
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
 				LOG.debug("ERROR: " + partial.getNumberOfLargeQFactors() + "-partial " + partial + " led to incorrect cycle count update!");
@@ -190,61 +232,6 @@ public class CycleFinder {
 		}
 		
 		return cycleCount;
-	}
-	
-	/**
-	 * Remove singletons from <code>congruences</code>.
-	 * This can reduce the size of the equation system; actually it never diminishes the difference (#eqs - #vars).
-	 * It is very fast, too - like 60ms for a matrix for which solution via Gauss elimination takes 1 minute.
-	 * 
-	 * @param congruences 
-	 * @param largeFactors_2_partials 
-	 */
-	private void removeSingletons(List<Partial> congruences, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
-		// Parse all congruences as long as we find a singleton in a complete pass
-		boolean foundSingleton;
-		do {
-			foundSingleton = false;
-			Iterator<? extends Partial> congruenceIter = congruences.iterator();
-			while (congruenceIter.hasNext()) {
-				Partial congruence = congruenceIter.next();
-				for (Long oddExpFactor : congruence.getLargeFactorsWithOddExponent()) {
-					if (largeFactors_2_partials.get(oddExpFactor).size()==1) {
-						// found singleton -> remove from list
-						if (DEBUG) LOG.debug("Found singleton -> remove " + congruence);
-						congruenceIter.remove();
-						// remove from oddExpFactors_2_congruences so we can detect further singletons
-						removeFromColumn2RowMap(congruence, largeFactors_2_partials);
-						foundSingleton = true;
-						break;
-					}
-				}
-			} // one pass finished
-		} while (foundSingleton && congruences.size()>0);
-		// now all singletons have been removed from congruences.
-		if (DEBUG) LOG.debug("#congruences after removing singletons: " + congruences.size());
-	}
-	
-	private void addToColumn2RowMap(Partial congruence, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
-		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
-			ArrayList<Partial> congruenceList = largeFactors_2_partials.get(factor);
-			if (congruenceList == null) {
-				congruenceList = new ArrayList<Partial>();
-				largeFactors_2_partials.put(factor, congruenceList);
-			}
-			congruenceList.add(congruence);
-		}
-	}
-	
-	private void removeFromColumn2RowMap(Partial congruence, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
-		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
-			ArrayList<Partial> congruenceList = largeFactors_2_partials.get(factor);
-			congruenceList.remove(congruence);
-			if (congruenceList.size()==0) {
-				// there are no more congruences with the current factor
-				largeFactors_2_partials.remove(factor);
-			}
-		}
 	}
 
 	private void insertEdge(long r1, long r2) {
@@ -322,6 +309,61 @@ public class CycleFinder {
 		return roots;
 	}
 	
+	/**
+	 * Remove singletons from <code>congruences</code>.
+	 * This can reduce the size of the equation system; actually it never diminishes the difference (#eqs - #vars).
+	 * It is very fast, too - like 60ms for a matrix for which solution via Gauss elimination takes 1 minute.
+	 * 
+	 * @param congruences 
+	 * @param largeFactors_2_partials 
+	 */
+	private void removeSingletons(List<Partial> congruences, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
+		// Parse all congruences as long as we find a singleton in a complete pass
+		boolean foundSingleton;
+		do {
+			foundSingleton = false;
+			Iterator<? extends Partial> congruenceIter = congruences.iterator();
+			while (congruenceIter.hasNext()) {
+				Partial congruence = congruenceIter.next();
+				for (Long oddExpFactor : congruence.getLargeFactorsWithOddExponent()) {
+					if (largeFactors_2_partials.get(oddExpFactor).size()==1) {
+						// found singleton -> remove from list
+						if (DEBUG) LOG.debug("Found singleton -> remove " + congruence);
+						congruenceIter.remove();
+						// remove from oddExpFactors_2_congruences so we can detect further singletons
+						removeFromColumn2RowMap(congruence, largeFactors_2_partials);
+						foundSingleton = true;
+						break;
+					}
+				}
+			} // one pass finished
+		} while (foundSingleton && congruences.size()>0);
+		// now all singletons have been removed from congruences.
+		if (DEBUG) LOG.debug("#congruences after removing singletons: " + congruences.size());
+	}
+	
+	private void addToColumn2RowMap(Partial congruence, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
+		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
+			ArrayList<Partial> congruenceList = largeFactors_2_partials.get(factor);
+			if (congruenceList == null) {
+				congruenceList = new ArrayList<Partial>();
+				largeFactors_2_partials.put(factor, congruenceList);
+			}
+			congruenceList.add(congruence);
+		}
+	}
+	
+	private void removeFromColumn2RowMap(Partial congruence, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
+		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
+			ArrayList<Partial> congruenceList = largeFactors_2_partials.get(factor);
+			congruenceList.remove(congruence);
+			if (congruenceList.size()==0) {
+				// there are no more congruences with the current factor
+				largeFactors_2_partials.remove(factor);
+			}
+		}
+	}
+
 	/**
 	 * Finds independent cycles and uses them to combine partial to smooth relations, following [LLDMW02].
 	 * Works for up to 3 large primes. (3LP tested with CFrac)
