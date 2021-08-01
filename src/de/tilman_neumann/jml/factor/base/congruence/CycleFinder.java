@@ -37,7 +37,7 @@ public class CycleFinder {
 	private static final Logger LOG = Logger.getLogger(CycleFinder.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 
-	private static FORMULA formula = FORMULA.TLP;
+	private static FORMULA formula = FORMULA.INTERMEDIATE;
 	
 	// cycle counting
 	private int maxLargeFactors;
@@ -198,6 +198,7 @@ public class CycleFinder {
 				String cycleCountFormula = "#edges + #roots - #vertices - #relations";
 				LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
 				// 150 bit: 287 instead of 274 cycles, 13 errors (all up)
+				// all remaining errors come from adding 1LP- or 2LP-partials that are related to at least one 3LP-partial (and after removing singletons there is no partial left)
 				break;
 			}
 			case TLP: {
@@ -214,6 +215,13 @@ public class CycleFinder {
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
 				LOG.debug("ERROR: " + partial.getNumberOfLargeQFactors() + "-partial " + partial + " led to incorrect cycle count update!");
+				// log all related partials
+				LOG.debug(relatedPartials.size() + " related partials");
+//				for (Partial par : relatedPartials) {
+//					LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
+//				}
+				
+				// log related partials after removing singletons
 				@SuppressWarnings({ "unchecked", "rawtypes" })
 				ArrayList<Partial> congruencesCopy = new ArrayList(relatedPartials.size());
 				Map<Long, ArrayList<Partial>> largeFactors_2_partials = new HashMap<>();
@@ -222,6 +230,7 @@ public class CycleFinder {
 					addToColumn2RowMap(congruence, largeFactors_2_partials);
 				}
 				removeSingletons(congruencesCopy, largeFactors_2_partials);
+				LOG.debug(congruencesCopy.size() + " related partials after removing singletons");
 				for (Partial par : congruencesCopy) {
 					LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
 				}
