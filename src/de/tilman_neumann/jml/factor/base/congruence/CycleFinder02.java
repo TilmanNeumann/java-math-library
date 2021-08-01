@@ -76,7 +76,8 @@ public class CycleFinder02 {
 		// but that doesn't matter 'cause it's no production code
 		Long[] largeFactors = partial.getLargeFactorsWithOddExponent();
 		int largeFactorsCount = largeFactors.length;
-		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("Add " + largeFactorsCount + "-LP with large factors " + Arrays.toString(largeFactors));
+		String partialStr = largeFactorsCount + "LP-partial " + Arrays.toString(largeFactors);
+		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("Add " + partialStr);
 		
 		// add edges
 		if (largeFactorsCount==1) {
@@ -128,7 +129,7 @@ public class CycleFinder02 {
 
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
-				LOG.debug("ERROR: " + partial.getNumberOfLargeQFactors() + "-partial " + partial + " led to incorrect cycle count update!");
+				LOG.debug("ERROR: " + partialStr + " led to incorrect cycle count update!");
 				// log all related partials
 				LOG.debug(relatedPartials.size() + " related partials");
 //				for (Partial par : relatedPartials) {
@@ -159,6 +160,8 @@ public class CycleFinder02 {
 	
 	private void insertEdge1(long p1) {
 		Long r1 = getRoot(p1);
+		LOG.debug("1LP: new vertex = " + (r1==null));
+
 		if (r1!=null) {
 			// the vertex already exists -> do nothing
 		} else {
@@ -174,6 +177,8 @@ public class CycleFinder02 {
 	private void insertEdge2(long p1, long p2) {
 		Long r1 = getRoot(p1);
 		Long r2 = getRoot(p2);
+		LOG.debug("2LP: new vertices = " + (r1==null) + ", " + (r2==null));
+
 		if (r1!=null && r2!=null) {
 			// both vertices already exist.
 			// if the roots are different, then we have distinct components which we can join now
@@ -210,7 +215,8 @@ public class CycleFinder02 {
 		Long r1 = getRoot(p1);
 		Long r2 = getRoot(p2);
 		Long r3 = getRoot(p3);
-
+		LOG.debug("3LP: new vertices = " + (r1==null) + ", " + (r2==null) + ", " + (r3==null));
+		
 		if (r1!=null && r2!=null && r3!=null) {
 			// all three vertices already exist.
 			// if they lie in different components we can connect them

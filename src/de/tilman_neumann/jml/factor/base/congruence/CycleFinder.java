@@ -87,7 +87,8 @@ public class CycleFinder {
 		// but that doesn't matter 'cause it's no production code
 		Long[] largeFactors = partial.getLargeFactorsWithOddExponent();
 		int largeFactorsCount = largeFactors.length;
-		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("Add " + largeFactorsCount + "-LP with large factors " + Arrays.toString(largeFactors));
+		String partialStr = largeFactorsCount + "LP-partial " + Arrays.toString(largeFactors);
+		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("Add " + partialStr);
 		
 		// add vertices and find their roots
 		edges.put(1L, 1L); // v = 1
@@ -214,7 +215,7 @@ public class CycleFinder {
 
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
-				LOG.debug("ERROR: " + partial.getNumberOfLargeQFactors() + "-partial " + partial + " led to incorrect cycle count update!");
+				LOG.debug("ERROR: " + partialStr + " led to incorrect cycle count update!");
 				// log all related partials
 				LOG.debug(relatedPartials.size() + " related partials");
 //				for (Partial par : relatedPartials) {
