@@ -162,58 +162,64 @@ public class CycleFinder02 {
 	
 	private void insertEdge1(long p1) {
 		Long r1 = getRoot(p1);
-		LOG.debug("1LP: new vertex = " + (r1==null));
-
+		
 		if (r1!=null) {
 			// the vertex already exists -> do nothing
+			LOG.debug("1LP: 1 old vertex");
 		} else {
 			// the prime is new and forms its own new disconnected component
+			LOG.debug("1LP: 1 new vertex");
 			edges.put(p1, p1);
 			roots.add(p1);
 			updateRootsHistory(p1, "1LP+");
 		}
-		
-		// For a speedup, we could also set the "parents" of (all edges passed in root finding) to the new root
 	}
 
 	/** p1 = smaller p, p2 = larger p */
 	private void insertEdge2(long p1, long p2) {
 		Long r1 = getRoot(p1);
 		Long r2 = getRoot(p2);
-		LOG.debug("2LP: new vertices = " + (r1==null) + ", " + (r2==null));
 
 		if (r1!=null && r2!=null) {
 			// both vertices already exist.
 			// if the roots are different, then we have distinct components which we can join now
 			if (r1<r2) {
+				LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r2, r1);
 				roots.remove(r2);
 				updateRootsHistory(r2, "2LP-");
 			} else if (r2<r1) {
+				LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r1, r2);
 				roots.remove(r1);
 				updateRootsHistory(r1, "2LP-");
+			} else {
+				// if the roots are equal than both primes are already part of the same component so nothing more happens
+				LOG.debug("2LP: 2 old vertices from the same components");
 			}
-			// if the roots are equal than both primes are already part of the same component so nothing more happens
 		} else if (r1 != null) {
 			// p1 already exists, p2 is new -> we just add p2 to the component of p1
+			LOG.debug("2LP: 1 old vertex, 1 new vertex");
 			edges.put(p2, r1);
 		} else if (r2 != null) {
 			// p2 already exists, p1 is new -> we just add p1 to the component of p2
+			LOG.debug("2LP: 1 old vertex, 1 new vertex");
 			edges.put(p1, r2);
 		} else {
 			// both primes are new and form their own new disconnected component
+			// we know p1 <= p2 // XXX or even p1 < p2 !?
 			if (p1 < p2) {
+				LOG.debug("2LP: 2 new vertices");
 				edges.put(p1, p1);
 				edges.put(p2, p1);
 				roots.add(p1);
 				updateRootsHistory(p1, "2LP+");
 			} else {
-				fail(); // XXX we know p1 < p2
-				edges.put(p2, p2);
-				edges.put(p1, p2);
-				roots.add(p2);
-				updateRootsHistory(p2, "2LP+");
+				// p1 == p2
+				fail(); // we know p1 < p2 !
+				edges.put(p1, p1);
+				roots.add(p1);
+				updateRootsHistory(p1, "2LP+");
 			}
 		}
 	}
@@ -223,76 +229,45 @@ public class CycleFinder02 {
 		Long r1 = getRoot(p1);
 		Long r2 = getRoot(p2);
 		Long r3 = getRoot(p3);
-		LOG.debug("3LP: new vertices = " + (r1==null) + ", " + (r2==null) + ", " + (r3==null));
 		
 		if (r1!=null && r2!=null && r3!=null) {
-			// all three vertices already exist.
+			// all three vertices already exist. in this case we only need the roots, so we can sort them without keeping the referecne to the primes
+			long tmp;
+			if (r2<r1) { tmp=r1; r1=r2; r2=tmp; }
+			if (r3<r2) { tmp=r2; r2=r3; r3=tmp; }
+			if (r2<r1) { tmp=r1; r1=r2; r2=tmp; }
+			// now r1 <= r2 <= r3
+			
 			// if they lie in different components we can connect them
 			if (r1<r2) {
-				if (r1<r3) {
-					// two or three different components, r1 is the smallest
-					// if r2==r3, it does not matter to add/remove them twice because edges and roots are maps/sets
+				if (r2<r3) {
+					// r1 < r2 < r3, three different components
+					LOG.debug("3LP: 3 old vertices from 3 distinct components");
 					edges.put(r2, r1);
 					edges.put(r3, r1);
 					roots.remove(r2);
 					updateRootsHistory(r2, "3LP-");
-					if (r2!=r3) {
-						roots.remove(r3);
-						updateRootsHistory(r3, "3LP-");
-					}
-				} else if (r3<r1) {
-					// r3<r1<r2, three different components
-					edges.put(r1, r3);
-					edges.put(r2, r3);
-					roots.remove(r1);
-					updateRootsHistory(r1, "3LP-");
-					roots.remove(r2);
-					updateRootsHistory(r2, "3LP-");
+					roots.remove(r3);
+					updateRootsHistory(r3, "3LP-");
 				} else {
-					// r1==r3 < r2, two different components -> we connect r2 to the component of r1==r3
+					// r1 < r2==r3, two different components
+					LOG.debug("3LP: 3 old vertices from 2 distinct components");
 					edges.put(r2, r1);
 					roots.remove(r2);
 					updateRootsHistory(r2, "3LP-");
-				}				
-			} else if (r2<r1) {
-				if (r2<r3) {
-					// two or three different components, r2 is the smallest
-					edges.put(r1, r2);
-					edges.put(r3, r2);
-					roots.remove(r1);
-					updateRootsHistory(r1, "3LP-");
-					if (r1!=r3) {
-						roots.remove(r3);
-						updateRootsHistory(r3, "3LP-");
-					}
-				} else if (r3<r2) {
-					// r3<r2<r1, three different components
-					edges.put(r1, r3);
-					edges.put(r2, r3);
-					roots.remove(r1);
-					updateRootsHistory(r1, "3LP-");
-					roots.remove(r2);
-					updateRootsHistory(r2, "3LP-");
-				} else {
-					// r2==r3 < r1, two different components -> we connect r1 to the component of r2==r3
-					edges.put(r1, r2);
-					roots.remove(r1);
-					updateRootsHistory(r1, "3LP-");
 				}
 			} else {
-				// r1 == r2
-				if (r1<r3) {
-					// r1==r2 < r3, two different components -> we connect r3 to the component of r1==r2
+				// r1==r2
+				if (r2<r3) {
+					// r1==r2 < r3, two different components
+					LOG.debug("3LP: 3 old vertices from 2 distinct components");
 					edges.put(r3, r1);
 					roots.remove(r3);
 					updateRootsHistory(r3, "3LP-");
-				} else if (r3<r1) {
-					// r3 < r1==r2
-					edges.put(r1, r3);
-					roots.remove(r1);
-					updateRootsHistory(r1, "3LP-");
 				} else {
-					// r1==r2==r3: all primes lie in the same component, do nothing
+					// r1==r2==r3, all vertices lie in the same component
+					LOG.debug("3LP: 3 old vertices all from the same components");
+					updateRootsHistory(r2, "3LP.");
 				}
 			}
 		} else if (r1!=null && r2!=null) {
@@ -300,67 +275,80 @@ public class CycleFinder02 {
 			// if the two existing roots are different, we can connect their components and add p3 to it.
 			// thereby, the number of components reduces by 1.
 			if (r1<r2) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r2, r1);
 				roots.remove(r2);
 				updateRootsHistory(r2, "3LP-");
 				edges.put(p3, r1);
 			} else if (r2<r1) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r1, r2);
 				roots.remove(r1);
 				updateRootsHistory(r1, "3LP-");
 				edges.put(p3, r2);
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
+				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
 				edges.put(p3, r1);
 			}
 		} else if (r1!=null && r3!=null) {
 			// p1 and p3 already existed, p2 is new.
 			if (r1<r3) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r3, r1);
 				roots.remove(r3);
 				updateRootsHistory(r3, "3LP-");
 				edges.put(p2, r1);
 			} else if (r3<r1) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r1, r3);
 				roots.remove(r1);
 				updateRootsHistory(r1, "3LP-");
 				edges.put(p2, r3);
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
+				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
 				edges.put(p2, r1);
 			}
 		} else if (r2!=null && r3!=null) {
 			// p2 and p3 already existed, p1 is new.
 			if (r2<r3) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r3, r2);
 				roots.remove(r3);
 				updateRootsHistory(r3, "3LP-");
 				edges.put(p1, r2);
 			} else if (r3<r2) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r2, r3);
 				roots.remove(r2);
 				updateRootsHistory(r2, "3LP-");
 				edges.put(p1, r3);
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
+				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
 				edges.put(p1, r2);
 			}
 		} else if (r1!=null) {
 			// p1 already existed, p2 and p3 are new.
 			// We add both new primes to the existing component. The number of components remains unchanged.
+			LOG.debug("3LP: 1 old vertex, two new vertices");
 			edges.put(p2, r1);
 			edges.put(p3, r1);
 		} else if (r2!=null) {
 			// p2 already existed, p1 and p3 are new.
+			LOG.debug("3LP: 1 old vertex, two new vertices");
 			edges.put(p1, r2);
 			edges.put(p3, r2);
 		} else if (r3!=null) {
 			// p3 already existed, p1 and p2 are new.
+			LOG.debug("3LP: 1 old vertex, two new vertices");
 			edges.put(p1, r3);
 			edges.put(p2, r3);
 		} else {
 			// all three vertices are new -> we create a new component with the smallest prime as root
 			// fortunately we already know that p1 <= p2 <= p3
+			LOG.debug("3LP: three new vertices");
 			edges.put(p1, p1);
 			edges.put(p2, p1);
 			edges.put(p3, p2);
