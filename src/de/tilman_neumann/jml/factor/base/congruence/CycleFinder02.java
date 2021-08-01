@@ -33,6 +33,7 @@ public class CycleFinder02 {
 	// cycle counting
 	private HashMap<Long, Long> edges; // contains edges: bigger to smaller prime; size is v = #vertices
 	private HashSet<Long> roots; // roots of disjoint components
+	private HashMap<Long, String> rootsHistory;
 	private HashSet<Partial> relations; // all distinct relations
 	private HashSet<Long[]> arcs;
 	// the number of smooths from partials found
@@ -46,6 +47,7 @@ public class CycleFinder02 {
 	public CycleFinder02() {
 		edges = new HashMap<>(); // bigger to smaller prime
 		roots = new HashSet<>();
+		rootsHistory = new HashMap<>();
 		relations = new HashSet<>();
 		arcs = new HashSet<>();
 		cycleCount = 0;
@@ -168,6 +170,7 @@ public class CycleFinder02 {
 			// the prime is new and forms its own new disconnected component
 			edges.put(p1, p1);
 			roots.add(p1);
+			updateRootsHistory(p1, "1LP+");
 		}
 		
 		// For a speedup, we could also set the "parents" of (all edges passed in root finding) to the new root
@@ -185,9 +188,11 @@ public class CycleFinder02 {
 			if (r1<r2) {
 				edges.put(r2, r1);
 				roots.remove(r2);
+				updateRootsHistory(r2, "2LP-");
 			} else if (r2<r1) {
 				edges.put(r1, r2);
 				roots.remove(r1);
+				updateRootsHistory(r1, "2LP-");
 			}
 			// if the roots are equal than both primes are already part of the same component so nothing more happens
 		} else if (r1 != null) {
@@ -202,10 +207,13 @@ public class CycleFinder02 {
 				edges.put(p1, p1);
 				edges.put(p2, p1);
 				roots.add(p1);
+				updateRootsHistory(p1, "2LP+");
 			} else {
+				fail(); // XXX we know p1 < p2
 				edges.put(p2, p2);
 				edges.put(p1, p2);
 				roots.add(p2);
+				updateRootsHistory(p2, "2LP+");
 			}
 		}
 	}
@@ -227,17 +235,24 @@ public class CycleFinder02 {
 					edges.put(r2, r1);
 					edges.put(r3, r1);
 					roots.remove(r2);
-					roots.remove(r3);
+					updateRootsHistory(r2, "3LP-");
+					if (r2!=r3) {
+						roots.remove(r3);
+						updateRootsHistory(r3, "3LP-");
+					}
 				} else if (r3<r1) {
 					// r3<r1<r2, three different components
 					edges.put(r1, r3);
 					edges.put(r2, r3);
 					roots.remove(r1);
+					updateRootsHistory(r1, "3LP-");
 					roots.remove(r2);
+					updateRootsHistory(r2, "3LP-");
 				} else {
 					// r1==r3 < r2, two different components -> we connect r2 to the component of r1==r3
 					edges.put(r2, r1);
 					roots.remove(r2);
+					updateRootsHistory(r2, "3LP-");
 				}				
 			} else if (r2<r1) {
 				if (r2<r3) {
@@ -245,17 +260,24 @@ public class CycleFinder02 {
 					edges.put(r1, r2);
 					edges.put(r3, r2);
 					roots.remove(r1);
-					roots.remove(r3);
+					updateRootsHistory(r1, "3LP-");
+					if (r1!=r3) {
+						roots.remove(r3);
+						updateRootsHistory(r3, "3LP-");
+					}
 				} else if (r3<r2) {
 					// r3<r2<r1, three different components
 					edges.put(r1, r3);
 					edges.put(r2, r3);
 					roots.remove(r1);
+					updateRootsHistory(r1, "3LP-");
 					roots.remove(r2);
+					updateRootsHistory(r2, "3LP-");
 				} else {
 					// r2==r3 < r1, two different components -> we connect r1 to the component of r2==r3
 					edges.put(r1, r2);
 					roots.remove(r1);
+					updateRootsHistory(r1, "3LP-");
 				}
 			} else {
 				// r1 == r2
@@ -263,12 +285,12 @@ public class CycleFinder02 {
 					// r1==r2 < r3, two different components -> we connect r3 to the component of r1==r2
 					edges.put(r3, r1);
 					roots.remove(r3);
+					updateRootsHistory(r3, "3LP-");
 				} else if (r3<r1) {
 					// r3 < r1==r2
 					edges.put(r1, r3);
-					edges.put(r2, r3);
 					roots.remove(r1);
-					roots.remove(r2);
+					updateRootsHistory(r1, "3LP-");
 				} else {
 					// r1==r2==r3: all primes lie in the same component, do nothing
 				}
@@ -280,10 +302,12 @@ public class CycleFinder02 {
 			if (r1<r2) {
 				edges.put(r2, r1);
 				roots.remove(r2);
+				updateRootsHistory(r2, "3LP-");
 				edges.put(p3, r1);
 			} else if (r2<r1) {
 				edges.put(r1, r2);
 				roots.remove(r1);
+				updateRootsHistory(r1, "3LP-");
 				edges.put(p3, r2);
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
@@ -294,10 +318,12 @@ public class CycleFinder02 {
 			if (r1<r3) {
 				edges.put(r3, r1);
 				roots.remove(r3);
+				updateRootsHistory(r3, "3LP-");
 				edges.put(p2, r1);
 			} else if (r3<r1) {
 				edges.put(r1, r3);
 				roots.remove(r1);
+				updateRootsHistory(r1, "3LP-");
 				edges.put(p2, r3);
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
@@ -308,10 +334,12 @@ public class CycleFinder02 {
 			if (r2<r3) {
 				edges.put(r3, r2);
 				roots.remove(r3);
+				updateRootsHistory(r3, "3LP-");
 				edges.put(p1, r2);
 			} else if (r3<r2) {
 				edges.put(r2, r3);
 				roots.remove(r2);
+				updateRootsHistory(r2, "3LP-");
 				edges.put(p1, r3);
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
@@ -337,6 +365,7 @@ public class CycleFinder02 {
 			edges.put(p2, p1);
 			edges.put(p3, p2);
 			roots.add(p1);
+			updateRootsHistory(p1, "3LP+");
 		}
 	}
 
@@ -352,6 +381,17 @@ public class CycleFinder02 {
 			q = edges.get(p);
 		}
 		return p;
+	}
+	
+	private void updateRootsHistory(Long r, String action) {
+		String hist = rootsHistory.get(r);
+		if (hist==null) {
+			hist = action;			
+		} else {
+			hist += ", " + action;
+		}
+		rootsHistory.put(r, hist);
+		LOG.debug("root r=" + r + " history = " + hist);
 	}
 	
 	/**
