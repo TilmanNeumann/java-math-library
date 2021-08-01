@@ -97,9 +97,10 @@ public class CycleFinder02 {
 				assertTrue(largeFactors[0] != largeFactors[2]);
 				assertTrue(largeFactors[1] != largeFactors[2]);
 			}
-			insertEdge2(largeFactors[0], largeFactors[1]);
-			insertEdge2(largeFactors[0], largeFactors[2]);
-			insertEdge2(largeFactors[1], largeFactors[2]);
+//			insertEdge2(largeFactors[0], largeFactors[1]);
+//			insertEdge2(largeFactors[0], largeFactors[2]);
+//			insertEdge2(largeFactors[1], largeFactors[2]);
+			insertEdge3(largeFactors[0], largeFactors[1], largeFactors[2]); // XXX !!!
 			arcs.add(new Long[] {largeFactors[1], largeFactors[0]});
 			arcs.add(new Long[] {largeFactors[2], largeFactors[0]});
 			arcs.add(new Long[] {largeFactors[2], largeFactors[1]});
@@ -201,6 +202,135 @@ public class CycleFinder02 {
 				edges.put(p1, p2);
 				roots.add(p2);
 			}
+		}
+	}
+
+	/** p1 <= p2 <= p3 */
+	private void insertEdge3(long p1, long p2, long p3) {
+		Long r1 = getRoot(p1);
+		Long r2 = getRoot(p2);
+		Long r3 = getRoot(p3);
+
+		if (r1!=null && r2!=null && r3!=null) {
+			// all three vertices already exist.
+			// if they lie in different components we can connect them
+			if (r1<r2) {
+				if (r1<r3) {
+					// two or three different components, r1 is the smallest
+					// if r2==r3, it does not matter to add/remove them twice because edges and roots are maps/sets
+					edges.put(r2, r1);
+					edges.put(r3, r1);
+					roots.remove(r2);
+					roots.remove(r3);
+				} else if (r3<r1) {
+					// r3<r1<r2, three different components
+					edges.put(r1, r3);
+					edges.put(r2, r3);
+					roots.remove(r1);
+					roots.remove(r2);
+				} else {
+					// r1==r3 < r2, two different components -> we connect r2 to the component of r1==r3
+					edges.put(r2, r1);
+					roots.remove(r2);
+				}				
+			} else if (r2<r1) {
+				if (r2<r3) {
+					// two or three different components, r2 is the smallest
+					edges.put(r1, r2);
+					edges.put(r3, r2);
+					roots.remove(r1);
+					roots.remove(r3);
+				} else if (r3<r2) {
+					// r3<r2<r1, three different components
+					edges.put(r1, r3);
+					edges.put(r2, r3);
+					roots.remove(r1);
+					roots.remove(r2);
+				} else {
+					// r2==r3 < r1, two different components -> we connect r1 to the component of r2==r3
+					edges.put(r1, r2);
+					roots.remove(r1);
+				}
+			} else {
+				// r1 == r2
+				if (r1<r3) {
+					// r1==r2 < r3, two different components -> we connect r3 to the component of r1==r2
+					edges.put(r3, r1);
+					roots.remove(r3);
+				} else if (r3<r1) {
+					// r3 < r1==r2
+					edges.put(r1, r3);
+					edges.put(r2, r3);
+					roots.remove(r1);
+					roots.remove(r2);
+				} else {
+					// r1==r2==r3: all primes lie in the same component, do nothing
+				}
+			}
+		} else if (r1!=null && r2!=null) {
+			// p1 and p2 already existed, p3 is new.
+			// if the two existing roots are different, we can connect their components and add p3 to it.
+			// thereby, the number of components reduces by 1.
+			if (r1<r2) {
+				edges.put(r2, r1);
+				roots.remove(r2);
+				edges.put(p3, r1);
+			} else if (r2<r1) {
+				edges.put(r1, r2);
+				roots.remove(r1);
+				edges.put(p3, r2);
+			} else {
+				// the two existing primes belong to the same component, thus we only add the new prime to it
+				edges.put(p3, r1);
+			}
+		} else if (r1!=null && r3!=null) {
+			// p1 and p3 already existed, p2 is new.
+			if (r1<r3) {
+				edges.put(r3, r1);
+				roots.remove(r3);
+				edges.put(p2, r1);
+			} else if (r3<r1) {
+				edges.put(r1, r3);
+				roots.remove(r1);
+				edges.put(p2, r3);
+			} else {
+				// the two existing primes belong to the same component, thus we only add the new prime to it
+				edges.put(p2, r1);
+			}
+		} else if (r2!=null && r3!=null) {
+			// p2 and p3 already existed, p1 is new.
+			if (r2<r3) {
+				edges.put(r3, r2);
+				roots.remove(r3);
+				edges.put(p1, r2);
+			} else if (r3<r2) {
+				edges.put(r2, r3);
+				roots.remove(r2);
+				edges.put(p1, r3);
+			} else {
+				// the two existing primes belong to the same component, thus we only add the new prime to it
+				edges.put(p1, r2);
+			}
+		} else if (r1!=null) {
+			// p1 already existed, p2 and p3 are new.
+			// We add both new primes to the existing component. The number of components remains unchanged.
+			edges.put(p2, r1);
+			edges.put(p3, r1);
+		} else if (r2!=null) {
+			// p2 already existed, p1 and p3 are new.
+			edges.put(p1, r2);
+			edges.put(p3, r2);
+		} else if (r3!=null) {
+			// p3 already existed, p1 and p2 are new.
+			edges.put(p1, r3);
+			edges.put(p2, r3);
+		} else {
+			// all three vertices are new -> we create a new component with the smallest prime as root
+			// fortunately we already know that p1 <= p2 <= p3
+			edges.put(p1, p1);
+			edges.put(p2, p1);
+			edges.put(p3, p2);
+			roots.add(p1);
 		}
 	}
 
