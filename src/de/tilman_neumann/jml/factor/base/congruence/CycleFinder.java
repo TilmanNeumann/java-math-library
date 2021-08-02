@@ -146,7 +146,7 @@ public class CycleFinder {
 			case INTERMEDIATE: {
 				if (largeFactorsCount==3) {
 					if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
-						edgeCount += 1;
+						edgeCount += 2; // +1 gives better cycleCount @ 150 bit test number
 					} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
 						edgeCount += 2;
 					} else {
