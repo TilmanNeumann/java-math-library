@@ -360,8 +360,10 @@ public class CFrac extends FactorAlgorithm {
 	}
 	
 	// Some test numbers to debug cycle counting with 3LP:
-	// 1131700560863845693969719287759517367069129639 (150 bit)
-	// 1240365498452764190513871432931316765426281182537733 (170 bit)
+	// 1131700560863845693969719287759517367069129639 (150 bit): found 304 smooth congruences (30 perfect, 47 from 1-partials, 215 involving 2-partials, 12 involving 3-partials) and 21132 partials (8253 1-partials, 12865 2-partials, 14 3-partials)
+	// 1042841142257557545672851027890020895273750538581 (160 bit): found 388 smooth congruences (38 perfect, 45 from 1-partials, 259 involving 2-partials, 46 involving 3-partials) and 34699 partials (9696 1-partials, 24948 2-partials, 55 3-partials)
+	// 1240365498452764190513871432931316765426281182537733 (170 bit): found 500 smooth congruences (90 perfect, 55 from 1-partials, 182 involving 2-partials, 173 involving 3-partials) and 51145 partials (10309 1-partials, 40527 2-partials, 309 3-partials)
+	// 800428260973992320615961356229212951260121574827941327 (180 bit): found 630 smooth congruences (87 perfect, 38 from 1-partials, 186 involving 2-partials, 319 involving 3-partials) and 85259 partials (11123 1-partials, 73206 2-partials, 930 3-partials)
 	private static void testInput() {
 		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver_Gauss02(), 5);
 		Timer timer = new Timer();
