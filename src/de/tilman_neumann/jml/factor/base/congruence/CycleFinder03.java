@@ -46,6 +46,7 @@ public class CycleFinder03 {
 	// the number of smooths from partials found
 	private int cycleCount;
 	private int lastCorrectSmoothCount;
+	private int extraRelations;
 	
 	/**
 	 * Full constructor.
@@ -60,6 +61,7 @@ public class CycleFinder03 {
 		cycleCount = 0;
 		lastCorrectSmoothCount = 0;
 		arcs = new HashMap<Long, ArcTargets>();
+		extraRelations  = 0;
 	}
 	
 	/**
@@ -191,9 +193,18 @@ public class CycleFinder03 {
 			LOG.debug("cycleCount4 = " + cycleCount4);
 			int cycleCount5 = cycleCount + arcCount - relations.size();
 			LOG.debug("cycleCount5 = " + cycleCount5);
+			
+			// best choice so far >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 			int cycleCount6 = cycleCount + relations.size() - edgeCount;
 			LOG.debug("cycleCount6 = " + cycleCount6);
+			// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+			int cycleCount7 = relations.size() + extraRelations + roots.size() - vertexCount;
+			if (cycleCount7 < 0) {
+				extraRelations -= cycleCount7;
+				cycleCount7 = relations.size() + extraRelations + roots.size() - vertexCount;
+			}
+			LOG.debug("cycleCount7 = " + cycleCount7);
 
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
