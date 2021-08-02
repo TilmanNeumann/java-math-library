@@ -145,26 +145,25 @@ public class CycleFinder {
 			}
 			case INTERMEDIATE: {
 				if (largeFactorsCount==3) {
-//					if (!isNewVertex[0] && !isNewVertex[1] && !isNewVertex[2] ) {
 					if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
-						edgeCount += 2;
+						edgeCount += 1;
 					} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
-						edgeCount += 3;
+						edgeCount += 2;
 					} else {
-						edgeCount += 3;
+						edgeCount += 2;
 					}
 
 				} else if (largeFactorsCount==2) {
 					if (!isNewVertex[0] && !isNewVertex[1] && (vertexRoots[0]==vertexRoots[1]) ) {
 						// both vertices were already known and in the same component
-						edgeCount += 2; // XXX do +1 only ?
+						edgeCount += 1;
 					} else {
-						edgeCount += 2;
+						edgeCount += 1;
 					}
 				} else {
-					edgeCount += 2; // XXX Why do we count 2 edges for partials having only one big factor?
+					edgeCount += 1;
 				}
-				cycleCount = edgeCount + roots.size() - vertexCount - relations.size();
+				cycleCount = edgeCount + roots.size() - vertexCount;
 				break;
 			}
 			case TLP: {
@@ -196,8 +195,8 @@ public class CycleFinder {
 				break;
 			}
 			case INTERMEDIATE: {
-				String cycleCountFormula = "#edges + #roots - #vertices - #relations";
-				LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
+				String cycleCountFormula = "#edges + #roots - #vertices";
+				LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size() + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
 				// 150 bit: 287 instead of 274 cycles, 13 errors (all up)
 				// all remaining errors come from adding 1LP- or 2LP-partials that are related to at least one 3LP-partial (and after removing singletons there is no partial left)
 				break;
