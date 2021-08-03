@@ -80,8 +80,8 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	private long ccDuration, solverDuration;
 	private int solverRunCount, testedNullVectorCount;
 	
-	/** cycle counter/finder (experimental, only used here if DEBUG_3LP_CYCLE_COUNTING==true) */
-	private CycleCounter cycleFinder;
+	/** cycle counter (experimental, only used here if DEBUG_3LP_CYCLE_COUNTING==true) */
+	private CycleCounter cycleCounter;
 
 	/**
 	 * Default constructor that expects 10 more equations than variables to run the matrix solver.
@@ -113,7 +113,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
-		if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder = new CycleCounter01(3);
+		if (DEBUG_3LP_CYCLE_COUNTING) cycleCounter = new CycleCounter01(3);
 		
 		// statistics
 		totalPartialCount = 0;
@@ -252,7 +252,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 					}
 				}
 				
-				if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder.addPartial(partial, totalSmoothFromPartialCount, relatedPartials);
+				if (DEBUG_3LP_CYCLE_COUNTING) cycleCounter.addPartial(partial, totalSmoothFromPartialCount, relatedPartials);
 				return added;
 				// Not adding the new partial is sufficient to keep the old partials linear independent,
 				// which is required to avoid duplicate solutions.
@@ -265,7 +265,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		if (DEBUG) LOG.debug("Found new partial relation " + aqPair + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + totalPartialCount);
 		if (ANALYZE) partialCounts[bigFactors.length-1]++;
 		
-		if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder.addPartial(partial, totalSmoothFromPartialCount, relatedPartials);
+		if (DEBUG_3LP_CYCLE_COUNTING) cycleCounter.addPartial(partial, totalSmoothFromPartialCount, relatedPartials);
 		return false; // no smooth added
 	}
 	

@@ -44,7 +44,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 
 	/** factor tester */
 	private FactorTest factorTest;
-	/** cycle counter/finder (experimental) */
+	/** cycle counter (experimental) */
 	private CycleCounter cycleCounter;
 	
 	// The number of congruences we need to find before we try to solve the smooth congruence equation system:
