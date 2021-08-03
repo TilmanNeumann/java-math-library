@@ -13,21 +13,20 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
-
 /**
- * Algorithms to count and find independent cycles in partial relations containing partials with 2 or 3 large primes.
+ * Cycle counting algorithm implementation following [LLDMW02], as far as possible.
+ * The algorithm is exact for partials with 2 large primes.
+ * With three large primes, unlike in [LLDMW02] we can only obtain an upper bound estimate of the cycle count.
+ * So if the counting algorithm predicts a possible new smooth we need to run some PartialSolver to verify it.
  * 
- * @see [LM94] Lenstra, Manasse 1994: "Factoring With Two Large Primes", Mathematics of Computation, volume 63, number 208, page 789.
  * @see [LLDMW02] Leyland, Lenstra, Dodson, Muffett, Wagstaff 2002: "MPQS with three large primes", Lecture Notes in Computer Science, 2369.
+ * @see [LM94] Lenstra, Manasse 1994: "Factoring With Two Large Primes", Mathematics of Computation, volume 63, number 208, page 789.
  * 
  * @author Tilman Neumann
  */
-// TODO fix cycle counting for 3LP: There seems to be some degree of freedom where to add some things -> I want to see and count the edges !
-public class CycleFinder02 {
+public class CycleCounter02 implements CycleCounter {
 	
-	private static final Logger LOG = Logger.getLogger(CycleFinder02.class);
+	private static final Logger LOG = Logger.getLogger(CycleCounter02.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	
 	// cycle counting
@@ -45,7 +44,7 @@ public class CycleFinder02 {
 	 * Full constructor.
 	 * @param maxLargeFactors the maximum number of large primes in partials:  2 or 3
 	 */
-	public CycleFinder02() {
+	public CycleCounter02() {
 		edges = new HashMap<>(); // bigger to smaller prime
 		roots = new HashSet<>();
 		rootsHistory = new HashMap<>();
@@ -56,14 +55,7 @@ public class CycleFinder02 {
 		additionalEdgeCount = 0;
 	}
 	
-	/**
-	 * Counts the number of independent cycles in the partial relations following [LM94], [LLDMW02].
-	 * Works for 2LP so far, but not for 3LP yet.
-	 * 
-	 * @param partial the newest partial relation to add
-	 * @param correctSmoothCount the correct number of smooths from partials (only for debugging)
-	 * @return the updated number of smooths from partials
-	 */
+	@Override
 	public int addPartial(Partial partial, int correctSmoothCount, HashSet<Partial> relatedPartials) {
 		int correctSmoothCountIncr = correctSmoothCount - lastCorrectSmoothCount;
 		lastCorrectSmoothCount = correctSmoothCount;
@@ -444,111 +436,13 @@ public class CycleFinder02 {
 		}
 	}
 
-	/**
-	 * Finds independent cycles and uses them to combine partial to smooth relations, following [LLDMW02].
-	 * Works for up to 3 large primes. (3LP tested with CFrac)
-	 * 
-	 * @return smooth relations found by combining partial relations
-	 */
-	public ArrayList<Smooth> findIndependentCycles() {
-		// Create maps from large primes to partials, vice versa, and chains.
-		// These are needed so we can remove elements without changing the relations itself.
-		HashMap<Long, ArrayList<Partial>> rbp = new HashMap<>();
-		HashMap<Partial, ArrayList<Long>> pbr = new HashMap<>();
-		HashMap<Partial, ArrayList<Partial>> chains = new HashMap<>();
-		for (Partial newPartial : relations) {
-			Long[] oddExpBigFactors = newPartial.getLargeFactorsWithOddExponent();
-			ArrayList<Long> factorsList = new ArrayList<>(); // copy needed
-			for (Long oddExpBigFactor : oddExpBigFactors) {
-				factorsList.add(oddExpBigFactor);				
-				ArrayList<Partial> partialCongruenceList = rbp.get(oddExpBigFactor);
-				// For large N, most large factors appear only once. Therefore we create an ArrayList with initialCapacity=1 to safe memory.
-				// Even less memory would be needed if we had a HashMap<Long, Object>
-				// and store AQPairs or AQPair[] in the Object part. But I do not want to break the generics...
-				if (partialCongruenceList==null) partialCongruenceList = new ArrayList<Partial>(1);
-				partialCongruenceList.add(newPartial);
-				rbp.put(oddExpBigFactor, partialCongruenceList);
-			}
-			pbr.put(newPartial, factorsList);
-			chains.put(newPartial, new ArrayList<>());
-		}
-		
-		// result
-		ArrayList<Smooth> smoothsFromPartials = new ArrayList<>();
-		
-		boolean tablesChanged;
-		do {
-			tablesChanged = false;
-			Iterator<Partial> r0Iter = pbr.keySet().iterator();
-			while (r0Iter.hasNext()) {
-				Partial r0 = r0Iter.next();
-				ArrayList<Long> r0Factors = pbr.get(r0);
-				if (r0Factors.size() != 1) continue;
-				
-				Long p = r0Factors.get(0);
-				ArrayList<Partial> riList = rbp.get(p);
-				for (Partial ri : riList) {
-					if (r0.equals(ri)) continue;
-					
-					ArrayList<Long> riFactors = pbr.get(ri);
-					if (DEBUG) assertNotNull(riFactors);
-					if (riFactors.size() == 1) {
-						// found cycle -> create new Smooth consisting of r0, ri and their chains
-						if (DEBUG) {
-							SortedMultiset<Long> combinedLargeFactors = new SortedMultiset_BottomUp<Long>();
-							combinedLargeFactors.addAll(r0.getLargeFactorsWithOddExponent());
-							for (Partial partial : chains.get(r0)) combinedLargeFactors.addAll(partial.getLargeFactorsWithOddExponent());
-							combinedLargeFactors.addAll(ri.getLargeFactorsWithOddExponent());
-							for (Partial partial : chains.get(ri)) combinedLargeFactors.addAll(partial.getLargeFactorsWithOddExponent());
-							// test combinedLargeFactors
-							for (Long factor : combinedLargeFactors.keySet()) {
-								assertTrue((combinedLargeFactors.get(factor) & 1) == 0);
-							}
-						}
-						HashSet<Partial> allPartials = new HashSet<>();
-						allPartials.add(r0);
-						allPartials.addAll(chains.get(r0));
-						allPartials.add(ri);
-						allPartials.addAll(chains.get(ri));
-						Smooth smooth = new Smooth_Composite(allPartials);
-						smoothsFromPartials.add(smooth);
-						continue;
-					}
-					
-					// otherwise add r0 and its chain to the chain of ri
-					ArrayList<Partial> riChain = chains.get(ri);
-					riChain.add(r0);
-					riChain.addAll(chains.get(r0));
-					// delete p from the prime list of ri
-					riFactors.remove(p);
-				} // end for ri
-
-				// "the entry keyed by r0 is deleted from pbr";
-				// this requires Iterator.remove() so we can continue working with the outer collection
-				r0Iter.remove(); // except avoiding ConcurrentModificationExceptions the same as pbr.remove(r0);
-				
-				// "the entry for r0 keyed by p is deleted from rbp";
-				// This choice promised finding more smooths, but unfortunately it was wrong, delivered combinations with odd exponents
-				// riList.remove(r0);
-				// The following works
-				ArrayList<Partial> partials = rbp.get(p);
-				for (Partial partial : partials) {
-					ArrayList<Long> pList = pbr.get(partial);
-					if (pList != null) pList.remove(p);
-				}
-				
-				tablesChanged = true;
-			} // end while r0
-		} while (tablesChanged);
-		
-		if (DEBUG) LOG.debug("Found " + smoothsFromPartials.size() + " smooths from partials");
-		return smoothsFromPartials;
+	@Override
+	public HashSet<Partial> getPartialRelations() {
+		return relations;
 	}
-	
-	/**
-	 * @return number of partial congruences found so far.
-	 */
-	public int getPartialCongruenceCount() {
+
+	@Override
+	public int getPartialRelationsCount() {
 		return relations.size();
 	}
 }

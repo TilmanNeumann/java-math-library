@@ -81,7 +81,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	private int solverRunCount, testedNullVectorCount;
 	
 	/** cycle counter/finder (experimental, only used here if DEBUG_3LP_CYCLE_COUNTING==true) */
-	private CycleFinder cycleFinder;
+	private CycleCounter cycleFinder;
 
 	/**
 	 * Default constructor that expects 10 more equations than variables to run the matrix solver.
@@ -113,7 +113,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
-		if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder = new CycleFinder(3);
+		if (DEBUG_3LP_CYCLE_COUNTING) cycleFinder = new CycleCounter01(3);
 		
 		// statistics
 		totalPartialCount = 0;

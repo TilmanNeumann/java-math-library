@@ -13,29 +13,29 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
-
 /**
- * Algorithms to count and find independent cycles in partial relations containing partials with 2 or 3 large primes.
+ * Cycle counting algorithm implementation following [LLDMW02], as far as possible.
+ * The algorithm is exact for partials with 2 large primes.
+ * With three large primes, unlike in [LLDMW02] we can only obtain an upper bound estimate of the cycle count.
+ * So if the counting algorithm predicts a possible new smooth we need to run some PartialSolver to verify it.
  * 
- * @see [LM94] Lenstra, Manasse 1994: "Factoring With Two Large Primes", Mathematics of Computation, volume 63, number 208, page 789.
  * @see [LLDMW02] Leyland, Lenstra, Dodson, Muffett, Wagstaff 2002: "MPQS with three large primes", Lecture Notes in Computer Science, 2369.
+ * @see [LM94] Lenstra, Manasse 1994: "Factoring With Two Large Primes", Mathematics of Computation, volume 63, number 208, page 789.
  * 
  * @author Tilman Neumann
  */
-// TODO fix cycle counting for 3LP: There seems to be some degree of freedom where to add some things -> I want to see and count the edges !
-public class CycleFinder03 {
-
-	class ArcTargets {
-		HashSet<Long> all;
-		Long smallest; // the smallest connected prime
+public class CycleCounter01 implements CycleCounter {
+	
+	enum FORMULA {
+		DLP,
+		INTERMEDIATE,
+		TLP
 	}
-
-	private HashMap<Long, ArcTargets> arcs;
-
-	private static final Logger LOG = Logger.getLogger(CycleFinder03.class);
+	
+	private static final Logger LOG = Logger.getLogger(CycleCounter01.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
+
+	private static FORMULA formula = FORMULA.INTERMEDIATE;
 	
 	// cycle counting
 	private int maxLargeFactors;
@@ -46,13 +46,12 @@ public class CycleFinder03 {
 	// the number of smooths from partials found
 	private int cycleCount;
 	private int lastCorrectSmoothCount;
-	private int extraRelations;
 	
 	/**
 	 * Full constructor.
 	 * @param maxLargeFactors the maximum number of large primes in partials:  2 or 3
 	 */
-	public CycleFinder03(int maxLargeFactors) {
+	public CycleCounter01(int maxLargeFactors) {
 		this.maxLargeFactors = maxLargeFactors;
 		edges = new HashMap<>(); // bigger to smaller prime
 		roots = new HashSet<>();
@@ -60,18 +59,9 @@ public class CycleFinder03 {
 		edgeCount = 0;
 		cycleCount = 0;
 		lastCorrectSmoothCount = 0;
-		arcs = new HashMap<Long, ArcTargets>();
-		extraRelations  = 0;
 	}
 	
-	/**
-	 * Counts the number of independent cycles in the partial relations following [LM94], [LLDMW02].
-	 * Works for 2LP so far, but not for 3LP yet.
-	 * 
-	 * @param partial the newest partial relation to add
-	 * @param correctSmoothCount the correct number of smooths from partials (only for debugging)
-	 * @return the updated number of smooths from partials
-	 */
+	@Override
 	public int addPartial(Partial partial, int correctSmoothCount, HashSet<Partial> relatedPartials) {
 		int correctSmoothCountIncr = correctSmoothCount - lastCorrectSmoothCount;
 		lastCorrectSmoothCount = correctSmoothCount;
@@ -112,17 +102,15 @@ public class CycleFinder03 {
 		}
 		//LOG.debug("after adding vertices: edges = " + edges + ", roots = " + roots);
 
-		LOG.debug("vertexRoots = " + Arrays.toString(vertexRoots));
+		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("vertexRoots = " + Arrays.toString(vertexRoots));
 		
 		// add edges
 		if (largeFactorsCount==1) {
 			if (DEBUG) assertTrue(largeFactors[0] > 1);
 			insertEdge(1, vertexRoots[0]);
-			insertArc(1, largeFactors[0]);
 		} else if (largeFactorsCount==2) {
 			if (DEBUG) assertTrue(largeFactors[0] != largeFactors[1]);
 			insertEdge(vertexRoots[0], vertexRoots[1]);
-			insertArc(largeFactors[0], largeFactors[1]);
 		} else if (largeFactorsCount==3) {
 			if (DEBUG) {
 				assertTrue(largeFactors[0] != largeFactors[1]);
@@ -130,9 +118,6 @@ public class CycleFinder03 {
 				assertTrue(largeFactors[1] != largeFactors[2]);
 			}
 			insertEdges3(vertexRoots[0], vertexRoots[1], vertexRoots[2]);
-			insertArc(largeFactors[0], largeFactors[1]);
-			insertArc(largeFactors[0], largeFactors[2]);
-			insertArc(largeFactors[1], largeFactors[2]);
 		} else {
 			LOG.warn("Holy shit, we found a " + largeFactorsCount + "-partial!");
 		}
@@ -143,68 +128,80 @@ public class CycleFinder03 {
 			// standard formula: #cycles = #edges (one per relation) + #components - #vertices
 			cycleCount = relations.size() + roots.size() - vertexCount;
 		} else if (maxLargeFactors==3) {
-			if (largeFactorsCount==3) {
-				if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
-					edgeCount += 2;
-				} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
-					edgeCount += 2;
-				} else {
-					edgeCount += 2;
-				}
-			} else if (largeFactorsCount==2) {
-				if (!isNewVertex[0] && !isNewVertex[1] && (vertexRoots[0]==vertexRoots[1]) ) {
-					// both vertices were already known and in the same component
-					edgeCount += 1;
-				} else {
-					edgeCount += 1;
-				}
-			} else {
-				edgeCount += 1;
+			switch (formula) {
+			case DLP: {
+				// same formula as for 2LP, does not need edgeCount at all!
+				cycleCount = relations.size() + roots.size() - vertexCount; 
+				break;
 			}
-			cycleCount = edgeCount + roots.size() - vertexCount;
+			case INTERMEDIATE: {
+				if (largeFactorsCount==3) {
+					if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
+						edgeCount += 2; // +1 gives better cycleCount @ 150 bit test number
+					} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
+						edgeCount += 2;
+					} else {
+						edgeCount += 2;
+					}
+
+				} else if (largeFactorsCount==2) {
+					if (!isNewVertex[0] && !isNewVertex[1] && (vertexRoots[0]==vertexRoots[1]) ) {
+						// both vertices were already known and in the same component
+						edgeCount += 1;
+					} else {
+						edgeCount += 1;
+					}
+				} else {
+					edgeCount += 1;
+				}
+				cycleCount = edgeCount + roots.size() - vertexCount;
+				break;
+			}
+			case TLP: {
+				edgeCount += 3;
+				// The "thought to be" formula from [LLDMW02], p.7
+				cycleCount = edgeCount + roots.size() - vertexCount - 2*relations.size();
+				break;
+			}
+			}
 		}
 
 		if (DEBUG_3LP_CYCLE_COUNTING) {
-			int arcCount = countArcs();
-			LOG.debug("#arcs = " + arcCount);
-			LOG.debug("#edges = " + edgeCount);
-			LOG.debug("#roots = " + roots.size());
-			LOG.debug("#rootsFromVertices = " + getRootsFromVertices().size());
-			LOG.debug("#rootsFromArcs = " + countComponents());
-			LOG.debug("#vertices = " + vertexCount);
-			LOG.debug("#relations = "+ relations.size());
-			LOG.debug("");
-			LOG.debug("#arcs - #edges = " + (arcCount-edgeCount));
-			LOG.debug("#arcs - #relations = " + (arcCount-relations.size()));
-			LOG.debug("#edges - #relations = " + (edgeCount-relations.size()));
-			LOG.debug("");
+			LOG.debug("edgeCount = " + edgeCount);
+			int rootCount = roots.size();
+			String rootsStr = rootCount<100 ? rootCount + " roots = " + roots : rootCount + " roots";
+			LOG.debug(rootsStr);
+			String vertexStr = vertexCount<100 ? vertexCount + " vertices = " + edges : vertexCount + " vertices";
+			LOG.debug(vertexStr);
+			LOG.debug(relations.size() + " relations");
+
 			LOG.debug("correctSmoothCount = " + correctSmoothCount);
 
-			String cycleCountFormula = "#edges + #roots - #vertices"; // TODO
-			LOG.debug("#cycles = " + cycleCountFormula + " = " + cycleCount);
-			// 150 bit: 287 instead of 274 cycles, 13 errors (all up)
-			// all remaining errors come from adding 1LP- or 2LP-partials that are related to at least one 3LP-partial (and after removing singletons there is no partial left)
-
-			int cycleCount2 = cycleCount + arcCount - edgeCount;
-			LOG.debug("cycleCount2 = " + cycleCount2);
-			int cycleCount3 = cycleCount2 + arcCount - relations.size();
-			LOG.debug("cycleCount3 = " + cycleCount3);
-			int cycleCount4 = cycleCount - (edgeCount - relations.size())/2;
-			LOG.debug("cycleCount4 = " + cycleCount4);
-			int cycleCount5 = cycleCount + arcCount - relations.size();
-			LOG.debug("cycleCount5 = " + cycleCount5);
-			
-			// best choice so far >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-			int cycleCount6 = cycleCount + relations.size() - edgeCount;
-			LOG.debug("cycleCount6 = " + cycleCount6);
-			// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-			int cycleCount7 = relations.size() + extraRelations + roots.size() - vertexCount;
-			if (cycleCount7 < 0) {
-				extraRelations -= cycleCount7;
-				cycleCount7 = relations.size() + extraRelations + roots.size() - vertexCount;
+			switch (formula) {
+			case DLP: {
+				// same formula as for 2LP, does not need edgeCount at all!
+				String cycleCountFormula = "#edges + #roots - #vertices";
+				LOG.debug("#edges=" + relations.size()  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
+				// 150 bit: 273 instead of 274 cycles, 23 errors (12 down, 11 up)
+				break;
 			}
-			LOG.debug("cycleCount7 = " + cycleCount7);
+			case INTERMEDIATE: {
+				String cycleCountFormula = "#edges + #roots - #vertices";
+				LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size() + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
+				// 150 bit: 287 instead of 274 cycles, 13 errors (all up)
+				// all remaining errors come from adding 1LP- or 2LP-partials that are related to at least one 3LP-partial (and after removing singletons there is no partial left)
+				break;
+			}
+			case TLP: {
+				// original from [LLDMW02], p.7
+				String cycleCountFormula = "#edges + #roots - #vertices - 2*#relations";
+				LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
+				// 150 bit: 273 instead of 274 cycles, 23 errors (12 down, 11 up)
+				break;
+			}
+			}
+
+			LOG.debug("#rootsFromVertices = " + getRootsFromVertices().size());
 
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
@@ -243,10 +240,10 @@ public class CycleFinder03 {
 		// insert edge: the smaller root is made the parent of the larger root, and the larger root is no root anymore
 		if (r1 < r2) {
 			edges.put(r2, r1);
-			LOG.debug("roots contains r2=" + r2 + ": " + roots.contains(r2));
+			if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("roots contains r2=" + r2 + ": " + roots.contains(r2));
 			roots.remove(r2);
 		} else if (r1 > r2) {
-			LOG.debug("roots contains r1=" + r1 + ": " + roots.contains(r1));
+			if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("roots contains r1=" + r1 + ": " + roots.contains(r1));
 			edges.put(r1, r2);
 			roots.remove(r1);
 		} else {
@@ -312,39 +309,6 @@ public class CycleFinder03 {
 		return roots;
 	}
 	
-	private void insertArc(long p1, long p2) {
-		ArcTargets p2Orci = arcs.get(p2);
-		long r2;
-		if (p2Orci == null) {
-			p2Orci = new ArcTargets();
-			p2Orci.all = new HashSet<Long>();
-			arcs.put(p2, p2Orci);
-			r2 = p2;
-		} else {
-			r2 = p2Orci.smallest;
-		}
-		p2Orci.all.add(p1);
-		if (p1 < r2) {
-			p2Orci.smallest = p1;
-		}
-	}
-	
-	private int countComponents() {
-		HashSet<Long> roots = new HashSet<>();
-		for (Long p : arcs.keySet()) {
-			roots.add(arcs.get(p).smallest);
-		}
-		return roots.size();
-	}
-	
-	private int countArcs() {
-		int arcCount = 0;
-		for (Long p : arcs.keySet()) {
-			arcCount += arcs.get(p).all.size();
-		}
-		return arcCount;
-	}
-
 	/**
 	 * Remove singletons from <code>congruences</code>.
 	 * This can reduce the size of the equation system; actually it never diminishes the difference (#eqs - #vars).
@@ -400,111 +364,13 @@ public class CycleFinder03 {
 		}
 	}
 
-	/**
-	 * Finds independent cycles and uses them to combine partial to smooth relations, following [LLDMW02].
-	 * Works for up to 3 large primes. (3LP tested with CFrac)
-	 * 
-	 * @return smooth relations found by combining partial relations
-	 */
-	public ArrayList<Smooth> findIndependentCycles() {
-		// Create maps from large primes to partials, vice versa, and chains.
-		// These are needed so we can remove elements without changing the relations itself.
-		HashMap<Long, ArrayList<Partial>> rbp = new HashMap<>();
-		HashMap<Partial, ArrayList<Long>> pbr = new HashMap<>();
-		HashMap<Partial, ArrayList<Partial>> chains = new HashMap<>();
-		for (Partial newPartial : relations) {
-			Long[] oddExpBigFactors = newPartial.getLargeFactorsWithOddExponent();
-			ArrayList<Long> factorsList = new ArrayList<>(); // copy needed
-			for (Long oddExpBigFactor : oddExpBigFactors) {
-				factorsList.add(oddExpBigFactor);				
-				ArrayList<Partial> partialCongruenceList = rbp.get(oddExpBigFactor);
-				// For large N, most large factors appear only once. Therefore we create an ArrayList with initialCapacity=1 to safe memory.
-				// Even less memory would be needed if we had a HashMap<Long, Object>
-				// and store AQPairs or AQPair[] in the Object part. But I do not want to break the generics...
-				if (partialCongruenceList==null) partialCongruenceList = new ArrayList<Partial>(1);
-				partialCongruenceList.add(newPartial);
-				rbp.put(oddExpBigFactor, partialCongruenceList);
-			}
-			pbr.put(newPartial, factorsList);
-			chains.put(newPartial, new ArrayList<>());
-		}
-		
-		// result
-		ArrayList<Smooth> smoothsFromPartials = new ArrayList<>();
-		
-		boolean tablesChanged;
-		do {
-			tablesChanged = false;
-			Iterator<Partial> r0Iter = pbr.keySet().iterator();
-			while (r0Iter.hasNext()) {
-				Partial r0 = r0Iter.next();
-				ArrayList<Long> r0Factors = pbr.get(r0);
-				if (r0Factors.size() != 1) continue;
-				
-				Long p = r0Factors.get(0);
-				ArrayList<Partial> riList = rbp.get(p);
-				for (Partial ri : riList) {
-					if (r0.equals(ri)) continue;
-					
-					ArrayList<Long> riFactors = pbr.get(ri);
-					if (DEBUG) assertNotNull(riFactors);
-					if (riFactors.size() == 1) {
-						// found cycle -> create new Smooth consisting of r0, ri and their chains
-						if (DEBUG) {
-							SortedMultiset<Long> combinedLargeFactors = new SortedMultiset_BottomUp<Long>();
-							combinedLargeFactors.addAll(r0.getLargeFactorsWithOddExponent());
-							for (Partial partial : chains.get(r0)) combinedLargeFactors.addAll(partial.getLargeFactorsWithOddExponent());
-							combinedLargeFactors.addAll(ri.getLargeFactorsWithOddExponent());
-							for (Partial partial : chains.get(ri)) combinedLargeFactors.addAll(partial.getLargeFactorsWithOddExponent());
-							// test combinedLargeFactors
-							for (Long factor : combinedLargeFactors.keySet()) {
-								assertTrue((combinedLargeFactors.get(factor) & 1) == 0);
-							}
-						}
-						HashSet<Partial> allPartials = new HashSet<>();
-						allPartials.add(r0);
-						allPartials.addAll(chains.get(r0));
-						allPartials.add(ri);
-						allPartials.addAll(chains.get(ri));
-						Smooth smooth = new Smooth_Composite(allPartials);
-						smoothsFromPartials.add(smooth);
-						continue;
-					}
-					
-					// otherwise add r0 and its chain to the chain of ri
-					ArrayList<Partial> riChain = chains.get(ri);
-					riChain.add(r0);
-					riChain.addAll(chains.get(r0));
-					// delete p from the prime list of ri
-					riFactors.remove(p);
-				} // end for ri
-
-				// "the entry keyed by r0 is deleted from pbr";
-				// this requires Iterator.remove() so we can continue working with the outer collection
-				r0Iter.remove(); // except avoiding ConcurrentModificationExceptions the same as pbr.remove(r0);
-				
-				// "the entry for r0 keyed by p is deleted from rbp";
-				// This choice promised finding more smooths, but unfortunately it was wrong, delivered combinations with odd exponents
-				// riList.remove(r0);
-				// The following works
-				ArrayList<Partial> partials = rbp.get(p);
-				for (Partial partial : partials) {
-					ArrayList<Long> pList = pbr.get(partial);
-					if (pList != null) pList.remove(p);
-				}
-				
-				tablesChanged = true;
-			} // end while r0
-		} while (tablesChanged);
-		
-		if (DEBUG) LOG.debug("Found " + smoothsFromPartials.size() + " smooths from partials");
-		return smoothsFromPartials;
+	@Override
+	public HashSet<Partial> getPartialRelations() {
+		return relations;
 	}
 	
-	/**
-	 * @return number of partial congruences found so far.
-	 */
-	public int getPartialCongruenceCount() {
+	@Override
+	public int getPartialRelationsCount() {
 		return relations.size();
 	}
 }

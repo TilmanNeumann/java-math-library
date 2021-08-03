@@ -45,7 +45,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	/** factor tester */
 	private FactorTest factorTest;
 	/** cycle counter/finder (experimental) */
-	private CycleFinder cycleFinder;
+	private CycleCounter cycleCounter;
 	
 	// The number of congruences we need to find before we try to solve the smooth congruence equation system:
 	// We want: #equations = #variables + some extra congruences
@@ -99,7 +99,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	public void initialize(BigInteger N, FactorTest factorTest) {
 		smoothCongruences = new ArrayList<Smooth>();
 		this.factorTest = factorTest;
-		cycleFinder = new CycleFinder(2);
+		cycleCounter = new CycleCounter01(2);
 		
 		// statistics
 		if (ANALYZE) {
@@ -144,16 +144,16 @@ public class CongruenceCollector02 implements CongruenceCollector {
 				int smoothCongruenceCount = getSmoothCongruenceCount() + smoothFromPartialsCount;
 				if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
 					if (DEBUG) LOG.debug("Cycle counter: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + getSmoothCongruenceCount() + ", #smoothsFromPartials = " + smoothFromPartialsCount + ", #totalSmooths = " + smoothCongruenceCount);
-					ArrayList<Smooth> congruences = getSmoothCongruences();
+					ArrayList<Smooth> perfectSmooths = getSmoothCongruences();
 					//long t0 = System.currentTimeMillis();
-					ArrayList<Smooth> smoothsFromPartials = cycleFinder.findIndependentCycles();
+					ArrayList<Smooth> smoothsFromPartials = CycleFinder.findIndependentCycles(cycleCounter.getPartialRelations());
 					//long t1 = System.currentTimeMillis();
 					//LOG.debug("cycle finding took " + (t1-t0) + " ms");
-					ArrayList<Smooth> allSmooths = new ArrayList<Smooth>(congruences);
+					ArrayList<Smooth> allSmooths = new ArrayList<Smooth>(perfectSmooths);
 					allSmooths.addAll(smoothsFromPartials);
 					//long t2 = System.currentTimeMillis();
 					//LOG.debug("combining smooths took " + (t2-t1) + " ms");
-					if (DEBUG) LOG.debug("Cycle finder: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + congruences.size() + ", #smoothsFromPartials = " + smoothsFromPartials.size() + ", #totalSmooths = " + allSmooths.size());
+					if (DEBUG) LOG.debug("Cycle finder: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + perfectSmooths.size() + ", #smoothsFromPartials = " + smoothsFromPartials.size() + ", #totalSmooths = " + allSmooths.size());
 					
 					// Try to solve equation system
 					if (ANALYZE) {
@@ -195,7 +195,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 		
 		// otherwise aqPair must be a partial with at least one large factor.
 		Partial partial = (Partial) aqPair;
-		int newCount = cycleFinder.addPartial(partial, /* dummy values, no debugging in this class yet*/ -123456789, null);
+		int newCount = cycleCounter.addPartial(partial, /* dummy values, no debugging in this class yet*/ -123456789, null);
 		boolean added = newCount > smoothFromPartialsCount;
 		smoothFromPartialsCount = newCount;
 		return added;
@@ -242,7 +242,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	
 	@Override
 	public int getPartialCongruenceCount() {
-		return cycleFinder.getPartialCongruenceCount();
+		return cycleCounter.getPartialRelationsCount();
 	}
 
 	@Override
