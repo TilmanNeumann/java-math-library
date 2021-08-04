@@ -116,7 +116,8 @@ public class CycleCounter3LP1 implements CycleCounter {
 		int vertexCount = edges.size();
 		if (largeFactorsCount==3) {
 			if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
-				edgeCount += 2; // +1 gives better cycleCount @ 150 bit test number
+				//edgeCount += 2; // @ 150 bit test number: 16 errors (all up) -> looks like an upper bound
+				edgeCount += 1; // @ 150 bit test number: 13 errors (all up) -> tighter upper bound?
 			} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
 				edgeCount += 2;
 			} else {
