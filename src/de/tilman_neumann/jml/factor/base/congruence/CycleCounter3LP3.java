@@ -24,20 +24,12 @@ import org.apache.log4j.Logger;
  * 
  * @author Tilman Neumann
  */
-public class CycleCounter03 implements CycleCounter {
+public class CycleCounter3LP3 implements CycleCounter {
 
-	class ArcTargets {
-		HashSet<Long> all;
-		Long smallest; // the smallest connected prime
-	}
-
-	private HashMap<Long, ArcTargets> arcs;
-
-	private static final Logger LOG = Logger.getLogger(CycleCounter03.class);
+	private static final Logger LOG = Logger.getLogger(CycleCounter3LP3.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	
 	// cycle counting
-	private int maxLargeFactors;
 	private HashMap<Long, Long> edges; // contains edges: bigger to smaller prime; size is v = #vertices
 	private HashSet<Long> roots; // roots of disjoint components
 	private HashSet<Partial> relations; // all distinct relations
@@ -51,15 +43,13 @@ public class CycleCounter03 implements CycleCounter {
 	 * Full constructor.
 	 * @param maxLargeFactors the maximum number of large primes in partials:  2 or 3
 	 */
-	public CycleCounter03(int maxLargeFactors) {
-		this.maxLargeFactors = maxLargeFactors;
+	public CycleCounter3LP3() {
 		edges = new HashMap<>(); // bigger to smaller prime
 		roots = new HashSet<>();
 		relations = new HashSet<>();
 		edgeCount = 0;
 		cycleCount = 0;
 		lastCorrectSmoothCount = 0;
-		arcs = new HashMap<Long, ArcTargets>();
 		extraRelations  = 0;
 	}
 	
@@ -110,11 +100,9 @@ public class CycleCounter03 implements CycleCounter {
 		if (largeFactorsCount==1) {
 			if (DEBUG) assertTrue(largeFactors[0] > 1);
 			insertEdge(1, vertexRoots[0]);
-			insertArc(1, largeFactors[0]);
 		} else if (largeFactorsCount==2) {
 			if (DEBUG) assertTrue(largeFactors[0] != largeFactors[1]);
 			insertEdge(vertexRoots[0], vertexRoots[1]);
-			insertArc(largeFactors[0], largeFactors[1]);
 		} else if (largeFactorsCount==3) {
 			if (DEBUG) {
 				assertTrue(largeFactors[0] != largeFactors[1]);
@@ -122,52 +110,39 @@ public class CycleCounter03 implements CycleCounter {
 				assertTrue(largeFactors[1] != largeFactors[2]);
 			}
 			insertEdges3(vertexRoots[0], vertexRoots[1], vertexRoots[2]);
-			insertArc(largeFactors[0], largeFactors[1]);
-			insertArc(largeFactors[0], largeFactors[2]);
-			insertArc(largeFactors[1], largeFactors[2]);
 		} else {
 			LOG.warn("Holy shit, we found a " + largeFactorsCount + "-partial!");
 		}
 		
 		// update edge count and cycle count
 		int vertexCount = edges.size();
-		if (maxLargeFactors==2) {
-			// standard formula: #cycles = #edges (one per relation) + #components - #vertices
-			cycleCount = relations.size() + roots.size() - vertexCount;
-		} else if (maxLargeFactors==3) {
-			if (largeFactorsCount==3) {
-				if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
-					edgeCount += 2;
-				} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
-					edgeCount += 2;
-				} else {
-					edgeCount += 2;
-				}
-			} else if (largeFactorsCount==2) {
-				if (!isNewVertex[0] && !isNewVertex[1] && (vertexRoots[0]==vertexRoots[1]) ) {
-					// both vertices were already known and in the same component
-					edgeCount += 1;
-				} else {
-					edgeCount += 1;
-				}
+		if (largeFactorsCount==3) {
+			if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
+				edgeCount += 2;
+			} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
+				edgeCount += 2;
+			} else {
+				edgeCount += 2;
+			}
+		} else if (largeFactorsCount==2) {
+			if (!isNewVertex[0] && !isNewVertex[1] && (vertexRoots[0]==vertexRoots[1]) ) {
+				// both vertices were already known and in the same component
+				edgeCount += 1;
 			} else {
 				edgeCount += 1;
 			}
-			cycleCount = edgeCount + roots.size() - vertexCount;
+		} else {
+			edgeCount += 1;
 		}
+		cycleCount = edgeCount + roots.size() - vertexCount;
 
 		if (DEBUG_3LP_CYCLE_COUNTING) {
-			int arcCount = countArcs();
-			LOG.debug("#arcs = " + arcCount);
 			LOG.debug("#edges = " + edgeCount);
 			LOG.debug("#roots = " + roots.size());
 			LOG.debug("#rootsFromVertices = " + getRootsFromVertices().size());
-			LOG.debug("#rootsFromArcs = " + countComponents());
 			LOG.debug("#vertices = " + vertexCount);
 			LOG.debug("#relations = "+ relations.size());
 			LOG.debug("");
-			LOG.debug("#arcs - #edges = " + (arcCount-edgeCount));
-			LOG.debug("#arcs - #relations = " + (arcCount-relations.size()));
 			LOG.debug("#edges - #relations = " + (edgeCount-relations.size()));
 			LOG.debug("");
 			LOG.debug("correctSmoothCount = " + correctSmoothCount);
@@ -177,14 +152,8 @@ public class CycleCounter03 implements CycleCounter {
 			// 150 bit: 287 instead of 274 cycles, 13 errors (all up)
 			// all remaining errors come from adding 1LP- or 2LP-partials that are related to at least one 3LP-partial (and after removing singletons there is no partial left)
 
-			int cycleCount2 = cycleCount + arcCount - edgeCount;
-			LOG.debug("cycleCount2 = " + cycleCount2);
-			int cycleCount3 = cycleCount2 + arcCount - relations.size();
-			LOG.debug("cycleCount3 = " + cycleCount3);
 			int cycleCount4 = cycleCount - (edgeCount - relations.size())/2;
 			LOG.debug("cycleCount4 = " + cycleCount4);
-			int cycleCount5 = cycleCount + arcCount - relations.size();
-			LOG.debug("cycleCount5 = " + cycleCount5);
 			
 			// best choice so far >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 			int cycleCount6 = cycleCount + relations.size() - edgeCount;
@@ -303,39 +272,6 @@ public class CycleCounter03 implements CycleCounter {
 		}
 		return roots;
 	}
-	
-	private void insertArc(long p1, long p2) {
-		ArcTargets p2Orci = arcs.get(p2);
-		long r2;
-		if (p2Orci == null) {
-			p2Orci = new ArcTargets();
-			p2Orci.all = new HashSet<Long>();
-			arcs.put(p2, p2Orci);
-			r2 = p2;
-		} else {
-			r2 = p2Orci.smallest;
-		}
-		p2Orci.all.add(p1);
-		if (p1 < r2) {
-			p2Orci.smallest = p1;
-		}
-	}
-	
-	private int countComponents() {
-		HashSet<Long> roots = new HashSet<>();
-		for (Long p : arcs.keySet()) {
-			roots.add(arcs.get(p).smallest);
-		}
-		return roots.size();
-	}
-	
-	private int countArcs() {
-		int arcCount = 0;
-		for (Long p : arcs.keySet()) {
-			arcCount += arcs.get(p).all.size();
-		}
-		return arcCount;
-	}
 
 	/**
 	 * Remove singletons from <code>congruences</code>.
@@ -400,5 +336,10 @@ public class CycleCounter03 implements CycleCounter {
 	@Override
 	public int getPartialRelationsCount() {
 		return relations.size();
+	}
+	
+	@Override
+	public int getCycleCount() {
+		return cycleCount;
 	}
 }

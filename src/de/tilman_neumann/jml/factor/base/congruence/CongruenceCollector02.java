@@ -99,7 +99,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	public void initialize(BigInteger N, FactorTest factorTest) {
 		smoothCongruences = new ArrayList<Smooth>();
 		this.factorTest = factorTest;
-		cycleCounter = new CycleCounter01(2);
+		cycleCounter = new CycleCounter2LP();
 		
 		// statistics
 		if (ANALYZE) {
@@ -147,6 +147,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 					ArrayList<Smooth> perfectSmooths = getSmoothCongruences();
 					//long t0 = System.currentTimeMillis();
 					ArrayList<Smooth> smoothsFromPartials = CycleFinder.findIndependentCycles(cycleCounter.getPartialRelations());
+					if (DEBUG) LOG.debug("#smoothsFromCycleCounter = " + cycleCounter.getCycleCount() + ", #smoothsFromCycleFinder = " + smoothsFromPartials.size());
 					//long t1 = System.currentTimeMillis();
 					//LOG.debug("cycle finding took " + (t1-t0) + " ms");
 					ArrayList<Smooth> allSmooths = new ArrayList<Smooth>(perfectSmooths);

@@ -24,41 +24,31 @@ import org.apache.log4j.Logger;
  * 
  * @author Tilman Neumann
  */
-public class CycleCounter01 implements CycleCounter {
+public class CycleCounter3LP2 implements CycleCounter {
 	
-	enum FORMULA {
-		DLP,
-		INTERMEDIATE,
-		TLP
-	}
-	
-	private static final Logger LOG = Logger.getLogger(CycleCounter01.class);
+	private static final Logger LOG = Logger.getLogger(CycleCounter3LP2.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
-
-	private static FORMULA formula = FORMULA.INTERMEDIATE;
 	
 	// cycle counting
-	private int maxLargeFactors;
 	private HashMap<Long, Long> edges; // contains edges: bigger to smaller prime; size is v = #vertices
 	private HashSet<Long> roots; // roots of disjoint components
 	private HashSet<Partial> relations; // all distinct relations
-	private int edgeCount;
 	// the number of smooths from partials found
 	private int cycleCount;
 	private int lastCorrectSmoothCount;
+	private int additionalEdgeCount;
 	
 	/**
 	 * Full constructor.
 	 * @param maxLargeFactors the maximum number of large primes in partials:  2 or 3
 	 */
-	public CycleCounter01(int maxLargeFactors) {
-		this.maxLargeFactors = maxLargeFactors;
+	public CycleCounter3LP2() {
 		edges = new HashMap<>(); // bigger to smaller prime
 		roots = new HashSet<>();
 		relations = new HashSet<>();
-		edgeCount = 0;
 		cycleCount = 0;
 		lastCorrectSmoothCount = 0;
+		additionalEdgeCount = 0;
 	}
 	
 	@Override
@@ -81,128 +71,48 @@ public class CycleCounter01 implements CycleCounter {
 		String partialStr = largeFactorsCount + "LP-partial " + Arrays.toString(largeFactors);
 		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("Add " + partialStr);
 		
-		// add vertices and find their roots
-		edges.put(1L, 1L); // v = 1
-		roots.add(1L); // c = 1
-		boolean[] isNewVertex = new boolean[largeFactorsCount];
-		long[] vertexRoots = new long[largeFactorsCount];
-		for (int i=0; i<largeFactorsCount; i++) {
-			long largeFactor = largeFactors[i];
-			if (DEBUG) assertTrue(largeFactor > 1);
-			isNewVertex[i] = (edges.get(largeFactor) == null);
-			if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug(largeFactor + " is new vertex? " + isNewVertex[i]);
-			if (isNewVertex[i]) {
-				// new vertex creates new component
-				edges.put(largeFactor, largeFactor); // v = v + 1
-				roots.add(largeFactor); // c = c + 1
-				vertexRoots[i] = largeFactor;
-			} else {
-				vertexRoots[i] = getRoot(largeFactor);
-			}
-		}
-		//LOG.debug("after adding vertices: edges = " + edges + ", roots = " + roots);
-
-		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("vertexRoots = " + Arrays.toString(vertexRoots));
-		
 		// add edges
 		if (largeFactorsCount==1) {
 			if (DEBUG) assertTrue(largeFactors[0] > 1);
-			insertEdge(1, vertexRoots[0]);
+//			insertEdge1(largeFactors[0]); // XXX
+			insertEdge2(1, largeFactors[0]);
 		} else if (largeFactorsCount==2) {
 			if (DEBUG) assertTrue(largeFactors[0] != largeFactors[1]);
-			insertEdge(vertexRoots[0], vertexRoots[1]);
+			insertEdge2(largeFactors[0], largeFactors[1]);
 		} else if (largeFactorsCount==3) {
 			if (DEBUG) {
 				assertTrue(largeFactors[0] != largeFactors[1]);
 				assertTrue(largeFactors[0] != largeFactors[2]);
 				assertTrue(largeFactors[1] != largeFactors[2]);
 			}
-			insertEdges3(vertexRoots[0], vertexRoots[1], vertexRoots[2]);
+//			insertEdge2(largeFactors[0], largeFactors[1]);
+//			insertEdge2(largeFactors[0], largeFactors[2]);
+//			insertEdge2(largeFactors[1], largeFactors[2]);
+			insertEdge3(largeFactors[0], largeFactors[1], largeFactors[2]); // XXX !!!
 		} else {
 			LOG.warn("Holy shit, we found a " + largeFactorsCount + "-partial!");
 		}
 		
 		// update edge count and cycle count
 		int vertexCount = edges.size();
-		if (maxLargeFactors==2) {
-			// standard formula: #cycles = #edges (one per relation) + #components - #vertices
-			cycleCount = relations.size() + roots.size() - vertexCount;
-		} else if (maxLargeFactors==3) {
-			switch (formula) {
-			case DLP: {
-				// same formula as for 2LP, does not need edgeCount at all!
-				cycleCount = relations.size() + roots.size() - vertexCount; 
-				break;
-			}
-			case INTERMEDIATE: {
-				if (largeFactorsCount==3) {
-					if (vertexRoots[0]==vertexRoots[1] && vertexRoots[0]==vertexRoots[2] && vertexRoots[1]==vertexRoots[2]) {
-						edgeCount += 2; // +1 gives better cycleCount @ 150 bit test number
-					} else if (vertexRoots[0]==vertexRoots[1] || vertexRoots[0]==vertexRoots[2] || vertexRoots[1]==vertexRoots[2]){
-						edgeCount += 2;
-					} else {
-						edgeCount += 2;
-					}
-
-				} else if (largeFactorsCount==2) {
-					if (!isNewVertex[0] && !isNewVertex[1] && (vertexRoots[0]==vertexRoots[1]) ) {
-						// both vertices were already known and in the same component
-						edgeCount += 1;
-					} else {
-						edgeCount += 1;
-					}
-				} else {
-					edgeCount += 1;
-				}
-				cycleCount = edgeCount + roots.size() - vertexCount;
-				break;
-			}
-			case TLP: {
-				edgeCount += 3;
-				// The "thought to be" formula from [LLDMW02], p.7
-				cycleCount = edgeCount + roots.size() - vertexCount - 2*relations.size();
-				break;
-			}
-			}
-		}
+		int edgeCount = relations.size() + additionalEdgeCount; // XXX additionalEdgeCount is new
+		cycleCount = edgeCount + roots.size() - vertexCount; 
 
 		if (DEBUG_3LP_CYCLE_COUNTING) {
-			LOG.debug("edgeCount = " + edgeCount);
 			int rootCount = roots.size();
 			String rootsStr = rootCount<100 ? rootCount + " roots = " + roots : rootCount + " roots";
 			LOG.debug(rootsStr);
 			String vertexStr = vertexCount<100 ? vertexCount + " vertices = " + edges : vertexCount + " vertices";
 			LOG.debug(vertexStr);
 			LOG.debug(relations.size() + " relations");
+			LOG.debug("additionalEdgeCount = " + additionalEdgeCount);
 
 			LOG.debug("correctSmoothCount = " + correctSmoothCount);
 
-			switch (formula) {
-			case DLP: {
-				// same formula as for 2LP, does not need edgeCount at all!
-				String cycleCountFormula = "#edges + #roots - #vertices";
-				LOG.debug("#edges=" + relations.size()  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
-				// 150 bit: 273 instead of 274 cycles, 23 errors (12 down, 11 up)
-				break;
-			}
-			case INTERMEDIATE: {
-				String cycleCountFormula = "#edges + #roots - #vertices";
-				LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size() + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
-				// 150 bit: 287 instead of 274 cycles, 13 errors (all up)
-				// all remaining errors come from adding 1LP- or 2LP-partials that are related to at least one 3LP-partial (and after removing singletons there is no partial left)
-				break;
-			}
-			case TLP: {
-				// original from [LLDMW02], p.7
-				String cycleCountFormula = "#edges + #roots - #vertices - 2*#relations";
-				LOG.debug("#edges=" + edgeCount  + ", #roots=" + roots.size()  + ", #vertices=" + edges.size() + ", #relations=" + relations.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
-				// 150 bit: 273 instead of 274 cycles, 23 errors (12 down, 11 up)
-				break;
-			}
-			}
-
-			LOG.debug("#rootsFromVertices = " + getRootsFromVertices().size());
-
+			// same formula as for 2LP, does not need edgeCount at all!
+			String cycleCountFormula = "#edges + #components - #vertices";
+			LOG.debug("#edges=" + edgeCount + ", #components=" + roots.size() + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
+			
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
 				LOG.debug("ERROR: " + partialStr + " led to incorrect cycle count update!");
@@ -233,59 +143,180 @@ public class CycleCounter01 implements CycleCounter {
 		
 		return cycleCount;
 	}
-
-	private void insertEdge(long r1, long r2) {
-		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("r1=" + r1 + ", r2=" + r2);
-
-		// insert edge: the smaller root is made the parent of the larger root, and the larger root is no root anymore
-		if (r1 < r2) {
-			edges.put(r2, r1);
-			if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("roots contains r2=" + r2 + ": " + roots.contains(r2));
-			roots.remove(r2);
-		} else if (r1 > r2) {
-			if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("roots contains r1=" + r1 + ": " + roots.contains(r1));
-			edges.put(r1, r2);
-			roots.remove(r1);
-		} else {
-			// else: r1 and r2 are in the same component -> a cycle has been found
-			if (DEBUG_3LP_CYCLE_COUNTING) {
-				LOG.debug("roots are equal! r1 = " + r1 + ", r2 = " + r2);
-				LOG.debug("-> " + r1 + " is new root? " + !roots.contains(r1));
-//				if (r1!=1) roots.remove(r1); // XXX
-			}
-		}
+	
+	private void insertEdge1(long p1) {
+		Long r1 = getRoot(p1);
 		
-		// For a speedup, we could also set the "parents" of (all edges passed in root finding) to the new root
+		if (r1!=null) {
+			// the vertex already exists -> do nothing
+			LOG.debug("1LP: 1 old vertex");
+		} else {
+			// the prime is new and forms its own new disconnected component
+			LOG.debug("1LP: 1 new vertex");
+			edges.put(p1, p1);
+			roots.add(p1);
+		}
 	}
-	
-	private void insertEdges3(long r1, long r2, long r3) {
-		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("r1=" + r1 + ", r2=" + r2 + ", r3=" + r3);
-	
-		// insert edge: the smallest root is made the parent of the other two, the larger roots are dropped
-		if (r1 < r2) {
-			if (r1 < r3) { // r1 is the smallest root
+
+	/** p1 = smaller p, p2 = larger p */
+	private void insertEdge2(long p1, long p2) {
+		Long r1 = getRoot(p1);
+		Long r2 = getRoot(p2);
+
+		if (r1!=null && r2!=null) {
+			// both vertices already exist.
+			// if the roots are different, then we have distinct components which we can join now
+			if (r1<r2) {
+				LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r2, r1);
-				edges.put(r3, r1);
 				roots.remove(r2);
-				roots.remove(r3); // XXX
-			} else { // r3 <= r1 is the smallest root
-				edges.put(r1, r3);
-				edges.put(r2, r3);
-				if (r3 != r1) roots.remove(r1);
-				roots.remove(r2);
-			}
-		} else { // r2 <= r1
-			if (r2 < r3) { // r2 <= r1 is the smallest root
+			} else if (r2<r1) {
+				LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r1, r2);
-				edges.put(r3, r2);
-				if (r2 != r1) roots.remove(r1);
-				roots.remove(r3);
-			} else { // r3 <= r1, r2 is the smallest root
-				edges.put(r1, r3);
-				edges.put(r2, r3);
-				if (r3 != r1) roots.remove(r1);
-				if (r3 != r2) roots.remove(r2);
+				roots.remove(r1);
+			} else {
+				// if the roots are equal than both primes are already part of the same component so nothing more happens
+				LOG.debug("2LP: 2 old vertices from the same components");
 			}
+		} else if (r1 != null) {
+			// p1 already exists, p2 is new -> we just add p2 to the component of p1
+			LOG.debug("2LP: 1 old vertex, 1 new vertex");
+			edges.put(p2, r1);
+		} else if (r2 != null) {
+			// p2 already exists, p1 is new -> we just add p1 to the component of p2
+			LOG.debug("2LP: 1 old vertex, 1 new vertex");
+			edges.put(p1, r2);
+		} else {
+			// both primes are new and form their own new disconnected component
+			// we know p1 < p2
+			LOG.debug("2LP: 2 new vertices");
+			edges.put(p1, p1);
+			edges.put(p2, p1);
+			roots.add(p1);
+		}
+	}
+
+	/** p1 <= p2 <= p3 */
+	private void insertEdge3(long p1, long p2, long p3) {
+		Long r1 = getRoot(p1);
+		Long r2 = getRoot(p2);
+		Long r3 = getRoot(p3);
+		
+		if (r1!=null && r2!=null && r3!=null) {
+			// all three vertices already exist. in this case we only need the roots, so we can sort them without keeping the referecne to the primes
+			long tmp;
+			if (r2<r1) { tmp=r1; r1=r2; r2=tmp; }
+			if (r3<r2) { tmp=r2; r2=r3; r3=tmp; }
+			if (r2<r1) { tmp=r1; r1=r2; r2=tmp; }
+			// now r1 <= r2 <= r3
+			
+			// if they lie in different components we can connect them
+			if (r1<r2) {
+				if (r2<r3) {
+					// r1 < r2 < r3, three different components
+					LOG.debug("3LP: 3 old vertices from 3 distinct components");
+					edges.put(r2, r1);
+					edges.put(r3, r1);
+					roots.remove(r2);
+					roots.remove(r3);
+					additionalEdgeCount++;
+				} else {
+					// r1 < r2==r3, two different components
+					LOG.debug("3LP: 3 old vertices from 2 distinct components");
+					edges.put(r2, r1);
+					roots.remove(r2);
+					additionalEdgeCount++;
+				}
+			} else {
+				// r1==r2
+				if (r2<r3) {
+					// r1==r2 < r3, two different components
+					LOG.debug("3LP: 3 old vertices from 2 distinct components");
+					edges.put(r3, r1);
+					roots.remove(r3);
+					additionalEdgeCount++;
+				} else {
+					// r1==r2==r3, all vertices lie in the same component
+					LOG.debug("3LP: 3 old vertices all from the same components");
+				}
+			}
+		} else if (r1!=null && r2!=null) {
+			// p1 and p2 already existed, p3 is new.
+			// if the two existing roots are different, we can connect their components and add p3 to it.
+			// thereby, the number of components reduces by 1.
+			if (r1<r2) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
+				edges.put(r2, r1);
+				roots.remove(r2);
+				edges.put(p3, r1);
+			} else if (r2<r1) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
+				edges.put(r1, r2);
+				roots.remove(r1);
+				edges.put(p3, r2);
+			} else {
+				// the two existing primes belong to the same component, thus we only add the new prime to it
+				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
+				edges.put(p3, r1);
+			}
+		} else if (r1!=null && r3!=null) {
+			// p1 and p3 already existed, p2 is new.
+			if (r1<r3) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
+				edges.put(r3, r1);
+				roots.remove(r3);
+				edges.put(p2, r1);
+			} else if (r3<r1) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
+				edges.put(r1, r3);
+				roots.remove(r1);
+				edges.put(p2, r3);
+			} else {
+				// the two existing primes belong to the same component, thus we only add the new prime to it
+				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
+				edges.put(p2, r1);
+			}
+		} else if (r2!=null && r3!=null) {
+			// p2 and p3 already existed, p1 is new.
+			if (r2<r3) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
+				edges.put(r3, r2);
+				roots.remove(r3);
+				edges.put(p1, r2);
+			} else if (r3<r2) {
+				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
+				edges.put(r2, r3);
+				roots.remove(r2);
+				edges.put(p1, r3);
+			} else {
+				// the two existing primes belong to the same component, thus we only add the new prime to it
+				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
+				edges.put(p1, r2);
+			}
+		} else if (r1!=null) {
+			// p1 already existed, p2 and p3 are new.
+			// We add both new primes to the existing component. The number of components remains unchanged.
+			LOG.debug("3LP: 1 old vertex, two new vertices");
+			edges.put(p2, r1);
+			edges.put(p3, r1);
+		} else if (r2!=null) {
+			// p2 already existed, p1 and p3 are new.
+			LOG.debug("3LP: 1 old vertex, two new vertices");
+			edges.put(p1, r2);
+			edges.put(p3, r2);
+		} else if (r3!=null) {
+			// p3 already existed, p1 and p2 are new.
+			LOG.debug("3LP: 1 old vertex, two new vertices");
+			edges.put(p1, r3);
+			edges.put(p2, r3);
+		} else {
+			// all three vertices are new -> we create a new component with the smallest prime as root
+			// fortunately we already know that p1 <= p2 <= p3
+			LOG.debug("3LP: three new vertices");
+			edges.put(p1, p1);
+			edges.put(p2, p1);
+			edges.put(p3, p2);
+			roots.add(p1);
 		}
 	}
 
@@ -294,19 +325,13 @@ public class CycleCounter01 implements CycleCounter {
 	 * @param p
 	 * @return root of p (may be 1 or p itself)
 	 */
-	private Long getRoot(long p) {
-		long q;
-		while ((q = edges.get(p)) != p) p = q;
-		return p;
-	}
-	
-	private HashSet<Long> getRootsFromVertices() {
-		HashSet<Long> roots = new HashSet<>();
-		for (long vertex : edges.keySet()) {
-			long r = getRoot(vertex);
-			roots.add(r);
+	private Long getRoot(Long p) {
+		Long q = edges.get(p);
+		while (q != p) { // includes null test
+			p = q;
+			q = edges.get(p);
 		}
-		return roots;
+		return p;
 	}
 	
 	/**
@@ -368,9 +393,14 @@ public class CycleCounter01 implements CycleCounter {
 	public HashSet<Partial> getPartialRelations() {
 		return relations;
 	}
-	
+
 	@Override
 	public int getPartialRelationsCount() {
 		return relations.size();
+	}
+	
+	@Override
+	public int getCycleCount() {
+		return cycleCount;
 	}
 }

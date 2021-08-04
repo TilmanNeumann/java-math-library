@@ -113,7 +113,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
-		if (DEBUG_3LP_CYCLE_COUNTING) cycleCounter = new CycleCounter01(3);
+		if (DEBUG_3LP_CYCLE_COUNTING) cycleCounter = new CycleCounter3LP1();
 		
 		// statistics
 		totalPartialCount = 0;

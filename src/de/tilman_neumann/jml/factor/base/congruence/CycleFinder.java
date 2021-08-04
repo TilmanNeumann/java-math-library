@@ -24,7 +24,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  */
 public class CycleFinder {
 	
-	private static final Logger LOG = Logger.getLogger(CycleCounter01.class);
+	private static final Logger LOG = Logger.getLogger(CycleFinder.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 
 	/**

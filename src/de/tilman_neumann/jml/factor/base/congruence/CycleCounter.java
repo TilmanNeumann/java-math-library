@@ -3,7 +3,7 @@ package de.tilman_neumann.jml.factor.base.congruence;
 import java.util.HashSet;
 
 /**
- * Interface for cycle counter algorithms.
+ * Interface for cycle counting algorithms.
  * @author Till
  *
  * @see [LLDMW02] Leyland, Lenstra, Dodson, Muffett, Wagstaff 2002: "MPQS with three large primes", Lecture Notes in Computer Science, 2369.
@@ -12,8 +12,7 @@ import java.util.HashSet;
 public interface CycleCounter {
 
 	/**
-	 * Counts the number of independent cycles in the partial relations following [LLDMW02], [LM94].
-	 * Works for 2LP so far, but not for 3LP yet.
+	 * Counts the number of independent cycles in the partial relations.
 	 * 
 	 * @param partial the newest partial relation to add
 	 * @param correctSmoothCount the correct number of smooths from partials (only for debugging)
@@ -31,4 +30,9 @@ public interface CycleCounter {
 	 * @return number of partial relations found so far.
 	 */
 	int getPartialRelationsCount();
+	
+	/**
+	 * @return the number of cycles counted by this algorithm
+	 */
+	int getCycleCount();
 }
