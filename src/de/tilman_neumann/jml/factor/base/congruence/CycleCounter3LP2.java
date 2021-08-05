@@ -249,11 +249,13 @@ public class CycleCounter3LP2 implements CycleCounter {
 				edges.put(r2, r1);
 				roots.remove(r2);
 				edges.put(p3, r1);
+				additionalEdgeCount++;
 			} else if (r2<r1) {
 				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r1, r2);
 				roots.remove(r1);
 				edges.put(p3, r2);
+				additionalEdgeCount++;
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
 				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
@@ -266,11 +268,13 @@ public class CycleCounter3LP2 implements CycleCounter {
 				edges.put(r3, r1);
 				roots.remove(r3);
 				edges.put(p2, r1);
+				additionalEdgeCount++;
 			} else if (r3<r1) {
 				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r1, r3);
 				roots.remove(r1);
 				edges.put(p2, r3);
+				additionalEdgeCount++;
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
 				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
@@ -283,11 +287,13 @@ public class CycleCounter3LP2 implements CycleCounter {
 				edges.put(r3, r2);
 				roots.remove(r3);
 				edges.put(p1, r2);
+				additionalEdgeCount++;
 			} else if (r3<r2) {
 				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r2, r3);
 				roots.remove(r2);
 				edges.put(p1, r3);
+				additionalEdgeCount++;
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
 				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
@@ -299,16 +305,19 @@ public class CycleCounter3LP2 implements CycleCounter {
 			LOG.debug("3LP: 1 old vertex, two new vertices");
 			edges.put(p2, r1);
 			edges.put(p3, r1);
+			additionalEdgeCount++;
 		} else if (r2!=null) {
 			// p2 already existed, p1 and p3 are new.
 			LOG.debug("3LP: 1 old vertex, two new vertices");
 			edges.put(p1, r2);
 			edges.put(p3, r2);
+			additionalEdgeCount++;
 		} else if (r3!=null) {
 			// p3 already existed, p1 and p2 are new.
 			LOG.debug("3LP: 1 old vertex, two new vertices");
 			edges.put(p1, r3);
 			edges.put(p2, r3);
+			additionalEdgeCount++;
 		} else {
 			// all three vertices are new -> we create a new component with the smallest prime as root
 			// fortunately we already know that p1 <= p2 <= p3
