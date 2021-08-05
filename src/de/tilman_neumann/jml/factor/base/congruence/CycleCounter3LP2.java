@@ -116,6 +116,7 @@ public class CycleCounter3LP2 implements CycleCounter {
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
 				LOG.debug("ERROR: " + partialStr + " led to incorrect cycle count update!");
+				if (correctSmoothCountIncr > cycleCountIncr) LOG.error("NEG ERROR!");
 				// log all related partials
 				LOG.debug(relatedPartials.size() + " related partials");
 //				for (Partial par : relatedPartials) {
