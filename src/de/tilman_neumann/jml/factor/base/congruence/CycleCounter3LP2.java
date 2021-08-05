@@ -326,6 +326,7 @@ public class CycleCounter3LP2 implements CycleCounter {
 			edges.put(p2, p1);
 			edges.put(p3, p2);
 			roots.add(p1);
+			additionalEdgeCount++;
 		}
 	}
 
