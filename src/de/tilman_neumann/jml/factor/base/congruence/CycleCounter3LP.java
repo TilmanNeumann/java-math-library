@@ -29,26 +29,37 @@ public class CycleCounter3LP implements CycleCounter {
 	private static final Logger LOG = Logger.getLogger(CycleCounter3LP.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	
-	// cycle counting
-	private HashMap<Long, Long> edges; // contains edges: bigger to smaller prime; size is v = #vertices
-	private HashSet<Long> roots; // roots of disjoint components
-	private HashSet<Partial> relations; // all distinct relations
-	// the number of smooths from partials found
-	private int cycleCount;
-	private int lastCorrectSmoothCount;
-	private int additionalEdgeCount;
+	/** contains edges: bigger to smaller prime; size is v = #vertices */
+	private HashMap<Long, Long> edges;
+	/** roots of disjoint components */
+	private HashSet<Long> roots;
+	/** all distinct relations */
+	private HashSet<Partial> relations;
 	
+	/**
+	 * A correction term that makes the estimated cycle count #cycles = #relations + #components + #corrections - #vertices an upper bound of the true 3LP cycle count.
+	 * It is computed such that the estimated cycle count can never decrement when a new partial is added.
+	 */
+	private int corrections;
+	
+	/** the number of smooths from partials found */
+	private int cycleCount;
+	
+	private int lastCorrectSmoothCount;
+
 	/**
 	 * Full constructor.
 	 * @param maxLargeFactors the maximum number of large primes in partials:  2 or 3
 	 */
 	public CycleCounter3LP() {
 		edges = new HashMap<>(); // bigger to smaller prime
+		edges.put(1L, 1L);
+		corrections = 1; // account for vertex 1
+
 		roots = new HashSet<>();
 		relations = new HashSet<>();
 		cycleCount = 0;
 		lastCorrectSmoothCount = 0;
-		additionalEdgeCount = 0;
 	}
 	
 	@Override
@@ -74,8 +85,7 @@ public class CycleCounter3LP implements CycleCounter {
 		// add edges
 		if (largeFactorsCount==1) {
 			if (DEBUG) assertTrue(largeFactors[0] > 1);
-//			insertEdge1(largeFactors[0]); // XXX
-			insertEdge2(1, largeFactors[0]);
+			insertEdge1(largeFactors[0]);
 		} else if (largeFactorsCount==2) {
 			if (DEBUG) assertTrue(largeFactors[0] != largeFactors[1]);
 			insertEdge2(largeFactors[0], largeFactors[1]);
@@ -85,33 +95,20 @@ public class CycleCounter3LP implements CycleCounter {
 				assertTrue(largeFactors[0] != largeFactors[2]);
 				assertTrue(largeFactors[1] != largeFactors[2]);
 			}
-//			insertEdge2(largeFactors[0], largeFactors[1]);
-//			insertEdge2(largeFactors[0], largeFactors[2]);
-//			insertEdge2(largeFactors[1], largeFactors[2]);
-			insertEdge3(largeFactors[0], largeFactors[1], largeFactors[2]); // XXX !!!
+			insertEdge3(largeFactors[0], largeFactors[1], largeFactors[2]);
 		} else {
 			LOG.warn("Holy shit, we found a " + largeFactorsCount + "-partial!");
 		}
 		
 		// update edge count and cycle count
 		int vertexCount = edges.size();
-		int edgeCount = relations.size() + additionalEdgeCount; // XXX additionalEdgeCount is new
-		cycleCount = edgeCount + roots.size() - vertexCount; 
+		cycleCount = relations.size() + corrections + roots.size() - vertexCount; 
 
 		if (DEBUG_3LP_CYCLE_COUNTING) {
-			int rootCount = roots.size();
-			String rootsStr = rootCount<100 ? rootCount + " roots = " + roots : rootCount + " roots";
-			LOG.debug(rootsStr);
-			String vertexStr = vertexCount<100 ? vertexCount + " vertices = " + edges : vertexCount + " vertices";
-			LOG.debug(vertexStr);
-			LOG.debug(relations.size() + " relations");
-			LOG.debug("additionalEdgeCount = " + additionalEdgeCount);
-
 			LOG.debug("correctSmoothCount = " + correctSmoothCount);
 
-			// same formula as for 2LP, does not need edgeCount at all!
-			String cycleCountFormula = "#edges + #components - #vertices";
-			LOG.debug("#edges=" + edgeCount + ", #components=" + roots.size() + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
+			String cycleCountFormula = "#edges + #components + #corrections - #vertices";
+			LOG.debug("#relations=" + relations.size() + ", #components=" + roots.size() + ", #corrections = " + corrections + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
 			
 			int cycleCountIncr = cycleCount - lastCycleCount;
 			if (correctSmoothCountIncr != cycleCountIncr) {
@@ -145,17 +142,19 @@ public class CycleCounter3LP implements CycleCounter {
 		return cycleCount;
 	}
 	
-	private void insertEdge1(long p1) {
-		Long r1 = getRoot(p1);
-		
-		if (r1!=null) {
-			// the vertex already exists -> do nothing
+	private void insertEdge1(long p) {
+		Long r2 = getRoot(p);
+
+		if (r2!=null) {
+			// The prime already existed
 			LOG.debug("1LP: 1 old vertex");
+			// Add it to the component with root 1 and remove the old root if it existed
+			edges.put(r2, 1L);
+			roots.remove(r2);
 		} else {
-			// the prime is new and forms its own new disconnected component
+			// The prime is new -> just add it to the component with root 1
 			LOG.debug("1LP: 1 new vertex");
-			edges.put(p1, p1);
-			roots.add(p1);
+			edges.put(p, 1L);
 		}
 	}
 
@@ -220,7 +219,7 @@ public class CycleCounter3LP implements CycleCounter {
 					edges.put(r3, r1);
 					roots.remove(r2);
 					roots.remove(r3);
-					additionalEdgeCount++;
+					corrections++;
 				} else {
 					// r1 < r2==r3, two different components
 					LOG.debug("3LP: 3 old vertices from 2 distinct components");
@@ -248,13 +247,13 @@ public class CycleCounter3LP implements CycleCounter {
 				edges.put(r2, r1);
 				roots.remove(r2);
 				edges.put(p3, r1);
-				additionalEdgeCount++;
+				corrections++;
 			} else if (r2<r1) {
 				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r1, r2);
 				roots.remove(r1);
 				edges.put(p3, r2);
-				additionalEdgeCount++;
+				corrections++;
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
 				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
@@ -267,13 +266,13 @@ public class CycleCounter3LP implements CycleCounter {
 				edges.put(r3, r1);
 				roots.remove(r3);
 				edges.put(p2, r1);
-				additionalEdgeCount++;
+				corrections++;
 			} else if (r3<r1) {
 				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r1, r3);
 				roots.remove(r1);
 				edges.put(p2, r3);
-				additionalEdgeCount++;
+				corrections++;
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
 				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
@@ -286,13 +285,13 @@ public class CycleCounter3LP implements CycleCounter {
 				edges.put(r3, r2);
 				roots.remove(r3);
 				edges.put(p1, r2);
-				additionalEdgeCount++;
+				corrections++;
 			} else if (r3<r2) {
 				LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r2, r3);
 				roots.remove(r2);
 				edges.put(p1, r3);
-				additionalEdgeCount++;
+				corrections++;
 			} else {
 				// the two existing primes belong to the same component, thus we only add the new prime to it
 				LOG.debug("3LP: 2 old vertices from the same components, one new vertex");
@@ -304,19 +303,19 @@ public class CycleCounter3LP implements CycleCounter {
 			LOG.debug("3LP: 1 old vertex, two new vertices");
 			edges.put(p2, r1);
 			edges.put(p3, r1);
-			additionalEdgeCount++;
+			corrections++;
 		} else if (r2!=null) {
 			// p2 already existed, p1 and p3 are new.
 			LOG.debug("3LP: 1 old vertex, two new vertices");
 			edges.put(p1, r2);
 			edges.put(p3, r2);
-			additionalEdgeCount++;
+			corrections++;
 		} else if (r3!=null) {
 			// p3 already existed, p1 and p2 are new.
 			LOG.debug("3LP: 1 old vertex, two new vertices");
 			edges.put(p1, r3);
 			edges.put(p2, r3);
-			additionalEdgeCount++;
+			corrections++;
 		} else {
 			// all three vertices are new -> we create a new component with the smallest prime as root
 			// fortunately we already know that p1 <= p2 <= p3
@@ -325,7 +324,7 @@ public class CycleCounter3LP implements CycleCounter {
 			edges.put(p2, p1);
 			edges.put(p3, p2);
 			roots.add(p1);
-			additionalEdgeCount++;
+			corrections++;
 		}
 	}
 
