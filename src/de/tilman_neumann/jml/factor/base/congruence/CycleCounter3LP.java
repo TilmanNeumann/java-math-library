@@ -64,10 +64,6 @@ public class CycleCounter3LP implements CycleCounter {
 	
 	@Override
 	public int addPartial(Partial partial, int correctSmoothCount, HashSet<Partial> relatedPartials) {
-		int correctSmoothCountIncr = correctSmoothCount - lastCorrectSmoothCount;
-		lastCorrectSmoothCount = correctSmoothCount;
-		int lastCycleCount = cycleCount;
-		
 		boolean added = relations.add(partial);
 		if (!added) {
 			// The partial is a duplicate of another relation we already have
@@ -75,10 +71,13 @@ public class CycleCounter3LP implements CycleCounter {
 			return cycleCount;
 		}
 		
+		int correctSmoothCountIncr = correctSmoothCount - lastCorrectSmoothCount;
+		lastCorrectSmoothCount = correctSmoothCount;
+		int lastCycleCount = cycleCount;
+		
 		Long[] largeFactors = partial.getLargeFactorsWithOddExponent();
 		int largeFactorsCount = largeFactors.length;
-		String partialStr = largeFactorsCount + "LP-partial " + Arrays.toString(largeFactors);
-		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("Add " + partialStr);
+		if (DEBUG_3LP_CYCLE_COUNTING) LOG.debug("Add " + largeFactorsCount + "LP-partial " + Arrays.toString(largeFactors));
 		
 		// add edges
 		if (largeFactorsCount==1) {
@@ -101,13 +100,13 @@ public class CycleCounter3LP implements CycleCounter {
 		if (DEBUG_3LP_CYCLE_COUNTING) {
 			LOG.debug("correctSmoothCount = " + correctSmoothCount);
 
-			String cycleCountFormula = "#edges + #components + #corrections - #vertices";
+			String cycleCountFormula = "#relations + #components + #corrections - #vertices";
 			LOG.debug("#relations=" + relations.size() + ", #components=" + roots.size() + ", #corrections = " + corrections + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
 			
 			int cycleCountIncr = cycleCount - lastCycleCount;
-			if (correctSmoothCountIncr != cycleCountIncr) {
-				LOG.debug("ERROR: " + partialStr + " led to incorrect cycle count update!");
-				if (correctSmoothCountIncr > cycleCountIncr) LOG.error("NEG ERROR!");
+			if (cycleCountIncr != correctSmoothCountIncr) {
+				String errorType = (cycleCountIncr < correctSmoothCountIncr) ? "false-negative" : "false-positive";
+				LOG.debug("ERROR: " + largeFactorsCount + "LP-partial " + Arrays.toString(largeFactors) + " led to " + errorType + " cycle count update!");
 				// log all related partials
 				LOG.debug(relatedPartials.size() + " related partials");
 //				for (Partial par : relatedPartials) {
