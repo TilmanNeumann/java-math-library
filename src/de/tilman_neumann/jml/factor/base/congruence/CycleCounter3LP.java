@@ -62,10 +62,7 @@ public class CycleCounter3LP implements CycleCounter {
 		corrections = 1; // account for vertex 1
 
 		componentCount = 0;
-		if (DEBUG) {
-			roots = new HashSet<>();
-//			roots.add(1L);
-		}
+		if (DEBUG) roots = new HashSet<>();
 		
 		relations = new HashSet<>();
 		
@@ -153,8 +150,8 @@ public class CycleCounter3LP implements CycleCounter {
 		if (r1!=null) {
 			// The prime already existed
 			LOG.debug("1LP: 1 old vertex: p1 = " + p1 + ", r1 = " + r1);
-			// Add it to the component with root 1 and remove the old root if it existed
 			if (r1 != 1) {
+				// Add it to the component with root 1 and remove the old root if it existed
 				edges.put(r1, 1L);
 				componentCount--;
 				if (DEBUG) assertTrue(roots.remove(r1));
