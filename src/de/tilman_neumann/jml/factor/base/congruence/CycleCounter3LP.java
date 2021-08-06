@@ -75,8 +75,6 @@ public class CycleCounter3LP implements CycleCounter {
 			return cycleCount;
 		}
 		
-		// We compute the following two variable once again,
-		// but that doesn't matter 'cause it's no production code
 		Long[] largeFactors = partial.getLargeFactorsWithOddExponent();
 		int largeFactorsCount = largeFactors.length;
 		String partialStr = largeFactorsCount + "LP-partial " + Arrays.toString(largeFactors);
@@ -84,23 +82,19 @@ public class CycleCounter3LP implements CycleCounter {
 		
 		// add edges
 		if (largeFactorsCount==1) {
-			if (DEBUG) assertTrue(largeFactors[0] > 1);
-			insertEdge1(largeFactors[0]);
+			if (DEBUG) assertTrue(1 < largeFactors[0]);
+			insert1LP(largeFactors[0]);
 		} else if (largeFactorsCount==2) {
-			if (DEBUG) assertTrue(largeFactors[0] != largeFactors[1]);
-			insertEdge2(largeFactors[0], largeFactors[1]);
+			if (DEBUG) assertTrue(largeFactors[0] < largeFactors[1]);
+			insert2LP(largeFactors[0], largeFactors[1]);
 		} else if (largeFactorsCount==3) {
-			if (DEBUG) {
-				assertTrue(largeFactors[0] != largeFactors[1]);
-				assertTrue(largeFactors[0] != largeFactors[2]);
-				assertTrue(largeFactors[1] != largeFactors[2]);
-			}
-			insertEdge3(largeFactors[0], largeFactors[1], largeFactors[2]);
+			if (DEBUG) assertTrue(largeFactors[0] < largeFactors[1] && largeFactors[1] < largeFactors[2]);
+			insert3LP(largeFactors[0], largeFactors[1], largeFactors[2]);
 		} else {
 			LOG.warn("Holy shit, we found a " + largeFactorsCount + "-partial!");
 		}
 		
-		// update edge count and cycle count
+		// update cycle count
 		int vertexCount = edges.size();
 		cycleCount = relations.size() + corrections + roots.size() - vertexCount; 
 
@@ -142,24 +136,24 @@ public class CycleCounter3LP implements CycleCounter {
 		return cycleCount;
 	}
 	
-	private void insertEdge1(long p) {
-		Long r2 = getRoot(p);
+	private void insert1LP(long p1) {
+		Long r1 = getRoot(p1);
 
-		if (r2!=null) {
+		if (r1!=null) {
 			// The prime already existed
 			LOG.debug("1LP: 1 old vertex");
 			// Add it to the component with root 1 and remove the old root if it existed
-			edges.put(r2, 1L);
-			roots.remove(r2);
+			edges.put(r1, 1L);
+			roots.remove(r1);
 		} else {
 			// The prime is new -> just add it to the component with root 1
 			LOG.debug("1LP: 1 new vertex");
-			edges.put(p, 1L);
+			edges.put(p1, 1L);
 		}
 	}
 
 	/** p1 = smaller p, p2 = larger p */
-	private void insertEdge2(long p1, long p2) {
+	private void insert2LP(long p1, long p2) {
 		Long r1 = getRoot(p1);
 		Long r2 = getRoot(p2);
 
@@ -197,7 +191,7 @@ public class CycleCounter3LP implements CycleCounter {
 	}
 
 	/** p1 <= p2 <= p3 */
-	private void insertEdge3(long p1, long p2, long p3) {
+	private void insert3LP(long p1, long p2, long p3) {
 		Long r1 = getRoot(p1);
 		Long r2 = getRoot(p2);
 		Long r3 = getRoot(p3);
