@@ -168,7 +168,8 @@ public class CongruenceCollector01 implements CongruenceCollector {
 						if (ANALYZE) {
 							ccDuration += timer.capture();
 							solverRunCount++;
-							LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
+							if (DEBUG) LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
+							// XXX we want to log this, but only for N, not for auxiliary Q(x)
 						}
 						ArrayList<Smooth> congruences = getSmoothCongruences();
 						// The matrix solver should also run synchronized, because blocking the other threads
