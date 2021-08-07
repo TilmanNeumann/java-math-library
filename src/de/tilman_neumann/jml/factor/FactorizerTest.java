@@ -59,7 +59,7 @@ public class FactorizerTest {
 	/** number of test numbers */
 	private static final int N_COUNT = 1;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 280;
+	private static final int START_BITS = 330;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 10;
 	/** maximum number of bits to test (no maximum if null) */
@@ -153,8 +153,8 @@ public class FactorizerTest {
 			// large N
 //			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03g(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_PGauss01(12)),
 //			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03gU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_PGauss01(12)),
-//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03h(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_PGauss01(12)),
-//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_PGauss01(12)),
+//			new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03h(), new TDiv_QS_2Large_UBI_ForSieve03h(true), 10, new MatrixSolver_PGauss01(12)),
+	//		new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI_ForSieve03h(true), 10, new MatrixSolver_PGauss01(4)),
 
 			// sieving with prime powers: best sieve for small N!
 //			new SIQS(0.31F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(true), 10, new MatrixSolver_Gauss03()),
@@ -169,7 +169,7 @@ public class FactorizerTest {
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
 
-			new PSIQS_U_nLP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+	//		new PSIQS_U_nLP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 			new PSIQS_U_3LP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
