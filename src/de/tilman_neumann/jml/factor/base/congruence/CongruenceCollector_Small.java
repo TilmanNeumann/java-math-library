@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
-import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
@@ -30,20 +28,19 @@ import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.util.Multiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.util.Timer;
 
 /**
- * First congruence collector using a cycle counter for 3LP.
- * With 3LP, the cycle count from the cycle counting algorithm is an upper bound of the true number of cycles.
- * So if it indicates that we might have found a new cycle, then the partial solver must be run to check that and resolve the smooth congruence.
+ * A copy of CongruenceCollector01 used forcollecting conguences in nested SIQS.
  * 
  * @author Tilman Neumann
  */
-public class CongruenceCollector03 implements CongruenceCollector {
-	private static final Logger LOG = Logger.getLogger(CongruenceCollector03.class);
+// XXX Here we need to collect at most 1-partials, so several optimizations are possible.
+public class CongruenceCollector_Small implements CongruenceCollector {
+	private static final Logger LOG = Logger.getLogger(CongruenceCollector_Small.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
-
+	private static final boolean ANALYZE = false;
+	
 	/** smooth congruences */
 	private ArrayList<Smooth> smoothCongruences;
 	/** 
@@ -52,13 +49,8 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	 * thus one big factor may be contained in many distinct partials.
 	 */
 	private HashMap<Long, ArrayList<Partial>> largeFactors_2_partials; // rbp !
-	
-	/** cycle counter */
-	private CycleCounter cycleCounter = new CycleCounter3LP();
-	
 	/** A solver used to create smooth congruences from partials */
 	private PartialSolver partialSolver = new PartialSolver01();
-	
 	/** factor tester */
 	private FactorTest factorTest;
 	
@@ -76,7 +68,6 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	// statistics
 	private int totalPartialCount; // standard
 	private int perfectSmoothCount; // needs ANALYZE
-	private int cycleCount;
 	private int[] smoothFromPartialCounts, partialCounts;
 	private Multiset<Integer>[] partialQRestSizes, partialBigFactorSizes;
 	private Multiset<Integer>[] smoothQRestSizes, smoothBigFactorSizes;
@@ -89,7 +80,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	/**
 	 * Default constructor that expects 10 more equations than variables to run the matrix solver.
 	 */
-	public CongruenceCollector03() {
+	public CongruenceCollector_Small() {
 		this(10);
 	}
 
@@ -97,7 +88,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	 * Full constructor.
 	 * @param extraCongruences The difference #equations-#variables required before the solver is started.
 	 */
-	public CongruenceCollector03(int extraCongruences) {
+	public CongruenceCollector_Small(int extraCongruences) {
 		this.extraCongruences = extraCongruences;
 	}
 	
@@ -116,10 +107,8 @@ public class CongruenceCollector03 implements CongruenceCollector {
 		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
-		cycleCounter.initializeForN();
 		
 		// statistics
-		cycleCount = 0;
 		totalPartialCount = 0;
 		if (ANALYZE) {
 			perfectSmoothCount = 0;
@@ -127,28 +116,6 @@ public class CongruenceCollector03 implements CongruenceCollector {
 			smoothFromPartialCounts = new int[3];
 			partialCounts = new int[3];
 		}
-		if (ANALYZE_LARGE_FACTOR_SIZES) {
-			// collected vs. useful big factor and QRest bit sizes distinguished by the number of large primes
-			int maxLPCount = 5; // works up to 4LP
-			smoothQRestSizes = createSizeCountsArray(maxLPCount);
-			smoothBigFactorSizes = createSizeCountsArray(maxLPCount);
-			partialQRestSizes = createSizeCountsArray(maxLPCount);
-			partialBigFactorSizes = createSizeCountsArray(maxLPCount);
-		}
-		if (ANALYZE_Q_SIGNS) {
-			// Q-analysis
-			partialWithPositiveQCount = 0;
-			smoothWithPositiveQCount = 0;
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	private SortedMultiset_BottomUp<Integer>[] createSizeCountsArray(int maxLPCount) {
-		SortedMultiset_BottomUp<Integer>[] array = new SortedMultiset_BottomUp[maxLPCount];
-		for (int i=0; i<maxLPCount; i++) {
-			array[i] = new SortedMultiset_BottomUp<Integer>();
-		}
-		return array;
 	}
 	
 	@Override
@@ -163,11 +130,12 @@ public class CongruenceCollector03 implements CongruenceCollector {
 					int smoothCongruenceCount = getSmoothCongruenceCount();
 					if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
 						// Try to solve equation system
-						if (ANALYZE) ccDuration += timer.capture();
-						solverRunCount++;
-						LOG.info("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
+						if (ANALYZE) {
+							ccDuration += timer.capture();
+							solverRunCount++;
+							if (DEBUG) LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
+						}
 						ArrayList<Smooth> congruences = getSmoothCongruences();
-						// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
 						matrixSolver.solve(congruences); // throws FactorException
 						if (ANALYZE) {
 							testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
@@ -201,68 +169,50 @@ public class CongruenceCollector03 implements CongruenceCollector {
 		
 		// otherwise aqPair must be a partial with at least one large factor.
 		Partial partial = (Partial) aqPair;
+		// we use Long[] and not long[] for bigFactors, because in the following they will be used a lot in Collections
 		final Long[] bigFactors = partial.getLargeFactorsWithOddExponent();
 		if (DEBUG) {
 			LOG.debug("bigFactors = " + Arrays.toString(bigFactors));
 			assertTrue(bigFactors.length > 0);
 		}
 		
-		int lastCycleCount = cycleCount;
-		cycleCount = cycleCounter.addPartial(partial, /* dummy values, no debugging in this class yet*/ -123456789, null);
-		if (cycleCount > lastCycleCount) {
-			// The cycle counter suggests that there might be a new smooth. Use the partial solver to check that
-			// we use Long[] and not long[] for bigFactors, because in the following they will be used a lot in Collections
-			
-			// Check if the partial helps to assemble a smooth congruence:
-			// First collect all partials that are somehow related to the new partial via big factors:
-			HashSet<Partial> relatedPartials = findRelatedPartials(bigFactors); // bigFactors is not modified in the method
-			if (DEBUG) LOG.debug("#relatedPartials = " + relatedPartials.size());
-			if (relatedPartials.size()>0) {
-				// We found some "old" partials that share at least one big factor with the new partial.
-				// Since relatedPartials is a set, we can not get duplicate AQ-pairs.
-				relatedPartials.add(partial);
-				// Solve partial congruence equation system
-				Smooth foundSmooth = partialSolver.solve(relatedPartials); // throws FactorException
-				if (foundSmooth != null) {
-					// We found a smooth from the new partial
-					boolean added = addSmooth(foundSmooth);
-					if (ANALYZE) {
-						if (added) {
-							// count kind of partials that helped to find smooths
-							int maxLargeFactorCount = 0;
-							for (AQPair aqPairFromSmooth : foundSmooth.getAQPairs()) {
-								int largeFactorCount = aqPairFromSmooth.getNumberOfLargeQFactors();
-								if (largeFactorCount > maxLargeFactorCount) maxLargeFactorCount = largeFactorCount;
-							}
-							smoothFromPartialCounts[maxLargeFactorCount-1]++;
-							if (DEBUG) {
-								LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-								//for (Partial par : relatedPartials) {
-								//	LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
-								//}
-							}
+		// Check if the partial helps to assemble a smooth congruence:
+		// First collect all partials that are somehow related to the new partial via big factors:
+		HashSet<Partial> relatedPartials = findRelatedPartials(bigFactors); // bigFactors is not modified in the method
+		if (DEBUG) LOG.debug("#relatedPartials = " + relatedPartials.size());
+		if (relatedPartials.size()>0) {
+			// We found some "old" partials that share at least one big factor with the new partial.
+			// Since relatedPartials is a set, we can not get duplicate AQ-pairs.
+			relatedPartials.add(partial);
+			// Solve partial congruence equation system
+			Smooth foundSmooth = partialSolver.solve(relatedPartials); // throws FactorException
+			if (foundSmooth != null) {
+				// We found a smooth from the new partial
+				boolean added = addSmooth(foundSmooth);
+				if (ANALYZE) {
+					if (added) {
+						// count kind of partials that helped to find smooths
+						int maxLargeFactorCount = 0;
+						for (AQPair aqPairFromSmooth : foundSmooth.getAQPairs()) {
+							int largeFactorCount = aqPairFromSmooth.getNumberOfLargeQFactors();
+							if (largeFactorCount > maxLargeFactorCount) maxLargeFactorCount = largeFactorCount;
+						}
+						smoothFromPartialCounts[maxLargeFactorCount-1]++;
+						if (DEBUG) {
+							LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+							//for (Partial par : relatedPartials) {
+							//	LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
+							//}
 						}
 					}
-					if (ANALYZE_LARGE_FACTOR_SIZES) {
-						if (added) {
-							// register size of large factors that helped to find smooths
-							BigInteger prod = I_1;
-							for (Long bigFactor : bigFactors) {
-								int bigFactorBits = 64 - Long.numberOfLeadingZeros(bigFactor);
-								smoothBigFactorSizes[bigFactors.length].add(bigFactorBits);
-								prod = prod.multiply(BigInteger.valueOf(bigFactor));
-							}
-							smoothQRestSizes[bigFactors.length].add(prod.bitLength());
-						}
-					}
-					return added;
-					// Not adding the new partial is sufficient to keep the old partials linear independent,
-					// which is required to avoid duplicate solutions.
 				}
+				return added;
+				// Not adding the new partial is sufficient to keep the old partials linear independent,
+				// which is required to avoid duplicate solutions.
 			}
 		}
-
-		// The new partial did not yield a smooth congruence, so just keep it:
+		
+		// We were not able to construct a smooth congruence with the new partial, so just keep the partial:
 		addPartial(partial, bigFactors);
 		totalPartialCount++;
 		if (DEBUG) LOG.debug("Found new partial relation " + aqPair + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + totalPartialCount);
@@ -321,9 +271,6 @@ public class CongruenceCollector03 implements CongruenceCollector {
 		// Here the same congruence may be added several times. This results in the need to test too many null vectors.
 		// But avoiding such duplicates is asymptotically unfavourable because their likelihood decreases quickly.
 		smoothCongruences.add(smoothCongruence);
-		
-		// Q-analysis
-		if (ANALYZE_Q_SIGNS) if (smoothCongruence.getMatrixElements()[0] != -1) smoothWithPositiveQCount++;
 
 		return true;
 	}
@@ -337,20 +284,6 @@ public class CongruenceCollector03 implements CongruenceCollector {
 			if (partialCongruenceList==null) partialCongruenceList = new ArrayList<Partial>(1);
 			partialCongruenceList.add(newPartial);
 			largeFactors_2_partials.put(bigFactor, partialCongruenceList);
-		}
-		
-		if (ANALYZE_LARGE_FACTOR_SIZES) {
-			BigInteger prod = I_1;
-			for (Long bigFactor : bigFactors) {
-				int bigFactorBits = 64 - Long.numberOfLeadingZeros(bigFactor);
-				partialBigFactorSizes[bigFactors.length].add(bigFactorBits);
-				prod = prod.multiply(BigInteger.valueOf(bigFactor));
-			}
-			partialQRestSizes[bigFactors.length].add(prod.bitLength());
-		}
-
-		if (ANALYZE_Q_SIGNS) {
-			if (newPartial.smallFactors[0] != -1 || (newPartial.smallFactorExponents[0]&1) == 0) partialWithPositiveQCount++;
 		}
 	}
 	

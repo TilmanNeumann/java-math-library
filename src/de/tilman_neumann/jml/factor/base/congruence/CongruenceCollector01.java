@@ -165,15 +165,11 @@ public class CongruenceCollector01 implements CongruenceCollector {
 						if (DEBUG_CYCLE_COUNTER) LOG.debug("cycleCount = " + cycleCounter.getCycleCount() + ", totalSmoothFromPartialCount = " + totalSmoothFromPartialCount);
 						
 						// Try to solve equation system
-						if (ANALYZE) {
-							ccDuration += timer.capture();
-							solverRunCount++;
-							if (DEBUG) LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
-							// XXX we want to log this, but only for N, not for auxiliary Q(x)
-						}
+						if (ANALYZE) ccDuration += timer.capture();
+						solverRunCount++;
+						LOG.info("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
 						ArrayList<Smooth> congruences = getSmoothCongruences();
-						// The matrix solver should also run synchronized, because blocking the other threads
-						// means that the current thread can run at a higher clock rate.
+						// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
 						matrixSolver.solve(congruences); // throws FactorException
 						if (ANALYZE) {
 							testedNullVectorCount += matrixSolver.getTestedNullVectorCount();

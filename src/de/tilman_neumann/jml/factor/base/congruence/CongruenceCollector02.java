@@ -156,14 +156,10 @@ public class CongruenceCollector02 implements CongruenceCollector {
 					if (DEBUG) LOG.debug("Cycle finder: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + perfectSmooths.size() + ", #smoothsFromPartials = " + smoothsFromPartials.size() + ", #totalSmooths = " + allSmooths.size());
 					
 					// Try to solve equation system
-					if (ANALYZE) {
-						ccDuration += timer.capture();
-						solverRunCount++;
-						if (DEBUG) LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
-						// XXX we want to log this, but only for N, not for auxiliary Q(x)
-					}
-					// The matrix solver should also run synchronized, because blocking the other threads
-					// means that the current thread can run at a higher clock rate.
+					if (ANALYZE) ccDuration += timer.capture();
+					solverRunCount++;
+					LOG.info("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
+					// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
 					matrixSolver.solve(allSmooths); // throws FactorException
 					if (ANALYZE) {
 						testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
