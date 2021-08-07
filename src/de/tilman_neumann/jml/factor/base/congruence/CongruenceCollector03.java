@@ -40,7 +40,6 @@ import de.tilman_neumann.util.Timer;
  * 
  * @author Tilman Neumann
  */
-// XXX needs more testing
 public class CongruenceCollector03 implements CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector03.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
@@ -55,7 +54,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	private HashMap<Long, ArrayList<Partial>> largeFactors_2_partials; // rbp !
 	
 	/** cycle counter */
-	private CycleCounter cycleCounter = new CycleCounter3LP();
+	private CycleCounter cycleCounter;
 	
 	/** A solver used to create smooth congruences from partials */
 	private PartialSolver partialSolver = new PartialSolver01();
@@ -117,6 +116,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
+		cycleCounter = new CycleCounter3LP(); // needs initialization for each N !
 		
 		// statistics
 		cycleCount = 0;

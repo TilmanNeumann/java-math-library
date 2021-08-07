@@ -115,7 +115,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
 		if (DEBUG_CYCLE_COUNTER) {
-			cycleCounter = new CycleCounter2LP();
+			cycleCounter = new CycleCounter3LP(); // needs initialization for each N !
 			totalSmoothFromPartialCount = 0;
 		}
 		
