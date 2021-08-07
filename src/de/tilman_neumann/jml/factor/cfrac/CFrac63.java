@@ -25,6 +25,7 @@ import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
@@ -33,6 +34,8 @@ import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF63;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_LARGE_FACTOR_SIZES;
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_Q_SIGNS;
 import static org.junit.Assert.*;
 
 /**
@@ -186,6 +189,28 @@ public class CFrac63 extends FactorAlgorithm {
 				if (ANALYZE) {
 					long endTime = System.currentTimeMillis();
 					LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
+					CongruenceCollectorReport ccReport = congruenceCollector.getReport();
+					LOG.info("    cc: " + ccReport.getOperationDetails());
+					if (ccReport.getMaxMatrixSize() > 0) LOG.info("    cc: The biggest partial solver matrix had " + ccReport.getMaxMatrixSize() + " rows"); // not all congruence collectors need a PartialSolver
+					if (ANALYZE_LARGE_FACTOR_SIZES) {
+						for (int i=1; i<=4; i++) {
+							LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(i));
+						}
+						for (int i=1; i<=4; i++) {
+							LOG.info("        " + ccReport.getSmoothQRestPercentiles(i));
+						}
+						for (int i=1; i<=4; i++) {
+							LOG.info("        " + ccReport.getPartialBigFactorPercentiles(i));
+						}
+						for (int i=1; i<=4; i++) {
+							LOG.info("        " + ccReport.getPartialQRestPercentiles(i));
+						}
+						LOG.info("        " + ccReport.getNonIntFactorPercentages());
+					}
+					if (ANALYZE_Q_SIGNS) {
+						LOG.info("        " + ccReport.getPartialQSignCounts());
+						LOG.info("        " + ccReport.getSmoothQSignCounts());
+					}
 				}
 				return fe.getFactor();
 			}

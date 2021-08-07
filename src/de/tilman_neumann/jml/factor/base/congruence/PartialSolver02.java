@@ -59,10 +59,18 @@ public class PartialSolver02 implements PartialSolver {
 	private Partial[] onHoldCongruence = new Partial[0];
 	private int[] onHoldCurrentPrimeIndex = new int[0];
 	private boolean[] haveMatch = new boolean[0];
+	
+	/** the biggest matrix size found for some N */
+	private int maxMatrixSize;
 
 	@Override
 	public String getName() {
 		return "PartialSolver02";
+	}
+
+	@Override
+	public void initializeForN() {
+		maxMatrixSize = 0;
 	}
 
 	@Override
@@ -132,6 +140,10 @@ public class PartialSolver02 implements PartialSolver {
 			// 3. Map odd-exp-elements to column indices. Sorting is not required.
 			factors_2_columnIndices = createFactor2ColumnIndexMap(largeFactors_2_partialCount);			
 		}
+		if (numRows > maxMatrixSize) {
+			maxMatrixSize = numRows;
+		}
+
 		// 4+5. Create & solve matrix
 		Smooth s = solve(factors_2_columnIndices);
 		// Done
@@ -489,6 +501,11 @@ public class PartialSolver02 implements PartialSolver {
 		return;
 	}
 	
+	@Override
+	public int getMaxMatrixSize() {
+		return maxMatrixSize;
+	}
+
 	@Override
 	public void cleanUp() {
 		// nothing to do here

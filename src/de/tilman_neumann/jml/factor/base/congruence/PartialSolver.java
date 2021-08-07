@@ -27,12 +27,20 @@ public interface PartialSolver {
 	 */
 	String getName();
 
+	/** Initialize this partial solver for a new factor argument. */
+	void initializeForN();
+	
 	/**
 	 * Solve a partial congruence equation system.
 	 * @param congruences the partial congruence equation system
 	 * @return list of smooth congruences found
 	 */
 	Smooth solve(Collection<? extends Partial> congruences);
+	
+	/**
+	 * @return the size of the biggest partial matrix found for some N
+	 */
+	int getMaxMatrixSize();
 	
 	/**
 	 * Release memory after a factorization.

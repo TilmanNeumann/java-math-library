@@ -35,11 +35,12 @@ public class CongruenceCollectorReport {
 	private Multiset<Integer> aggregatedSmoothBigFactorSizes;
 	private int partialWithPositiveQCount;
 	private int smoothWithPositiveQCount;
+	private int maxMatrixSize;
 	
 	public CongruenceCollectorReport(int partialCount, int smoothCount, int[] smoothFromPartialCounts, int[] partialCounts, int perfectSmoothCount,
 			                         Multiset<Integer>[] partialQRestSizes, Multiset<Integer>[] partialBigFactorSizes,
 			                         Multiset<Integer>[] smoothQRestSizes, Multiset<Integer>[] smoothBigFactorSizes,
-			                         int partialWithPositiveQCount, int smoothWithPositiveQCount) {
+			                         int partialWithPositiveQCount, int smoothWithPositiveQCount, int maxMatrixSize) {
 		
 		this.partialCount = partialCount;
 		this.smoothCount = smoothCount;
@@ -57,6 +58,8 @@ public class CongruenceCollectorReport {
 		
 		this.partialWithPositiveQCount = partialWithPositiveQCount;
 		this.smoothWithPositiveQCount = smoothWithPositiveQCount;
+		
+		this.maxMatrixSize = maxMatrixSize;
 	}
 	
 	private Multiset<Integer> aggregateCounts(Multiset<Integer>[] multisetArray) {
@@ -169,5 +172,9 @@ public class CongruenceCollectorReport {
 	public String getSmoothQSignCounts() {
 		float smoothWithPositiveQPercentage = smoothWithPositiveQCount*100.0F / smoothCount;
 		return smoothWithPositiveQCount + " smooths (" + String.format("%.2f", smoothWithPositiveQPercentage) + "%) had positive Q, " + (smoothCount-smoothWithPositiveQCount) + " smooths (" + String.format("%.2f", 100-smoothWithPositiveQPercentage) + "%) had negative Q";
+	}
+	
+	public int getMaxMatrixSize() {
+		return maxMatrixSize;
 	}
 }

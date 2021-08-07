@@ -349,6 +349,7 @@ abstract public class PSIQSBase extends FactorAlgorithm {
 		LOG.info("    sieve: Found " + sieveReport.getOperationDetails());
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 		LOG.info("    cc: " + ccReport.getOperationDetails());
+		if (ccReport.getMaxMatrixSize() > 0) LOG.info("    cc: The biggest partial solver matrix had " + ccReport.getMaxMatrixSize() + " rows"); // not all congruence collectors need a PartialSolver
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
 			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(1));
 			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(2));

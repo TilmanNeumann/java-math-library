@@ -202,6 +202,7 @@ public class CFrac extends FactorAlgorithm {
 					LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
 					CongruenceCollectorReport ccReport = congruenceCollector.getReport();
 					LOG.info("    cc: " + ccReport.getOperationDetails());
+					if (ccReport.getMaxMatrixSize() > 0) LOG.info("    cc: The biggest partial solver matrix had " + ccReport.getMaxMatrixSize() + " rows"); // not all congruence collectors need a PartialSolver
 					if (ANALYZE_LARGE_FACTOR_SIZES) {
 						for (int i=1; i<=4; i++) {
 							LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(i));

@@ -36,11 +36,19 @@ public class PartialSolver01 implements PartialSolver {
 	
 	private static final boolean DEBUG = false;
 	
+	/** the biggest matrix size found for some N */
+	private int maxMatrixSize;
+	
 	@Override
 	public String getName() {
 		return "PartialSolver01";
 	}
 
+	@Override
+	public void initializeForN() {
+		maxMatrixSize = 0;
+	}
+	
 	@Override
 	public Smooth solve(Collection<? extends Partial> congruences) {
 		// 1. Create
@@ -57,6 +65,9 @@ public class PartialSolver01 implements PartialSolver {
 		}
 		// 2. remove singletons
 		removeSingletons(congruencesCopy, largeFactors_2_partials);
+		if (congruencesCopy.size() > maxMatrixSize) {
+			maxMatrixSize = congruencesCopy.size();
+		}
 		// 3. Map odd-exp-elements to column indices. Sorting is not required.
 		Map<Long, Integer> factors_2_indices = createFactor2ColumnIndexMap(largeFactors_2_partials);
 		// 4+5. Create & solve matrix
@@ -239,6 +250,11 @@ public class PartialSolver01 implements PartialSolver {
 		rowIndexHistory.add(rowIndex);
 		if (DEBUG) LOG.debug("numberOfRows=" + numberOfRows + ", rowIndex=" + rowIndex + " -> rowIndexHistory = " + rowIndexHistory);
 		return rowIndexHistory;
+	}
+	
+	@Override
+	public int getMaxMatrixSize() {
+		return maxMatrixSize;
 	}
 	
 	@Override
