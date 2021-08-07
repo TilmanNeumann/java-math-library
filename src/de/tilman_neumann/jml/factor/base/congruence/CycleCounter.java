@@ -11,6 +11,9 @@ import java.util.HashSet;
  */
 public interface CycleCounter {
 
+	/** Initialize this cycle counter for a new factor argument. */
+	void initializeForN();
+	
 	/**
 	 * Counts the number of independent cycles in the partial relations.
 	 * 

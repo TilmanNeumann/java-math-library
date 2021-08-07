@@ -28,18 +28,18 @@ public class CycleCounter3LP implements CycleCounter {
 	private static final Logger LOG = Logger.getLogger(CycleCounter3LP.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	
-	/** contains edges: bigger to smaller prime; size is v = #vertices */
-	private HashMap<Long, Long> edges;
+	/** edges from bigger to smaller prime; size is v = #vertices */
+	private HashMap<Long, Long> edges = new HashMap<>();
 	
 	/** number of relations */
 	private int relationCount;
 	/** all distinct relations (only for debugging) */
-	private HashSet<Partial> relations;
+	private HashSet<Partial> relations = new HashSet<>();
 	
 	/** number of disconnected components */
 	private int componentCount;
 	/** roots of disconnected components (only for debugging) */
-	private HashSet<Long> roots;
+	private HashSet<Long> roots = new HashSet<>();
 	
 	/**
 	 * A correction term that makes the estimated cycle count #cycles = #relations + #components + #corrections - #vertices an upper bound of the true 3LP cycle count.
@@ -52,28 +52,22 @@ public class CycleCounter3LP implements CycleCounter {
 	
 	private int lastCorrectSmoothCount;
 
-	/**
-	 * Full constructor.
-	 * @param maxLargeFactors the maximum number of large primes in partials:  2 or 3
-	 */
-	public CycleCounter3LP() {
-		edges = new HashMap<>(); // bigger to smaller prime
+	@Override
+	public void initializeForN() {
+		edges.clear();
 		edges.put(1L, 1L);
-		
 		relationCount = 0;
-		if (DEBUG) relations = new HashSet<>();
-
+		if (DEBUG) relations.clear();
 		componentCount = 1; // account for vertex 1
 		if (DEBUG) {
-			roots = new HashSet<>();
+			roots.clear();
 			roots.add(1L);
 		}
-		
 		corrections = 0;
 		cycleCount = 0;
 		lastCorrectSmoothCount = 0;
 	}
-	
+
 	@Override
 	public int addPartial(Partial partial, int correctSmoothCount, HashSet<Partial> relatedPartials) {
 		relationCount++;

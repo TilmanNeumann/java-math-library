@@ -81,7 +81,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	private int solverRunCount, testedNullVectorCount;
 	
 	// only for CycleCounter debugging
-	private CycleCounter cycleCounter;
+	private CycleCounter cycleCounter = new CycleCounter3LP();
 	private int totalSmoothFromPartialCount;
 
 	/**
@@ -115,7 +115,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
 		if (DEBUG_CYCLE_COUNTER) {
-			cycleCounter = new CycleCounter3LP(); // needs initialization for each N !
+			cycleCounter.initializeForN();
 			totalSmoothFromPartialCount = 0;
 		}
 		

@@ -44,7 +44,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	/** factor tester */
 	private FactorTest factorTest;
 	/** cycle counter */
-	private CycleCounter cycleCounter;
+	private CycleCounter cycleCounter = new CycleCounter2LP();
 	
 	// The number of congruences we need to find before we try to solve the smooth congruence equation system:
 	// We want: #equations = #variables + some extra congruences
@@ -98,7 +98,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	public void initialize(BigInteger N, FactorTest factorTest) {
 		smoothCongruences = new ArrayList<Smooth>();
 		this.factorTest = factorTest;
-		cycleCounter = new CycleCounter2LP(); // needs initialization for each N !
+		cycleCounter.initializeForN();
 
 		// statistics
 		if (ANALYZE) {

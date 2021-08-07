@@ -21,30 +21,28 @@ public class CycleCounter2LP implements CycleCounter {
 	private static final Logger LOG = Logger.getLogger(CycleCounter2LP.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	
-	/** contains edges: bigger to smaller prime; size is v = #vertices */
-	private HashMap<Long, Long> edges;
+	/** edges from bigger to smaller prime; size is v = #vertices */
+	private HashMap<Long, Long> edges = new HashMap<>();
 	
 	/** collected relations */
-	private HashSet<Partial> relations;
+	private HashSet<Partial> relations = new HashSet<>();
 	
 	/** number of disconnected components */
 	private int componentCount;
 	/** roots of disconnected components (only for debugging) */
-	private HashSet<Long> roots;
+	private HashSet<Long> roots = new HashSet<>();
 	
 	/** the number of smooths from partials found */
 	private int cycleCount;
 	
-	/**
-	 * Full constructor.
-	 */
-	public CycleCounter2LP() {
-		relations = new HashSet<>();
-		edges = new HashMap<>(); // bigger to smaller prime
+	@Override
+	public void initializeForN() {
+		relations.clear();
+		edges.clear();
 		edges.put(1L, 1L);
 		componentCount = 1; // account for vertex 1
 		if (DEBUG) {
-			roots = new HashSet<>();
+			roots.clear();
 			roots.add(1L);
 		}
 		cycleCount = 0;

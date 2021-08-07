@@ -54,7 +54,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	private HashMap<Long, ArrayList<Partial>> largeFactors_2_partials; // rbp !
 	
 	/** cycle counter */
-	private CycleCounter cycleCounter;
+	private CycleCounter cycleCounter = new CycleCounter3LP();
 	
 	/** A solver used to create smooth congruences from partials */
 	private PartialSolver partialSolver = new PartialSolver01();
@@ -116,7 +116,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
-		cycleCounter = new CycleCounter3LP(); // needs initialization for each N !
+		cycleCounter.initializeForN();
 		
 		// statistics
 		cycleCount = 0;
