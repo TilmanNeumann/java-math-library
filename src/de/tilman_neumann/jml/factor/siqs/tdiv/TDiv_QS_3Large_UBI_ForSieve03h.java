@@ -32,8 +32,6 @@ import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
-import de.tilman_neumann.jml.factor.base.congruence.Partial_2Large;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth_1LargeSquare;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.ecm.TinyEcm64_MHInlined;
 import de.tilman_neumann.jml.factor.hart.Hart_Fast2Mult;
