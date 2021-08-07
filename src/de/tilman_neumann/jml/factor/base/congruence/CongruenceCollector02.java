@@ -158,7 +158,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 					// Try to solve equation system
 					if (ANALYZE) ccDuration += timer.capture();
 					solverRunCount++;
-					LOG.info("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
+					if (ANALYZE) LOG.info("#requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruenceCount + ", -> Start matrix solver run #" + solverRunCount + " ...");
 					// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
 					matrixSolver.solve(allSmooths); // throws FactorException
 					if (ANALYZE) {
@@ -184,10 +184,12 @@ public class CongruenceCollector02 implements CongruenceCollector {
 		if (DEBUG) LOG.debug("new aqPair = " + aqPair);
 		if (aqPair instanceof Smooth) {
 			Smooth smooth = (Smooth) aqPair;
-			boolean added = addSmooth(smooth);
-			if (DEBUG) if (added) LOG.debug("Found new smooth congruence " + smooth + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-			if (ANALYZE) if (added) perfectSmoothCount++;
-			return added;
+			boolean addedSmooth = addSmooth(smooth);
+			if (ANALYZE) if (addedSmooth) {
+				if (smoothCongruences.size() % 100 == 0) LOG.debug("Found perfect smooth congruence --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+				perfectSmoothCount++;
+			}
+			return addedSmooth;
 		}
 		
 		// otherwise aqPair must be a partial with at least one large factor.
