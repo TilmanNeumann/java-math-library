@@ -166,7 +166,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 						if (ANALYZE) {
 							ccDuration += timer.capture();
 							solverRunCount++;
-							if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
+							LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
 						}
 						ArrayList<Smooth> congruences = getSmoothCongruences();
 						// The matrix solver should also run synchronized, because blocking the other threads

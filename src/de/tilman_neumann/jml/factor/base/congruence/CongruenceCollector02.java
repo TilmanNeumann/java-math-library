@@ -159,7 +159,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 					if (ANALYZE) {
 						ccDuration += timer.capture();
 						solverRunCount++;
-						if (DEBUG) LOG.debug("Run " + solverRunCount + ": #smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
+						LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
 					}
 					// The matrix solver should also run synchronized, because blocking the other threads
 					// means that the current thread can run at a higher clock rate.
