@@ -31,16 +31,15 @@ public class CycleCounter3LP implements CycleCounter {
 	/** contains edges: bigger to smaller prime; size is v = #vertices */
 	private HashMap<Long, Long> edges;
 	
+	/** number of relations */
+	private int relationCount;
 	/** all distinct relations (only for debugging) */
 	private HashSet<Partial> relations;
-
-	private int relationCount;
 	
-	/** roots of disjoint components (only for debugging) */
-	private HashSet<Long> roots;
-	
-	/** component count */
+	/** number of disconnected components */
 	private int componentCount;
+	/** roots of disconnected components (only for debugging) */
+	private HashSet<Long> roots;
 	
 	/**
 	 * A correction term that makes the estimated cycle count #cycles = #relations + #components + #corrections - #vertices an upper bound of the true 3LP cycle count.
@@ -60,14 +59,17 @@ public class CycleCounter3LP implements CycleCounter {
 	public CycleCounter3LP() {
 		edges = new HashMap<>(); // bigger to smaller prime
 		edges.put(1L, 1L);
-		corrections = 1; // account for vertex 1
 		
 		relationCount = 0;
 		if (DEBUG) relations = new HashSet<>();
 
-		componentCount = 0;
-		if (DEBUG) roots = new HashSet<>();
+		componentCount = 1; // account for vertex 1
+		if (DEBUG) {
+			roots = new HashSet<>();
+			roots.add(1L);
+		}
 		
+		corrections = 0;
 		cycleCount = 0;
 		lastCorrectSmoothCount = 0;
 	}

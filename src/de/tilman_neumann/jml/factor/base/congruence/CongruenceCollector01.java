@@ -42,7 +42,8 @@ import de.tilman_neumann.util.Timer;
 public class CongruenceCollector01 implements CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector01.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
-
+	private static final boolean DEBUG_CYCLE_COUNTER = false;
+	
 	/** smooth congruences */
 	private ArrayList<Smooth> smoothCongruences;
 	/** 
@@ -78,6 +79,10 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	private Timer timer = new Timer();
 	private long ccDuration, solverDuration;
 	private int solverRunCount, testedNullVectorCount;
+	
+	// only for CycleCounter debugging
+	private CycleCounter cycleCounter;
+	private int totalSmoothFromPartialCount;
 
 	/**
 	 * Default constructor that expects 10 more equations than variables to run the matrix solver.
@@ -109,6 +114,10 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
+		if (DEBUG_CYCLE_COUNTER) {
+			cycleCounter = new CycleCounter2LP();
+			totalSmoothFromPartialCount = 0;
+		}
 		
 		// statistics
 		totalPartialCount = 0;
@@ -153,6 +162,8 @@ public class CongruenceCollector01 implements CongruenceCollector {
 				if (addedSmooth) {
 					int smoothCongruenceCount = getSmoothCongruenceCount();
 					if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
+						if (DEBUG_CYCLE_COUNTER) LOG.debug("cycleCount = " + cycleCounter.getCycleCount() + ", totalSmoothFromPartialCount = " + totalSmoothFromPartialCount);
+						
 						// Try to solve equation system
 						if (ANALYZE) {
 							ccDuration += timer.capture();
@@ -224,6 +235,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 							if (largeFactorCount > maxLargeFactorCount) maxLargeFactorCount = largeFactorCount;
 						}
 						smoothFromPartialCounts[maxLargeFactorCount-1]++;
+						if (DEBUG_CYCLE_COUNTER) totalSmoothFromPartialCount++;
 						if (DEBUG) {
 							LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #smooth = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
 							//for (Partial par : relatedPartials) {
@@ -244,6 +256,8 @@ public class CongruenceCollector01 implements CongruenceCollector {
 						smoothQRestSizes[bigFactors.length].add(prod.bitLength());
 					}
 				}
+				
+				if (DEBUG_CYCLE_COUNTER) cycleCounter.addPartial(partial, totalSmoothFromPartialCount, relatedPartials);
 				return added;
 				// Not adding the new partial is sufficient to keep the old partials linear independent,
 				// which is required to avoid duplicate solutions.
@@ -255,6 +269,8 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		totalPartialCount++;
 		if (DEBUG) LOG.debug("Found new partial relation " + aqPair + " --> #smooth = " + smoothCongruences.size() + ", #partials = " + totalPartialCount);
 		if (ANALYZE) partialCounts[bigFactors.length-1]++;
+		
+		if (DEBUG_CYCLE_COUNTER) cycleCounter.addPartial(partial, totalSmoothFromPartialCount, relatedPartials);
 		return false; // no smooth added
 	}
 	

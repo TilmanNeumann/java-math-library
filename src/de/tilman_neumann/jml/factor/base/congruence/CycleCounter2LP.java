@@ -21,12 +21,18 @@ public class CycleCounter2LP implements CycleCounter {
 	private static final Logger LOG = Logger.getLogger(CycleCounter2LP.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	
-	// cycle counting
-	private HashSet<Partial> relations; // all distinct relations
-	private HashMap<Long, Long> edges; // contains edges: bigger to smaller prime; size is v = #vertices
-	private HashSet<Long> roots; // roots of disjoint components (only used for debugging)
-	private int componentCount; // number of disjoint components
-	// the number of smooths from partials found
+	/** contains edges: bigger to smaller prime; size is v = #vertices */
+	private HashMap<Long, Long> edges;
+	
+	/** collected relations */
+	private HashSet<Partial> relations;
+	
+	/** number of disconnected components */
+	private int componentCount;
+	/** roots of disconnected components (only for debugging) */
+	private HashSet<Long> roots;
+	
+	/** the number of smooths from partials found */
 	private int cycleCount;
 	
 	/**
@@ -35,8 +41,12 @@ public class CycleCounter2LP implements CycleCounter {
 	public CycleCounter2LP() {
 		relations = new HashSet<>();
 		edges = new HashMap<>(); // bigger to smaller prime
-		if (DEBUG) roots = new HashSet<>();
-		componentCount = 0;
+		edges.put(1L, 1L);
+		componentCount = 1; // account for vertex 1
+		if (DEBUG) {
+			roots = new HashSet<>();
+			roots.add(1L);
+		}
 		cycleCount = 0;
 	}
 	
@@ -49,21 +59,18 @@ public class CycleCounter2LP implements CycleCounter {
 			LOG.error("Found duplicate relation: " + partial);
 			return cycleCount;
 		}
-		
-		// We compute the following two variable once again,
-		// but that doesn't matter 'cause it's no production code
+
 		Long[] largeFactors = partial.getLargeFactorsWithOddExponent();
 		int largeFactorsCount = largeFactors.length;
-		String partialStr = largeFactorsCount + "LP-partial " + Arrays.toString(largeFactors);
-		if (DEBUG) LOG.debug("Add " + partialStr);
+		if (DEBUG) LOG.debug("Add " + largeFactorsCount + "LP-partial " + Arrays.toString(largeFactors));
 		
 		// add edges
 		if (largeFactorsCount==1) {
-			if (DEBUG) assertTrue(largeFactors[0] > 1);
-			insertEdge(1, largeFactors[0]);
+			if (DEBUG) assertTrue(1 < largeFactors[0]);
+			insert1LP(largeFactors[0]);
 		} else if (largeFactorsCount==2) {
-			if (DEBUG) assertTrue(largeFactors[0] != largeFactors[1]);
-			insertEdge(largeFactors[0], largeFactors[1]);
+			if (DEBUG) assertTrue(largeFactors[0] < largeFactors[1]);
+			insert2LP(largeFactors[0], largeFactors[1]);
 		} else {
 			LOG.warn("Holy shit, we found a " + largeFactorsCount + "-partial!");
 		}
@@ -84,9 +91,28 @@ public class CycleCounter2LP implements CycleCounter {
 		
 		return cycleCount;
 	}
+	
+	private void insert1LP(long p1) {
+		Long r1 = getRoot(p1);
+
+		if (r1!=null) {
+			// The prime already existed
+			if (DEBUG) LOG.debug("1LP: 1 old vertex: p1 = " + p1 + ", r1 = " + r1);
+			if (r1 != 1) {
+				// Add it to the component with root 1 and remove the old root if it existed
+				edges.put(r1, 1L);
+				componentCount--;
+				if (DEBUG) assertTrue(roots.remove(r1));
+			}
+		} else {
+			// The prime is new -> just add it to the component with root 1
+			if (DEBUG) LOG.debug("1LP: 1 new vertex");
+			edges.put(p1, 1L);
+		}
+	}
 
 	/** p1 = smaller p, p2 = larger p */
-	private void insertEdge(long p1, long p2) {
+	private void insert2LP(long p1, long p2) {
 		Long r1 = getRoot(p1);
 		Long r2 = getRoot(p2);
 
@@ -96,13 +122,13 @@ public class CycleCounter2LP implements CycleCounter {
 			if (r1<r2) {
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r2, r1);
-				if (DEBUG) roots.remove(r2);
 				componentCount--;
+				if (DEBUG) assertTrue(roots.remove(r2));
 			} else if (r2<r1) {
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r1, r2);
-				if (DEBUG) roots.remove(r1);
 				componentCount--;
+				if (DEBUG) assertTrue(roots.remove(r1));
 			} else {
 				// if the roots are equal than both primes are already part of the same component so nothing more happens
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from the same components");
@@ -121,8 +147,8 @@ public class CycleCounter2LP implements CycleCounter {
 			if (DEBUG) LOG.debug("2LP: 2 new vertices");
 			edges.put(p1, p1);
 			edges.put(p2, p1);
-			if (DEBUG) roots.add(p1);
 			componentCount++;
+			if (DEBUG) assertTrue(roots.add(p1));
 		}
 	}
 
