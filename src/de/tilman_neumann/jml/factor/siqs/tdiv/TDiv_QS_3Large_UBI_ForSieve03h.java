@@ -31,6 +31,9 @@ import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
+import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
+import de.tilman_neumann.jml.factor.base.congruence.Partial_2Large;
+import de.tilman_neumann.jml.factor.base.congruence.Smooth_1LargeSquare;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.ecm.TinyEcm64_MHInlined;
 import de.tilman_neumann.jml.factor.hart.Hart_Fast2Mult;
@@ -44,28 +47,14 @@ import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.Timer;
 
 /**
- * A trial division engine where partials can have several large factors.
+ * A trial division engine where partials can have up to 2 large factors.
  * 
- * Division is carried out in two stages:
- * Stage 1 identifies prime factors of Q, applying long-valued Barrett reduction
- * Stage 2 does the actual division using UnsignedBigInt; this way less intermediate objects are created.
- * 
- * Faster than 1Large for approximately N>=220 bit.
+ * This variant is not testing the small primes, so it needs to be run together with a sieve doing that (like Sieve_03hU).
  * 
  * @author Tilman Neumann
  */
-// TODO PSIQS does not work correctly with 3LP relations yet.
-// Up to 1917309933207159193848096265773632935599188083482002960344787838591765195842266925748265126622930670869363 (350 bit) everything seems to work fine,
-// and indeed already 1605 smooth relations involving 3-partials were found on that test number.
-// But for larger numbers, it seems that PSIQS does not terminate at all or needs much more time than expected. This happened for
-// * N = 2066866710502282532505449833332089238312935374491943311610655981052809337971646998610592281303116906350078621 (360 bit)
-//       factoring run canceled after 4h:20m (expected was ~ 2h:35m)
-// * N = 2329368635231975676293761934643288685426331453276223657636089483987557954943374857353742871103536418615759037457 (370 bit)
-//       factoring run canceled after ~16h (expected was ~ 5h:30m)
-// This happened regardless of the solver used (BlockKanczos or PGauss), thus something seems to be wrong with the relations created, or even during the process of creating the relations.
-// I didn't investigate the issue any further yet.
-public class TDiv_QS_nLarge_UBI_ForSieve03h implements TDiv_QS {
-	private static final Logger LOG = Logger.getLogger(TDiv_QS_nLarge_UBI_ForSieve03h.class);
+public class TDiv_QS_3Large_UBI_ForSieve03h implements TDiv_QS {
+	private static final Logger LOG = Logger.getLogger(TDiv_QS_3Large_UBI_ForSieve03h.class);
 	private static final boolean DEBUG = false;
 
 	// factor argument and polynomial parameters
@@ -111,12 +100,12 @@ public class TDiv_QS_nLarge_UBI_ForSieve03h implements TDiv_QS {
 	// smallest solutions of Q(x) == A(x)^2 (mod p)
 	private int[] x1Array, x2Array;
 
-	// result: two arrays that are reused, their content is _copied_ to AQ-pairs
-	private SortedIntegerArray smallFactors = new SortedIntegerArray();
+	// small factors found by testing some x, their content is _copied_ to AQ-pairs
+	private SortedIntegerArray smallFactors;
 	private BigInteger smallFactorsProd; // only for debugging
 	private SortedLongArray bigFactors = new SortedLongArray();
 	private AQPairFactory aqPairFactory = new AQPairFactory();
-	
+
 	private BinarySearch binarySearch = new BinarySearch();
 
 	// statistics
@@ -128,13 +117,13 @@ public class TDiv_QS_nLarge_UBI_ForSieve03h implements TDiv_QS {
 	 * Full constructor.
 	 * @param permitUnsafeUsage if true then SIQS_Small (which is used for N > 310 bit to factor Q-rests) uses a sieve exploiting sun.misc.Unsafe features.
 	 */
-	public TDiv_QS_nLarge_UBI_ForSieve03h(boolean permitUnsafeUsage) {
+	public TDiv_QS_3Large_UBI_ForSieve03h(boolean permitUnsafeUsage) {
 		qsInternal = new SIQS_Small(0.305F, 0.37F, null, new SIQSPolyGenerator(), 10, permitUnsafeUsage);
 	}
 
 	@Override
 	public String getName() {
-		return "TDiv_nL_UBI_3h";
+		return "TDiv_3L_UBI_3h";
 	}
 
 	@Override
@@ -312,28 +301,17 @@ public class TDiv_QS_nLarge_UBI_ForSieve03h implements TDiv_QS {
 		double QRestDbl = QRest.doubleValue();
 		if (QRestDbl >= smoothBound) return null; // Q is not sufficiently smooth
 		
-		// now we consider Q as sufficiently smooth. then we want to know all prime factors, as long as we do not find one that is too big to be useful.
 		if (DEBUG) LOG.debug("test(): pMax=" + pMax + " < QRest=" + QRest + " < smoothBound=" + smoothBound + " -> resolve all factors");
-		boolean isSmooth = factor_recurrent(QRest);
-		if (DEBUG) if (bigFactors.size()>2) LOG.debug("Found " + bigFactors.size() + " distinct big factors!"); // 3LP start at ~330 bit with current settings
-		if (isSmooth) {
-			addCommonFactorsToSmallFactors();
-			return aqPairFactory.create(A, smallFactors, bigFactors);
-		}
-		return null;
-	}
-
-	private boolean factor_recurrent(BigInteger QRest) {
-		// Here we need a prime test, because factor algorithms may not return when called with a prime argument.
-		double QRestDbl = QRest.doubleValue();
+		// Now we consider Q as sufficiently smooth to want to find all prime factors, as long as we do not find one that is too big to be useful.
+		// First we need a prime test, because factor algorithms may not return when called with a prime argument.
 		boolean restIsPrime = QRestDbl < pMaxSquare || prpTest.isProbablePrime(QRest);
 		if (ANALYZE) primeTestDuration += timer.capture();
 		if (restIsPrime) {
 			// Check that the simple prime test using pMaxSquare is correct
 			if (DEBUG) assertTrue(prpTest.isProbablePrime(QRest));
-			if (QRest.bitLength() > 31) return false;
-			bigFactors.add(QRest.longValue());
-			return true;
+			if (!ANALYZE_LARGE_FACTOR_SIZES) if (QRest.bitLength() > 31) return null;
+			addCommonFactorsToSmallFactors();
+			return new Partial_1Large(A, smallFactors, QRest.longValue());
 		} // else: QRest is surely not prime
 		
 		// Find a factor of QRest, where QRest is odd and has two+ factors, each greater than pMax.
@@ -342,20 +320,68 @@ public class TDiv_QS_nLarge_UBI_ForSieve03h implements TDiv_QS {
 		BigInteger factor1;
 		int QRestBits = QRest.bitLength();
 		if (QRestBits<46) {
-			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use hart");
+			if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use hart");
 			factor1 = hart.findSingleFactor(QRest);
 		} else if (QRestBits<63) {
-			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use tinyEcm");
+			if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use tinyEcm");
 			factor1 = tinyEcm.findSingleFactor(QRest);
 		} else {
-			if (DEBUG) LOG.debug("factor_recurrent(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use qsInternal");
+			if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use qsInternal");
 			factor1 = qsInternal.findSingleFactor(QRest);
 		}
-		if (ANALYZE) factorDuration += timer.capture();
-		// Here we can not exclude factors > 31 bit because they may have 2 prime factors themselves.
+		
+		int factor1Bits = factor1.bitLength();
+		if (factor1Bits > 62) return null; // Too big even if it has 2 factors, reject
 		BigInteger factor2 = QRest.divide(factor1);
-		if (DEBUG) LOG.debug("factor_recurrent(): QRest = " + QRest + " (" + QRestBits + " bits) = " + factor1 + " * " + factor2);
-		return factor_recurrent(factor1) && factor_recurrent(factor2);
+		int factor2Bits = factor2.bitLength();
+		if (factor2Bits > 62) return null; // Too big even if it has 2 factors, reject
+
+		if (factor1Bits > 31) {
+			boolean factor1IsPrime = factor1.doubleValue() < pMaxSquare || prpTest.isProbablePrime(factor1);
+			if (factor1IsPrime) return null; // Too big prime, reject
+			// otherwise find factor11
+			BigInteger factor11;
+			if (factor1Bits<46) {
+				if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", factor1 = " + factor1 + " (" + factor1Bits + " bits) not prime -> use hart");
+				factor11 = hart.findSingleFactor(factor1);
+			} else { // factor1 <= 62 bit
+				if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", factor1 = " + factor1 + " (" + factor1Bits + " bits) not prime -> use tinyEcm");
+				factor11 = tinyEcm.findSingleFactor(factor1);
+			}
+			if (factor11.bitLength() > 31) return null; // Too big prime, reject
+			BigInteger factor12 = factor1.divide(factor11);
+			if (factor12.bitLength() > 31) return null; // Too big prime, reject
+			
+			bigFactors.add(factor11.longValue());
+			bigFactors.add(factor12.longValue());
+		} else {
+			bigFactors.add(factor1.longValue());
+		}
+		
+		if (factor2Bits > 31) {
+			boolean factor2IsPrime = factor2.doubleValue() < pMaxSquare || prpTest.isProbablePrime(factor2);
+			if (factor2IsPrime) return null; // Too big prime, reject
+			// otherwise find factor21
+			BigInteger factor21;
+			if (factor2Bits<46) {
+				if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", factor2 = " + factor2 + " (" + factor2Bits + " bits) not prime -> use hart");
+				factor21 = hart.findSingleFactor(factor2);
+			} else { // factor2 <= 62 bit
+				if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", factor2 = " + factor2 + " (" + factor2Bits + " bits) not prime -> use tinyEcm");
+				factor21 = tinyEcm.findSingleFactor(factor2);
+			}
+			if (factor21.bitLength() > 31) return null; // Too big prime, reject
+			BigInteger factor22 = factor2.divide(factor21);
+			if (factor22.bitLength() > 31) return null; // Too big prime, reject
+			
+			bigFactors.add(factor21.longValue());
+			bigFactors.add(factor22.longValue());
+		} else {
+			bigFactors.add(factor2.longValue());
+		}
+		
+		addCommonFactorsToSmallFactors();
+		return aqPairFactory.create(A, smallFactors, bigFactors);
 	}
 	
 	/**

@@ -119,7 +119,7 @@ public class TDiv_QS_2Large_UBI_ForSieve03h implements TDiv_QS {
 
 	@Override
 	public String getName() {
-		return "TDiv_2L_UBI2";
+		return "TDiv_2L_UBI_3h";
 	}
 
 	@Override

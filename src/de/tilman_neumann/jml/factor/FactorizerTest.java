@@ -164,11 +164,12 @@ public class FactorizerTest {
 			// On a Ryzen 3900X, Cmult=0.31 seems to be best for N <= 345 bit, Cmult=0.305 best for N > 345 bit.
 			// Probably, this depends heavily on the number of threads and the hardware, in particular the size of the L3-Cache.
 //			new PSIQS(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-	//		new PSIQS_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+			new PSIQS_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss01(12)),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
 
+			new PSIQS_U_nLP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 			new PSIQS_U_3LP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
