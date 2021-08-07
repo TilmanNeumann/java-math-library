@@ -132,7 +132,7 @@ public class FactorizerTest {
 			// * ksAdjust: Must be <=3 for N=20bit, <=6 for N=30 bit etc. // TODO this implies some optimization potential
 //			new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF01(), 10, new MatrixSolver_Gauss02(), 5),
 //			new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver_Gauss02(), 5),
-//			new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF03(), 10, new MatrixSolver_Gauss02(), 5),
+	//		new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF03(), 10, new MatrixSolver_Gauss02(), 5),
 //			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), 10, new MatrixSolver_Gauss02(), 3),
 //			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), 10, new MatrixSolver_Gauss02(), 12),
 
@@ -163,10 +163,13 @@ public class FactorizerTest {
 			// Multi-threaded SIQS:
 			// On a Ryzen 3900X, Cmult=0.31 seems to be best for N <= 345 bit, Cmult=0.305 best for N > 345 bit.
 			// Probably, this depends heavily on the number of threads and the hardware, in particular the size of the L3-Cache.
-			new PSIQS(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-			new PSIQS_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+	//		new PSIQS_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss01(12)),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
+
+			new PSIQS_U2(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
 //			new CombinedFactorAlgorithm(16, 1<<16, true),
