@@ -44,7 +44,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03h;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03hU;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_1Large_UBI;
-import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI2;
+import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI_ForSieve03h;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Barrett;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
@@ -106,9 +106,9 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		if (numberOfThreads==1) {
 			// Avoid multi-thread overhead if the requested number of threads is 1
 			if (permitUnsafeUsage) {
-				siqs_bigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI2(permitUnsafeUsage), 10, new MatrixSolver_BlockLanczos());
+				siqs_bigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI_ForSieve03h(permitUnsafeUsage), 10, new MatrixSolver_BlockLanczos());
 			} else {
-				siqs_bigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03h(), new TDiv_QS_2Large_UBI2(permitUnsafeUsage), 10, new MatrixSolver_BlockLanczos());
+				siqs_bigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03h(), new TDiv_QS_2Large_UBI_ForSieve03h(permitUnsafeUsage), 10, new MatrixSolver_BlockLanczos());
 			}
 		} else {
 			if (permitUnsafeUsage) {

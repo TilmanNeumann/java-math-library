@@ -48,8 +48,8 @@ import de.tilman_neumann.util.Timer;
  * 
  * @author Tilman Neumann
  */
-abstract public class PSIQSBase2 extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(PSIQSBase2.class);
+abstract public class PSIQSBase3LP extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(PSIQSBase3LP.class);
 	private static final boolean DEBUG = false;
 
 	protected int numberOfThreads;
@@ -96,7 +96,7 @@ abstract public class PSIQSBase2 extends FactorAlgorithm {
 	 * @param matrixSolver solver for smooth congruences matrix
 	 * @param apg a-parameter generator
 	 */
-	public PSIQSBase2(float Cmult, float Mmult, int numberOfThreads, Integer d, PowerFinder powerFinder, MatrixSolver matrixSolver, AParamGenerator apg, CongruenceCollector cc) {
+	public PSIQSBase3LP(float Cmult, float Mmult, int numberOfThreads, Integer d, PowerFinder powerFinder, MatrixSolver matrixSolver, AParamGenerator apg, CongruenceCollector cc) {
 		
 		super(null);
 		

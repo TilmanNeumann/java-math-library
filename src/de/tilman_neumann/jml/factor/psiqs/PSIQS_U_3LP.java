@@ -39,9 +39,9 @@ import de.tilman_neumann.util.Timer;
  * 
  * @author Tilman Neumann
  */
-public class PSIQS_U2 extends PSIQSBase2 {
+public class PSIQS_U_3LP extends PSIQSBase3LP {
 
-	private static final Logger LOG = Logger.getLogger(PSIQS_U2.class);
+	private static final Logger LOG = Logger.getLogger(PSIQS_U_3LP.class);
 
 	/**
 	 * Standard constructor.
@@ -52,13 +52,13 @@ public class PSIQS_U2 extends PSIQSBase2 {
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param matrixSolver solver for smooth congruences matrix
 	 */
-	public PSIQS_U2(float Cmult, float Mmult, Integer wantedQCount, int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
+	public PSIQS_U_3LP(float Cmult, float Mmult, Integer wantedQCount, int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
 		super(Cmult, Mmult, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator02(wantedQCount), new CongruenceCollector03(10));
 	}
 
 	@Override
 	public String getName() {
-		return "PSIQS_U2(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
+		return "PSIQS_U_3LP(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class PSIQS_U2 extends PSIQSBase2 {
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		
-		return new PSIQSThread_U2(k, N, kN, d, sieveParams, baseArrays, apg, cc, threadIndex);
+		return new PSIQSThread_U_3LP(k, N, kN, d, sieveParams, baseArrays, apg, cc, threadIndex);
 	}
 
 	// Standalone test --------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ public class PSIQS_U2 extends PSIQSBase2 {
     	ConfigUtil.initProject();
 		Timer timer = new Timer();
 		// conservative choice of number of threads; put there what you have
-		PSIQS_U2 qs = new PSIQS_U2(0.31F, 0.37F, null, 4, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+		PSIQS_U_3LP qs = new PSIQS_U_3LP(0.31F, 0.37F, null, 4, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 
 		while(true) {
 			try {
