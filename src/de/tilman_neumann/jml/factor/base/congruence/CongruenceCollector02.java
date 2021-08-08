@@ -53,7 +53,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	private int extraCongruences;
 	
 	private MatrixSolver matrixSolver;
-	
+
 	// Storing a found factor in this class permits it to be retrieved by multiple threads
 	public BigInteger factor;
 
@@ -64,7 +64,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	private Multiset<Integer>[] smoothQRestSizes, smoothBigFactorSizes; // unused
 	private int partialWithPositiveQCount; // unused
 	private int smoothWithPositiveQCount;
-	
+
 	private Timer timer = new Timer();
 	private long ccDuration, solverDuration;
 	private int solverRunCount, testedNullVectorCount;
@@ -185,9 +185,11 @@ public class CongruenceCollector02 implements CongruenceCollector {
 		if (aqPair instanceof Smooth) {
 			Smooth smooth = (Smooth) aqPair;
 			boolean addedSmooth = addSmooth(smooth);
-			if (ANALYZE) if (addedSmooth) {
-				if (smoothCongruences.size() % 100 == 0) LOG.debug("Found perfect smooth congruence --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-				perfectSmoothCount++;
+			if (ANALYZE) {
+				if (addedSmooth) {
+					if (smoothCongruences.size() % 100 == 0) LOG.debug("Found perfect smooth congruence --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+					perfectSmoothCount++;
+				}
 			}
 			return addedSmooth;
 		}
@@ -252,7 +254,8 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	@Override
 	public CongruenceCollectorReport getReport() {
 		return new CongruenceCollectorReport(getPartialCongruenceCount(), smoothCongruences.size(), smoothFromPartialCounts, partialCounts, perfectSmoothCount,
-											 partialQRestSizes, partialBigFactorSizes, smoothQRestSizes, smoothBigFactorSizes, partialWithPositiveQCount, smoothWithPositiveQCount, 0);
+											 partialQRestSizes, partialBigFactorSizes, smoothQRestSizes, smoothBigFactorSizes, partialWithPositiveQCount, smoothWithPositiveQCount,
+											 0, 0);
 	}
 	
 	@Override

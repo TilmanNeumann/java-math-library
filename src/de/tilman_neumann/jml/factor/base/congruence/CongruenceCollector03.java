@@ -69,7 +69,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	private int extraCongruences;
 	
 	private MatrixSolver matrixSolver;
-	
+
 	// Storing a found factor in this class permits it to be retrieved by multiple threads
 	public BigInteger factor;
 
@@ -82,6 +82,9 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	private Multiset<Integer>[] smoothQRestSizes, smoothBigFactorSizes;
 	private int partialWithPositiveQCount, smoothWithPositiveQCount;
 	
+	/** the biggest number of partials involved to find a smooth relation from partials */
+	private int maxRelatedPartialsCount;
+
 	private Timer timer = new Timer();
 	private long ccDuration, solverDuration;
 	private int solverRunCount, testedNullVectorCount;
@@ -126,6 +129,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 			// zero-initialized smoothFromPartialCounts: index 0 -> from 1-partials, index 1 -> from 2-partials, index 2 -> from 3-partials
 			smoothFromPartialCounts = new int[3];
 			partialCounts = new int[3];
+			maxRelatedPartialsCount = 0;
 		}
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
 			// collected vs. useful big factor and QRest bit sizes distinguished by the number of large primes
@@ -194,9 +198,14 @@ public class CongruenceCollector03 implements CongruenceCollector {
 		if (aqPair instanceof Smooth) {
 			Smooth smooth = (Smooth) aqPair;
 			boolean addedSmooth = addSmooth(smooth);
-			if (ANALYZE) if (addedSmooth) {
-				if (smoothCongruences.size() % 100 == 0) LOG.debug("Found perfect smooth congruence --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-				perfectSmoothCount++;
+			if (ANALYZE) {
+				if (addedSmooth) {
+					if (smoothCongruences.size() % 100 == 0) {
+						LOG.debug("Found perfect smooth congruence --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+						LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
+					}
+					perfectSmoothCount++;
+				}
 			}
 			return addedSmooth;
 		}
@@ -223,6 +232,12 @@ public class CongruenceCollector03 implements CongruenceCollector {
 				// We found some "old" partials that share at least one big factor with the new partial.
 				// Since relatedPartials is a set, we can not get duplicate AQ-pairs.
 				relatedPartials.add(partial);
+				if (ANALYZE) {
+					if (relatedPartials.size() > maxRelatedPartialsCount) {
+						maxRelatedPartialsCount = relatedPartials.size();
+					}
+				}
+
 				// Solve partial congruence equation system
 				Smooth foundSmooth = partialSolver.solve(relatedPartials); // throws FactorException
 				if (foundSmooth != null) {
@@ -237,7 +252,10 @@ public class CongruenceCollector03 implements CongruenceCollector {
 								if (largeFactorCount > maxLargeFactorCount) maxLargeFactorCount = largeFactorCount;
 							}
 							smoothFromPartialCounts[maxLargeFactorCount-1]++;
-							if (smoothCongruences.size() % 100 == 0) LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+							if (smoothCongruences.size() % 100 == 0) {
+								LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+								LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
+							}
 						}
 					}
 					if (ANALYZE_LARGE_FACTOR_SIZES) {
@@ -392,7 +410,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	public CongruenceCollectorReport getReport() {
 		return new CongruenceCollectorReport(getPartialCongruenceCount(), smoothCongruences.size(), smoothFromPartialCounts, partialCounts, perfectSmoothCount,
 											 partialQRestSizes, partialBigFactorSizes, smoothQRestSizes, smoothBigFactorSizes, partialWithPositiveQCount, smoothWithPositiveQCount,
-											 partialSolver.getMaxMatrixSize());
+											 maxRelatedPartialsCount, partialSolver.getMaxMatrixSize());
 	}
 	
 	@Override
