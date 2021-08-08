@@ -30,6 +30,12 @@ public interface GlobalFactoringOptions {
 	static final boolean ANALYZE = false;
 
 	/**
+	 * Monitor the congruence collecting progress on-the-fly.
+	 * This option needs ANALYZE as well.
+	 */
+	static final boolean ANALYZE_PROGRESS = false;
+
+	/**
 	 * A switch to additionally turn on analysis of the size of large factors that yield smooth relations.
 	 * This option needs ANALYZE as well.
 	 */
@@ -40,10 +46,4 @@ public interface GlobalFactoringOptions {
 	 * This option needs ANALYZE as well.
 	 */
 	static final boolean ANALYZE_Q_SIGNS = false;
-	
-	/**
-	 * Debug the cycle counting algorithm for 3 large primes?
-	 * This option needs ANALYZE as well.
-	 */
-	static final boolean DEBUG_3LP_CYCLE_COUNTING = false;
 }

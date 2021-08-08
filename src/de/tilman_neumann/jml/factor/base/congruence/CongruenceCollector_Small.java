@@ -13,7 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
-import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
@@ -167,15 +166,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 		if (aqPair instanceof Smooth) {
 			Smooth smooth = (Smooth) aqPair;
 			boolean addedSmooth = addSmooth(smooth);
-			if (ANALYZE) {
-				if (addedSmooth) {
-					if (smoothCongruences.size() % 100 == 0) {
-						LOG.debug("Found perfect smooth congruence --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-						LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
-					}
-					perfectSmoothCount++;
-				}
-			}
+			if (ANALYZE) if (addedSmooth) perfectSmoothCount++;
 			return addedSmooth;
 		}
 		
@@ -216,10 +207,6 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 							if (largeFactorCount > maxLargeFactorCount) maxLargeFactorCount = largeFactorCount;
 						}
 						smoothFromPartialCounts[maxLargeFactorCount-1]++;
-						if (smoothCongruences.size() % 100 == 0) {
-							LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-							LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
-						}
 					}
 				}
 				return added;

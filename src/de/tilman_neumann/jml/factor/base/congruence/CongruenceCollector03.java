@@ -208,9 +208,11 @@ public class CongruenceCollector03 implements CongruenceCollector {
 			boolean addedSmooth = addSmooth(smooth);
 			if (ANALYZE) {
 				if (addedSmooth) {
-					if (smoothCongruences.size() % 100 == 0) {
-						LOG.debug("Found perfect smooth congruence --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-						LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
+					if (ANALYZE_PROGRESS) {
+						if (smoothCongruences.size() % 100 == 0) {
+							LOG.debug("Found perfect smooth congruence --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+							LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
+						}
 					}
 					perfectSmoothCount++;
 				}
@@ -260,9 +262,11 @@ public class CongruenceCollector03 implements CongruenceCollector {
 								if (largeFactorCount > maxLargeFactorCount) maxLargeFactorCount = largeFactorCount;
 							}
 							smoothFromPartialCounts[maxLargeFactorCount-1]++;
-							if (smoothCongruences.size() % 100 == 0) {
-								LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-								LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
+							if (ANALYZE_PROGRESS) {
+								if (smoothCongruences.size() % 100 == 0) {
+									LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+									LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
+								}
 							}
 						}
 					}

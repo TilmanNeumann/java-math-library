@@ -202,9 +202,11 @@ public class CongruenceCollector01 implements CongruenceCollector {
 			boolean addedSmooth = addSmooth(smooth);
 			if (ANALYZE) {
 				if (addedSmooth) {
-					if (smoothCongruences.size() % 100 == 0) {
-						LOG.debug("Found perfect smooth congruence --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-						LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
+					if (ANALYZE_PROGRESS) {
+						if (smoothCongruences.size() % 100 == 0) {
+							LOG.debug("Found perfect smooth congruence --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+							LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
+						}
 					}
 					perfectSmoothCount++;
 				}
@@ -250,9 +252,11 @@ public class CongruenceCollector01 implements CongruenceCollector {
 						}
 						smoothFromPartialCounts[maxLargeFactorCount-1]++;
 						if (DEBUG_CYCLE_COUNTER) totalSmoothFromPartialCount++;
-						if (smoothCongruences.size() % 100 == 0) {
-							LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
-							LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
+						if (ANALYZE_PROGRESS) {
+							if (smoothCongruences.size() % 100 == 0) {
+								LOG.debug("Found smooth congruence from " + maxLargeFactorCount + "-partial --> #requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruences.size() + ", #partials = " + getPartialCongruenceCount());
+								LOG.debug("maxRelatedPartialsCount = " + maxRelatedPartialsCount + ", maxPartialMatrixSize = " + partialSolver.getMaxMatrixSize());
+							}
 						}
 					}
 				}
