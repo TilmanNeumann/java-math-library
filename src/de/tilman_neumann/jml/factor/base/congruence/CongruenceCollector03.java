@@ -44,6 +44,14 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector03.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 
+	/**
+	 * The cutoff for related partials. We won't collect more than this to reduce the workload on findRelatedPartials() and the partial solver.
+	 * For a start, this parameter was roughly tuned to reduce CPU load as little as possible on a 330 bit test number run with 20 threads.
+	 */
+	// XXX Tune by performance comparison
+	// XXX The cutoff seems to lead to a list of smooths the final matrix step can not solve (possibly because of duplicates)
+	private static final int MAX_RELATED_PARTIALS = 500;
+	
 	/** smooth congruences */
 	private ArrayList<Smooth> smoothCongruences;
 	/** 
@@ -286,8 +294,14 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	}
 	
 	/**
-	 * Find "old" partials related to a new partial.
-	 * The large factors of the new partial remain unaltered.
+	 * Find "old" partials related to a new partial. The large factors of the new partial remain unaltered.
+	 * 
+	 * If 3LP-partials are involved then large sets of related partials can occur.
+	 * For example on a 330 bit number, the size of the final matrix is something like 54kx54k. But for the same number we could find new partials that have 100k and more related partials!
+	 * This produces two performance-bottlenecks:
+	 * a) findRelatedPartials() gets quite slow
+	 * b) the partial finder would need to solve bigger matrices then the final solver
+	 * Thus we must set a cutoff where we stop collecting related partials. This cutoff could be a tuning parameter.
 	 * 
 	 * @param largeFactorsOfPartial the large factors with odd exponent of the new partial
 	 * @return set of related partial congruences
@@ -305,11 +319,16 @@ public class CongruenceCollector03 implements CongruenceCollector {
 			for (Long largeFactor : currentLargeFactors) {
 				processedLargeFactors.add(largeFactor);
 				ArrayList<Partial> partialList = largeFactors_2_partials.get(largeFactor);
-				if (partialList!=null && partialList.size()>0) {
-					for (Partial relatedPartial : partialList) {
-						relatedPartials.add(relatedPartial);
-						for (Long nextLargeFactor : relatedPartial.getLargeFactorsWithOddExponent()) {
-							if (!processedLargeFactors.contains(nextLargeFactor)) nextLargeFactors.add(nextLargeFactor);
+				// if partialList has only 1 element, then largeFactor is a singleton column
+				if (partialList!=null && partialList.size() > 1) {
+					for (Partial partial : partialList) {
+						// if one of its factors occurs only once, then partial is a singleton row
+						if (!isSingleton(partial)) {
+							relatedPartials.add(partial);
+							if (relatedPartials.size() >= MAX_RELATED_PARTIALS) return relatedPartials; // cutoff!
+							for (Long nextLargeFactor : partial.getLargeFactorsWithOddExponent()) {
+								if (!processedLargeFactors.contains(nextLargeFactor)) nextLargeFactors.add(nextLargeFactor);
+							}
 						}
 					}
 				}
@@ -319,6 +338,15 @@ public class CongruenceCollector03 implements CongruenceCollector {
 		return relatedPartials;
 	}
 
+	private boolean isSingleton(Partial p) {
+		Long[] largeFactors = p.getLargeFactorsWithOddExponent();
+		for (Long largeFactor : largeFactors) {
+			ArrayList<Partial> partialList = largeFactors_2_partials.get(largeFactor);
+			if (partialList.size() < 2) return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Add smooth congruence.
 	 * @param smoothCongruence

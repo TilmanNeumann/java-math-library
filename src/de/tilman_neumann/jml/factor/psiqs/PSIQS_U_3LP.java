@@ -78,11 +78,12 @@ public class PSIQS_U_3LP extends PSIQSBase3LP {
 	 * 
 	 * @param args ignored
 	 */
+	// 330 bit test number exposing findRelatedPartials() problem: 1193021186851987582089887341794273573523742049278854202794336422907159752083864394187553156410578431
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		Timer timer = new Timer();
 		// conservative choice of number of threads; put there what you have
-		PSIQS_U_3LP qs = new PSIQS_U_3LP(0.31F, 0.37F, null, 4, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+		PSIQS_U_3LP qs = new PSIQS_U_3LP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 
 		while(true) {
 			try {
