@@ -82,8 +82,8 @@ public class PSIQS_U_3LP extends PSIQSBase3LP {
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		Timer timer = new Timer();
-		// conservative choice of number of threads; put there what you have
-		PSIQS_U_3LP qs = new PSIQS_U_3LP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+		int numThreads = 20; // insert your number of threads here
+		PSIQS_U_3LP qs = new PSIQS_U_3LP(0.31F, 0.37F, null, numThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 
 		while(true) {
 			try {
