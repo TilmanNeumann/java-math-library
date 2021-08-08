@@ -1,7 +1,7 @@
 package de.tilman_neumann.jml.factor.base.congruence;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import de.tilman_neumann.jml.factor.FactorException;
@@ -56,7 +56,7 @@ public interface CongruenceCollector {
 	/**
 	 * @return smooth congruences found so far.
 	 */
-	ArrayList<Smooth> getSmoothCongruences();
+	HashSet<Smooth> getSmoothCongruences();
 
 	/**
 	 * @return number of partial congruences found so far.

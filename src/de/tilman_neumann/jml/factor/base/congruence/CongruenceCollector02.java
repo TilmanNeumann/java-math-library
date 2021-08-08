@@ -17,6 +17,7 @@ import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -29,7 +30,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.util.Timer;
 
 /**
- * Collects smooth and partial congruences, uses cycle counting and finding algorithms instead of partial solver.
+ * Collects smooth and partial congruences, using cycle counting and finding algorithms instead of a partial solver.
  * Works only for <= 2 large primes.
  * 
  * @author Tilman Neumann
@@ -38,8 +39,8 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector02.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 
-	/** smooth congruences */
-	private ArrayList<Smooth> smoothCongruences;
+	/** smooth congruences: must be a Set to avoid duplicates when 3-partials are involved */
+	private HashSet<Smooth> smoothCongruences;
 
 	/** factor tester */
 	private FactorTest factorTest;
@@ -96,7 +97,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 
 	@Override
 	public void initialize(BigInteger N, FactorTest factorTest) {
-		smoothCongruences = new ArrayList<Smooth>();
+		smoothCongruences = new HashSet<Smooth>();
 		this.factorTest = factorTest;
 		cycleCounter.initializeForN();
 
@@ -143,7 +144,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 				int smoothCongruenceCount = getSmoothCongruenceCount() + smoothFromPartialsCount;
 				if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
 					if (DEBUG) LOG.debug("Cycle counter: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + getSmoothCongruenceCount() + ", #smoothsFromPartials = " + smoothFromPartialsCount + ", #totalSmooths = " + smoothCongruenceCount);
-					ArrayList<Smooth> perfectSmooths = getSmoothCongruences();
+					HashSet<Smooth> perfectSmooths = getSmoothCongruences();
 					//long t0 = System.currentTimeMillis();
 					ArrayList<Smooth> smoothsFromPartials = CycleFinder.findIndependentCycles(cycleCounter.getPartialRelations());
 					if (DEBUG) LOG.debug("#smoothsFromCycleCounter = " + cycleCounter.getCycleCount() + ", #smoothsFromCycleFinder = " + smoothsFromPartials.size());
@@ -241,7 +242,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	}
 
 	@Override
-	public ArrayList<Smooth> getSmoothCongruences() {
+	public HashSet<Smooth> getSmoothCongruences() {
 		return smoothCongruences;
 	}
 	

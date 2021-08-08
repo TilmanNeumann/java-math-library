@@ -34,8 +34,12 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.util.Timer;
 
 /**
- * Collects smooth and partial congruences, and assembles partials to smooth congruences on-the-fly.
- * Partials may have any number of large factors.
+ * Collects smooth and partial congruences, and assembles partials to smooth congruences on-the-fly relying solely on the partzial solver.
+ * 
+ * Partials may have any number of large factors but not too many related partials.
+ * I.e. CFrac will work with 3-partials, because the number of relations is comparably small.
+ * In contrast, SIQS with 3-partials will run into severe performance issues because for large enough N,
+ * many partials have hundreds of thousands of related partials and the partial solver can't solve such big equation systems.
  * 
  * @author Tilman Neumann
  */
@@ -44,8 +48,9 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	private static final boolean DEBUG = false; // used for logs and asserts
 	private static final boolean DEBUG_CYCLE_COUNTER = false;
 	
-	/** smooth congruences */
-	private ArrayList<Smooth> smoothCongruences;
+	/** smooth congruences: must be a Set to avoid duplicates when 3-partials are involved */
+	private HashSet<Smooth> smoothCongruences;
+	
 	/** 
 	 * A map from big factors with odd exp to partial congruences.
 	 * Here we need a 1:n relation because one partial can have several big factors;
@@ -114,7 +119,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 
 	@Override
 	public void initialize(BigInteger N, FactorTest factorTest) {
-		smoothCongruences = new ArrayList<Smooth>();
+		smoothCongruences = new HashSet<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
 		if (DEBUG_CYCLE_COUNTER) {
@@ -172,7 +177,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 						if (ANALYZE) ccDuration += timer.capture();
 						solverRunCount++;
 						if (ANALYZE) LOG.info("#requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruenceCount + ", -> Start matrix solver run #" + solverRunCount + " ...");
-						ArrayList<Smooth> congruences = getSmoothCongruences();
+						HashSet<Smooth> congruences = getSmoothCongruences();
 						// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
 						matrixSolver.solve(congruences); // throws FactorException
 						if (ANALYZE) {
@@ -310,6 +315,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 			for (Long largeFactor : currentLargeFactors) {
 				processedLargeFactors.add(largeFactor);
 				ArrayList<Partial> partialList = largeFactors_2_partials.get(largeFactor);
+				// XXX Remove some singletons here, too ?
 				if (partialList!=null && partialList.size()>0) {
 					for (Partial relatedPartial : partialList) {
 						relatedPartials.add(relatedPartial);
@@ -397,7 +403,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	}
 
 	@Override
-	public ArrayList<Smooth> getSmoothCongruences() {
+	public HashSet<Smooth> getSmoothCongruences() {
 		return smoothCongruences;
 	}
 	

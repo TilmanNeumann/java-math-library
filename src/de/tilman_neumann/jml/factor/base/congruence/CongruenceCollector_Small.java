@@ -31,7 +31,7 @@ import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.Timer;
 
 /**
- * A copy of CongruenceCollector01 used forcollecting conguences in nested SIQS.
+ * A copy of CongruenceCollector01 used for collecting congruences in nested SIQS.
  * 
  * @author Tilman Neumann
  */
@@ -41,8 +41,9 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	private static final boolean DEBUG = false; // used for logs and asserts
 	private static final boolean ANALYZE = false;
 	
-	/** smooth congruences */
-	private ArrayList<Smooth> smoothCongruences;
+	/** smooth congruences: must be a Set to avoid duplicates when 3-partials are involved */
+	private HashSet<Smooth> smoothCongruences;
+	
 	/** 
 	 * A map from big factors with odd exp to partial congruences.
 	 * Here we need a 1:n relation because one partial can have several big factors;
@@ -107,7 +108,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 
 	@Override
 	public void initialize(BigInteger N, FactorTest factorTest) {
-		smoothCongruences = new ArrayList<Smooth>();
+		smoothCongruences = new HashSet<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
 		
@@ -139,7 +140,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 							solverRunCount++;
 							if (DEBUG) LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
 						}
-						ArrayList<Smooth> congruences = getSmoothCongruences();
+						HashSet<Smooth> congruences = getSmoothCongruences();
 						matrixSolver.solve(congruences); // throws FactorException
 						if (ANALYZE) {
 							testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
@@ -313,7 +314,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	}
 
 	@Override
-	public ArrayList<Smooth> getSmoothCongruences() {
+	public HashSet<Smooth> getSmoothCongruences() {
 		return smoothCongruences;
 	}
 	

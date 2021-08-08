@@ -38,14 +38,22 @@ import de.tilman_neumann.util.Timer;
  * With 3LP, the cycle count from the cycle counting algorithm is an upper bound of the true number of cycles.
  * So if it indicates that we might have found a new cycle, then the partial solver must be run to check that and resolve the smooth congruence.
  * 
+ * With 3-partials and large enough N, some partials may have hundreds of thousands of "related partials".
+ * Collecting them all would be such a heavy load for findRelatedPartials() and for the partial solver that factoring progress would eventually nearly come to a stop.
+ * To prevent that, we had to insert a "cutoff" where findRelatedPartials() stops looking for more related partials;
+ * furthermore this seems to produce a lot of duplicate smooth relations... Thus we had to make smoothCongruences a Set instead of a List.
+ * But now it works!
+ * 
  * @author Tilman Neumann
  */
+// XXX Experimental, more tests and adjustment required
 public class CongruenceCollector03 implements CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector03.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 
-	/** smooth congruences */
-	private ArrayList<Smooth> smoothCongruences;
+	/** smooth congruences: must be a Set to avoid duplicates when 3-partials are involved */
+	private HashSet<Smooth> smoothCongruences;
+	
 	/** 
 	 * A map from big factors with odd exp to partial congruences.
 	 * Here we need a 1:n relation because one partial can have several big factors;
@@ -116,7 +124,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 
 	@Override
 	public void initialize(BigInteger N, FactorTest factorTest) {
-		smoothCongruences = new ArrayList<Smooth>();
+		smoothCongruences = new HashSet<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
 		cycleCounter.initializeForN();
@@ -170,7 +178,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 						if (ANALYZE) ccDuration += timer.capture();
 						solverRunCount++;
 						if (ANALYZE) LOG.info("#requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruenceCount + ", -> Start matrix solver run #" + solverRunCount + " ...");
-						ArrayList<Smooth> congruences = getSmoothCongruences();
+						HashSet<Smooth> congruences = getSmoothCongruences();
 						// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
 						matrixSolver.solve(congruences); // throws FactorException
 						if (ANALYZE) {
@@ -316,10 +324,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 						// 2) if one of its factors occurs only once, then partial is a singleton row
 						if (!isSingletonRow(partial, largeFactorsOfNewPartial)) {
 							relatedPartials.add(partial);
-							// XXX with 3LP and several threads the CPU load decreases significantly for large N, because we find too many related partials here and the partial solver then needs to solve very large matrices.
-							// XXX But using a cutoff seems to give unsolvable smooths equation systems (the final solver tries one run after another).
-							// XXX Still not sure how to fix that...
-							if (relatedPartials.size() >= 500) return relatedPartials;
+							if (relatedPartials.size() >= 500) return relatedPartials; // XXX cutoff
 							for (Long nextLargeFactor : partial.getLargeFactorsWithOddExponent()) {
 								if (!processedLargeFactors.contains(nextLargeFactor)) nextLargeFactors.add(nextLargeFactor);
 							}
@@ -422,7 +427,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	}
 
 	@Override
-	public ArrayList<Smooth> getSmoothCongruences() {
+	public HashSet<Smooth> getSmoothCongruences() {
 		return smoothCongruences;
 	}
 	
