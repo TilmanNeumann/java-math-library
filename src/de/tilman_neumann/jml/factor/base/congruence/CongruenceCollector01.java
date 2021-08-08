@@ -176,7 +176,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 						// Try to solve equation system
 						if (ANALYZE) ccDuration += timer.capture();
 						solverRunCount++;
-						if (ANALYZE) LOG.info("#requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruenceCount + ", -> Start matrix solver run #" + solverRunCount + " ...");
+						if (ANALYZE) LOG.info("#requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
 						HashSet<Smooth> congruences = getSmoothCongruences();
 						// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
 						matrixSolver.solve(congruences); // throws FactorException
