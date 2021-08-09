@@ -185,6 +185,24 @@ public class CycleCounter3LP implements CycleCounter {
 
 	/**
 	 * Update the edge graph for a 3-partial, with large primes p1 <= p2 <= p3.
+	 * 
+	 * With 3 large primes, the standard formula #cycles = R+C-V can not be computed exactly.
+	 * So we use #cycles = R+C+X-V, where X is a correction that applies when adding a new 3LP would lead to a reduced R+C-V.
+	 * 
+	 * There are seven cases to distinguish:
+	 * #new vertices | #distinct roots | delta(R+C-V) | -> X | -> delta(R+C+X-V)
+	 * --------------+-----------------+--------------+------+------------------
+	 *             3 |               3 |   1+1-3 = -1 |    1 |      1+1+1-3 = 0
+	 *             2 |               3 |   1+0-2 = -1 |    1 |      1+0+1-2 = 0
+	 *             1 |               3 |   1-1-1 = -1 |    1 |      1-1+1-1 = 0
+	 *             1 |               2 |   1+0-1 =  0 |    0 |      1+0+0-1 = 0
+	 *             0 |               3 |   1-2-0 = -1 |    1 |      1-2+1-0 = 0
+	 *             0 |               2 |   1-1-0 =  0 |    0 |      1-1+0-0 = 0
+	 *             0 |               1 |   1+0-0 =  1 |    0 |      1+0+0-0 = 1
+	 *             
+	 * So the correction X is 1 if we have three distinct roots, 0 otherwise;
+	 * and the update of R+C+X-V is 1 only iff all primes are already known and belong to the same disconnected component, 0 otherwise.
+	 * 
 	 * @param p1
 	 * @param p2
 	 * @param p3
