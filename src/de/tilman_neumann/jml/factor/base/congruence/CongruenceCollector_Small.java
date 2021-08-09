@@ -13,6 +13,7 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
+import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_Q_SIGNS;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
@@ -259,7 +260,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	}
 
 	/**
-	 * Add smooth congruence.
+	 * (Try to) add a new smooth congruence.
 	 * @param smoothCongruence
 	 * @return true if a smooth congruence was added
 	 * @throws FactorException
@@ -271,12 +272,29 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 			// no FactorException -> the square congruence was improper -> drop it
 			return false;
 		}
-		// No square -> add.
-		// Here the same congruence may be added several times. This results in the need to test too many null vectors.
-		// But avoiding such duplicates is asymptotically unfavourable because their likelihood decreases quickly.
-		smoothCongruences.add(smoothCongruence);
+		// No square -> try to add.
+		// Duplicate smooths cause the final matrix solver to need more null vectors (in the better case) or many unsuccessful solver runs (in the worse case).
+		// With partials having no more than 2 large factors, we hardly got any duplicates. Avoiding them was unfavorable for performance.
+		// With 3LP-partials, we can get many more duplicates of SmoothComposites (when the number of related partials exceeds the cutoff!).
+		// This is the reason why smoothCongruences is a Set now.
+		boolean added = smoothCongruences.add(smoothCongruence);
+		if (DEBUG) {
+			if (!added) {
+				LOG.debug("Found duplicate smooth congruence!");
+				LOG.debug("New: " + smoothCongruence);
+				for (Smooth smooth : smoothCongruences) {
+					if (smooth.equals(smoothCongruence)) {
+						LOG.debug("Old: " + smooth); // yes, they are SmoothComposites and they are indeed equal
+						break;
+					}
+				}
+			}
+		}
+		
+		// Q-analysis
+		if (ANALYZE_Q_SIGNS) if (added && smoothCongruence.getMatrixElements()[0] != -1) smoothWithPositiveQCount++;
 
-		return true;
+		return added;
 	}
 	
 	private void addPartial(Partial newPartial, Long[] bigFactors) {

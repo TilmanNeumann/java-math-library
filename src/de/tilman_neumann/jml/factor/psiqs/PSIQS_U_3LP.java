@@ -78,7 +78,7 @@ public class PSIQS_U_3LP extends PSIQSBase3LP {
 	 * 
 	 * @param args ignored
 	 */
-	// 330 bit test number exposing findRelatedPartials() problem: 1193021186851987582089887341794273573523742049278854202794336422907159752083864394187553156410578431
+	// Good 330 bit number to test 3LP: 1193021186851987582089887341794273573523742049278854202794336422907159752083864394187553156410578431
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		Timer timer = new Timer();
