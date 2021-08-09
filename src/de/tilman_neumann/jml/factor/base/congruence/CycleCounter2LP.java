@@ -49,7 +49,7 @@ public class CycleCounter2LP implements CycleCounter {
 	}
 	
 	@Override
-	public int addPartial(Partial partial, int correctSmoothCount, HashSet<Partial> relatedPartials) {
+	public int addPartial(Partial partial, int correctSmoothCount) {
 		
 		boolean added = relations.add(partial);
 		if (!added) {
@@ -90,6 +90,10 @@ public class CycleCounter2LP implements CycleCounter {
 		return cycleCount;
 	}
 	
+	/**
+	 * Update the edge graph for a 1-partial.
+	 * @param p1 the only large prime of the partial
+	 */
 	private void insert1LP(long p1) {
 		Long r1 = getRoot(p1);
 
@@ -109,7 +113,11 @@ public class CycleCounter2LP implements CycleCounter {
 		}
 	}
 
-	/** p1 = smaller p, p2 = larger p */
+	/**
+	 * Update the edge graph for a 2-partial, with large primes p1 <= p2.
+	 * @param p1
+	 * @param p2
+	 */
 	private void insert2LP(long p1, long p2) {
 		Long r1 = getRoot(p1);
 		Long r2 = getRoot(p2);

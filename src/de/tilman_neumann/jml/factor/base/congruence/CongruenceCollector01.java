@@ -278,7 +278,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 					}
 				}
 				
-				if (DEBUG_CYCLE_COUNTER) cycleCounter.addPartial(partial, totalSmoothFromPartialCount, relatedPartials);
+				if (DEBUG_CYCLE_COUNTER) cycleCounter.addPartial(partial, totalSmoothFromPartialCount);
 				return added;
 				// Not adding the new partial is sufficient to keep the old partials linear independent,
 				// which is required to avoid duplicate solutions.
@@ -291,7 +291,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		if (DEBUG) LOG.debug("Found new partial relation --> #requiredSmooths = " + requiredSmoothCongruenceCount +", #smooths = " + smoothCongruences.size() + ", #partials = " + totalPartialCount);
 		if (ANALYZE) partialCounts[bigFactors.length-1]++;
 		
-		if (DEBUG_CYCLE_COUNTER) cycleCounter.addPartial(partial, totalSmoothFromPartialCount, relatedPartials);
+		if (DEBUG_CYCLE_COUNTER) cycleCounter.addPartial(partial, totalSmoothFromPartialCount);
 		return false; // no smooth added
 	}
 	

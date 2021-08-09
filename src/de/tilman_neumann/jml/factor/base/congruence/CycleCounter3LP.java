@@ -2,13 +2,9 @@ package de.tilman_neumann.jml.factor.base.congruence;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -69,7 +65,7 @@ public class CycleCounter3LP implements CycleCounter {
 	}
 
 	@Override
-	public int addPartial(Partial partial, int correctSmoothCount, HashSet<Partial> relatedPartials) {
+	public int addPartial(Partial partial, int correctSmoothCount) {
 		relationCount++;
 		
 		Long[] largeFactors = partial.getLargeFactorsWithOddExponent();
@@ -111,26 +107,6 @@ public class CycleCounter3LP implements CycleCounter {
 			if (cycleCountIncr != correctSmoothCountIncr) {
 				String errorType = (cycleCountIncr < correctSmoothCountIncr) ? "false-negative" : "false-positive";
 				LOG.debug("ERROR: " + largeFactorsCount + "LP-partial " + Arrays.toString(largeFactors) + " led to " + errorType + " cycle count update!");
-				// log all related partials
-				LOG.debug(relatedPartials.size() + " related partials");
-				//for (Partial par : relatedPartials) {
-				//	LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
-				//}
-				
-				// log related partials after removing singletons
-				@SuppressWarnings({ "unchecked", "rawtypes" })
-				ArrayList<Partial> congruencesCopy = new ArrayList(relatedPartials.size());
-				Map<Long, ArrayList<Partial>> largeFactors_2_partials = new HashMap<>();
-				for (Partial congruence : relatedPartials) {
-					congruencesCopy.add(congruence);
-					addToColumn2RowMap(congruence, largeFactors_2_partials);
-				}
-				removeSingletons(congruencesCopy, largeFactors_2_partials);
-				LOG.debug(congruencesCopy.size() + " related partials after removing singletons");
-				for (Partial par : congruencesCopy) {
-					LOG.debug("    related partial has large factors " + Arrays.toString(par.getLargeFactorsWithOddExponent()));
-				}
-//				System.exit(0);
 			}
 			
 			LOG.debug("-------------------------------------------------------------");
@@ -139,6 +115,10 @@ public class CycleCounter3LP implements CycleCounter {
 		return cycleCount;
 	}
 	
+	/**
+	 * Update the edge graph for a 1-partial.
+	 * @param p1 the only large prime of the partial
+	 */
 	private void insert1LP(long p1) {
 		Long r1 = getRoot(p1);
 
@@ -158,7 +138,11 @@ public class CycleCounter3LP implements CycleCounter {
 		}
 	}
 
-	/** p1 = smaller p, p2 = larger p */
+	/**
+	 * Update the edge graph for a 2-partial, with large primes p1 <= p2.
+	 * @param p1
+	 * @param p2
+	 */
 	private void insert2LP(long p1, long p2) {
 		Long r1 = getRoot(p1);
 		Long r2 = getRoot(p2);
@@ -199,7 +183,12 @@ public class CycleCounter3LP implements CycleCounter {
 		}
 	}
 
-	/** p1 <= p2 <= p3 */
+	/**
+	 * Update the edge graph for a 3-partial, with large primes p1 <= p2 <= p3.
+	 * @param p1
+	 * @param p2
+	 * @param p3
+	 */
 	private void insert3LP(long p1, long p2, long p3) {
 		Long r1 = getRoot(p1);
 		Long r2 = getRoot(p2);
@@ -355,61 +344,6 @@ public class CycleCounter3LP implements CycleCounter {
 			q = edges.get(p);
 		}
 		return p;
-	}
-	
-	/**
-	 * Remove singletons from <code>congruences</code>.
-	 * This can reduce the size of the equation system; actually it never diminishes the difference (#eqs - #vars).
-	 * It is very fast, too - like 60ms for a matrix for which solution via Gauss elimination takes 1 minute.
-	 * 
-	 * @param congruences 
-	 * @param largeFactors_2_partials 
-	 */
-	private void removeSingletons(List<Partial> congruences, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
-		// Parse all congruences as long as we find a singleton in a complete pass
-		boolean foundSingleton;
-		do {
-			foundSingleton = false;
-			Iterator<? extends Partial> congruenceIter = congruences.iterator();
-			while (congruenceIter.hasNext()) {
-				Partial congruence = congruenceIter.next();
-				for (Long oddExpFactor : congruence.getLargeFactorsWithOddExponent()) {
-					if (largeFactors_2_partials.get(oddExpFactor).size()==1) {
-						// found singleton -> remove from list
-						if (DEBUG) LOG.debug("Found singleton -> remove " + congruence);
-						congruenceIter.remove();
-						// remove from oddExpFactors_2_congruences so we can detect further singletons
-						removeFromColumn2RowMap(congruence, largeFactors_2_partials);
-						foundSingleton = true;
-						break;
-					}
-				}
-			} // one pass finished
-		} while (foundSingleton && congruences.size()>0);
-		// now all singletons have been removed from congruences.
-		if (DEBUG) LOG.debug("#congruences after removing singletons: " + congruences.size());
-	}
-	
-	private void addToColumn2RowMap(Partial congruence, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
-		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
-			ArrayList<Partial> congruenceList = largeFactors_2_partials.get(factor);
-			if (congruenceList == null) {
-				congruenceList = new ArrayList<Partial>();
-				largeFactors_2_partials.put(factor, congruenceList);
-			}
-			congruenceList.add(congruence);
-		}
-	}
-	
-	private void removeFromColumn2RowMap(Partial congruence, Map<Long, ArrayList<Partial>> largeFactors_2_partials) {
-		for (Long factor : congruence.getLargeFactorsWithOddExponent()) {
-			ArrayList<Partial> congruenceList = largeFactors_2_partials.get(factor);
-			congruenceList.remove(congruence);
-			if (congruenceList.size()==0) {
-				// there are no more congruences with the current factor
-				largeFactors_2_partials.remove(factor);
-			}
-		}
 	}
 
 	@Override

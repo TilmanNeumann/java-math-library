@@ -201,7 +201,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 		
 		// otherwise aqPair must be a partial with at least one large factor.
 		Partial partial = (Partial) aqPair;
-		int newCount = cycleCounter.addPartial(partial, /* dummy values, no debugging in this class yet*/ -123456789, null);
+		int newCount = cycleCounter.addPartial(partial, /* dummy values, no debugging in this class yet*/ -123456789);
 		boolean added = newCount > smoothFromPartialsCount;
 		smoothFromPartialsCount = newCount;
 		return added;

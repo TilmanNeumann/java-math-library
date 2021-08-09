@@ -78,6 +78,8 @@ public class PSIQS_U extends PSIQSBase {
 	 * 
 	 * @param args ignored
 	 */
+	// Test numbers:
+	// RSA-100 = 1522605027922533360535618378132637429718068114961380688657908494580122963258952897654000350692006139
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		Timer timer = new Timer();

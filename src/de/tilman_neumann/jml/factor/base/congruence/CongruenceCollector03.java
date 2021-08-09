@@ -229,7 +229,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 		}
 		
 		int lastCycleCount = cycleCount;
-		cycleCount = cycleCounter.addPartial(partial, /* dummy values, no debugging in this class yet*/ -123456789, null);
+		cycleCount = cycleCounter.addPartial(partial, /* dummy values, no debugging in this class yet*/ -123456789);
 		if (cycleCount > lastCycleCount) {
 			// The cycle counter suggests that there might be a new smooth. Use the partial solver to check that
 			// we use Long[] and not long[] for bigFactors, because in the following they will be used a lot in Collections

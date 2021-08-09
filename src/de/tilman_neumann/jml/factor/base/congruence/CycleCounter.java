@@ -19,10 +19,9 @@ public interface CycleCounter {
 	 * 
 	 * @param partial the newest partial relation to add
 	 * @param correctSmoothCount the correct number of smooths from partials (only for debugging)
-	 * @param relatedPartials (only for debugging)
 	 * @return the updated number of smooths from partials
 	 */
-	int addPartial(Partial partial, int correctSmoothCount, HashSet<Partial> relatedPartials);
+	int addPartial(Partial partial, int correctSmoothCount);
 
 	/**
 	 * @return the partial relations found so far
