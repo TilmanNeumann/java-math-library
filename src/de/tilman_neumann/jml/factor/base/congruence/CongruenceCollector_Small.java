@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,8 +43,8 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	private static final boolean DEBUG = false; // used for logs and asserts
 	private static final boolean ANALYZE = false;
 	
-	/** smooth congruences: must be a Set to avoid duplicates when 3-partials are involved */
-	private HashSet<Smooth> smoothCongruences;
+	/** smooth congruences; is a list here because we won't get 3-partials from small N */
+	private ArrayList<Smooth> smoothCongruences;
 	
 	/** 
 	 * A map from big factors with odd exp to partial congruences.
@@ -109,7 +110,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 
 	@Override
 	public void initialize(BigInteger N, FactorTest factorTest) {
-		smoothCongruences = new HashSet<Smooth>();
+		smoothCongruences = new ArrayList<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
 		
@@ -141,7 +142,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 							solverRunCount++;
 							if (DEBUG) LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
 						}
-						HashSet<Smooth> congruences = getSmoothCongruences();
+						Collection<Smooth> congruences = getSmoothCongruences();
 						matrixSolver.solve(congruences); // throws FactorException
 						if (ANALYZE) {
 							testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
@@ -272,24 +273,20 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 			// no FactorException -> the square congruence was improper -> drop it
 			return false;
 		}
-		// No square -> try to add.
-		// Duplicate smooths cause the final matrix solver to need more null vectors (in the better case) or many unsuccessful solver runs (in the worse case).
-		// With partials having no more than 2 large factors, we hardly got any duplicates. Avoiding them was unfavorable for performance.
-		// With 3LP-partials, we can get many more duplicates of SmoothComposites (when the number of related partials exceeds the cutoff!).
-		// This is the reason why smoothCongruences is a Set now.
-		boolean added = smoothCongruences.add(smoothCongruence);
+		// No square -> add.
+		// With no 3LP around we won't get many duplicates here. But we keep the check just in case.
 		if (DEBUG) {
-			if (!added) {
+			if (smoothCongruences.contains(smoothCongruence)) {
 				LOG.debug("Found duplicate smooth congruence!");
 				LOG.debug("New: " + smoothCongruence);
 				for (Smooth smooth : smoothCongruences) {
 					if (smooth.equals(smoothCongruence)) {
 						LOG.debug("Old: " + smooth); // yes, they are SmoothComposites and they are indeed equal
-						break;
 					}
 				}
 			}
 		}
+		boolean added = smoothCongruences.add(smoothCongruence);
 		
 		// Q-analysis
 		if (ANALYZE_Q_SIGNS) if (added && smoothCongruence.getMatrixElements()[0] != -1) smoothWithPositiveQCount++;
@@ -332,7 +329,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	}
 
 	@Override
-	public HashSet<Smooth> getSmoothCongruences() {
+	public Collection<Smooth> getSmoothCongruences() {
 		return smoothCongruences;
 	}
 	

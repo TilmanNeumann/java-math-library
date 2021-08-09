@@ -17,7 +17,7 @@ import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -39,8 +39,8 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector02.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 
-	/** smooth congruences: must be a Set to avoid duplicates when 3-partials are involved */
-	private HashSet<Smooth> smoothCongruences;
+	/** smooth congruences; is a list here because the algorithm doesn't work with 3-partials */
+	private ArrayList<Smooth> smoothCongruences;
 
 	/** factor tester */
 	private FactorTest factorTest;
@@ -97,7 +97,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 
 	@Override
 	public void initialize(BigInteger N, FactorTest factorTest) {
-		smoothCongruences = new HashSet<Smooth>();
+		smoothCongruences = new ArrayList<Smooth>();
 		this.factorTest = factorTest;
 		cycleCounter.initializeForN();
 
@@ -144,7 +144,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 				int smoothCongruenceCount = getSmoothCongruenceCount() + smoothFromPartialsCount;
 				if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
 					if (DEBUG) LOG.debug("Cycle counter: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + getSmoothCongruenceCount() + ", #smoothsFromPartials = " + smoothFromPartialsCount + ", #totalSmooths = " + smoothCongruenceCount);
-					HashSet<Smooth> perfectSmooths = getSmoothCongruences();
+					Collection<Smooth> perfectSmooths = getSmoothCongruences();
 					//long t0 = System.currentTimeMillis();
 					ArrayList<Smooth> smoothsFromPartials = CycleFinder.findIndependentCycles(cycleCounter.getPartialRelations());
 					if (DEBUG) LOG.debug("#smoothsFromCycleCounter = " + cycleCounter.getCycleCount() + ", #smoothsFromCycleFinder = " + smoothsFromPartials.size());
@@ -220,24 +220,20 @@ public class CongruenceCollector02 implements CongruenceCollector {
 			// no FactorException -> the square congruence was improper -> drop it
 			return false;
 		}
-		// No square -> try to add.
-		// Duplicate smooths cause the final matrix solver to need more null vectors (in the better case) or many unsuccessful solver runs (in the worse case).
-		// With partials having no more than 2 large factors, we hardly got any duplicates. Avoiding them was unfavorable for performance.
-		// With 3LP-partials, we can get many more duplicates of SmoothComposites (when the number of related partials exceeds the cutoff!).
-		// This is the reason why smoothCongruences is a Set now.
-		boolean added = smoothCongruences.add(smoothCongruence);
+		// No square -> add.
+		// With no 3LP around we won't get many duplicates here. But we keep the check just in case.
 		if (DEBUG) {
-			if (!added) {
+			if (smoothCongruences.contains(smoothCongruence)) {
 				LOG.debug("Found duplicate smooth congruence!");
 				LOG.debug("New: " + smoothCongruence);
 				for (Smooth smooth : smoothCongruences) {
 					if (smooth.equals(smoothCongruence)) {
 						LOG.debug("Old: " + smooth); // yes, they are SmoothComposites and they are indeed equal
-						break;
 					}
 				}
 			}
 		}
+		boolean added = smoothCongruences.add(smoothCongruence);
 		
 		// Q-analysis
 		if (ANALYZE_Q_SIGNS) if (added && smoothCongruence.getMatrixElements()[0] != -1) smoothWithPositiveQCount++;
@@ -256,7 +252,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	}
 
 	@Override
-	public HashSet<Smooth> getSmoothCongruences() {
+	public Collection<Smooth> getSmoothCongruences() {
 		return smoothCongruences;
 	}
 	

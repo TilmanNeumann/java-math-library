@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +52,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	private static final Logger LOG = Logger.getLogger(CongruenceCollector03.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 
-	/** smooth congruences: must be a Set to avoid duplicates when 3-partials are involved */
+	/** smooth congruences: must be a set here to avoid duplicates when 3-partials are involved */
 	private HashSet<Smooth> smoothCongruences;
 	
 	/** 
@@ -178,7 +179,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 						if (ANALYZE) ccDuration += timer.capture();
 						solverRunCount++;
 						if (ANALYZE) LOG.info("#requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
-						HashSet<Smooth> congruences = getSmoothCongruences();
+						Collection<Smooth> congruences = getSmoothCongruences();
 						// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
 						matrixSolver.solve(congruences); // throws FactorException
 						if (ANALYZE) {
@@ -373,20 +374,19 @@ public class CongruenceCollector03 implements CongruenceCollector {
 		// Duplicate smooths cause the final matrix solver to need more null vectors (in the better case) or many unsuccessful solver runs (in the worse case).
 		// With partials having no more than 2 large factors, we hardly got any duplicates. Avoiding them was unfavorable for performance.
 		// With 3LP-partials, we can get many more duplicates of SmoothComposites (when the number of related partials exceeds the cutoff!).
-		// This is the reason why smoothCongruences is a Set now.
-		boolean added = smoothCongruences.add(smoothCongruence);
+		// This is the reason why smoothCongruences is a Set in this class.
 		if (DEBUG) {
-			if (!added) {
+			if (smoothCongruences.contains(smoothCongruence)) {
 				LOG.debug("Found duplicate smooth congruence!");
 				LOG.debug("New: " + smoothCongruence);
 				for (Smooth smooth : smoothCongruences) {
 					if (smooth.equals(smoothCongruence)) {
 						LOG.debug("Old: " + smooth); // yes, they are SmoothComposites and they are indeed equal
-						break;
 					}
 				}
 			}
 		}
+		boolean added = smoothCongruences.add(smoothCongruence);
 		
 		// Q-analysis
 		if (ANALYZE_Q_SIGNS) if (added && smoothCongruence.getMatrixElements()[0] != -1) smoothWithPositiveQCount++;
@@ -443,7 +443,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	}
 
 	@Override
-	public HashSet<Smooth> getSmoothCongruences() {
+	public Collection<Smooth> getSmoothCongruences() {
 		return smoothCongruences;
 	}
 	
