@@ -39,7 +39,7 @@ import de.tilman_neumann.util.Timer;
  * 
  * @author Tilman Neumann
  */
-public class PSIQS_U_3LP extends PSIQSBase3LP {
+public class PSIQS_U_3LP extends PSIQSBase {
 
 	private static final Logger LOG = Logger.getLogger(PSIQS_U_3LP.class);
 

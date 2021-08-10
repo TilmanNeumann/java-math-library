@@ -39,7 +39,14 @@ public class SieveParamsFactory02 {
 		// The triples (sieveHitExp, tdivTestExp, smoothBoundExponent) are important tuning parameters.
 		double progessivePart = (NBits<=150) ? 0 : (NBits-150.0)*0.045/150;
 		double sieveHitExponent = 0.21 + progessivePart;
-		double tdivTestExponent = (NBits<250) ? 0.12 : 0.16; // at 250 bit 2LP kick in!
+		
+		double tdivTestExponent = 0.12;
+		if (NBits >= 250) {
+			tdivTestExponent = 0.16; // at 250 bit 2LP kick in!
+			if (NBits >= 360) {
+				tdivTestExponent = 0.17; // experimental; a single test suggested that for 360 bit, 0.17 might work better (1h:18m instead of 1h:20m)
+			}
+		}
 		double smoothBoundExponent = tdivTestExponent;
 		
 		double sieveHitBound = Math.pow(N_dbl, sieveHitExponent);
