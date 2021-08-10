@@ -213,7 +213,7 @@ public class CycleCounter3LP implements CycleCounter {
 		Long r3 = getRoot(p3);
 		
 		if (r1!=null && r2!=null && r3!=null) {
-			// all three vertices already exist. in this case we only need the roots, so we can sort them without keeping the referecne to the primes
+			// all three vertices already exist. in this case we only need the roots, so we can sort them without keeping the reference to the primes
 			long tmp;
 			if (r2<r1) { tmp=r1; r1=r2; r2=tmp; }
 			if (r3<r2) { tmp=r2; r2=r3; r3=tmp; }
