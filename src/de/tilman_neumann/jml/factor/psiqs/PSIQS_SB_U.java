@@ -20,7 +20,7 @@ import java.math.BigInteger;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
-import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector03;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
@@ -35,13 +35,13 @@ import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
 
 /**
- * Multi-threaded SIQS using the fastest sieve depending on sun.misc.Unsafe, and all sub-algorithms working with 3-partials.
+ * Multi-threaded SIQS using a single-block sieve depending on sun.misc.Unsafe.
  * 
  * @author Tilman Neumann
  */
-public class PSIQS_U_3LP extends PSIQSBase {
+public class PSIQS_SB_U extends PSIQSBase {
 
-	private static final Logger LOG = Logger.getLogger(PSIQS_U_3LP.class);
+	private static final Logger LOG = Logger.getLogger(PSIQS_SB_U.class);
 
 	/**
 	 * Standard constructor.
@@ -52,13 +52,13 @@ public class PSIQS_U_3LP extends PSIQSBase {
 	 * @param powerFinder algorithm to add powers to the primes used for sieving
 	 * @param matrixSolver solver for smooth congruences matrix
 	 */
-	public PSIQS_U_3LP(float Cmult, float Mmult, Integer wantedQCount, int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
-		super(Cmult, Mmult, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator02(wantedQCount), new CongruenceCollector03(10));
+	public PSIQS_SB_U(float Cmult, float Mmult, Integer wantedQCount, int numberOfThreads, PowerFinder powerFinder, MatrixSolver matrixSolver) {
+		super(Cmult, Mmult, numberOfThreads, null, powerFinder, matrixSolver, new AParamGenerator02(wantedQCount), new CongruenceCollector01(10));
 	}
 
 	@Override
 	public String getName() {
-		return "PSIQS_U_3LP(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
+		return "PSIQS_SB_U(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + powerFinder.getName() + ", " + matrixSolver.getName() + ", " + numberOfThreads + " threads)";
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class PSIQS_U_3LP extends PSIQSBase {
 			int k, BigInteger N, BigInteger kN, int d, SieveParams sieveParams, BaseArrays baseArrays,
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		
-		return new PSIQSThread_U_3LP(k, N, kN, d, sieveParams, baseArrays, apg, cc, threadIndex);
+		return new PSIQSThread_SB_U(k, N, kN, d, sieveParams, baseArrays, apg, cc, threadIndex);
 	}
 
 	// Standalone test --------------------------------------------------------------------------------------------------
@@ -78,12 +78,13 @@ public class PSIQS_U_3LP extends PSIQSBase {
 	 * 
 	 * @param args ignored
 	 */
-	// Good 330 bit number to test 3LP: 1193021186851987582089887341794273573523742049278854202794336422907159752083864394187553156410578431
+	// Test numbers:
+	// RSA-100 = 1522605027922533360535618378132637429718068114961380688657908494580122963258952897654000350692006139
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		Timer timer = new Timer();
 		int numThreads = 20; // insert your number of threads here
-		PSIQS_U_3LP qs = new PSIQS_U_3LP(0.31F, 0.37F, null, numThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+		PSIQS_SB_U qs = new PSIQS_SB_U(0.31F, 0.37F, null, numThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
 
 		while(true) {
 			try {

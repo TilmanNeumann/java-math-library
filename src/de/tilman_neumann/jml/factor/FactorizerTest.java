@@ -59,7 +59,7 @@ public class FactorizerTest {
 	/** number of test numbers */
 	private static final int N_COUNT = 1;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 330;
+	private static final int START_BITS = 200;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 10;
 	/** maximum number of bits to test (no maximum if null) */
@@ -169,8 +169,13 @@ public class FactorizerTest {
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
 
+			// new, experimental PSIQS variants
 	//		new PSIQS_U_nLP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-			new PSIQS_U_3LP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+	//		new PSIQS_U_3LP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+
+			new PSIQS_SB_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+			
+			new PSIQS_SB(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
 //			new CombinedFactorAlgorithm(16, 1<<16, true),

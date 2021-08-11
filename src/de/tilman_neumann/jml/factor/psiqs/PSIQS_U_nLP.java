@@ -35,7 +35,7 @@ import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
 
 /**
- * Multi-threaded SIQS using the fastest sieve depending on sun.misc.Unsafe.
+ * Multi-threaded SIQS using the fastest sieve depending on sun.misc.Unsafe, and all sub-algorithms working with 3-partials.
  * 
  * @author Tilman Neumann
  */
