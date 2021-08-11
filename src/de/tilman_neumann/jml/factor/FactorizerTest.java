@@ -169,13 +169,11 @@ public class FactorizerTest {
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
 
-			// new, experimental PSIQS variants
-	//		new PSIQS_U_nLP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-	//		new PSIQS_U_3LP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-
-			new PSIQS_SB_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-			
-			new PSIQS_SB(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+			// experimental PSIQS variants
+//			new PSIQS_U_nLP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_U_3LP(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_SB_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+//			new PSIQS_SB(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
 //			new CombinedFactorAlgorithm(16, 1<<16, true),
