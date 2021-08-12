@@ -122,6 +122,7 @@ public class Sieve03hU implements Sieve {
 	/** buffers for trial division engine. */
 	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
 	private UnsignedBigInt quotient_UBI = new UnsignedBigInt(new int[50]);
+	private SortedIntegerArray smallFactors;
 
 	/** the primes found to divide Q in pass 1 */
 	private int[] pass2Primes = new int[100];
@@ -232,6 +233,7 @@ public class Sieve03hU implements Sieve {
 	public Iterable<SmoothCandidate> sieve() {
 		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
+		smallFactors = new SortedIntegerArray();
 		if (ANALYZE) initDuration += timer.capture();
 		
 		// Sieve with positive x, large primes:
@@ -564,11 +566,13 @@ public class Sieve03hU implements Sieve {
 		if (adjustedScore2 > tdivTestMinLogPSum) {
 			if (DEBUG) LOG.debug("adjustedScore2 = " + adjustedScore2 + " is greater than tdivTestMinLogPSum = " + tdivTestMinLogPSum + " -> pass Q to tdiv");
 			smoothCandidates.add(new SmoothCandidate(x, smallFactorsTDivResult.Q_rest, A, smallFactorsTDivResult.smallFactors));
+			// new buffer for small factors needed
+			smallFactors = new SortedIntegerArray();
 		}
 	}
 	
 	private SmallFactorsTDivResult tdivUnsievedPrimeBaseElements(BigInteger A, BigInteger QDivDa, int x) {
-		SortedIntegerArray smallFactors = new SortedIntegerArray();
+		smallFactors.reset();
 		// For more precision, here we compute the logPSum in doubles instead of using solutionArrays.logPArray
 		double logPSum = 0;
 		
