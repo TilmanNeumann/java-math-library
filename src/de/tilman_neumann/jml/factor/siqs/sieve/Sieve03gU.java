@@ -139,7 +139,7 @@ public class Sieve03gU implements Sieve {
 	}
 
 	@Override
-	public List<SmoothCandidate> sieve() {
+	public Iterable<SmoothCandidate> sieve() {
 		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
 		if (ANALYZE) initDuration += timer.capture();

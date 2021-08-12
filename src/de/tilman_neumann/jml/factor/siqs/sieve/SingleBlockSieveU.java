@@ -201,7 +201,7 @@ public class SingleBlockSieveU implements Sieve {
 	}
 
 	@Override
-	public List<SmoothCandidate> sieve() {
+	public Iterable<SmoothCandidate> sieve() {
 		if (ANALYZE) timer.capture();
 
 		// preprocessing

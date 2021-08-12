@@ -433,11 +433,6 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	}
 
 	@Override
-	public int getRequiredSmoothCongruenceCount() {
-		return requiredSmoothCongruenceCount;
-	}
-
-	@Override
 	public int getSmoothCongruenceCount() {
 		return smoothCongruences.size();
 	}

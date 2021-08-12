@@ -54,10 +54,10 @@ public interface TDiv_QS {
 	/**
 	 * Test if Q(x) is smooth (factors completely over the prime base) or "sufficiently smooth" (factors almost over the prime base)
 	 * for all x in the given list.
-	 * @param smoothCandidates
+	 * @param smoothCandidates (something like a) list of the smooth candidates to test
 	 * @return the AQ-pairs where Q is at least "sufficiently smooth"
 	 */
-	List<AQPair> testList(List<SmoothCandidate> smoothCandidates);
+	List<AQPair> testList(Iterable<SmoothCandidate> smoothCandidates);
 	
 	/**
 	 * @return a description of the performed tests.

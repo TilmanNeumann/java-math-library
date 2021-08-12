@@ -44,11 +44,6 @@ public interface CongruenceCollector {
 	boolean add(AQPair aqPair) throws FactorException;
 
 	/**
-	 * @return number of smooth congruences required before the matrix solver is called
-	 */
-	int getRequiredSmoothCongruenceCount();
-
-	/**
 	 * @return number of smooth congruences found so far.
 	 */
 	int getSmoothCongruenceCount();

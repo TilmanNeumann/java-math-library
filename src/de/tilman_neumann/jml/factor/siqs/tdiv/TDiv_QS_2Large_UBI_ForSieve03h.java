@@ -154,7 +154,7 @@ public class TDiv_QS_2Large_UBI_ForSieve03h implements TDiv_QS {
 	}
 
 	@Override
-	public List<AQPair> testList(List<SmoothCandidate> smoothCandidates) {
+	public List<AQPair> testList(Iterable<SmoothCandidate> smoothCandidates) {
 		if (ANALYZE) timer.capture();
 
 		// do trial division with sieve result

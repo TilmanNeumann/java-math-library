@@ -14,7 +14,6 @@
 package de.tilman_neumann.jml.factor.siqs.sieve;
 
 import java.math.BigInteger;
-import java.util.List;
 
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
@@ -56,9 +55,9 @@ public interface Sieve {
 
 	/**
 	 * Sieve for a new set of x1, x2 solutions.
-	 * @return list of sieve locations x where Q(x) is smooth enough to be passed to trial division
+	 * @return (something like a) list of sieve locations x where Q(x) is smooth enough to be passed to trial division
 	 */
-	List<SmoothCandidate> sieve();
+	Iterable<SmoothCandidate> sieve();
 
 	/**
 	 * @return description of the durations of the individual sub-phases

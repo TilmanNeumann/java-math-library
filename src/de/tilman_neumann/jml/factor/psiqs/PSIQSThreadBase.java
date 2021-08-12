@@ -85,7 +85,7 @@ abstract public class PSIQSThreadBase extends Thread {
 			polyGenerator.nextPolynomial();
 			
 			// run sieve and get the sieve locations x where Q(x) is sufficiently smooth
-			List<SmoothCandidate> smoothCandidates = sieve.sieve();
+			Iterable<SmoothCandidate> smoothCandidates = sieve.sieve();
 			//LOG.debug("Sieve found " + smoothXList.size() + " Q(x) smooth enough to be passed to trial division.");
 
 			// trial division stage: produce AQ-pairs

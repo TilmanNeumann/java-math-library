@@ -273,7 +273,7 @@ public class SIQS extends FactorAlgorithm {
 			polyGenerator.nextPolynomial(); // sets filtered prime base in SIQS
 
 			// run sieve and get the sieve locations x where Q(x) is sufficiently smooth
-			List<SmoothCandidate> smoothXList = sieve.sieve();
+			Iterable<SmoothCandidate> smoothXList = sieve.sieve();
 			//LOG.debug("Sieve found " + smoothXList.size() + " Q(x) smooth enough to be passed to trial division.");
 
 			// trial division stage: produce AQ-pairs
@@ -297,12 +297,6 @@ public class SIQS extends FactorAlgorithm {
 				this.cleanUp();
 				// done
 				return factor;
-			}
-			
-			if (DEBUG) {
-				if (ANALYZE) LOG.debug(polyGenerator.getName() + ": " + polyGenerator.getReport().getOperationDetails());
-				LOG.debug("Sieve found " + smoothXList.size() + " smooth x, tDiv let " + aqPairs.size() + " pass.");
-				LOG.debug("-> Now in total we have found " + congruenceCollector.getSmoothCongruenceCount() + " / " + congruenceCollector.getRequiredSmoothCongruenceCount() + " smooth congruences and " + congruenceCollector.getPartialCongruenceCount() + " partials.");
 			}
 		}
 	}

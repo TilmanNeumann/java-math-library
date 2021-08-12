@@ -319,11 +319,6 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	}
 
 	@Override
-	public int getRequiredSmoothCongruenceCount() {
-		return requiredSmoothCongruenceCount;
-	}
-
-	@Override
 	public int getSmoothCongruenceCount() {
 		return smoothCongruences.size();
 	}
