@@ -43,9 +43,7 @@ public class SieveParamsFactory02 {
 		double tdivTestExponent = 0.12;
 		if (NBits >= 250) {
 			tdivTestExponent = 0.16; // at 250 bit 2LP kick in!
-			if (NBits >= 360) {
-				tdivTestExponent = 0.17; // experimental; a single test suggested that for 360 bit, 0.17 might work better (1h:18m instead of 1h:20m)
-			}
+			// a single test suggested that for N=360 bit, 0.17 might work better (1h:18m instead of 1h:20m), but that needs more testing
 		}
 		double smoothBoundExponent = tdivTestExponent;
 		
