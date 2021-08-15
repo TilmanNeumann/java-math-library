@@ -30,6 +30,7 @@ implementations of smooth number sequences like CANs (colossally abundant number
 
 ## Releases
 
+* v1.2: Implemented SIQS with three large primes (but with the current parametrization, 3-partials are not found for N<=400 bit)
 * v1.1: Faster sieve for large N, speedup close to factor 2 at 360 bit inputs. Improved Gaussian solvers (by Dave McGuigan), including a parallel Gaussian solver that outperforms Block-Lanczos until about 375 bit on a Ryzen 3900X with 20 threads.
 From now on, <strong>Java 10</strong> is required!
 * v1.0: Integrated and adjusted Dario Alpern's ECM in class CombinedFactorAlgorithm.
