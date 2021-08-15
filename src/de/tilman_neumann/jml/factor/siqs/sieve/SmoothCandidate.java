@@ -24,6 +24,8 @@ import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 public class SmoothCandidate {
 	/** The sieve location */
 	public int x;
+	/** the logP sum from trial dividing unsieved base elements */
+	public double logPSum;
 	/** The rest of Q(x)/(da) that still needs to get factorized, where a is the a-parameter of the polynomial and d==2 for kN==1 (mod 8), 2 else */
 	public BigInteger QRest;
 	/** A(x) = d*a*x + b */

@@ -18,8 +18,6 @@ import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -47,7 +45,6 @@ public class Sieve03gU implements Sieve {
 	private static final long LOWER_MASK =          0x80808080L;
 
 	private BigInteger daParam, bParam, cParam, kN;
-	private int d;
 
 	// prime base
 	private int primeBaseSize;
@@ -68,7 +65,7 @@ public class Sieve03gU implements Sieve {
 	/** base address of the sieve array holding logP sums for all x */
 	private long sieveArrayAddress;
 
-	private List<SmoothCandidate> smoothCandidates = new ArrayList<>();
+	private SieveResult sieveResult = new SieveResult(10);
 
 	private BinarySearch binarySearch = new BinarySearch();
 
@@ -105,7 +102,6 @@ public class Sieve03gU implements Sieve {
 
 	@Override
 	public void initializeForAParameter(int d, BigInteger daParam, SolutionArrays solutionArrays, int filteredBaseSize, int[] qArray) {
-		this.d = d;
 		this.daParam = daParam;
 		this.solutionArrays = solutionArrays;
 		this.primeBaseSize = filteredBaseSize;
@@ -142,6 +138,7 @@ public class Sieve03gU implements Sieve {
 	public Iterable<SmoothCandidate> sieve() {
 		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
+		sieveResult.reset();
 		if (ANALYZE) initDuration += timer.capture();
 		
 		// Sieve with positive x, large primes:
@@ -212,7 +209,6 @@ public class Sieve03gU implements Sieve {
 		if (ANALYZE) sieveDuration += timer.capture();
 
 		// collect results: we check 8 sieve locations in one long
-		smoothCandidates.clear();
 		long x = sieveArrayAddress-8;
 		while (x<sieveArrayAddress+sieveArraySize-8) {
 			long t = UNSAFE.getLong(x+=8);
@@ -371,7 +367,7 @@ public class Sieve03gU implements Sieve {
 			}
 		}
 		if (ANALYZE) collectDuration += timer.capture();
-		return smoothCandidates;
+		return sieveResult;
 	}
 	
 	/**
@@ -425,7 +421,13 @@ public class Sieve03gU implements Sieve {
 		BigInteger dax = daParam.multiply(xBig);
 		BigInteger A = dax.add(bParam);
 		BigInteger QDivDa = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
-		smoothCandidates.add(new SmoothCandidate(x, QDivDa, A));
+		
+		SmoothCandidate smoothCandidate = sieveResult.peekNextSmoothCandidate();
+		smoothCandidate.x = x;
+		smoothCandidate.QRest = QDivDa;
+		smoothCandidate.A = A;
+		smoothCandidate.smallFactors.reset(); // this sieve does not find small factors
+		sieveResult.commitNextSmoothCandidate();
 	}
 
 	@Override

@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -88,12 +86,10 @@ public class SingleBlockSieveU implements Sieve {
 	private int[] dPosArray;
 	private int[] dNegArray;
 
-	private List<SmoothCandidate> smoothCandidates = new ArrayList<>();
-
 	/** buffers for trial division engine. */
 	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
 	private UnsignedBigInt quotient_UBI = new UnsignedBigInt(new int[50]);
-	private SortedIntegerArray smallFactors;
+	private SieveResult sieveResult = new SieveResult(10);
 
 	/** the primes found to divide Q in pass 1 */
 	private int[] pass2Primes = new int[100];
@@ -204,7 +200,7 @@ public class SingleBlockSieveU implements Sieve {
 	@Override
 	public Iterable<SmoothCandidate> sieve() {
 		if (ANALYZE) timer.capture();
-		smallFactors = new SortedIntegerArray();
+		sieveResult.reset();
 
 		// preprocessing
 		final int[] pArray = solutionArrays.pArray;
@@ -228,7 +224,6 @@ public class SingleBlockSieveU implements Sieve {
 			}
 		}
 		
-		smoothCandidates.clear();
 		for (int b=0; b<blockCount; b++) { // bottom-up order is required because in each block, the data for the next block is adjusted
 			// positive x: initialize block
 			UNSAFE.copyMemory(initializedBlockAddress, sieveBlockAddress, effectiveBlockSize);
@@ -348,7 +343,7 @@ public class SingleBlockSieveU implements Sieve {
 
 			if (ANALYZE) collectDuration += timer.capture();
 		}
-		return smoothCandidates;
+		return sieveResult;
 	}
 	
 	private void sievePositiveXBlock(final int[] primesArray, final byte[] logPArray, final int B,
@@ -542,8 +537,8 @@ public class SingleBlockSieveU implements Sieve {
 		// Replace estimates of unsieved prime base element (small primes, q-parameters) contributions to logPSum
 		// by the true ones: The score has to rise if the true contribution is greater than expected.
 		// XXX Could we do Bernsteinisms here?
-		SmallFactorsTDivResult smallFactorsTDivResult = tdivUnsievedPrimeBaseElements(A, QDivDa, x);
-		int logSmallPSum = (int) smallFactorsTDivResult.logPSum;
+		SmoothCandidate smoothCandidate = tdivUnsievedPrimeBaseElements(A, QDivDa, x);
+		int logSmallPSum = (int) smoothCandidate.logPSum;
 		int adjustedScore = score - ((int)initializer) + logSmallPSum;
 		if (DEBUG) LOG.debug("adjust initializer: original score = " + score + ", initializer = " + (int)initializer + ", logSmallPSum = " + logSmallPSum + " -> adjustedScore1 = " + adjustedScore);
 		
@@ -551,9 +546,10 @@ public class SingleBlockSieveU implements Sieve {
 		// The score has to rise if the true QDivDa size is smaller than expected, because then we have less to factor.
 		// We would always expect that trueLogQDivDaSize <= logQdivDaEstimate, because the latter is supposed to be an upper bound.
 		// But actually we can get much bigger trueLogQDivDaSize values than expected, like trueLogQDivDaSize - logQdivDaEstimate > 18 (and in bits this is a considerably bigger number like 45)
-		// This only happens for Q(x)<0. True a-parameters should not be the cause, they use to be close to the optimum.
-		// Thus either I plugged the 'k' into the formulas in a naive way, or the estimate of Contini, Pomerance etc. is not a true upper bound.
-		// TODO continue investigation
+		// This only happens for Q(x)<0. The a-parameters should not be the cause, they use to be close to the optimum.
+		// One cause may be that for d=2 we need to make b-parameters odd and as a consequence they can get bigger than a.
+		// But this is only part of the story; maybe the estimate of Contini, Pomerance etc. is not a true upper bound.
+		// Whatever, test showed that making logQdivDaEstimate a true upper bound does not improve performance.
 		int trueLogQDivDaSize = (int) (QDivDa.bitLength() * ld2logPMultiplier);
 		if (DEBUG) {
 			if (trueLogQDivDaSize > logQdivDaEstimate + 2) { // +2 -> don't log too much :-/
@@ -568,13 +564,15 @@ public class SingleBlockSieveU implements Sieve {
 		// If we always had trueLogQDivDaSize <= logQdivDaEstimate, then this check would be useless, because the adjusted score could only rise
 		if (adjustedScore2 > tdivTestMinLogPSum) {
 			if (DEBUG) LOG.debug("adjustedScore2 = " + adjustedScore2 + " is greater than tdivTestMinLogPSum = " + tdivTestMinLogPSum + " -> pass Q to tdiv");
-			smoothCandidates.add(new SmoothCandidate(x, smallFactorsTDivResult.Q_rest, A, smallFactorsTDivResult.smallFactors));
-			// new buffer for small factors needed
-			smallFactors = new SortedIntegerArray();
+			smoothCandidate.x = x;
+			smoothCandidate.A = A;
+			sieveResult.commitNextSmoothCandidate();
 		}
 	}
 	
-	private SmallFactorsTDivResult tdivUnsievedPrimeBaseElements(BigInteger A, BigInteger QDivDa, int x) {
+	private SmoothCandidate tdivUnsievedPrimeBaseElements(BigInteger A, BigInteger QDivDa, int x) {
+		SmoothCandidate smoothCandidate = sieveResult.peekNextSmoothCandidate();
+		SortedIntegerArray smallFactors = smoothCandidate.smallFactors;
 		smallFactors.reset();
 		// For more precision, here we compute the logPSum in doubles instead of using solutionArrays.logPArray
 		double logPSum = 0;
@@ -674,7 +672,9 @@ public class SingleBlockSieveU implements Sieve {
 			}
 		}
 
-		return new SmallFactorsTDivResult(Q_rest_UBI.toBigInteger(), smallFactors, logPSum);
+		smoothCandidate.logPSum = logPSum;
+		smoothCandidate.QRest = Q_rest_UBI.toBigInteger();
+		return smoothCandidate;
 	}
 
 	@Override
