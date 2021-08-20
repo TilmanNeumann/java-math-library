@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.jml.BinarySearch;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
@@ -45,18 +46,13 @@ import de.tilman_neumann.util.Timer;
 
 /**
  * A trial division engine where partials can have up to 2 large factors.
- * This is absolutely adequate for the quadratic sieve, because we would hardly get 3 large factors for inputs < 400 bit.
  * 
- * Division is carried out in two stages:
- * Stage 1 identifies prime factors of Q, applying long-valued Barrett reduction
- * Stage 2 does the actual division using UnsignedBigInt; this way less intermediate objects are created.
- * 
- * Faster than 1Large for approximately N>=220 bit.
+ * This variant is not testing the small primes, so it needs to be run together with a sieve doing that (like Sieve_03hU).
  * 
  * @author Tilman Neumann
  */
-public class TDiv_QS_2Large_UBI implements TDiv_QS {
-	private static final Logger LOG = Logger.getLogger(TDiv_QS_2Large_UBI.class);
+public class TDiv_QS_2LP implements TDiv_QS {
+	private static final Logger LOG = Logger.getLogger(TDiv_QS_2LP.class);
 	private static final boolean DEBUG = false;
 
 	// factor argument and polynomial parameters
@@ -64,6 +60,9 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 	private BigInteger da; // d*a with d = 1 or 2 depending on kN % 8
 	private int d; // the d-value;
 
+	// sieve array
+	private int sieveArraySize;
+	
 	/** Q is sufficiently smooth if the unfactored QRest is smaller than this bound depending on N */
 	private double smoothBound;
 
@@ -76,6 +75,9 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 	private int pMax;
 	private long pMaxSquare;
 	private int[] unsievedBaseElements;
+	private int pMinIndex;
+	/** p_i with i>p1Index have at most 1 solution in the sieve array for each of x1, x2 */
+	private int p1Index;
 
 	/** buffers for trial division engine. */
 	private UnsignedBigInt QRest_UBI = new UnsignedBigInt(new int[50]);
@@ -97,8 +99,11 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 	private int[] x1Array, x2Array;
 
 	// small factors found by testing some x, their content is _copied_ to AQ-pairs
-	private SortedIntegerArray smallFactors = new SortedIntegerArray();
+	private SortedIntegerArray smallFactors;
+	private BigInteger smallFactorsProd; // only for debugging
 	
+	private BinarySearch binarySearch = new BinarySearch();
+
 	// statistics
 	private Timer timer = new Timer();
 	private long testCount, sufficientSmoothCount;
@@ -108,13 +113,13 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 	 * Full constructor.
 	 * @param permitUnsafeUsage if true then SIQS_Small (which is used for N > 310 bit to factor Q-rests) uses a sieve exploiting sun.misc.Unsafe features.
 	 */
-	public TDiv_QS_2Large_UBI(boolean permitUnsafeUsage) {
+	public TDiv_QS_2LP(boolean permitUnsafeUsage) {
 		qsInternal = new SIQS_Small(0.305F, 0.37F, null, new SIQSPolyGenerator(), 10, permitUnsafeUsage);
 	}
 
 	@Override
 	public String getName() {
-		return "TDiv_2L_UBI";
+		return "TDiv_2L_UBI_3h";
 	}
 
 	@Override
@@ -122,7 +127,9 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		// the biggest unfactored rest where some Q is considered smooth enough for a congruence.
 		this.smoothBound = sieveParams.smoothBound;
 		if (DEBUG) LOG.debug("smoothBound = " + smoothBound + " (" + BigDecimal.valueOf(smoothBound).toBigInteger().bitLength() + " bits)");
+		this.pMinIndex = sieveParams.pMinIndex;
 		this.kN = sieveParams.kN;
+		this.sieveArraySize = sieveParams.sieveArraySize;
 		
 		// statistics
 		if (ANALYZE) testCount = sufficientSmoothCount = 0;
@@ -142,6 +149,7 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		x2Array = solutionArrays.x2Array;
 		pMax = primes[baseSize-1];
 		pMaxSquare = pMax * (long) pMax;
+		this.p1Index = binarySearch.getInsertPosition(pArray, baseSize, sieveArraySize);
 		this.unsievedBaseElements = unsievedBaseElements;
 	}
 
@@ -154,11 +162,20 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		for (SmoothCandidate smoothCandidate : smoothCandidates) {
 			int x = smoothCandidate.x;
 			BigInteger A = smoothCandidate.A;
-			BigInteger QDivDa = smoothCandidate.QRest;
-			smallFactors.reset();
+			BigInteger QRest = smoothCandidate.QRest;
+			smallFactors = smoothCandidate.smallFactors;
 			if (ANALYZE) {
 				testCount++;
 				aqDuration += timer.capture();
+			}
+			if (DEBUG) {
+				// compute product of initial smallFactors before we add more of them
+				smallFactorsProd = I_1;
+				int smallFactorsCount = smallFactors.size();
+				for (int i=0; i<smallFactorsCount; i++) {
+					BigInteger elem = BigInteger.valueOf(smallFactors.get(i)).pow(smallFactors.getExponent(i));
+					smallFactorsProd = smallFactorsProd.multiply(elem);
+				}
 			}
 			
 			// Find factorization of Q(x) = A(x)^2 - kN. But the complete Q(x) is not required here,
@@ -166,7 +183,7 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 			// Note that test finds all factors of Q(x) nonetheless.
 			// Note also that unlike in MPQS, in SIQS we cannot continue working with Q(x)/da in later stages, because da is not a square
 			// and thus we could not combine relations from different a-parameters.
-			AQPair aqPair = test(A, QDivDa, x);
+			AQPair aqPair = test(A, QRest, x);
 			if (ANALYZE) factorDuration += timer.capture();
 			
 			if (aqPair != null) {
@@ -176,6 +193,11 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 				if (DEBUG) {
 					LOG.debug("Found congruence " + aqPair);
 					BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
+					LOG.debug("A = " + A);
+					LOG.debug("Q = " + Q);
+					BigInteger QDivDa = QRest.multiply(smallFactorsProd);
+					LOG.debug("Q/(da) = " + QDivDa);
+
 					assertEquals(Q, QDivDa.multiply(da));
 					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
@@ -194,59 +216,94 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		return aqPairs;
 	}
 	
-	private AQPair test(BigInteger A, BigInteger Q, int x) {
-		// sign
-		BigInteger QRest = Q;
-		if (Q.signum() < 0) {
-			smallFactors.add(-1);
-			QRest = Q.negate();
-		}
-		
-		// Remove multiples of 2
-		int lsb = QRest.getLowestSetBit();
-		if (lsb > 0) {
-			smallFactors.add(2, (short)lsb);
-			QRest = QRest.shiftRight(lsb);
-		}
+	private AQPair test(BigInteger A, BigInteger QRest0, int x) {
+		BigInteger QRest = QRest0; // keep initial QRest0 for logging below
 
-		// Unsieved prime base elements are added directly to pass 2.
-		int pass2Count = 0;
-		for (; pass2Count<unsievedBaseElements.length; pass2Count++) {
-			pass2Primes[pass2Count] = unsievedBaseElements[pass2Count];
-			pass2Powers[pass2Count] = unsievedBaseElements[pass2Count];
-			pass2Exponents[pass2Count] = 1;
-		}
-		
 		// Pass 1: Test solution arrays.
 		// IMPORTANT: Java gives x % p = x for |x| < p, and we have many p bigger than any sieve array entry.
 		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
-		final int xAbs = x<0 ? -x : x;
-		for (int pIndex = baseSize-1; pIndex > 0; pIndex--) { // p[0]=2 was already tested
-			int p = pArray[pIndex];
-			int xModP;
-			if (xAbs<p) {
-				xModP = x<0 ? x+p : x;
-			} else {
-				// Compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
-				// We can use the long-variant here because x*m will never overflow positive long values.
-				final long m = pinvArrayL[pIndex];
-				final long q = ((x*m)>>>32);
-				xModP = (int) (x - q * p);
-				if (xModP<0) xModP += p;
-				else if (xModP>=p) xModP -= p;
-				if (DEBUG) {
-					assertTrue(0<=xModP && xModP<p);
-					int xModP2 = x % p;
-					if (xModP2<0) xModP2 += p;
-					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-					assertEquals(xModP2, xModP);
+		int pass2Count = 0;
+		int pIndex = baseSize-1;
+		if (x < 0) {
+			for ( ; pIndex >= p1Index; pIndex--) {
+				// for pIndex >= p1Index, we know that |x| < sieveArraySize < p
+				int xModP = x+pArray[pIndex];
+				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
+					pass2Primes[pass2Count] = primes[pIndex];
+					pass2Exponents[pass2Count] = exponents[pIndex];
+					pass2Powers[pass2Count++] = pArray[pIndex];
+					// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
 				}
 			}
-			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
-				pass2Primes[pass2Count] = primes[pIndex];
-				pass2Exponents[pass2Count] = exponents[pIndex];
-				pass2Powers[pass2Count++] = p;
-				// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
+			
+			final int xAbs = -x;
+			for ( ; pIndex >= pMinIndex; pIndex--) { // small primes have already been tested
+				int p = pArray[pIndex];
+				int xModP;
+				if (xAbs<p) {
+					xModP = x+p;
+				} else {
+					// Compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
+					// We can use the long-variant here because x*m will never overflow positive long values.
+					final long m = pinvArrayL[pIndex];
+					final long q = ((x*m)>>>32);
+					xModP = (int) (x - q * p);
+					if (DEBUG) assertTrue(xModP < p);
+					if (xModP<0) xModP += p;
+					if (DEBUG) {
+						assertTrue(0<=xModP && xModP<p);
+						int xModP2 = x % p;
+						if (xModP2<0) xModP2 += p;
+						if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
+						assertEquals(xModP2, xModP);
+					}
+				}
+				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
+					pass2Primes[pass2Count] = primes[pIndex];
+					pass2Exponents[pass2Count] = exponents[pIndex];
+					pass2Powers[pass2Count++] = p;
+					// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
+				}
+			}
+		} else {
+			// x >= 0
+			for ( ; pIndex >= p1Index; pIndex--) {
+				// for pIndex > p1Index, we know that |x| < sieveArraySize < p
+				if (x==x1Array[pIndex] || x==x2Array[pIndex]) {
+					pass2Primes[pass2Count] = primes[pIndex];
+					pass2Exponents[pass2Count] = exponents[pIndex];
+					pass2Powers[pass2Count++] = pArray[pIndex];
+					// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
+				}
+			}
+			
+			for ( ; pIndex >= pMinIndex; pIndex--) { // small primes have already been tested
+				int p = pArray[pIndex];
+				int xModP;
+				if (x<p) {
+					xModP = x;
+				} else {
+					// Compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
+					// We can use the long-variant here because x*m will never overflow positive long values.
+					final long m = pinvArrayL[pIndex];
+					final long q = ((x*m)>>>32);
+					xModP = (int) (x - q * p);
+					if (DEBUG) assertTrue(xModP >= 0);
+					if (xModP>=p) xModP -= p;
+					if (DEBUG) {
+						assertTrue(0<=xModP && xModP<p);
+						int xModP2 = x % p;
+						if (xModP2<0) xModP2 += p;
+						if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
+						assertEquals(xModP2, xModP);
+					}
+				}
+				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
+					pass2Primes[pass2Count] = primes[pIndex];
+					pass2Exponents[pass2Count] = exponents[pIndex];
+					pass2Powers[pass2Count++] = p;
+					// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
+				}
 			}
 		}
 		if (ANALYZE) pass1Duration += timer.capture();
@@ -289,7 +346,7 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 		if (restIsPrime) {
 			// Check that the simple prime test using pMaxSquare is correct
 			if (DEBUG) assertTrue(prpTest.isProbablePrime(QRest));
-			if (QRest.bitLength() > 31) return null;
+			if (!ANALYZE_LARGE_FACTOR_SIZES) if (QRest.bitLength() > 31) return null;
 			addCommonFactorsToSmallFactors();
 			return new Partial_1Large(A, smallFactors, QRest.longValue());
 		} // else: QRest is surely not prime
@@ -309,17 +366,17 @@ public class TDiv_QS_2Large_UBI implements TDiv_QS {
 			if (DEBUG) LOG.debug("test(): pMax^2 = " + pMaxSquare + ", QRest = " + QRest + " (" + QRestBits + " bits) not prime -> use qsInternal");
 			factor1 = qsInternal.findSingleFactor(QRest);
 		}
-		if (factor1.bitLength() > 31) return null;
+		if (!ANALYZE_LARGE_FACTOR_SIZES) if (factor1.bitLength() > 31) return null;
 		BigInteger factor2 = QRest.divide(factor1);
-		if (factor2.bitLength() > 31) return null;
+		if (!ANALYZE_LARGE_FACTOR_SIZES) if (factor2.bitLength() > 31) return null;
 		
 		if (DEBUG) {
 			LOG.debug("test(): QRest = " + QRest + " (" + QRestBits + " bits) = " + factor1 + " * " + factor2);
 			if (factor1.intValue() < pMax) {
-				LOG.error("kN=" + kN + ", Q=" + Q + ": factor1 = " + factor1 + ", but we have done tdiv until " + pMax + "?");
+				LOG.error("kN=" + kN + ", QRest0=" + QRest0 + ": factor1 = " + factor1 + ", but we have done tdiv until " + pMax + "?");
 			}
 			if (factor2.intValue() < pMax) {
-				LOG.error("kN=" + kN + ", Q=" + Q + ": factor2 = " + factor2 + ", but we have done tdiv until " + pMax + "?");
+				LOG.error("kN=" + kN + ", QRest0=" + QRest0 + ": factor2 = " + factor2 + ", but we have done tdiv until " + pMax + "?");
 			}
 		}
 		

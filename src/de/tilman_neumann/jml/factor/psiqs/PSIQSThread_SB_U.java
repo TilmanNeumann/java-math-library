@@ -21,7 +21,7 @@ import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SingleBlockSieveU;
-import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI_ForSieve03h;
+import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2LP;
 
 /**
  * A polynomial generation/sieve/trial division thread using the fastest sieve depending on sun.misc.Unsafe.
@@ -46,6 +46,6 @@ public class PSIQSThread_SB_U extends PSIQSThreadBase {
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		
 		super(k, N, kN, d, sieveParams, baseArrays, apg, new SIQSPolyGenerator(), new SingleBlockSieveU(256*1024),
-			  new TDiv_QS_2Large_UBI_ForSieve03h(true), cc, threadIndex);
+			  new TDiv_QS_2LP(true), cc, threadIndex);
 	}
 }
