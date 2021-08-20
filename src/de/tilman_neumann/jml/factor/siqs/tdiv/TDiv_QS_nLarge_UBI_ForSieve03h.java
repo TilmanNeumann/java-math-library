@@ -54,16 +54,6 @@ import de.tilman_neumann.util.Timer;
  * 
  * @author Tilman Neumann
  */
-// TODO PSIQS does not work correctly with 3LP relations yet.
-// Up to 1917309933207159193848096265773632935599188083482002960344787838591765195842266925748265126622930670869363 (350 bit) everything seems to work fine,
-// and indeed already 1605 smooth relations involving 3-partials were found on that test number.
-// But for larger numbers, it seems that PSIQS does not terminate at all or needs much more time than expected. This happened for
-// * N = 2066866710502282532505449833332089238312935374491943311610655981052809337971646998610592281303116906350078621 (360 bit)
-//       factoring run canceled after 4h:20m (expected was ~ 2h:35m)
-// * N = 2329368635231975676293761934643288685426331453276223657636089483987557954943374857353742871103536418615759037457 (370 bit)
-//       factoring run canceled after ~16h (expected was ~ 5h:30m)
-// This happened regardless of the solver used (BlockKanczos or PGauss), thus something seems to be wrong with the relations created, or even during the process of creating the relations.
-// I didn't investigate the issue any further yet.
 public class TDiv_QS_nLarge_UBI_ForSieve03h implements TDiv_QS {
 	private static final Logger LOG = Logger.getLogger(TDiv_QS_nLarge_UBI_ForSieve03h.class);
 	private static final boolean DEBUG = false;
@@ -240,44 +230,86 @@ public class TDiv_QS_nLarge_UBI_ForSieve03h implements TDiv_QS {
 		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
 		int pass2Count = 0;
 		int pIndex = baseSize-1;
-		for ( ; pIndex >= p1Index; pIndex--) {
-			// for pIndex > p1Index, we know that |x| < sieveArraySize < p
-			int xModP = x<0 ? x+pArray[pIndex] : x;
-			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
-				pass2Primes[pass2Count] = primes[pIndex];
-				pass2Exponents[pass2Count] = exponents[pIndex];
-				pass2Powers[pass2Count++] = pArray[pIndex];
-				// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
-			}
-		}
-		
-		final int xAbs = x<0 ? -x : x;
-		for ( ; pIndex >= pMinIndex; pIndex--) { // small primes have already been tested
-			int p = pArray[pIndex];
-			int xModP;
-			if (xAbs<p) {
-				xModP = x<0 ? x+p : x;
-			} else {
-				// Compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
-				// We can use the long-variant here because x*m will never overflow positive long values.
-				final long m = pinvArrayL[pIndex];
-				final long q = ((x*m)>>>32);
-				xModP = (int) (x - q * p);
-				if (xModP<0) xModP += p;
-				else if (xModP>=p) xModP -= p;
-				if (DEBUG) {
-					assertTrue(0<=xModP && xModP<p);
-					int xModP2 = x % p;
-					if (xModP2<0) xModP2 += p;
-					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-					assertEquals(xModP2, xModP);
+		if (x < 0) {
+			for ( ; pIndex >= p1Index; pIndex--) {
+				// for pIndex >= p1Index, we know that |x| < sieveArraySize < p
+				int xModP = x+pArray[pIndex];
+				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
+					pass2Primes[pass2Count] = primes[pIndex];
+					pass2Exponents[pass2Count] = exponents[pIndex];
+					pass2Powers[pass2Count++] = pArray[pIndex];
+					// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
 				}
 			}
-			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
-				pass2Primes[pass2Count] = primes[pIndex];
-				pass2Exponents[pass2Count] = exponents[pIndex];
-				pass2Powers[pass2Count++] = p;
-				// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
+			
+			final int xAbs = -x;
+			for ( ; pIndex >= pMinIndex; pIndex--) { // small primes have already been tested
+				int p = pArray[pIndex];
+				int xModP;
+				if (xAbs<p) {
+					xModP = x+p;
+				} else {
+					// Compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
+					// We can use the long-variant here because x*m will never overflow positive long values.
+					final long m = pinvArrayL[pIndex];
+					final long q = ((x*m)>>>32);
+					xModP = (int) (x - q * p);
+					if (DEBUG) assertTrue(xModP < p);
+					if (xModP<0) xModP += p;
+					if (DEBUG) {
+						assertTrue(0<=xModP && xModP<p);
+						int xModP2 = x % p;
+						if (xModP2<0) xModP2 += p;
+						if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
+						assertEquals(xModP2, xModP);
+					}
+				}
+				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
+					pass2Primes[pass2Count] = primes[pIndex];
+					pass2Exponents[pass2Count] = exponents[pIndex];
+					pass2Powers[pass2Count++] = p;
+					// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
+				}
+			}
+		} else {
+			// x >= 0
+			for ( ; pIndex >= p1Index; pIndex--) {
+				// for pIndex > p1Index, we know that |x| < sieveArraySize < p
+				if (x==x1Array[pIndex] || x==x2Array[pIndex]) {
+					pass2Primes[pass2Count] = primes[pIndex];
+					pass2Exponents[pass2Count] = exponents[pIndex];
+					pass2Powers[pass2Count++] = pArray[pIndex];
+					// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
+				}
+			}
+			
+			for ( ; pIndex >= pMinIndex; pIndex--) { // small primes have already been tested
+				int p = pArray[pIndex];
+				int xModP;
+				if (x<p) {
+					xModP = x;
+				} else {
+					// Compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
+					// We can use the long-variant here because x*m will never overflow positive long values.
+					final long m = pinvArrayL[pIndex];
+					final long q = ((x*m)>>>32);
+					xModP = (int) (x - q * p);
+					if (DEBUG) assertTrue(xModP >= 0);
+					if (xModP>=p) xModP -= p;
+					if (DEBUG) {
+						assertTrue(0<=xModP && xModP<p);
+						int xModP2 = x % p;
+						if (xModP2<0) xModP2 += p;
+						if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
+						assertEquals(xModP2, xModP);
+					}
+				}
+				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
+					pass2Primes[pass2Count] = primes[pIndex];
+					pass2Exponents[pass2Count] = exponents[pIndex];
+					pass2Powers[pass2Count++] = p;
+					// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
+				}
 			}
 		}
 		if (ANALYZE) pass1Duration += timer.capture();
