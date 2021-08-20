@@ -17,6 +17,7 @@ import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +37,11 @@ import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.Timer;
 
 /**
- * A trial division engine used by SIQS_Small.
- * This is a copy of TDiv_QS_1Large_UBI, which has not been optimized for small numbers yet;
- * but several optimizations may be possible.
+ * A trial division engine where partials can only have 1 large factor.
+ * 
+ * Division is carried out in two stages:
+ * Stage 1 identifies prime factors of Q, applying long-valued Barrett reduction
+ * Stage 2 does the actual division using UnsignedBigInt; this way less intermediate objects are created.
  * 
  * Note that using 1-partials or not makes hardly a difference for small N.
  * 
@@ -63,7 +66,7 @@ public class TDiv_QS_Small implements TDiv_QS {
 	private long[] pinvArrayL;
 	private int baseSize;
 	private int[] unsievedBaseElements;
-	
+
 	/** buffers for trial division engine. */
 	private UnsignedBigInt QRest_UBI = new UnsignedBigInt(new int[50]);
 	private UnsignedBigInt quotient_UBI = new UnsignedBigInt(new int[50]);
@@ -93,7 +96,7 @@ public class TDiv_QS_Small implements TDiv_QS {
 	public void initializeForN(double N_dbl, SieveParams sieveParams) {
 		// the biggest unfactored rest where some Q is considered smooth enough for a congruence.
 		this.smoothBound = sieveParams.smoothBound;
-		if (DEBUG) LOG.debug("smoothBound = " + sieveParams + " (" + (64 - Long.numberOfLeadingZeros((long)smoothBound)) + " bits)");
+		if (DEBUG) LOG.debug("smoothBound = " + smoothBound + " (" + BigDecimal.valueOf(smoothBound).toBigInteger().bitLength() + " bits)");
 		this.kN = sieveParams.kN;
 		
 		// statistics
@@ -131,8 +134,14 @@ public class TDiv_QS_Small implements TDiv_QS {
 				aqDuration += timer.capture();
 			}
 			
+			// Find factorization of Q(x) = A(x)^2 - kN. But the complete Q(x) is not required here,
+			// using the smaller Q(x)/da = da*x^2 + 2bx + c instead speeds up tdiv pass 2. 
+			// Note that test finds all factors of Q(x) nonetheless.
+			// Note also that unlike in MPQS, in SIQS we cannot continue working with Q(x)/da in later stages, because da is not a square
+			// and thus we could not combine relations from different a-parameters.
 			AQPair aqPair = test(A, QDivDa, x);
 			if (ANALYZE) factorDuration += timer.capture();
+			
 			if (aqPair != null) {
 				// Q(x) was found sufficiently smooth to be considered a (partial) congruence
 				aqPairs.add(aqPair);

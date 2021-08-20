@@ -43,8 +43,8 @@ import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03g;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03h;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03hU;
-import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_1Large_UBI;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI_ForSieve03h;
+import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_Small;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Barrett;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
@@ -101,7 +101,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		super(tdivLimit);
 		
 		Sieve smallSieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
-		siqs_smallArgs = new SIQS(0.32F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), smallSieve, new TDiv_QS_1Large_UBI(), 10, new MatrixSolver_Gauss02());
+		siqs_smallArgs = new SIQS(0.32F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), smallSieve, new TDiv_QS_Small(), 10, new MatrixSolver_Gauss02());
 
 		if (numberOfThreads==1) {
 			// Avoid multi-thread overhead if the requested number of threads is 1
