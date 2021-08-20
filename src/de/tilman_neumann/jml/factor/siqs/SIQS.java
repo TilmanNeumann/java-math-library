@@ -52,7 +52,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.SieveParamsFactory02;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
-import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI;
+import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2Large_UBI_ForSieve03h;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
@@ -401,7 +401,7 @@ public class SIQS extends FactorAlgorithm {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		SIQS qs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI(true), 10, new MatrixSolver_BlockLanczos());
+		SIQS qs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2Large_UBI_ForSieve03h(true), 10, new MatrixSolver_BlockLanczos());
 		Timer timer = new Timer();
 		while(true) {
 			try {
