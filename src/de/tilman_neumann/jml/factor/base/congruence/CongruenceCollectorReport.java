@@ -122,8 +122,8 @@ public class CongruenceCollectorReport {
 		int totalCount = bitsizeCounts.totalCount();
 		TreeMap<Integer, Integer> resultMap = new TreeMap<>();
 		for (int i=0; i<percentiles.length; i++) {
-			int requiredCount = (int) Math.ceil((totalCount * percentiles[i]) / 100.0);
-			int count = 0;
+			long requiredCount = (long) Math.ceil((totalCount * (long)percentiles[i]) / 100.0);
+			long count = 0;
 			// factor sizes are sorted bottom-up
 			for (int factorSize : bitsizeCounts.keySet()) {
 				int sizeCount = bitsizeCounts.get(factorSize);
