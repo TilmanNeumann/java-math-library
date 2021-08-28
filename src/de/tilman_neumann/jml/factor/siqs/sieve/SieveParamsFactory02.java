@@ -35,15 +35,12 @@ public class SieveParamsFactory02 {
 	
 	public static SieveParams create(double N_dbl, int NBits, BigInteger kN, int d, int[] primeBase, int primeBaseSize, int sieveArraySize, int qCount, double best_q) {
 		
-		// Compute biggest QRest admitted for a smooth relation.
-		// The triples (sieveHitExp, tdivTestExp, smoothBoundExponent) are important tuning parameters.
+		// The triples (sieveHitExponent, tdivTestExponent, smoothBoundExponent) are important tuning parameters.
 		double progessivePart = (NBits<=150) ? 0 : (NBits-150.0)*0.045/150;
 		double sieveHitExponent = 0.21 + progessivePart;
-		
 		double tdivTestExponent = 0.12;
 		if (NBits >= 250) {
 			tdivTestExponent = 0.16; // at 250 bit 2LP kick in!
-			// a single test suggested that for N=360 bit, 0.17 might work better (1h:18m instead of 1h:20m), but that needs more testing
 		}
 		double smoothBoundExponent = tdivTestExponent;
 		
@@ -58,9 +55,20 @@ public class SieveParamsFactory02 {
 			LOG.debug("sieveHitBits = " + sieveHitBits + ", tdivTestBits = " + tdivTestBits + ", smoothBoundBits = " + smoothBoundBits);
 		}
 		
-		// pMinIndex/pMin is an important tuning parameter. After the correction of sieve hit scores introduced in Sieve03hU, 
-		// the exponent made a big jump from 0.33 to 0.47. We avoid pMinIndex=0 because p[0]==2 is not used for sieving.
-		int pMinIndex = Math.max(1, (int) Math.pow(primeBaseSize, 0.47));
+		// pMinExponent is another important tuning parameter.
+		// For sieves without post-filter, its best adjustment was pMinExponent ~ 0.33.
+		// For sieves with post-filter we can skip sieving for many more small primes:
+		double pMinExponent = 0.47;
+		if (NBits >= 330) {
+			pMinExponent = 0.48;
+			if (NBits >= 360) {
+				pMinExponent = 0.49;
+				if (NBits >= 390) {
+					pMinExponent = 0.50;
+				}
+			}
+		}
+		int pMinIndex = Math.max(1, (int) Math.pow(primeBaseSize, pMinExponent));
 		int pMin = primeBase[pMinIndex];
 		int pMax = primeBase[primeBaseSize-1];
 		
