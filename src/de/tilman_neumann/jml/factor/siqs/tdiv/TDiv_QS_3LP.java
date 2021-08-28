@@ -331,7 +331,8 @@ public class TDiv_QS_3LP implements TDiv_QS {
 			return new Smooth_Perfect(A, smallFactors);
 		}
 		QRest = QRest_UBI.toBigInteger();
-		
+		if (DEBUG) LOG.debug("true QRest after tdiv = " + QRest.bitLength() + " bit");
+
 		// Division by all p<=pMax was not sufficient to factor Q completely.
 		// The remaining QRest is either a prime > pMax, or a composite > pMax^2.
 		double QRestDbl = QRest.doubleValue();

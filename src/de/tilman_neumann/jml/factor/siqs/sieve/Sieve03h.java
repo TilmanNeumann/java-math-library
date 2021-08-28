@@ -449,7 +449,12 @@ public class Sieve03h implements Sieve {
 
 		// If we always had trueLogQDivDaSize <= logQdivDaEstimate, then this check would be useless, because the adjusted score could only rise
 		if (adjustedScore2 > tdivTestMinLogPSum) {
-			if (DEBUG) LOG.debug("adjustedScore2 = " + adjustedScore2 + " is greater than tdivTestMinLogPSum = " + tdivTestMinLogPSum + " -> pass Q to tdiv");
+			if (DEBUG) {
+				LOG.debug("adjustedScore2 = " + adjustedScore2 + " is greater than tdivTestMinLogPSum = " + tdivTestMinLogPSum + " -> pass Q to tdiv");
+				int maxAllowedQRestBits = QDivDa.bitLength() - (int) (tdivTestMinLogPSum / ld2logPMultiplier);
+				int expectedQRestBits = QDivDa.bitLength() - (int) (adjustedScore2 / ld2logPMultiplier);
+				LOG.debug("QDivDa = " + QDivDa.bitLength() + " bit, max allowed QRest = " + maxAllowedQRestBits + " bit, expected QRest before tdiv = " + expectedQRestBits + " bit");
+			}
 			smoothCandidate.x = x;
 			smoothCandidate.A = A;
 			sieveResult.commitNextSmoothCandidate();
