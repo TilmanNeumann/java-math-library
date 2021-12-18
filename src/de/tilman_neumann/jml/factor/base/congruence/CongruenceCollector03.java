@@ -166,39 +166,43 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	
 	@Override
 	public void collectAndProcessAQPairs(List<AQPair> aqPairs) {
-		//LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
-		try {
-			// Add new data to the congruenceCollector and eventually run the matrix solver.
-			if (ANALYZE) timer.capture();
-			for (AQPair aqPair : aqPairs) {
-				boolean addedSmooth = add(aqPair); // throws FactorException
-				if (addedSmooth) {
-					int smoothCongruenceCount = getSmoothCongruenceCount();
-					if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
-						// Try to solve equation system
-						if (ANALYZE) ccDuration += timer.capture();
-						solverRunCount++;
-						if (ANALYZE) LOG.info("#requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
-						Collection<Smooth> congruences = getSmoothCongruences();
-						// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
+		if (DEBUG) LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
+		if (ANALYZE) timer.capture();
+		for (AQPair aqPair : aqPairs) {
+			boolean addedSmooth;
+			try {
+				addedSmooth = add(aqPair); // throws FactorException
+			} catch (FactorException fe) {
+				factor = fe.getFactor();
+				break;
+			}
+			if (addedSmooth) {
+				int smoothCongruenceCount = getSmoothCongruenceCount();
+				if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
+					// Try to solve equation system
+					if (ANALYZE) ccDuration += timer.capture();
+					solverRunCount++;
+					if (ANALYZE) LOG.info("#requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
+					Collection<Smooth> congruences = getSmoothCongruences();
+					// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
+					try {
 						matrixSolver.solve(congruences); // throws FactorException
+					} catch (FactorException fe) {
+						factor = fe.getFactor();
+					} finally {
 						if (ANALYZE) {
 							testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
 							solverDuration += timer.capture();
 						}
-						// Extend equation system and continue searching smooth congruences
-						requiredSmoothCongruenceCount += extraCongruences;
+						if (factor != null) return;
 					}
+
+					// No factor found -> extend equation system and continue searching smooth congruences
+					requiredSmoothCongruenceCount += extraCongruences;
 				}
 			}
-			if (ANALYZE) ccDuration += timer.capture();
-		} catch (FactorException fe) {
-			factor = fe.getFactor();
-			if (ANALYZE) {
-				testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
-				solverDuration += timer.capture();
-			}
 		}
+		if (ANALYZE) ccDuration += timer.capture();
 	}
 	
 	@Override

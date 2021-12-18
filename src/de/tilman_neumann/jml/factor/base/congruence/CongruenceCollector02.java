@@ -134,13 +134,17 @@ public class CongruenceCollector02 implements CongruenceCollector {
 	
 	@Override
 	public void collectAndProcessAQPairs(List<AQPair> aqPairs) {
-		//LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
-		try {
-			// Add new data to the congruenceCollector and eventually run the matrix solver.
-			if (ANALYZE) timer.capture();
-			for (AQPair aqPair : aqPairs) {
-				add(aqPair); // throws FactorException
-				
+		if (DEBUG) LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
+		if (ANALYZE) timer.capture();
+		for (AQPair aqPair : aqPairs) {
+			boolean addedSmooth;
+			try {
+				addedSmooth = add(aqPair); // throws FactorException
+			} catch (FactorException fe) {
+				factor = fe.getFactor();
+				break;
+			}
+			if (addedSmooth) {
 				int smoothCongruenceCount = getSmoothCongruenceCount() + smoothFromPartialsCount;
 				if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
 					if (DEBUG) LOG.debug("Cycle counter: #requiredSmooths = " + requiredSmoothCongruenceCount + ", #perfectSmooths = " + getSmoothCongruenceCount() + ", #smoothsFromPartials = " + smoothFromPartialsCount + ", #totalSmooths = " + smoothCongruenceCount);
@@ -161,23 +165,24 @@ public class CongruenceCollector02 implements CongruenceCollector {
 					solverRunCount++;
 					if (ANALYZE) LOG.info("#requiredSmooths = " + requiredSmoothCongruenceCount + ", #smooths = " + smoothCongruenceCount + " -> Start matrix solver run #" + solverRunCount + " ...");
 					// The matrix solver should run synchronized, because blocking the other threads means that the current thread can run at a higher clock rate.
-					matrixSolver.solve(allSmooths); // throws FactorException
-					if (ANALYZE) {
-						testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
-						solverDuration += timer.capture();
+					try {
+						matrixSolver.solve(allSmooths); // throws FactorException
+					} catch (FactorException fe) {
+						factor = fe.getFactor();
+					} finally {
+						if (ANALYZE) {
+							testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
+							solverDuration += timer.capture();
+						}
+						if (factor != null) return;
 					}
-					// Extend equation system and continue searching smooth congruences
+	
+					// No factor found -> extend equation system and continue searching smooth congruences
 					requiredSmoothCongruenceCount += extraCongruences;
 				}
 			}
-			if (ANALYZE) ccDuration += timer.capture();
-		} catch (FactorException fe) {
-			factor = fe.getFactor();
-			if (ANALYZE) {
-				testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
-				solverDuration += timer.capture();
-			}
 		}
+		if (ANALYZE) ccDuration += timer.capture();
 	}
 	
 	@Override
