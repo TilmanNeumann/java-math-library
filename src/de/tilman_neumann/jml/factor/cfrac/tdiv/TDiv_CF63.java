@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor.cfrac.tdiv;
 
 import java.math.BigInteger;
 
-import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 
 /**
@@ -41,9 +40,8 @@ public interface TDiv_CF63 {
 	 * @param kN
 	 * @param primeBaseSize the true prime base size (the arrays are preallocated with a bigger length)
 	 * @param primesArray prime base in ints
-	 * @throws FactorException 
 	 */
-	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray) throws FactorException;
+	public void initialize(BigInteger kN, int primeBaseSize, int[] primesArray);
 	
 	/**
 	 * Check if Q is smooth (factors completely over the prime base) or "sufficiently smooth" (factors almost over the prime base).

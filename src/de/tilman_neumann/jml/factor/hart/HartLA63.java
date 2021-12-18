@@ -153,9 +153,10 @@ public class HartLA63 extends FactorAlgorithm {
 		// we want: #equations = #variables + some extra congruences
 		this.requiredSmoothCongruenceCount = primeBaseSize + extraCongruences;
 
+		// initialize the Q-factorizer with new prime base
+		this.auxFactorizer.initialize(kN, primeBaseSize, primesArray);
+
 		try {
-			// initialize the Q-factorizer with new prime base
-			this.auxFactorizer.initialize(kN, primeBaseSize, primesArray); // may throw FactorException
 			// search square Q_i
 			test();
 		} catch (FactorException fe) {
