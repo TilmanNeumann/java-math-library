@@ -219,7 +219,6 @@ public class FactorizerTest {
 				if (bits>31 && algName.startsWith("PollardRho31")) continue; // long implementation
 				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
 				if (bits>57 && algName.equals("PollardRhoBrentMontgomeryR64Mul63")) continue; // very slow above
-				if (bits>63 && algName.startsWith("HartLA63")) continue;
 				
 				System.gc(); // create equal conditions for all algorithms
 
