@@ -176,7 +176,7 @@ public class SquFoF63 extends FactorAlgorithm {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		SquFoF63 squfof63 = new SquFoF63();
-		FactorAlgorithm testFactorizer = FactorAlgorithm.DEFAULT;
+		FactorAlgorithm testFactorizer = FactorAlgorithm.getDefault();
 		
 		// test numbers that caused problems with former versions
 		BigInteger N0 = BigInteger.valueOf(1099511627970L); // 2*3*5*7*23*227642159

@@ -81,7 +81,7 @@ public class PrimePowers_DefaultImpl extends Mpi_IntegerArrayImpl implements Pri
 	 * @return PrimePowers
 	 */
 	public static PrimePowers valueOf(BigInteger n) {
-		SortedMultiset<BigInteger> factors = FactorAlgorithm.DEFAULT.factor(n);
+		SortedMultiset<BigInteger> factors = FactorAlgorithm.getDefault().factor(n);
 		return PrimePowers_DefaultImpl.createFrom(factors);
 	}
 

@@ -37,9 +37,6 @@ abstract public class FactorAlgorithm {
 	
 	private static final boolean DEBUG = false;
 	
-	/** The best available single-threaded factor algorithm. (multi-threading may not always be wanted) */
-	public static final FactorAlgorithm DEFAULT = new CombinedFactorAlgorithm(1);
-	
 	/** the number of primes needed to factor any int <= 2^31 - 1 using trial division */
 	protected static final int NUM_PRIMES_FOR_31_BIT_TDIV = 4793;
 
@@ -47,6 +44,18 @@ abstract public class FactorAlgorithm {
 	
 	protected Integer tdivLimit;
 	
+	private static FactorAlgorithm DEFAULT = null;
+
+	/**
+	 * @return The best available single-threaded factor algorithm. (multi-threading may not always be wanted)
+	 */
+	public static FactorAlgorithm getDefault() {
+		if (DEFAULT == null) {
+			DEFAULT = new CombinedFactorAlgorithm(1);
+		}
+		return DEFAULT;
+	}
+
 	public FactorAlgorithm() {
 		tdivLimit = null; // automatic determination based on experimental results
 	}

@@ -57,7 +57,7 @@ public class MoebiusFunction {
 		}
 		
 		// factorize n:
-		SortedMultiset<BigInteger> factors = FactorAlgorithm.DEFAULT.factor(n);
+		SortedMultiset<BigInteger> factors = FactorAlgorithm.getDefault().factor(n);
 		//LOG.debug("factors of " + n + " = " + factors);
 		
 		if (factors==null || factors.size()==0) {

@@ -340,7 +340,7 @@ public class FactorizerTest {
 		}
 		
 		// Something went wrong above, so now we factor N with a safe algorithm. Strategies with a better performance certainly exist.
-		return FactorAlgorithm.DEFAULT.factor(N);
+		return FactorAlgorithm.getDefault().factor(N);
 		// XXX Do we want the verification factor algorithm to log details if ANALYZE==true?
 		// XXX It is not really nice to see SIQS been run when another algorithm was tested :-/
 	}
