@@ -174,13 +174,11 @@ public class CongruenceCollector01 implements CongruenceCollector {
 	public void collectAndProcessAQPair(AQPair aqPair) {
 		if (DEBUG) LOG.debug("add new AQ-pair " + aqPair + " to CC");
 		if (ANALYZE) timer.capture();
-		boolean addedSmooth;
+		boolean addedSmooth = false;
 		try {
 			addedSmooth = add(aqPair); // throws FactorException
 		} catch (FactorException fe) {
 			factor = fe.getFactor();
-			if (ANALYZE) ccDuration += timer.capture();
-			return;
 		}
 		
 		if (addedSmooth) {
@@ -198,13 +196,12 @@ public class CongruenceCollector01 implements CongruenceCollector {
 					matrixSolver.solve(getSmoothCongruences()); // throws FactorException
 				} catch (FactorException fe) {
 					factor = fe.getFactor();
-				} finally {
-					if (ANALYZE) {
-						testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
-						solverDuration += timer.capture();
-					}
-					if (factor != null) return;
 				}
+				if (ANALYZE) {
+					testedNullVectorCount += matrixSolver.getTestedNullVectorCount();
+					solverDuration += timer.capture();
+				}
+				if (factor != null) return;
 
 				// No factor found -> extend equation system and continue searching smooth congruences
 				requiredSmoothCongruenceCount += extraCongruences;
