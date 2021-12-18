@@ -36,6 +36,15 @@ public interface CongruenceCollector {
 	void collectAndProcessAQPairs(List<AQPair> aqPairs);
 
 	/**
+	 * Collect a single AQ pair and run the matrix solver if appropriate.
+	 * In a multi-threaded factoring algorithm, this method needs to be run in a block synchronized on this.
+	 * This also speeds up single-threaded solvers like Block-Lanczos, because on modern CPUs single threads run at a higher clock rate.
+	 * @param aqPair
+	 * @output this.factor
+	 */
+	void collectAndProcessAQPair(AQPair aqPair);
+
+	/**
 	 * Add a new elementary partial or smooth congruence.
 	 * @param aqPair
 	 * @return true if a smooth congruence was added
