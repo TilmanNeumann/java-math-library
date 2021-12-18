@@ -168,7 +168,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 			// Add new data to the congruenceCollector and eventually run the matrix solver.
 			if (ANALYZE) timer.capture();
 			for (AQPair aqPair : aqPairs) {
-				boolean addedSmooth = add(aqPair);
+				boolean addedSmooth = add(aqPair); // throws FactorException
 				if (addedSmooth) {
 					int smoothCongruenceCount = getSmoothCongruenceCount();
 					if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
@@ -205,7 +205,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		if (DEBUG) LOG.debug("new aqPair = " + aqPair);
 		if (aqPair instanceof Smooth) {
 			Smooth smooth = (Smooth) aqPair;
-			boolean addedSmooth = addSmooth(smooth);
+			boolean addedSmooth = addSmooth(smooth); // throws FactorException
 			if (ANALYZE) {
 				if (addedSmooth) {
 					if (ANALYZE_PROGRESS) {
@@ -244,10 +244,10 @@ public class CongruenceCollector01 implements CongruenceCollector {
 			}
 
 			// Solve partial congruence equation system
-			Smooth foundSmooth = partialSolver.solve(relatedPartials); // throws FactorException
+			Smooth foundSmooth = partialSolver.solve(relatedPartials);
 			if (foundSmooth != null) {
 				// We found a smooth from the new partial
-				boolean added = addSmooth(foundSmooth);
+				boolean added = addSmooth(foundSmooth); // throws FactorException
 				if (ANALYZE) {
 					if (added) {
 						// count kind of partials that helped to find smooths

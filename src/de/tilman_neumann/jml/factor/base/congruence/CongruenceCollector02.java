@@ -139,7 +139,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 			// Add new data to the congruenceCollector and eventually run the matrix solver.
 			if (ANALYZE) timer.capture();
 			for (AQPair aqPair : aqPairs) {
-				add(aqPair);
+				add(aqPair); // throws FactorException
 				
 				int smoothCongruenceCount = getSmoothCongruenceCount() + smoothFromPartialsCount;
 				if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
@@ -185,7 +185,7 @@ public class CongruenceCollector02 implements CongruenceCollector {
 		if (DEBUG) LOG.debug("new aqPair = " + aqPair);
 		if (aqPair instanceof Smooth) {
 			Smooth smooth = (Smooth) aqPair;
-			boolean addedSmooth = addSmooth(smooth);
+			boolean addedSmooth = addSmooth(smooth); // throws FactorException
 			if (ANALYZE) {
 				if (addedSmooth) {
 					if (ANALYZE_PROGRESS) {
