@@ -62,9 +62,9 @@ import de.tilman_neumann.util.Timer;
 /**
  * Single-threaded SIQS implementation used to factor the Q(x)-rests in the trial division stage of SIQS/PSIQS.
  * 
- * So far, the main purpose of this class is to prevent excessive logging when AnalysisOptions.ANALYZE == true and SIQS
+ * So far, the main purpose of this class is to prevent excessive logging when GlobalFactoringOptions.ANALYZE == true and SIQS
  * trial division starts to use an nested SIQS to factor large Q rests. A second purpose would be to optimize
- * this class for the factorization of small N (say, below 100 bit).
+ * this class for the factorization of small N (say, below 100 bit), but little effort has been dedicated to that so far.
  * 
  * @author Tilman Neumann
  */
@@ -324,14 +324,11 @@ public class SIQS_Small extends FactorAlgorithm {
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ccReport.getMaxRelatedPartialsCount() > 0) LOG.info("    cc: maxRelatedPartialsCount = " + ccReport.getMaxRelatedPartialsCount() + ", maxPartialMatrixSize = " + ccReport.getMaxMatrixSize() + " rows");
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
+			// here we have at most one large prime
 			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(1));
-			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(2));
 			LOG.info("        " + ccReport.getSmoothQRestPercentiles(1));
-			LOG.info("        " + ccReport.getSmoothQRestPercentiles(2));
 			LOG.info("        " + ccReport.getPartialBigFactorPercentiles(1));
-			LOG.info("        " + ccReport.getPartialBigFactorPercentiles(2));
 			LOG.info("        " + ccReport.getPartialQRestPercentiles(1));
-			LOG.info("        " + ccReport.getPartialQRestPercentiles(2));
 			LOG.info("        " + ccReport.getNonIntFactorPercentages());
 		}
 		if (ANALYZE_Q_SIGNS) {

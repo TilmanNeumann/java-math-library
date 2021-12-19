@@ -351,14 +351,10 @@ public class SIQS extends FactorAlgorithm {
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ccReport.getMaxRelatedPartialsCount() > 0) LOG.info("    cc: maxRelatedPartialsCount = " + ccReport.getMaxRelatedPartialsCount() + ", maxPartialMatrixSize = " + ccReport.getMaxMatrixSize() + " rows");
 		if (ANALYZE_LARGE_FACTOR_SIZES) {
-			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(1));
-			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(2));
-			LOG.info("        " + ccReport.getSmoothQRestPercentiles(1));
-			LOG.info("        " + ccReport.getSmoothQRestPercentiles(2));
-			LOG.info("        " + ccReport.getPartialBigFactorPercentiles(1));
-			LOG.info("        " + ccReport.getPartialBigFactorPercentiles(2));
-			LOG.info("        " + ccReport.getPartialQRestPercentiles(1));
-			LOG.info("        " + ccReport.getPartialQRestPercentiles(2));
+			for (int i=1; i<=2; i++) LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(i));
+			for (int i=1; i<=2; i++) LOG.info("        " + ccReport.getSmoothQRestPercentiles(i));
+			for (int i=1; i<=2; i++) LOG.info("        " + ccReport.getPartialBigFactorPercentiles(i));
+			for (int i=1; i<=2; i++) LOG.info("        " + ccReport.getPartialQRestPercentiles(i));
 			LOG.info("        " + ccReport.getNonIntFactorPercentages());
 		}
 		if (ANALYZE_Q_SIGNS) {
