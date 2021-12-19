@@ -152,6 +152,11 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		}
 	}
 	
+	@Override
+	public void setPrimeBaseSize(int newPrimeBaseSize) {
+		this.requiredSmoothCongruenceCount = newPrimeBaseSize + extraCongruences;
+	}
+
 	@SuppressWarnings("unchecked")
 	private SortedMultiset_BottomUp<Integer>[] createSizeCountsArray(int maxLPCount) {
 		SortedMultiset_BottomUp<Integer>[] array = new SortedMultiset_BottomUp[maxLPCount];

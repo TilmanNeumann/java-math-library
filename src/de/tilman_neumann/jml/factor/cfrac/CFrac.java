@@ -27,7 +27,6 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
@@ -92,15 +91,8 @@ public class CFrac extends FactorAlgorithm {
 	// collects the congruences we find
 	private CongruenceCollector congruenceCollector;
 	
-	// the number of congruences we need to find before we try to solve the smooth congruence equation system
-	private int requiredSmoothCongruenceCount;
-	// extra congruences to have a bigger chance that the equation system solves. the likelihood is >= 1-2^(extraCongruences+1)
-	private int extraCongruences;
 	/** The solver used for smooth congruence equation systems. */
 	private MatrixSolver matrixSolver;
-
-	// profiling
-	private long startTime, linAlgStartTime;
 	
 	/**
 	 * Standard constructor.
@@ -110,12 +102,11 @@ public class CFrac extends FactorAlgorithm {
 	 * @param C multiplier for prime base size
 	 * @param smoothBoundExponent
 	 * @param auxFactorizer the algorithm to find smooth Q
-	 * @param extraCongruences the number of surplus congruences we collect to have a greater chance that the equation system solves.
 	 * @param matrixSolver matrix solver for the smooth congruence equation system
 	 * @param ks_adjust
 	 */
 	public CFrac(boolean use_all_i, int stopRoot, float stopMult, float C, float smoothBoundExponent, 
-				 TDiv_CF auxFactorizer, int extraCongruences, MatrixSolver matrixSolver, int ks_adjust) {
+				 TDiv_CF auxFactorizer, MatrixSolver matrixSolver, int ks_adjust) {
 		
 		this.use_all_i = use_all_i;
 		this.stopRoot = stopRoot;
@@ -124,7 +115,6 @@ public class CFrac extends FactorAlgorithm {
 		this.smoothBoundExponent = smoothBoundExponent;
 		this.auxFactorizer = auxFactorizer;
 		this.congruenceCollector = new CongruenceCollector01();
-		this.extraCongruences = extraCongruences;
 		this.matrixSolver = matrixSolver;
 		this.ks_adjust = ks_adjust;
 	}
@@ -139,7 +129,7 @@ public class CFrac extends FactorAlgorithm {
 	 * @return factor, or null if no factor was found.
 	 */
 	public BigInteger findSingleFactor(BigInteger N) {
-		if (ANALYZE) startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 		this.N = N;
 
 		// compute prime base size
@@ -158,9 +148,9 @@ public class CFrac extends FactorAlgorithm {
 		// initialize sub-algorithms for N
 		this.auxFactorizer.initialize(N, smoothBound);
 		FactorTest factorTest = new FactorTest01(N);
-		this.congruenceCollector.initialize(N, factorTest);
+		matrixSolver.initialize(N, factorTest);
+		congruenceCollector.initialize(N, primeBaseSize, matrixSolver, factorTest);
 		this.combinedPrimesSet = new HashSet<Integer>();
-		this.matrixSolver.initialize(N, factorTest);
 
 		// Max iterations per multiplier:
 		// * Multiplier switching seems to useful for small factor arguments only (<60 bit), but it may be worth to keep it for further experiments
@@ -177,62 +167,56 @@ public class CFrac extends FactorAlgorithm {
 		
 		while (kIter.hasNext()) {
 			// get a new k, return immediately if kN is square
-			this.kN = BigInteger.valueOf(kIter.next()).multiply(N);
+			int k = kIter.next();
+			if (DEBUG) LOG.debug("k = " + k);
+			this.kN = BigInteger.valueOf(k).multiply(N);
 			BigInteger[] iSqrt = SqrtInt.iSqrt(kN);
 			this.floor_sqrt_kN = iSqrt[0];
 			if (floor_sqrt_kN.equals(iSqrt[1])) return N.gcd(floor_sqrt_kN);
 
 			// Create the reduced prime base for kN:
 			primeBaseBuilder.computeReducedPrimeBase(kN, primeBaseSize, primesArray);
-			LOG.debug("pMax = " + primesArray[primeBaseSize-1]);
+			if (DEBUG) LOG.debug("pMax = " + primesArray[primeBaseSize-1]);
 			
 			// add new reduced prime base to the combined prime base
 			for (int i=0; i<primeBaseSize; i++) combinedPrimesSet.add(primesArray[i]);
-			// we want: #equations = #variables + some extra congruences
-			this.requiredSmoothCongruenceCount = combinedPrimesSet.size() + extraCongruences;
-
+			congruenceCollector.setPrimeBaseSize(combinedPrimesSet.size());
+			
 			// initialize the Q-factorizer with new prime base
 			this.auxFactorizer.initialize(kN, primeBaseSize, primesArray);
 			
-			try {
-				// search square Q_i
-				test();
-			} catch (FactorException fe) {
+			// search square Q_i
+			BigInteger factor = test();
+			if (factor != null) {
 				if (ANALYZE) {
 					long endTime = System.currentTimeMillis();
-					LOG.info("Found factor of N=" + N + " in " + (endTime-startTime) + "ms (LinAlgPhase took " + (endTime-linAlgStartTime) + "ms)");
+					LOG.info(getName() + ":");
+					LOG.info("Found factor " + factor + " (" + factor.bitLength() + " bits) of N=" + N + " (" + N.bitLength() + " bits) in " + TimeUtil.timeStr(endTime-startTime));
 					CongruenceCollectorReport ccReport = congruenceCollector.getReport();
 					LOG.info("    cc: " + ccReport.getOperationDetails());
 					if (ccReport.getMaxMatrixSize() > 0) LOG.info("    cc: The biggest partial solver matrix had " + ccReport.getMaxMatrixSize() + " rows"); // not all congruence collectors need a PartialSolver
 					if (ANALYZE_LARGE_FACTOR_SIZES) {
-						for (int i=1; i<=4; i++) {
-							LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(i));
-						}
-						for (int i=1; i<=4; i++) {
-							LOG.info("        " + ccReport.getSmoothQRestPercentiles(i));
-						}
-						for (int i=1; i<=4; i++) {
-							LOG.info("        " + ccReport.getPartialBigFactorPercentiles(i));
-						}
-						for (int i=1; i<=4; i++) {
-							LOG.info("        " + ccReport.getPartialQRestPercentiles(i));
-						}
+						for (int i=1; i<=4; i++) LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(i));
+						for (int i=1; i<=4; i++) LOG.info("        " + ccReport.getSmoothQRestPercentiles(i));
+						for (int i=1; i<=4; i++) LOG.info("        " + ccReport.getPartialBigFactorPercentiles(i));
+						for (int i=1; i<=4; i++) LOG.info("        " + ccReport.getPartialQRestPercentiles(i));
 						LOG.info("        " + ccReport.getNonIntFactorPercentages());
 					}
 					if (ANALYZE_Q_SIGNS) {
 						LOG.info("        " + ccReport.getPartialQSignCounts());
 						LOG.info("        " + ccReport.getSmoothQSignCounts());
 					}
+					LOG.info("    #solverRuns = " + congruenceCollector.getSolverRunCount() + ", #tested null vectors = " + congruenceCollector.getTestedNullVectorCount());
+					LOG.info("    Approximate phase timings: cc=" + congruenceCollector.getCollectDuration() + "ms, solver=" + congruenceCollector.getSolverDuration() + "ms");
 				}
-				return fe.getFactor();
-			} finally {
+				return factor;
 			}
 		}
 		
 		return I_1; // fail, too few Knuth-Schroeppel multipliers
 	}
 
-	protected void test() throws FactorException {
+	protected BigInteger test() {
 		// initialization for first iteration step
 		long i = 0;
 		BigInteger A_im2 = null;
@@ -257,7 +241,7 @@ public class CFrac extends FactorAlgorithm {
 				if (Q_ip1_sqrt!=null) {
 					// Q_i+1 is square -> test gcd
 					BigInteger gcd = N.gcd(A_i.subtract(Q_ip1_sqrt));
-					if (gcd.compareTo(I_1)>0 && gcd.compareTo(N)<0) throw new FactorException(gcd);
+					if (gcd.compareTo(I_1)>0 && gcd.compareTo(N)<0) return gcd;
 				}
 			}
 			if (Q_ip1_sqrt==null && (use_all_i || i%2==1)) {
@@ -268,23 +252,14 @@ public class CFrac extends FactorAlgorithm {
 				if (DEBUG) LOG.debug("N = " + N + ": Q_test = " + Q_test + " -> aqPair = " + aqPair);
 				if (aqPair!=null) {
 					// the Q was sufficiently smooth
-					if (ANALYZE) linAlgStartTime = System.currentTimeMillis(); // just in case it really starts
-					boolean addedSmooth = congruenceCollector.add(aqPair);
-					if (addedSmooth) {
-						int smoothCongruenceCount = congruenceCollector.getSmoothCongruenceCount();
-						if (smoothCongruenceCount >= requiredSmoothCongruenceCount) {
-							// try to solve equation system
-							if (DEBUG) LOG.debug("#smooths = " + smoothCongruenceCount + ", #requiredSmooths = " + requiredSmoothCongruenceCount);
-							matrixSolver.solve(congruenceCollector.getSmoothCongruences()); // throws FactorException
-							// no factor exception -> extend equation system and continue searching smooth congruences
-							requiredSmoothCongruenceCount += extraCongruences;
-						}
-					}
+					congruenceCollector.collectAndProcessAQPair(aqPair);
+					BigInteger factor = congruenceCollector.getFactor();
+					if (factor != null) return factor;
 				}
 			}
 		
 			// exit loop ?
-			if (++i==maxI) return;
+			if (++i==maxI) return null;
 			
 			// keep values from last round
 			A_im2 = A_im1;
@@ -301,7 +276,7 @@ public class CFrac extends FactorAlgorithm {
 			A_i = addModN(mulModN(b_i, A_im1), A_im2);
 			
 			// stop when continuant period is complete
-			if (b_i.equals(two_floor_sqrt_kN)) return;
+			if (b_i.equals(two_floor_sqrt_kN)) return null;
 		}
 	}
 
@@ -367,7 +342,7 @@ public class CFrac extends FactorAlgorithm {
 	// 1240365498452764190513871432931316765426281182537733 (170 bit): found 500 smooth congruences (90 perfect, 55 from 1-partials, 182 involving 2-partials, 173 involving 3-partials) and 51145 partials (10309 1-partials, 40527 2-partials, 309 3-partials)
 	// 800428260973992320615961356229212951260121574827941327 (180 bit): found 630 smooth congruences (87 perfect, 38 from 1-partials, 186 involving 2-partials, 319 involving 3-partials) and 85259 partials (11123 1-partials, 73206 2-partials, 930 3-partials)
 	private static void testInput() {
-		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), 10, new MatrixSolver_Gauss02(), 5);
+		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), new MatrixSolver_Gauss02(), 5);
 		Timer timer = new Timer();
 		while(true) {
 			try {

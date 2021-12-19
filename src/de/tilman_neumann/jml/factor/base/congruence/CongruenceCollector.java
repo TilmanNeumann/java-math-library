@@ -40,6 +40,12 @@ public interface CongruenceCollector {
 	void initialize(BigInteger N, FactorTest factorTest);
 
 	/**
+	 * Re-initialize the prime base size. This is useful only for algorithms that combine relations from different prime bases.
+	 * @param newPrimeBaseSize
+	 */
+	void setPrimeBaseSize(int newPrimeBaseSize);
+
+	/**
 	 * Collect AQ pairs and run the matrix solver if appropriate.
 	 * In a multi-threaded factoring algorithm, this method needs to be run in a block synchronized on this.
 	 * This also speeds up single-threaded solvers like Block-Lanczos, because on modern CPUs single threads run at a higher clock rate.

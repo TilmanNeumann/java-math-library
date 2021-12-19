@@ -120,6 +120,11 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	}
 	
 	@Override
+	public void setPrimeBaseSize(int newPrimeBaseSize) {
+		this.requiredSmoothCongruenceCount = newPrimeBaseSize + extraCongruences;
+	}
+
+	@Override
 	public void collectAndProcessAQPairs(List<AQPair> aqPairs) {
 		if (DEBUG) LOG.debug("add " + aqPairs.size() + " new AQ-pairs to CC");
 		for (AQPair aqPair : aqPairs) {
