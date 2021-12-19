@@ -17,7 +17,6 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 
-import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 
@@ -31,13 +30,6 @@ public interface CongruenceCollector {
 	 * @param factorTest
 	 */
 	void initialize(BigInteger N, int primeBaseSize, MatrixSolver matrixSolver, FactorTest factorTest);
-
-	/**
-	 * Initialize congruence collector for a new N.
-	 * @param N
-	 * @param factorTest
-	 */
-	void initialize(BigInteger N, FactorTest factorTest);
 
 	/**
 	 * Re-initialize the prime base size. This is useful only for algorithms that combine relations from different prime bases.
@@ -62,14 +54,6 @@ public interface CongruenceCollector {
 	 * @output this.factor
 	 */
 	void collectAndProcessAQPair(AQPair aqPair);
-
-	/**
-	 * Add a new elementary partial or smooth congruence.
-	 * @param aqPair
-	 * @return true if a smooth congruence was added
-	 * @throws FactorException
-	 */
-	boolean add(AQPair aqPair) throws FactorException;
 
 	/**
 	 * @return number of smooth congruences found so far.

@@ -115,16 +115,6 @@ public class CongruenceCollector03 implements CongruenceCollector {
 	
 	@Override
 	public void initialize(BigInteger N, int primeBaseSize, MatrixSolver matrixSolver, FactorTest factorTest) {
-		this.initialize(N, factorTest);
-		this.requiredSmoothCongruenceCount = primeBaseSize + extraCongruences;
-		this.matrixSolver = matrixSolver;
-		ccDuration = solverDuration = 0;
-		solverRunCount = testedNullVectorCount = 0;
-		factor = null;
-	}
-
-	@Override
-	public void initialize(BigInteger N, FactorTest factorTest) {
 		smoothCongruences = new HashSet<Smooth>();
 		largeFactors_2_partials = new HashMap<Long, ArrayList<Partial>>();
 		this.factorTest = factorTest;
@@ -153,6 +143,11 @@ public class CongruenceCollector03 implements CongruenceCollector {
 			partialWithPositiveQCount = 0;
 			smoothWithPositiveQCount = 0;
 		}
+		this.requiredSmoothCongruenceCount = primeBaseSize + extraCongruences;
+		this.matrixSolver = matrixSolver;
+		ccDuration = solverDuration = 0;
+		solverRunCount = testedNullVectorCount = 0;
+		factor = null;
 	}
 	
 	@Override
@@ -216,8 +211,7 @@ public class CongruenceCollector03 implements CongruenceCollector {
 		if (ANALYZE) ccDuration += timer.capture();
 	}
 	
-	@Override
-	public boolean add(AQPair aqPair) throws FactorException {
+	private boolean add(AQPair aqPair) throws FactorException {
 		if (DEBUG) LOG.debug("new aqPair = " + aqPair);
 		if (aqPair instanceof Smooth) {
 			Smooth smooth = (Smooth) aqPair;
