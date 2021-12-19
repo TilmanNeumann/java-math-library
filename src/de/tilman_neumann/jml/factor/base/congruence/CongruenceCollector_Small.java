@@ -13,7 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
-import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_Q_SIGNS;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
@@ -29,7 +28,6 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.Timer;
 
 /**
@@ -66,9 +64,6 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	private int totalPartialCount; // standard
 	private int perfectSmoothCount; // needs ANALYZE
 	private int[] smoothFromPartialCounts, partialCounts;
-	private Multiset<Integer>[] partialQRestSizes, partialBigFactorSizes;
-	private Multiset<Integer>[] smoothQRestSizes, smoothBigFactorSizes;
-	private int partialWithPositiveQCount, smoothWithPositiveQCount;
 	
 	/** the biggest number of partials involved to find a smooth relation from partials */
 	private int maxRelatedPartialsCount;
@@ -234,12 +229,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 				}
 			}
 		}
-		boolean added = smoothCongruences.add(smoothCongruence);
-		
-		// Q-analysis
-		if (ANALYZE_Q_SIGNS) if (added && smoothCongruence.getMatrixElements()[0] != -1) smoothWithPositiveQCount++;
-
-		return added;
+		return smoothCongruences.add(smoothCongruence);
 	}
 
 	@Override
@@ -265,8 +255,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	@Override
 	public CongruenceCollectorReport getReport() {
 		return new CongruenceCollectorReport(getPartialCongruenceCount(), smoothCongruences.size(), smoothFromPartialCounts, partialCounts, perfectSmoothCount,
-											 partialQRestSizes, partialBigFactorSizes, smoothQRestSizes, smoothBigFactorSizes, partialWithPositiveQCount, smoothWithPositiveQCount,
-											 maxRelatedPartialsCount, 0);
+											 null, null, null, null, 0, 0, maxRelatedPartialsCount, 0);
 	}
 	
 	@Override

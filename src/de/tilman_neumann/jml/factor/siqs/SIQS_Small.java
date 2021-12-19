@@ -14,8 +14,6 @@
 package de.tilman_neumann.jml.factor.siqs;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_LARGE_FACTOR_SIZES;
-import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_Q_SIGNS;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -323,18 +321,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ccReport.getMaxRelatedPartialsCount() > 0) LOG.info("    cc: maxRelatedPartialsCount = " + ccReport.getMaxRelatedPartialsCount() + ", maxPartialMatrixSize = " + ccReport.getMaxMatrixSize() + " rows");
-		if (ANALYZE_LARGE_FACTOR_SIZES) {
-			// here we have at most one large prime
-			LOG.info("        " + ccReport.getSmoothBigFactorPercentiles(1));
-			LOG.info("        " + ccReport.getSmoothQRestPercentiles(1));
-			LOG.info("        " + ccReport.getPartialBigFactorPercentiles(1));
-			LOG.info("        " + ccReport.getPartialQRestPercentiles(1));
-			LOG.info("        " + ccReport.getNonIntFactorPercentages());
-		}
-		if (ANALYZE_Q_SIGNS) {
-			LOG.info("        " + ccReport.getPartialQSignCounts());
-			LOG.info("        " + ccReport.getSmoothQSignCounts());
-		}
+		// large factor sizes or Q-signs are not analyzed by CongruenceCollector_Small
 		LOG.info("    #solverRuns = " + congruenceCollector.getSolverRunCount() + ", #tested null vectors = " + congruenceCollector.getTestedNullVectorCount());
 		LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + congruenceCollector.getCollectDuration() + "ms, solver=" + congruenceCollector.getSolverDuration() + "ms");
 		LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(1));
