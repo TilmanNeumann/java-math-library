@@ -343,7 +343,7 @@ public class CycleCounter3LP implements CycleCounter {
 			if (DEBUG) LOG.debug("3LP: three new vertices");
 			edges.put(p1, p1);
 			edges.put(p2, p1);
-			edges.put(p3, p2);
+			edges.put(p3, p2); // TODO (p3, p1) ?
 			componentCount++;
 			if (DEBUG) assertTrue(roots.add(p1));
 			corrections++;
@@ -353,11 +353,15 @@ public class CycleCounter3LP implements CycleCounter {
 	/**
 	 * Find the root of a prime p in the edges graph.
 	 * @param p
-	 * @return root of p (may be 1 or p itself)
+	 * @return the root of p: this is null if 'edges' has no key 'p' yet; otherwise it may be any root with 1 <= root <= p.
 	 */
 	private Long getRoot(Long p) {
 		Long q = edges.get(p);
-		while (q != p) { // includes null test
+		if (q==null) return null; // edges has no key 'p' yet
+		
+		// Now we know that edges has a key 'p', and in that case this method will always return a root != null, because there will be at least a mapping p->p
+		// (where both p's are even the same object, but we don't want to exploit that, SpotBugs and the like would be very unhappy about it)
+		while (!q.equals(p)) {
 			p = q;
 			q = edges.get(p);
 		}
