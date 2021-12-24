@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.factor.hart;
 
 import java.math.BigInteger;
+import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
@@ -23,36 +24,12 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Pretty simple yet fast variant of Hart's one line factorizer.
- * This implementation introduces some improvements that make it our fastest factoring algorithm
- * in a range somewhere between 25 and 48 bit.
- *
- *
- * General idea of this implementation:
- *
- * For some n to factor, it tries to find solutions for a^2 - 4*k*n = b^2 from Fermat, with k = i*K_MULT, i=1,2,3,... ;
- * we then know that gcd(a+b, n) and gcd(a-b, n) are divisors of n.
- *
- * In contrast to Lehman's algorithm, this is done in a single loop over k where we generate numbers a = sqrt(4*k*n).
- * This implies that the upper bound for Lehman's 'a'-loop - which would be an expensive sqrt() call - does not need to be calculated.
- *
- * For each k, the sqrt(k) required to determine a = ceil(sqrt(4kn)) will be calculated only once and then stored in an array.
- * This speeds up the sieving by a big factor since calculating the sqrt is expensive.
- * 
- * After calculating a number 'a' above sqrt(4*k*n), 'a' will be adjusted to satisfy some conditions modulo powers of 2.
- * These adjustments have been slightly improved compared to those used by Lehman.
- * 
- * The implementation reuses Warren D. Smith's idea of rounding up by adding a well chosen constant.
- * 
- * Instead of a single multiplier for k we use two of them, which means another small speedup although we do not fully understand why.
- *
- * The implementation uses an optimized trial division algorithm to factorize small numbers.
- * 
+ * Possibly slightly faster variant of class Hart_Fast2Mult.
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
-public class Hart_Fast2Mult extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Hart_Fast2Mult.class);
+public class Hart_Fast2Mult2 extends FactorAlgorithm {
+	private static final Logger LOG = Logger.getLogger(Hart_Fast2Mult2.class);
 
 	// k multipliers. These are applied alternately; thus we kind of investigate two k-sets of different size "in parallel".
 	// These two multipliers turned out to be the fastest in case of two sets. Three or more sets seemed to give a slowdown.
@@ -69,8 +46,10 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
 	private final boolean doTDivFirst;
-	private final double[] sqrt1;
-	private final double[] sqrt2;
+	
+	private final long[] kArr;
+	private final double[] sqrtKArr;
+	
 	private final TDiv63Inverse tdiv = new TDiv63Inverse(I_MAX);
 	private final Gcd63 gcdEngine = new Gcd63();
 
@@ -81,22 +60,37 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 	 * With doTDivFirst=false, this implementation is pretty fast for hard semiprimes.
 	 * But the smaller possible factors get, it will become slower and slower.
 	 */
-	public Hart_Fast2Mult(boolean doTDivFirst) {
+	public Hart_Fast2Mult2(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// Precompute all required sqrt(k) for i < I_MAX
-		sqrt1 = new double[I_MAX];
-		sqrt2 = new double[I_MAX];
+		HashSet<Long> kSet = new HashSet<>();
+		kArr = new long[2*I_MAX];
+		sqrtKArr = new double[2*I_MAX];
+		int kCount = 0;
 		for (int i=1; i<I_MAX; i++) {
-			sqrt1[i] = Math.sqrt(i*K_MULT1);
-			if ((i*K_MULT2) % K_MULT1 != 0) {
-				sqrt2[i] = Math.sqrt(i*K_MULT2);
+			long k1 = i*K_MULT1;
+			double sqrt1 = Math.sqrt(k1);
+			if (!kSet.contains(k1)) {
+				kArr[kCount] = k1;
+				sqrtKArr[kCount] = sqrt1;
+				kSet.add(k1);
+				kCount++;
+			}
+			
+			long k2 = i*K_MULT2;
+			double sqrt2 = Math.sqrt(k2);
+			if (!kSet.contains(k2)) {
+				kArr[kCount] = k2;
+				sqrtKArr[kCount] = sqrt2;
+				kSet.add(k2);
+				kCount++;
 			}
 		}
 	}
 
 	@Override
 	public String getName() {
-		return "Hart_Fast2Mult(" + doTDivFirst + ")";
+		return "Hart_Fast2Mult2(" + doTDivFirst + ")";
 	}
 
 	@Override
@@ -125,25 +119,14 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 		final long fourN = N<<2;
 		final double sqrt4N = sqrtN*2;
 		long a, b, test, gcd;
-		long k1 = K_MULT1;
-		long k2 = K_MULT2;
 		try {
-			for (int i=1; ; i++, k1 += K_MULT1, k2 += K_MULT2) {
-				a = adjustA(N, (long) (sqrt4N * sqrt1[i] + ROUND_UP_DOUBLE), k1);
-				test = a*a - k1 * fourN;
+			for (int i=0; ; i++) {
+				long k = kArr[i];
+				a = adjustA(N, (long) (sqrt4N * sqrtKArr[i] + ROUND_UP_DOUBLE), k);
+				test = a*a - k * fourN;
 				b = (long) Math.sqrt(test);
 				if (b*b == test && (gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) {
 					return gcd;
-				}
-				// the second parallel K_MULT2 * i loop gives ~4 % speedup if we
-				// avoid hitting the values already used in the first K_MULT1 * i case
-				if (sqrt2[i] > Double.MIN_VALUE) {
-					a = adjustA(N, (long) (sqrt4N * sqrt2[i] + ROUND_UP_DOUBLE), k2);
-					test = a*a - k2 * fourN;
-					b = (long) Math.sqrt(test);
-					if (b*b == test && (gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) {
-						return gcd;
-					}
 				}
 			}
 		} catch (final ArrayIndexOutOfBoundsException e) {
@@ -311,7 +294,7 @@ public class Hart_Fast2Mult extends FactorAlgorithm {
 				9170754184293724117L, // 63 bit
 			};
 		
-		Hart_Fast2Mult holf = new Hart_Fast2Mult(false);
+		Hart_Fast2Mult2 holf = new Hart_Fast2Mult2(false);
 		for (long N : testNumbers) {
 			long factor = holf.findSingleFactor(N);
 			LOG.info("N=" + N + " has factor " + factor);

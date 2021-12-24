@@ -33,7 +33,8 @@ import de.tilman_neumann.util.ConfigUtil;
 public class Hart_Fast2Mult_FMA extends FactorAlgorithm {
 	private static final Logger LOG = Logger.getLogger(Hart_Fast2Mult_FMA.class);
 
-	// k multipliers.
+	// k multipliers. These are applied alternately; thus we kind of investigate two k-sets of different size "in parallel".
+	// These two multipliers turned out to be the fastest in case of two sets. Three or more sets seemed to give a slowdown.
 	private static final long K_MULT1 = 3465;
 	private static final long K_MULT2 = 315;
 
@@ -54,14 +55,14 @@ public class Hart_Fast2Mult_FMA extends FactorAlgorithm {
 
 	/**
 	 * Full constructor.
-	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
+	 * @param doTDivFirst If true then trial division is done before the Hart loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 * With doTDivFirst=false, this implementation is pretty fast for hard semiprimes.
 	 * But the smaller possible factors get, it will become slower and slower.
 	 */
 	public Hart_Fast2Mult_FMA(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
-		// Precompute sqrts for all k < I_MAX
+		// Precompute all required sqrt(k) for i < I_MAX
 		sqrt1 = new double[I_MAX];
 		sqrt2 = new double[I_MAX];
 		for (int i=1; i<I_MAX; i++) {
@@ -114,8 +115,8 @@ public class Hart_Fast2Mult_FMA extends FactorAlgorithm {
 				if (b*b == test && (gcd = gcdEngine.gcd(a+b, N))>1 && gcd<N) {
 					return gcd;
 				}
-				// the second parallel 45 * i loop gives ~4 % speedup if we
-				// avoid that we hit the same values as in the first 315 * i case
+				// the second parallel K_MULT2 * i loop gives ~4 % speedup if we
+				// avoid hitting the values already used in the first K_MULT1 * i case
 				if (sqrt2[i] > Double.MIN_VALUE) {
 					a = adjustA(N, (long) Math.fma(sqrt4N, sqrt2[i], ROUND_UP_DOUBLE), k2);
 					test = a*a - k2 * fourN;
