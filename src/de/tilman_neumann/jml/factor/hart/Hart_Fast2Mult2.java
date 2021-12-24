@@ -130,7 +130,7 @@ public class Hart_Fast2Mult2 extends FactorAlgorithm {
 				}
 			}
 		} catch (final ArrayIndexOutOfBoundsException e) {
-			LOG.error("Hart_Fast2Mult: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
+			LOG.error("Hart_Fast2Mult2: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
 			return 1;
 		}
 	}
