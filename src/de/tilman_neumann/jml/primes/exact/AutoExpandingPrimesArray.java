@@ -37,11 +37,17 @@ public class AutoExpandingPrimesArray implements SieveCallback {
 	
 	private BinarySearch bs = new BinarySearch();
 	
-	// singleton
-	private static final AutoExpandingPrimesArray THE_PRIMES_ARRAY = new AutoExpandingPrimesArray();
+	// lazy-initialized singleton
+	private static AutoExpandingPrimesArray the_instance = null;
 	
-	public static AutoExpandingPrimesArray get() {
-		return THE_PRIMES_ARRAY;
+	/**
+	 * @return the only TDivPrimeTest instance (singleton)
+	 */
+	public static synchronized final AutoExpandingPrimesArray get() {
+		if (the_instance == null) {
+			the_instance = new AutoExpandingPrimesArray();
+		}
+		return the_instance;
 	}
 	
 	/**

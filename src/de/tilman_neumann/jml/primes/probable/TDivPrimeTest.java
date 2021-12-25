@@ -28,20 +28,28 @@ public class TDivPrimeTest {
 
 	private static final int NUM_PRIMES_FOR_31_BIT_TDIV = 4793;
 
-	// TODO "static" leads to NPE in constructor ???
-	private AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
-
 	private int[] primes;
 	private long[] pinv;
 	
-	private static TDivPrimeTest instance = new TDivPrimeTest();
-	public static TDivPrimeTest getInstance() { return instance; } //Singleton
+	// lazy-initialized singleton
+	private static TDivPrimeTest the_instance = null;
+	
+	/**
+	 * @return the only TDivPrimeTest instance (singleton)
+	 */
+	public static synchronized final TDivPrimeTest getInstance() {
+		if (the_instance == null) {
+			the_instance = new TDivPrimeTest();
+		}
+		return the_instance;
+	}
 
 	private TDivPrimeTest() {
+		AutoExpandingPrimesArray smallPrimesProvider = AutoExpandingPrimesArray.get();
 		primes = new int[NUM_PRIMES_FOR_31_BIT_TDIV];
 		pinv = new long[NUM_PRIMES_FOR_31_BIT_TDIV];
 		for (int i=0; i<NUM_PRIMES_FOR_31_BIT_TDIV; i++) {
-			int p = SMALL_PRIMES.getPrime(i);
+			int p = smallPrimesProvider.getPrime(i);
 			primes[i] = p;
 			pinv[i] = (1L<<32)/p;
 		}
