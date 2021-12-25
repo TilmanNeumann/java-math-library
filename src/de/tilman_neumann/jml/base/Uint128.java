@@ -35,6 +35,8 @@ public class Uint128 {
 	
 	private static final boolean DEBUG = false;
 	
+	private static final SecureRandom RNG = new SecureRandom();
+
 	private long high, low;
 	
 	public Uint128(long high, long low) {
@@ -646,7 +648,6 @@ public class Uint128 {
 	}
 	
 	private static void testPerformance() {
-		SecureRandom RNG = new SecureRandom();
 		int NCOUNT = 10000000;
 		
 		// set up test numbers

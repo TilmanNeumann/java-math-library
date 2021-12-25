@@ -35,7 +35,6 @@ package de.tilman_neumann.jml.factor.ecm;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
-import java.util.Random;
 
 import org.apache.log4j.Logger;
 
@@ -1135,10 +1134,12 @@ public class TinyEcm64 extends FactorAlgorithm {
 	}
 
 	public BigInteger findSingleFactor(BigInteger N) {
-		Random rng = new Random();
-		rng.setSeed(42);
-//		LCGSTATE = 65537 * rng.nextInt(); // original rng is not comparable with C version
-		LCGSTATE = 4295098403L; // rng comparable with C version
+		// original rng, not comparable with C version
+		//Random rng = new Random();
+		//rng.setSeed(42);
+		//LCGSTATE = 65537 * rng.nextInt();
+		// rng comparable with C version
+		LCGSTATE = 4295098403L;
 		if (DEBUG) LOG.debug("LCGSTATE = " + LCGSTATE);
 		
 		int NBits = N.bitLength();
