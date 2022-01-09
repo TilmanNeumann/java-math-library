@@ -24,7 +24,7 @@ import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Possibly slightly faster variant of class Hart_Fast2Mult.
+ * A variant of class Hart_Fast2Mult that is about 10% faster in the long end.
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
@@ -68,6 +68,10 @@ public class Hart_Fast2Mult2 extends FactorAlgorithm {
 		sqrtKArr = new double[2*I_MAX];
 		int kCount = 0;
 		for (int i=1; i<I_MAX; i++) {
+			// Skipping k with too high powers of 2 improves performance.
+			// 8 is faster than 16 for smaller N, but we want to optimize the long end.
+			if (i%16 == 0) i++;
+			
 			long k1 = i*K_MULT1;
 			double sqrt1 = Math.sqrt(k1);
 			if (!kSet.contains(k1)) {
