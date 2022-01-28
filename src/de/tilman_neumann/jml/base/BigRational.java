@@ -65,6 +65,7 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	 */
 	public BigRational(BigInteger num, BigInteger den) {
 		this.num = num;
+		if (den.signum() == 0) throw new ArithmeticException("Rational numbers must have non-zero denominator");
 		this.den = den;
 	}
 	
@@ -198,29 +199,36 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	public int signum() {
 		return this.num.signum()*this.den.signum();
 	}
+	
+	/**
+	 * @return true if this is zero, false otherwise
+	 */
+	public boolean isZero() {
+		return this.num.signum() == 0;
+	}
 
 	/**
 	 * @return the nearest smaller-or-equal integer value.
 	 */
-	// TODO For negative arguments the result is 1 bigger than the expected result. E.g. this implementation gives floorInt(-2/3) = 0, but we would expect floor(-2/3) = -1
-	public BigInteger floorInt() {
-		// when the division is exact then we return the quotient.
-		// when the division is not exact we drop the rest -> we also return the quotient!
-		return num.divideAndRemainder(den)[0];
+	public BigInteger floor() {
+		if (this.isZero()) return I_0; // exact; no need for division
+		
+		BigInteger[] divRem = num.divideAndRemainder(den);
+		if (divRem[1].equals(I_0)) return divRem[0]; // exact
+		// The result for non-exact divisions is the quotient if this is positive, and the quotient-1 if this is negative.
+		return this.signum() > 0 ? divRem[0] : divRem[0].subtract(I_1);
 	}
 
 	/**
 	 * @return the nearest bigger-or-equal integer value.
 	 */
-	// TODO For negative arguments the result is 1 bigger than the expected result. E.g. this implementation gives ceilInt(-2/3) = 1, but but we would expect ceil(-2/3) = 0
-	public BigInteger ceilInt() {
-		BigInteger[] div = num.divideAndRemainder(den);
-		if (div[1].equals(I_0)) {
-			// no rest, the division was exact and the quotient is the ceil() value.
-			return div[0];
-		}
-		// division was not exact, return quotient+1
-		return div[0].add(I_1);
+	public BigInteger ceil() {
+		if (this.isZero()) return I_0; // exact; no need for division
+		
+		BigInteger[] divRem = num.divideAndRemainder(den);
+		if (divRem[1].equals(I_0)) return divRem[0]; // exact
+		// The result for non-exact divisions is the quotient+1 if this is positive, and the quotient if this is negative.
+		return this.signum() > 0 ? divRem[0].add(I_1) : divRem[0];
 	}
 	
 	// Comparison --------------------------------------------------------------------
