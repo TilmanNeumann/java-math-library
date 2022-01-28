@@ -202,6 +202,7 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	/**
 	 * @return the nearest smaller-or-equal integer value.
 	 */
+	// TODO For negative arguments the result is 1 bigger than the expected result. E.g. this implementation gives floorInt(-2/3) = 0, but we would expect floor(-2/3) = -1
 	public BigInteger floorInt() {
 		// when the division is exact then we return the quotient.
 		// when the division is not exact we drop the rest -> we also return the quotient!
@@ -211,6 +212,7 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	/**
 	 * @return the nearest bigger-or-equal integer value.
 	 */
+	// TODO For negative arguments the result is 1 bigger than the expected result. E.g. this implementation gives ceilInt(-2/3) = 1, but but we would expect ceil(-2/3) = 0
 	public BigInteger ceilInt() {
 		BigInteger[] div = num.divideAndRemainder(den);
 		if (div[1].equals(I_0)) {
