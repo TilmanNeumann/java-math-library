@@ -15,24 +15,17 @@ package de.tilman_neumann.jml.base;
 
 import static de.tilman_neumann.jml.base.GaussianIntegerConstants.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.Random;
 
 import org.junit.Test;
 
-import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.test.junit.ClassTest;
 
-public class GaussianIntegerTest {
+public class GaussianIntegerTest extends ClassTest {
 
 	private static final Random RNG = new Random(42);
-	
-	static {
-		// initialize logger
-		ConfigUtil.initProject();
-	}
 
 	@Test
 	public void testMultiplicationCommutativity() {

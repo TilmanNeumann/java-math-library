@@ -20,6 +20,7 @@ import de.tilman_neumann.util.ConfigUtil;
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 
+// TODO get rid of Junit3-style classes junit.framework.* like TestCase
 public class ClassTest extends TestCase {
 	
 	static {
