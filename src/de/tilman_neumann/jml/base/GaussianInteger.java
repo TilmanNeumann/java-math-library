@@ -86,20 +86,20 @@ public class GaussianInteger {
 		return (x.equals(I_0) && y.abs().equals(I_1)) || (x.abs().equals(I_1) && y.equals(I_0));
 	}
 	
-	public GaussianInteger add(GaussianInteger other) {
-		return new GaussianInteger(x.add(other.realPart()), y.add(other.imaginaryPart()));
+	public GaussianInteger add(GaussianInteger b) {
+		return new GaussianInteger(x.add(b.x), y.add(b.y));
 	}
 	
-	public GaussianInteger subtract(GaussianInteger other) {
-		return new GaussianInteger(x.subtract(other.realPart()), y.subtract(other.imaginaryPart()));
+	public GaussianInteger subtract(GaussianInteger b) {
+		return new GaussianInteger(x.subtract(b.x), y.subtract(b.y));
 	}
 
-	public GaussianInteger multiply(GaussianInteger other) {
-		BigInteger p = other.realPart();
-		BigInteger q = other.imaginaryPart();
-		BigInteger productRealPart = x.multiply(p).subtract(y.multiply(q));
-		BigInteger productImagineryPart = x.multiply(q).add(y.multiply(p));
-		return new GaussianInteger(productRealPart, productImagineryPart);
+	public GaussianInteger multiply(GaussianInteger b) {
+		BigInteger bx = b.x;
+		BigInteger by = b.y;
+		BigInteger cx = x.multiply(bx).subtract(y.multiply(by));
+		BigInteger cy = x.multiply(by).add(y.multiply(bx));
+		return new GaussianInteger(cx, cy);
 	}
 	
 	public GaussianInteger square() {
@@ -109,44 +109,44 @@ public class GaussianInteger {
 	
 	/**
 	 * Divisibility test.
-	 * @param other GaussianInteger
-	 * @return true if other divides this, false otherwise.
-	 * @throws ArithmeticException if other is zero
+	 * @param b GaussianInteger
+	 * @return true if b divides this, false otherwise.
+	 * @throws ArithmeticException if b is zero
 	 */
-	public boolean isDivisibleBy(GaussianInteger other) throws ArithmeticException {
-		if (other.isZero()) throw new ArithmeticException("division by zero");
+	public boolean isDivisibleBy(GaussianInteger b) throws ArithmeticException {
+		if (b.isZero()) throw new ArithmeticException("division by zero");
 		
-		// multiply numerator and denominator of this by the conjugate of other, so that the resulting denominator is the norm of other and integer
-		GaussianInteger num = this.multiply(other.conjugate());
-		BigInteger den = other.norm();
-		return num.realPart().mod(den).equals(I_0) && num.imaginaryPart().mod(den).equals(I_0);
+		// multiply numerator and denominator of this by the conjugate of b, so that the resulting denominator is the norm of b and integer
+		GaussianInteger num = this.multiply(b.conjugate());
+		BigInteger den = b.norm();
+		return num.x.mod(den).equals(I_0) && num.y.mod(den).equals(I_0);
 	}
 	
 	/**
-	 * Divide this by other.
+	 * Divide this by b.
 	 * 
-	 * @param other
+	 * @param b
 	 * @return [quotient, remainder]
 	 */
-	public GaussianInteger[] divide(GaussianInteger other) {
-		if (DEBUG) LOG.debug("divide (" + this + ") / (" + other + ") with N(" + other + ") = " + other.norm());
+	public GaussianInteger[] divide(GaussianInteger b) {
+		if (DEBUG) LOG.debug("divide (" + this + ") / (" + b + ") with N(" + b + ") = " + b.norm());
 		
-		if (other.isZero()) throw new ArithmeticException("division by zero");
+		if (b.isZero()) throw new ArithmeticException("division by zero");
 		
 		// Theorem: Let a, b ∈ Z[i] with b != 0. Then there are c, d ∈ Z[i] for which a = b*c + d and N(d) < N(b).
 		// Notes: * The norm gives the required notion that the remainder d be smaller than the divisor b.
 		//        * Unlike with the division algorithm in Z, we make no claim that c and d are unique
 		
-		// a/b = (a*conjugate(b)) / (b*conjugate(b)) = (a*conjugate(b) / N(b)
-		GaussianInteger aDivBNum = this.multiply(other.conjugate());
-		BigInteger aDivBDen = other.norm();
+		// a/b = (a*conjugate(b)) / (b*conjugate(b)) = a*conjugate(b) / N(b)
+		GaussianInteger aDivBNum = this.multiply(b.conjugate());
+		BigInteger aDivBDen = b.norm();
 		
 		// Let cExact = cReExact + i*cImExact with rational cReExact = realPart(a/b) and cImExact = imaginaryPart(a/b).
 		// This number lies within four surrounding elements of the Gaussian integer lattice.
 		// We want the quotient c to be the lattice element with minimal N(d), which is also the solution closest to cExact.
 		// The best choice can be computed independently in the two lattice dimensions.
-		BigRational cReExact = new BigRational(aDivBNum.realPart(), aDivBDen);
-		BigRational cImExact = new BigRational(aDivBNum.imaginaryPart(), aDivBDen);
+		BigRational cReExact = new BigRational(aDivBNum.x, aDivBDen);
+		BigRational cImExact = new BigRational(aDivBNum.y, aDivBDen);
 		BigInteger cRe0 = cReExact.floor();
 		BigInteger cRe1 = cReExact.ceil();
 		BigInteger cIm0 = cImExact.floor();
@@ -158,49 +158,50 @@ public class GaussianInteger {
 			LOG.debug("cIm bounds: " + cIm0 + " <= " + cImExact + " <= " + cIm1);
 		}
 		
-		BigInteger cRe0Dist = cRe0.multiply(aDivBDen).subtract(aDivBNum.realPart()); // -aDivBDen < cRe0Dist <= 0
-		BigInteger cRe1Dist = cRe1.multiply(aDivBDen).subtract(aDivBNum.realPart()); // 0 < cRe1Dist <= aDivBDen
+		BigInteger cRe0Dist = cRe0.multiply(aDivBDen).subtract(aDivBNum.x); // -aDivBDen < cRe0Dist <= 0
+		BigInteger cRe1Dist = cRe1.multiply(aDivBDen).subtract(aDivBNum.x); // 0 < cRe1Dist <= aDivBDen
 		BigInteger cRe = cRe0Dist.abs().compareTo(cRe1Dist.abs()) < 0 ? cRe0 : cRe1;
 		
-		BigInteger cIm0Dist = cIm0.multiply(aDivBDen).subtract(aDivBNum.imaginaryPart()); // -aDivBDen < cIm0Dist <= 0
-		BigInteger cIm1Dist = cIm1.multiply(aDivBDen).subtract(aDivBNum.imaginaryPart()); // 0 < cIm1Dist <= aDivBDen
+		BigInteger cIm0Dist = cIm0.multiply(aDivBDen).subtract(aDivBNum.y); // -aDivBDen < cIm0Dist <= 0
+		BigInteger cIm1Dist = cIm1.multiply(aDivBDen).subtract(aDivBNum.y); // 0 < cIm1Dist <= aDivBDen
 		BigInteger cIm = cIm0Dist.abs().compareTo(cIm1Dist.abs()) < 0 ? cIm0 : cIm1;
 		// TODO the computation of the second distance in each of the two dimensions can be simplified, e.g. cRe1Dist = cRe0Dist + aDivBDen
 		// TODO the abs() expressions can get removed or replaced as well 
 		
 		// Finally compute d = a - b*c
 		GaussianInteger c = new GaussianInteger(cRe, cIm);
-		GaussianInteger d = this.subtract(other.multiply(c));
+		GaussianInteger d = this.subtract(b.multiply(c));
 
 		if (DEBUG) LOG.debug("result: c = " + c + ", d = " + d + ", N(d) = " + d.norm());
 
 		// Make sure that N(d) < N(b)
-		if (DEBUG) assertTrue("Error computing (" + this + ") / (" + other + "): N(d)=" + d.norm() + " is not smaller than N(b)=" + other.norm(), d.norm().compareTo(other.norm()) < 0);
+		if (DEBUG) assertTrue("Error computing (" + this + ") / (" + b + "): N(d)=" + d.norm() + " is not smaller than N(b)=" + b.norm(), d.norm().compareTo(b.norm()) < 0);
 		
 		return new GaussianInteger[] {c, d};
 	}
 	
 	/**
-	 * Computes the gaussian integer gcd of this and other.
+	 * Computes the gaussian integer gcd of this and b.
 	 * A gcd multiplied by one of the four units +-1, +-i is a valid gcd, too. Here we return the single solution with real part > 0 and imaginary part >=0.
 	 * 
-	 * @param other
-	 * @return gcd(this, other)
+	 * @param b
+	 * @return gcd(this, b)
 	 */
-	public GaussianInteger gcd(GaussianInteger other) {
-		// gcd(0, n) = n
-		if (this.isZero()) return other;
-		if (other.isZero()) return this;
-
-		GaussianInteger a = this;
-		GaussianInteger b = other;
-		while (!b.isZero()) {
-			if (DEBUG) LOG.debug("gcd: a = " + a + ", b = " + b);
-			GaussianInteger[] divRem = a.divide(b);
-			a = b;
-			b = divRem[1];
+	public GaussianInteger gcd(GaussianInteger b) {
+		GaussianInteger d;
+		
+		if (this.isZero()) {
+			d = b; // gcd(0, n) = n
+		} else {
+			GaussianInteger a = this;
+			while (!b.isZero()) {
+				if (DEBUG) LOG.debug("gcd: a = " + a + ", b = " + b);
+				GaussianInteger[] divRem = a.divide(b);
+				a = b;
+				b = divRem[1];
+			}
+			d = a; // preliminary result (up to units)
 		}
-		GaussianInteger d = a; // preliminary result (up to units)
 		
 		// If the result so far is d, then there are four gcds: +d = (x, y), -d = (-x, -y), +id = (-y, x), -id = (y, -x).
 		// It is common to choose the one with real part > 0 and imaginary part >= 0.
@@ -212,14 +213,14 @@ public class GaussianInteger {
 		if (reSign<=0 && imSign>0) return new GaussianInteger(d.imaginaryPart(), d.realPart().negate()); // x<=0, y>0 => -id = (y, -x) has y>0, -x>=0
 		
 		// The sign condition that has not been covered yet is d==0. This should never happen...
-		throw new IllegalStateException("gcd(" + this + ", " + other + ") is zero ???");
+		throw new IllegalStateException("gcd(" + this + ", " + b + ") is zero ???");
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 		if (o==null || !(o instanceof GaussianInteger)) return false;
-		GaussianInteger other = (GaussianInteger) o;
-		return x.equals(other.x) && y.equals(other.y);
+		GaussianInteger b = (GaussianInteger) o;
+		return x.equals(b.x) && y.equals(b.y);
 	}
 	
 	@Override
