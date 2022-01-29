@@ -165,8 +165,8 @@ public class GaussianInteger {
 		BigInteger cIm0Dist = cIm0.multiply(aDivBDen).subtract(aDivBNum.y); // -aDivBDen < cIm0Dist <= 0
 		BigInteger cIm1Dist = cIm1.multiply(aDivBDen).subtract(aDivBNum.y); // 0 < cIm1Dist <= aDivBDen
 		BigInteger cIm = cIm0Dist.abs().compareTo(cIm1Dist.abs()) < 0 ? cIm0 : cIm1;
-		// TODO the computation of the second distance in each of the two dimensions can be simplified, e.g. cRe1Dist = cRe0Dist + aDivBDen
-		// TODO the abs() expressions can get removed or replaced as well 
+
+		// TODO much of the stuff above could be replaced by BigRational.round()
 		
 		// Finally compute d = a - b*c
 		GaussianInteger c = new GaussianInteger(cRe, cIm);
