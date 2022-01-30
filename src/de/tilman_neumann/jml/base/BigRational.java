@@ -337,11 +337,9 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	
 	/**
 	 * Converts this to a BigDecimal with decPrec digits precision. 
-	 * Because we can access numerator and denominator directly, implementation in this class
-	 * is more efficient than as BigFloat.valueOf(BigRational).
 	 * 
 	 * @param decPrec Precision in decimal digits.
-	 * @return this as a big float with the wanted precision.
+	 * @return this as a BigDecimal with the wanted precision.
 	 */
 	public BigDecimal toBigDecimal(Scale decPrec) {
 		return BigDecimalMath.divide(new BigDecimal(this.num), this.den, decPrec);
