@@ -23,6 +23,7 @@ import de.tilman_neumann.jml.precision.Precision;
 import de.tilman_neumann.jml.precision.Scale;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Big rational numbers with exact arithmetics.
@@ -32,8 +33,9 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	
 	private static final long serialVersionUID = -578518708160143029L;
 	
-	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(BigRational.class);
+	
+	private static final boolean DEBUG = false;
 	
 	// Constants -----------------------------------------------------------------------------
 	
@@ -229,6 +231,28 @@ public class BigRational extends Number implements Comparable<BigRational> {
 		if (divRem[1].equals(I_0)) return divRem[0]; // exact
 		// The result for non-exact divisions is the quotient+1 if this is positive, and the quotient if this is negative.
 		return this.signum() > 0 ? divRem[0].add(I_1) : divRem[0];
+	}
+	
+	/**
+	 * @return the nearest integer value. In case of a tie, the smaller integer value is returned (rounding mode HALF_DOWN).
+	 */
+	public BigInteger round() {
+		if (this.isZero()) return I_0; // exact; no need for division
+		
+		BigInteger[] divRem = num.divideAndRemainder(den);
+		if (divRem[1].equals(I_0)) return divRem[0]; // exact
+		BigInteger floor, rem;
+		if (this.signum() < 0) {
+			if (DEBUG) LOG.debug("num=" + num  + ", den = " + den + ", quot = " + divRem[0] + ", rem = " + divRem[1]);
+			floor = divRem[0].subtract(I_1);
+			if (DEBUG) assertEquals(den.signum(), -divRem[1].signum());
+			rem = den.add(divRem[1]);
+			if (DEBUG) assertEquals(num, den.multiply(floor).add(rem));
+		} else {
+			floor = divRem[0];
+			rem = divRem[1];
+		}
+		return rem.shiftLeft(1).compareTo(den)<=0 ? floor : floor.add(I_1); // we use RoundingMode HALF_DOWN
 	}
 	
 	// Comparison --------------------------------------------------------------------

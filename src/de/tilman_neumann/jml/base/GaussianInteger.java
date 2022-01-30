@@ -141,32 +141,11 @@ public class GaussianInteger {
 		GaussianInteger aDivBNum = this.multiply(b.conjugate());
 		BigInteger aDivBDen = b.norm();
 		
-		// Let cExact = cReExact + i*cImExact with rational cReExact = realPart(a/b) and cImExact = imaginaryPart(a/b).
-		// This number lies within four surrounding elements of the Gaussian integer lattice.
-		// We want the quotient c to be the lattice element with minimal N(d), which is also the solution closest to cExact.
+		// The exact a/b value lies within four elements of the Gaussian integer lattice.
+		// We want the quotient c to be the lattice element with minimal N(d), which is also the solution closest to the exact value of a/b.
 		// The best choice can be computed independently in the two lattice dimensions.
-		BigRational cReExact = new BigRational(aDivBNum.x, aDivBDen);
-		BigRational cImExact = new BigRational(aDivBNum.y, aDivBDen);
-		BigInteger cRe0 = cReExact.floor();
-		BigInteger cRe1 = cReExact.ceil();
-		BigInteger cIm0 = cImExact.floor();
-		BigInteger cIm1 = cImExact.ceil();
-		// TODO inlining the division in the floor() and ceil() invocations would mean some speedup
-		if (DEBUG) {
-			LOG.debug("cExact = " + cReExact + " + I*" + cImExact);
-			LOG.debug("cRe bounds: " + cRe0 + " <= " + cReExact + " <= " + cRe1);
-			LOG.debug("cIm bounds: " + cIm0 + " <= " + cImExact + " <= " + cIm1);
-		}
-		
-		BigInteger cRe0Dist = cRe0.multiply(aDivBDen).subtract(aDivBNum.x); // -aDivBDen < cRe0Dist <= 0
-		BigInteger cRe1Dist = cRe1.multiply(aDivBDen).subtract(aDivBNum.x); // 0 < cRe1Dist <= aDivBDen
-		BigInteger cRe = cRe0Dist.abs().compareTo(cRe1Dist.abs()) < 0 ? cRe0 : cRe1;
-		
-		BigInteger cIm0Dist = cIm0.multiply(aDivBDen).subtract(aDivBNum.y); // -aDivBDen < cIm0Dist <= 0
-		BigInteger cIm1Dist = cIm1.multiply(aDivBDen).subtract(aDivBNum.y); // 0 < cIm1Dist <= aDivBDen
-		BigInteger cIm = cIm0Dist.abs().compareTo(cIm1Dist.abs()) < 0 ? cIm0 : cIm1;
-
-		// TODO much of the stuff above could be replaced by BigRational.round()
+		BigInteger cRe = new BigRational(aDivBNum.x, aDivBDen).round();
+		BigInteger cIm = new BigRational(aDivBNum.y, aDivBDen).round();
 		
 		// Finally compute d = a - b*c
 		GaussianInteger c = new GaussianInteger(cRe, cIm);
