@@ -28,15 +28,21 @@ public class GaussianIntegerTest extends ClassTest {
 	private static final Random RNG = new Random(42);
 
 	@Test
+	public void testNormVsMultiplicationWithConjugate() {
+		// mass tests in various ranges
+		for (int i=0; i<1000; i++) testSingleNormVsMultiplicationWithConjugate(getRandomNonzeroGaussianInteger(10));
+		for (int i=0; i<1000; i++) testSingleNormVsMultiplicationWithConjugate(getRandomNonzeroGaussianInteger(20));
+		for (int i=0; i<1000; i++) testSingleNormVsMultiplicationWithConjugate(getRandomNonzeroGaussianInteger(200));
+	}
+	
+	private static void testSingleNormVsMultiplicationWithConjugate(GaussianInteger a) {
+		BigInteger norm = a.norm();
+		GaussianInteger productWithConjugate = a.multiply(a.conjugate());
+		assertEquals("Norm of (" + a + ") = " + norm + " does not equal multiplication with conjugate result = " + productWithConjugate, new GaussianInteger(norm, I_0), productWithConjugate);
+	}
+
+	@Test
 	public void testMultiplicationCommutativity() {
-		GaussianInteger a = new GaussianInteger(I_28, I_7);
-		GaussianInteger b = new GaussianInteger(I_7, I_0);
-		GaussianInteger[] divRem = a.divide(b);
-		assertEquals(new GaussianInteger(I_4, I_1), divRem[0]); // quotient
-		assertEquals(new GaussianInteger(I_0, I_0), divRem[1]); // remainder
-		
-		testSingleDivision(new GaussianInteger(I_28, I_7), new GaussianInteger(I_7, I_0));
-		
 		// mass tests in various ranges
 		for (int i=0; i<1000; i++) testSingleMultiplication(getRandomNonzeroGaussianInteger(10), getRandomNonzeroGaussianInteger(10));
 		for (int i=0; i<1000; i++) testSingleMultiplication(getRandomNonzeroGaussianInteger(20), getRandomNonzeroGaussianInteger(10));
