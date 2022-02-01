@@ -159,19 +159,17 @@ public class BigRational extends Number implements Comparable<BigRational> {
 	}
 	
 	/**
-	 * @return this with gcd of numerator and denominator reduced to 1.
+	 * @return this with gcd of numerator and denominator reduced to 1, and the denominator being positive.
 	 */
 	public BigRational normalize() {
-		if (den.signum()<0) {
-			// make denominator positive always
-			num = num.negate();
-			den = den.negate();
-		}
-		BigInteger gcd = this.num.gcd(this.den);
+		if (num.signum() == 0) return new BigRational(I_0);
+
+		BigInteger gcd = num.gcd(den);
 		if (gcd!=null && gcd.compareTo(I_1)>0) {
-			return new BigRational(this.num.divide(gcd), this.den.divide(gcd));
+			return (den.signum() < 0) ? new BigRational(num.divide(gcd).negate(), den.divide(gcd).negate()) : new BigRational(num.divide(gcd), den.divide(gcd));
+		} else {
+			return (den.signum() < 0) ? new BigRational(num.negate(), den.negate()) : this;
 		}
-		return this;
 	}
 	
 	public BigRational expandTo(BigInteger newDenominator) {
@@ -209,6 +207,13 @@ public class BigRational extends Number implements Comparable<BigRational> {
 		return this.num.signum() == 0;
 	}
 
+	/**
+	 * @return true if this is integral.
+	 */
+	public boolean isInteger() {
+		return this.normalize().den.equals(I_1);
+	}
+	
 	/**
 	 * @return the nearest smaller-or-equal integer value.
 	 */
