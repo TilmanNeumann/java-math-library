@@ -15,6 +15,7 @@ package de.tilman_neumann.jml.base;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
@@ -41,15 +42,17 @@ public class HurwitzQuaternion {
 	
 	/** The coefficients or double coefficients */
 	private BigInteger x, y, z, w;
-	private boolean isHalf;
 	
-	public HurwitzQuaternion(BigInteger x, BigInteger y, BigInteger z, BigInteger w, boolean isHalf) {
+	/** true if this is a Lipschitz integer, i.e. all coefficients are integer */
+	private boolean isLipschitz;
+	
+	public HurwitzQuaternion(BigInteger x, BigInteger y, BigInteger z, BigInteger w, boolean isLipschitz) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.w = w;
-		this.isHalf = isHalf;
-		if (isHalf && (!x.testBit(0) || !y.testBit(0) || !z.testBit(0) || !w.testBit(0))) {
+		this.isLipschitz = isLipschitz;
+		if (!isLipschitz && (!x.testBit(0) || !y.testBit(0) || !z.testBit(0) || !w.testBit(0))) {
 			throw new IllegalArgumentException(this + " is not a valid Hurwitz quaternion, integer and half-integer coefficients are mixed");
 		}
 	}
@@ -69,7 +72,7 @@ public class HurwitzQuaternion {
 			this.y = ry.getNumerator();
 			this.z = rz.getNumerator();
 			this.w = rw.getNumerator();
-			this.isHalf = false;
+			this.isLipschitz = true;
 			return;
 		}
 		if (rxDen.equals(I_2) && ryDen.equals(I_2) && rzDen.equals(I_2) && rwDen.equals(I_2)) {
@@ -77,7 +80,7 @@ public class HurwitzQuaternion {
 			this.y = ry.getNumerator();
 			this.z = rz.getNumerator();
 			this.w = rw.getNumerator();
-			this.isHalf = true;
+			this.isLipschitz = false;
 			return;
 		}
 
@@ -101,11 +104,11 @@ public class HurwitzQuaternion {
 	}
 	
 	public HurwitzQuaternion conjugate() {
-		return new HurwitzQuaternion(x, y.negate(), z.negate(), w.negate(), isHalf);
+		return new HurwitzQuaternion(x, y.negate(), z.negate(), w.negate(), isLipschitz);
 	}
 	
 	public HurwitzQuaternion negate() {
-		return new HurwitzQuaternion(x.negate(), y.negate(), z.negate(), w.negate(), isHalf);
+		return new HurwitzQuaternion(x.negate(), y.negate(), z.negate(), w.negate(), isLipschitz);
 	}
 	
 	/**
@@ -116,7 +119,7 @@ public class HurwitzQuaternion {
 	 */
 	public BigInteger norm() {
 		BigInteger squareSum = x.multiply(x).add(y.multiply(y)).add(z.multiply(z)).add(w.multiply(w));
-		return isHalf ? squareSum.shiftRight(2) : squareSum;
+		return isLipschitz ? squareSum : squareSum.shiftRight(2);
 	}
 
 	public boolean isZero() {
@@ -135,71 +138,71 @@ public class HurwitzQuaternion {
 	}
 	
 	public HurwitzQuaternion add(HurwitzQuaternion b) {
-		if (this.isHalf) {
-			if (b.isHalf) {
-				BigInteger cx = x.add(b.x);
-				BigInteger cy = y.add(b.y);
-				BigInteger cz = z.add(b.z);
-				BigInteger cw = w.add(b.w);
-				// all computed c-coefficients are divisible by 2, and the true coefficients are the half of them
-				if (DEBUG) assertTrue(cx.testBit(0) == false && cy.testBit(0) == false && cz.testBit(0) == false && cw.testBit(0) == false);
-				return new HurwitzQuaternion(cx.shiftRight(1), cy.shiftRight(1), cz.shiftRight(1), cw.shiftRight(1), false);
+		if (this.isLipschitz) {
+			if (b.isLipschitz) {
+				// all coefficients of inputs and outputs are integer
+				return new HurwitzQuaternion(x.add(b.x), y.add(b.y), z.add(b.z), w.add(b.w), true);
 			} else {
-				BigInteger cx = x.add(b.x.shiftLeft(1));
-				BigInteger cy = y.add(b.y.shiftLeft(1));
-				BigInteger cz = z.add(b.z.shiftLeft(1));
-				BigInteger cw = w.add(b.w.shiftLeft(1));
-				// all computed c-coefficients are odd, and the true coefficients are the half of them
-				if (DEBUG) assertTrue(cx.testBit(0) == true && cy.testBit(0) == true && cz.testBit(0) == true && cw.testBit(0) == true);
-				return new HurwitzQuaternion(cx, cy, cz, cw, true);
-			}
-		} else {
-			if (b.isHalf) {
 				BigInteger cx = x.shiftLeft(1).add(b.x);
 				BigInteger cy = y.shiftLeft(1).add(b.y);
 				BigInteger cz = z.shiftLeft(1).add(b.z);
 				BigInteger cw = w.shiftLeft(1).add(b.w);
 				// all computed c-coefficients are odd, and the true coefficients are the half of them
 				if (DEBUG) assertTrue(cx.testBit(0) == true && cy.testBit(0) == true && cz.testBit(0) == true && cw.testBit(0) == true);
-				return new HurwitzQuaternion(cx, cy, cz, cw, true);
+				return new HurwitzQuaternion(cx, cy, cz, cw, false);
+			}
+		} else {
+			if (b.isLipschitz) {
+				BigInteger cx = x.add(b.x.shiftLeft(1));
+				BigInteger cy = y.add(b.y.shiftLeft(1));
+				BigInteger cz = z.add(b.z.shiftLeft(1));
+				BigInteger cw = w.add(b.w.shiftLeft(1));
+				// all computed c-coefficients are odd, and the true coefficients are the half of them
+				if (DEBUG) assertTrue(cx.testBit(0) == true && cy.testBit(0) == true && cz.testBit(0) == true && cw.testBit(0) == true);
+				return new HurwitzQuaternion(cx, cy, cz, cw, false);
 			} else {
-				// all coefficients of inputs and outputs are integer
-				return new HurwitzQuaternion(x.add(b.x), y.add(b.y), z.add(b.z), w.add(b.w), false);
+				BigInteger cx = x.add(b.x);
+				BigInteger cy = y.add(b.y);
+				BigInteger cz = z.add(b.z);
+				BigInteger cw = w.add(b.w);
+				// all computed c-coefficients are divisible by 2, and the true coefficients are the half of them
+				if (DEBUG) assertTrue(cx.testBit(0) == false && cy.testBit(0) == false && cz.testBit(0) == false && cw.testBit(0) == false);
+				return new HurwitzQuaternion(cx.shiftRight(1), cy.shiftRight(1), cz.shiftRight(1), cw.shiftRight(1), true);
 			}
 		}
 	}
 	
 	public HurwitzQuaternion subtract(HurwitzQuaternion b) {
-		if (this.isHalf) {
-			if (b.isHalf) {
-				BigInteger cx = x.subtract(b.x);
-				BigInteger cy = y.subtract(b.y);
-				BigInteger cz = z.subtract(b.z);
-				BigInteger cw = w.subtract(b.w);
-				// all computed c-coefficients are divisible by 2, and the true coefficients are the half of them
-				if (DEBUG) assertTrue(cx.testBit(0) == false && cy.testBit(0) == false && cz.testBit(0) == false && cw.testBit(0) == false);
-				return new HurwitzQuaternion(cx.shiftRight(1), cy.shiftRight(1), cz.shiftRight(1), cw.shiftRight(1), false);
+		if (this.isLipschitz) {
+			if (b.isLipschitz) {
+				// all coefficients of inputs and outputs are integer
+				return new HurwitzQuaternion(x.subtract(b.x), y.subtract(b.y), z.subtract(b.z), w.subtract(b.w), true);
 			} else {
-				BigInteger cx = x.subtract(b.x.shiftLeft(1));
-				BigInteger cy = y.subtract(b.y.shiftLeft(1));
-				BigInteger cz = z.subtract(b.z.shiftLeft(1));
-				BigInteger cw = w.subtract(b.w.shiftLeft(1));
-				// all computed c-coefficients are odd, and the true coefficients are the half of them
-				if (DEBUG) assertTrue(cx.testBit(0) == true && cy.testBit(0) == true && cz.testBit(0) == true && cw.testBit(0) == true);
-				return new HurwitzQuaternion(cx, cy, cz, cw, true);
-			}
-		} else {
-			if (b.isHalf) {
 				BigInteger cx = x.shiftLeft(1).subtract(b.x);
 				BigInteger cy = y.shiftLeft(1).subtract(b.y);
 				BigInteger cz = z.shiftLeft(1).subtract(b.z);
 				BigInteger cw = w.shiftLeft(1).subtract(b.w);
 				// all computed c-coefficients are odd, and the true coefficients are the half of them
 				if (DEBUG) assertTrue(cx.testBit(0) == true && cy.testBit(0) == true && cz.testBit(0) == true && cw.testBit(0) == true);
-				return new HurwitzQuaternion(cx, cy, cz, cw, true);
+				return new HurwitzQuaternion(cx, cy, cz, cw, false);
+			}
+		} else {
+			if (b.isLipschitz) {
+				BigInteger cx = x.subtract(b.x.shiftLeft(1));
+				BigInteger cy = y.subtract(b.y.shiftLeft(1));
+				BigInteger cz = z.subtract(b.z.shiftLeft(1));
+				BigInteger cw = w.subtract(b.w.shiftLeft(1));
+				// all computed c-coefficients are odd, and the true coefficients are the half of them
+				if (DEBUG) assertTrue(cx.testBit(0) == true && cy.testBit(0) == true && cz.testBit(0) == true && cw.testBit(0) == true);
+				return new HurwitzQuaternion(cx, cy, cz, cw, false);
 			} else {
-				// all coefficients of inputs and outputs are integer
-				return new HurwitzQuaternion(x.subtract(b.x), y.subtract(b.y), z.subtract(b.z), w.subtract(b.w), false);
+				BigInteger cx = x.subtract(b.x);
+				BigInteger cy = y.subtract(b.y);
+				BigInteger cz = z.subtract(b.z);
+				BigInteger cw = w.subtract(b.w);
+				// all computed c-coefficients are divisible by 2, and the true coefficients are the half of them
+				if (DEBUG) assertTrue(cx.testBit(0) == false && cy.testBit(0) == false && cz.testBit(0) == false && cw.testBit(0) == false);
+				return new HurwitzQuaternion(cx.shiftRight(1), cy.shiftRight(1), cz.shiftRight(1), cw.shiftRight(1), true);
 			}
 		}
 	}
@@ -209,18 +212,18 @@ public class HurwitzQuaternion {
 		BigInteger cy = this.y.multiply(b);
 		BigInteger cz = this.z.multiply(b);
 		BigInteger cw = this.w.multiply(b);
-		if (this.isHalf) {
+		if (this.isLipschitz) {
+			return new HurwitzQuaternion(cx, cy, cz, cw, true);
+		} else {
 			if (cx.testBit(0) == false) {
-				// all coefficients must be even. We divide them by 2 and set isHalf==false
+				// all coefficients must be even. We divide them by 2 and set isLipschitz==true
 				if (DEBUG) assertTrue(cx.testBit(0) == false && cy.testBit(0) == false && cz.testBit(0) == false && cw.testBit(0) == false);
-				return new HurwitzQuaternion(cx.shiftRight(1), cy.shiftRight(1), cz.shiftRight(1), cw.shiftRight(1), false);
+				return new HurwitzQuaternion(cx.shiftRight(1), cy.shiftRight(1), cz.shiftRight(1), cw.shiftRight(1), true);
 			} else {
 				// all coefficients mus be odd
 				if (DEBUG) assertTrue(cx.testBit(0) == true && cy.testBit(0) == true && cz.testBit(0) == true && cw.testBit(0) == true);
-				return new HurwitzQuaternion(cx, cy, cz, cw, true);
+				return new HurwitzQuaternion(cx, cy, cz, cw, false);
 			}
-		} else {
-			return new HurwitzQuaternion(cx, cy, cz, cw, false);
 		}
 	}
 	
@@ -238,7 +241,7 @@ public class HurwitzQuaternion {
 		BigInteger cw = ax.multiply(bw).add(     ay.multiply(bz)).subtract(az.multiply(by)).add(     aw.multiply(bx));
 		
 		// For Hurwitz quaternions we have to take into account that the true coefficients may be half-integers, but our stored a,b,c,d-values are the double of them.
-		int rightShifts = (this.isHalf ? 1 : 0) + (b.isHalf ? 1 : 0);
+		int rightShifts = (this.isLipschitz ? 0 : 1) + (b.isLipschitz ? 0 : 1);
 		if (rightShifts == 2) {
 			// The true values are 1/4 of the values computed so far.
 			// The values computed so far must be even because in each line there are 3 (1) positive and 1 (3) negative odd summands.
@@ -258,15 +261,15 @@ public class HurwitzQuaternion {
 				cy = cy.shiftRight(1);
 				cz = cz.shiftRight(1);
 				cw = cw.shiftRight(1);
-				return new HurwitzQuaternion(cx, cy, cz, cw, false);
+				return new HurwitzQuaternion(cx, cy, cz, cw, true);
 			} else {
 				if (DEBUG) assertTrue(cx.testBit(0) == true && cy.testBit(0) == true && cz.testBit(0) == true && cw.testBit(0) == true);
-				return new HurwitzQuaternion(cx, cy, cz, cw, true);
+				return new HurwitzQuaternion(cx, cy, cz, cw, false);
 			}
 		}
 		
 		// rightShifts == 0
-		return new HurwitzQuaternion(cx, cy, cz, cw, false);
+		return new HurwitzQuaternion(cx, cy, cz, cw, true);
 	}
 	
 	public HurwitzQuaternion square() {
@@ -284,21 +287,21 @@ public class HurwitzQuaternion {
 		BigInteger aw = this.w;
 		
 		BigInteger cx = ax.multiply(ax).subtract(ay.multiply(ay)).subtract(az.multiply(az)).subtract(aw.multiply(aw));
-		// For cy, cz and cw we do not multiply by 2 yet because they would get reduced by 2 again if this.isHalf
+		// For cy, cz and cw we do not multiply by 2 yet because they would get reduced by 2 again if this is not a Lipschitz integer
 		BigInteger cy = ax.multiply(ay);
 		BigInteger cz = ax.multiply(az);
 		BigInteger cw = ax.multiply(aw);
 		
-		if (isHalf) {
+		if (isLipschitz) {
+			// We need the standard quaternion coefficients, i.e. have to catch up on the doubling of cy, cz and cw
+			return new HurwitzQuaternion(cx, cy.shiftLeft(1), cz.shiftLeft(1), cw.shiftLeft(1), true);
+		} else {
 			// Do one right shift for cx; the other coefficients are already reduced by 2
 			cx = cx.shiftRight(1);
 			
 			// Now all coefficients must be odd
 			if (DEBUG) assertTrue(cx.testBit(0) == true && cy.testBit(0) == true && cz.testBit(0) == true && cw.testBit(0) == true);
-			return new HurwitzQuaternion(cx, cy, cz, cw, true);
-		} else {
-			// We need the standard quaternion coefficients, i.e. have to catch up on the doubling of cy, cz and cw
-			return new HurwitzQuaternion(cx, cy.shiftLeft(1), cz.shiftLeft(1), cw.shiftLeft(1), false);
+			return new HurwitzQuaternion(cx, cy, cz, cw, false);
 		}
 	}
 	
@@ -326,12 +329,12 @@ public class HurwitzQuaternion {
 		// The exact quotient c lies within 24 elements of the Hurwitz quaternion lattice.
 		// We want to choose the surrounding lattice element with minimal N(d).
 		// We start with the 8 Lipschitz lattice elements, for which the best value can be computed independently in each lattice dimension.
-		BigInteger cExactDen2 = cExactNum.isHalf ? cExactDen.shiftLeft(1) : cExactDen;
+		BigInteger cExactDen2 = cExactNum.isLipschitz ? cExactDen : cExactDen.shiftLeft(1);
 		BigInteger cx = new BigRational(cExactNum.x, cExactDen2).round();
 		BigInteger cy = new BigRational(cExactNum.y, cExactDen2).round();
 		BigInteger cz = new BigRational(cExactNum.z, cExactDen2).round();
 		BigInteger cw = new BigRational(cExactNum.w, cExactDen2).round();
-		HurwitzQuaternion cLipschitz = new HurwitzQuaternion(cx, cy, cz, cw, false);
+		HurwitzQuaternion cLipschitz = new HurwitzQuaternion(cx, cy, cz, cw, true);
 		
 		if (DEBUG) {
 			// compare with solution computed in rational quaternions
@@ -342,7 +345,7 @@ public class HurwitzQuaternion {
 			BigInteger cRy = cR.getY().round();
 			BigInteger cRz = cR.getZ().round();
 			BigInteger cRw = cR.getW().round();
-			HurwitzQuaternion cRLipschitz = new HurwitzQuaternion(cRx, cRy, cRz, cRw, false);
+			HurwitzQuaternion cRLipschitz = new HurwitzQuaternion(cRx, cRy, cRz, cRw, true);
 			assertEquals(cRLipschitz, cLipschitz);
 		}
 		
@@ -354,7 +357,7 @@ public class HurwitzQuaternion {
 		HurwitzQuaternion c = cLipschitz;
 		for (HurwitzQuaternion halfIntegerUnit : HurwitzQuaternionConstants.HALF_INTEGER_UNITS) {
 			HurwitzQuaternion c2 = cLipschitz.add(halfIntegerUnit);
-			if (DEBUG) assertTrue(c2.isHalf);
+			if (DEBUG) assertFalse(c2.isLipschitz);
 			HurwitzQuaternion d2 = this.subtract(b.multiply(c2));
 			BigInteger d2Norm = d2.norm();
 			if (d2Norm.compareTo(dNorm) < 0) {
@@ -403,12 +406,12 @@ public class HurwitzQuaternion {
 		// The exact quotient c lies within 24 elements of the Hurwitz quaternion lattice.
 		// We want to choose the surrounding lattice element with minimal N(d).
 		// We start with the 8 Lipschitz lattice elements, for which the best value can be computed independently in each lattice dimension.
-		BigInteger cExactDen2 = cExactNum.isHalf ? cExactDen.shiftLeft(1) : cExactDen;
+		BigInteger cExactDen2 = cExactNum.isLipschitz ? cExactDen : cExactDen.shiftLeft(1);
 		BigInteger cx = new BigRational(cExactNum.x, cExactDen2).round();
 		BigInteger cy = new BigRational(cExactNum.y, cExactDen2).round();
 		BigInteger cz = new BigRational(cExactNum.z, cExactDen2).round();
 		BigInteger cw = new BigRational(cExactNum.w, cExactDen2).round();
-		HurwitzQuaternion cLipschitz = new HurwitzQuaternion(cx, cy, cz, cw, false);
+		HurwitzQuaternion cLipschitz = new HurwitzQuaternion(cx, cy, cz, cw, true);
 		
 		// Compute d = a - c*b for the best Lipschitz solution
 		HurwitzQuaternion d = this.subtract(cLipschitz.multiply(b));
@@ -418,7 +421,7 @@ public class HurwitzQuaternion {
 		HurwitzQuaternion c = cLipschitz;
 		for (HurwitzQuaternion halfIntegerUnit : HurwitzQuaternionConstants.HALF_INTEGER_UNITS) {
 			HurwitzQuaternion c2 = cLipschitz.add(halfIntegerUnit);
-			if (DEBUG) assertTrue(c2.isHalf);
+			if (DEBUG) assertFalse(c2.isLipschitz);
 			HurwitzQuaternion d2 = this.subtract(c2.multiply(b));
 			BigInteger d2Norm = d2.norm();
 			if (d2Norm.compareTo(dNorm) < 0) {
@@ -493,7 +496,7 @@ public class HurwitzQuaternion {
 	public boolean equals(Object o) {
 		if (o==null || !(o instanceof HurwitzQuaternion)) return false;
 		HurwitzQuaternion b = (HurwitzQuaternion) o;
-		return x.equals(b.x) && y.equals(b.y) && z.equals(b.z) && w.equals(b.w) && isHalf==b.isHalf;
+		return x.equals(b.x) && y.equals(b.y) && z.equals(b.z) && w.equals(b.w) && isLipschitz==b.isLipschitz;
 	}
 	
 	@Override
@@ -502,7 +505,7 @@ public class HurwitzQuaternion {
 		ret = 31*ret + y.longValue();
 		ret = 31*ret + z.longValue();
 		ret = 31*ret + w.longValue();
-		ret = 31*ret + (isHalf ? 1 : 0);
+		ret = 31*ret + (isLipschitz ? 0 : 1);
 		return (int) (ret);
 	}
 	
@@ -511,7 +514,7 @@ public class HurwitzQuaternion {
 		BigRational ry = new BigRational(y);
 		BigRational rz = new BigRational(z);
 		BigRational rw = new BigRational(w);
-		if (this.isHalf) {
+		if (!isLipschitz) {
 			rx = rx.divide(I_2);
 			ry = ry.divide(I_2);
 			rz = rz.divide(I_2);
@@ -522,10 +525,10 @@ public class HurwitzQuaternion {
 	
 	@Override
 	public String toString() {
-		String str = x.toString() + (isHalf ? "/2" : "");
-		str += " " + (y.signum() < 0 ? "-" : "+") + " " + y.abs() + (isHalf ? "/2" : "") + "*i";
-		str += " " + (z.signum() < 0 ? "-" : "+") + " " + z.abs() + (isHalf ? "/2" : "") + "*j";
-		str += " " + (w.signum() < 0 ? "-" : "+") + " " + w.abs() + (isHalf ? "/2" : "") + "*k";
+		String str = x.toString() + (isLipschitz ? "" : "/2");
+		str += " " + (y.signum() < 0 ? "-" : "+") + " " + y.abs() + (isLipschitz ? "" : "/2") + "*i";
+		str += " " + (z.signum() < 0 ? "-" : "+") + " " + z.abs() + (isLipschitz ? "" : "/2") + "*j";
+		str += " " + (w.signum() < 0 ? "-" : "+") + " " + w.abs() + (isLipschitz ? "" : "/2") + "*k";
 		return str;
 	}
 }

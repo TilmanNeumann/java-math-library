@@ -68,9 +68,9 @@ public class HurwitzQuaternionTest extends ClassTest {
 	private static void testSingleNormVsMultiplicationWithConjugate(HurwitzQuaternion a) {
 		BigInteger norm = a.norm();
 		HurwitzQuaternion rightProduct = a.multiply(a.conjugate());
-		assertEquals("Norm of (" + a + ") = " + norm + " does not equal right multiplication with conjugate result = " + rightProduct, new HurwitzQuaternion(norm, I_0, I_0, I_0, false), rightProduct);
+		assertEquals("Norm of (" + a + ") = " + norm + " does not equal right multiplication with conjugate result = " + rightProduct, new HurwitzQuaternion(norm, I_0, I_0, I_0, true), rightProduct);
 		HurwitzQuaternion leftProduct = a.conjugate().multiply(a);
-		assertEquals("Norm of (" + a + ") = " + norm + " does not equal left multiplication with conjugate result = " + leftProduct, new HurwitzQuaternion(norm, I_0, I_0, I_0, false), leftProduct);
+		assertEquals("Norm of (" + a + ") = " + norm + " does not equal left multiplication with conjugate result = " + leftProduct, new HurwitzQuaternion(norm, I_0, I_0, I_0, true), leftProduct);
 	}
 
 	@Test
@@ -82,7 +82,7 @@ public class HurwitzQuaternionTest extends ClassTest {
 	}
 	
 	private static void testSingleMultiplicationByInteger(HurwitzQuaternion a, BigInteger b) {
-		assertEquals(a.multiply(new HurwitzQuaternion(b, I_0, I_0, I_0, false)), a.multiply(b));
+		assertEquals(a.multiply(new HurwitzQuaternion(b, I_0, I_0, I_0, true)), a.multiply(b));
 	}
 
 	@Test
@@ -183,8 +183,8 @@ public class HurwitzQuaternionTest extends ClassTest {
 		if ((RNG.nextInt() % 2) == 1) c = c.negate();
 		if ((RNG.nextInt() % 2 == 1)) d = d.negate();
 		
-		boolean isHalf = (RNG.nextInt() % 2) == 1; // randomized
-		if (isHalf) {
+		boolean isLipschitz = (RNG.nextInt() % 2) == 0; // randomized
+		if (!isLipschitz) {
 			// make sure that all coefficients are half-integers
 			if (!a.testBit(0)) a = a.add(I_1);
 			if (!b.testBit(0)) b = b.add(I_1);
@@ -192,6 +192,6 @@ public class HurwitzQuaternionTest extends ClassTest {
 			if (!d.testBit(0)) d = d.add(I_1);
 		}
 		
-		return new HurwitzQuaternion(a, b, c, d, isHalf);
+		return new HurwitzQuaternion(a, b, c, d, isLipschitz);
 	}
 }
