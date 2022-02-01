@@ -40,7 +40,7 @@ public class HurwitzQuaternion {
 	
 	private static final boolean DEBUG = false;
 	
-	/** The coefficients or double coefficients */
+	/** The coefficients (twice the true coefficients if isLipschitz==false) */
 	private BigInteger x, y, z, w;
 	
 	/** true if this is a Lipschitz integer, i.e. all coefficients are integer */
