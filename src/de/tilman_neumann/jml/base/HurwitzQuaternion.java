@@ -46,6 +46,17 @@ public class HurwitzQuaternion {
 	/** true if this is a Lipschitz integer, i.e. all coefficients are integer */
 	private boolean isLipschitz;
 	
+	/**
+	 * Constructor for a Hurwitz quaternion
+	 * h = (x, y, z, w), if isLipschitz is true, or
+	 * h = (x/2, y/2, z/2, w/2), if isLipschitz is false.
+	 * 
+	 * @param x real part
+	 * @param y 
+	 * @param z
+	 * @param w
+	 * @param isLipschitz
+	 */
 	public HurwitzQuaternion(BigInteger x, BigInteger y, BigInteger z, BigInteger w, boolean isLipschitz) {
 		this.x = x;
 		this.y = y;
@@ -57,6 +68,10 @@ public class HurwitzQuaternion {
 		}
 	}
 	
+	/**
+	 * Constructor for a Hurwitz quaternion from a general quaterion with rational coefficients.
+	 * @param r general quaterion with rational coefficients
+	 */
 	public HurwitzQuaternion(RationalQuaternion r) {
 		BigRational rx = r.getX().normalize();
 		BigRational ry = r.getY().normalize();
