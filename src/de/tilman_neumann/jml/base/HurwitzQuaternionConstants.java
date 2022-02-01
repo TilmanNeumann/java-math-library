@@ -19,8 +19,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.I_MINUS_1;
 
 public class HurwitzQuaternionConstants {
 	
-	public static final HurwitzQuaternion HQ_0 = new HurwitzQuaternion(I_0, I_0, I_0, I_0, true);
-	public static final HurwitzQuaternion HQ_1 = new HurwitzQuaternion(I_1, I_0, I_0, I_0, true);
+	public static final HurwitzQuaternion HQ_0 = new HurwitzQuaternion(I_0, true);
+	public static final HurwitzQuaternion HQ_1 = new HurwitzQuaternion(I_1, true);
 	
 	public static final HurwitzQuaternion[] HALF_INTEGER_UNITS = new HurwitzQuaternion[] {
 		new HurwitzQuaternion(I_1,       I_1,       I_1,       I_1,       false),

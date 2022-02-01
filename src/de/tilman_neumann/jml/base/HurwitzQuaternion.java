@@ -47,6 +47,25 @@ public class HurwitzQuaternion {
 	private boolean isLipschitz;
 	
 	/**
+	 * Constructor for a Hurwitz quaternion with real part only,
+	 * h = (x, 0, 0, 0), if isLipschitz is true, or
+	 * h = (x/2, 0, 0, 0), if isLipschitz is false.
+	 * 
+	 * @param x real part
+	 * @param isLipschitz
+	 */
+	public HurwitzQuaternion(BigInteger x, boolean isLipschitz) {
+		this.x = x;
+		this.y = I_0;
+		this.z = I_0;
+		this.w = I_0;
+		this.isLipschitz = isLipschitz;
+		if (!isLipschitz && !x.testBit(0)) {
+			throw new IllegalArgumentException(this + " is not a valid Hurwitz quaternion, integer and half-integer coefficients are mixed");
+		}
+	}
+
+	/**
 	 * Constructor for a Hurwitz quaternion
 	 * h = (x, y, z, w), if isLipschitz is true, or
 	 * h = (x/2, y/2, z/2, w/2), if isLipschitz is false.

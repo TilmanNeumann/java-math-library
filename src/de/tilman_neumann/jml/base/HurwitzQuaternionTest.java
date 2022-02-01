@@ -68,9 +68,9 @@ public class HurwitzQuaternionTest extends ClassTest {
 	private static void testSingleNormVsMultiplicationWithConjugate(HurwitzQuaternion a) {
 		BigInteger norm = a.norm();
 		HurwitzQuaternion rightProduct = a.multiply(a.conjugate());
-		assertEquals("Norm of (" + a + ") = " + norm + " does not equal right multiplication with conjugate result = " + rightProduct, new HurwitzQuaternion(norm, I_0, I_0, I_0, true), rightProduct);
+		assertEquals("Norm of (" + a + ") = " + norm + " does not equal right multiplication with conjugate result = " + rightProduct, new HurwitzQuaternion(norm, true), rightProduct);
 		HurwitzQuaternion leftProduct = a.conjugate().multiply(a);
-		assertEquals("Norm of (" + a + ") = " + norm + " does not equal left multiplication with conjugate result = " + leftProduct, new HurwitzQuaternion(norm, I_0, I_0, I_0, true), leftProduct);
+		assertEquals("Norm of (" + a + ") = " + norm + " does not equal left multiplication with conjugate result = " + leftProduct, new HurwitzQuaternion(norm, true), leftProduct);
 	}
 
 	@Test
@@ -82,7 +82,7 @@ public class HurwitzQuaternionTest extends ClassTest {
 	}
 	
 	private static void testSingleMultiplicationByInteger(HurwitzQuaternion a, BigInteger b) {
-		assertEquals(a.multiply(new HurwitzQuaternion(b, I_0, I_0, I_0, true)), a.multiply(b));
+		assertEquals(a.multiply(new HurwitzQuaternion(b, true)), a.multiply(b));
 	}
 
 	@Test
