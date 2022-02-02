@@ -1,4 +1,17 @@
-package de.tilman_neumann.jml;
+/*
+ * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
+ * Copyright (C) 2018-2022 Tilman Neumann (www.tilman-neumann.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program;
+ * if not, see <http://www.gnu.org/licenses/>.
+ */
+package de.tilman_neumann.jml.squareSums;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.assertEquals;
@@ -20,7 +33,7 @@ import de.tilman_neumann.util.Timer;
  * An implementation of the algorithm of Pollack and Trevino that finds the four squares representation of an odd number n
  * in O((log n)^2 (log log n)) given that ERH (the extended Riemann hypothesis) holds.
  * 
- * @author Till
+ * @author Tilman Neumann
  * 
  * @see Pollack, Trevinho: "Finding the four squares in Lagrange’s theorem", Integers: 18A (2018)
  * @see http://campus.lakeforest.edu/trevino/finding4squares.pdf
