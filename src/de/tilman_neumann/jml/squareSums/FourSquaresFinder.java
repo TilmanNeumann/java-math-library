@@ -30,7 +30,7 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.Timer;
 
 /**
- * An implementation of the algorithm of Pollack and Trevino that finds the four squares representation of an odd number n
+ * An implementation of the algorithm of Pollack and Trevino that finds some four squares representation of an odd number n
  * in O((log n)^2 (log log n)) given that ERH (the extended Riemann hypothesis) holds.
  * 
  * @author Tilman Neumann
