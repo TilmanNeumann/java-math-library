@@ -41,9 +41,9 @@ import de.tilman_neumann.util.Timer;
 public class FourSquaresFinder {
 	private static final Logger LOG = Logger.getLogger(FourSquaresFinder.class);
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	
-	private static final AutoExpandingPrimesArray PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(1000); // modest initialization
+	private static final AutoExpandingPrimesArray PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(1000); // modest size initialization
 
 	private static final Random RNG = new Random(43);
 	
