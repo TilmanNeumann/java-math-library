@@ -61,7 +61,7 @@ public class FourSquaresFinder {
 	private Timer timer = new Timer();
 	
 	private long step1Duration, step2Duration, step3Duration;
-	
+	private long step2nPowDuration, step2kDuration, step2pDuration, step2uDuration, step2sDuration, step2sSquareDuration;
 	/**
 	 * Construct a finder to find a four square representation of odd n.
 	 * 
@@ -80,6 +80,7 @@ public class FourSquaresFinder {
 	public void find() {
 		if (ANALYZE) {
 			step1Duration = step2Duration = step3Duration = 0;
+			step2nPowDuration = step2kDuration = step2pDuration = step2uDuration = step2sDuration = step2sSquareDuration = 0;
 			timer.capture();
 		}
 		
@@ -100,33 +101,42 @@ public class FourSquaresFinder {
 		BigInteger p, s; // output of step 2
 		BigInteger nPow5 = n.pow(5);
 		int nPow5Bits = nPow5.bitLength();
-		BigInteger k;
+		if (ANALYZE) step2nPowDuration += timer.capture();
+		
 		for (numberOfIterations = 1; ; numberOfIterations++) { // iteration loop
 			// Choose an odd number k < n^5 at random
-			k = new BigInteger(nPow5Bits, RNG);
+			BigInteger k = new BigInteger(nPow5Bits, RNG);
 			if (!k.testBit(0)) k = k.add(I_1); // make k odd
-			if (k.compareTo(nPow5) >= 0) continue; // XXX maybe it'ld be faster to ignore that some numbers are bigger than wanted 
-			
+			if (k.compareTo(nPow5) >= 0) continue;
+			if (ANALYZE) step2kDuration += timer.capture();
+
 			// let p = Mnk - 1
 			p = Mn.multiply(k).subtract(I_1);
 			// (Notice that p == 1 (mod 4), since 2 || M and n, k are odd.)
 			if (DEBUG) assertEquals(I_1, p.and(I_3)); // p == 1 (mod 4)
-			
+			if (ANALYZE) step2pDuration += timer.capture();
+
 			// choose random u ∈ [1, p-1]
 			BigInteger u;
 			do {
 				u = new BigInteger(p.bitLength(), RNG).add(I_1);
 			} while (u.compareTo(p) >= 0);
-			
+			if (ANALYZE) step2uDuration += timer.capture();
+
 			// compute s = u^((p-1)/4) mod p
 			BigInteger pm1 = p.subtract(I_1);
-			s = u.modPow(pm1.shiftRight(2), p);
-			
+			s = u.modPow(pm1.shiftRight(2), p); // XXX this is the absolute performance bottleneck of the algorithm
+			if (ANALYZE) step2sDuration += timer.capture();
+
 			// Test if s^2 == -1 (mod p). If so, continue to the next step. Otherwise, restart this step.
 			BigInteger sSquare = s.multiply(s);
 			if (sSquare.mod(p).equals(pm1)) break;
+			if (ANALYZE) step2sSquareDuration += timer.capture();
 		}
-		if (ANALYZE) step2Duration += timer.capture();
+		if (ANALYZE) {
+			step2sSquareDuration += timer.capture();
+			step2Duration = step2nPowDuration + step2kDuration + step2pDuration + step2uDuration + step2sDuration + step2sSquareDuration;
+		}
 
 		//(3) [Denouement] Compute A+Bi := gcd(s+i, p). Then compute gcrd(A+Bi+j, n), normalized to have integer components.
 		//    Write this gcrd as X + Yi + Zj + Wk, and output the representation n = X^2 + Y^2 + Z^2 + W^2.
@@ -157,6 +167,10 @@ public class FourSquaresFinder {
 		return "step1=" + step1Duration + "ms, step2=" + step2Duration + "ms, step3=" + step3Duration + "ms";
 	}
 	
+	public String getStep2Subtimings() {
+		return "n^5=" + step2nPowDuration + "ms, k=" + step2kDuration + "ms, p=" + step2pDuration + "ms, u=" + step2uDuration + "ms, s=" + step2sDuration + "ms, s^2=" + step2sSquareDuration + "ms";
+	}
+	
 	// Test numbers:
 	// RSA-100 = 1522605027922533360535618378132637429718068114961380688657908494580122963258952897654000350692006139 takes ~ 3.2s on Ryzen 3900X, single-threaded
 	public static void main(String[] args) {
@@ -176,6 +190,7 @@ public class FourSquaresFinder {
 		    	long duration = timer.totalRuntime(); 
 		    	LOG.info("Found 4 squares representation " + N + " = " + fsf.X + "^2 + " + fsf.Y + "^2 + " + fsf.Z + "^2 + " + fsf.W + "^2 using " + fsf.getNumberOfIterations() + " iterations in " + duration + "ms");
 		    	LOG.info("Phase timings: " + fsf.getPhaseTimings());
+		    	LOG.info("Step 2 subtimings: " + fsf.getStep2Subtimings());
 			} catch (Exception ex) {
 				LOG.error("Error " + ex, ex);
 			}
