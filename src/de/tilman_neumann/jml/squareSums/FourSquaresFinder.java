@@ -49,9 +49,6 @@ public class FourSquaresFinder {
 
 	private static final Random RNG = new Random(43);
 	
-	/** The input number */
-	private BigInteger n;
-	
 	/** The bases of the 4 squares representation that was found. */
 	private BigInteger X=null, Y=null, Z=null, W=null;
 	
@@ -62,27 +59,30 @@ public class FourSquaresFinder {
 	
 	private long step1Duration, step2Duration, step3Duration;
 	private long step2nPowDuration, step2kDuration, step2pDuration, step2uDuration, step2sDuration, step2sSquareDuration;
+	
 	/**
-	 * Construct a finder to find a four square representation of odd n.
-	 * 
+	 * Full constructor. One instance may be used for several four squares decompositions,
+	 * the timings are accumulated.
+	 */
+	public FourSquaresFinder() {
+		if (ANALYZE) {
+			step1Duration = step2Duration = step3Duration = 0;
+			step2nPowDuration = step2kDuration = step2pDuration = step2uDuration = step2sDuration = step2sSquareDuration = 0;
+		}
+	}
+	
+	/**
+	 * Find a four square representation of odd n.
 	 * @param n an odd integer > 20
 	 */
-	public FourSquaresFinder(BigInteger n) {
+	public void find(BigInteger n) {
 		if (!n.testBit(0)) {
 			throw new IllegalArgumentException("n = " + n + " is not odd");
 		}
 		if (n.compareTo(I_20) <= 0) {
 			throw new IllegalArgumentException("4 squares finder is still missing implementation for n <= 20 but n is " + n);
 		}
-		this.n = n;
-	}
-	
-	public void find() {
-		if (ANALYZE) {
-			step1Duration = step2Duration = step3Duration = 0;
-			step2nPowDuration = step2kDuration = step2pDuration = step2uDuration = step2sDuration = step2sSquareDuration = 0;
-			timer.capture();
-		}
+		if (ANALYZE) timer.capture();
 		
 		// (1) [Precomputation] Determine the primes not exceeding log n and compute their product M.
 		int pmax = (int) Math.ceil(n.bitLength() * Math.log(2.0));
@@ -135,7 +135,7 @@ public class FourSquaresFinder {
 		}
 		if (ANALYZE) {
 			step2sSquareDuration += timer.capture();
-			step2Duration = step2nPowDuration + step2kDuration + step2pDuration + step2uDuration + step2sDuration + step2sSquareDuration;
+			step2Duration += step2nPowDuration + step2kDuration + step2pDuration + step2uDuration + step2sDuration + step2sSquareDuration;
 		}
 
 		//(3) [Denouement] Compute A+Bi := gcd(s+i, p). Then compute gcrd(A+Bi+j, n), normalized to have integer components.
@@ -185,8 +185,8 @@ public class FourSquaresFinder {
 				BigInteger N = new BigInteger(input);
 				LOG.info("Searching four squares of " + N + " (" + N.bitLength() + " bits)...");
 				Timer timer = new Timer();
-		    	FourSquaresFinder fsf = new FourSquaresFinder(N);
-		    	fsf.find();
+		    	FourSquaresFinder fsf = new FourSquaresFinder();
+		    	fsf.find(N);
 		    	long duration = timer.totalRuntime(); 
 		    	LOG.info("Found 4 squares representation " + N + " = " + fsf.X + "^2 + " + fsf.Y + "^2 + " + fsf.Z + "^2 + " + fsf.W + "^2 using " + fsf.getNumberOfIterations() + " iterations in " + duration + "ms");
 		    	LOG.info("Phase timings: " + fsf.getPhaseTimings());
