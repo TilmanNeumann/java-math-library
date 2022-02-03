@@ -171,8 +171,11 @@ public class FourSquaresFinder {
 		return "n^5=" + step2nPowDuration + "ms, k=" + step2kDuration + "ms, p=" + step2pDuration + "ms, u=" + step2uDuration + "ms, s=" + step2sDuration + "ms, s^2=" + step2sSquareDuration + "ms";
 	}
 	
-	// Test numbers:
-	// RSA-100 = 1522605027922533360535618378132637429718068114961380688657908494580122963258952897654000350692006139 takes ~ 3.2s on Ryzen 3900X, single-threaded
+	// Test numbers (and timings taken single-threaded on a Ryzen 3900X):
+	// RSA-100 = 1522605027922533360535618378132637429718068114961380688657908494580122963258952897654000350692006139 computed in 348 iterations, 3200ms
+	// RSA-576 = 188198812920607963838697239461650439807163563379417382700763356422988859715234665485319060606504743045317388011303396716199692321205734031879550656996221305168759307650257059 computed in 1418 iterations, 34125ms
+	// RSA-768 = 1230186684530117755130494958384962720772853569595334792197322452151726400507263657518745202199786469389956474942774063845925192557326303453731548268507917026122142913461670429214311602221240479274737794080665351419597459856902143413 computed in 201 iterations, 14481ms
+	// RSA-1024 = 135066410865995223349603216278805969938881475605667027524485143851526510604859533833940287150571909441798207282164471551373680419703964191743046496589274256239341020864383202110372958725762358509643110564073501508187510676594629205563685529475213500852879416377328533906109750544334999811150056977236890927563 computed in 410 iterations, 98331ms
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		while(true) {
@@ -188,7 +191,7 @@ public class FourSquaresFinder {
 		    	FourSquaresFinder fsf = new FourSquaresFinder();
 		    	fsf.find(N);
 		    	long duration = timer.totalRuntime(); 
-		    	LOG.info("Found 4 squares representation " + N + " = " + fsf.X + "^2 + " + fsf.Y + "^2 + " + fsf.Z + "^2 + " + fsf.W + "^2 using " + fsf.getNumberOfIterations() + " iterations in " + duration + "ms");
+		    	LOG.info("4 squares representation " + N + " = " + fsf.X + "^2 + " + fsf.Y + "^2 + " + fsf.Z + "^2 + " + fsf.W + "^2 computed in " + fsf.getNumberOfIterations() + " iterations, " + duration + "ms");
 		    	LOG.info("Phase timings: " + fsf.getPhaseTimings());
 		    	LOG.info("Step 2 subtimings: " + fsf.getStep2Subtimings());
 			} catch (Exception ex) {
