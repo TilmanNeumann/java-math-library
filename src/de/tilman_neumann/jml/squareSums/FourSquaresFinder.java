@@ -25,7 +25,9 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.base.GaussianInteger;
 import de.tilman_neumann.jml.base.HurwitzQuaternion;
+import de.tilman_neumann.jml.modular.JacobiSymbol;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.Timer;
 
@@ -49,6 +51,10 @@ public class FourSquaresFinder {
 
 	private static final Random RNG = new Random(43);
 	
+	private static final PrPTest PRP_TEST = new PrPTest();
+
+	private static final JacobiSymbol jacobiEngine = new JacobiSymbol();
+
 	/** The bases of the 4 squares representation that was found. */
 	private BigInteger X=null, Y=null, Z=null, W=null;
 	
@@ -130,7 +136,11 @@ public class FourSquaresFinder {
 
 			// Test if s^2 == -1 (mod p). If so, continue to the next step. Otherwise, restart this step.
 			BigInteger sSquare = s.multiply(s);
-			if (sSquare.mod(p).equals(pm1)) break;
+			BigInteger sSquareModP = sSquare.mod(p);
+			if (DEBUG) LOG.debug("p prime = " + PRP_TEST.isProbablePrime(p) + ", jacobi(s, p) = " + jacobiEngine.jacobiSymbol(s, p) + ", sSquareModP = " + sSquareModP);
+			// TODO if p is prime then s^2 == +-1 (mod p) ? (otherwise whatever)
+			// TODO a full prime test might be too expensive, but excluding non-primes that can be computed cheaply would be an option
+			if (sSquareModP.equals(pm1)) break;
 			if (ANALYZE) step2sSquareDuration += timer.capture();
 		}
 		if (ANALYZE) {
