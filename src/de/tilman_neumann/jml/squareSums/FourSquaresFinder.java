@@ -30,12 +30,12 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.Timer;
 
 /**
- * An implementation of the algorithm of Pollack and Trevino that finds some four squares representation of an odd number n
- * in O((log n)^2 (log log n)) given that ERH (the extended Riemann hypothesis) holds.
+ * An implementation of the algorithm of Pollack and Treviño that finds some four squares representation of an odd number n
+ * in O((log n)^2 * (log log n)^-1) given that ERH (the extended Riemann hypothesis) holds.
  * 
  * @author Tilman Neumann
  * 
- * @see Pollack, Trevinho: "Finding the four squares in Lagrange’s theorem", Integers: 18A (2018)
+ * @see Pollack, Treviño: "Finding the four squares in Lagrange’s theorem", Integers: 18A (2018)
  * @see http://campus.lakeforest.edu/trevino/finding4squares.pdf
  */
 public class FourSquaresFinder {
@@ -43,6 +43,8 @@ public class FourSquaresFinder {
 
 	private static final boolean DEBUG = false;
 	
+	private static final boolean ANALYZE = true;
+
 	private static final AutoExpandingPrimesArray PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(1000); // modest size initialization
 
 	private static final Random RNG = new Random(43);
@@ -55,6 +57,10 @@ public class FourSquaresFinder {
 	
 	/** The number of random iterations that were needed. */
 	private int numberOfIterations = 0;
+	
+	private Timer timer = new Timer();
+	
+	private long step1Duration, step2Duration, step3Duration;
 	
 	/**
 	 * Construct a finder to find a four square representation of odd n.
@@ -72,6 +78,11 @@ public class FourSquaresFinder {
 	}
 	
 	public void find() {
+		if (ANALYZE) {
+			step1Duration = step2Duration = step3Duration = 0;
+			timer.capture();
+		}
+		
 		// (1) [Precomputation] Determine the primes not exceeding log n and compute their product M.
 		int pmax = (int) Math.ceil(n.bitLength() * Math.log(2.0));
 		BigInteger M = I_1;
@@ -81,15 +92,16 @@ public class FourSquaresFinder {
 			
 			M = M.multiply(BigInteger.valueOf(p));
 		}
-		assertEquals(false, M.testBit(0)); // M is even
+		if (DEBUG) assertEquals(false, M.testBit(0)); // M is even
 		BigInteger Mn = M.multiply(n);
+		if (ANALYZE) step1Duration += timer.capture();
 		
 		// (2) [Random trials]
 		BigInteger p, s; // output of step 2
 		BigInteger nPow5 = n.pow(5);
 		int nPow5Bits = nPow5.bitLength();
 		BigInteger k;
-		for(numberOfIterations = 1; ; numberOfIterations++) { // iteration loop
+		for (numberOfIterations = 1; ; numberOfIterations++) { // iteration loop
 			// Choose an odd number k < n^5 at random
 			k = new BigInteger(nPow5Bits, RNG);
 			if (!k.testBit(0)) k = k.add(I_1); // make k odd
@@ -114,17 +126,20 @@ public class FourSquaresFinder {
 			BigInteger sSquare = s.multiply(s);
 			if (sSquare.mod(p).equals(pm1)) break;
 		}
-		
+		if (ANALYZE) step2Duration += timer.capture();
+
 		//(3) [Denouement] Compute A+Bi := gcd(s+i, p). Then compute gcrd(A+Bi+j, n), normalized to have integer components.
 		//    Write this gcrd as X + Yi + Zj + Wk, and output the representation n = X^2 + Y^2 + Z^2 + W^2.
 		GaussianInteger gcd = new GaussianInteger(s, I_1).gcd(new GaussianInteger(p, I_0));
 		BigInteger A = gcd.realPart();
 		BigInteger B = gcd.imaginaryPart();
 		HurwitzQuaternion gcrd = new HurwitzQuaternion(A, B, I_1, I_0, true).rightGcd(new HurwitzQuaternion(n, true));
-		X = gcrd.getX();
-		Y = gcrd.getY();
-		Z = gcrd.getZ();
-		W = gcrd.getW();
+		if (ANALYZE) step3Duration += timer.capture();
+		
+		X = gcrd.getX().abs();
+		Y = gcrd.getY().abs();
+		Z = gcrd.getZ().abs();
+		W = gcrd.getW().abs();
 		if (DEBUG) assertEquals(n, X.multiply(X).add(Y.multiply(Y)).add(Z.multiply(Z)).add(W.multiply(W)));
 		
 		// done
@@ -138,6 +153,12 @@ public class FourSquaresFinder {
 		return numberOfIterations;
 	}
 	
+	public String getPhaseTimings() {
+		return "step1=" + step1Duration + "ms, step2=" + step2Duration + "ms, step3=" + step3Duration + "ms";
+	}
+	
+	// Test numbers:
+	// RSA-100 = 1522605027922533360535618378132637429718068114961380688657908494580122963258952897654000350692006139 takes ~ 3.2s on Ryzen 3900X, single-threaded
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		while(true) {
@@ -153,7 +174,8 @@ public class FourSquaresFinder {
 		    	FourSquaresFinder fsf = new FourSquaresFinder(N);
 		    	fsf.find();
 		    	long duration = timer.totalRuntime(); 
-		    	LOG.info("Found 4 squares representation " + N + " = " + fsf.X.abs() + "^2 + " + fsf.Y.abs() + "^2 + " + fsf.Z.abs() + "^2 + " + fsf.W.abs() + "^2 in " + fsf.getNumberOfIterations() + " iterations / " + duration + "ms");
+		    	LOG.info("Found 4 squares representation " + N + " = " + fsf.X + "^2 + " + fsf.Y + "^2 + " + fsf.Z + "^2 + " + fsf.W + "^2 using " + fsf.getNumberOfIterations() + " iterations in " + duration + "ms");
+		    	LOG.info("Phase timings: " + fsf.getPhaseTimings());
 			} catch (Exception ex) {
 				LOG.error("Error " + ex, ex);
 			}
