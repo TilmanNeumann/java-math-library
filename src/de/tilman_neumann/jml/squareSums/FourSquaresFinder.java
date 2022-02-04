@@ -142,14 +142,14 @@ public class FourSquaresFinder {
 		 * Notes on step 2:
 		 * 
 		 * s^2 = (u^((p-1)/4))^2 (mod p) = u^((p-1)/2) (mod p)
-		 * So if p is prime, then by Euler's criterion we have s^2 = Legendre(u | p) (mod p).
+		 * So if p is an odd prime, then by Euler's criterion we have s^2 = Legendre(u | p) (mod p).
 		 * The algorithm finds most s^2 == -1 (mod p) for p that are prime.
 		 * Since the modular power is by far the most expensive computation in this algorithm, one could think
 		 * that "guarding" the modular power with a probable prime test could yield a performance improvement.
 		 * But experiments showed that such an approach is slower;
 		 * the solutions of s^2 == -1 (mod p) found by composite p seem to be important, too.
 		 * 
-		 * Consequently, the only way to improvement seems to speed up the modular power itself.
+		 * Consequently, the only way to improve performance seems to speed up the modular power itself.
 		 * *****************************************************************************************************/
 		
 		//(3) [Denouement] Compute A+Bi := gcd(s+i, p). Then compute gcrd(A+Bi+j, n), normalized to have integer components.
@@ -215,9 +215,12 @@ public class FourSquaresFinder {
 		    	FourSquaresFinder fsf = new FourSquaresFinder();
 		    	fsf.find(N);
 		    	long duration = timer.totalRuntime(); 
-		    	LOG.info("4 squares representation " + N + " = " + fsf.X + "^2 + " + fsf.Y + "^2 + " + fsf.Z + "^2 + " + fsf.W + "^2 computed in " + fsf.getNumberOfIterations() + " iterations, " + duration + "ms");
-		    	LOG.info("Phase timings: " + fsf.getPhaseTimings());
-		    	LOG.info("Step 2 subtimings: " + fsf.getStep2Subtimings());
+		    	LOG.info("Found 4 squares representation " + N + " = " + fsf.X + "^2 + " + fsf.Y + "^2 + " + fsf.Z + "^2 + " + fsf.W + "^2");
+		    	LOG.info("The computation needed " + fsf.getNumberOfIterations() + " iterations and took " + duration + "ms");
+		    	if (ANALYZE) {
+			    	LOG.info("Phase timings: " + fsf.getPhaseTimings());
+			    	LOG.info("Step 2 subtimings: " + fsf.getStep2Subtimings());
+		    	}
 			} catch (Exception ex) {
 				LOG.error("Error " + ex, ex);
 			}
