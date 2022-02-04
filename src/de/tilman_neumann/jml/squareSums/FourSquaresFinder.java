@@ -25,9 +25,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.base.GaussianInteger;
 import de.tilman_neumann.jml.base.HurwitzQuaternion;
-import de.tilman_neumann.jml.modular.JacobiSymbol;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
-import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.Timer;
 
@@ -51,10 +49,6 @@ public class FourSquaresFinder {
 
 	private static final Random RNG = new Random(43);
 	
-	private static final PrPTest PRP_TEST = new PrPTest();
-
-	private static final JacobiSymbol jacobiEngine = new JacobiSymbol();
-
 	/** The bases of the 4 squares representation that was found. */
 	private BigInteger X=null, Y=null, Z=null, W=null;
 	
@@ -131,16 +125,12 @@ public class FourSquaresFinder {
 
 			// compute s = u^((p-1)/4) mod p
 			BigInteger pm1 = p.subtract(I_1);
-			s = u.modPow(pm1.shiftRight(2), p); // XXX this is the absolute performance bottleneck of the algorithm
+			s = u.modPow(pm1.shiftRight(2), p); // this is the absolute performance bottleneck of the whole algorithm
 			if (ANALYZE) step2sDuration += timer.capture();
 
 			// Test if s^2 == -1 (mod p). If so, continue to the next step. Otherwise, restart this step.
 			BigInteger sSquare = s.multiply(s);
-			BigInteger sSquareModP = sSquare.mod(p);
-			if (DEBUG) LOG.debug("p prime = " + PRP_TEST.isProbablePrime(p) + ", jacobi(s, p) = " + jacobiEngine.jacobiSymbol(s, p) + ", sSquareModP = " + sSquareModP);
-			// TODO if p is prime then s^2 == +-1 (mod p) ? (otherwise whatever)
-			// TODO a full prime test might be too expensive, but excluding non-primes that can be computed cheaply would be an option
-			if (sSquareModP.equals(pm1)) break;
+			if (sSquare.mod(p).equals(pm1)) break;
 			if (ANALYZE) step2sSquareDuration += timer.capture();
 		}
 		if (ANALYZE) {
@@ -148,6 +138,20 @@ public class FourSquaresFinder {
 			step2Duration += step2nPowDuration + step2kDuration + step2pDuration + step2uDuration + step2sDuration + step2sSquareDuration;
 		}
 
+		/* *****************************************************************************************************
+		 * Notes on step 2:
+		 * 
+		 * s^2 = (u^((p-1)/4))^2 (mod p) = u^((p-1)/2) (mod p)
+		 * So if p is prime, then by Euler's criterion we have s^2 = Legendre(u | p) (mod p).
+		 * The algorithm finds most s^2 == -1 (mod p) for p that are prime.
+		 * Since the modular power is by far the most expensive computation in this algorithm, one could think
+		 * that "guarding" the modular power with a probable prime test could yield a performance improvement.
+		 * But experiments showed that such an approach is slower;
+		 * the solutions of s^2 == -1 (mod p) found by composite p seem to be important, too.
+		 * 
+		 * Consequently, the only way to improvement seems to speed up the modular power itself.
+		 * *****************************************************************************************************/
+		
 		//(3) [Denouement] Compute A+Bi := gcd(s+i, p). Then compute gcrd(A+Bi+j, n), normalized to have integer components.
 		//    Write this gcrd as X + Yi + Zj + Wk, and output the representation n = X^2 + Y^2 + Z^2 + W^2.
 		GaussianInteger gcd = new GaussianInteger(s, I_1).gcd(new GaussianInteger(p, I_0));
@@ -190,7 +194,7 @@ public class FourSquaresFinder {
 	// RSA-2048 = 25195908475657893494027183240048398571429282126204032027777137836043662020707595556264018525880784406918290641249515082189298559149176184502808489120072844992687392807287776735971418347270261896375014971824691165077613379859095700097330459748808428401797429100642458691817195118746121515172654632282216869987549182422433637259085141865462043576798423387184774447920739934236584823824281198163815010674810451660377306056201619676256133844143603833904414952634432190114657544454178424020924616515723350778707749817125772467962926386356373289912154831438167899885040445364023527381951378636564391212010397122822120720357 
 	//
 	// Sample test results (timings from single-threaded computation on a Ryzen 3900X):
-	// RSA-100: 348 iterations, 3s
+	// RSA-100: 547 iterations, 3.2s
 	// RSA-576: 1418 iterations, 34s
 	// RSA-768: 201 iterations, 14s
 	// RSA-1024: 410 iterations, 98s
