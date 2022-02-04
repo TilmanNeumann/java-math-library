@@ -23,9 +23,9 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import de.tilman_neumann.jml.base.GaussianInteger;
-import de.tilman_neumann.jml.base.HurwitzQuaternion;
+import de.tilman_neumann.jml.gaussianInteger.GaussianInteger;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
+import de.tilman_neumann.jml.quaternion.HurwitzQuaternion;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.Timer;
 

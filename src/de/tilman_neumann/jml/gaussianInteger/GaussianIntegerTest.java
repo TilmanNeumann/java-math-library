@@ -11,10 +11,10 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.base;
+package de.tilman_neumann.jml.gaussianInteger;
 
-import static de.tilman_neumann.jml.base.GaussianIntegerConstants.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static de.tilman_neumann.jml.gaussianInteger.GaussianIntegerConstants.*;
 
 import java.math.BigInteger;
 import java.util.Random;

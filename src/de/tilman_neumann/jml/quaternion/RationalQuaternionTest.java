@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.base;
+package de.tilman_neumann.jml.quaternion;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -21,6 +21,7 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
+import de.tilman_neumann.jml.base.BigRational;
 import de.tilman_neumann.test.junit.ClassTest;
 
 public class RationalQuaternionTest extends ClassTest {

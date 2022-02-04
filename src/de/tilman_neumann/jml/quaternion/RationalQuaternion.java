@@ -11,13 +11,15 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.base;
+package de.tilman_neumann.jml.quaternion;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
+
+import de.tilman_neumann.jml.base.BigRational;
 
 /**
  * Quaternions are an extension of complex numbers to four dimensions defined as Q(i,j,k) = {x + y*i + z*j + w*k : x,y,z,w ∈ R and i^2 = j^2 = k^2 = ijk = -1}.

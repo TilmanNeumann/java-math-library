@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.base;
+package de.tilman_neumann.jml.gaussianInteger;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.assertTrue;
@@ -19,6 +19,8 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
+
+import de.tilman_neumann.jml.base.BigRational;
 
 /**
  * The Gaussian integers are the set Z[i] = {x + iy : x, y ∈ Z} of complex numbers whose real and imaginary parts are both integers.
