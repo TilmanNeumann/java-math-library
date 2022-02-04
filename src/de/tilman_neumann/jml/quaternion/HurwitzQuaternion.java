@@ -256,7 +256,7 @@ public class HurwitzQuaternion {
 				if (DEBUG) assertTrue(cx.testBit(0) == false && cy.testBit(0) == false && cz.testBit(0) == false && cw.testBit(0) == false);
 				return new HurwitzQuaternion(cx.shiftRight(1), cy.shiftRight(1), cz.shiftRight(1), cw.shiftRight(1), true);
 			} else {
-				// all coefficients mus be odd
+				// all coefficients must be odd
 				if (DEBUG) assertTrue(cx.testBit(0) == true && cy.testBit(0) == true && cz.testBit(0) == true && cw.testBit(0) == true);
 				return new HurwitzQuaternion(cx, cy, cz, cw, false);
 			}
@@ -390,6 +390,7 @@ public class HurwitzQuaternion {
 		BigInteger dNorm = d.norm();
 		
 		// Now we have to compare the best Lipschitz lattice element to the 16 surrounding lattice elements with half-integer coefficients
+		// XXX The approach from https://de.wikipedia.org/wiki/Hurwitzquaternion might be slightly faster
 		HurwitzQuaternion c = cLipschitz;
 		for (HurwitzQuaternion halfIntegerUnit : HurwitzQuaternionConstants.HALF_INTEGER_UNITS) {
 			HurwitzQuaternion c2 = cLipschitz.add(halfIntegerUnit);
@@ -403,12 +404,6 @@ public class HurwitzQuaternion {
 				dNorm = d2Norm;
 			}
 		}
-
-		// Alternative way to find the best Hurwitz element >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-		// TODO test if this is faster
-		// The approximation error is Norm(c - cExactNum/cExactDen) = Norm(c*cExactDen - cExactNum) / Norm(cExactDen).
-		//BigRational cErr = new BigRational(cLipschitz.multiply(cExactDen).subtract(cExactNum).norm(), cExactDen); // TODO cExactDen or cExactDen^2 ?
-        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		
 		if (DEBUG) LOG.debug("result: c = " + c + ", d = " + d + ", N(d) = " + dNorm);
 
@@ -499,7 +494,9 @@ public class HurwitzQuaternion {
 			d = a; // preliminary result (up to units)
 		}
 		
-		return d; // TODO Choose a particular result?
+		// Here we could choose any particular result obtainable by right multiplications with Hurwitz units;
+		// in particular we could always choose a Lipschitz quaternion.
+		return d;
 	}
 	
 	/**
@@ -525,7 +522,9 @@ public class HurwitzQuaternion {
 			d = a; // preliminary result (up to units)
 		}
 		
-		return d; // TODO Choose a particular result?
+		// Here we could choose any particular result obtainable by right multiplications with Hurwitz units;
+		// in particular we could always choose a Lipschitz quaternion.
+		return d;
 	}
 	
 	@Override
