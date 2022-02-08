@@ -16,7 +16,7 @@ package de.tilman_neumann.util;
 import java.io.Serializable;
 
 /**
- * A simple utility class combining two values of arbitrary types to one object.
+ * A simple utility class combining two values of arbitrary types in one object.
  * @author Tilman Neumann
  * 
  * @param <U> type of first value
