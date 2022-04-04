@@ -31,7 +31,7 @@ public class ConfigUtil {
 
 	private static final Logger LOG = Logger.getLogger(ConfigUtil.class);
 	
-	private static boolean alreadyInitialized = false;
+	private static boolean initialized = false;
 	public static boolean verbose = false;
 	
 	/** File separator used on this OS. */
@@ -63,7 +63,7 @@ public class ConfigUtil {
 	 */
 	public static void initProject() {
 		// avoid re-initialization from junit tests
-		if (alreadyInitialized) return;
+		if (initialized) return;
 		
 		FILE_SEPARATOR = System.getProperty("file.separator");
 		if (verbose) System.out.println("system file separator = " + FILE_SEPARATOR);
@@ -94,14 +94,14 @@ public class ConfigUtil {
 	    	DOMConfigurator.configure(CONF_ROOT + FILE_SEPARATOR + "log4jconf.xml");
 	    	if (verbose) LOG.info("log4j configuration loaded.");
 	    	if (verbose) LOG.info("project initialization finished.\n");
-	    	alreadyInitialized = true;
+	    	initialized = true;
 		} else {
 			// emergency initialization that logs into console
 			PatternLayout layout = new PatternLayout();
 			ConsoleAppender appender = new ConsoleAppender(layout);
 			appender.setThreshold(Level.DEBUG); // TODO: Set to ERROR before creating jar file, to DEBUG before creating src distribution
 			BasicConfigurator.configure(appender);
-	    	alreadyInitialized = true;
+	    	initialized = true;
 		}
 	}
 }
