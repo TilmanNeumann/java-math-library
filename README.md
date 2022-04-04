@@ -22,14 +22,17 @@ Another prominent subject in this library is prime generation and testing. For e
 * a BPSW probable prime test implementation, and
 * state-of-the-art bound computations for the n.th prime and prime counting functions.
 
-Other noteworthy parts of this library are sqrt(), nth_root(), ln() and exp() functions for BigDecimals.
-
-More special contents are a fast generator for the partitions of multipartite numbers and 
-implementations of smooth number sequences like CANs (colossally abundant numbers) and SHCNs (superior highly composite numbers).
+Other noteworthy parts of this library are
+* sqrt(), nth_root(), ln() and exp() functions for BigDecimals.
+* Gaussian integer and (Hurwitz) quaternion arithmetics including gcd's
+* an implementation of [Pollack and Treviño's four squares finding algorithm](http://campus.lakeforest.edu/trevino/finding4squares.pdf)
+* a fast generator for the partitions of multipartite numbers
+* implementations of smooth number sequences like CANs (colossally abundant numbers) and SHCNs (superior highly composite numbers).
 
 
 ## Releases
 
+* v1.3: Implemented Gaussian integer and quaternion arithmetics including gcd's, and a four-square finder using them.
 * v1.2: Implemented SIQS with three large primes (but with the current parametrization, 3-partials are not found for N<=400 bit)
 * v1.1: Faster sieve for large N, speedup close to factor 2 at 360 bit inputs. Improved Gaussian solvers (by Dave McGuigan), including a parallel Gaussian solver that outperforms Block-Lanczos until about 375 bit on a Ryzen 3900X with 20 threads.
 From now on, <strong>Java 10</strong> is required!
