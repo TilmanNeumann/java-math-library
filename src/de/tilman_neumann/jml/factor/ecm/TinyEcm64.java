@@ -1117,7 +1117,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * Test if Z is a factor of N.
 	 * @param Z
 	 * @param n
-   * @return factor or 0 if no factor
+     * @return factor or 0 if no factor
 	 */
 	long check_factor(long Z, long n)
 	{
