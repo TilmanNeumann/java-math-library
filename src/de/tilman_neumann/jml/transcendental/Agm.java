@@ -145,7 +145,7 @@ public class Agm {
 				b = new BigDecimal(tok.nextToken());
 				maxScale = Scale.valueOf(Integer.parseInt(tok.nextToken()));
 			} catch (Exception e) {
-				LOG.error("Error occuring on input: " + e.getMessage());
+				LOG.error("Error occurring on input: " + e.getMessage());
 				continue;
 			}
 			

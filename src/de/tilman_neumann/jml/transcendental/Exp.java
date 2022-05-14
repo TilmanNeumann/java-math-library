@@ -274,7 +274,7 @@ public class Exp {
 				x = new BigDecimal(tok.nextToken());
 				scale = Scale.valueOf(Integer.parseInt(tok.nextToken()));
 			} catch (Exception e) {
-				LOG.error("Error occuring on input: " + e.getMessage());
+				LOG.error("Error occurring on input: " + e.getMessage());
 				continue;
 			}
 

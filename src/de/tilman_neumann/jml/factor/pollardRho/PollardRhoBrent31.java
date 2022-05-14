@@ -136,7 +136,7 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 				input = line.trim();
 				LOG.debug("factoring " + input + "...");
 			} catch (IOException ioe) {
-				LOG.error("io-error occuring on input: " + ioe.getMessage());
+				LOG.error("io-error occurring on input: " + ioe.getMessage());
 				continue;
 			}
 			

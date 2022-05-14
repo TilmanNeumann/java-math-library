@@ -37,7 +37,7 @@ public class TDiv63 extends FactorAlgorithm {
 
 	/**
 	 * Set the upper limit of primes to be tested.
-	 * @param pLimit
+	 * @param pLimit upper limit of primes to be tested
 	 * @return this
 	 */
 	public TDiv63 setTestLimit(int pLimit) {

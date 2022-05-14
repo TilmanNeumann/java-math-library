@@ -29,7 +29,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.I_2;
  * 
  * Significantly faster than TDiv31Inverse.
  * 
- * @authors Tilman Neumann + Thilo Harich
+ * @author Tilman Neumann + Thilo Harich
  */
 public class TDiv31Barrett extends FactorAlgorithm {
 	@SuppressWarnings("unused")

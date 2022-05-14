@@ -31,7 +31,7 @@ public enum TestNumberNature {
 	RANDOM_ODD_COMPOSITES,
 	
 	/**
-	 * Odd semiprimes N=a*b with min(a,b) >= cbrt(N).
+	 * Odd semiprimes N=a*b with min(a,b) &gt;= cbrt(N).
 	 * Note that there are no such numbers with less than 4 bits.
 	 */
 	MODERATE_SEMIPRIMES,

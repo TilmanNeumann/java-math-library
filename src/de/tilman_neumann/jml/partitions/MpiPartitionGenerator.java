@@ -206,7 +206,7 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 				input = line.trim();
 				LOG.debug("multipartite number input = [" + input + "]");
 			} catch (IOException ioe) {
-				LOG.error("io-error occuring on input: " + ioe.getMessage());
+				LOG.error("io-error occurring on input: " + ioe.getMessage());
 				continue;
 			}
 			try {

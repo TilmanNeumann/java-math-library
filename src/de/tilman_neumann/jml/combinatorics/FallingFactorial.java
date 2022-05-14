@@ -43,7 +43,7 @@ public class FallingFactorial {
 	 * @param n
 	 * @param k
 	 * @return falling factorial (n)_k
-	 * @throws IllegalArgumentException if k<0
+	 * @throws IllegalArgumentException if k&lt;0
 	 */
 	public static BigInteger fallingFactorial(int n, int k) throws IllegalArgumentException {
 		// for k<0 see https://math.stackexchange.com/questions/612631/negative-falling-factorial/612637
@@ -69,7 +69,7 @@ public class FallingFactorial {
 	 * @param n
 	 * @param k
 	 * @return falling factorial (n)_k
-	 * @throws IllegalArgumentException if n<0 or (n-k)<0
+	 * @throws IllegalArgumentException if n&lt;0 or (n-k)&lt;0
 	 */
 	private static BigInteger byFactorials(int n, int k) throws IllegalArgumentException {
 		return Factorial.factorial(n).divide(Factorial.factorial(n-k));

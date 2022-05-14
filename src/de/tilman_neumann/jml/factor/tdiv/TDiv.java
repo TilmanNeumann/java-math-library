@@ -49,7 +49,7 @@ public class TDiv extends FactorAlgorithm {
 
 	/**
 	 * Set the upper limit of primes to be tested.
-	 * @param pLimit
+	 * @param pLimit upper limit of primes to be tested
 	 * @return this
 	 */
 	public TDiv setTestLimit(int pLimit) {
@@ -76,10 +76,10 @@ public class TDiv extends FactorAlgorithm {
 	
 	/**
 	 * Tries to find small factors of a positive, possibly large argument N by doing trial division
-	 * by all primes p <= pLimit.
+	 * by all primes p &lt;= pLimit.
 	 * 
 	 * @param args
-	 * @param result a pre-initalized data structure to add results to
+	 * @param result a pre-initialized data structure to add results to
 	 */
 	// TODO take into account the amount of trial division done before
 	@Override
@@ -128,7 +128,6 @@ public class TDiv extends FactorAlgorithm {
 		
 		result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
 		result.untestedFactors.add(N, Nexp); // we do not know if the remaining N is prime or composite
-		return;
 	}
 
 	/**

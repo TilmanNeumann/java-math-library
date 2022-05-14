@@ -377,8 +377,6 @@ public class TinyEcm64 extends FactorAlgorithm {
 				add(rho, work, work.pt1, work.pt2, work.pt3, P);		// A = A + B (C)
 			}
 		}
-
-		return;
 	}
 
 	void prac85(long rho, ecm_work work, ecm_pt P)
@@ -440,8 +438,6 @@ public class TinyEcm64 extends FactorAlgorithm {
 				add(rho, work, work.pt1, work.pt2, work.pt3, P);		// A = A + B (C)
 			}
 		}
-
-		return;
 	}
 
 	void prac(long rho, ecm_work work, ecm_pt P, long c, double v)
@@ -522,8 +518,6 @@ public class TinyEcm64 extends FactorAlgorithm {
 		}
 
 		add(rho, work, work.pt1, work.pt2, work.pt3, P);		// A = A + B (C)
-
-		return;
 	}
 
 	/**
@@ -684,7 +678,6 @@ public class TinyEcm64 extends FactorAlgorithm {
 		if (DEBUG) LOG.debug("work.s=" + work.s);
 		work.s = u64div(work.s, n);
 		if (DEBUG) LOG.debug("work.s=" + work.s);
-		return;
 	}
 
 	public static class EcmResult {
@@ -1124,7 +1117,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * Test if Z is a factor of N.
 	 * @param Z
 	 * @param n
-     * @return factor or 0 if no factor
+   * @return factor or 0 if no factor
 	 */
 	long check_factor(long Z, long n)
 	{

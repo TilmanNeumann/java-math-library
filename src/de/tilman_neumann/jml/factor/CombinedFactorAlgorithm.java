@@ -279,7 +279,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 					N = new BigInteger(input);
 				}
 			} catch (IOException ioe) {
-				System.err.println("IO-error occuring on input: " + ioe.getMessage());
+				System.err.println("IO-error occurring on input: " + ioe.getMessage());
 				continue;
 			} catch (NumberFormatException nfe) {
 				System.err.println("Illegal input: " + line);
