@@ -57,7 +57,7 @@ public class BatchFactorizer {
 				fileName = input;
 			}
 		} catch (IOException ioe) {
-			System.err.println("IO-error occuring on input: " + ioe.getMessage());
+			System.err.println("IO-error occurring on input: " + ioe.getMessage());
 			return;
 		} catch (NumberFormatException nfe) {
 			System.err.println("Illegal input: " + line);

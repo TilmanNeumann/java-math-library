@@ -214,7 +214,7 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 				n = new BigInteger(input);
 				LOG.debug("factoring " + input + " (" + n.bitLength() + " bits) ...");
 			} catch (IOException ioe) {
-				LOG.error("io-error occuring on input: " + ioe.getMessage());
+				LOG.error("io-error occurring on input: " + ioe.getMessage());
 				continue;
 			}
 			

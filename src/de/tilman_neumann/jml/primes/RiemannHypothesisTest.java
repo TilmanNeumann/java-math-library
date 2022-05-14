@@ -111,7 +111,7 @@ public class RiemannHypothesisTest {
 	/**
 	 * Test inequality (1.1) with CANs.
 	 * 
-	 * > 23k CANs checked, with exp precision 100. Typical timings:
+	 * &gt; 23k CANs checked, with exp precision 100. Typical timings:
 	 * Tested CAN(23449) with 115271 digits... t0=0, t1=156, t2=0, t2b=0, t3=0, t4=16, t5=0, t6=265
 	 * Tested CAN(23450) with 115276 digits... t0=1625, t1=156, t2=0, t2b=0, t3=0, t4=16, t5=0, t6=265
 	 * Tested CAN(23451) with 115282 digits... t0=0, t1=163, t2=0, t2b=0, t3=0, t4=16, t5=0, t6=265

@@ -47,7 +47,7 @@ import de.tilman_neumann.util.Timer;
 /**
  * CFrac = Shanks' SQUFOF algorithm + carry along continuant recurrence + collect smooth relations + LinAlg solver.<br/><br/>
  * 
- * The original CFrac was implemented by Morrison&Brillhart intending to factor the 7.th Fermat number F7 with 39 digits (~130 bits).
+ * The original CFrac was implemented by Morrison and Brillhart intending to factor the 7.th Fermat number F7 with 39 digits (~130 bits).
  * Now this number can be factored single-threaded in a second or a few.
  * 
  * Since 2017-09 Knuth-Schroeppel multipliers have been implemented, too.
@@ -64,7 +64,7 @@ public class CFrac extends FactorAlgorithm {
 
 	// input
 	private BigInteger N, kN, floor_sqrt_kN;
-	/** Test all Q or only those Q_i+1 with odd i ? "All Q" boosts performance for N > 45 bits approximately */
+	/** Test all Q or only those Q_i+1 with odd i ? "All Q" boosts performance for N &gt; 45 bits approximately */
 	private boolean use_all_i; // 
 
 	// maximum number of SquFoF iterations for a single k

@@ -179,7 +179,7 @@ abstract public class FactorAlgorithm {
 	
 	/**
 	 * Find a single factor of the given N, which is composite and odd.
-	 * @param N
+	 * @param N number to be factored.
 	 * @return factor
 	 */
 	abstract public BigInteger findSingleFactor(BigInteger N);

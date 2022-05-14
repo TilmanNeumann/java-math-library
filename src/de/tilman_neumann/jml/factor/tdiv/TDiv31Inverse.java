@@ -29,7 +29,7 @@ import de.tilman_neumann.util.SortedMultiset;
  * This variant abstains from testing N%primes[i] when the discriminator test indicates a neat division,
  * and unrolls the loop in findSingleFactor().
  * 
- * @authors Thilo Harich + Tilman Neumann
+ * @author Thilo Harich + Tilman Neumann
  */
 public class TDiv31Inverse extends FactorAlgorithm {
 	

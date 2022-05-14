@@ -39,11 +39,11 @@ public class Stirling {
 	
 	/**
 	 * Object used to synchronize access to the static Stirling numbers array.
-	 * We need to call a constructor, with valueof() we would block one of the standard values!
+	 * We need to call a constructor, with valueOf() we would block one of the standard values!
 	 */
 	private static Object syncObject = new Object();
 
-    /** hashtable for of 1.kind Stirling numbers indexed by (n,k) */
+    /** hashtable for of Stirling numbers of the first kind indexed by (n,k) */
     private static HashMap<Pair<Integer, Integer>, BigInteger> s1Map = new HashMap<Pair<Integer, Integer>, BigInteger>();
 
 	/**
@@ -72,7 +72,7 @@ public class Stirling {
 
     /**
      * Slow recursive calculation of the signed Stirling numbers
-     * of 1. kind. These correspond to the number of permutations of a set
+     * of the first kind. These correspond to the number of permutations of a set
      * of n symbols with exactly k permutation cycles.
      */
     private static BigInteger stirling1Recurrent(int n, int k) {

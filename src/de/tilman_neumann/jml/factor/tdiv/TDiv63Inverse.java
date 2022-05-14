@@ -78,7 +78,7 @@ public class TDiv63Inverse extends FactorAlgorithm {
 	 * Set the upper limit of primes to be tested.
 	 * @param pLimit the limit; must be smaller than the factorLimit parameter passed to the constructor
 	 * @return this
-	 * @throws IllegalStateException if pLimit > factorLimit
+	 * @throws IllegalStateException if pLimit &gt; factorLimit
 	 */
 	public TDiv63Inverse setTestLimit(int pLimit) {
 		if (pLimit > factorLimit) {
