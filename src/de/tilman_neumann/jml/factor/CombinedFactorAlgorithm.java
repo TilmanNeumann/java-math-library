@@ -85,7 +85,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	/**
 	 * Simple constructor, computing the amount of trial division automatically 
 	 * and using PSIQS with sun.misc.Unsafe features.
-	 * @param numberOfThreads the number of parallel threads for PSIQS
+	 * @param numberOfThreads the number of parallel threads for PSIQS (or 0 to use all available processors)
 	 */
 	public CombinedFactorAlgorithm(int numberOfThreads) {
 		this(numberOfThreads, null, true);
@@ -93,15 +93,20 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 
 	/**
 	 * Full constructor.
-	 * @param numberOfThreads the number of parallel threads for PSIQS
+	 * @param numberOfThreads the number of parallel threads for PSIQS (or 0 to use all available processors)
 	 * @param tdivLimit limit of primes p for trial division; if null then the value is determined by best experimental results
-	 * @param permitUnsafeUsage if true then PSIQS_U using sun.misc.Unsafe features is used. This may be ~10% faster.
+	 * @param permitUnsafeUsage if true then PSIQS_U using sun.misc.Unsafe features is used. This may be ~10% faster
 	 */
 	public CombinedFactorAlgorithm(int numberOfThreads, Integer tdivLimit, boolean permitUnsafeUsage) {
 		super(tdivLimit);
 		
 		Sieve smallSieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
 		siqs_smallArgs = new SIQS(0.32F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), smallSieve, new TDiv_QS_Small(), 10, new MatrixSolver_Gauss02());
+
+		if (numberOfThreads == 0) {
+			// If a specific number of threads was not specified, then make a selection based on available processes
+			numberOfThreads = Runtime.getRuntime().availableProcessors();
+		}
 
 		if (numberOfThreads==1) {
 			// Avoid multi-thread overhead if the requested number of threads is 1
