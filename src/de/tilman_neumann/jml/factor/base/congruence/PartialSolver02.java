@@ -287,7 +287,7 @@ public class PartialSolver02 implements PartialSolver {
 //				looping = false;
 //			}
 //if(looping && loops>1) {
-//	System.out.println("diff="+(numRows-storedRows));
+//	LOG.debug("diff="+(numRows-storedRows));
 //}
 			numRows = storedRows;
 //		}

@@ -217,30 +217,31 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	 * 
 	 * Some test numbers:
 	 * 
-	 * 15841065490425479923 (64 bit) = 2604221509 * 6082841047 in 211ms. (done by PSIQS)
+	 * 15841065490425479923 (64 bit) = 2604221509 * 6082841047
 	 * 
-	 * 11111111111111111111111111 (84 bit) = {11=1, 53=1, 79=1, 859=1, 265371653=1, 1058313049=1} in 185ms. (tdiv + PSIQS)
+	 * 11111111111111111111111111 (84 bit) = {11=1, 53=1, 79=1, 859=1, 265371653=1, 1058313049=1}
 	 * 
-	 * 5679148659138759837165981543 (93 bit) = {3=3, 466932157=1, 450469808245315337=1} in 194ms. (tdiv + PSIQS)
+	 * 5679148659138759837165981543 (93 bit) = {3=3, 466932157=1, 450469808245315337=1}
 	 * 
-	 * 874186654300294020965320730991996026550891341278308 (170 bits) = {2=2, 3=1, 471997=1, 654743=1, 2855761=1, 79833227=1, 982552477=1, 1052328969055591=1} in 685ms (tdiv + ECM + PSIQS)
+	 * 874186654300294020965320730991996026550891341278308 (170 bit) = {2=2, 3=1, 471997=1, 654743=1, 2855761=1, 79833227=1, 982552477=1, 1052328969055591=1}
 	 * 
-	 * 11111111111111111111111111155555555555111111111111111 (173 bit) = {67=1, 157=1, 1056289676880987842105819104055096069503860738769=1} in 21ms. (only tdiv needed)
+	 * 11111111111111111111111111155555555555111111111111111 (173 bit) = {67=1, 157=1, 1056289676880987842105819104055096069503860738769=1} (only tdiv needed)
 	 * 
-	 * 1388091470446411094380555803943760956023126025054082930201628998364642 (230 bit) = {2=1, 3=1, 1907=1, 1948073=1, 1239974331653=1, 50222487570895420624194712095309533522213376829=1} in 304ms. (tdiv + ECM + PSIQS)
+	 * 1388091470446411094380555803943760956023126025054082930201628998364642 (230 bit) = {2=1, 3=1, 1907=1, 1948073=1, 1239974331653=1, 50222487570895420624194712095309533522213376829=1}
 	 * 
-	 * 10^71-1 = 99999999999999999999999999999999999999999999999999999999999999999999999 (236 bits) = {3=2, 241573142393627673576957439049=1, 45994811347886846310221728895223034301839=1} in 14s, 471ms. (tdiv + PSIQS)
+	 * 10^71-1 = 99999999999999999999999999999999999999999999999999999999999999999999999 (236 bit) = {3=2, 241573142393627673576957439049=1, 45994811347886846310221728895223034301839=1}
 	 * 
-	 * 10^79+5923 = 10000000000000000000000000000000000000000000000000000000000000000000000000005923 (263 bit) = {1333322076518899001350381760807974795003=1, 7500063320115780212377802894180923803641=1} in 1m, 35s, 243ms. (PSIQS)
+	 * 10^79+5923 = 10000000000000000000000000000000000000000000000000000000000000000000000000005923 (263 bit) = {1333322076518899001350381760807974795003=1, 7500063320115780212377802894180923803641=1}
+     *
+     * 1794577685365897117833870712928656282041295031283603412289229185967719140138841093599 (280 bit) = 42181796536350966453737572957846241893933 * 42543889372264778301966140913837516662044603
      *
 	 * 2900608971182010301486951469292513060638582965350239259380273225053930627446289431038392125 (301 bit)
 	 * = 33333 * 33335 * 33337 * 33339 * 33341 * 33343 * 33345 * 33347 * 33349 * 33351 * 33353 * 33355 * 33357 * 33359 * 33361 * 33363 * 33367 * 33369 * 33369 * 33371
-	 * = {3=11, 5=3, 7=6, 11=2, 13=2, 17=2, 19=1, 37=1, 41=1, 53=1, 59=1, 61=1, 73=1, 113=1, 151=1, 227=2, 271=1, 337=1, 433=1, 457=1, 547=1, 953=1, 11113=1, 11117=1, 11119=1, 33343=1, 33347=1, 33349=1, 33353=1, 33359=1} in 10ms.
+	 * = {3=11, 5=3, 7=6, 11=2, 13=2, 17=2, 19=1, 37=1, 41=1, 53=1, 59=1, 61=1, 73=1, 113=1, 151=1, 227=2, 271=1, 337=1, 433=1, 457=1, 547=1, 953=1, 11113=1, 11117=1, 11119=1, 33343=1, 33347=1, 33349=1, 33353=1, 33359=1}
 	 * (only tdiv)
 	 * 
 	 * @param args [-t <numberOfThreads>] <numberToFactor>
 	 */
-	// Quite difficult 280 bit: 1794577685365897117833870712928656282041295031283603412289229185967719140138841093599 takes about 5:48 min
 	public static void main(String[] args) {
 		ConfigUtil.verbose = false;
     	ConfigUtil.initProject();
@@ -266,7 +267,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 			BigInteger N;
 			String line = null;
 			try {
-				System.out.println("Please insert [-t <numberOfThreads>] <numberToFactor> :");
+				LOG.info("Please insert [-t <numberOfThreads>] <numberToFactor> :");
 				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 				line = in.readLine();
 				String input = line.trim();
@@ -279,10 +280,10 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 					N = new BigInteger(input);
 				}
 			} catch (IOException ioe) {
-				System.err.println("IO-error occurring on input: " + ioe.getMessage());
+				LOG.error("IO-error occurring on input: " + ioe.getMessage());
 				continue;
 			} catch (NumberFormatException nfe) {
-				System.err.println("Illegal input: " + line);
+				LOG.error("Illegal input: " + line);
 				continue;
 			}
 			test(numberOfThreads, N);
@@ -296,28 +297,28 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
     		try {
     			N = new BigInteger(args[0].trim());
     		} catch (NumberFormatException nfe) {
-    			System.err.println("Invalid numberToFactor = " + args[0].trim());
+    			LOG.error("Invalid numberToFactor = " + args[0].trim());
     			System.exit(-1);
     		}
     	} else if (args.length==3) {
     		if (!args[0].trim().equals("-t")) {
-    			System.err.println("Illegal option: '" + args[0] + "'. Usage: java -jar <jar_file> [-t <numberOfThreads>] <numberToFactor>");
+    			LOG.error("Illegal option: '" + args[0] + "'. Usage: java -jar <jar_file> [-t <numberOfThreads>] <numberToFactor>");
     			System.exit(-1);
     		}
     		try {
     			numberOfThreads = Integer.parseInt(args[1].trim());
     		} catch (NumberFormatException nfe) {
-    			System.err.println("Invalid numberOfThreads = " + args[1].trim());
+    			LOG.error("Invalid numberOfThreads = " + args[1].trim());
     			System.exit(-1);
     		}
     		try {
     			N = new BigInteger(args[2].trim());
     		} catch (NumberFormatException nfe) {
-    			System.err.println("Invalid numberToFactor = " + args[2].trim());
+    			LOG.error("Invalid numberToFactor = " + args[2].trim());
     			System.exit(-1);
     		}
     	} else {
-			System.err.println("Illegal number of arguments. Usage: java -jar <jar_file> [-t <numberOfThreads>] <numberToFactor>");
+    		LOG.error("Illegal number of arguments. Usage: java -jar <jar_file> [-t <numberOfThreads>] <numberToFactor>");
 			System.exit(-1);
     	}
     	// run
@@ -327,19 +328,19 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	
 	private static int test(int numberOfThreads, BigInteger N) {
 		if (numberOfThreads < 0) {
-			System.err.println("numberOfThreads must be positive.");
+			LOG.error("numberOfThreads must be positive.");
 			return -1;
 		}
 		if (numberOfThreads > ConfigUtil.NUMBER_OF_PROCESSORS) {
-			System.err.println("Too big numberOfThreads = " + numberOfThreads + ": Your machine has only " + ConfigUtil.NUMBER_OF_PROCESSORS + " processors");
+			LOG.error("Too big numberOfThreads = " + numberOfThreads + ": Your machine has only " + ConfigUtil.NUMBER_OF_PROCESSORS + " processors");
 			return -1;
 		}
     	
     	// size check
     	//LOG.debug("N = " + N);
 		int N_bits = N.bitLength();
-    	if (N.bitLength()>400) {
-			System.err.println("Too big numberToFactor: Currently only inputs <= 400 bits are supported. (Everything else would take months or years)");
+    	if (N.bitLength()>500) {
+    		LOG.error("Too big numberToFactor: Currently only inputs <= 500 bits are supported. (Everything else would take months or years)");
 			return -1;
     	}
     	// run
@@ -351,14 +352,14 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		if (result.totalCount()==1) {
 			BigInteger singleElement = result.keySet().iterator().next();
 			if (singleElement.abs().compareTo(I_1)<=0) {
-				System.out.println(N + " is trivial");
+				LOG.info(N + " is trivial");
 			} else {
-				System.out.println(N + " is probable prime");
+				LOG.info(N + " is probable prime");
 			}
 		} else if (result.totalCount()==2 && result.keySet().contains(I_MINUS_1)) {
-			System.out.println(N + " is probable prime");
+			LOG.info(N + " is probable prime");
 		} else {
-			System.out.println(N + " (" + N_bits + " bits) = " + result.toString("*", "^") + " (factored in " + durationStr + ")");
+			LOG.info(N + " (" + N_bits + " bits) = " + result.toString("*", "^") + " (factored in " + durationStr + ")");
 		}
 		return 0;
 	}

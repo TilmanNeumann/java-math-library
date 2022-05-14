@@ -40,11 +40,12 @@ public class BatchFactorizer {
 	
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
+    	
 		int numberOfThreads = 1;
 		String fileName = null;
 		String line = null;
 		try {
-			System.out.println("Please insert [-t <numberOfThreads>] <batchFile> :");
+			LOG.info("Please insert [-t <numberOfThreads>] <batchFile> :");
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 			line = in.readLine();
 			String input = line !=null ? line.trim() : "";
@@ -57,10 +58,10 @@ public class BatchFactorizer {
 				fileName = input;
 			}
 		} catch (IOException ioe) {
-			System.err.println("IO-error occurring on input: " + ioe.getMessage());
+			LOG.error("IO-error occurring on input: " + ioe.getMessage());
 			return;
 		} catch (NumberFormatException nfe) {
-			System.err.println("Illegal input: " + line);
+			LOG.error("Illegal input: " + line);
 			return;
 		}
 		test(numberOfThreads, fileName);
