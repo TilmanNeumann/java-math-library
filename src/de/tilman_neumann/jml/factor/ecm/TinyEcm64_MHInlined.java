@@ -32,6 +32,7 @@
  */
 package de.tilman_neumann.jml.factor.ecm;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
@@ -40,7 +41,12 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.base.Uint128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
+import de.tilman_neumann.jml.factor.base.FactorArguments;
+import de.tilman_neumann.jml.factor.base.FactorResult;
+import de.tilman_neumann.jml.factor.tdiv.TDiv;
+import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.ConfigUtil;
+import de.tilman_neumann.util.SortedMultiset;
 
 /**
  * A port of Ben Buhrow's tinyecm.c (https://www.mersenneforum.org/showpost.php?p=521028&postcount=84)
@@ -153,7 +159,11 @@ public class TinyEcm64_MHInlined extends FactorAlgorithm {
 		0, 0, 0, 16, 0, 0, 0, 0, 0, 17,
 		18, 0 }; // last entry 0 or 1 makes no performance difference
 
-	long LCGSTATE;
+	private long LCGSTATE;
+	
+	private TDiv tdiv = new TDiv();
+
+	private BPSWTest bpsw = new BPSWTest();
 
 	public String getName() {
 		return "TinyEcm64_MHInlined";
@@ -1144,6 +1154,14 @@ public class TinyEcm64_MHInlined extends FactorAlgorithm {
         return (f>1 && f<n) ? f : 0;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * <br><br>
+	 * WARNING: tinyEcm's findSingleFactor() implementation is unstable when called with N having only small factors, like 735=3*5*7^2.
+	 * In such cases, an suitable amount of trial division should be carried out before.
+	 */
+	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
 		// original rng, not comparable with C version
 		//Random rng = new Random();
@@ -1158,7 +1176,7 @@ public class TinyEcm64_MHInlined extends FactorAlgorithm {
 		// TODO Try to make it work for 63, 64 bit numbers
 		if (DEBUG) LOG.debug("N=" + N + " has " + NBits + " bits");
 		
-		// parameters for N <= 50 bit
+		// parameters for N depending on size
 		int curves;
 		int B1;
 		if (NBits <= 50) {
@@ -1185,6 +1203,34 @@ public class TinyEcm64_MHInlined extends FactorAlgorithm {
 		return BigInteger.valueOf(result.f);
 	}
 	
+	@Override
+	public void searchFactors(FactorArguments args, FactorResult result) {
+		// tinyEcm is unstable when it comes to find factors of small composites like 735 = 3*5*7^2
+		// so we need some trial division first
+		tdiv.setTestLimit(1<<16).searchFactors(args, result);
+		
+		if (result.untestedFactors.isEmpty()) return; // N was "easy"
+		// Otherwise we continue
+		BigInteger N = result.untestedFactors.firstKey();
+		int exp = result.untestedFactors.removeAll(N);
+		if (DEBUG) assertEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
+
+		if (bpsw.isProbablePrime(N)) {
+			result.primeFactors.add(N);
+			return;
+		}
+
+		BigInteger factor1 = findSingleFactor(N);
+		//LOG.debug("After findSingleFactor()...");
+		if (factor1.compareTo(I_1) > 0 && factor1.compareTo(N) < 0) {
+			// We found a factor, but here we cannot know if it is prime or composite
+			result.untestedFactors.add(factor1, args.exp);
+			result.untestedFactors.add(N.divide(factor1), args.exp);
+		}
+
+		// nothing found
+	}
+
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		
@@ -1227,12 +1273,21 @@ public class TinyEcm64_MHInlined extends FactorAlgorithm {
 				69916262762899909L,
 				51113648728234999L,
 				55878279398722441L,
+				// Test numbers with many small factors
+				1096954293075013905L,
+				1100087778366101931L, // Fibonacci(88)
 		};
 		
+		boolean testFullFactorization = true;
 		for (int i=0; i<testNumbers.length; i++) {
 			long N = testNumbers[i];
-			BigInteger factor = factorizer.findSingleFactor(BigInteger.valueOf(N));
-			LOG.info("Found factor " + factor + " of N=" + N);
+			if (testFullFactorization) {
+				SortedMultiset<BigInteger> factors = factorizer.factor(BigInteger.valueOf(N));
+				LOG.info(N + " = " + factors);
+			} else {
+				BigInteger factor = factorizer.findSingleFactor(BigInteger.valueOf(N));
+				LOG.info("Found factor " + factor + " of N=" + N);
+			}
 		}
 	}
 }
