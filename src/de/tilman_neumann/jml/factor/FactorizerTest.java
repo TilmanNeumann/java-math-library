@@ -57,19 +57,19 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 1;
+	private static final int N_COUNT = 10000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 200;
+	private static final int START_BITS = 20;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 10;
+	private static final int INCR_BITS = 5;
 	/** maximum number of bits to test (no maximum if null) */
 	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_COMPOSITES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
+	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
 
 	private BPSWTest bpsw = new BPSWTest();
 	
@@ -164,7 +164,7 @@ public class FactorizerTest {
 			// On a Ryzen 3900X, Cmult=0.31 seems to be best for N <= 345 bit, Cmult=0.305 best for N > 345 bit.
 			// Probably, this depends heavily on the number of threads and the hardware, in particular the size of the L3-Cache.
 //			new PSIQS(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
-			new PSIQS_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
+	//		new PSIQS_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_PGauss01(12)),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new PowerOfSmallPrimesFinder(), new MatrixSolver_BlockLanczos()),
 //			new PSIQS_U(0.31F, 0.37F, null, 20, new AllPowerFinder(), new MatrixSolver_BlockLanczos()),
@@ -176,7 +176,7 @@ public class FactorizerTest {
 //			new PSIQS_SB(0.31F, 0.37F, null, 20, new NoPowerFinder(), new MatrixSolver_BlockLanczos()),
 
 			// Best combination of sub-algorithms for general factor arguments of any size
-//			new CombinedFactorAlgorithm(16, 1<<16, true),
+			new CombinedFactorAlgorithm(16, 1<<16, true),
 		};
 	}
 	
@@ -189,17 +189,15 @@ public class FactorizerTest {
 		// TEST_MODE=FIRST_FACTOR needs factors, TEST_MODE=PRIME_FACTORIZATION needs factorSetArray
 		BigInteger[] factors = null;
 		SortedMultiset<BigInteger>[] factorSetArray = null;
-		SortedMultiset<BigInteger>[] correctFactorSets = null;
 		if (TEST_MODE==TestMode.FIRST_FACTOR) {
 			factors = new BigInteger[N_COUNT];
 		} else {
 			// TEST_MODE==TestMode.PRIME_FACTORIZATION
-			correctFactorSets = new SortedMultiset_BottomUp[N_COUNT];
 			factorSetArray = new SortedMultiset_BottomUp[N_COUNT];
 		}
 
 		if (N_COUNT > 1) {
-			LOG.info("Test N with " + bits + " bit, e.g. N = " + testNumbers[0]);
+			LOG.info("Test " + N_COUNT + " N with " + bits + " bit, e.g. N = " + testNumbers[0]);
 		} else {
 			LOG.info("Test N = " + testNumbers[0] + " (" + bits + " bit)");
 		}
@@ -223,7 +221,7 @@ public class FactorizerTest {
 				System.gc(); // create equal conditions for all algorithms
 
 				int failCount = 0;
-				BigInteger failExample = null;
+				int loggedFailCount = 0;
 				long duration;
 				switch (TEST_MODE) {
 				case FIRST_FACTOR: {
@@ -231,7 +229,7 @@ public class FactorizerTest {
 					long startTimeMillis = System.currentTimeMillis();
 					for (int j=0; j<N_COUNT; j++) {
 						try {
-							factors[j] = algorithm.findSingleFactor(testNumbers[j]); // TODO use searchFactors() here, too ?
+							factors[j] = algorithm.findSingleFactor(testNumbers[j]);
 						} catch (ArithmeticException e) {
 							LOG.error("FactorAlgorithm " + algorithm.getName() + " threw Exception while searching for a factor of N=" + testNumbers[j] + ": " + e);
 						}
@@ -240,23 +238,16 @@ public class FactorizerTest {
 					duration = endTimeMillis - startTimeMillis; // duration in ms
 					//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
 					
-					// verify
+					// test correctness
 					for (int j=0; j<N_COUNT; j++) {
 						BigInteger N = testNumbers[j];
 						BigInteger factor = factors[j];
-						// test correctness
-						if (factor==null || factor.equals(I_0) || factor.equals(I_1) || factor.mod(N).equals(I_0)) {
-							//LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
-							failExample = N;
+						if (factor==null || factor.equals(I_0) || factor.abs().equals(I_1) || factor.abs().equals(N.abs())) {
+							if (loggedFailCount++<10) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
 							failCount++;
-						} else {
-							// not null, not trivial -> test division
-							BigInteger[] test = N.divideAndRemainder(factor);
-							if (!test[1].equals(I_0)) {
-								//LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
-								failExample = N;
-								failCount++;
-							}
+						} else if (!N.mod(factor).equals(I_0)) {
+							if (loggedFailCount++<10) LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
+							failCount++;
 						}
 					}
 					break;
@@ -280,15 +271,34 @@ public class FactorizerTest {
 					for (int j=0; j<N_COUNT; j++) {
 						BigInteger N = testNumbers[j];
 						SortedMultiset<BigInteger> factorSet = factorSetArray[j];
-						SortedMultiset<BigInteger> correctFactors = correctFactorSets[j];
-						if (correctFactors == null) {
-							correctFactors = correctFactorSets[j] = testAndGetCorrectFactors(N, factorSet);
-						}
-						
-						if (!correctFactors.equals(factorSet)) {
-							if (DEBUG) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find all factors of N=" + N + ". Correct factors=" + correctFactors + ", found factors=" + factorSet);
-							failExample = N;
+						if (factorSet==null || factorSet.size()==0) {
+							if (loggedFailCount++<10) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find any factor of N=" + N + ", it returned " + factorSet);
 							failCount++;
+						} else {
+							BigInteger product = I_1;
+							ArrayList<BigInteger> nonFactors = new ArrayList<>();
+							ArrayList<BigInteger> nonPrimeFactors = new ArrayList<>();
+							for (BigInteger factor : factorSet.keySet()) {
+								if (factor==null || factor.equals(I_0) || factor.abs().equals(I_1) || factor.abs().equals(N.abs()) || !N.mod(factor).equals(I_0)) {
+									nonFactors.add(factor);
+								} else if (!bpsw.isProbablePrime(factor)) {
+									// not finding the prime factorization is an error
+									nonPrimeFactors.add(factor);
+								}
+								int exp = factorSet.get(factor);
+								BigInteger pow = factor.pow(exp);
+								product = product.multiply(pow);
+							}
+							if (nonFactors.size()>0 || nonPrimeFactors.size()>0 || !N.equals(product)) {
+								if (loggedFailCount++<10) {
+									String msg = "FactorAlgorithm " + algorithm.getName() + " falsely returned N=" + N + " = " + factorSet + ":";
+									if (nonFactors.size()>0) msg += " " + nonFactors + " are not factors of N.";
+									if (nonPrimeFactors.size()>0) msg += " The found factors " + nonPrimeFactors + " are not prime.";
+									if (!N.equals(product)) msg += " The product of the returned factors is not N but " + product + ".";
+									LOG.error(msg);
+								}
+								failCount++;
+							}
 						}
 					}
 					break;
@@ -296,12 +306,15 @@ public class FactorizerTest {
 				default: throw new IllegalArgumentException("TestMode = " + TEST_MODE);
 				}
 				
+				// performance results
 				List<FactorAlgorithm> algList = ms_2_algorithms.get(duration);
 				if (algList==null) algList = new ArrayList<FactorAlgorithm>();
 				algList.add(algorithm);
 				ms_2_algorithms.put(duration, algList);
+				
+				// failure summary
 				if (failCount>0) {
-					LOG.error("FactorAlgorithm " + algorithm.getName() + " failed at " + failCount + "/" + N_COUNT + " test numbers, e.g. for N = " + failExample);
+					LOG.error("FactorAlgorithm " + algorithm.getName() + " failed at " + failCount + "/" + N_COUNT + " test numbers");
 				}
 			}
 		}
@@ -318,30 +331,6 @@ public class FactorizerTest {
 			}
 			rank += j;
 		}
-	}
-	
-	private SortedMultiset<BigInteger> testAndGetCorrectFactors(BigInteger N, SortedMultiset<BigInteger> factorSet) {
-		if (factorSet != null) {
-			// analyzing the found factors will usually be faster than doing another factorization with a safe algorithm
-			BigInteger product = I_1;
-			for (BigInteger factor : factorSet.keySet()) {
-				if (!bpsw.isProbablePrime(factor)) {
-					// not finding the prime factorization is an error -> make sure that N != product.
-					break;
-				}
-				int exp = factorSet.get(factor);
-				BigInteger pow = factor.pow(exp);
-				product = product.multiply(pow);
-			}
-			if (N.equals(product)) {
-				return factorSet;
-			}
-		}
-		
-		// Something went wrong above, so now we factor N with a safe algorithm. Strategies with a better performance certainly exist.
-		return FactorAlgorithm.getDefault().factor(N);
-		// XXX Do we want the verification factor algorithm to log details if ANALYZE==true?
-		// XXX It is not really nice to see SIQS been run when another algorithm was tested :-/
 	}
 	
 	/**
