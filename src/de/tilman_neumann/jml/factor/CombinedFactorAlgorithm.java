@@ -66,7 +66,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	private static final boolean SEARCH_SMALL_FACTORS = true;
 
 	private TDiv31Barrett tDiv31 = new TDiv31Barrett();
-	private Hart_Fast2Mult hart = new Hart_Fast2Mult(false);
+	private Hart_Fast2Mult hart = new Hart_Fast2Mult(true); // for general factor arguments, trial division is needed
 	private TinyEcm64_MHInlined tinyEcm = new TinyEcm64_MHInlined();
 	private TDiv tdiv = new TDiv();
 	private EllipticCurveMethod ecm = new EllipticCurveMethod(0);
