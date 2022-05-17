@@ -30,7 +30,7 @@
       <manifest>
         <attribute name="Main-Class" value="de.tilman_neumann.jml.factor.CombinedFactorAlgorithm"/>
         <attribute name="Implementation-Title" value="JML"/>
-        <attribute name="Implementation-Version" value="1.3"/>
+        <attribute name="Implementation-Version" value="1.3.1"/>
         <attribute name="Implementation-Vendor" value="Tilman Neumann"/>
       </manifest>
     </jar>
