@@ -83,7 +83,7 @@ public class ConfigUtil {
 		JAVA_TMP_DIR = System.getProperty("java.io.tmpdir");
 		if (verbose) System.out.println("java.io.tmpdir = " + JAVA_TMP_DIR);
 		USER_HOME = System.getProperty("user.home");
-		if (verbose) System.out.println("conf root directory = " + USER_HOME);
+		if (verbose) System.out.println("user.home = " + USER_HOME);
 		NUMBER_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 		if (verbose) System.out.println("number of processors = " + NUMBER_OF_PROCESSORS);
 		
