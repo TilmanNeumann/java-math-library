@@ -349,16 +349,12 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
     	SortedMultiset<BigInteger> result = factorizer.factor(N);
 		long duration = System.currentTimeMillis()-t0;
 		String durationStr = TimeUtil.timeStr(duration);
-		if (result.totalCount()==1) {
-			BigInteger singleElement = result.keySet().iterator().next();
-			if (singleElement.abs().compareTo(I_1)<=0) {
-				LOG.info(N + " is trivial");
-			} else {
-				LOG.info(N + " is probable prime");
-			}
-		} else if (result.totalCount()==2 && result.keySet().contains(I_MINUS_1)) {
-			LOG.info(N + " is probable prime");
+		if (result.totalCount()==0 || (result.totalCount()==1 && result.getSmallestElement().abs().compareTo(I_1)<=0)) {
+			LOG.info(N + " is trivial");
+		} else if (result.totalCount()==1 || (result.totalCount()==2 && result.keySet().contains(I_MINUS_1))) {
+			LOG.info(N + " (" + N_bits + " bits) is probable prime");
 		} else {
+			//LOG.debug("result = " + result);
 			LOG.info(N + " (" + N_bits + " bits) = " + result.toString("*", "^") + " (factored in " + durationStr + ")");
 		}
 		return 0;
