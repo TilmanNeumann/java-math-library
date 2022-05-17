@@ -18,7 +18,10 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
+
+import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.fail;
@@ -29,7 +32,12 @@ public class RngTest {
 	private static final Logger LOG = Logger.getLogger(RngTest.class);
 	
 	private static final Rng RNG = new Rng();
-	
+
+	@Before
+	public void setup() {
+		ConfigUtil.initProject();
+	}
+
 	@Test
 	public void testUniformBigInteger() {
 		int numberTests = 100;

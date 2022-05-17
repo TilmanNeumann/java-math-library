@@ -16,16 +16,23 @@ package de.tilman_neumann.jml.roots;
 import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
 
 import de.tilman_neumann.jml.precision.Scale;
+import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * @author Tilman Neumann
  */
 public class SqrtTest {
 	private static final Logger LOG = Logger.getLogger(SqrtTest.class);
-	
+
+	@Before
+	public void setup() {
+		ConfigUtil.initProject();
+	}
+
 	@Test
 	public void testSpecialCases() {
 		BigDecimal input = new BigDecimal("36.0000090000");

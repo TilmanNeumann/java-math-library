@@ -19,7 +19,10 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
+
+import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
 import static org.junit.Assert.assertEquals;
@@ -27,7 +30,12 @@ import static org.junit.Assert.assertEquals;
 public class PrecisionTest {
 
 	private static final Logger LOG = Logger.getLogger(PrecisionTest.class);
-	
+
+	@Before
+	public void setup() {
+		ConfigUtil.initProject();
+	}
+
 	@Test
 	public void testPrecision() {
 		assertEquals(6, BigDecimal.valueOf(310.567).precision());

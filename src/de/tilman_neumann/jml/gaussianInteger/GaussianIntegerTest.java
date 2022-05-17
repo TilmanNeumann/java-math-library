@@ -21,11 +21,19 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigInteger;
 import java.util.Random;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import de.tilman_neumann.util.ConfigUtil;
 
 public class GaussianIntegerTest {
 
 	private static final Random RNG = new Random(42);
+
+	@Before
+	public void setup() {
+		ConfigUtil.initProject();
+	}
 
 	@Test
 	public void testNormVsMultiplicationWithConjugate() {

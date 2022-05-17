@@ -15,9 +15,11 @@ package de.tilman_neumann.jml.transcendental;
 
 import java.math.BigDecimal;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import de.tilman_neumann.jml.precision.Scale;
+import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 import static org.junit.Assert.assertEquals;
@@ -28,6 +30,11 @@ import static org.junit.Assert.assertEquals;
  * @author Tilman Neumann
  */
 public class ExpTest {
+
+	@Before
+	public void setup() {
+		ConfigUtil.initProject();
+	}
 
 	@Test
 	public void testExpZero() {

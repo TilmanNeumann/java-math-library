@@ -21,7 +21,10 @@ import java.math.BigInteger;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
+
+import de.tilman_neumann.util.ConfigUtil;
 
 public class HurwitzQuaternionTest {
 	
@@ -29,6 +32,11 @@ public class HurwitzQuaternionTest {
 	private static final Logger LOG = Logger.getLogger(HurwitzQuaternionTest.class);
 
 	private static final Random RNG = new Random(42);
+
+	@Before
+	public void setup() {
+		ConfigUtil.initProject();
+	}
 
 	@Test
 	public void testQuaternionConversion() {

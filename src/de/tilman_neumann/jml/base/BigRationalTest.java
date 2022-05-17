@@ -16,10 +16,18 @@ package de.tilman_neumann.jml.base;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import de.tilman_neumann.util.ConfigUtil;
 
 public class BigRationalTest {
 
+	@Before
+	public void setup() {
+		ConfigUtil.initProject();
+	}
+	
 	@Test
 	public void testRound() {
 		assertEquals(I_0, new BigRational(I_1, I_2).round());

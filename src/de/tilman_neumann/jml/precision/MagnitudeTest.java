@@ -16,14 +16,22 @@ package de.tilman_neumann.jml.precision;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static org.junit.Assert.assertEquals;
 import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 
 public class MagnitudeTest {
-	
+
+	@Before
+	public void setup() {
+		ConfigUtil.initProject();
+	}
+
 	@Test
 	public void testBigIntegerBitOperations() {
 		assertEquals(0, I_0.bitLength());
