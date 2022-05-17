@@ -18,18 +18,19 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 
 import org.apache.log4j.Logger;
-
-import de.tilman_neumann.test.junit.ClassTest;
+import org.junit.Test;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.fail;
 import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 
-public class RngTest extends ClassTest {
+public class RngTest {
 
 	private static final Logger LOG = Logger.getLogger(RngTest.class);
 	
 	private static final Rng RNG = new Rng();
 	
+	@Test
 	public void testUniformBigInteger() {
 		int numberTests = 100;
 		BigInteger maxValue = I_1E3;
@@ -48,6 +49,7 @@ public class RngTest extends ClassTest {
 		}
 	}
 
+	@Test
 	public void testUniformBigDecimal() {
 		int numberTests = 100;
 		BigDecimal minValue = BigDecimal.valueOf(100000);

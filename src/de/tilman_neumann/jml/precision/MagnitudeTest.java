@@ -16,13 +16,15 @@ package de.tilman_neumann.jml.precision;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import de.tilman_neumann.test.junit.ClassTest;
+import org.junit.Test;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.assertEquals;
 import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 
-public class MagnitudeTest extends ClassTest {
+public class MagnitudeTest {
 	
+	@Test
 	public void testBigIntegerBitOperations() {
 		assertEquals(0, I_0.bitLength());
 		assertEquals(1, I_1.bitLength());
@@ -45,6 +47,7 @@ public class MagnitudeTest extends ClassTest {
 		// getLowestSetBit() gives 0 for odd numbers, -1 for zero
 	}
 	
+	@Test
 	public void testDigits() {
 		assertEquals(0, Magnitude.of(I_0));
 		assertEquals(0, Magnitude.of(I_0.negate()));
@@ -60,6 +63,7 @@ public class MagnitudeTest extends ClassTest {
 		assertEquals(4, Magnitude.of(I_1E3.negate()));
 	}
 	
+	@Test
 	public void testBits() {
 		assertEquals(0, Magnitude.bitsOf(I_0));
 		assertEquals(0, Magnitude.bitsOf(I_0.negate()));
@@ -73,6 +77,7 @@ public class MagnitudeTest extends ClassTest {
 		assertEquals(3, Magnitude.bitsOf(I_4.negate()));
 	}
 	
+	@Test
 	public void testZero() {
 		assertEquals(I_0, F_0.unscaledValue());
 		assertEquals(0, F_0.scale());
@@ -81,6 +86,7 @@ public class MagnitudeTest extends ClassTest {
 		// it is possible to set the scale of 0 to arbitrary values
 	}
 
+	@Test
 	public void testMagnitude() {
 		assertEquals(8, Magnitude.of(BigDecimal.valueOf(23450000.000)));
 		assertEquals(4, Magnitude.of(BigDecimal.valueOf(2345.456)));

@@ -14,12 +14,11 @@
 package de.tilman_neumann.jml.base;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import de.tilman_neumann.test.junit.ClassTest;
-
-public class BigRationalTest extends ClassTest {
+public class BigRationalTest {
 
 	@Test
 	public void testRound() {

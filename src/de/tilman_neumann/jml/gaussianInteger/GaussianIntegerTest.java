@@ -15,15 +15,15 @@ package de.tilman_neumann.jml.gaussianInteger;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static de.tilman_neumann.jml.gaussianInteger.GaussianIntegerConstants.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.Random;
 
 import org.junit.Test;
 
-import de.tilman_neumann.test.junit.ClassTest;
-
-public class GaussianIntegerTest extends ClassTest {
+public class GaussianIntegerTest {
 
 	private static final Random RNG = new Random(42);
 

@@ -14,6 +14,8 @@
 package de.tilman_neumann.jml.quaternion;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -21,9 +23,7 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import de.tilman_neumann.test.junit.ClassTest;
-
-public class HurwitzQuaternionTest extends ClassTest {
+public class HurwitzQuaternionTest {
 	
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(HurwitzQuaternionTest.class);

@@ -19,15 +19,16 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import org.apache.log4j.Logger;
-
-import de.tilman_neumann.test.junit.ClassTest;
+import org.junit.Test;
 
 import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
+import static org.junit.Assert.assertEquals;
 
-public class PrecisionTest extends ClassTest {
+public class PrecisionTest {
 
 	private static final Logger LOG = Logger.getLogger(PrecisionTest.class);
 	
+	@Test
 	public void testPrecision() {
 		assertEquals(6, BigDecimal.valueOf(310.567).precision());
 		assertEquals(3, BigDecimal.valueOf(310).precision());
@@ -45,6 +46,7 @@ public class PrecisionTest extends ClassTest {
 		// zero has precision 1 no matter what it's scale is
 	}
 
+	@Test
 	public void testMathContext() {
 		BigDecimal a = BigDecimal.valueOf(654321.123456789);
 		BigDecimal b = BigDecimal.valueOf(22222.2222222);
@@ -55,6 +57,7 @@ public class PrecisionTest extends ClassTest {
 		// setPrecision parameter of MathContext means relative precision!
 	}
 
+	@Test
 	public void testApplyTo() {
 		Precision precision = Precision.valueOf(5);
 		// test rounding

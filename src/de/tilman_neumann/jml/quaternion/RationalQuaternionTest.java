@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.quaternion;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -22,9 +23,8 @@ import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import de.tilman_neumann.jml.base.BigRational;
-import de.tilman_neumann.test.junit.ClassTest;
 
-public class RationalQuaternionTest extends ClassTest {
+public class RationalQuaternionTest {
 	
 	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(RationalQuaternionTest.class);
@@ -138,6 +138,7 @@ public class RationalQuaternionTest extends ClassTest {
 		return new RationalQuaternion(a, b, c, d);
 	}
 	
+	@SuppressWarnings("unused")
 	private static BigRational getRandomNonzeroBigRational(int bits) {
 		BigInteger a, b;
 		do {

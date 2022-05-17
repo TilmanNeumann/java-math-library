@@ -15,18 +15,21 @@ package de.tilman_neumann.jml.transcendental;
 
 import java.math.BigDecimal;
 
+import org.junit.Test;
+
 import de.tilman_neumann.jml.precision.Scale;
-import de.tilman_neumann.test.junit.ClassTest;
 
 import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test class for floating point Exp function
  *
  * @author Tilman Neumann
  */
-public class ExpTest extends ClassTest {
+public class ExpTest {
 
+	@Test
 	public void testExpZero() {
 		// exp(0) with 10 digits precision
 		BigDecimal one = Exp.exp(F_0, Scale.valueOf(10));
