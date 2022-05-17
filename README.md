@@ -32,6 +32,8 @@ Other noteworthy parts of this library are
 
 ## Releases
 
+* v1.3.1: Fixed two bugs that may lead to factoring failures when trying to factor arguments in the range 32..62 bit using class CombinedFactorAlgorithm.
+  These bugs were introduced 2021-07-12 shortly after release 1.1, so they affect release 1.2 and 1.3.
 * v1.3: Implemented Gaussian integer and quaternion arithmetics including gcd's, and a four-square finder using them.
 * v1.2: Implemented SIQS with three large primes (but with the current parametrization, 3-partials are not found for N<=400 bit)
 * v1.1: Faster sieve for large N, speedup close to factor 2 at 360 bit inputs. Improved Gaussian solvers (by Dave McGuigan), including a parallel Gaussian solver that outperforms Block-Lanczos until about 375 bit on a Ryzen 3900X with 20 threads.
