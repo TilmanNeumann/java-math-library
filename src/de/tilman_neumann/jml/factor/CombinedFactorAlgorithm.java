@@ -243,7 +243,6 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	 * @param args [-t <numberOfThreads>] <numberToFactor>
 	 */
 	public static void main(String[] args) {
-		ConfigUtil.verbose = false;
     	ConfigUtil.initProject();
     	
     	try {

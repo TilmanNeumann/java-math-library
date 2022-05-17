@@ -14,6 +14,8 @@
 package de.tilman_neumann.util;
 
 import java.io.File;
+import java.net.URL;
+import java.util.Objects;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
@@ -32,7 +34,6 @@ public class ConfigUtil {
 	private static final Logger LOG = Logger.getLogger(ConfigUtil.class);
 	
 	private static boolean initialized = false;
-	public static boolean verbose = false;
 	
 	/** File separator used on this OS. */
 	public static String FILE_SEPARATOR;
@@ -59,9 +60,18 @@ public class ConfigUtil {
 	}
 
 	/**
-	 * Project configuration.
+	 * Run project configuration being quiet about the initialization.
+	 * @param verbose
 	 */
 	public static void initProject() {
+		initProject(false);
+	}
+
+	/**
+	 * Run project configuration, permitting to switch on verbose initialization.
+	 * @param verbose
+	 */
+	public static void initProject(boolean verbose) {
 		// avoid re-initialization from junit tests
 		if (initialized) return;
 		
@@ -69,11 +79,13 @@ public class ConfigUtil {
 		if (verbose) System.out.println("system file separator = " + FILE_SEPARATOR);
 		PATH_SEPARATOR = System.getProperty("path.separator");
 		if (verbose) System.out.println("system path separator = " + PATH_SEPARATOR);
+		// user.dir is
+		// * the jml project root directory if jml is run as a project
+		// * the project root directory of a custom project using jml as a jar
+		// * the folder containing the jar file if jml is run as a runnable jar
+		// So this is a good place to put the data and configuration files required by jml
 		PROJECT_ROOT = System.getProperty("user.dir");
-		// The project root is something like D:\Projects\math_java when run from a Java project;
-		// but it is different when run from an executable jar!
-		// TODO: get example for executable jar
-		if (verbose) System.out.println("project root directory = " + PROJECT_ROOT);
+		if (verbose) System.out.println("project root directory (user.dir) = " + PROJECT_ROOT);
 		CONF_ROOT = PROJECT_ROOT + FILE_SEPARATOR + "conf";
 		if (verbose) System.out.println("conf root directory = " + CONF_ROOT);
 		JAVA_CLASS_PATH = System.getProperty("java.class.path");
@@ -90,18 +102,37 @@ public class ConfigUtil {
 		String confFileStr = CONF_ROOT + FILE_SEPARATOR + "log4jconf.xml";
 		File confFile = new File(confFileStr);
 		if (confFile.exists()) {
-			// initialize XML-style Log4j-configuration
-	    	DOMConfigurator.configure(CONF_ROOT + FILE_SEPARATOR + "log4jconf.xml");
-	    	if (verbose) LOG.info("log4j configuration loaded.");
-	    	if (verbose) LOG.info("project initialization finished.\n");
+			// initialize Log4j from xml configuration
+	    	DOMConfigurator.configure(confFileStr);
+	    	if (verbose) LOG.info("log4j configuration successfully loaded from file " + confFileStr + ".");
+	    	if (verbose) LOG.info("project initialization finished.");
 	    	initialized = true;
-		} else {
-			// emergency initialization that logs into console
-			PatternLayout layout = new PatternLayout();
-			ConsoleAppender appender = new ConsoleAppender(layout);
-			appender.setThreshold(Level.DEBUG); // TODO: Set to ERROR before creating jar file, to DEBUG before creating src distribution
-			BasicConfigurator.configure(appender);
-	    	initialized = true;
+	    	return;
 		}
+		
+		// Not finding the log4j config file would be bad when not run from runnable jar
+		boolean runningFromJar = Objects.equals(getClassResourceProtocol(verbose), "rsrc");
+		if (!runningFromJar) {
+			System.err.println("WARNING: Unable to find log4j configuration file " + confFileStr + ".");
+			System.err.println("WARNING: An emergency logger with limited capabilities will be used.");
+			System.err.println("WARNING: Please put a proper log4jconf.xml file into the designated folder if this message is annoying you...");
+		}
+		
+		// Use emergency initialization that simply logs into console
+		PatternLayout layout = new PatternLayout();
+		ConsoleAppender appender = new ConsoleAppender(layout);
+		appender.setThreshold(Level.DEBUG); // should only deliver the required logs, even when running from runnable jar
+		BasicConfigurator.configure(appender);
+    	initialized = true;
+	}
+	
+	// derived from https://stackoverflow.com/questions/482560/can-you-tell-on-runtime-if-youre-running-java-from-within-a-jar
+	private static String getClassResourceProtocol(boolean verbose) {
+		//URL classResource = ConfigUtil.class.getResource(ConfigUtil.class.getName() + ".class"); // may be null
+		URL classResource = ConfigUtil.class.getResource("");
+		if (verbose) System.out.println("classResource = " + classResource);
+		String protocol = classResource.getProtocol();
+		if (verbose) System.out.println("protocol = " + protocol);
+		return protocol;
 	}
 }
