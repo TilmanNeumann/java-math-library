@@ -59,8 +59,10 @@ import static java.math.BigInteger.ZERO;
  Copyright (c) 2017-20 Jabari Zakiya -- jzakiya at gmail dot com
  Java version 0.21.1B - Pascal Pechard -- pascal at priveyes dot net
  Version Date: 2020/01/12
- */
 
+ TODO According to https://www.mersenneforum.org/showpost.php?p=608903&postcount=68, this program is not always correct;
+ TODO In particular, it falsely claims that 16850988+/-1 is a twin prime, but 16850989 = 4099 * 4111.
+ */
 public class SSOZJ {
 
 	static final BigInteger TWO = ONE.add(ONE);
