@@ -5,23 +5,16 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static java.math.BigInteger.ONE;
-import static java.math.BigInteger.ZERO;
 
 /**
  This Java source file is a multiple threaded implementation to perform an
@@ -31,8 +24,8 @@ import static java.math.BigInteger.ZERO;
  Output is the number of twin primes <= N; the last
  twin prime value for the range; and the total time of execution.
 
- Run as Java application, and enter a range (comma or space spareted) when asked in console.
- (Accept scientific notatation)
+ Run as Java application, and enter a range (comma or space separated) when asked in console.
+ (Accept scientific notation)
 
  This java source file, and updates, will be available here:
  <a href="https://gist.github.com/Pascal66/4d4229e88f4002641ddcaa5eccd0f6d5">gist.github.com/Pascal66</a>
