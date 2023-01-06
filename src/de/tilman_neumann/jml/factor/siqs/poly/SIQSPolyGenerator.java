@@ -184,6 +184,8 @@ public class SIQSPolyGenerator {
 			if (ANALYZE) bParamCount++;
 			bIndex = 1;
 			if (DEBUG) {
+				assertTrue(a.signum() >= 0);
+				assertTrue(b.signum() >= 0);
 				LOG.debug("first a=" + a + ", b=" + b);
 				LOG.debug("(b^2-kN)/a [" + bIndex + "] = " + b.multiply(b).subtract(kN).divide(a));
 			}
