@@ -27,7 +27,6 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.combinatorics.Factorial;
-import de.tilman_neumann.jml.factor.CombinedFactorAlgorithm;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.roots.SqrtInt;
@@ -111,14 +110,14 @@ public class Divisors {
 	}
 
 	/**
-	 * Delivers the set of divisors of the argument, including 1 and n.
+	 * Delivers the set of divisors of the argument, including 1 and n. Pretty fast.
 	 * 
 	 * @param n Argument.
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
 	public static SortedSet<BigInteger> getDivisors/*_v3*/(BigInteger n) {
-		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1); // permit multiple threads?
-		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
+		// In repeated applications this is much faster than new CombinedFactorAlgorithm(1) because of the missing initialization cost
+		SortedMap<BigInteger, Integer> factors = FactorAlgorithm.getDefault().factor(n);
 		return getDivisors(factors);
 	}
 	
@@ -260,8 +259,8 @@ public class Divisors {
 	}
 	
 	public static SortedSet<BigInteger> getSmallDivisors/*_v2*/(BigInteger n) {
-		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1); // permit multiple threads?
-		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
+		// In repeated applications this is much faster than new CombinedFactorAlgorithm(1) because of the missing initialization cost
+		SortedMap<BigInteger, Integer> factors = FactorAlgorithm.getDefault().factor(n);
 		return getSmallDivisors/*_v2*/(n, factors);
 	}
 
@@ -342,15 +341,15 @@ public class Divisors {
     }
 	
     /**
-     * @param x
+     * @param n
      * @return The sum of all numbers 1<=d<=x that divide x.
      * Faster implementation for general arguments.
      * 
      * E.g. sumOfDivisors(6) = 1+2+3+6 = 12.
      */
-    public static BigInteger sumOfDivisors/*_v2*/(BigInteger x) {
-		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1); // permit multiple threads?
-		SortedMap<BigInteger, Integer> factors = factorizer.factor(x);
+    public static BigInteger sumOfDivisors/*_v2*/(BigInteger n) {
+		// In repeated applications this is much faster than new CombinedFactorAlgorithm(1) because of the missing initialization cost
+		SortedMap<BigInteger, Integer> factors = FactorAlgorithm.getDefault().factor(n);
     	return sumOfDivisors(factors);
     }
 
@@ -388,8 +387,8 @@ public class Divisors {
 	 * @return number of divisors of n
 	 */
 	public static BigInteger getDivisorCount(BigInteger n) {
-		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1); // permit multiple threads?
-		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
+		// In repeated applications this is much faster than new CombinedFactorAlgorithm(1) because of the missing initialization cost
+		SortedMap<BigInteger, Integer> factors = FactorAlgorithm.getDefault().factor(n);
     	return getDivisorCount(factors);
 	}
 
@@ -423,7 +422,7 @@ public class Divisors {
      * Find the biggest divisor of n <= sqrt(n).
      * 
      * This implementation does trial division from sqrt(n) downwards.
-     * It works correctly for n <= 31 bit and is the fastest implementation for n <= 30 bit.
+     * It works correctly for n <= 31 bit and is the fastest implementation for n <= 21 bit.
      * 
      * @param n
      * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
@@ -445,13 +444,13 @@ public class Divisors {
      * This implementation finds the prime factorization first, computes all divisors <= sqrt(n)
      * and returns the largest of them.
      * 
-     * Fastest implementation for n > 30 bit.
+     * Fastest implementation for n > 21 bit.
      * @param n
      * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
      */
     private static BigInteger getBiggestDivisorBelowSqrtN_big(BigInteger n) {
-		FactorAlgorithm factorizer = new CombinedFactorAlgorithm(1); // permit multiple threads?
-		SortedMap<BigInteger, Integer> factors = factorizer.factor(n);
+		// In repeated applications this is much faster than new CombinedFactorAlgorithm(1) because of the missing initialization cost
+		SortedMap<BigInteger, Integer> factors = FactorAlgorithm.getDefault().factor(n);
 		return getBiggestDivisorBelowSqrtN(n, factors);
     }
 
@@ -560,8 +559,8 @@ public class Divisors {
 		for (int n=0; ; n++) {
 			BigInteger fac = Factorial.factorial(n);
 			
-//			long t0 = System.currentTimeMillis();
-//			ArrayList<BigInteger> divSet1 = getSmallDivisors_v1(fac);
+			long t0 = System.currentTimeMillis();
+			ArrayList<BigInteger> divSet1 = getSmallDivisors_v1(fac);
 			long t1 = System.currentTimeMillis();
 			
 			// Much much faster!
@@ -571,7 +570,7 @@ public class Divisors {
 			
 //			LOG.info("smallDivisors_v1(" + n + "!) = " + divSet1);
 //			LOG.info("smallDivisors_v2(" + n + "!) = " + divSet2);
-//			LOG.info("smallDivisors_v1(" + n + "!) found " + divSet1.size() + " divisors in " + (t1-t0) + "ms");
+			LOG.info("smallDivisors_v1(" + n + "!) found " + divSet1.size() + " divisors in " + (t1-t0) + "ms");
 			LOG.info("smallDivisors_v2(" + n + "!) found " + divSet2.size() + " divisors in " + (t2-t1) + "ms");
 			// The divisor count sequence for n! up to 38! is
 			// 1, 1, 1, 2, 4, 8, 15, 30, 48, 80, 135, 270, 396, 792, 1296, 2016, 2688, 5376, 7344, 14688, 20520, 30400, 48000, 96000, 121440, 170016, 266112, 338688, 458640, 917280, 1166400, 2332800, 2764800, 3932160, 6082560, 8211456, 9797760, 19595520, 30233088
@@ -618,9 +617,9 @@ public class Divisors {
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
     	testDivisors();
-//    	testSmallDivisors();
-    	testBiggestDivisorBelowSqrtN();
-//    	testSumOfDivisorsForSmallIntegers();
-//    	testSumOfDivisorsForFactorials();
+    	//testSmallDivisors();
+    	//testBiggestDivisorBelowSqrtN();
+    	//testSumOfDivisorsForSmallIntegers();
+    	//testSumOfDivisorsForFactorials();
 	}
 }
