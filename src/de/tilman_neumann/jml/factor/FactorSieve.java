@@ -60,7 +60,9 @@ public class FactorSieve implements SieveCallback {
 	 */
 	@Override
 	public void processPrime(long prime) {
+		if (DEBUG) LOG.debug("process prime " + prime + " (limit = " + limit + ")");
 		for (long n = prime; n<=limit; n+=prime) {
+			if (DEBUG) LOG.debug("add prime " + prime + " to n = " + n);
 			Long nL = Long.valueOf(n);
 			SortedMultiset<Long> factors = factorizations.get(nL);
 			if (factors == null) {
@@ -79,6 +81,10 @@ public class FactorSieve implements SieveCallback {
 	
 	public SortedMultiset<Long> getFactorization(long n) {
 		return factorizations.get(Long.valueOf(n));
+	}
+	
+	public Map<Long, SortedMultiset<Long>> getFactorizations() {
+		return factorizations;
 	}
 	
 	private static long computeProduct(SortedMultiset<Long> factors) {
