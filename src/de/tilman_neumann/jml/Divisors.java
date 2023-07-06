@@ -397,14 +397,14 @@ public class Divisors {
 	 * @param factors
 	 * @return number of divisors of n
 	 */
-	public static BigInteger getDivisorCount(SortedMap<BigInteger, Integer> factors) {
+	public static BigInteger getDivisorCount(SortedMap<? extends Number, Integer> factors) {
 		BigInteger count = I_1; // this is already the answer for n=1 having empty factor set
-		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
+		for (Map.Entry<?, Integer> entry : factors.entrySet()) {
 			count = count.multiply(BigInteger.valueOf(entry.getValue()+1));
 		}
 		return count;
 	}
-	
+
     /**
      * Find the biggest divisor of n <= sqrt(n).
      * 
