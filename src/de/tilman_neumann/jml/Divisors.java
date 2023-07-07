@@ -174,7 +174,7 @@ public class Divisors {
 	 * @return the set of divisors of the number thats prime factorization is given
 	 */
 	public static SortedSet<BigInteger> getDivisors/*BottomUp*/(SortedMap<BigInteger, Integer> factors) {
-		if (factors.size()==0) return ONE_AS_SET; // n=1 has factor set {}
+		if (factors==null || factors.size()==0) return ONE_AS_SET; // n=1 has empty factor set
 		
 		ArrayList<BigInteger> primes = new ArrayList<>();
 		ArrayList<Integer> maxPowers = new ArrayList<>();
@@ -204,6 +204,64 @@ public class Divisors {
 				if (power > 0) {
 					// multiply entry to divisor
 					divisor = divisor.multiply(primes.get(i).pow(power));
+				}
+			}
+			if (divisors.add(divisor)) {
+				for (int i=0; i<maxPowers.size(); i++) {
+					int maxPower = maxPowers.get(i);
+					int power = powers.get(i);
+					if (power < maxPower) {
+						// create new entry
+						ArrayList<Integer> enhancedPowers = new ArrayList<Integer>(powers); // copy
+						enhancedPowers.set(i, power+1);
+						stack.push(enhancedPowers);
+					}
+				}
+			}
+		}
+		return divisors;
+	}
+	
+	/**
+	 * Same as above for longs.
+	 * @param factors
+	 * @return the set of divisors of the number thats prime factorization is given
+	 */
+	public static SortedSet<Long> getDivisorsLong/*BottomUp*/(SortedMap<Long, Integer> factors) {
+		if (factors==null || factors.size()==0) { // n=1 has empty factor set
+			TreeSet<Long> s = new TreeSet<>();
+			s.add(Long.valueOf(1));
+			return s;
+		}
+		
+		ArrayList<Long> primes = new ArrayList<>();
+		ArrayList<Integer> maxPowers = new ArrayList<>();
+		for (Map.Entry<Long, Integer> entry : factors.entrySet()) {
+			primes.add(entry.getKey());
+			maxPowers.add(entry.getValue());
+		}
+
+		TreeSet<Long> divisors = new TreeSet<Long>();
+		if (primes.size()==0 || (primes.size()==1 && primes.get(0).equals(Long.valueOf(0)))) {
+			return divisors;
+		}
+		
+		Stack<ArrayList<Integer>> stack = new Stack<ArrayList<Integer>>();
+		ArrayList<Integer> emptyPowers = new ArrayList<Integer>();
+		for (int i=0; i<maxPowers.size(); i++) {
+			emptyPowers.add(0);
+		}
+		stack.push(emptyPowers);
+		
+		while (!stack.isEmpty()) {
+			ArrayList<Integer> powers = stack.pop();
+			// compute divisor from stack element
+			long divisor = 1;
+			for (int i=0; i<powers.size(); i++) {
+				int power = powers.get(i);
+				if (power > 0) {
+					// multiply entry to divisor
+					divisor *= Math.pow(primes.get(i), power);
 				}
 			}
 			if (divisors.add(divisor)) {
