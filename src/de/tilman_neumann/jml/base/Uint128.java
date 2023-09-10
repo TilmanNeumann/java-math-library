@@ -207,6 +207,10 @@ public class Uint128 {
 		final long r_lo = a*b;
 		long r_hi = Math.multiplyHigh(a, b);
 		if (a<0) r_hi += b;
+		// For general correctness we would need as well
+		//if (b<0) r_hi += a;
+		// See implementation of java.lang.Math.unsignedMultiplyHigh() starting from Java 18.
+		// However, for the purposes of this library the current implementation seems to be sufficient.
 		
 		if (DEBUG) {
 			// compare to pure Java implementation
