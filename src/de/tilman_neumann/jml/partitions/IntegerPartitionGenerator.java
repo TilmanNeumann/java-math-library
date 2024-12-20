@@ -117,8 +117,8 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 	 * memory problems for big arguments, but the result is correctly ordered and has nice String output.
 	 * 
 	 * @param n
-	 * @return partitions = SortedSet<IntegerPartition_Additive>,
-	 * partition = IntegerPartition_Additive,
+	 * @return partitions = SortedSet<IntegerPartition>,
+	 * partition = IntegerPartition,
 	 * part = Integer
 	 */
 	public static SortedSet<IntegerPartition> partitionsOf(int n) {
@@ -167,7 +167,7 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 			try {
 				int n = Integer.valueOf(input);
 				printNumberOfPartitions(n);
-				//SortedSet<IntegerPartition_Additive> partitions = partitionsOf(n);
+				//SortedSet<IntegerPartition> partitions = partitionsOf(n);
 				//LOG.debug(n + " has " + partitions.size() + " partitions: " + partitions);
 			} catch (NumberFormatException nfe) {
 				LOG.error("input " + input + " is not an integer");
