@@ -111,7 +111,7 @@ public class MpiPartitionGeneratorTest {
 					totalNumberOfPartitions++;
 				}
 			}
-			LOG.info(n + " has " + totalNumberOfPartitions + " hyper partitions! (computed in " + (System.currentTimeMillis()-start) + " ms)");
+			LOG.info(n + " has " + totalNumberOfPartitions + " partitions of partitions! (computed in " + (System.currentTimeMillis()-start) + " ms)");
 		}
 	}
 	
