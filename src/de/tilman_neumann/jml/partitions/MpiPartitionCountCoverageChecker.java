@@ -26,7 +26,7 @@ import de.tilman_neumann.util.ConfigUtil;
 /**
  * Tests which natural numbers are represented by counts of partitions of multipartite numbers.
  * 
- * Complete results for partitions of n=1..14 and all their partitions of partitions:
+ * Complete results for partitions of n=1..15 and all their partitions of partitions:
  * 1 is the partitionCount of 1 multipartite numbers: [[1]]
  * 2 is the partitionCount of 2 multipartite numbers: [[2], [1, 1]]
  * 3 is the partitionCount of 1 multipartite numbers: [[3]]
