@@ -26,7 +26,7 @@ import de.tilman_neumann.util.ConfigUtil;
 /**
  * Tests which natural numbers are represented by counts of partitions of multipartite numbers.
  * 
- * Complete results for partitions of n=1..15 and all their partitions of partitions:
+ * Complete results for partitions of n=1..16 and all their partitions of partitions:
  * 1 is the partitionCount of 1 multipartite numbers: [[1]]
  * 2 is the partitionCount of 2 multipartite numbers: [[2], [1, 1]]
  * 3 is the partitionCount of 1 multipartite numbers: [[3]]
@@ -73,6 +73,13 @@ import de.tilman_neumann.util.ConfigUtil;
  * 165 is the partitionCount of 1 multipartite numbers: [[7, 1, 1]]
  * 171 is the partitionCount of 1 multipartite numbers: [[5, 2, 1]]
  * 176 is the partitionCount of 1 multipartite numbers: [[15]]
+ * 181 is the partitionCount of 1 multipartite numbers: [[8, 2]]
+ * 189 is the partitionCount of 1 multipartite numbers: [[5, 4]]
+ * 195 is the partitionCount of 1 multipartite numbers: [[11, 1]]
+ * 198 is the partitionCount of 1 multipartite numbers: [[3, 2, 1, 1]]
+ * 203 is the partitionCount of 1 multipartite numbers: [[1, 1, 1, 1, 1, 1]]
+ * 212 is the partitionCount of 1 multipartite numbers: [[4, 3, 1]]
+ * 231 is the partitionCount of 1 multipartite numbers: [[16]]
  *
  * So we get three number sequences:
  * S0 = numbers not represented by any count of partitions of multipartite numbers
@@ -94,9 +101,9 @@ public class MpiPartitionCountCoverageChecker {
 	private static final boolean DEBUG = false;
 	
 	private static void go() {
-		Map<Integer, TreeSet<Mpi>> partitionCountsToPartitions = new TreeMap<>();
+		Map<Long, TreeSet<Mpi>> partitionCountsToPartitions = new TreeMap<>();
 		for (int n=1; ; n++) {
-			int nPartitionCount = 0;
+			long nPartitionCount = 0;
 			// run over all additive partition of n:
 			IntegerPartitionGenerator partgen = new IntegerPartitionGenerator(n);
 			while (partgen.hasNext()) {
@@ -109,7 +116,7 @@ public class MpiPartitionCountCoverageChecker {
 				//LOG.debug("mpiFromPartition=" + mpiFromPartition);
 				// now count the partitions of the multipartite number
 				MpiPartitionGenerator mpiPartGen = new MpiPartitionGenerator(mpiFromPartition);
-				int partitionCount = 0;
+				long partitionCount = 0;
 				while (mpiPartGen.hasNext()) {
 					Mpi[] multipartitePartition = mpiPartGen.next();
 					if (DEBUG) LOG.debug("multipartite partition = " + Arrays.toString(multipartitePartition));
@@ -125,8 +132,8 @@ public class MpiPartitionCountCoverageChecker {
 			}
 			
 			LOG.info("Full statistics after n=" + n + ":");
-			for (Map.Entry<Integer, TreeSet<Mpi>> entry : partitionCountsToPartitions.entrySet()) {
-				int count = entry.getKey().intValue();
+			for (Map.Entry<Long, TreeSet<Mpi>> entry : partitionCountsToPartitions.entrySet()) {
+				long count = entry.getKey().longValue();
 				if (count > nPartitionCount) {
 					// From here on, the data is incomplete
 					break;
