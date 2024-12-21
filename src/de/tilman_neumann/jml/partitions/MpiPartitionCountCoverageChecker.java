@@ -13,10 +13,11 @@
  */
 package de.tilman_neumann.jml.partitions;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
@@ -29,12 +30,16 @@ public class MpiPartitionCountCoverageChecker {
 	
 	private static final Logger LOG = Logger.getLogger(MpiPartitionCountCoverageChecker.class);
 	
+	private static final boolean DEBUG = false;
+	
 	private static void go() {
-		Map<Integer, List<Mpi>> partitionCountsToPartitions = new TreeMap<>();
+		Map<Integer, TreeSet<Mpi>> partitionCountsToPartitions = new TreeMap<>();
 		for (int n=1; ; n++) {
+			int nPartitionCount = 0;
 			// run over all additive partition of n:
 			IntegerPartitionGenerator partgen = new IntegerPartitionGenerator(n);
 			while (partgen.hasNext()) {
+				nPartitionCount++;
 				long start = System.currentTimeMillis();
 				int[] flatPartition = partgen.next();
 				// partition is in flat form, i.e. a list of all parts, like 5 = 3+1+1.
@@ -46,20 +51,25 @@ public class MpiPartitionCountCoverageChecker {
 				int partitionCount = 0;
 				while (mpiPartGen.hasNext()) {
 					Mpi[] multipartitePartition = mpiPartGen.next();
-					//LOG.debug("multipartite partition = " + Arrays.toString(multipartitePartition));
+					if (DEBUG) LOG.debug("multipartite partition = " + Arrays.toString(multipartitePartition));
 					partitionCount++;
 				}
-				//LOG.info(mpiFromPartition + " has " + partitionCount + " partitions! (computed in " + (System.currentTimeMillis()-start) + " ms)");
-				List<Mpi> mpis = partitionCountsToPartitions.get(partitionCount);
+				if (DEBUG) LOG.info(mpiFromPartition + " has " + partitionCount + " partitions! (computed in " + (System.currentTimeMillis()-start) + " ms)");
+				TreeSet<Mpi> mpis = partitionCountsToPartitions.get(partitionCount);
 				if (mpis == null) {
-					mpis = new ArrayList<>();
+					mpis = new TreeSet<>(Collections.reverseOrder());
 				}
 				mpis.add(mpiFromPartition);
 				partitionCountsToPartitions.put(partitionCount, mpis);
 			}
 			
 			LOG.debug("Full statistics after n=" + n + ":");
-			for (Map.Entry<Integer, List<Mpi>> entry : partitionCountsToPartitions.entrySet()) {
+			for (Map.Entry<Integer, TreeSet<Mpi>> entry : partitionCountsToPartitions.entrySet()) {
+				int count = entry.getKey().intValue();
+				if (count > nPartitionCount) {
+					// From here on, the data is incomplete
+					break;
+				}
 				LOG.info(entry.getKey() + " is the partitionCount of " + entry.getValue().size() + " multipartite numbers: " + entry.getValue());
 			}
 		}
