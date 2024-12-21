@@ -122,7 +122,9 @@ public class MpiPartitionGeneratorTest {
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
     	
+    	// this test runs forever - comment out to see others
     	printNumberOfFactorizationsRecordsPerBit();
+    	// this test runs forever - comment out to see others
     	printNumberOfFactorizationsRecords();
     	
     	printNumberOfFactorizations();
