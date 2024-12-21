@@ -24,7 +24,60 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Tests which natural numbers are represented by counts of partitions of multipartite numbers. (experimental)
+ * Tests which natural numbers are represented by counts of partitions of multipartite numbers.
+ * 
+ * Complete results for partitions of n=1..14 and all their partitions of partitions:
+ * 1 is the partitionCount of 1 multipartite numbers: [[1]]
+ * 2 is the partitionCount of 2 multipartite numbers: [[2], [1, 1]]
+ * 3 is the partitionCount of 1 multipartite numbers: [[3]]
+ * 4 is the partitionCount of 1 multipartite numbers: [[2, 1]]
+ * 5 is the partitionCount of 2 multipartite numbers: [[4], [1, 1, 1]]
+ * 7 is the partitionCount of 2 multipartite numbers: [[5], [3, 1]]
+ * 9 is the partitionCount of 1 multipartite numbers: [[2, 2]]
+ * 11 is the partitionCount of 2 multipartite numbers: [[6], [2, 1, 1]]
+ * 12 is the partitionCount of 1 multipartite numbers: [[4, 1]]
+ * 15 is the partitionCount of 2 multipartite numbers: [[7], [1, 1, 1, 1]]
+ * 16 is the partitionCount of 1 multipartite numbers: [[3, 2]]
+ * 19 is the partitionCount of 1 multipartite numbers: [[5, 1]]
+ * 21 is the partitionCount of 1 multipartite numbers: [[3, 1, 1]]
+ * 22 is the partitionCount of 1 multipartite numbers: [[8]]
+ * 26 is the partitionCount of 1 multipartite numbers: [[2, 2, 1]]
+ * 29 is the partitionCount of 1 multipartite numbers: [[4, 2]]
+ * 30 is the partitionCount of 2 multipartite numbers: [[9], [6, 1]]
+ * 31 is the partitionCount of 1 multipartite numbers: [[3, 3]]
+ * 36 is the partitionCount of 1 multipartite numbers: [[2, 1, 1, 1]]
+ * 38 is the partitionCount of 1 multipartite numbers: [[4, 1, 1]]
+ * 42 is the partitionCount of 1 multipartite numbers: [[10]]
+ * 45 is the partitionCount of 1 multipartite numbers: [[7, 1]]
+ * 47 is the partitionCount of 1 multipartite numbers: [[5, 2]]
+ * 52 is the partitionCount of 2 multipartite numbers: [[3, 2, 1], [1, 1, 1, 1, 1]]
+ * 56 is the partitionCount of 1 multipartite numbers: [[11]]
+ * 57 is the partitionCount of 1 multipartite numbers: [[4, 3]]
+ * 64 is the partitionCount of 1 multipartite numbers: [[5, 1, 1]]
+ * 66 is the partitionCount of 1 multipartite numbers: [[2, 2, 2]]
+ * 67 is the partitionCount of 1 multipartite numbers: [[8, 1]]
+ * 74 is the partitionCount of 1 multipartite numbers: [[3, 1, 1, 1]]
+ * 77 is the partitionCount of 2 multipartite numbers: [[12], [6, 2]]
+ * 92 is the partitionCount of 1 multipartite numbers: [[2, 2, 1, 1]]
+ * 97 is the partitionCount of 2 multipartite numbers: [[9, 1], [5, 3]]
+ * 98 is the partitionCount of 1 multipartite numbers: [[4, 2, 1]]
+ * 101 is the partitionCount of 1 multipartite numbers: [[13]]
+ * 105 is the partitionCount of 1 multipartite numbers: [[6, 1, 1]]
+ * 109 is the partitionCount of 2 multipartite numbers: [[4, 4], [3, 3, 1]]
+ * 118 is the partitionCount of 1 multipartite numbers: [[7, 2]]
+ * 135 is the partitionCount of 2 multipartite numbers: [[14], [2, 1, 1, 1, 1]]
+ *
+ * So we get three number sequences:
+ * S0 = numbers not represented by any count of partitions of multipartite numbers = 6, 8, 10, 13, 14, 17, 18, 20, 23, 24, 25, 27, 28, 32, 33, 34, 35, 37, 39, 40, 41, ...
+ * This seems to be A330976 = Numbers that are not the number of factorizations into factors > 1 of any positive integer.
+
+ * S1 = numbers represented by exactly 1 count of partitions of multipartite numbers = 1, 3, 4, 9, 12, 16, 19, 21, 22, 26, 29, 31, 36, 38, 42, 45, 47, 56, 57, 64, 66, ...
+ * (not in OEIS)
+ * 
+ * S2 = numbers represented by exactly 2 counts of partitions of multipartite numbers = 2, 5, 7, 11, 15, 30, 52, 77, 97, 109, 135, ...
+ * (not in OEIS)
+ * 
+ * No natural number is represented by more than 2 counts of partitions of multipartite numbers !?
  */
 public class MpiPartitionCountCoverageChecker {
 	
