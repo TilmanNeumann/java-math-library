@@ -66,9 +66,17 @@ import de.tilman_neumann.util.ConfigUtil;
  * 109 is the partitionCount of 2 multipartite numbers: [[4, 4], [3, 3, 1]]
  * 118 is the partitionCount of 1 multipartite numbers: [[7, 2]]
  * 135 is the partitionCount of 2 multipartite numbers: [[14], [2, 1, 1, 1, 1]]
+ * 137 is the partitionCount of 1 multipartite numbers: [[3, 2, 2]]
+ * 139 is the partitionCount of 1 multipartite numbers: [[10, 1]]
+ * 141 is the partitionCount of 1 multipartite numbers: [[4, 1, 1, 1]]
+ * 162 is the partitionCount of 1 multipartite numbers: [[6, 3]]
+ * 165 is the partitionCount of 1 multipartite numbers: [[7, 1, 1]]
+ * 171 is the partitionCount of 1 multipartite numbers: [[5, 2, 1]]
+ * 176 is the partitionCount of 1 multipartite numbers: [[15]]
  *
  * So we get three number sequences:
- * S0 = numbers not represented by any count of partitions of multipartite numbers = 6, 8, 10, 13, 14, 17, 18, 20, 23, 24, 25, 27, 28, 32, 33, 34, 35, 37, 39, 40, 41, ...
+ * S0 = numbers not represented by any count of partitions of multipartite numbers
+ *    = 6, 8, 10, 13, 14, 17, 18, 20, 23, 24, 25, 27, 28, 32, 33, 34, 35, 37, 39, 40, 41, 43, 44, 46, 48, 49, 50, 51, 53, 54, 55, 58, 59, 60, 61, 62, 63, 65, 68, 69, 70, 71, 72, 73, 75, 76, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 93, 94, 95, 96, 99, 100, 102, 103, 104, 106, 107, 108, ...
  * This seems to be A330976 = Numbers that are not the number of factorizations into factors > 1 of any positive integer.
 
  * S1 = numbers represented by exactly 1 count of partitions of multipartite numbers = 1, 3, 4, 9, 12, 16, 19, 21, 22, 26, 29, 31, 36, 38, 42, 45, 47, 56, 57, 64, 66, ...
@@ -107,7 +115,7 @@ public class MpiPartitionCountCoverageChecker {
 					if (DEBUG) LOG.debug("multipartite partition = " + Arrays.toString(multipartitePartition));
 					partitionCount++;
 				}
-				if (DEBUG) LOG.info(mpiFromPartition + " has " + partitionCount + " partitions! (computed in " + (System.currentTimeMillis()-start) + " ms)");
+				if (DEBUG) LOG.debug(mpiFromPartition + " has " + partitionCount + " partitions! (computed in " + (System.currentTimeMillis()-start) + " ms)");
 				TreeSet<Mpi> mpis = partitionCountsToPartitions.get(partitionCount);
 				if (mpis == null) {
 					mpis = new TreeSet<>(Collections.reverseOrder());
@@ -116,7 +124,7 @@ public class MpiPartitionCountCoverageChecker {
 				partitionCountsToPartitions.put(partitionCount, mpis);
 			}
 			
-			LOG.debug("Full statistics after n=" + n + ":");
+			LOG.info("Full statistics after n=" + n + ":");
 			for (Map.Entry<Integer, TreeSet<Mpi>> entry : partitionCountsToPartitions.entrySet()) {
 				int count = entry.getKey().intValue();
 				if (count > nPartitionCount) {
