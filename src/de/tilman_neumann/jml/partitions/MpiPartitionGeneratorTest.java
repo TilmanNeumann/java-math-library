@@ -117,7 +117,7 @@ public class MpiPartitionGeneratorTest {
 	
 	/**
 	 * prints partitions of strong multisets.
-	 * This is A035310 = "Let f(n) = number of ways to factor n = A001055(n); a(n) = sum of f(k) over all terms k in A025487 that have n factors."
+	 * This is A035310 = "Ways of partitioning an n-multiset with multiplicities some partition of n."
      * = 1, 4, 12, 47, 170, 750, 3255, 16010, 81199, 448156, 2579626, 15913058, 102488024, 698976419, 4976098729, 37195337408, 289517846210, 2352125666883, 19841666995265, 173888579505200, 1577888354510786, 14820132616197925, 143746389756336173, 1438846957477988926, ...
 	 */
 	private static void printMultisetPartitions() {
