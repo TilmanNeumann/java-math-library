@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -88,10 +88,10 @@ public class MpiPartitionGeneratorTest {
 	}
 	
 	/**
-	 * prints partitions of partitions
+	 * prints partitions of partitions.
 	 * A001970 = 1, 1, 3, 6, 14, 27, 58, 111, 223, 424, 817, 1527, 2870, 5279, 9710, 17622, 31877, 57100, 101887, 180406, 318106, 557453, 972796, 1688797, 2920123, ...
 	 */
-	private static void printHyperPartitions() {
+	private static void printPartitionsOfPartitions() {
 		for (int n=1; n<25; n++) {
 			long start = System.currentTimeMillis();
 			int totalNumberOfPartitions = 0;
@@ -114,6 +114,31 @@ public class MpiPartitionGeneratorTest {
 			LOG.info(n + " has " + totalNumberOfPartitions + " hyper partitions! (computed in " + (System.currentTimeMillis()-start) + " ms)");
 		}
 	}
+	
+	/**
+	 * prints partitions of strong multisets.
+	 * This is A035310 = "Let f(n) = number of ways to factor n = A001055(n); a(n) = sum of f(k) over all terms k in A025487 that have n factors."
+     * = 1, 4, 12, 47, 170, 750, 3255, 16010, 81199, 448156, 2579626, 15913058, 102488024, 698976419, 4976098729, 37195337408, 289517846210, 2352125666883, 19841666995265, 173888579505200, 1577888354510786, 14820132616197925, 143746389756336173, 1438846957477988926, ...
+	 */
+	private static void printMultisetPartitions() {
+		for (int n=1; n<25; n++) {
+			long start = System.currentTimeMillis();
+			int totalNumberOfPartitions = 0;
+			// run over all additive partition of n:
+			IntegerPartitionGenerator partgen = new IntegerPartitionGenerator(n);
+			while (partgen.hasNext()) {
+				int[] flatPartition = partgen.next();
+				// partition is in flat form, i.e. a list of all parts.
+				Mpi mpiFromPartition = new Mpi_IntegerArrayImpl(flatPartition);
+				MpiPartitionGenerator mpiPartGen = new MpiPartitionGenerator(mpiFromPartition);
+				while (mpiPartGen.hasNext()) {
+					mpiPartGen.next();
+					totalNumberOfPartitions++;
+				}
+			}
+			LOG.info(n + " has " + totalNumberOfPartitions + " multiset partitions! (computed in " + (System.currentTimeMillis()-start) + " ms)");
+		}
+	}
 
 	/**
 	 * Test
@@ -129,6 +154,9 @@ public class MpiPartitionGeneratorTest {
     	
     	printNumberOfFactorizations();
     	printNumberOfFactorialFactorizations();
-    	printHyperPartitions();
+    	
+    	printPartitionsOfPartitions();
+    	printMultisetPartitions();
+
     }
 }
