@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -11,25 +11,22 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.transcendental;
+package de.tilman_neumann.jml.roots;
 
 import java.math.BigDecimal;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
 import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.util.ConfigUtil;
 
-import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
-import static org.junit.Assert.assertEquals;
-
 /**
- * Test class for floating point Exp function
- *
  * @author Tilman Neumann
  */
-public class ExpTest {
+public class SqrtTest {
+	private static final Logger LOG = Logger.getLogger(SqrtTest.class);
 
 	@Before
 	public void setup() {
@@ -37,9 +34,16 @@ public class ExpTest {
 	}
 
 	@Test
-	public void testExpZero() {
-		// exp(0) with 10 digits precision
-		BigDecimal one = Exp.exp(F_0, Scale.valueOf(10));
-		assertEquals(F_1.setScale(10), one);
+	public void testSpecialCases() {
+		BigDecimal input = new BigDecimal("36.0000090000");
+		BigDecimal sqrt = SqrtReal.sqrt(input, Scale.valueOf(5));
+		LOG.debug("sqrt(" + input + ") = " + sqrt);
+	}
+	
+	@Test
+	public void testBigArgs() {
+		BigDecimal a = new BigDecimal("1312596401028278160");
+		BigDecimal sqrt = SqrtReal.sqrt(a, Scale.valueOf(5));
+		LOG.debug("sqrt(" + a + ") = " + sqrt);
 	}
 }
