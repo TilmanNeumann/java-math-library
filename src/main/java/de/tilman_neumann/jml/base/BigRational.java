@@ -21,9 +21,9 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.precision.Precision;
 import de.tilman_neumann.jml.precision.Scale;
+import de.tilman_neumann.util.Assert;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Big rational numbers with exact arithmetics.
@@ -250,9 +250,9 @@ public class BigRational extends Number implements Comparable<BigRational> {
 		if (this.signum() < 0) {
 			if (DEBUG) LOG.debug("num=" + num  + ", den = " + den + ", quot = " + divRem[0] + ", rem = " + divRem[1]);
 			floor = divRem[0].subtract(I_1);
-			if (DEBUG) assertEquals(den.signum(), -divRem[1].signum());
+			if (DEBUG) Assert.assertEquals(den.signum(), -divRem[1].signum());
 			rem = den.add(divRem[1]);
-			if (DEBUG) assertEquals(num, den.multiply(floor).add(rem));
+			if (DEBUG) Assert.assertEquals(num, den.multiply(floor).add(rem));
 		} else {
 			floor = divRem[0];
 			rem = divRem[1];

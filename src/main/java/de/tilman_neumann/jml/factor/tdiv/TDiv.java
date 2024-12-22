@@ -14,7 +14,6 @@
 package de.tilman_neumann.jml.factor.tdiv;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
 import java.util.SortedMap;
@@ -26,6 +25,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -66,7 +66,7 @@ public class TDiv extends FactorAlgorithm {
 		if (!untestedFactors.isEmpty()) {
 			if (DEBUG) {
 				// untestedFactors can only have 1 element, the unfactored rest of N
-				assertEquals(1, untestedFactors.size());
+				Assert.assertEquals(1, untestedFactors.size());
 			}
 			// add the unfactored rest to primeFactors. This means the factorization failed if the rest is composite,
 			// but this algorithm can't do anything better.

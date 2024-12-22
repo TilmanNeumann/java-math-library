@@ -18,9 +18,8 @@ import java.security.SecureRandom;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
-
-import static org.junit.Assert.*;
 
 /**
  * An incomplete 128 bit unsigned int implementation.
@@ -215,8 +214,8 @@ public class Uint128 {
 		if (DEBUG) {
 			// compare to pure Java implementation
 			Uint128 testResult = mul64(a, b);
-			assertEquals(testResult.high, r_hi);
-			assertEquals(testResult.low, r_lo);
+			Assert.assertEquals(testResult.high, r_hi);
+			Assert.assertEquals(testResult.low, r_lo);
 		}
 
 		return new Uint128(r_hi, r_lo);
@@ -542,7 +541,7 @@ public class Uint128 {
 		long qhat = (a >>> 1)/b << 1;
 		long t = a - qhat*b;
 		if (t+Long.MIN_VALUE >= b+Long.MIN_VALUE) qhat++;
-		if (DEBUG) assertEquals(Long.divideUnsigned(a, b), qhat);
+		if (DEBUG) Assert.assertEquals(Long.divideUnsigned(a, b), qhat);
 		return qhat;
 	}
 
@@ -620,17 +619,17 @@ public class Uint128 {
 			Uint128 sum128 = a128.add_v1(b128);
 			BigInteger sum128Big = sum128.toBigInteger();
 			BigInteger sumBig = a128.toBigInteger().add(b128.toBigInteger());
-			assertEquals(sumBig, sum128Big);
+			Assert.assertEquals(sumBig, sum128Big);
 
 			Uint128 sum128_v2 = a128.add/*_v2*/(b128);
 			BigInteger sum128Big_v2 = sum128_v2.toBigInteger();
-			assertEquals(sumBig, sum128Big_v2);
+			Assert.assertEquals(sumBig, sum128Big_v2);
 
 			// test multiplication with 63 bit numbers
 			Uint128 prod128 = mul63(a_hi, b_hi);
 			BigInteger prod128Big = prod128.toBigInteger();
 			BigInteger correctProd = a_hi_big.multiply(b_hi_big);
-			assertEquals(correctProd, prod128Big);
+			Assert.assertEquals(correctProd, prod128Big);
 
 			// test multiplication with 64 bit numbers
 			correctProd = a_lo_big.multiply(b_lo_big);
@@ -640,14 +639,14 @@ public class Uint128 {
 			if (!correctProd.equals(prod128Big)) {
 				LOG.error("mul64_v1: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
 			}
-			assertEquals(correctProd, prod128Big);
+			Assert.assertEquals(correctProd, prod128Big);
 			
 			prod128 = mul64/*_v2*/(a_lo, b_lo);
 			prod128Big = prod128.toBigInteger();
 			if (!correctProd.equals(prod128Big)) {
 				LOG.error("mul64_v2: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
 			}
-			assertEquals(correctProd, prod128Big);
+			Assert.assertEquals(correctProd, prod128Big);
 		}
 	}
 	

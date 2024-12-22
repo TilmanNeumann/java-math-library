@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -26,10 +26,10 @@ import de.tilman_neumann.jml.gcd.Gcd31;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.roots.Roots;
 import de.tilman_neumann.jml.roots.SqrtExact;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Test for pure powers (with exponent >= 2).
@@ -258,11 +258,11 @@ public class PurePowerTest {
 		   	// pure powers are not unique, e.g. 3^9 == 27^3, thus we can only check if the final result is correct
 		   	for (BigInteger testNum : testSet) {
 		   		Result r1 = powTest.test_v01(testNum);
-	   			if (r1!=null) assertEquals(testNum, r1.base.pow(r1.exponent));
+	   			if (r1!=null) Assert.assertEquals(testNum, r1.base.pow(r1.exponent));
 	   			
 		   		Result r2 = powTest.test/*_v02*/(testNum);
-		   		assertEquals(r1==null, r2==null);
-	   			if (r2!=null) assertEquals(testNum, r2.base.pow(r2.exponent));
+		   		Assert.assertEquals(r1==null, r2==null);
+	   			if (r2!=null) Assert.assertEquals(testNum, r2.base.pow(r2.exponent));
 		   	}
 	   	}
 	   	LOG.info("");

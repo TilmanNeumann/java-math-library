@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.util;
 
+import java.math.BigInteger;
+
 /**
  * Assertions for quality tests in production code.<br><br>
  * 
@@ -23,6 +25,14 @@ package de.tilman_neumann.util;
  */
 public class Assert {
 	
+	// boolean comparison
+	
+	public static void assertEquals(boolean left, boolean right) {
+		if (! (left == right)) {
+			throw new AssertionError("Assertion failed: " + left + "==" + right);
+		}
+	}
+
 	// byte/short/int/long comparisons
 	
 	public static void assertSmaller(long left, long right) {
@@ -52,6 +62,18 @@ public class Assert {
 	public static void assertGreater(long left, long right) {
 		if (! (left > right)) {
 			throw new AssertionError("Assertion failed: " + left + ">" + right);
+		}
+	}
+	
+	// BigInteger comparison
+	
+	public static void assertEquals(BigInteger left, BigInteger right) {
+		if (left == right) {
+			// works for null==null as well as having the same object
+			return;
+		}
+		if (left == null || ! (left.equals(right))) {
+			throw new AssertionError("Assertion failed: " + left + "==" + right);
 		}
 	}
 }
