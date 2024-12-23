@@ -54,9 +54,9 @@ From now on, <strong>Java 10</strong> is required!
 
 ## Getting Started
 
-Clone the repository, create a plain Java project importing it, make sure that 'src' is the source folder of your project, and add the jars from the lib-folder to your classpath. 
+Clone the repository and import it into your IDE. If you do not use the Maven build you might need to add the jars from the lib-folder to your classpath. 
 
-You will need <strong>Java 10</strong> or higher for the project to compile. (Java 10 is required to support intrinsics for Math.multiplyHigh())
+You will need Java 8 for the project to compile, but <strong>it is strongly recommended to use Java 10 or above</strong> because that will enable faster intrinsics, e.g. for Math.multiplyHigh().
 
 There is no documentation and no support, so you should be ready to start exploring the source code.
 
