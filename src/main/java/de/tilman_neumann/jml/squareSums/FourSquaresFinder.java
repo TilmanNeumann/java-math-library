@@ -21,7 +21,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.gaussianInteger.GaussianInteger;
 import de.tilman_neumann.jml.precision.Precision;
@@ -42,7 +43,7 @@ import de.tilman_neumann.util.Timer;
  * @see http://campus.lakeforest.edu/trevino/finding4squares.pdf
  */
 public class FourSquaresFinder {
-	private static final Logger LOG = Logger.getLogger(FourSquaresFinder.class);
+	private static final Logger LOG = LogManager.getLogger(FourSquaresFinder.class);
 
 	private static final boolean DEBUG = false;
 	

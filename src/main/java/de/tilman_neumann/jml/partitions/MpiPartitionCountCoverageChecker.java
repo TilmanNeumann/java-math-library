@@ -19,7 +19,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.ConfigUtil;
 
@@ -96,7 +97,7 @@ import de.tilman_neumann.util.ConfigUtil;
  */
 public class MpiPartitionCountCoverageChecker {
 	
-	private static final Logger LOG = Logger.getLogger(MpiPartitionCountCoverageChecker.class);
+	private static final Logger LOG = LogManager.getLogger(MpiPartitionCountCoverageChecker.class);
 	
 	private static final boolean DEBUG = false;
 	

@@ -17,14 +17,15 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.combinatorics.Factorial;
 import de.tilman_neumann.util.ConfigUtil;
 
 public class MpiPartitionGeneratorTest {
 	
-	private static final Logger LOG = Logger.getLogger(MpiPartitionGeneratorTest.class);
+	private static final Logger LOG = LogManager.getLogger(MpiPartitionGeneratorTest.class);
 	
 	/**
 	 * prints the number of essentially different factorizations of n, n=0,1,...

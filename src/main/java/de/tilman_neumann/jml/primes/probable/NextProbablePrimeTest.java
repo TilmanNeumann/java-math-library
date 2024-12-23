@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
@@ -32,7 +33,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * @author Tilman Neumann
  */
 public class NextProbablePrimeTest {
-	private static final Logger LOG = Logger.getLogger(NextProbablePrimeTest.class);
+	private static final Logger LOG = LogManager.getLogger(NextProbablePrimeTest.class);
 	private static final SecureRandom RNG = new SecureRandom();
 	
 	/** Number of test numbers for the performance test. */

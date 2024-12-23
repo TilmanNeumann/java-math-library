@@ -19,7 +19,8 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.gcd.Gcd31;
@@ -40,7 +41,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  */
 // TODO: A p-adic implementation like in gmp would be much faster for large numbers (with thousands of digits)
 public class PurePowerTest {
-	private static final Logger LOG = Logger.getLogger(PurePowerTest.class);
+	private static final Logger LOG = LogManager.getLogger(PurePowerTest.class);
 
 	private static final double LN_2 = Math.log(2);
 	private static final double LN_3 = Math.log(3);

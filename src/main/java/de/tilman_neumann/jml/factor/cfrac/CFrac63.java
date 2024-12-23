@@ -18,7 +18,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
@@ -44,7 +45,7 @@ import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_Q
  * @author Tilman Neumann
  */
 public class CFrac63 extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(CFrac63.class);
+	private static final Logger LOG = LogManager.getLogger(CFrac63.class);
 	private static final boolean DEBUG = false;
 
 	// input

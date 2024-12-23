@@ -15,7 +15,8 @@ package de.tilman_neumann.jml.roots;
 
 import java.math.BigDecimal;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class SqrtTest {
-	private static final Logger LOG = Logger.getLogger(SqrtTest.class);
+	private static final Logger LOG = LogManager.getLogger(SqrtTest.class);
 
 	@Before
 	public void setup() {

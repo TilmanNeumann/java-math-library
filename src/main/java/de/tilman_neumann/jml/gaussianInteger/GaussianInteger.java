@@ -17,7 +17,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.BigRational;
 import de.tilman_neumann.util.Assert;
@@ -32,7 +33,7 @@ import de.tilman_neumann.util.Assert;
  */
 public class GaussianInteger {
 
-	private static final Logger LOG = Logger.getLogger(GaussianInteger.class);
+	private static final Logger LOG = LogManager.getLogger(GaussianInteger.class);
 	
 	private static final boolean DEBUG = false;
 	

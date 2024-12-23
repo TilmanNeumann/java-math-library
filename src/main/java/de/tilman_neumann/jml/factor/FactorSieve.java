@@ -17,7 +17,8 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.exact.SegmentedSieve;
 import de.tilman_neumann.jml.primes.exact.SieveCallback;
@@ -34,7 +35,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * thus you should split such tasks into batches of an appropriate size like 1 million per batch.
  */
 public class FactorSieve implements SieveCallback {
-	private static final Logger LOG = Logger.getLogger(FactorSieve.class);
+	private static final Logger LOG = LogManager.getLogger(FactorSieve.class);
 	private static final boolean DEBUG = false;
 	
 	private Map<Long, SortedMultiset<Long>> factorizations; // maybe an array would be better but then we couldn't use long indices

@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -22,7 +22,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
@@ -64,7 +65,7 @@ import de.tilman_neumann.util.Timer;
  * @author Tilman Neumann
  */
 public class SIQS extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(SIQS.class);
+	private static final Logger LOG = LogManager.getLogger(SIQS.class);
 	private static final boolean DEBUG = false;
 	private static final boolean TEST_SIEVE = false;
 	

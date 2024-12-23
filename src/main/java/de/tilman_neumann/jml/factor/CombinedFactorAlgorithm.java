@@ -22,7 +22,8 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
@@ -59,7 +60,7 @@ import de.tilman_neumann.util.TimeUtil;
  * @author Tilman Neumann
  */
 public class CombinedFactorAlgorithm extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(CombinedFactorAlgorithm.class);
+	private static final Logger LOG = LogManager.getLogger(CombinedFactorAlgorithm.class);
 	private static final boolean DEBUG = false;
 	
 	/** If true then search for small factors before PSIQS is run. This is standard now. */

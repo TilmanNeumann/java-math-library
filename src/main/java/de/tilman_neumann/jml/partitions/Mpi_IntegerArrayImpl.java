@@ -17,7 +17,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.IntCollectionUtil;
 
@@ -35,7 +36,7 @@ import de.tilman_neumann.jml.base.IntCollectionUtil;
 public class Mpi_IntegerArrayImpl implements Mpi {
 
 	@SuppressWarnings("unused")
-	private static final Logger LOG = Logger.getLogger(Mpi_IntegerArrayImpl.class);
+	private static final Logger LOG = LogManager.getLogger(Mpi_IntegerArrayImpl.class);
 	
 	int[] values;
 	

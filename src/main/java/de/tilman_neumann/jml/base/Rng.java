@@ -18,7 +18,8 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Precision;
@@ -36,7 +37,7 @@ public class Rng extends Random {
 
 	private static final long serialVersionUID = 1821148670513516540L;
 
-	private static final Logger LOG = Logger.getLogger(Rng.class);
+	private static final Logger LOG = LogManager.getLogger(Rng.class);
 
 	public Rng() {
 		super();

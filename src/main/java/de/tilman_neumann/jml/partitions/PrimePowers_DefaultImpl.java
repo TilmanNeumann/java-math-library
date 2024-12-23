@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -17,7 +17,8 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.SortedSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.Divisors;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
@@ -28,7 +29,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 public class PrimePowers_DefaultImpl extends Mpi_IntegerArrayImpl implements PrimePowers {
 	
-	private static final Logger LOG = Logger.getLogger(PrimePowers_DefaultImpl.class);
+	private static final Logger LOG = LogManager.getLogger(PrimePowers_DefaultImpl.class);
 	private static final boolean DEBUG = false;
 	
 	private BigInteger[] primes;

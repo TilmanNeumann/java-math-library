@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -15,7 +15,8 @@ package de.tilman_neumann.jml.factor.hart;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
@@ -52,7 +53,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * @authors Thilo Harich & Tilman Neumann
  */
 public class Hart_Fast2Mult extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(Hart_Fast2Mult.class);
+	private static final Logger LOG = LogManager.getLogger(Hart_Fast2Mult.class);
 
 	// k multipliers. These are applied alternately; thus we kind of investigate two k-sets of different size "in parallel".
 	// These two multipliers turned out to be the fastest in case of two sets. Three or more sets seemed to give a slowdown.

@@ -36,7 +36,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.Uint128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
@@ -96,7 +97,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		}
 	}
 
-	private static final Logger LOG = Logger.getLogger(TinyEcm64.class);
+	private static final Logger LOG = LogManager.getLogger(TinyEcm64.class);
 
 	private static final boolean DEBUG = false;
 

@@ -17,7 +17,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.Assert;
 
@@ -34,7 +35,7 @@ import de.tilman_neumann.util.Assert;
  */
 public class CycleCounter3LP implements CycleCounter {
 	
-	private static final Logger LOG = Logger.getLogger(CycleCounter3LP.class);
+	private static final Logger LOG = LogManager.getLogger(CycleCounter3LP.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	
 	/** edges from bigger to smaller prime; size is v = #vertices */

@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
@@ -45,7 +46,7 @@ import de.tilman_neumann.util.Timer;
  * @author Tilman Neumann
  */
 public class CongruenceCollector01 implements CongruenceCollector {
-	private static final Logger LOG = Logger.getLogger(CongruenceCollector01.class);
+	private static final Logger LOG = LogManager.getLogger(CongruenceCollector01.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	private static final boolean DEBUG_CYCLE_COUNTER = false;
 	

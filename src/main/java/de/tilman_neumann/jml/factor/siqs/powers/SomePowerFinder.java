@@ -17,7 +17,8 @@ import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
@@ -28,7 +29,7 @@ import de.tilman_neumann.util.Assert;
  * @author Tilman Neumann
  */
 abstract public class SomePowerFinder implements PowerFinder {
-	private static final Logger LOG = Logger.getLogger(SomePowerFinder.class);
+	private static final Logger LOG = LogManager.getLogger(SomePowerFinder.class);
 	private static final boolean DEBUG = false;
 
 	@Override

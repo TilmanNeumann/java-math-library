@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.BinarySearch;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
@@ -52,7 +53,7 @@ import de.tilman_neumann.util.Timer;
  * @author Tilman Neumann
  */
 public class TDiv_QS_2LP implements TDiv_QS {
-	private static final Logger LOG = Logger.getLogger(TDiv_QS_2LP.class);
+	private static final Logger LOG = LogManager.getLogger(TDiv_QS_2LP.class);
 	private static final boolean DEBUG = false;
 
 	// factor argument and polynomial parameters

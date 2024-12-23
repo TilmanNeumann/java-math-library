@@ -1,0 +1,36 @@
+
+<Configuration>
+  <Appenders>
+    <Console name="STDOUT" target="SYSTEM_OUT">
+	  <!-- PatternLayout Options:
+		%c 		 Logger-Name
+		%C{prec} calling class name (SLOW)
+		%d 		 Timestamp
+		%F		 file name where the event was issued (VERY SLOW)
+		%l		 local information (class, method, ...) (EXTREMELY SLOW)
+		%L		 line number
+		%m 		 Message
+		%M		 method name
+		%n 		 Line end
+		%p 		 Loglevel
+		%r 		 Milliseconds since start
+		%t 		 Thread-Name
+		%x 		 NDC (nested diagnostic context) associated with the thread
+		%X		 MDC (mapped diagnostic context) associated with the thread 
+			
+		Each entry can be set to a minimal length by inserting -length after the % character.
+	  -->
+      <PatternLayout pattern="%d %-5p %c{1}(%L) [%t]: %m%n"/>
+    </Console>
+    <File name="f1" fileName="log.txt" append="false">
+	  <!--file pattern layout is most simple to enable copy-paste in other documents -->
+      <PatternLayout pattern="%m%n"/>
+    </File>
+  </Appenders>
+  <Loggers>
+    <Root level="debug">
+      <AppenderRef ref="STDOUT"/>
+      <AppenderRef ref="f1"/>
+    </Root>
+  </Loggers>
+</Configuration>

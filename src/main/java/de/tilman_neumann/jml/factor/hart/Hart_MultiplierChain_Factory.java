@@ -20,7 +20,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
@@ -46,7 +47,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  *    (the latter was possibly Lehman's key insight to create an O(n^1/3) complexity factoring algorithm)
  */
 public class Hart_MultiplierChain_Factory {
-	private static final Logger LOG = Logger.getLogger(Hart_MultiplierChain_Factory.class);
+	private static final Logger LOG = LogManager.getLogger(Hart_MultiplierChain_Factory.class);
 
 	private static final boolean DEBUG = false;
 	

@@ -15,14 +15,15 @@ package de.tilman_neumann.jml.modular;
 
 import java.security.SecureRandom;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 
 public class ModularSqrtTest {
-	private static final Logger LOG = Logger.getLogger(ModularSqrtTest.class);
+	private static final Logger LOG = LogManager.getLogger(ModularSqrtTest.class);
 	
 	private static final SecureRandom rng = new SecureRandom();
 	private static final BPSWTest bpsw = new BPSWTest();

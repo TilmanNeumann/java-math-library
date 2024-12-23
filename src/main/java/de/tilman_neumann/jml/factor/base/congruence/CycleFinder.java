@@ -18,7 +18,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.SortedMultiset;
@@ -36,7 +37,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  */
 public class CycleFinder {
 	
-	private static final Logger LOG = Logger.getLogger(CycleFinder.class);
+	private static final Logger LOG = LogManager.getLogger(CycleFinder.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 
 	/**

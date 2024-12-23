@@ -19,7 +19,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
@@ -39,7 +40,7 @@ import de.tilman_neumann.util.Timer;
  * @author Tilman Neumann
  */
 public class SIQSPolyGenerator {
-	private static final Logger LOG = Logger.getLogger(SIQSPolyGenerator.class);
+	private static final Logger LOG = LogManager.getLogger(SIQSPolyGenerator.class);
 	private static final boolean DEBUG = false;
 
 	/** the a paramater */

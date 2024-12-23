@@ -17,7 +17,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 
 public class RngTest {
 
-	private static final Logger LOG = Logger.getLogger(RngTest.class);
+	private static final Logger LOG = LogManager.getLogger(RngTest.class);
 	
 	private static final Rng RNG = new Rng();
 

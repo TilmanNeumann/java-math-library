@@ -17,7 +17,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.siqs.ModularSqrtsEngine;
 import de.tilman_neumann.util.Assert;
@@ -28,7 +29,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class BParamTest {
-	private static final Logger LOG = Logger.getLogger(BParamTest.class);
+	private static final Logger LOG = LogManager.getLogger(BParamTest.class);
 	private static final boolean DEBUG = true;
 	
 	private BigInteger a = BigInteger.valueOf(385); // 5*7*11

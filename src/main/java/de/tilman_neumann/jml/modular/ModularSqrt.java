@@ -15,7 +15,8 @@ package de.tilman_neumann.jml.modular;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.Assert;
 
@@ -24,7 +25,7 @@ import de.tilman_neumann.util.Assert;
  * @author Tilman Neumann
  */
 public class ModularSqrt {
-	private static final Logger LOG = Logger.getLogger(ModularSqrt.class);
+	private static final Logger LOG = LogManager.getLogger(ModularSqrt.class);
 	private static final boolean DEBUG = false;
 
 	private ModularPower mpe = new ModularPower();

@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -23,7 +23,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.ConfigUtil;
 
@@ -32,7 +33,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class CollatzSequenceTest {
-	private static final Logger LOG = Logger.getLogger(CollatzSequenceTest.class);
+	private static final Logger LOG = LogManager.getLogger(CollatzSequenceTest.class);
 	
 	private static final int N_COUNT = 30000000;
 	private static final int START_PROGRESSION = 2; // 2 is best for dropping sequences; 2, 3, 9 are good for repeat sequences

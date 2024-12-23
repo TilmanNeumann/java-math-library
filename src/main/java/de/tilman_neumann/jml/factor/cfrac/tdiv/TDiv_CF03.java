@@ -15,7 +15,8 @@ package de.tilman_neumann.jml.factor.cfrac.tdiv;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
@@ -44,7 +45,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * @author Tilman Neumann
  */
 public class TDiv_CF03 implements TDiv_CF {
-	private static final Logger LOG = Logger.getLogger(TDiv_CF03.class);
+	private static final Logger LOG = LogManager.getLogger(TDiv_CF03.class);
 	private static final boolean DEBUG = false;
 
 	private int primeBaseSize;

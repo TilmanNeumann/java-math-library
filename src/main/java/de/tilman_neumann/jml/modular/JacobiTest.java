@@ -18,7 +18,8 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.Assert;
@@ -34,7 +35,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * @author Tilman Neumann
  */
 public class JacobiTest {
-	private static final Logger LOG = Logger.getLogger(JacobiTest.class);
+	private static final Logger LOG = LogManager.getLogger(JacobiTest.class);
 	private static final boolean TEST_SLOW = false;
 	
 	private static final int NCOUNT_CORRECTNESS = 200;

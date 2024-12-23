@@ -15,7 +15,8 @@ package de.tilman_neumann.jml.factor.base;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.modular.JacobiSymbol;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
@@ -29,7 +30,7 @@ import de.tilman_neumann.util.Assert;
  * @author Tilman Neumann
  */
 public class PrimeBaseGenerator {
-	private static final Logger LOG = Logger.getLogger(PrimeBaseGenerator.class);
+	private static final Logger LOG = LogManager.getLogger(PrimeBaseGenerator.class);
 	private static final boolean DEBUG = false;
 	
 	private AutoExpandingPrimesArray rawPrimesArray = AutoExpandingPrimesArray.get();

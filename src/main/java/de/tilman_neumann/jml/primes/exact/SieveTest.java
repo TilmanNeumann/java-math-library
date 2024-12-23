@@ -13,7 +13,8 @@
  */
 package de.tilman_neumann.jml.primes.exact;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.bounds.NthPrimeUpperBounds;
 import de.tilman_neumann.util.Assert;
@@ -24,7 +25,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class SieveTest {
-	private static final Logger LOG = Logger.getLogger(SieveTest.class);
+	private static final Logger LOG = LogManager.getLogger(SieveTest.class);
 	
 	private static void testCorrectness(int maxCount) {
 		for (int count=100; count<=maxCount; count*=10) {

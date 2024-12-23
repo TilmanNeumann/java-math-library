@@ -16,7 +16,8 @@ package de.tilman_neumann.jml.factor.siqs.powers;
 import java.math.BigInteger;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.BinarySearch;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
@@ -30,7 +31,7 @@ import de.tilman_neumann.util.Assert;
  * @author Tilman Neumann
  */
 public class AllPowerFinder extends SomePowerFinder {
-	private static final Logger LOG = Logger.getLogger(AllPowerFinder.class);
+	private static final Logger LOG = LogManager.getLogger(AllPowerFinder.class);
 	private static final boolean DEBUG = false;
 
 	private BinarySearch binarySearch = new BinarySearch();

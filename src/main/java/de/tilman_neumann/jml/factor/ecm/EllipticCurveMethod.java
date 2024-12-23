@@ -23,7 +23,8 @@ package de.tilman_neumann.jml.factor.ecm;
 import java.math.BigInteger;
 import java.util.SortedMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
@@ -46,7 +47,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * @see [CP] Richard Crandall, Carl Pomerance: "Prime Numbers: A Computational Perspective", Second Edition, chapter 7.4
  */
 public class EllipticCurveMethod extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(EllipticCurveMethod.class);
+	private static final Logger LOG = LogManager.getLogger(EllipticCurveMethod.class);
 
 	private static final boolean DEBUG = false;
 	

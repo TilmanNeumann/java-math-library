@@ -17,7 +17,8 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.BigIntConverter;
 import de.tilman_neumann.util.Assert;
@@ -39,7 +40,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * @author Tilman Neumann
  */
 public class Roots {
-	private static final Logger LOG = Logger.getLogger(Roots.class);
+	private static final Logger LOG = LogManager.getLogger(Roots.class);
 	private static final SecureRandom RNG = new SecureRandom();
 	private static final boolean DEBUG = false;
 	private static final boolean TEST_BITWISE = false;

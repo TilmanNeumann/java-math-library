@@ -18,7 +18,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.quadraticResidues.QuadraticResiduesMod2PowN;
@@ -74,7 +75,7 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * @author Tilman Neumann
  */
 public class Lehman_AnalyzeCongruences2 {
-	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeCongruences2.class);
+	private static final Logger LOG = LogManager.getLogger(Lehman_AnalyzeCongruences2.class);
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;

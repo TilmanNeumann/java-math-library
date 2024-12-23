@@ -16,7 +16,8 @@ package de.tilman_neumann.jml.factor.base.matrixSolver;
 import java.math.BigInteger;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
@@ -32,7 +33,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * @author Tilman Neumann
  */
 public class FactorTest01 implements FactorTest {
-	private static final Logger LOG = Logger.getLogger(FactorTest01.class);
+	private static final Logger LOG = LogManager.getLogger(FactorTest01.class);
 	private static final boolean DEBUG = false;
 
 	private BigInteger N;

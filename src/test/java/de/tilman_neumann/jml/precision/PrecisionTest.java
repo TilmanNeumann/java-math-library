@@ -18,7 +18,8 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 
 public class PrecisionTest {
 
-	private static final Logger LOG = Logger.getLogger(PrecisionTest.class);
+	private static final Logger LOG = LogManager.getLogger(PrecisionTest.class);
 
 	@Before
 	public void setup() {

@@ -17,7 +17,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
@@ -30,7 +31,7 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * @author Tilman Neumann
  */
 public class IsSqrt_Test {
-	private static final Logger LOG = Logger.getLogger(IsSqrt_Test.class);
+	private static final Logger LOG = LogManager.getLogger(IsSqrt_Test.class);
 
 	// algorithm options
 	/** number of test numbers */

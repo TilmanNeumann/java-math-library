@@ -19,7 +19,8 @@ import static org.junit.Assert.assertEquals;
 import java.math.BigInteger;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ import de.tilman_neumann.util.ConfigUtil;
 public class RationalQuaternionTest {
 	
 	@SuppressWarnings("unused")
-	private static final Logger LOG = Logger.getLogger(RationalQuaternionTest.class);
+	private static final Logger LOG = LogManager.getLogger(RationalQuaternionTest.class);
 
 	private static final Random RNG = new Random(42);
 

@@ -18,7 +18,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.Rng;
 import de.tilman_neumann.jml.base.Uint128;
@@ -51,7 +52,7 @@ import de.tilman_neumann.util.SortedMultiset;
  * @author Tilman Neumann
  */
 public class PollardRhoBrentMontgomery64_MH extends FactorAlgorithm {
-	private static final Logger LOG = Logger.getLogger(PollardRhoBrentMontgomery64_MH.class);
+	private static final Logger LOG = LogManager.getLogger(PollardRhoBrentMontgomery64_MH.class);
 	private static final boolean DEBUG = false;
 
 	private static final Rng RNG = new Rng();

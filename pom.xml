@@ -6,7 +6,7 @@
   <name>Java Math Library (JML)</name>
   <groupId>de.tilman_neumann</groupId>
   <artifactId>jml</artifactId>
-  <version>1.4.0-alpha.2</version>
+  <version>1.4.0-alpha.3</version>
   <packaging>jar</packaging>
   <description>My general math library, containing pretty fast factoring algorithms (except NFS), partition generators and more.</description>
   <url>https://github.com/TilmanNeumann/java-math-library</url>
@@ -27,12 +27,6 @@
 
   <dependencies>
 	<dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-	</dependency>
-	<!-- TODO migrate to
-	<dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
       <version>2.24.3</version>
@@ -41,7 +35,7 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
       <version>2.24.3</version>
-	</dependency> -->
+	</dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

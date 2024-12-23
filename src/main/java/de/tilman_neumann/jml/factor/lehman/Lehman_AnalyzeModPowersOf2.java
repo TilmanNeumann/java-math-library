@@ -15,7 +15,8 @@ package de.tilman_neumann.jml.factor.lehman;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.quadraticResidues.QuadraticResiduesMod2PowN;
@@ -29,7 +30,7 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * @author Tilman Neumann
  */
 public class Lehman_AnalyzeModPowersOf2 {
-	private static final Logger LOG = Logger.getLogger(Lehman_AnalyzeModPowersOf2.class);
+	private static final Logger LOG = LogManager.getLogger(Lehman_AnalyzeModPowersOf2.class);
 	
 	private final Gcd63 gcdEngine = new Gcd63();
 

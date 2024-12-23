@@ -15,7 +15,8 @@ package de.tilman_neumann.jml.factor.base.matrixSolver;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.Assert;
 
@@ -28,7 +29,7 @@ import de.tilman_neumann.util.Assert;
  * @author Tilman Neumann
  */
 public class IndexSet  {
-	private static final Logger LOG = Logger.getLogger(IndexSet.class);
+	private static final Logger LOG = LogManager.getLogger(IndexSet.class);
 	private static final boolean DEBUG = false;
 
 	/**

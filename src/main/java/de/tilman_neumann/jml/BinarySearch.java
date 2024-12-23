@@ -15,7 +15,8 @@ package de.tilman_neumann.jml;
 
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
@@ -25,7 +26,7 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class BinarySearch {
-	private static final Logger LOG = Logger.getLogger(BinarySearch.class);
+	private static final Logger LOG = LogManager.getLogger(BinarySearch.class);
 	private static final boolean DEBUG = false;
 	
 	/**

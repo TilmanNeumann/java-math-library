@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -16,7 +16,8 @@ package de.tilman_neumann.jml.transcendental;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.BigDecimalMath;
 import de.tilman_neumann.jml.base.BigRational;
@@ -34,7 +35,7 @@ import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
  * @author Tilman Neumann
  */
 public class Pi {
-	private static final Logger LOG = Logger.getLogger(Pi.class);
+	private static final Logger LOG = LogManager.getLogger(Pi.class);
 
 	/** PI computed to PI_SCALE decimal after-floating point digits. */
     private static BigDecimal PI;

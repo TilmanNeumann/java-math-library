@@ -18,7 +18,8 @@ import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 
 import java.math.BigInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.BinarySearch;
 import de.tilman_neumann.jml.factor.base.UnsafeUtil;
@@ -36,7 +37,7 @@ import sun.misc.Unsafe;
  * @author Tilman Neumann
  */
 public class Sieve03gU implements Sieve {
-	private static final Logger LOG = Logger.getLogger(Sieve03gU.class);
+	private static final Logger LOG = LogManager.getLogger(Sieve03gU.class);
 	private static final boolean DEBUG = false;
 	private static final Unsafe UNSAFE = UnsafeUtil.getUnsafe();
 

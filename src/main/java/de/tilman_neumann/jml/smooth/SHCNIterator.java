@@ -16,7 +16,8 @@ package de.tilman_neumann.jml.smooth;
 import java.math.BigInteger;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.util.Assert;
@@ -30,7 +31,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * @author Tilman Neumann
  */
 public class SHCNIterator {
-	private static final Logger LOG = Logger.getLogger(SHCNIterator.class);
+	private static final Logger LOG = LogManager.getLogger(SHCNIterator.class);
 	private static final boolean DEBUG = false;
 	
 	private SHCNEntry last = null;

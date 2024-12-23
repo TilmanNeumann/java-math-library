@@ -17,12 +17,16 @@ import java.io.File;
 import java.net.URL;
 import java.util.Objects;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
+import org.apache.logging.log4j.core.config.builder.api.LayoutComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 /**
  * Global configuration tasks.
@@ -31,7 +35,7 @@ import org.apache.log4j.xml.DOMConfigurator;
  */
 public class ConfigUtil {
 
-	private static final Logger LOG = Logger.getLogger(ConfigUtil.class);
+	private static final Logger LOG = LogManager.getLogger(ConfigUtil.class);
 	
 	private static boolean initialized = false;
 	
@@ -99,11 +103,13 @@ public class ConfigUtil {
 		NUMBER_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 		if (verbose) System.out.println("number of processors = " + NUMBER_OF_PROCESSORS);
 		
-		String confFileStr = CONF_ROOT + FILE_SEPARATOR + "log4jconf.xml";
+		String confFileStr = CONF_ROOT + FILE_SEPARATOR + "log4j2-test.xml";
 		File confFile = new File(confFileStr);
 		if (confFile.exists()) {
 			// initialize Log4j from xml configuration
-	    	DOMConfigurator.configure(confFileStr);
+	    	//DOMConfigurator.configure(confFileStr);
+			System.setProperty("log4j.configurationFile", confFileStr);
+			Configurator.reconfigure(); // TODO do we need this?
 	    	if (verbose) LOG.info("log4j configuration successfully loaded from file " + confFileStr + ".");
 	    	if (verbose) LOG.info("project initialization finished.");
 	    	initialized = true;
@@ -118,11 +124,26 @@ public class ConfigUtil {
 			System.err.println("WARNING: Please put a proper log4jconf.xml file into the designated folder if this message is annoying you...");
 		}
 		
-		// Use emergency initialization that simply logs into console
-		PatternLayout layout = new PatternLayout();
-		ConsoleAppender appender = new ConsoleAppender(layout);
-		appender.setThreshold(Level.DEBUG); // should only deliver the required logs, even when running from runnable jar
-		BasicConfigurator.configure(appender);
+		// Create default logger, following https://www.baeldung.com/log4j2-programmatic-config
+		ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
+		// create appenders to console and log.txt
+		AppenderComponentBuilder console = builder.newAppender("stdout", "Console"); 
+		builder.add(console);
+		AppenderComponentBuilder file = builder.newAppender("log", "File"); 
+		file.addAttribute("fileName", "log.txt");
+		builder.add(file);
+		// declare layouts
+		LayoutComponentBuilder standard = builder.newLayout("PatternLayout");
+		standard.addAttribute("pattern", "%d [%t] %-5level: %msg%n%throwable");
+		console.add(standard);
+		file.add(standard);
+		// set up root logger with debug level
+		RootLoggerComponentBuilder rootLogger = builder.newRootLogger(Level.DEBUG);
+		rootLogger.add(builder.newAppenderRef("stdout"));
+		builder.add(rootLogger);
+		// let it be used
+		Configurator.initialize(builder.build());
+		LOG.info("Created default logger:\n" + builder.toXmlConfiguration());
     	initialized = true;
 	}
 	
