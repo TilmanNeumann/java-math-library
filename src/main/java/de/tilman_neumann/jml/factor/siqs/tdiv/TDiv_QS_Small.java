@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor.siqs.tdiv;
 
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
-import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -33,6 +32,7 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.Timer;
 
@@ -149,8 +149,8 @@ public class TDiv_QS_Small implements TDiv_QS {
 				if (DEBUG) {
 					LOG.debug("Found congruence " + aqPair);
 					BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
-					assertEquals(Q, QDivDa.multiply(da));
-					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
+					Assert.assertEquals(Q, QDivDa.multiply(da));
+					Assert.assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
 					SortedMultiset<Long> allQFactors = aqPair.getAllQFactors();
 					BigInteger testProduct = I_1;
@@ -159,7 +159,7 @@ public class TDiv_QS_Small implements TDiv_QS {
 						int exponent = entry.getValue();
 						testProduct = testProduct.multiply(prime.pow(exponent));
 					}
-					assertEquals(Q, testProduct);
+					Assert.assertEquals(Q, testProduct);
 				}
 			}
 		}
@@ -208,11 +208,14 @@ public class TDiv_QS_Small implements TDiv_QS {
 				if (xModP<0) xModP += p;
 				else if (xModP>=p) xModP -= p;
 				if (DEBUG) {
-					assertTrue(0<=xModP && xModP<p);
+					// 0 <= xModP < p
+					Assert.assertSmallerEquals(0, xModP);
+					Assert.assertSmaller(xModP, p);
+
 					int xModP2 = x % p;
 					if (xModP2<0) xModP2 += p;
 					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-					assertEquals(xModP2, xModP);
+					Assert.assertEquals(xModP2, xModP);
 				}
 			}
 			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
@@ -237,7 +240,7 @@ public class TDiv_QS_Small implements TDiv_QS {
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = QRest.divideAndRemainder(pBig);
-					assertEquals(div[1].intValue(), 0);
+					Assert.assertEquals(div[1].intValue(), 0);
 					QRest = div[0];
 				}
 			}

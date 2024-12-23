@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.base.BigIntConverter;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * i.th root of integers.
@@ -220,13 +220,13 @@ public class Roots {
 			BigInteger guessPlus1 = guess.add(I_1);
 			if (guessPlus1.pow(i).compareTo(N)>0) return new BigInteger[] {guess, guessPlus1};
 			// else guess+1 is exact
-			if (DEBUG) assertEquals(guessPlus1.pow(i), N);
+			if (DEBUG) Assert.assertEquals(guessPlus1.pow(i), N);
 			return new BigInteger[] {guessPlus1, guessPlus1};
 		} else {
 			BigInteger guessMinus1 = guess.subtract(I_1);
 			if (guessMinus1.pow(i).compareTo(N)<0) return new BigInteger[] {guessMinus1, guess};
 			// else guess-1 is exact
-			if (DEBUG) assertEquals(guessMinus1.pow(i), N);
+			if (DEBUG) Assert.assertEquals(guessMinus1.pow(i), N);
 			return new BigInteger[] {guessMinus1, guessMinus1};
 		}
 	}

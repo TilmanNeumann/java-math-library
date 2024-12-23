@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -13,14 +13,13 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
-import static org.junit.Assert.*;
-
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.quadraticResidues.QuadraticResiduesMod2PowN;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
@@ -73,8 +72,8 @@ public class Lehman_AnalyzeModPowersOf2 {
 							// The kMod, aMod of k, a that give a factor are 
 							// kMod=lastkMod or kMod=lastkMod+lastMod, and
 							// aMod=lastaMod or aMod=lastaMod+lastMod !
-							assertTrue(kMod == lastkMod || kMod == lastkMod+lastMod);
-							assertTrue(aMod == lastaMod || aMod == lastaMod+lastMod);
+							Assert.assertTrue(kMod == lastkMod || kMod == lastkMod+lastMod);
+							Assert.assertTrue(aMod == lastaMod || aMod == lastaMod+lastMod);
 							// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 							
 							LOG.info("    MOD = 2^" + n + " = " + mod + ": k%" + mod + " = " + kMod + ", a%" + mod + " = " + aMod);
@@ -89,11 +88,11 @@ public class Lehman_AnalyzeModPowersOf2 {
 							//LOG.info("      ((a % " + mod + ")^2 % " + mod + ") - (4*(k % " + mod + ")*N % " + mod + ") = " + testMod2); // always a quadratic residue
 							// For k, a that give a factor we have a^2 - 4kN (mod mod) == (a mod mod)^2 (mod mod) - 4*(k mod mod)*N (mod mod)
 							// -> we only have to search up to a%mod, k%mod !
-							assertEquals(testMod, testMod2);
+							Assert.assertEquals(testMod, testMod2);
 							
 							boolean isQuadraticResidue = QuadraticResiduesMod2PowN.isQuadraticResidueMod2PowN(testMod2, n);
 							//LOG.info("      isQuadraticResidue % " + mod + " = " + isQuadraticResidue);
-							assertTrue(isQuadraticResidue);
+							Assert.assertTrue(isQuadraticResidue);
 							//LOG.info("      quadratic residues % " + mod + " = " + QuadraticResidues.getQuadraticResidues(mod));
 							
 							if (mod <= 1<<30) { // for larger mods it gets notably slower
@@ -138,7 +137,7 @@ public class Lehman_AnalyzeModPowersOf2 {
 								// A3(n) = (i (mod 2^n) QR count)^2:        4, 4,  9,  16,  49,  144,  529,  1936,  7569,  29584,  117649,  467856,  1868689,  7463824,  29844369,  119333776,  477291409,  1908990864,  ...
 								// 
 								// First relation: A1(n) = 2^(n+1)*A2(n) for n>1
-								if (n>1) assertEquals(2*mod*qrCount2, qrCount);
+								if (n>1) Assert.assertEquals(2*mod*qrCount2, qrCount);
 								
 								// Second relation:
 								// lim_{n->infinity} A1(n)/A3(n) = 12
@@ -147,11 +146,11 @@ public class Lehman_AnalyzeModPowersOf2 {
 								// A1(n) = 12*A3(n) - c*A2(n) = 12*A2(n)^2 - c*A2(n), with c=16 if n even, c=20 if n odd
 								if (n>1) {
 									int c = (n&1)==0 ? 16 : 20;
-									assertEquals(12*qrCount2*qrCount2 - c*qrCount2, qrCount);
+									Assert.assertEquals(12*qrCount2*qrCount2 - c*qrCount2, qrCount);
 									
 									// Setting the two relations for A1(n) equal gives A2(n) = A023105(n) = (2^n + c/2) / 6,
 									// which is the formula from David S. Dodson in http://oeis.org/search?q=A023105
-									assertEquals(QuadraticResiduesMod2PowN.getNumberOfQuadraticResiduesMod2PowN(n), qrCount2);
+									Assert.assertEquals(QuadraticResiduesMod2PowN.getNumberOfQuadraticResiduesMod2PowN(n), qrCount2);
 								}
 							}
 						}

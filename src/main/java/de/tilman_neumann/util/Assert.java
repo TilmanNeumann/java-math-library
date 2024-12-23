@@ -29,7 +29,7 @@ public class Assert {
 	
 	public static void assertEquals(boolean left, boolean right) {
 		if (! (left == right)) {
-			throw new AssertionError("Assertion failed: " + left + "==" + right);
+			throw new AssertionError("Assertion failed: " + left + " == " + right);
 		}
 	}
 
@@ -37,49 +37,75 @@ public class Assert {
 	
 	public static void assertSmaller(long left, long right) {
 		if (! (left < right)) {
-			throw new AssertionError("Assertion failed: " + left + "<" + right);
+			throw new AssertionError("Assertion failed: " + left + " < " + right);
 		}
 	}
 	
 	public static void assertSmallerEquals(long left, long right) {
 		if (! (left <= right)) {
-			throw new AssertionError("Assertion failed: " + left + "<=" + right);
+			throw new AssertionError("Assertion failed: " + left + " <= " + right);
 		}
 	}
 	
 	public static void assertEquals(long left, long right) {
 		if (! (left == right)) {
-			throw new AssertionError("Assertion failed: " + left + "==" + right);
+			throw new AssertionError("Assertion failed: " + left + " == " + right);
 		}
 	}
 	
 	public static void assertGreaterEquals(long left, long right) {
 		if (! (left >= right)) {
-			throw new AssertionError("Assertion failed: " + left + ">=" + right);
+			throw new AssertionError("Assertion failed: " + left + " >= " + right);
 		}
 	}
 	
 	public static void assertGreater(long left, long right) {
 		if (! (left > right)) {
-			throw new AssertionError("Assertion failed: " + left + ">" + right);
+			throw new AssertionError("Assertion failed: " + left + " > " + right);
 		}
 	}
 	
 	// BigInteger comparison
-	
+
+	public static void assertSmaller(BigInteger left, BigInteger right) {
+		if (left == null || ! (left.compareTo(right) < 0)) {
+			throw new AssertionError("Assertion failed: " + left + " < " + right);
+		}
+	}
+
+	public static void assertSmallerEquals(BigInteger left, BigInteger right) {
+		if (left == right) {
+			// works for null==null as well as having the same object
+			return;
+		}
+		if (left == null || ! (left.compareTo(right) < 0)) {
+			throw new AssertionError("Assertion failed: " + left + " <= " + right);
+		}
+	}
+
 	public static void assertEquals(BigInteger left, BigInteger right) {
 		if (left == right) {
 			// works for null==null as well as having the same object
 			return;
 		}
 		if (left == null || ! (left.equals(right))) {
-			throw new AssertionError("Assertion failed: " + left + "==" + right);
+			throw new AssertionError("Assertion failed: " + left + " == " + right);
 		}
 	}
 	
+	public static void assertGreaterEquals(BigInteger left, BigInteger right) {
+		if (left == right) {
+			// works for null==null as well as having the same object
+			return;
+		}
+		if (left == null || ! (left.compareTo(right) >= 0)) {
+			throw new AssertionError("Assertion failed: " + left + " >= " + right);
+		}
+	}
+
 	public static void assertGreater(BigInteger left, BigInteger right) {
 		if (left == null || ! (left.compareTo(right) > 0)) {
-			throw new AssertionError("Assertion failed: " + left + ">" + right);
+			throw new AssertionError("Assertion failed: " + left + " > " + right);
 		}
 	}
 	
@@ -107,6 +133,19 @@ public class Assert {
 	public static void assertTrue(boolean value) {
 		if (value == false) {
 			throw new AssertionError("Assertion failed: " + value + " to be true");
+		}
+	}
+
+	/**
+	 * Assert that the given value is false.<br><br>
+	 * 
+	 * <strong>Use more specific asserts whenever possible to get better error messages!</strong>
+	 * 
+	 * @param value
+	 */
+	public static void assertFalse(boolean value) {
+		if (value == true) {
+			throw new AssertionError("Assertion failed: " + value + " to be false");
 		}
 	}
 }

@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -21,10 +21,10 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * Test of Legendre and Jacobi symbol.
@@ -85,25 +85,25 @@ public class JacobiTest {
 					int jacobi02 = jacobiEngine.jacobiSymbol_v02(a, p);
 					int jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(a, p);
 					int legendre = legendreEngine.EulerFormula(a, p);
-					assertEquals(correct, jacobi02);
-					assertEquals(correct, jacobi03);
-					assertEquals(correct, legendre);
+					Assert.assertEquals(correct, jacobi02);
+					Assert.assertEquals(correct, jacobi03);
+					Assert.assertEquals(correct, legendre);
 					// test formulas with big a, int p (p and pInt will be different for bits>30)
 					correct = jacobiEngine.jacobiSymbol_v01(a, BigInteger.valueOf(pInt));
 					jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(a, pInt);
 					legendre = legendreEngine.EulerFormula(a, pInt);
-					assertEquals(correct, jacobi03);
-					assertEquals(correct, legendre);
+					Assert.assertEquals(correct, jacobi03);
+					Assert.assertEquals(correct, legendre);
 					// test formulas with int a, big p (a and aInt will be different for bits>30)
 					correct = jacobiEngine.jacobiSymbol_v01(BigInteger.valueOf(aInt), p);
 					jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(aInt, p);
-					assertEquals(correct, jacobi03);
+					Assert.assertEquals(correct, jacobi03);
 					// test formulas with all int arguments (a, aInt will differ as well as p, pInt for bits>30)
 					correct = jacobiEngine.jacobiSymbol_v01(BigInteger.valueOf(aInt), BigInteger.valueOf(pInt));
 					jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(aInt, pInt);
 					legendre = legendreEngine.EulerFormula(aInt, pInt);
-					assertEquals(correct, jacobi03);
-					assertEquals(correct, legendre);
+					Assert.assertEquals(correct, jacobi03);
+					Assert.assertEquals(correct, legendre);
 				}
 			}
 		}

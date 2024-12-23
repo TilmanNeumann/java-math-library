@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -15,8 +15,6 @@ package de.tilman_neumann.jml.factor.siqs.sieve;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 
@@ -27,6 +25,7 @@ import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.Timer;
 
 /**
@@ -220,7 +219,7 @@ public class Sieve03h implements Sieve {
 	@Override
 	public void setBParameter(BigInteger b) {
 		this.bParam = b;
-		if (DEBUG) assertTrue(b.multiply(b).subtract(kN).mod(daParam).equals(I_0));
+		if (DEBUG) Assert.assertEquals(b.multiply(b).subtract(kN).mod(daParam), I_0);
 		this.cParam = b.multiply(b).subtract(kN).divide(daParam);
 	}
 
@@ -414,7 +413,7 @@ public class Sieve03h implements Sieve {
 		BigInteger QDivDa = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
 		if (DEBUG) {
 			BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
-			assertEquals(Q, QDivDa.multiply(daParam));
+			Assert.assertEquals(Q, QDivDa.multiply(daParam));
 			LOG.debug("A = " + A);
 			LOG.debug("Q = " + Q);
 			LOG.debug("Q/(da) = " + QDivDa);
@@ -508,11 +507,14 @@ public class Sieve03h implements Sieve {
 				if (xModP<0) xModP += p;
 				else if (xModP>=p) xModP -= p;
 				if (DEBUG) {
-					assertTrue(0<=xModP && xModP<p);
+					// 0 <= xModP < p
+					Assert.assertSmallerEquals(0, xModP);
+					Assert.assertSmaller(xModP, p);
+					
 					int xModP2 = x % p;
 					if (xModP2<0) xModP2 += p;
 					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-					assertEquals(xModP2, xModP);
+					Assert.assertEquals(xModP2, xModP);
 				}
 			}
 			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
@@ -538,7 +540,7 @@ public class Sieve03h implements Sieve {
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = Q_rest.divideAndRemainder(pBig);
-					assertEquals(div[1].intValue(), 0);
+					Assert.assertEquals(div[1].intValue(), 0);
 					Q_rest = div[0];
 				}
 			}
@@ -557,7 +559,7 @@ public class Sieve03h implements Sieve {
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = Q_rest.divideAndRemainder(pBig);
-					assertEquals(div[1].intValue(), 0);
+					Assert.assertEquals(div[1].intValue(), 0);
 					Q_rest = div[0];
 				}
 			}

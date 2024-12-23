@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -14,14 +14,13 @@
 package de.tilman_neumann.jml.factor.siqs.poly;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.siqs.ModularSqrtsEngine;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
@@ -67,8 +66,8 @@ public class BParamTest {
 			if (gamma > (ql>>1)) gamma = ql - gamma; // take the smaller choice of gamma
 			BigInteger Bl = a_div_ql.multiply(BigInteger.valueOf(gamma));
 			if (DEBUG) {
-				assertTrue(Bl.compareTo(I_0) >= 0);
-				assertEquals(I_0, Bl.multiply(Bl).subtract(kN).mod(ql_big));
+				Assert.assertGreaterEquals(Bl, I_0);
+				Assert.assertEquals(I_0, Bl.multiply(Bl).subtract(kN).mod(ql_big));
 			}
 			B2Array[l] = Bl.shiftLeft(1); // store 2 * B_l in B2[0]...B2[s-1] (the last one is only required to compute b below)
 			// WARNING: In contrast to the description in [Contini p.10, 2nd paragraph],
@@ -77,9 +76,9 @@ public class BParamTest {
 		}
 		if (DEBUG) {
 			// initial b are positive (50% of "next" b's are not)
-			assertTrue(b.signum() >= 0);
+			Assert.assertGreaterEquals(b.signum(), 0);
 			// we have b^2 == kN (mod a)
-			assertEquals(I_0, b.multiply(b).subtract(kN).mod(a));
+			Assert.assertEquals(I_0, b.multiply(b).subtract(kN).mod(a));
 		}
 	}
 
@@ -112,18 +111,18 @@ public class BParamTest {
 		for (int i=0; i<test.qCount; i++) {
 			int B = test.B2Array[i].intValue()/2;
 			LOG.info("B[" + i + "] = " + B);
-			assertEquals(correct_B_values[i], B);
+			Assert.assertEquals(correct_B_values[i], B);
 		}
 		
 		// compute and test next b-values
 		int[] correct_b_values = new int[] {334, 26, -194, 114};
 		test.bIndex = 1;
 		LOG.info("b[0] = " + test.b);
-		assertEquals(correct_b_values[0], test.b.intValue());
+		Assert.assertEquals(correct_b_values[0], test.b.intValue());
 		for (int i=1; i<4; i++) {
 			test.computeNextBParameter();
 			LOG.info("b[" + i + "] = " + test.b);
-			assertEquals(correct_b_values[i], test.b.intValue());
+			Assert.assertEquals(correct_b_values[i], test.b.intValue());
 		}
 	}
 }

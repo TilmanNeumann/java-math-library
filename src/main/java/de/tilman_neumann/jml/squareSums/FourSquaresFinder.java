@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2022 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -14,7 +14,6 @@
 package de.tilman_neumann.jml.squareSums;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -29,6 +28,7 @@ import de.tilman_neumann.jml.precision.Precision;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.quaternion.HurwitzQuaternion;
 import de.tilman_neumann.jml.transcendental.Ln;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.Timer;
 
@@ -99,7 +99,7 @@ public class FourSquaresFinder {
 			
 			M = M.multiply(BigInteger.valueOf(p));
 		}
-		if (DEBUG) assertEquals(false, M.testBit(0)); // M is even
+		if (DEBUG) Assert.assertEquals(false, M.testBit(0)); // M is even
 		BigInteger Mn = M.multiply(n);
 		if (ANALYZE) step1Duration += timer.capture();
 		
@@ -120,7 +120,7 @@ public class FourSquaresFinder {
 			p = Mn.multiply(k).subtract(I_1);
 			// (Notice that p == 1 (mod 4), since 2 || M and n, k are odd.)
 			if (DEBUG) {
-				assertEquals(I_1, p.and(I_3)); // p == 1 (mod 4)
+				Assert.assertEquals(I_1, p.and(I_3)); // p == 1 (mod 4)
 				LOG.debug("p has " + p.bitLength() + " bit");
 			}
 			if (ANALYZE) step2pDuration += timer.capture();
@@ -173,7 +173,7 @@ public class FourSquaresFinder {
 		Y = gcrd.getY().abs();
 		Z = gcrd.getZ().abs();
 		W = gcrd.getW().abs();
-		if (DEBUG) assertEquals(n, X.multiply(X).add(Y.multiply(Y)).add(Z.multiply(Z)).add(W.multiply(W)));
+		if (DEBUG) Assert.assertEquals(n, X.multiply(X).add(Y.multiply(Y)).add(Z.multiply(Z)).add(W.multiply(W)));
 		
 		// done
 	}

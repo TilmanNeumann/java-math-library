@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor.siqs.tdiv;
 
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -41,6 +40,7 @@ import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.Timer;
 
@@ -201,8 +201,8 @@ public class TDiv_QS_3LP implements TDiv_QS {
 					BigInteger QDivDa = QRest.multiply(smallFactorsProd);
 					LOG.debug("Q/(da) = " + QDivDa);
 
-					assertEquals(Q, QDivDa.multiply(da));
-					assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
+					Assert.assertEquals(Q, QDivDa.multiply(da));
+					Assert.assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
 					SortedMultiset<Long> allQFactors = aqPair.getAllQFactors();
 					BigInteger testProduct = I_1;
@@ -211,7 +211,7 @@ public class TDiv_QS_3LP implements TDiv_QS {
 						int exponent = entry.getValue();
 						testProduct = testProduct.multiply(prime.pow(exponent));
 					}
-					assertEquals(Q, testProduct);
+					Assert.assertEquals(Q, testProduct);
 				}
 			}
 		}
@@ -252,14 +252,17 @@ public class TDiv_QS_3LP implements TDiv_QS {
 					final long m = pinvArrayL[pIndex];
 					final long q = ((x*m)>>>32);
 					xModP = (int) (x - q * p);
-					if (DEBUG) assertTrue(xModP < p);
+					if (DEBUG) Assert.assertSmaller(xModP, p);
 					if (xModP<0) xModP += p;
 					if (DEBUG) {
-						assertTrue(0<=xModP && xModP<p);
+						// 0 <= xModP < p
+						Assert.assertSmallerEquals(0, xModP);
+						Assert.assertSmaller(xModP, p);
+
 						int xModP2 = x % p;
 						if (xModP2<0) xModP2 += p;
 						if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-						assertEquals(xModP2, xModP);
+						Assert.assertEquals(xModP2, xModP);
 					}
 				}
 				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
@@ -288,14 +291,17 @@ public class TDiv_QS_3LP implements TDiv_QS {
 					final long m = pinvArrayL[pIndex];
 					final long q = ((x*m)>>>32);
 					xModP = (int) (x - q * p);
-					if (DEBUG) assertTrue(xModP >= 0);
+					if (DEBUG) Assert.assertGreaterEquals(xModP, 0);
 					if (xModP>=p) xModP -= p;
 					if (DEBUG) {
-						assertTrue(0<=xModP && xModP<p);
+						// 0 <= xModP < p
+						Assert.assertSmallerEquals(0, xModP);
+						Assert.assertSmaller(xModP, p);
+
 						int xModP2 = x % p;
 						if (xModP2<0) xModP2 += p;
 						if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-						assertEquals(xModP2, xModP);
+						Assert.assertEquals(xModP2, xModP);
 					}
 				}
 				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
@@ -320,7 +326,7 @@ public class TDiv_QS_3LP implements TDiv_QS {
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = QRest.divideAndRemainder(pBig);
-					assertEquals(div[1].intValue(), 0);
+					Assert.assertEquals(div[1].intValue(), 0);
 					QRest = div[0];
 				}
 			}
@@ -345,7 +351,7 @@ public class TDiv_QS_3LP implements TDiv_QS {
 		if (ANALYZE) primeTestDuration += timer.capture();
 		if (restIsPrime) {
 			// Check that the simple prime test using pMaxSquare is correct
-			if (DEBUG) assertTrue(prpTest.isProbablePrime(QRest));
+			if (DEBUG) Assert.assertTrue(prpTest.isProbablePrime(QRest));
 			if (!ANALYZE_LARGE_FACTOR_SIZES) if (QRest.bitLength() > 31) return null;
 			addCommonFactorsToSmallFactors();
 			return new Partial_1Large(A, smallFactors, QRest.longValue());

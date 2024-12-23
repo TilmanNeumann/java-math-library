@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -14,12 +14,12 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
-import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
@@ -39,7 +39,7 @@ public class IsSqrt_Test {
 	private void testRange(int bits) {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
-		assertEquals(N_COUNT, testNumbers.length);
+		Assert.assertEquals(N_COUNT, testNumbers.length);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		long[] NArray = new long[N_COUNT];
 		for (int i=0; i<N_COUNT; i++) {

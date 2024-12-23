@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2022 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -14,13 +14,13 @@
 package de.tilman_neumann.jml.gaussianInteger;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.base.BigRational;
+import de.tilman_neumann.util.Assert;
 
 /**
  * The Gaussian integers are the set Z[i] = {x + iy : x, y ∈ Z} of complex numbers whose real and imaginary parts are both integers.
@@ -156,7 +156,7 @@ public class GaussianInteger {
 		if (DEBUG) LOG.debug("result: c = " + c + ", d = " + d + ", N(d) = " + d.norm());
 
 		// Make sure that N(d) < N(b)
-		if (DEBUG) assertTrue("Error computing (" + this + ") / (" + b + "): N(d)=" + d.norm() + " is not smaller than N(b)=" + b.norm(), d.norm().compareTo(b.norm()) < 0);
+		if (DEBUG) Assert.assertSmaller(d.norm(), b.norm());
 		
 		return new GaussianInteger[] {c, d};
 	}

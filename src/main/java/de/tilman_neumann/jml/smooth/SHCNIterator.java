@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -19,11 +19,11 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.precision.Magnitude;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * Iterator for superior highly composite numbers 2,6,12,... (A002201).
@@ -43,7 +43,7 @@ public class SHCNIterator {
 		if (last == null) {
 			// SHCN(1) = 2
 			last = SHCNEntry.computeSHCN(1);
-			assertEquals(I_2, last.getSHCN());
+			Assert.assertEquals(I_2, last.getSHCN());
 			return last;
 		}
 		
@@ -107,7 +107,7 @@ public class SHCNIterator {
 		Double lastX = null;
 		for (int n=1; n<=1000; n++) {
 			SHCNEntry entry = shcnIter.next();
-			assertEquals(n, entry.getExponentSum());
+			Assert.assertEquals(n, entry.getExponentSum());
 			double x = entry.getX();
 			Double xDiff = lastX!=null ? x-lastX : null;
 			BigInteger shcn = entry.getSHCN();

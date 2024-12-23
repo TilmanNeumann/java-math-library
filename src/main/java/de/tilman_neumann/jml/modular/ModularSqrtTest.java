@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -13,13 +13,12 @@
  */
 package de.tilman_neumann.jml.modular;
 
-import static org.junit.Assert.*;
-
 import java.security.SecureRandom;
 
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 
 public class ModularSqrtTest {
@@ -76,11 +75,11 @@ public class ModularSqrtTest {
 			int a = nArray[i];
 			int p = pArray[i];
 			int tonelli = mse31.Tonelli_Shanks(a, p);
-			assertEquals((tonelli * (long)tonelli) % p, a%p);
+			Assert.assertEquals((tonelli * (long)tonelli) % p, a%p);
 			
 			int case5Mod8 = mse31.case5Mod8(a, p);
-			assertEquals((case5Mod8 * (long)case5Mod8) % p, a%p);
-			assertTrue(tonelli == case5Mod8); // both returned the smaller sqrt
+			Assert.assertEquals((case5Mod8 * (long)case5Mod8) % p, a%p);
+			Assert.assertEquals(tonelli, case5Mod8); // both returned the smaller sqrt
 		}
 	}
 	

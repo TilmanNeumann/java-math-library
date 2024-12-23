@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.siqs.powers;
 
-import static org.junit.Assert.assertEquals;
-
 import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -23,6 +21,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
+import de.tilman_neumann.util.Assert;
 
 /**
  * Base class for PowerFinders that do indeed find some powers.
@@ -124,7 +123,7 @@ abstract public class SomePowerFinder implements PowerFinder {
 		}
 		if (DEBUG) {
 			LOG.debug("#primes = " + primeBaseSize + ", #powers = " + powerCount);
-			assertEquals(primeBaseSize + powerCount, mergedIndex);
+			Assert.assertEquals(primeBaseSize + powerCount, mergedIndex);
 		}
 		return baseArrays;
 	}

@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2019 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2019-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -16,9 +16,8 @@ package de.tilman_neumann.jml.primes.exact;
 import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.primes.bounds.NthPrimeUpperBounds;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
-
-import static org.junit.Assert.*;
 
 /**
  * Test performance and correctness of results of prime sieves.
@@ -38,25 +37,25 @@ public class SieveTest {
 	    	correctSieve.sieve(nthPrimeUpperBound);
 	    	int correctCount = correctCallback.count;
 	    	int[] correctResult = correctCallback.array;
-	    	assertEquals(count, correctCount);
-	    	assertEquals(2, correctResult[0]);
-	    	assertEquals(3, correctResult[1]);
-	    	assertEquals(5, correctResult[2]);
+	    	Assert.assertEquals(count, correctCount);
+	    	Assert.assertEquals(2, correctResult[0]);
+	    	Assert.assertEquals(3, correctResult[1]);
+	    	Assert.assertEquals(5, correctResult[2]);
 	    	
 			// test segmented sieve
 			CollectingCallback segmentedCallback = new CollectingCallback(count);
 	    	SegmentedSieve segmentedSieve = new SegmentedSieve(segmentedCallback);
 			segmentedSieve.sieve(nthPrimeUpperBound);
 			int[] segmentedResult = segmentedCallback.array;
-	    	assertEquals(count, segmentedCallback.count);
+			Assert.assertEquals(count, segmentedCallback.count);
 	    	for (int i=0; i<count; i++) {
-		    	assertEquals(correctResult[i], segmentedResult[i]);
+	    		Assert.assertEquals(correctResult[i], segmentedResult[i]);
 	    	}
 			
 			// test sieve facade
 	    	AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get().ensurePrimeCount(count);
 	    	for (int i=0; i<count; i++) {
-		    	assertEquals(correctResult[i], primesArray.getPrime(i));
+	    		Assert.assertEquals(correctResult[i], primesArray.getPrime(i));
 	    	}
 		}
 	}

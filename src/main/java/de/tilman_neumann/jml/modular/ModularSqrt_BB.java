@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -17,8 +17,9 @@ import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.util.Assert;
+
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * Compute modular sqrts t with t^2 == n (mod p) and u with u^2 == n (mod p^e) using Tonelli-Shanks' algorithm.
@@ -43,12 +44,12 @@ public class ModularSqrt_BB {
 	 */
 	public BigInteger modularSqrt(BigInteger n, BigInteger p) {
 		if (DEBUG) {
-			assertTrue((p.intValue() & 1) == 1 && p.isProbablePrime(20)); // p odd prime
+			Assert.assertTrue((p.intValue() & 1) == 1 && p.isProbablePrime(20)); // p odd prime
 			// Tonelli_Shanks requires Legendre(n|p)==1, 0 is not ok. But this is easy to "heal":
 			// Since p is prime, Legendre(n|p)==0 means that n is a multiple of p.
 			// Thus n mod p == 0 and the square of this is 0, too.
 			// So if the following assert fails, just test n mod p == 0 before calling this method.
-			assertTrue(jacobiEngine.jacobiSymbol(n, p)==1);
+			Assert.assertEquals(jacobiEngine.jacobiSymbol(n, p), 1);
 		}
 		int pMod8 = p.intValue() & 7;
 		switch (pMod8) {
@@ -80,8 +81,8 @@ public class ModularSqrt_BB {
 		int S = pm1.getLowestSetBit(); // lowest set bit (0 if pm1 were odd which is impossible because p is odd)
 		if (DEBUG) {
 			LOG.debug("n=" + n + ", p=" + p);
-			assertEquals(1, jacobiEngine.jacobiSymbol(n, p));
-			assertTrue(S > 1); // S=1 is the Lagrange case p == 3 (mod 4), but we check it nonetheless.
+			Assert.assertEquals(1, jacobiEngine.jacobiSymbol(n, p));
+			Assert.assertGreater(S, 1); // S=1 is the Lagrange case p == 3 (mod 4), but we check it nonetheless.
 		}
 		BigInteger Q = pm1.shiftRight(S);
 		// find some z with Legendre(z|p)==-1, i.e. z being a quadratic non-residue (mod p)
@@ -99,10 +100,10 @@ public class ModularSqrt_BB {
 			if (DEBUG) {
 				LOG.debug("Find i < M=" + M + " with t=" + t);
 				// test invariants from <link>https://en.wikipedia.org/wiki/Tonelli%E2%80%93Shanks_algorithm#Proof</link>:
-				assertEquals(pm1, mpe.modPow(c, I_1.shiftLeft(M-1), p)); //  -1 == c^(2^(M-1)) (mod p)
-				assertEquals(1, mpe.modPow(t, I_1.shiftLeft(M-1), p));   //   1 == t^(2^(M-1)) (mod p)
+				Assert.assertEquals(pm1, mpe.modPow(c, I_1.shiftLeft(M-1), p)); //  -1 == c^(2^(M-1)) (mod p)
+				Assert.assertEquals(I_1, mpe.modPow(t, I_1.shiftLeft(M-1), p));   //   1 == t^(2^(M-1)) (mod p)
 				BigInteger nModP = n.mod(p);
-				assertEquals(R.multiply(R).mod(p), t.multiply(nModP).mod(p));  // R^2 == t*n (mod p)
+				Assert.assertEquals(R.multiply(R).mod(p), t.multiply(nModP).mod(p));  // R^2 == t*n (mod p)
 			}
 			boolean foundI = false;
 			int i;
@@ -120,7 +121,7 @@ public class ModularSqrt_BB {
 			t = t.multiply(c).mod(p);
 			M = i;
 		}
-		if (DEBUG) assertEquals(R.pow(2).mod(p), n.mod(p));
+		if (DEBUG) Assert.assertEquals(R.pow(2).mod(p), n.mod(p));
 		// return the smaller sqrt
 		return (R.compareTo(p.shiftRight(1)) <= 0) ? R : p.subtract(R);
 	}
@@ -134,7 +135,7 @@ public class ModularSqrt_BB {
 	private BigInteger Lagrange(BigInteger n, BigInteger p) {
 		BigInteger k = p.add(I_1).shiftRight(2);
 		BigInteger t = mpe.modPow(n, k, p);
-		if (DEBUG) assertEquals(t.pow(2).mod(p), n.mod(p));
+		if (DEBUG) Assert.assertEquals(t.pow(2).mod(p), n.mod(p));
 		// return the smaller sqrt
 		return (t.compareTo(p.shiftRight(1)) <= 0) ? t : p.subtract(t);
 	}
@@ -153,7 +154,7 @@ public class ModularSqrt_BB {
 		BigInteger i = n2.multiply(gSquare).mod(p);
 		BigInteger im1 = i.subtract(I_1);
 		BigInteger t = n.multiply(g.multiply(im1)).mod(p);
-		if (DEBUG) assertEquals(t.pow(2).mod(p), n.mod(p));
+		if (DEBUG) Assert.assertEquals(t.pow(2).mod(p), n.mod(p));
 		// return the smaller sqrt
 		return (t.compareTo(p.shiftRight(1)) <= 0) ? t : p.subtract(t);
 	}
