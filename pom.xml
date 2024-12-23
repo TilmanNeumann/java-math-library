@@ -6,7 +6,7 @@
   <name>Java Math Library (JML)</name>
   <groupId>de.tilman_neumann</groupId>
   <artifactId>jml</artifactId>
-  <version>1.4.0-alpha.1</version>
+  <version>1.4.0-alpha.2</version>
   <packaging>jar</packaging>
   <description>My general math library, containing pretty fast factoring algorithms (except NFS), partition generators and more.</description>
   <url>https://github.com/TilmanNeumann/java-math-library</url>
