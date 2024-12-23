@@ -132,7 +132,7 @@ public class TDiv_CF01 implements TDiv_CF {
 			} // end while (trialDivIndex < primeBaseSize)
 			Q_rest = BigInteger.valueOf(Q_rest_long); // keep Q_rest up-to-date
 		}
-		if (DEBUG) Assert.assertGreater(Q_rest.compareTo(I_1), 0);
+		if (DEBUG) Assert.assertGreater(Q_rest, I_1);
 		if (Q_rest_bits<32) {
 			int Q_rest_int = Q_rest.intValue();
 			while (trialDivIndex < primeBaseSize) {

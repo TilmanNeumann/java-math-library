@@ -40,8 +40,9 @@ public class ModularSqrt31 {
 	 */
 	public int modularSqrt(int n, int p) {
 		if (DEBUG) {
-			BigInteger p_big = BigInteger.valueOf(p);
-			Assert.assertTrue(p%2==1 && p_big.isProbablePrime(20)); // p odd prime
+			// p odd prime
+			Assert.assertEquals(p%2, 1);
+			Assert.assertTrue(BigInteger.valueOf(p).isProbablePrime(20));
 			// Tonelli_Shanks requires Legendre(n|p)==1, 0 is not ok. But this is easy to "heal":
 			// Since p is prime, Legendre(n|p)==0 means that n is a multiple of p.
 			// Thus n mod p == 0 and the square of this is 0, too.

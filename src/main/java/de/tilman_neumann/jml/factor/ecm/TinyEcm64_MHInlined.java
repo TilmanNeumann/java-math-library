@@ -1134,11 +1134,11 @@ public class TinyEcm64_MHInlined extends FactorAlgorithm {
 		if (DEBUG) {
 			//LOG.debug(a + " * " + b + " = " + r);
 			// 0 <= a < N, 0 <= b < N, 0 <= r < N
-			Assert.assertGreaterEquals(a, 0);
+			Assert.assertSmallerEquals(0, a);
 			Assert.assertSmaller(a, N);
-			Assert.assertGreaterEquals(b, 0);
+			Assert.assertSmallerEquals(0, b);
 			Assert.assertSmaller(b, N);
-			Assert.assertGreaterEquals(r, 0);
+			Assert.assertSmallerEquals(0, r);
 			Assert.assertSmaller(r, N);
 		}
 		
