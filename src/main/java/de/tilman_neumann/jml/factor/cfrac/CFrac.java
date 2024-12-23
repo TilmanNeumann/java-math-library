@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor.cfrac;
 
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -40,6 +39,7 @@ import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF02;
 import de.tilman_neumann.jml.roots.SqrtExact;
 import de.tilman_neumann.jml.roots.SqrtInt;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
@@ -287,14 +287,14 @@ public class CFrac extends FactorAlgorithm {
 	 * @param Q_ip1
 	 */
 	private void verifyCongruence(long i, BigInteger A_i, BigInteger Q_ip1) {
-		assertTrue(Q_ip1.signum()>=0);
+		Assert.assertGreaterEquals(Q_ip1.signum(), 0);
 		// verify congruence A^2 == Q (mod N)
 		BigInteger Q_test = i%2==1 ? Q_ip1 : Q_ip1.negate().mod(N);
 		BigInteger div[] = A_i.pow(2).subtract(Q_test).divideAndRemainder(N);
-		assertEquals(I_0, div[1]); // exact division
+		Assert.assertEquals(I_0, div[1]); // exact division
 		LOG.debug("A^2-Q = " + div[0] + " * N");
 		LOG.debug("A^2 % N = " + A_i.pow(2).mod(N) + ", Q = " + Q_test);
-		assertEquals(Q_test, A_i.pow(2).mod(N)); // works
+		Assert.assertEquals(Q_test, A_i.pow(2).mod(N)); // works
 	}
 	
 	/**

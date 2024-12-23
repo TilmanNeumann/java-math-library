@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.base.matrixSolver;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +20,7 @@ import java.util.Map;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
+import de.tilman_neumann.util.Assert;
 
 /**
  * An adapter for Dario Alpern's Block-Lanczos solver.
@@ -56,7 +55,7 @@ public class MatrixSolver_BlockLanczos extends MatrixSolverBase03 {
 			for (Integer oddExpFactor : oddExpFactors) {
 				// columnIndex should not be bigger than the number of congruences
 				int columnIndex = factors_2_columnIndices.get(oddExpFactor);
-				if (DEBUG) assertTrue(columnIndex <= matrixBlength);
+				if (DEBUG) Assert.assertSmallerEquals(columnIndex, matrixBlength);
 				matrixRow[j++] = columnIndex;
 			}
 			matrixB[i++] = matrixRow;

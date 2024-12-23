@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.pollardRho;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,6 +24,7 @@ import de.tilman_neumann.jml.base.Rng;
 import de.tilman_neumann.jml.base.Uint128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
@@ -180,13 +179,18 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 		
 		if (DEBUG) {
 			//LOG.debug(a + " * " + b + " = " + r);
-			assertTrue(a >= 0 && a<N);
-			assertTrue(b >= 0 && b<N);
+			// 0 <= a < N
+			Assert.assertSmallerEquals(0, a);
+			Assert.assertSmaller(a, N);
+			// 0 <= b < N
+			Assert.assertSmallerEquals(0, b);
+			Assert.assertSmaller(b, N);
 			
 			// In a general Montgomery multiplication we would still have to check
 			r = r<N ? r : r-N;
-			// to satisfy
-			assertTrue(r >= 0 && r < N);
+			// to satisfy 0 <= r < N
+			Assert.assertSmallerEquals(0, r);
+			Assert.assertSmaller(r, N);
 		}
 		
 		return r;

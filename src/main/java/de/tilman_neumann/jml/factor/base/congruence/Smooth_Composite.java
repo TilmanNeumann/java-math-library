@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -13,13 +13,12 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
-import static org.junit.Assert.assertTrue;
-
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -41,7 +40,7 @@ public class Smooth_Composite implements Smooth {
 	 */
 	public Smooth_Composite(Set<? extends AQPair> aqPairs) {
 		this.aqPairs = new AQPair[aqPairs.size()];
-		if (DEBUG) assertTrue(aqPairs.size() > 1);
+		if (DEBUG) Assert.assertGreater(aqPairs.size(), 1);
 		HashSet<Integer> smallFactorsWithOddExp = new HashSet<Integer>();
 		int aqPairCount = 0;
 		for (AQPair aqPair : aqPairs) {

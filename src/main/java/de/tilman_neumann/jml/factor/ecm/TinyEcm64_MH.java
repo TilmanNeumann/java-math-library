@@ -33,7 +33,6 @@
 package de.tilman_neumann.jml.factor.ecm;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
-import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 
@@ -45,6 +44,7 @@ import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
@@ -683,7 +683,7 @@ public class TinyEcm64_MH extends FactorAlgorithm {
 		t3 = modinv_64(t4, n);
 		if (DEBUG) {
 			LOG.debug("t4=" + t4 + ", n=" + n + ", modinv t3 =" + t3);
-			assertTrue(t4 < n);
+			Assert.assertSmaller(t4, n);
 			BigInteger t4Big = new BigInteger(Long.toUnsignedString(t4));
 			BigInteger nBig = new BigInteger(Long.toUnsignedString(n));
 			BigInteger t3Big = new BigInteger(Long.toUnsignedString(t3));
@@ -729,7 +729,7 @@ public class TinyEcm64_MH extends FactorAlgorithm {
 		if (DEBUG) {
 			LOG.debug("rho = " + Long.toUnsignedString(rho));
 			long rho2 = setUpMontgomeryMult_v2(n);
-			assertEquals(rho2, rho);
+			Assert.assertEquals(rho2, rho);
 		}
 		
 		work.n = n;
@@ -1125,9 +1125,13 @@ public class TinyEcm64_MH extends FactorAlgorithm {
 
 		if (DEBUG) {
 			//LOG.debug(a + " * " + b + " = " + r);
-			assertTrue(a >= 0 && a<N);
-			assertTrue(b >= 0 && b<N);
-			assertTrue(r >= 0 && r < N);
+			// 0 <= a < N, 0 <= b < N, 0 <= r < N
+			Assert.assertGreaterEquals(a, 0);
+			Assert.assertSmaller(a, N);
+			Assert.assertGreaterEquals(b, 0);
+			Assert.assertSmaller(b, N);
+			Assert.assertGreaterEquals(r, 0);
+			Assert.assertSmaller(r, N);
 		}
 		
 		return r;
@@ -1205,7 +1209,7 @@ public class TinyEcm64_MH extends FactorAlgorithm {
 		// Otherwise we continue
 		BigInteger N = result.untestedFactors.firstKey();
 		int exp = result.untestedFactors.removeAll(N);
-		if (DEBUG) assertEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
+		if (DEBUG) Assert.assertEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
 
 		if (bpsw.isProbablePrime(N)) {
 			result.primeFactors.add(N);

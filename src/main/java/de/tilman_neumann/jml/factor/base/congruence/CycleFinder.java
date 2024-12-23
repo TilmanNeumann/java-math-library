@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2021 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2021-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -13,8 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +20,7 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -86,7 +85,7 @@ public class CycleFinder {
 					if (r0.equals(ri)) continue;
 					
 					ArrayList<Long> riFactors = pbr.get(ri);
-					if (DEBUG) assertNotNull(riFactors);
+					if (DEBUG) Assert.assertNotNull(riFactors);
 					if (riFactors.size() == 1) {
 						// found cycle -> create new Smooth consisting of r0, ri and their chains
 						if (DEBUG) {
@@ -97,7 +96,7 @@ public class CycleFinder {
 							for (Partial partial : chains.get(ri)) combinedLargeFactors.addAll(partial.getLargeFactorsWithOddExponent());
 							// test combinedLargeFactors
 							for (Long factor : combinedLargeFactors.keySet()) {
-								assertTrue((combinedLargeFactors.get(factor) & 1) == 0);
+								Assert.assertEquals((combinedLargeFactors.get(factor) & 1), 0);
 							}
 						}
 						HashSet<Partial> allPartials = new HashSet<>();

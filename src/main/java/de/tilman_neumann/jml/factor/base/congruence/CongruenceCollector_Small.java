@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -12,8 +12,6 @@
  * if not, see <http://www.gnu.org/licenses/>.
  */
 package de.tilman_neumann.jml.factor.base.congruence;
-
-import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -28,6 +26,7 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.Timer;
 
 /**
@@ -171,7 +170,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 		}
 		
 		// otherwise aqPair must be a partial with one large factor.
-		if (DEBUG) assertTrue(aqPair instanceof Partial_1Large);
+		if (DEBUG) Assert.assertTrue(aqPair instanceof Partial_1Large);
 		Partial_1Large partial = (Partial_1Large) aqPair;
 		final Long bigFactor = partial.getLargeFactorsWithOddExponent()[0];
 				

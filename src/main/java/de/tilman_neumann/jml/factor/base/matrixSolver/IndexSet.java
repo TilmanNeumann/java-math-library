@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import static org.junit.Assert.*;
+import de.tilman_neumann.util.Assert;
 
 /**
  * BitArray implementation of an IndexSet, realized in long[], used by the Gaussian solver.
@@ -155,7 +155,7 @@ public class IndexSet  {
 		for (int i=0; i<numberOfLongs; i++) {
 			long theLong = bitArray[i];
 			int x = i<<6; // x = 64*i
-			if (DEBUG) assertEquals(64*i, x);
+			if (DEBUG) Assert.assertEquals(64*i, x);
 			if (x>biggestEntry) break;
 			for (int j=0; j<64; j++) {
 				boolean isSet = (theLong & (1L<<j)) != 0;

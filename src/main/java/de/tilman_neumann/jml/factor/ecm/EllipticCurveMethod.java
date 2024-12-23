@@ -32,12 +32,12 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * <p>Use Elliptic Curve Method to find the prime number factors of a given BigInteger.</p>
@@ -187,14 +187,14 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		if (result.untestedFactors.isEmpty()) return;
 		// Otherwise untestedFactors should contain exactly one prime > 131072, or one composite > 131072^2, the unfactored rest
 		if (DEBUG) {
-			assertEquals(1, result.untestedFactors.size());
-			assertTrue(result.untestedFactors.firstKey().compareTo(BigInteger.valueOf(131072)) > 0);
+			Assert.assertEquals(1, result.untestedFactors.size());
+			Assert.assertGreater(result.untestedFactors.firstKey(), BigInteger.valueOf(131072));
 		}
 		
 		// Retrieve the unfactored rest to continue. The exponent of N can not have changed.
 		BigInteger N = result.untestedFactors.firstKey();
 		int Nexp = result.untestedFactors.removeAll(N);
-		if (DEBUG) assertEquals(args.exp, Nexp);
+		if (DEBUG) Assert.assertEquals(args.exp, Nexp);
 		
 		if (isProbablePrime(N)) {
 			addToMap(N, args.exp, result.primeFactors);

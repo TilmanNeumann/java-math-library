@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2021 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2021-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -13,13 +13,13 @@
  */
 package de.tilman_neumann.jml.factor.base.congruence;
 
-import static org.junit.Assert.*;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.log4j.Logger;
+
+import de.tilman_neumann.util.Assert;
 
 /**
  * Cycle counting algorithm implementation for two large primes, following [LM94].
@@ -77,10 +77,10 @@ public class CycleCounter2LP implements CycleCounter {
 		
 		// add edges
 		if (largeFactorsCount==1) {
-			if (DEBUG) assertTrue(1 < largeFactors[0]);
+			if (DEBUG) Assert.assertSmaller(1, largeFactors[0]);
 			insert1LP(largeFactors[0]);
 		} else if (largeFactorsCount==2) {
-			if (DEBUG) assertTrue(largeFactors[0] < largeFactors[1]);
+			if (DEBUG) Assert.assertSmaller(largeFactors[0], largeFactors[1]);
 			insert2LP(largeFactors[0], largeFactors[1]);
 		} else {
 			LOG.warn("Holy shit, we found a " + largeFactorsCount + "-partial!");
@@ -95,8 +95,8 @@ public class CycleCounter2LP implements CycleCounter {
 			String cycleCountFormula = "#relations + #roots - #vertices";
 			LOG.debug("#relations=" + relations.size() + ", #roots=" + componentCount + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
 
-			assertEquals(roots.size(), componentCount);
-			//assertEquals(getRootsFromVertices().size(), componentCount); // expensive test
+			Assert.assertEquals(roots.size(), componentCount);
+			//Assert.assertEquals(getRootsFromVertices().size(), componentCount); // expensive test
 			LOG.debug("-------------------------------------------------------------");
 		}
 		
@@ -117,7 +117,7 @@ public class CycleCounter2LP implements CycleCounter {
 				// Add it to the component with root 1 and remove the old root if it existed
 				edges.put(r1, 1L);
 				componentCount--;
-				if (DEBUG) assertTrue(roots.remove(r1));
+				if (DEBUG) Assert.assertTrue(roots.remove(r1));
 			}
 		} else {
 			// The prime is new -> just add it to the component with root 1
@@ -142,12 +142,12 @@ public class CycleCounter2LP implements CycleCounter {
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r2, r1);
 				componentCount--;
-				if (DEBUG) assertTrue(roots.remove(r2));
+				if (DEBUG) Assert.assertTrue(roots.remove(r2));
 			} else if (r2<r1) {
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r1, r2);
 				componentCount--;
-				if (DEBUG) assertTrue(roots.remove(r1));
+				if (DEBUG) Assert.assertTrue(roots.remove(r1));
 			} else {
 				// if the roots are equal than both primes are already part of the same component so nothing more happens
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from the same components");
@@ -167,7 +167,7 @@ public class CycleCounter2LP implements CycleCounter {
 			edges.put(p1, p1);
 			edges.put(p2, p1);
 			componentCount++;
-			if (DEBUG) assertTrue(roots.add(p1));
+			if (DEBUG) Assert.assertTrue(roots.add(p1));
 		}
 	}
 

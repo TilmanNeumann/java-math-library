@@ -76,4 +76,37 @@ public class Assert {
 			throw new AssertionError("Assertion failed: " + left + "==" + right);
 		}
 	}
+	
+	public static void assertGreater(BigInteger left, BigInteger right) {
+		if (left == null || ! (left.compareTo(right) > 0)) {
+			throw new AssertionError("Assertion failed: " + left + ">" + right);
+		}
+	}
+	
+	// General asserts
+	
+	public static void assertNull(Object value) {
+		if (value != null) {
+			throw new AssertionError("Assertion failed: " + value + " to be null");
+		}
+	}
+	
+	public static void assertNotNull(Object value) {
+		if (value == null) {
+			throw new AssertionError("Assertion failed: " + value + " to be non-null");
+		}
+	}
+
+	/**
+	 * Assert that the given value is true.<br><br>
+	 * 
+	 * <strong>Use more specific asserts whenever possible to get better error messages!</strong>
+	 * 
+	 * @param value
+	 */
+	public static void assertTrue(boolean value) {
+		if (value == false) {
+			throw new AssertionError("Assertion failed: " + value + " to be true");
+		}
+	}
 }

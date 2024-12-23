@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor.siqs.poly;
 
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -31,6 +30,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
 import de.tilman_neumann.jml.gcd.EEA31;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.Timer;
 
 /**
@@ -184,8 +184,8 @@ public class SIQSPolyGenerator {
 			if (ANALYZE) bParamCount++;
 			bIndex = 1;
 			if (DEBUG) {
-				assertTrue(a.signum() >= 0);
-				assertTrue(b.signum() >= 0);
+				Assert.assertGreaterEquals(a.signum(), 0);
+				Assert.assertGreaterEquals(b.signum(), 0);
 				LOG.debug("first a=" + a + ", b=" + b);
 				LOG.debug("(b^2-kN)/a [" + bIndex + "] = " + b.multiply(b).subtract(kN).divide(a));
 			}
@@ -194,7 +194,7 @@ public class SIQSPolyGenerator {
 			// filter prime base
 			BaseFilter.Result filterResult = baseFilter.filter(solutionArrays, baseArrays, mergedBaseSize, qArray, qCount, k);
 			filteredBaseSize = filterResult.filteredBaseSize;
-			if (DEBUG) assertTrue(filteredBaseSize <= mergedBaseSize-qCount);
+			if (DEBUG) Assert.assertSmallerEquals(filteredBaseSize, mergedBaseSize-qCount);
 			// The above is an equality if we do not sieve with powers.
 			// If we do sieve with powers then powers of q's may be removed, leading to the inequality.
 			if (ANALYZE) filterPBDuration += timer.capture();
@@ -224,19 +224,21 @@ public class SIQSPolyGenerator {
 			if (ANALYZE) bParamCount++;
 			if (DEBUG) {
 				//LOG.debug("a = " + a + ", b = " + b);
-				assertTrue(0<v && v<qCount); // exact
+				// exact bounds for v: 0 < v < qCount
+				Assert.assertSmaller(0, v);
+				Assert.assertSmaller(v, qCount);
 				// Contini defines computations for (i+1)th polynomial in i
 				// -> the second b-parameter is computed with i=1, the third b-parameter with i=2, etc.
 				// -> do asserts involving bIndex before bIndex is incremented
-				assertTrue((2*bIndex) % Math.pow(2, v) == 0);
-				assertTrue((2*bIndex) % Math.pow(2, v+1) > 0);
+				Assert.assertEquals((2*bIndex) % (int)Math.pow(2, v), 0);
+				Assert.assertGreater((2*bIndex) % (int)Math.pow(2, v+1), 0);
 				if (d == 2) {
 					// b is odd
-					assertEquals(I_1, b.and(I_1));
+					Assert.assertEquals(I_1, b.and(I_1));
 					// with Kechlibars polynomial and multiplier k with kN == 1 (mod 8) we have b^2 == kN (mod 4a)
-					assertEquals(I_0, b.multiply(b).subtract(kN).mod(a.multiply(I_4)));
+					Assert.assertEquals(I_0, b.multiply(b).subtract(kN).mod(a.multiply(I_4)));
 				} else {
-					assertEquals(I_0, b.multiply(b).subtract(kN).mod(a)); // we have b^2 == kN (mod a)
+					Assert.assertEquals(I_0, b.multiply(b).subtract(kN).mod(a)); // we have b^2 == kN (mod a)
 				}
 			}
 			bIndex++;
@@ -283,17 +285,17 @@ public class SIQSPolyGenerator {
 			if (DEBUG) {
 				LOG.debug("qArray = " + Arrays.toString(qArray));
 				LOG.debug("t = " + t + ", ql = " + ql + ", a_div_ql_modInv_ql = " + a_div_ql_modInv_ql + ", gamma = " + gamma + ", Bl = " + Bl);
-				assertTrue(gamma >= 0);
-				assertTrue(gamma <= ql/2);
-				assertEquals(a_div_ql.modInverse(ql_big).longValue(), a_div_ql_modInv_ql);
-				assertTrue(Bl.compareTo(I_0) >= 0);
-				assertEquals(I_0, Bl.multiply(Bl).subtract(kN).mod(ql_big));
-				//assertEquals(t % ql, Bl.mod(ql_big).intValue()); // does not hold if we choose the smaller gamma
-				assertEquals(I_0, Bl.mod(a_div_ql));
+				Assert.assertGreaterEquals(gamma, 0);
+				Assert.assertSmallerEquals(gamma, ql/2);
+				Assert.assertEquals(a_div_ql.modInverse(ql_big).longValue(), a_div_ql_modInv_ql);
+				Assert.assertGreaterEquals(Bl.compareTo(I_0), 0);
+				Assert.assertEquals(I_0, Bl.multiply(Bl).subtract(kN).mod(ql_big));
+				//Assert.assertEquals(t % ql, Bl.mod(ql_big).intValue()); // does not hold if we choose the smaller gamma
+				Assert.assertEquals(I_0, Bl.mod(a_div_ql));
 				for (int l2=0; l2<qCount; l2++) {
 					if (l2 != l) {
 						BigInteger ql2 = BigInteger.valueOf(qArray[l2]);
-						assertEquals(I_0, Bl.mod(ql2));
+						Assert.assertEquals(I_0, Bl.mod(ql2));
 					}
 				}
 			}
@@ -306,17 +308,17 @@ public class SIQSPolyGenerator {
 			LOG.debug ("a = " + a + ", b = " + b + ", b^2 = " + b.multiply(b) + ", kN = " + kN);
 			LOG.debug ("b^2 % 8 = " + b.multiply(b).mod(I_8) + ", kN % 8 = " + kN.mod(I_8));
 			// initial b are positive
-			assertTrue(b.signum() >= 0);
+			Assert.assertGreaterEquals(b.signum(), 0);
 			if (d == 2) {
 				// b is odd
-				assertEquals(I_1, b.and(I_1));
+				Assert.assertEquals(I_1, b.and(I_1));
 				// With Kechlibars polynomial Q(x) = (2ax+b)^2 - kN and multiplier k with kN == 1 (mod 8)
 				// we have b^2 == kN (mod 4a). The same could be achieved for kN == 5 (mod 8),
 				// but in that case there is no notable performance gain.
-				assertEquals(I_0, b.multiply(b).subtract(kN).mod(a.multiply(I_4)));
+				Assert.assertEquals(I_0, b.multiply(b).subtract(kN).mod(a.multiply(I_4)));
 			} else {
 				// we have b^2 == kN (mod a)
-				assertEquals(I_0, b.multiply(b).subtract(kN).mod(a));
+				Assert.assertEquals(I_0, b.multiply(b).subtract(kN).mod(a));
 			}
 		}
 	}
@@ -368,33 +370,46 @@ public class SIQSPolyGenerator {
 			if (DEBUG) {
 				BigInteger p_big = BigInteger.valueOf(p);
 				try {
-					assertEquals(ainvp, da.modInverse(p_big).longValue());
-					assertTrue(ainvp > 0); // p that have no modular inverse (1/a) % p have been filtered out
+					Assert.assertEquals(ainvp, da.modInverse(p_big).longValue());
+					Assert.assertGreater(ainvp, 0); // p that have no modular inverse (1/a) % p have been filtered out
 				} catch (ArithmeticException | AssertionError ae) {
 					LOG.debug("p = " + p + ", ainvp = " + ainvp + ", da = " + da + ": " + ae, ae);
 				}
 
-				assertEquals(b.mod(p_big).intValue(), bModP);
-				assertTrue(0 <= bModP & bModP < p);
-				assertTrue(0 <= t & t < p);
-
-				assertTrue(0<=t_minus_b_modP && t_minus_b_modP<p);
+				Assert.assertEquals(b.mod(p_big).intValue(), bModP);
+				// 0 <= bModP < p
+				Assert.assertSmallerEquals(0, bModP);
+				Assert.assertSmaller(bModP, p);
+				// 0 <= t < p
+				Assert.assertSmallerEquals(0, t);
+				Assert.assertSmaller(t, p);
+				// 0 <= t_minus_b_modP < p
+				Assert.assertSmallerEquals(0, t_minus_b_modP);
+				Assert.assertSmaller(t_minus_b_modP, p);
 				if (t>0) {
 					int minus_t_minus_b_modP = p -t - bModP;
 					if (minus_t_minus_b_modP < 0) minus_t_minus_b_modP += p;
-					assertTrue(0<=minus_t_minus_b_modP && minus_t_minus_b_modP<p);
+					// 0 <= minus_t_minus_b_modP < p
+					Assert.assertSmallerEquals(0, minus_t_minus_b_modP);
+					Assert.assertSmaller(minus_t_minus_b_modP, p);
 				}
 				// x1,x2 were chosen such that p divides Q
 				int x1 = x1Array[pIndex];
-				assertTrue(x1>=0 && x1<p);
-				if (t==0) assertEquals(x1, (int) ((ainvp * (p - bModP)) % p));
+				// 0 <= x1 < p
+				Assert.assertSmallerEquals(0, x1);
+				Assert.assertSmaller(x1, p);
+				
+				if (t==0) Assert.assertEquals(x1, (int) ((ainvp * (p - bModP)) % p));
 				
 				BigInteger Q1 = da.multiply(BigInteger.valueOf(x1)).add(b).pow(2).subtract(kN);
-				assertEquals(I_0, Q1.mod(p_big));
+				Assert.assertEquals(I_0, Q1.mod(p_big));
 				int x2 = x2Array[pIndex];
-				assertTrue(x2>=0 && x2<p);
+				// 0 <= x2 < p
+				Assert.assertSmallerEquals(0, x2);
+				Assert.assertSmaller(x2, p);
+				
 				BigInteger Q2 = da.multiply(BigInteger.valueOf(x2)).add(b).pow(2).subtract(kN);
-				assertEquals(I_0, Q2.mod(p_big));
+				Assert.assertEquals(I_0, Q2.mod(p_big));
 			}
 		} // end_for (primes)
 		
@@ -412,7 +427,9 @@ public class SIQSPolyGenerator {
 			if (DEBUG) {
 				for (int pIndex=filteredBaseSize-1; pIndex>0; pIndex--) {
 					final int p = pArray[pIndex];
-					assertTrue(0<=Bainv2Row[pIndex] && Bainv2Row[pIndex]<p);
+					// 0 <= Bainv2Row[pIndex] < p
+					Assert.assertSmallerEquals(0, Bainv2Row[pIndex]);
+					Assert.assertSmaller(Bainv2Row[pIndex], p);
 				}
 			}
 		}
@@ -460,11 +477,16 @@ public class SIQSPolyGenerator {
 				int Bainv2 = Bainv2Row[pIndex];
 				int x1 = x1Array[pIndex];
 				int x2 = x2Array[pIndex];
-				assertTrue(0 <= x1 && x1 < p);
-				assertTrue(0 <= x2 && x2 < p);
+				// 0 <= x1 < p
+				Assert.assertSmallerEquals(0, x1);
+				Assert.assertSmaller(x1, p);
+				// 0 <= x2 < p
+				Assert.assertSmallerEquals(0, x2);
+				Assert.assertSmaller(x2, p);
+				
 				BigInteger p_big = BigInteger.valueOf(p);
-				assertEquals(kN.mod(p_big), da.multiply(BigInteger.valueOf(x1)).add(b).pow(2).mod(p_big));
-				assertEquals(kN.mod(p_big), da.multiply(BigInteger.valueOf(x2)).add(b).pow(2).mod(p_big));
+				Assert.assertEquals(kN.mod(p_big), da.multiply(BigInteger.valueOf(x1)).add(b).pow(2).mod(p_big));
+				Assert.assertEquals(kN.mod(p_big), da.multiply(BigInteger.valueOf(x2)).add(b).pow(2).mod(p_big));
 				if (x1<0 || x2<0) LOG.debug("p=" + p + ", Bainv2=" + Bainv2 + ": x1 = " + x1 + ", x2 = " + x2);
 			}
 		}

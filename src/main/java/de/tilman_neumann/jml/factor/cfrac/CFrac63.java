@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -30,13 +30,13 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF63;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.TimeUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_LARGE_FACTOR_SIZES;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.ANALYZE_Q_SIGNS;
-import static org.junit.Assert.*;
 
 /**
  * 63 bit CFrac with Knuth-Schroeppel multiplier.
@@ -277,14 +277,14 @@ public class CFrac63 extends FactorAlgorithm {
 	 * @param Q_ip1
 	 */
 	private void verifyCongruence(long i, BigInteger A_i, BigInteger Q_ip1) {
-		assertTrue(Q_ip1.signum()>=0);
+		Assert.assertGreaterEquals(Q_ip1.signum(), 0);
 		// verify congruence A^2 == Q (mod N)
 		BigInteger Q_test = i%2==1 ? Q_ip1 : Q_ip1.negate().mod(N);
 		BigInteger div[] = A_i.pow(2).subtract(Q_test).divideAndRemainder(N);
-		assertEquals(I_0, div[1]); // works
+		Assert.assertEquals(I_0, div[1]); // works
 		LOG.debug("A^2-Q = " + div[0] + " * N");
 		LOG.debug("A^2 % N = " + A_i.pow(2).mod(N) + ", Q = " + Q_test);
-		assertEquals(Q_test, A_i.pow(2).mod(N)); // works
+		Assert.assertEquals(Q_test, A_i.pow(2).mod(N)); // works
 	}
 	
 	/**

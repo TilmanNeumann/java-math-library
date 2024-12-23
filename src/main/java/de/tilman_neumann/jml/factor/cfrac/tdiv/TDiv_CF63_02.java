@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -12,8 +12,6 @@
  * if not, see <http://www.gnu.org/licenses/>.
  */
 package de.tilman_neumann.jml.factor.cfrac.tdiv;
-
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 
@@ -29,6 +27,7 @@ import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
+import de.tilman_neumann.util.Assert;
 
 /**
  * Auxiliary factor algorithm to find smooth decompositions of Q's.
@@ -118,7 +117,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 				}
 			} // end while (trialDivIndex < primeBaseSize)
 		}
-		if (DEBUG) assertTrue(Q_rest>1);
+		if (DEBUG) Assert.assertGreater(Q_rest, 1);
 		if (Q_rest_bits<32) {
 			int Q_rest_int = (int) Q_rest;
 			while (trialDivIndex < primeBaseSize) {
@@ -149,7 +148,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 	private boolean factor_recurrent(long Q_rest) {
 		if (Q_rest < pMaxSquare) {
 			// we divided Q_rest by all primes <= pMax and the rest is < pMax^2 -> it must be prime
-			if (DEBUG) assertTrue(prpTest.isProbablePrime(Q_rest));
+			if (DEBUG) Assert.assertTrue(prpTest.isProbablePrime(Q_rest));
 			if (bitLength(Q_rest) > 31) return false;
 			bigFactors.add((int)Q_rest);
 			return true;

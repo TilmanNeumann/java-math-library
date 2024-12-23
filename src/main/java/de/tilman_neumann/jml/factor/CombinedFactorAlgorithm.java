@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -15,7 +15,6 @@ package de.tilman_neumann.jml.factor;
 
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,6 +47,7 @@ import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_Small;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Barrett;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.util.Assert;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.TimeUtil;
@@ -170,7 +170,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 					// Otherwise we continue
 					BigInteger N = result.untestedFactors.firstKey();
 					int exp = result.untestedFactors.removeAll(N);
-					if (DEBUG) assertEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
+					if (DEBUG) Assert.assertEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
 	
 					if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
 						result.primeFactors.add(N);

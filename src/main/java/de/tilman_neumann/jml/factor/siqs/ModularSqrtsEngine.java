@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -20,9 +20,9 @@ import org.apache.log4j.Logger;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.modular.ModularSqrt;
 import de.tilman_neumann.jml.modular.ModularSqrt31;
+import de.tilman_neumann.util.Assert;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
-import static org.junit.Assert.*;
 
 /**
  * Engine to compute the smallest modular sqrts for all elements of the prime base.
@@ -65,17 +65,17 @@ public class ModularSqrtsEngine {
 			// * Testing for p|N does not help TDiv's internal QS, because the Q's have been stripped of prime base elements before it is called.
 		}
 		if (DEBUG) {
-			assertEquals(kN.mod(I_2), BigInteger.valueOf(tArray[0]).pow(2).mod(I_2));
+			Assert.assertEquals(kN.mod(I_2), BigInteger.valueOf(tArray[0]).pow(2).mod(I_2));
 			ModularSqrt modularSqrtEngine_big = new ModularSqrt();
 			for (int i = primeBaseSize-1; i>0; i--) {
 				int p = primesArray[i];
 				BigInteger pBig = BigInteger.valueOf(p);
 				BigInteger kN_mod_p = kN.mod(pBig);
 				if (kN_mod_p.compareTo(I_0) > 0) {
-					assertEquals(modularSqrtEngine_big.modularSqrt(kN, p), tArray[i]);
-					assertEquals(modularSqrtEngine_big.modularSqrt(kN_mod_p, p), tArray[i]);
+					Assert.assertEquals(modularSqrtEngine_big.modularSqrt(kN, p), tArray[i]);
+					Assert.assertEquals(modularSqrtEngine_big.modularSqrt(kN_mod_p, p), tArray[i]);
 				} else {
-					assertEquals(0, tArray[i]);
+					Assert.assertEquals(0, tArray[i]);
 				}
 				LOG.debug("kN=" + kN + ", p=" + p + ", kN%p = " + kN_mod_p + " -> t=" + tArray[i]);
 			}

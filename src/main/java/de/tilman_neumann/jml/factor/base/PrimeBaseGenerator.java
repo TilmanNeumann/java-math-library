@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -19,8 +19,7 @@ import org.apache.log4j.Logger;
 
 import de.tilman_neumann.jml.modular.JacobiSymbol;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
-
-import static org.junit.Assert.*;
+import de.tilman_neumann.util.Assert;
 
 /**
  * Prime base generator.
@@ -54,7 +53,7 @@ public class PrimeBaseGenerator {
 			int jacobi = jacobiEngine.jacobiSymbol(kN, p);
 			if (DEBUG) {
 				// ensure correctness of prime generator
-				assertTrue(BigInteger.valueOf(p).isProbablePrime(20));
+				Assert.assertTrue(BigInteger.valueOf(p).isProbablePrime(20));
 				// ensure that Jacobi symbol values are in the expected range -1 ... +1
 				if (jacobi<-1 || jacobi>1) LOG.warn("kN=" + kN + ", p=" + p + " -> jacobi=" + jacobi);
 			}

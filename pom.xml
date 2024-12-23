@@ -46,8 +46,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
-      <!-- TODO comment in when all unit tests are in the test folder
-      <scope>test</scope> -->
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
