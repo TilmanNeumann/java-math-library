@@ -1,62 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
+	<modelVersion>4.0.0</modelVersion>
 
-  <name>Java Math Library (JML)</name>
-  <groupId>de.tilman_neumann</groupId>
-  <artifactId>jml</artifactId>
-  <version>1.4.0-alpha.3</version>
-  <packaging>jar</packaging>
-  <description>My general math library, containing pretty fast factoring algorithms (except NFS), partition generators and more.</description>
-  <url>https://github.com/TilmanNeumann/java-math-library</url>
+	<name>Java Math Library (JML)</name>
+	<groupId>de.tilman_neumann</groupId>
+	<artifactId>jml</artifactId>
+	<version>1.4.0-beta</version>
+	<packaging>jar</packaging>
+	<description>My general math library, containing pretty fast factoring algorithms (except NFS), partition generators and more.</description>
+	<url>https://github.com/TilmanNeumann/java-math-library</url>
 
-  <licenses>
-    <license>
-      <name>GNU General Public License 3</name>
-      <url>https://www.gnu.org/licenses/gpl-3.0.html</url>
-    </license>
-  </licenses>
+	<licenses>
+    	<license>
+			<name>GNU General Public License 3</name>
+			<url>https://www.gnu.org/licenses/gpl-3.0.html</url>
+    	</license>
+	</licenses>
 
-  <developers>
-    <developer>
-      <name>Tilman Neumann</name>
-      <email>tilman.neumann@web.de</email>
-    </developer>
-  </developers>
+	<developers>
+		<developer>
+			<name>Tilman Neumann</name>
+			<email>tilman.neumann@web.de</email>
+		</developer>
+	</developers>
 
-  <dependencies>
-	<dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <version>2.24.3</version>
-	</dependency>
-	<dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>2.24.3</version>
-	</dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.2</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.24.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.24.3</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <version>3.13.0</version>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-		  <!-- The project still builds with Java 1.8, but with 10 we have better intrinsics -->
-          <source>10</source>
-          <target>10</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
+	<build>
+		<plugins>
+			<!-- build library -->
+			<plugin>
+				<version>3.13.0</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<!-- The project still builds with Java 1.8, but with 10 we have better intrinsics -->
+					<source>10</source>
+					<target>10</target>
+				</configuration>
+	      	</plugin>
+	      	<!-- build executable jar including all required dependencies -->
+			<plugin>
+				<version>3.7.1</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>de.tilman_neumann.jml.factor.CombinedFactorAlgorithm</mainClass>
+								</manifest>
+                			</archive>
+                			<descriptorRefs>
+                    			<descriptorRef>jar-with-dependencies</descriptorRef>
+                			</descriptorRefs>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
