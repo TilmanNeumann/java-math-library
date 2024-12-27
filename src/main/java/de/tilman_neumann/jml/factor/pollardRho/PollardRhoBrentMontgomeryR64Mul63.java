@@ -25,7 +25,7 @@ import de.tilman_neumann.jml.base.Rng;
 import de.tilman_neumann.jml.base.Uint128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
@@ -181,17 +181,17 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 		if (DEBUG) {
 			//LOG.debug(a + " * " + b + " = " + r);
 			// 0 <= a < N
-			Assert.assertSmallerEquals(0, a);
-			Assert.assertSmaller(a, N);
+			Ensure.ensureSmallerEquals(0, a);
+			Ensure.ensureSmaller(a, N);
 			// 0 <= b < N
-			Assert.assertSmallerEquals(0, b);
-			Assert.assertSmaller(b, N);
+			Ensure.ensureSmallerEquals(0, b);
+			Ensure.ensureSmaller(b, N);
 			
 			// In a general Montgomery multiplication we would still have to check
 			r = r<N ? r : r-N;
 			// to satisfy 0 <= r < N
-			Assert.assertSmallerEquals(0, r);
-			Assert.assertSmaller(r, N);
+			Ensure.ensureSmallerEquals(0, r);
+			Ensure.ensureSmaller(r, N);
 		}
 		
 		return r;

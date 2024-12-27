@@ -20,7 +20,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.precision.Magnitude;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 
@@ -44,7 +44,7 @@ public class CANIterator {
 		if (last == null) {
 			// CAN(0.5) = 2 // see test in class CANEntry
 			last = CANEntry.computeCAN(0.5);
-			Assert.assertEquals(I_2, last.getCAN());
+			Ensure.ensureEquals(I_2, last.getCAN());
 			return last;
 		}
 		
@@ -111,7 +111,7 @@ public class CANIterator {
 		Double lastEpsilon = null;
 		for (int n=1; n<=1000; n++) {
 			CANEntry entry = canIter.next();
-			Assert.assertEquals(n, entry.getExponentSum());
+			Ensure.ensureEquals(n, entry.getExponentSum());
 			double epsilon = entry.getEpsilon();
 			Double epsilonQuot = lastEpsilon!=null ? lastEpsilon/epsilon : null;
 			BigInteger can = entry.getCAN();

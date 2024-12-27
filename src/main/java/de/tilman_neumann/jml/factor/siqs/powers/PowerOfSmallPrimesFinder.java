@@ -24,7 +24,7 @@ import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.modular.JacobiSymbol;
 import de.tilman_neumann.jml.modular.ModularSqrt31;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * Algorithm to find the first powers of all p<pMin in [pMin, pMax]. These are the only powers that add log(power) to the logPSum.
@@ -73,7 +73,7 @@ public class PowerOfSmallPrimesFinder extends SomePowerFinder {
 				if (DEBUG) {
 					// since we only use odd p with x1!=x2, t!=0, p not dividing k, we strictly have Legendre(kN|p) > 0
 					int jacobi = new JacobiSymbol().jacobiSymbol(kN, p);
-					Assert.assertGreater(jacobi, 0);
+					Ensure.ensureGreater(jacobi, 0);
 				}
 				long power_long = p; // long required to avoid int overflow before size check
 				for (int exponent=2; ; exponent++) {
@@ -87,7 +87,7 @@ public class PowerOfSmallPrimesFinder extends SomePowerFinder {
 					if (DEBUG) {
 						// The powers strictly have Jacobi(kN|p) > 0, too
 						int jacobi = new JacobiSymbol().jacobiSymbol(kN, (int)power);
-						Assert.assertGreater(jacobi, 0);
+						Ensure.ensureGreater(jacobi, 0);
 					}
 					if (power>pMin) {
 						if (DEBUG) LOG.debug("Add power = " + p + "^" + exponent + " = " + power);

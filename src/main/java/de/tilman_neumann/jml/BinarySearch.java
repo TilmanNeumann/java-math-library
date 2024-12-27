@@ -18,7 +18,7 @@ import java.util.Arrays;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
@@ -57,8 +57,8 @@ public class BinarySearch {
 			}
 		} while (left!=right);
 		if (DEBUG) {
-			if (left>0)	Assert.assertSmallerEquals(array[left-1], x);
-			Assert.assertSmaller(x, array[left]);
+			if (left>0)	Ensure.ensureSmallerEquals(array[left-1], x);
+			Ensure.ensureSmaller(x, array[left]);
 		}
 		return left;
 	}
@@ -91,8 +91,8 @@ public class BinarySearch {
 			}
 		} while (left!=right);
 		if (DEBUG) {
-			if (left>0)	Assert.assertSmallerEquals(array[left-1], x);
-			Assert.assertSmaller(x, array[left]);
+			if (left>0)	Ensure.ensureSmallerEquals(array[left-1], x);
+			Ensure.ensureSmaller(x, array[left]);
 		}
 		return left;
 	}

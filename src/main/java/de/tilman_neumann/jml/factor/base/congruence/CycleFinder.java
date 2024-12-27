@@ -21,7 +21,7 @@ import java.util.Iterator;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -86,7 +86,7 @@ public class CycleFinder {
 					if (r0.equals(ri)) continue;
 					
 					ArrayList<Long> riFactors = pbr.get(ri);
-					if (DEBUG) Assert.assertNotNull(riFactors);
+					if (DEBUG) Ensure.ensureNotNull(riFactors);
 					if (riFactors.size() == 1) {
 						// found cycle -> create new Smooth consisting of r0, ri and their chains
 						if (DEBUG) {
@@ -97,7 +97,7 @@ public class CycleFinder {
 							for (Partial partial : chains.get(ri)) combinedLargeFactors.addAll(partial.getLargeFactorsWithOddExponent());
 							// test combinedLargeFactors
 							for (Long factor : combinedLargeFactors.keySet()) {
-								Assert.assertEquals((combinedLargeFactors.get(factor) & 1), 0);
+								Ensure.ensureEquals((combinedLargeFactors.get(factor) & 1), 0);
 							}
 						}
 						HashSet<Partial> allPartials = new HashSet<>();

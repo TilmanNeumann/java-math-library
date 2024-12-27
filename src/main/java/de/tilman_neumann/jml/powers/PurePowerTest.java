@@ -27,7 +27,7 @@ import de.tilman_neumann.jml.gcd.Gcd31;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.roots.Roots;
 import de.tilman_neumann.jml.roots.SqrtExact;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -259,11 +259,11 @@ public class PurePowerTest {
 		   	// pure powers are not unique, e.g. 3^9 == 27^3, thus we can only check if the final result is correct
 		   	for (BigInteger testNum : testSet) {
 		   		Result r1 = powTest.test_v01(testNum);
-	   			if (r1!=null) Assert.assertEquals(testNum, r1.base.pow(r1.exponent));
+	   			if (r1!=null) Ensure.ensureEquals(testNum, r1.base.pow(r1.exponent));
 	   			
 		   		Result r2 = powTest.test/*_v02*/(testNum);
-		   		Assert.assertEquals(r1==null, r2==null);
-	   			if (r2!=null) Assert.assertEquals(testNum, r2.base.pow(r2.exponent));
+		   		Ensure.ensureEquals(r1==null, r2==null);
+	   			if (r2!=null) Ensure.ensureEquals(testNum, r2.base.pow(r2.exponent));
 		   	}
 	   	}
 	   	LOG.info("");

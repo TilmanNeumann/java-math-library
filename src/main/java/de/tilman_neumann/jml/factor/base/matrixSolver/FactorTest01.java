@@ -21,7 +21,7 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -93,7 +93,7 @@ public class FactorTest01 implements FactorTest {
 			// verify congruence A^2 == Q (mod N)
 			BigInteger totalQ = totalQSqrt.multiply(totalQSqrt);
 			BigInteger div[] = AProd.pow(2).subtract(totalQ).divideAndRemainder(N);
-			Assert.assertEquals(I_0, div[1]);
+			Ensure.ensureEquals(I_0, div[1]);
 			LOG.debug("A^2-Q = " + div[0] + " * N");
 			LOG.debug("A^2 % N = " + AProd.pow(2).mod(N) + ", Q = " + totalQ);
 		}

@@ -26,7 +26,7 @@ import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.Timer;
 
 /**
@@ -220,7 +220,7 @@ public class Sieve03h implements Sieve {
 	@Override
 	public void setBParameter(BigInteger b) {
 		this.bParam = b;
-		if (DEBUG) Assert.assertEquals(b.multiply(b).subtract(kN).mod(daParam), I_0);
+		if (DEBUG) Ensure.ensureEquals(b.multiply(b).subtract(kN).mod(daParam), I_0);
 		this.cParam = b.multiply(b).subtract(kN).divide(daParam);
 	}
 
@@ -414,7 +414,7 @@ public class Sieve03h implements Sieve {
 		BigInteger QDivDa = dax.multiply(xBig).add(bParam.multiply(BigInteger.valueOf(x<<1))).add(cParam);
 		if (DEBUG) {
 			BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
-			Assert.assertEquals(Q, QDivDa.multiply(daParam));
+			Ensure.ensureEquals(Q, QDivDa.multiply(daParam));
 			LOG.debug("A = " + A);
 			LOG.debug("Q = " + Q);
 			LOG.debug("Q/(da) = " + QDivDa);
@@ -509,13 +509,13 @@ public class Sieve03h implements Sieve {
 				else if (xModP>=p) xModP -= p;
 				if (DEBUG) {
 					// 0 <= xModP < p
-					Assert.assertSmallerEquals(0, xModP);
-					Assert.assertSmaller(xModP, p);
+					Ensure.ensureSmallerEquals(0, xModP);
+					Ensure.ensureSmaller(xModP, p);
 					
 					int xModP2 = x % p;
 					if (xModP2<0) xModP2 += p;
 					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-					Assert.assertEquals(xModP2, xModP);
+					Ensure.ensureEquals(xModP2, xModP);
 				}
 			}
 			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
@@ -541,7 +541,7 @@ public class Sieve03h implements Sieve {
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = Q_rest.divideAndRemainder(pBig);
-					Assert.assertEquals(div[1].intValue(), 0);
+					Ensure.ensureEquals(div[1].intValue(), 0);
 					Q_rest = div[0];
 				}
 			}
@@ -560,7 +560,7 @@ public class Sieve03h implements Sieve {
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = Q_rest.divideAndRemainder(pBig);
-					Assert.assertEquals(div[1].intValue(), 0);
+					Ensure.ensureEquals(div[1].intValue(), 0);
 					Q_rest = div[0];
 				}
 			}

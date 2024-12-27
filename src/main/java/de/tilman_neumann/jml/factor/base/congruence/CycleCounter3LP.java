@@ -20,7 +20,7 @@ import java.util.HashSet;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * Cycle counting algorithm implementation following [LLDMW02], as far as possible.
@@ -88,15 +88,15 @@ public class CycleCounter3LP implements CycleCounter {
 		
 		// add edges
 		if (largeFactorsCount==1) {
-			if (DEBUG) Assert.assertSmaller(1, largeFactors[0]);
+			if (DEBUG) Ensure.ensureSmaller(1, largeFactors[0]);
 			insert1LP(largeFactors[0]);
 		} else if (largeFactorsCount==2) {
-			if (DEBUG) Assert.assertSmaller(largeFactors[0], largeFactors[1]);
+			if (DEBUG) Ensure.ensureSmaller(largeFactors[0], largeFactors[1]);
 			insert2LP(largeFactors[0], largeFactors[1]);
 		} else if (largeFactorsCount==3) {
 			if (DEBUG) {
-				Assert.assertSmaller(largeFactors[0], largeFactors[1]);
-				Assert.assertSmaller(largeFactors[1], largeFactors[2]);
+				Ensure.ensureSmaller(largeFactors[0], largeFactors[1]);
+				Ensure.ensureSmaller(largeFactors[1], largeFactors[2]);
 			}
 			insert3LP(largeFactors[0], largeFactors[1], largeFactors[2]);
 		} else {
@@ -106,8 +106,8 @@ public class CycleCounter3LP implements CycleCounter {
 		// update cycle count
 		int vertexCount = edges.size();
 		if (DEBUG) {
-			Assert.assertEquals(relations.size(), relationCount);
-			Assert.assertEquals(roots.size(), componentCount);
+			Ensure.ensureEquals(relations.size(), relationCount);
+			Ensure.ensureEquals(roots.size(), componentCount);
 		}
 		int lastCycleCount = cycleCount;
 		cycleCount = relationCount + corrections + componentCount - vertexCount; 
@@ -146,7 +146,7 @@ public class CycleCounter3LP implements CycleCounter {
 				// Add it to the component with root 1 and remove the old root if it existed
 				edges.put(r1, 1L);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r1));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r1));
 			}
 		} else {
 			// The prime is new -> just add it to the component with root 1
@@ -171,12 +171,12 @@ public class CycleCounter3LP implements CycleCounter {
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r2, r1);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r2));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r2));
 			} else if (r2<r1) {
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r1, r2);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r1));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r1));
 			} else {
 				// if the roots are equal than both primes are already part of the same component so nothing more happens
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from the same components");
@@ -196,7 +196,7 @@ public class CycleCounter3LP implements CycleCounter {
 			edges.put(p1, p1);
 			edges.put(p2, p1);
 			componentCount++;
-			if (DEBUG) Assert.assertTrue(roots.add(p1));
+			if (DEBUG) Ensure.ensureTrue(roots.add(p1));
 		}
 	}
 
@@ -246,8 +246,8 @@ public class CycleCounter3LP implements CycleCounter {
 					edges.put(r3, r1);
 					componentCount-=2;
 					if (DEBUG) {
-						Assert.assertTrue(roots.remove(r2));
-						Assert.assertTrue(roots.remove(r3));
+						Ensure.ensureTrue(roots.remove(r2));
+						Ensure.ensureTrue(roots.remove(r3));
 					}
 					corrections++;
 				} else {
@@ -255,7 +255,7 @@ public class CycleCounter3LP implements CycleCounter {
 					if (DEBUG) LOG.debug("3LP: 3 old vertices from 2 distinct components");
 					edges.put(r2, r1);
 					componentCount--;
-					if (DEBUG) Assert.assertTrue(roots.remove(r2));
+					if (DEBUG) Ensure.ensureTrue(roots.remove(r2));
 				}
 			} else {
 				// r1==r2
@@ -264,7 +264,7 @@ public class CycleCounter3LP implements CycleCounter {
 					if (DEBUG) LOG.debug("3LP: 3 old vertices from 2 distinct components");
 					edges.put(r3, r1);
 					componentCount--;
-					if (DEBUG) Assert.assertTrue(roots.remove(r3));
+					if (DEBUG) Ensure.ensureTrue(roots.remove(r3));
 				} else {
 					// r1==r2==r3, all vertices lie in the same component
 					if (DEBUG) LOG.debug("3LP: 3 old vertices all from the same components");
@@ -278,14 +278,14 @@ public class CycleCounter3LP implements CycleCounter {
 				if (DEBUG) LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r2, r1);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r2));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r2));
 				edges.put(p3, r1);
 				corrections++;
 			} else if (r2<r1) {
 				if (DEBUG) LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r1, r2);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r1));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r1));
 				edges.put(p3, r2);
 				corrections++;
 			} else {
@@ -299,14 +299,14 @@ public class CycleCounter3LP implements CycleCounter {
 				if (DEBUG) LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r3, r1);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r3));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r3));
 				edges.put(p2, r1);
 				corrections++;
 			} else if (r3<r1) {
 				if (DEBUG) LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r1, r3);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r1));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r1));
 				edges.put(p2, r3);
 				corrections++;
 			} else {
@@ -320,14 +320,14 @@ public class CycleCounter3LP implements CycleCounter {
 				if (DEBUG) LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r3, r2);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r3));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r3));
 				edges.put(p1, r2);
 				corrections++;
 			} else if (r3<r2) {
 				if (DEBUG) LOG.debug("3LP: 2 old vertices from distinct components, one new vertex");
 				edges.put(r2, r3);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r2));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r2));
 				edges.put(p1, r3);
 				corrections++;
 			} else {
@@ -362,7 +362,7 @@ public class CycleCounter3LP implements CycleCounter {
 			edges.put(p2, p1);
 			edges.put(p3, p2); // TODO (p3, p1) ?
 			componentCount++;
-			if (DEBUG) Assert.assertTrue(roots.add(p1));
+			if (DEBUG) Ensure.ensureTrue(roots.add(p1));
 			corrections++;
 		}
 	}

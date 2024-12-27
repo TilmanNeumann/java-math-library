@@ -18,7 +18,7 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -109,7 +109,7 @@ public class UnsignedBigInt {
 				// compare with slower but safer implementation
 				int[] intArrayFromNShifts = safeConversion(N);
 				for (int i=0; i<intLength; i++) {
-					Assert.assertEquals(intArrayFromNShifts[i], intArray[i]);
+					Ensure.ensureEquals(intArrayFromNShifts[i], intArray[i]);
 				}
 			} catch (AssertionError ae) {
 				LOG.debug("N              = " + N.toString(2));
@@ -186,8 +186,8 @@ public class UnsignedBigInt {
     		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
             rem = currentDividend % divisor_long;
             if (DEBUG) {
-            	Assert.assertGreaterEquals(currentDividend, 0);
-            	Assert.assertSmallerEquals(quot, 0xFFFFFFFFL);
+            	Ensure.ensureGreaterEquals(currentDividend, 0);
+            	Ensure.ensureSmallerEquals(quot, 0xFFFFFFFFL);
             }
             quotient.intArray[i] = (int) (quot & 0xFFFFFFFFL);
             if (quot>0) {
@@ -204,8 +204,8 @@ public class UnsignedBigInt {
     		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
             rem = currentDividend % divisor_long;
             if (DEBUG) {
-            	Assert.assertGreaterEquals(currentDividend, 0);
-            	Assert.assertSmallerEquals(quot, 0xFFFFFFFFL);
+            	Ensure.ensureGreaterEquals(currentDividend, 0);
+            	Ensure.ensureSmallerEquals(quot, 0xFFFFFFFFL);
             }
             quotient.intArray[i] = (int) (quot & 0xFFFFFFFFL);
         }
@@ -242,8 +242,8 @@ public class UnsignedBigInt {
     		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
             rem = currentDividend % divisor_long;
             if (DEBUG) {
-            	Assert.assertGreaterEquals(currentDividend, 0);
-            	Assert.assertSmallerEquals(quot, 0xFFFFFFFFL);
+            	Ensure.ensureGreaterEquals(currentDividend, 0);
+            	Ensure.ensureSmallerEquals(quot, 0xFFFFFFFFL);
             }
             quotient.intArray[i] = (int) (quot & 0xFFFFFFFFL);
         }
@@ -330,7 +330,7 @@ public class UnsignedBigInt {
 			for (int i=intLength-2; i>=0; i--) {
 				NfromShifts = NfromShifts.shiftLeft(32).add(BigInteger.valueOf(intArray[i] & 0xFFFFFFFFL));
 			}
-			Assert.assertEquals(NfromShifts, N);
+			Ensure.ensureEquals(NfromShifts, N);
 		}
 		return N;
 	}

@@ -48,7 +48,7 @@ import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_Small;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Barrett;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.TimeUtil;
@@ -171,7 +171,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 					// Otherwise we continue
 					BigInteger N = result.untestedFactors.firstKey();
 					int exp = result.untestedFactors.removeAll(N);
-					if (DEBUG) Assert.assertEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
+					if (DEBUG) Ensure.ensureEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
 	
 					if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
 						result.primeFactors.add(N);

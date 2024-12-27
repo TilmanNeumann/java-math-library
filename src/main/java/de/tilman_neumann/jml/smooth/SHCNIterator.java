@@ -20,7 +20,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.precision.Magnitude;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 
@@ -44,7 +44,7 @@ public class SHCNIterator {
 		if (last == null) {
 			// SHCN(1) = 2
 			last = SHCNEntry.computeSHCN(1);
-			Assert.assertEquals(I_2, last.getSHCN());
+			Ensure.ensureEquals(I_2, last.getSHCN());
 			return last;
 		}
 		
@@ -108,7 +108,7 @@ public class SHCNIterator {
 		Double lastX = null;
 		for (int n=1; n<=1000; n++) {
 			SHCNEntry entry = shcnIter.next();
-			Assert.assertEquals(n, entry.getExponentSum());
+			Ensure.ensureEquals(n, entry.getExponentSum());
 			double x = entry.getX();
 			Double xDiff = lastX!=null ? x-lastX : null;
 			BigInteger shcn = entry.getSHCN();

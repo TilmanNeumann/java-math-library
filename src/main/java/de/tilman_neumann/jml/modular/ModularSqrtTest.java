@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 public class ModularSqrtTest {
@@ -76,11 +76,11 @@ public class ModularSqrtTest {
 			int a = nArray[i];
 			int p = pArray[i];
 			int tonelli = mse31.Tonelli_Shanks(a, p);
-			Assert.assertEquals((tonelli * (long)tonelli) % p, a%p);
+			Ensure.ensureEquals((tonelli * (long)tonelli) % p, a%p);
 			
 			int case5Mod8 = mse31.case5Mod8(a, p);
-			Assert.assertEquals((case5Mod8 * (long)case5Mod8) % p, a%p);
-			Assert.assertEquals(tonelli, case5Mod8); // both returned the smaller sqrt
+			Ensure.ensureEquals((case5Mod8 * (long)case5Mod8) % p, a%p);
+			Ensure.ensureEquals(tonelli, case5Mod8); // both returned the smaller sqrt
 		}
 	}
 	

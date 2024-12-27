@@ -28,7 +28,7 @@ import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * Auxiliary factor algorithm to find smooth decompositions of Q's.
@@ -118,7 +118,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 				}
 			} // end while (trialDivIndex < primeBaseSize)
 		}
-		if (DEBUG) Assert.assertGreater(Q_rest, 1);
+		if (DEBUG) Ensure.ensureGreater(Q_rest, 1);
 		if (Q_rest_bits<32) {
 			int Q_rest_int = (int) Q_rest;
 			while (trialDivIndex < primeBaseSize) {
@@ -149,7 +149,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 	private boolean factor_recurrent(long Q_rest) {
 		if (Q_rest < pMaxSquare) {
 			// we divided Q_rest by all primes <= pMax and the rest is < pMax^2 -> it must be prime
-			if (DEBUG) Assert.assertTrue(prpTest.isProbablePrime(Q_rest));
+			if (DEBUG) Ensure.ensureTrue(prpTest.isProbablePrime(Q_rest));
 			if (bitLength(Q_rest) > 31) return false;
 			bigFactors.add((int)Q_rest);
 			return true;

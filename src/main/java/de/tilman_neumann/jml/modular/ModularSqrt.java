@@ -18,7 +18,7 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * Compute modular sqrts t with t^2 == n (mod p) and u with u^2 == n (mod p^e) using Tonelli-Shanks' algorithm.
@@ -42,12 +42,12 @@ public class ModularSqrt {
 	public int modularSqrt(BigInteger n, int p) {
 		if (DEBUG) {
 			BigInteger p_big = BigInteger.valueOf(p);
-			Assert.assertTrue(p%2==1 && p_big.isProbablePrime(20)); // p odd prime
+			Ensure.ensureTrue(p%2==1 && p_big.isProbablePrime(20)); // p odd prime
 			// Tonelli_Shanks requires Legendre(n|p)==1, 0 is not ok. But this is easy to "heal":
 			// Since p is prime, Legendre(n|p)==0 means that n is a multiple of p.
 			// Thus n mod p == 0 and the square of this is 0, too.
 			// So if the following assert fails, just test n mod p == 0 before calling this method.
-			Assert.assertEquals(jacobiEngine.jacobiSymbol(n, p), 1);
+			Ensure.ensureEquals(jacobiEngine.jacobiSymbol(n, p), 1);
 		}
 		int pMod8 = p&7;
 		switch (pMod8) {
@@ -80,8 +80,8 @@ public class ModularSqrt {
 		int S = Integer.numberOfTrailingZeros(pm1); // lowest set bit (0 if pm1 were odd which is impossible because p is odd)
 		if (DEBUG) {
 			LOG.debug("n=" + n + ", p=" + p);
-			Assert.assertEquals(1, jacobiEngine.jacobiSymbol(n, p));
-			Assert.assertGreater(S, 1); // S=1 is the Lagrange case p == 3 (mod 4), but we check it nonetheless.
+			Ensure.ensureEquals(1, jacobiEngine.jacobiSymbol(n, p));
+			Ensure.ensureGreater(S, 1); // S=1 is the Lagrange case p == 3 (mod 4), but we check it nonetheless.
 		}
 		int Q = pm1>>S;
 		// find some z with Legendre(z|p)==-1, i.e. z being a quadratic non-residue (mod p)
@@ -99,10 +99,10 @@ public class ModularSqrt {
 			if (DEBUG) {
 				LOG.debug("Find i < M=" + M + " with t=" + t);
 				// test invariants from <link>https://en.wikipedia.org/wiki/Tonelli%E2%80%93Shanks_algorithm#Proof</link>:
-				Assert.assertEquals(p-1, mpe.modPow(c, 1<<(M-1), p)); //  -1 == c^(2^(M-1)) (mod p)
-				Assert.assertEquals(1, mpe.modPow(t, 1<<(M-1), p));   //   1 == t^(2^(M-1)) (mod p)
+				Ensure.ensureEquals(p-1, mpe.modPow(c, 1<<(M-1), p)); //  -1 == c^(2^(M-1)) (mod p)
+				Ensure.ensureEquals(1, mpe.modPow(t, 1<<(M-1), p));   //   1 == t^(2^(M-1)) (mod p)
 				long nModP = n.mod(BigInteger.valueOf(p)).longValue();
-				Assert.assertEquals((R*(long)R) % p, (t*nModP) % p);  // R^2 == t*n (mod p)
+				Ensure.ensureEquals((R*(long)R) % p, (t*nModP) % p);  // R^2 == t*n (mod p)
 			}
 			boolean foundI = false;
 			int i;
@@ -120,7 +120,7 @@ public class ModularSqrt {
 			t = (int) ((t*(long)c) % p);
 			M = i;
 		}
-		if (DEBUG) Assert.assertEquals(BigInteger.valueOf(R).pow(2).mod(BigInteger.valueOf(p)), n.mod(BigInteger.valueOf(p)));
+		if (DEBUG) Ensure.ensureEquals(BigInteger.valueOf(R).pow(2).mod(BigInteger.valueOf(p)), n.mod(BigInteger.valueOf(p)));
 		// return the smaller sqrt
 		return R <= (p>>1) ? R : p-R;
 	}
@@ -133,7 +133,7 @@ public class ModularSqrt {
 	 */
 	private int Lagrange(BigInteger n, int p) {
 		int t = mpe.modPow(n, (p+1)>>2, p);
-		if (DEBUG) Assert.assertEquals(BigInteger.valueOf(t).pow(2).mod(BigInteger.valueOf(p)), n.mod(BigInteger.valueOf(p)));
+		if (DEBUG) Ensure.ensureEquals(BigInteger.valueOf(t).pow(2).mod(BigInteger.valueOf(p)), n.mod(BigInteger.valueOf(p)));
 		// return the smaller sqrt
 		return t <= (p>>1) ? t : p-t;
 	}
@@ -152,7 +152,7 @@ public class ModularSqrt {
 		BigInteger p_big = BigInteger.valueOf(p);
 		int i = n2.multiply(gSquare).mod(p_big).intValue();
 		int t = n.multiply(BigInteger.valueOf(g*(long)(i-1))).mod(p_big).intValue();
-		if (DEBUG) Assert.assertEquals(BigInteger.valueOf(t).pow(2).mod(p_big), n.mod(p_big));
+		if (DEBUG) Ensure.ensureEquals(BigInteger.valueOf(t).pow(2).mod(p_big), n.mod(p_big));
 		// return the smaller sqrt
 		return t <= (p>>1) ? t : p-t;
 	}
@@ -180,7 +180,7 @@ public class ModularSqrt {
 			}
 		}
 		//if (!foundT) LOG.error("ERROR: Failed to find t with t^2==" + n + " (mod " + p + ") !");
-		if (DEBUG) Assert.assertEquals(BigInteger.valueOf(t).pow(2).mod(p_big), n.mod(p_big));
+		if (DEBUG) Ensure.ensureEquals(BigInteger.valueOf(t).pow(2).mod(p_big), n.mod(p_big));
 		// return the smaller sqrt
 		return t <= (p>>1) ? t : p-t;
 	}

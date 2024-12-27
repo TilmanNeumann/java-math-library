@@ -23,7 +23,7 @@ import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -133,7 +133,7 @@ public class TDiv_CF01 implements TDiv_CF {
 			} // end while (trialDivIndex < primeBaseSize)
 			Q_rest = BigInteger.valueOf(Q_rest_long); // keep Q_rest up-to-date
 		}
-		if (DEBUG) Assert.assertGreater(Q_rest, I_1);
+		if (DEBUG) Ensure.ensureGreater(Q_rest, I_1);
 		if (Q_rest_bits<32) {
 			int Q_rest_int = Q_rest.intValue();
 			while (trialDivIndex < primeBaseSize) {

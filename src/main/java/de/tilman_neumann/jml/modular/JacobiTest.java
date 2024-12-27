@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -86,25 +86,25 @@ public class JacobiTest {
 					int jacobi02 = jacobiEngine.jacobiSymbol_v02(a, p);
 					int jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(a, p);
 					int legendre = legendreEngine.EulerFormula(a, p);
-					Assert.assertEquals(correct, jacobi02);
-					Assert.assertEquals(correct, jacobi03);
-					Assert.assertEquals(correct, legendre);
+					Ensure.ensureEquals(correct, jacobi02);
+					Ensure.ensureEquals(correct, jacobi03);
+					Ensure.ensureEquals(correct, legendre);
 					// test formulas with big a, int p (p and pInt will be different for bits>30)
 					correct = jacobiEngine.jacobiSymbol_v01(a, BigInteger.valueOf(pInt));
 					jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(a, pInt);
 					legendre = legendreEngine.EulerFormula(a, pInt);
-					Assert.assertEquals(correct, jacobi03);
-					Assert.assertEquals(correct, legendre);
+					Ensure.ensureEquals(correct, jacobi03);
+					Ensure.ensureEquals(correct, legendre);
 					// test formulas with int a, big p (a and aInt will be different for bits>30)
 					correct = jacobiEngine.jacobiSymbol_v01(BigInteger.valueOf(aInt), p);
 					jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(aInt, p);
-					Assert.assertEquals(correct, jacobi03);
+					Ensure.ensureEquals(correct, jacobi03);
 					// test formulas with all int arguments (a, aInt will differ as well as p, pInt for bits>30)
 					correct = jacobiEngine.jacobiSymbol_v01(BigInteger.valueOf(aInt), BigInteger.valueOf(pInt));
 					jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(aInt, pInt);
 					legendre = legendreEngine.EulerFormula(aInt, pInt);
-					Assert.assertEquals(correct, jacobi03);
-					Assert.assertEquals(correct, legendre);
+					Ensure.ensureEquals(correct, jacobi03);
+					Ensure.ensureEquals(correct, legendre);
 				}
 			}
 		}

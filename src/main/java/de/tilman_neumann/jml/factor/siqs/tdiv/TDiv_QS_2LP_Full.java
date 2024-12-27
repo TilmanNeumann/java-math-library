@@ -40,7 +40,7 @@ import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.Timer;
 
@@ -172,8 +172,8 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 				if (DEBUG) {
 					LOG.debug("Found congruence " + aqPair);
 					BigInteger Q = A.multiply(A).subtract(kN); // Q(x) = A(x)^2 - kN
-					Assert.assertEquals(Q, QDivDa.multiply(da));
-					Assert.assertEquals(A.multiply(A).mod(kN), Q.mod(kN));
+					Ensure.ensureEquals(Q, QDivDa.multiply(da));
+					Ensure.ensureEquals(A.multiply(A).mod(kN), Q.mod(kN));
 					// make sure that the product of factors gives Q
 					SortedMultiset<Long> allQFactors = aqPair.getAllQFactors();
 					BigInteger testProduct = I_1;
@@ -182,7 +182,7 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 						int exponent = entry.getValue();
 						testProduct = testProduct.multiply(prime.pow(exponent));
 					}
-					Assert.assertEquals(Q, testProduct);
+					Ensure.ensureEquals(Q, testProduct);
 				}
 			}
 		}
@@ -232,13 +232,13 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 				else if (xModP>=p) xModP -= p;
 				if (DEBUG) {
 					// 0 <= xModP < p
-					Assert.assertSmallerEquals(0, xModP);
-					Assert.assertSmaller(xModP, p);
+					Ensure.ensureSmallerEquals(0, xModP);
+					Ensure.ensureSmaller(xModP, p);
 
 					int xModP2 = x % p;
 					if (xModP2<0) xModP2 += p;
 					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-					Assert.assertEquals(xModP2, xModP);
+					Ensure.ensureEquals(xModP2, xModP);
 				}
 			}
 			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
@@ -263,7 +263,7 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 				if (DEBUG) {
 					BigInteger pBig = BigInteger.valueOf(p);
 					BigInteger[] div = QRest.divideAndRemainder(pBig);
-					Assert.assertEquals(div[1].intValue(), 0);
+					Ensure.ensureEquals(div[1].intValue(), 0);
 					QRest = div[0];
 				}
 			}
@@ -288,7 +288,7 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 		if (ANALYZE) primeTestDuration += timer.capture();
 		if (restIsPrime) {
 			// Check that the simple prime test using pMaxSquare is correct
-			if (DEBUG) Assert.assertTrue(prpTest.isProbablePrime(QRest));
+			if (DEBUG) Ensure.ensureTrue(prpTest.isProbablePrime(QRest));
 			if (QRest.bitLength() > 31) return null;
 			addCommonFactorsToSmallFactors();
 			return new Partial_1Large(A, smallFactors, QRest.longValue());

@@ -21,7 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.modular.ModularSqrt;
 import de.tilman_neumann.jml.modular.ModularSqrt31;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -66,17 +66,17 @@ public class ModularSqrtsEngine {
 			// * Testing for p|N does not help TDiv's internal QS, because the Q's have been stripped of prime base elements before it is called.
 		}
 		if (DEBUG) {
-			Assert.assertEquals(kN.mod(I_2), BigInteger.valueOf(tArray[0]).pow(2).mod(I_2));
+			Ensure.ensureEquals(kN.mod(I_2), BigInteger.valueOf(tArray[0]).pow(2).mod(I_2));
 			ModularSqrt modularSqrtEngine_big = new ModularSqrt();
 			for (int i = primeBaseSize-1; i>0; i--) {
 				int p = primesArray[i];
 				BigInteger pBig = BigInteger.valueOf(p);
 				BigInteger kN_mod_p = kN.mod(pBig);
 				if (kN_mod_p.compareTo(I_0) > 0) {
-					Assert.assertEquals(modularSqrtEngine_big.modularSqrt(kN, p), tArray[i]);
-					Assert.assertEquals(modularSqrtEngine_big.modularSqrt(kN_mod_p, p), tArray[i]);
+					Ensure.ensureEquals(modularSqrtEngine_big.modularSqrt(kN, p), tArray[i]);
+					Ensure.ensureEquals(modularSqrtEngine_big.modularSqrt(kN_mod_p, p), tArray[i]);
 				} else {
-					Assert.assertEquals(0, tArray[i]);
+					Ensure.ensureEquals(0, tArray[i]);
 				}
 				LOG.debug("kN=" + kN + ", p=" + p + ", kN%p = " + kN_mod_p + " -> t=" + tArray[i]);
 			}

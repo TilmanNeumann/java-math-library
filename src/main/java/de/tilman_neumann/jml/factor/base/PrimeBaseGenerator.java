@@ -20,7 +20,7 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.modular.JacobiSymbol;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * Prime base generator.
@@ -54,7 +54,7 @@ public class PrimeBaseGenerator {
 			int jacobi = jacobiEngine.jacobiSymbol(kN, p);
 			if (DEBUG) {
 				// ensure correctness of prime generator
-				Assert.assertTrue(BigInteger.valueOf(p).isProbablePrime(20));
+				Ensure.ensureTrue(BigInteger.valueOf(p).isProbablePrime(20));
 				// ensure that Jacobi symbol values are in the expected range -1 ... +1
 				if (jacobi<-1 || jacobi>1) LOG.warn("kN=" + kN + ", p=" + p + " -> jacobi=" + jacobi);
 			}

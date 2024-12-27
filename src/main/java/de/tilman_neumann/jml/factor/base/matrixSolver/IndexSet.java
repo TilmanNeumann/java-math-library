@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * BitArray implementation of an IndexSet, realized in long[], used by the Gaussian solver.
@@ -156,7 +156,7 @@ public class IndexSet  {
 		for (int i=0; i<numberOfLongs; i++) {
 			long theLong = bitArray[i];
 			int x = i<<6; // x = 64*i
-			if (DEBUG) Assert.assertEquals(64*i, x);
+			if (DEBUG) Ensure.ensureEquals(64*i, x);
 			if (x>biggestEntry) break;
 			for (int j=0; j<64; j++) {
 				boolean isSet = (theLong & (1L<<j)) != 0;

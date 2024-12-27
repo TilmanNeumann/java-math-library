@@ -22,7 +22,7 @@ import java.util.TreeMap;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -59,7 +59,7 @@ public class NextProbablePrimeTest {
 				// check others
 				try {
 					BigInteger nextProbablePrime_bpsw = bpsw.nextProbablePrime(n);
-					Assert.assertEquals(nextProbablePrime, nextProbablePrime_bpsw);
+					Ensure.ensureEquals(nextProbablePrime, nextProbablePrime_bpsw);
 				} catch (AssertionError ae) {
 					LOG.error("Failure at n=" + n + ": " + ae, ae);
 				}

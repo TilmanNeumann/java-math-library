@@ -27,7 +27,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -220,7 +220,7 @@ public class Hart_MultiplierChain_Factory {
 		if (b*b == test) {
 			long gcd = gcdEngine.gcd(a+b, N);
 			if (gcd>1 && gcd<N) {
-				Assert.assertEquals(N % gcd, 0);
+				Ensure.ensureEquals(N % gcd, 0);
 				return true;
 			}
 		}

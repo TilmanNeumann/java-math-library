@@ -22,7 +22,7 @@ import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * Auxiliary factor algorithm to find smooth decompositions of Q's.
@@ -99,7 +99,7 @@ public class TDiv_CF63_01 implements TDiv_CF63 {
 				}
 			} // end while (trialDivIndex < primeBaseSize)
 		}
-		if (DEBUG) Assert.assertGreater(Q_rest, 1);
+		if (DEBUG) Ensure.ensureGreater(Q_rest, 1);
 		if (Q_rest_bits<32) {
 			int Q_rest_int = (int) Q_rest;
 			while (trialDivIndex < primeBaseSize) {

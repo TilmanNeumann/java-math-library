@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.bounds.NthPrimeUpperBounds;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
@@ -38,25 +38,25 @@ public class SieveTest {
 	    	correctSieve.sieve(nthPrimeUpperBound);
 	    	int correctCount = correctCallback.count;
 	    	int[] correctResult = correctCallback.array;
-	    	Assert.assertEquals(count, correctCount);
-	    	Assert.assertEquals(2, correctResult[0]);
-	    	Assert.assertEquals(3, correctResult[1]);
-	    	Assert.assertEquals(5, correctResult[2]);
+	    	Ensure.ensureEquals(count, correctCount);
+	    	Ensure.ensureEquals(2, correctResult[0]);
+	    	Ensure.ensureEquals(3, correctResult[1]);
+	    	Ensure.ensureEquals(5, correctResult[2]);
 	    	
 			// test segmented sieve
 			CollectingCallback segmentedCallback = new CollectingCallback(count);
 	    	SegmentedSieve segmentedSieve = new SegmentedSieve(segmentedCallback);
 			segmentedSieve.sieve(nthPrimeUpperBound);
 			int[] segmentedResult = segmentedCallback.array;
-			Assert.assertEquals(count, segmentedCallback.count);
+			Ensure.ensureEquals(count, segmentedCallback.count);
 	    	for (int i=0; i<count; i++) {
-	    		Assert.assertEquals(correctResult[i], segmentedResult[i]);
+	    		Ensure.ensureEquals(correctResult[i], segmentedResult[i]);
 	    	}
 			
 			// test sieve facade
 	    	AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get().ensurePrimeCount(count);
 	    	for (int i=0; i<count; i++) {
-	    		Assert.assertEquals(correctResult[i], primesArray.getPrime(i));
+	    		Ensure.ensureEquals(correctResult[i], primesArray.getPrime(i));
 	    	}
 		}
 	}

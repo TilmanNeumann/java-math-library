@@ -22,7 +22,7 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.exact.SegmentedSieve;
 import de.tilman_neumann.jml.primes.exact.SieveCallback;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -130,7 +130,7 @@ public class FactorSieve implements SieveCallback {
 				LOG.info(n + " = " + factors);
 				if (n>1) {
 					long test = computeProduct(factors);
-					Assert.assertEquals(n, test);
+					Ensure.ensureEquals(n, test);
 				}
 			}
 		}

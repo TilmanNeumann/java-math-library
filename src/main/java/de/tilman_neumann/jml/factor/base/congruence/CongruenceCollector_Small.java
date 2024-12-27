@@ -27,7 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.Timer;
 
 /**
@@ -171,7 +171,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 		}
 		
 		// otherwise aqPair must be a partial with one large factor.
-		if (DEBUG) Assert.assertTrue(aqPair instanceof Partial_1Large);
+		if (DEBUG) Ensure.ensureTrue(aqPair instanceof Partial_1Large);
 		Partial_1Large partial = (Partial_1Large) aqPair;
 		final Long bigFactor = partial.getLargeFactorsWithOddExponent()[0];
 				

@@ -20,7 +20,7 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
@@ -40,7 +40,7 @@ public class IsSqrt_Test {
 	private void testRange(int bits) {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
-		Assert.assertEquals(N_COUNT, testNumbers.length);
+		Ensure.ensureEquals(N_COUNT, testNumbers.length);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		long[] NArray = new long[N_COUNT];
 		for (int i=0; i<N_COUNT; i++) {

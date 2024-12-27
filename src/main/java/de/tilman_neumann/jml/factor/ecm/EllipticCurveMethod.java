@@ -33,7 +33,7 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.powers.PurePowerTest;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -188,14 +188,14 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 		if (result.untestedFactors.isEmpty()) return;
 		// Otherwise untestedFactors should contain exactly one prime > 131072, or one composite > 131072^2, the unfactored rest
 		if (DEBUG) {
-			Assert.assertEquals(1, result.untestedFactors.size());
-			Assert.assertGreater(result.untestedFactors.firstKey(), BigInteger.valueOf(131072));
+			Ensure.ensureEquals(1, result.untestedFactors.size());
+			Ensure.ensureGreater(result.untestedFactors.firstKey(), BigInteger.valueOf(131072));
 		}
 		
 		// Retrieve the unfactored rest to continue. The exponent of N can not have changed.
 		BigInteger N = result.untestedFactors.firstKey();
 		int Nexp = result.untestedFactors.removeAll(N);
-		if (DEBUG) Assert.assertEquals(args.exp, Nexp);
+		if (DEBUG) Ensure.ensureEquals(args.exp, Nexp);
 		
 		if (isProbablePrime(N)) {
 			addToMap(N, args.exp, result.primeFactors);

@@ -25,7 +25,7 @@ import de.tilman_neumann.jml.BinarySearch;
 import de.tilman_neumann.jml.factor.base.UnsafeUtil;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.Timer;
 import sun.misc.Unsafe;
 
@@ -131,7 +131,7 @@ public class Sieve03gU implements Sieve {
 	@Override
 	public void setBParameter(BigInteger b) {
 		this.bParam = b;
-		if (DEBUG) Assert.assertEquals(b.multiply(b).subtract(kN).mod(daParam), I_0);
+		if (DEBUG) Ensure.ensureEquals(b.multiply(b).subtract(kN).mod(daParam), I_0);
 		this.cParam = b.multiply(b).subtract(kN).divide(daParam);
 	}
 

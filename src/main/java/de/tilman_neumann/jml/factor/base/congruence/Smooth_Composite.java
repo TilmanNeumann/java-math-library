@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -40,7 +40,7 @@ public class Smooth_Composite implements Smooth {
 	 */
 	public Smooth_Composite(Set<? extends AQPair> aqPairs) {
 		this.aqPairs = new AQPair[aqPairs.size()];
-		if (DEBUG) Assert.assertGreater(aqPairs.size(), 1);
+		if (DEBUG) Ensure.ensureGreater(aqPairs.size(), 1);
 		HashSet<Integer> smallFactorsWithOddExp = new HashSet<Integer>();
 		int aqPairCount = 0;
 		for (AQPair aqPair : aqPairs) {

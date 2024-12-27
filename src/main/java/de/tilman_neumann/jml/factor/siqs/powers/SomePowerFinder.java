@@ -22,7 +22,7 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * Base class for PowerFinders that do indeed find some powers.
@@ -124,7 +124,7 @@ abstract public class SomePowerFinder implements PowerFinder {
 		}
 		if (DEBUG) {
 			LOG.debug("#primes = " + primeBaseSize + ", #powers = " + powerCount);
-			Assert.assertEquals(primeBaseSize + powerCount, mergedIndex);
+			Ensure.ensureEquals(primeBaseSize + powerCount, mergedIndex);
 		}
 		return baseArrays;
 	}

@@ -21,7 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.BigIntConverter;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -221,13 +221,13 @@ public class Roots {
 			BigInteger guessPlus1 = guess.add(I_1);
 			if (guessPlus1.pow(i).compareTo(N)>0) return new BigInteger[] {guess, guessPlus1};
 			// else guess+1 is exact
-			if (DEBUG) Assert.assertEquals(guessPlus1.pow(i), N);
+			if (DEBUG) Ensure.ensureEquals(guessPlus1.pow(i), N);
 			return new BigInteger[] {guessPlus1, guessPlus1};
 		} else {
 			BigInteger guessMinus1 = guess.subtract(I_1);
 			if (guessMinus1.pow(i).compareTo(N)<0) return new BigInteger[] {guessMinus1, guess};
 			// else guess-1 is exact
-			if (DEBUG) Assert.assertEquals(guessMinus1.pow(i), N);
+			if (DEBUG) Ensure.ensureEquals(guessMinus1.pow(i), N);
 			return new BigInteger[] {guessMinus1, guessMinus1};
 		}
 	}

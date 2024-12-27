@@ -20,7 +20,7 @@ import java.util.Map;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * An adapter for Dario Alpern's Block-Lanczos solver.
@@ -55,7 +55,7 @@ public class MatrixSolver_BlockLanczos extends MatrixSolverBase03 {
 			for (Integer oddExpFactor : oddExpFactors) {
 				// columnIndex should not be bigger than the number of congruences
 				int columnIndex = factors_2_columnIndices.get(oddExpFactor);
-				if (DEBUG) Assert.assertSmallerEquals(columnIndex, matrixBlength);
+				if (DEBUG) Ensure.ensureSmallerEquals(columnIndex, matrixBlength);
 				matrixRow[j++] = columnIndex;
 			}
 			matrixB[i++] = matrixRow;

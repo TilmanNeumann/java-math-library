@@ -30,7 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.factor.FactorException;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.Multiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 import de.tilman_neumann.util.Timer;
@@ -236,7 +236,7 @@ public class CongruenceCollector01 implements CongruenceCollector {
 		final Long[] bigFactors = partial.getLargeFactorsWithOddExponent();
 		if (DEBUG) {
 			LOG.debug("bigFactors = " + Arrays.toString(bigFactors));
-			Assert.assertGreater(bigFactors.length, 0);
+			Ensure.ensureGreater(bigFactors.length, 0);
 		}
 		
 		// Check if the partial helps to assemble a smooth congruence:

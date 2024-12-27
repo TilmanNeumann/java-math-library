@@ -23,7 +23,7 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.quadraticResidues.QuadraticResiduesMod2PowN;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
@@ -261,7 +261,7 @@ public class Lehman_AnalyzeCongruences2 {
 			aCounts.add(nextACount);
 			
 			// test closed formula
-			Assert.assertEquals((1<<(n-2)) * QuadraticResiduesMod2PowN.getNumberOfQuadraticResiduesMod2PowN(n), nextACount);
+			Ensure.ensureEquals((1<<(n-2)) * QuadraticResiduesMod2PowN.getNumberOfQuadraticResiduesMod2PowN(n), nextACount);
 		}
 		LOG.info("Hypothetical aCounts = " + aCounts);
 		LOG.info("");

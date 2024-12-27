@@ -31,7 +31,7 @@ import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -158,7 +158,7 @@ public class TDiv_CF03 implements TDiv_CF {
 			} // end while (trialDivIndex < primeBaseSize)
 			Q_rest = BigInteger.valueOf(Q_rest_long); // keep Q_rest up-to-date
 		}
-		if (DEBUG) Assert.assertGreater(Q_rest, I_1);
+		if (DEBUG) Ensure.ensureGreater(Q_rest, I_1);
 		if (Q_rest_bits<32) {
 			int Q_rest_int = Q_rest.intValue();
 			while (trialDivIndex < primeBaseSize) {
@@ -189,7 +189,7 @@ public class TDiv_CF03 implements TDiv_CF {
 	private boolean factor_recurrent(BigInteger Q_rest) {
 		if (Q_rest.compareTo(pMaxSquare)<0) {
 			// we divided Q_rest by all primes <= pMax and the rest is < pMax^2 -> it must be prime
-			if (DEBUG) Assert.assertTrue(prpTest.isProbablePrime(Q_rest));
+			if (DEBUG) Ensure.ensureTrue(prpTest.isProbablePrime(Q_rest));
 			if (Q_rest.bitLength() > 31) return false;
 			bigFactors.add(Q_rest.intValue());
 			return true;

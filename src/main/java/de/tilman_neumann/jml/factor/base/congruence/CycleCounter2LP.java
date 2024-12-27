@@ -20,7 +20,7 @@ import java.util.HashSet;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * Cycle counting algorithm implementation for two large primes, following [LM94].
@@ -78,10 +78,10 @@ public class CycleCounter2LP implements CycleCounter {
 		
 		// add edges
 		if (largeFactorsCount==1) {
-			if (DEBUG) Assert.assertSmaller(1, largeFactors[0]);
+			if (DEBUG) Ensure.ensureSmaller(1, largeFactors[0]);
 			insert1LP(largeFactors[0]);
 		} else if (largeFactorsCount==2) {
-			if (DEBUG) Assert.assertSmaller(largeFactors[0], largeFactors[1]);
+			if (DEBUG) Ensure.ensureSmaller(largeFactors[0], largeFactors[1]);
 			insert2LP(largeFactors[0], largeFactors[1]);
 		} else {
 			LOG.warn("Holy shit, we found a " + largeFactorsCount + "-partial!");
@@ -96,7 +96,7 @@ public class CycleCounter2LP implements CycleCounter {
 			String cycleCountFormula = "#relations + #roots - #vertices";
 			LOG.debug("#relations=" + relations.size() + ", #roots=" + componentCount + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
 
-			Assert.assertEquals(roots.size(), componentCount);
+			Ensure.ensureEquals(roots.size(), componentCount);
 			//Assert.assertEquals(getRootsFromVertices().size(), componentCount); // expensive test
 			LOG.debug("-------------------------------------------------------------");
 		}
@@ -118,7 +118,7 @@ public class CycleCounter2LP implements CycleCounter {
 				// Add it to the component with root 1 and remove the old root if it existed
 				edges.put(r1, 1L);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r1));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r1));
 			}
 		} else {
 			// The prime is new -> just add it to the component with root 1
@@ -143,12 +143,12 @@ public class CycleCounter2LP implements CycleCounter {
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r2, r1);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r2));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r2));
 			} else if (r2<r1) {
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from distinct components");
 				edges.put(r1, r2);
 				componentCount--;
-				if (DEBUG) Assert.assertTrue(roots.remove(r1));
+				if (DEBUG) Ensure.ensureTrue(roots.remove(r1));
 			} else {
 				// if the roots are equal than both primes are already part of the same component so nothing more happens
 				if (DEBUG) LOG.debug("2LP: 2 old vertices from the same components");
@@ -168,7 +168,7 @@ public class CycleCounter2LP implements CycleCounter {
 			edges.put(p1, p1);
 			edges.put(p2, p1);
 			componentCount++;
-			if (DEBUG) Assert.assertTrue(roots.add(p1));
+			if (DEBUG) Ensure.ensureTrue(roots.add(p1));
 		}
 	}
 

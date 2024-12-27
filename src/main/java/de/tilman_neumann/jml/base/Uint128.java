@@ -18,7 +18,7 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * An incomplete 128 bit unsigned int implementation.
@@ -208,8 +208,8 @@ public class Uint128 {
 		if (DEBUG) {
 			// compare to pure Java implementation
 			Uint128 testResult = mul64(a, b);
-			Assert.assertEquals(testResult.high, r_hi);
-			Assert.assertEquals(testResult.low, r_lo);
+			Ensure.ensureEquals(testResult.high, r_hi);
+			Ensure.ensureEquals(testResult.low, r_lo);
 		}
 
 		return new Uint128(r_hi, r_lo);
@@ -239,8 +239,8 @@ public class Uint128 {
 		if (DEBUG) {
 			// compare to pure Java implementation
 			Uint128 testResult = mul64(a, b);
-			Assert.assertEquals(testResult.high, r_hi);
-			Assert.assertEquals(testResult.low, r_lo);
+			Ensure.ensureEquals(testResult.high, r_hi);
+			Ensure.ensureEquals(testResult.low, r_lo);
 		}
 
 		return new Uint128(r_hi, r_lo);
@@ -566,7 +566,7 @@ public class Uint128 {
 		long qhat = (a >>> 1)/b << 1;
 		long t = a - qhat*b;
 		if (t+Long.MIN_VALUE >= b+Long.MIN_VALUE) qhat++;
-		if (DEBUG) Assert.assertEquals(Long.divideUnsigned(a, b), qhat);
+		if (DEBUG) Ensure.ensureEquals(Long.divideUnsigned(a, b), qhat);
 		return qhat;
 	}
 

@@ -29,7 +29,7 @@ import de.tilman_neumann.jml.precision.Precision;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.quaternion.HurwitzQuaternion;
 import de.tilman_neumann.jml.transcendental.Ln;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.Timer;
 
@@ -100,7 +100,7 @@ public class FourSquaresFinder {
 			
 			M = M.multiply(BigInteger.valueOf(p));
 		}
-		if (DEBUG) Assert.assertEquals(false, M.testBit(0)); // M is even
+		if (DEBUG) Ensure.ensureEquals(false, M.testBit(0)); // M is even
 		BigInteger Mn = M.multiply(n);
 		if (ANALYZE) step1Duration += timer.capture();
 		
@@ -121,7 +121,7 @@ public class FourSquaresFinder {
 			p = Mn.multiply(k).subtract(I_1);
 			// (Notice that p == 1 (mod 4), since 2 || M and n, k are odd.)
 			if (DEBUG) {
-				Assert.assertEquals(I_1, p.and(I_3)); // p == 1 (mod 4)
+				Ensure.ensureEquals(I_1, p.and(I_3)); // p == 1 (mod 4)
 				LOG.debug("p has " + p.bitLength() + " bit");
 			}
 			if (ANALYZE) step2pDuration += timer.capture();
@@ -174,7 +174,7 @@ public class FourSquaresFinder {
 		Y = gcrd.getY().abs();
 		Z = gcrd.getZ().abs();
 		W = gcrd.getW().abs();
-		if (DEBUG) Assert.assertEquals(n, X.multiply(X).add(Y.multiply(Y)).add(Z.multiply(Z)).add(W.multiply(W)));
+		if (DEBUG) Ensure.ensureEquals(n, X.multiply(X).add(Y.multiply(Y)).add(Z.multiply(Z)).add(W.multiply(W)));
 		
 		// done
 	}

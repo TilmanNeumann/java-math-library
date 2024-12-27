@@ -40,7 +40,7 @@ import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF02;
 import de.tilman_neumann.jml.roots.SqrtExact;
 import de.tilman_neumann.jml.roots.SqrtInt;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 import de.tilman_neumann.util.Timer;
@@ -288,14 +288,14 @@ public class CFrac extends FactorAlgorithm {
 	 * @param Q_ip1
 	 */
 	private void verifyCongruence(long i, BigInteger A_i, BigInteger Q_ip1) {
-		Assert.assertGreaterEquals(Q_ip1.signum(), 0);
+		Ensure.ensureGreaterEquals(Q_ip1.signum(), 0);
 		// verify congruence A^2 == Q (mod N)
 		BigInteger Q_test = i%2==1 ? Q_ip1 : Q_ip1.negate().mod(N);
 		BigInteger div[] = A_i.pow(2).subtract(Q_test).divideAndRemainder(N);
-		Assert.assertEquals(I_0, div[1]); // exact division
+		Ensure.ensureEquals(I_0, div[1]); // exact division
 		LOG.debug("A^2-Q = " + div[0] + " * N");
 		LOG.debug("A^2 % N = " + A_i.pow(2).mod(N) + ", Q = " + Q_test);
-		Assert.assertEquals(Q_test, A_i.pow(2).mod(N)); // works
+		Ensure.ensureEquals(Q_test, A_i.pow(2).mod(N)); // works
 	}
 	
 	/**

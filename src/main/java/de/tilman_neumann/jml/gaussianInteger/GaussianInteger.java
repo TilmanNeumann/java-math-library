@@ -21,7 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.BigRational;
-import de.tilman_neumann.util.Assert;
+import de.tilman_neumann.util.Ensure;
 
 /**
  * The Gaussian integers are the set Z[i] = {x + iy : x, y ∈ Z} of complex numbers whose real and imaginary parts are both integers.
@@ -157,7 +157,7 @@ public class GaussianInteger {
 		if (DEBUG) LOG.debug("result: c = " + c + ", d = " + d + ", N(d) = " + d.norm());
 
 		// Make sure that N(d) < N(b)
-		if (DEBUG) Assert.assertSmaller(d.norm(), b.norm());
+		if (DEBUG) Ensure.ensureSmaller(d.norm(), b.norm());
 		
 		return new GaussianInteger[] {c, d};
 	}
