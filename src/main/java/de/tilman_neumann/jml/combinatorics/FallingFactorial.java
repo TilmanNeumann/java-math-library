@@ -16,13 +16,6 @@ package de.tilman_neumann.jml.combinatorics;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import de.tilman_neumann.jml.base.BigIntGrid;
-import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Implementations of the falling factorial (n)_k = (n-k+1)*...*n.
@@ -35,8 +28,6 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class FallingFactorial {
-
-	private static final Logger LOG = LogManager.getLogger(FallingFactorial.class);
 	
 	/**
 	 * Computes the falling factorial.
@@ -72,7 +63,7 @@ public class FallingFactorial {
 	 * @return falling factorial (n)_k
 	 * @throws IllegalArgumentException if n&lt;0 or (n-k)&lt;0
 	 */
-	private static BigInteger byFactorials(int n, int k) throws IllegalArgumentException {
+	static BigInteger byFactorials(int n, int k) throws IllegalArgumentException {
 		return Factorial.factorial(n).divide(Factorial.factorial(n-k));
 	}
 
@@ -83,7 +74,7 @@ public class FallingFactorial {
 	 * @param k
 	 * @return falling factorial (n)_k
 	 */
-	private static BigInteger simpleProduct(int n, int k) {
+	static BigInteger simpleProduct(int n, int k) {
         BigInteger element = BigInteger.valueOf(n-k+1);
         BigInteger result = I_1;
         for (int i=0; i<k; i++) {
@@ -92,59 +83,4 @@ public class FallingFactorial {
         }
         return result;
 	}
-    
-    private static void testSmall() {
-    	int max = 10;
-    	BigIntGrid grid = new BigIntGrid("n", -max, "k", 0); // negative k not supported, results would be rational
-    	for (int n=-max; n<=max; n++) {
-    		ArrayList<BigInteger> row = new ArrayList<>();
-        	for (int k=0; k<=max; k++) {
-        		row.add(fallingFactorial(n,k));
-        	}
-        	grid.add(row);
-    	}
-    	LOG.info("fallingFactorials:\n" + grid);
-    }
-
-	private static void testPerformance() {
-    	int limit=1000;
-    	
-    	long t0, t1;
-    	t0 = System.currentTimeMillis();
-    	for (int n=0; n<limit; n++) {
-    		for (int k=0; k<=n; k++) {
-    			fallingFactorial(n, k);
-    		}
-    	}
-    	t1 = System.currentTimeMillis();
-    	LOG.info("fallingFactorial() took " + (t1-t0) + "ms");
-
-    	t0 = System.currentTimeMillis();
-    	for (int n=0; n<limit; n++) {
-    		for (int k=0; k<=n; k++) {
-    			byFactorials(n, k);
-    		}
-    	}
-    	t1 = System.currentTimeMillis();
-    	LOG.info("byFactorials() took " + (t1-t0) + "ms");
-
-    	t0 = System.currentTimeMillis();
-    	for (int n=0; n<limit; n++) {
-    		for (int k=0; k<=n; k++) {
-    			simpleProduct(n, k);
-    		}
-    	}
-    	t1 = System.currentTimeMillis();
-    	LOG.info("simpleProduct() took " + (t1-t0) + "ms");
-    }
-
-    /**
-     * Test
-     * @param args ignored
-     */
-    public static void main(String[] args) {
-    	ConfigUtil.initProject();
-    	testSmall();
-    	testPerformance();
-    }
 }
