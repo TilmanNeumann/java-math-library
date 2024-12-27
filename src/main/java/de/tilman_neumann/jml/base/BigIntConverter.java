@@ -20,8 +20,6 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.ConfigUtil;
-
 /**
  * Conversion from doubles to BigInteger with minimal precision loss and no need of slow BigDecimal.
  * @see <a href="https://de.wikipedia.org/wiki/IEEE_754#Allgemeines">https://de.wikipedia.org/wiki/IEEE_754#Allgemeines</a>
@@ -31,6 +29,8 @@ import de.tilman_neumann.util.ConfigUtil;
 public class BigIntConverter {
 	private static final Logger LOG = LogManager.getLogger(BigIntConverter.class);
 	
+	private static final boolean DEBUG = false;
+	
 	/**
 	 * Create a BigInteger from double, with minimal precision loss.
 	 * @param d
@@ -38,7 +38,7 @@ public class BigIntConverter {
 	 */
 	public static BigInteger fromDouble(double d) {
 		long dblBitRep = Double.doubleToRawLongBits(d);
-		//LOG.debug("bits = " + bitString(dblBitRep));
+		if (DEBUG) LOG.debug("bits = " + bitString(dblBitRep));
 		
 		// Following the wikipedia page: x = s*m*2^e (with base b=2 in IEEE 754)
 		// bit 63 represents the sign s
@@ -67,7 +67,7 @@ public class BigIntConverter {
 	 */
 	public static BigInteger fromDoubleMulPow2(double d, int e2) {
 		long dblBitRep = Double.doubleToRawLongBits(d);
-		//LOG.debug("bits = " + bitString(dblBitRep));
+		if (DEBUG) LOG.debug("bits = " + bitString(dblBitRep));
 		
 		// Following the wikipedia page: x = s*m*2^e (with base b=2 in IEEE 754)
 		// bit 63 represents the sign s
@@ -88,37 +88,16 @@ public class BigIntConverter {
 		return (isNegative) ? result.negate() : result;
 	}
 
-	@SuppressWarnings("unused")
 	private static String bitString(long l) {
 		String str = "";
 		long mask = 0x8000000000000000L;
 		for (int i=63; i>=0; i--) {
 			long bit = l & mask;
-			//LOG.debug("bit = " + bit);
+			if (DEBUG) LOG.trace("bit = " + bit);
 			str += bit!=0 ? "1" : "0";
 			if (i==63 || i==52) str += "|";
 			mask >>>= 1; // unsigned shift -> shifts "0" into leftmost position
 		}
 		return str;
-	}
-	
-	private static void test(double d) {
-		LOG.info(d + " -> " + fromDouble(d));
-	}
-	
-	private static void test(double d, int e2) {
-		LOG.info(d + " * 2^" + e2 + " -> " + fromDoubleMulPow2(d, e2));
-	}
-	
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		test(2); 
-		test(3);
-		test(Math.PI);
-		test(5.99);
-		test(6.0001);
-		test(-6.0001);
-		test(-6.333, 4);
-		test(101.333, -4);
 	}
 }
