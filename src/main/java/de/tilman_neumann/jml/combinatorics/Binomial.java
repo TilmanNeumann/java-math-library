@@ -14,13 +14,6 @@
 package de.tilman_neumann.jml.combinatorics;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import de.tilman_neumann.jml.base.BigIntGrid;
-import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -29,7 +22,6 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * @author Tilman Neumann
  */
 public class Binomial {
-	private static final Logger LOG = LogManager.getLogger(Binomial.class);
 	
     /**
      * Returns the binomial coefficient C(n, k). Works for negative n,k, too.
@@ -89,24 +81,5 @@ public class Binomial {
             den=den.add(I_1);
         }
         return result;
-    }
-    
-    /**
-     * Test
-     * @param args ignored
-     */
-    public static void main(String[] args) {
-    	ConfigUtil.initProject();
-    	
-    	int max = 10;
-    	BigIntGrid grid = new BigIntGrid("n", -max, "k", -max); // works for negative k, too
-    	for (int n=-max; n<=max; n++) {
-    		ArrayList<BigInteger> row = new ArrayList<>();
-        	for (int k=-max; k<=max; k++) {
-        		row.add(binomial(n,k));
-        	}
-        	grid.add(row);
-    	}
-    	LOG.info("binomial coefficients:\n" + grid);
     }
 }
