@@ -195,8 +195,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * @param n
 	 * @return x+y mod n
 	 */
-	long addmod(long x, long y, long n)
-	{
+	long addmod(long x, long y, long n) {
 	    long r0 = x+y;
 	    return (r0 >= n) ? r0-n : r0;
 	    // From https://www.mersenneforum.org/showpost.php?p=524038&postcount=158:
@@ -213,8 +212,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * @param n
 	 * @return c*2^64 mod n
 	 */
-	long u64div(long c, long n)
-	{
+	long u64div(long c, long n) {
 		// optimizing on lo=0 does not yield any notable performance gain
 		return new Uint128(c, 0L).spDivide(n)[1];
 	}
@@ -226,13 +224,11 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * @param m
 	 * @return u*v mod m
 	 */
-	long spMulMod(long u, long v, long m)
-	{
+	long spMulMod(long u, long v, long m) {
 		return Uint128.mul64(u, v).spDivide(m)[1];
 	}
 
-	long spGCD(long x, long y)
-	{
+	long spGCD(long x, long y) {
 		long a, b, c;
 		a = x; b = y;
 		while (b != 0)
@@ -244,8 +240,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		return a;
 	}
 
-	int spRand(int lower, int upper)
-	{
+	int spRand(int lower, int upper) {
 		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE);
 		
 		// fix rng for negative upper values;
@@ -267,8 +262,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		return result;
 	}
 
-	void add(long rho, ecm_work work, ecm_pt P1, ecm_pt P2, ecm_pt Pin, ecm_pt Pout)
-	{
+	void add(long rho, ecm_work work, ecm_pt P1, ecm_pt P2, ecm_pt Pin, ecm_pt Pout) {
 		// compute:
 		//x+ = z- * [(x1-z1)(x2+z2) + (x1+z1)(x2-z2)]^2
 		//z+ = x- * [(x1-z1)(x2+z2) - (x1+z1)(x2-z2)]^2
@@ -291,17 +285,14 @@ public class TinyEcm64 extends FactorAlgorithm {
 		long x1 = work.tt4;	//(U + V)^2
 		work.tt2 = montMul64(x1, x1, work.n, rho);	//(U - V)^2
 
-		if (Pin == Pout)
-		{
+		if (Pin == Pout) {
 			// Pin and Pout are the same object. Avoid changing X before it is used in the second operation...
 			Pout.Z = montMul64(work.tt1, Pin.Z, work.n, rho);		//Z * (U + V)^2
 			Pout.X = montMul64(work.tt2, Pin.X, work.n, rho);		//X * (U - V)^2
 			final long tmp = Pout.Z;
 			Pout.Z = Pout.X;
 			Pout.X = tmp;
-		}
-		else
-		{
+		} else {
 			Pout.X = montMul64(work.tt1, Pin.Z, work.n, rho);		//Z * (U + V)^2
 			Pout.Z = montMul64(work.tt2, Pin.X, work.n, rho);		//X * (U - V)^2
 		}
@@ -316,8 +307,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * @param indiff
 	 * @param P input/output
 	 */
-	void dup(long rho, ecm_work work, long insum, long indiff, ecm_pt P)
-	{
+	void dup(long rho, ecm_work work, long insum, long indiff, ecm_pt P) {
 		work.tt1 = montMul64(indiff, indiff, work.n, rho);			// U=(x1 - z1)^2
 		work.tt2 = montMul64(insum, insum, work.n, rho);			// V=(x1 + z1)^2
 		P.X = montMul64(work.tt1, work.tt2, work.n, rho);			// x=U*V
@@ -329,8 +319,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		return;
 	}
 
-	void prac70(long rho, ecm_work work, ecm_pt P)
-	{
+	void prac70(long rho, ecm_work work, ecm_pt P) {
 		long s1, s2, d1, d2;
 		long swp;
 		int i;
@@ -390,8 +379,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		}
 	}
 
-	void prac85(long rho, ecm_work work, ecm_pt P)
-	{
+	void prac85(long rho, ecm_work work, ecm_pt P) {
 		long s1, s2, d1, d2;
 		long swp;
 		int i;
@@ -451,8 +439,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		}
 	}
 
-	void prac(long rho, ecm_work work, ecm_pt P, long c, double v)
-	{
+	void prac(long rho, ecm_work work, ecm_pt P, long c, double v) {
 		long d, e, r;
 		long s1, s2, d1, d2;
 		long swp;
@@ -598,8 +585,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 			return p - ps1;
 	}
 
-	void build(ecm_pt P, long rho, ecm_work work, int sigma)
-	{
+	void build(ecm_pt P, long rho, ecm_work work, int sigma) {
 		long t1, t2, t3, t4;
 		long u, v, n;
 		n = work.n;
@@ -707,8 +693,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * @param curves currently ignored because we run curves until a factor is found. This requires that the algorithm is fed with composites, no primes.
 	 * @return Factorization result
 	 */
-	EcmResult tinyecm(long n, int B1, int curves)
-	{
+	EcmResult tinyecm(long n, int B1, int curves) {
 		//attempt to factor n with the elliptic curve method
 		//following brent and montgomery's papers, and CP's book
 		int curve;
@@ -763,8 +748,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 //		return new EcmResult(1, curve);
 	}
 
-	ecm_pt ecm_stage1(long rho, ecm_work work, ecm_pt P)
-	{
+	ecm_pt ecm_stage1(long rho, ecm_work work, ecm_pt P) {
 		long q;
 		long stg1 = (long)work.stg1_max;
 
@@ -848,8 +832,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		return P;
 	}
 
-	void ecm_stage2(ecm_pt P, long rho, ecm_work work)
-	{
+	void ecm_stage2(ecm_pt P, long rho, ecm_work work) {
 		int b;
 		int i, j, k;
 		ecm_pt Pa = work.Pa;
@@ -1134,8 +1117,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * @param n
      * @return factor or 0 if no factor
 	 */
-	long check_factor(long Z, long n)
-	{
+	long check_factor(long Z, long n) {
 		long f = spGCD(Z, n);
 		if (DEBUG) LOG.debug("check_factor: gcd(" + Z + ", " + n + ") = " + f);
         return (f>1 && f<n) ? f : 0;

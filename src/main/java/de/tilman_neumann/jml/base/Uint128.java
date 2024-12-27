@@ -207,10 +207,38 @@ public class Uint128 {
 		final long r_lo = a*b;
 		long r_hi = Math.multiplyHigh(a, b);
 		if (a<0) r_hi += b;
+		if (b<0) r_hi += a;
+		
+		if (DEBUG) {
+			// compare to pure Java implementation
+			Uint128 testResult = mul64(a, b);
+			Assert.assertEquals(testResult.high, r_hi);
+			Assert.assertEquals(testResult.low, r_lo);
+		}
+
+		return new Uint128(r_hi, r_lo);
+	}
+	
+	/**
+	 * Special implementation for the multiplication of two unsigned 64-bit integers using Math.multiplyHigh().
+	 * Pretty fast if supported by intrinsics, which needs newer hardware and Java 10+.<br><br>
+	 * 
+	 * <strong>WARNING: This implementation is not generally correct.</strong><br><br>
+	 * 
+	 * However, it seems to be sufficient for the purposes of TinyEcm and PollardRhoBrentMontgomery
+	 * implementations in this library, and should be a bit faster there.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static Uint128 spMul64_MH(long a, long b) {
+		final long r_lo = a*b;
+		long r_hi = Math.multiplyHigh(a, b);
+		if (a<0) r_hi += b;
 		// For general correctness we would need as well
 		//if (b<0) r_hi += a;
 		// See implementation of java.lang.Math.unsignedMultiplyHigh() starting from Java 18.
-		// However, for the purposes of this library the current implementation seems to be sufficient.
 		
 		if (DEBUG) {
 			// compare to pure Java implementation
@@ -455,7 +483,7 @@ public class Uint128 {
 		long q_hat = divideUnsignedLong(r_hi, b_hi);
 		if (DEBUG) LOG.debug("q_hat=" + Long.toUnsignedString(q_hat));
 		
-		Uint128 mulResult = mul64_MH(v, q_hat);
+		Uint128 mulResult = spMul64_MH(v, q_hat);
 		p_lo = mulResult.getLow();
 		p_hi = mulResult.getHigh();
 		if (DEBUG) LOG.debug("p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
@@ -505,7 +533,7 @@ public class Uint128 {
 		q_hat = divideUnsignedLong((r_hi << 32)|(r_lo >>> 32), b_hi);
 		if (DEBUG) LOG.debug("b=" + Long.toUnsignedString(v) + ", q_hat=" + Long.toUnsignedString(q_hat));
 		
-		mulResult = mul64_MH(v, q_hat);
+		mulResult = spMul64_MH(v, q_hat);
 		p_lo = mulResult.getLow();
 		p_hi = mulResult.getHigh();
 		if (DEBUG) LOG.debug("2: p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
@@ -600,84 +628,35 @@ public class Uint128 {
 		return toBigInteger().toString();
 	}
 	
-	private static void testCorrectness() {
-		SecureRandom RNG = new SecureRandom();
-		
-		for (int i=0; i<100000; i++) {
-			BigInteger a_hi_big = new BigInteger(63, RNG);
-			BigInteger a_lo_big = new BigInteger(64, RNG);
-			BigInteger b_hi_big = new BigInteger(63, RNG);
-			BigInteger b_lo_big = new BigInteger(64, RNG);
-			
-			long a_hi = a_hi_big.longValue();
-			long a_lo = a_lo_big.longValue();
-			long b_hi = b_hi_big.longValue();
-			long b_lo = b_lo_big.longValue();
-			
-			// test addition
-			Uint128 a128 = new Uint128(a_hi, a_lo);
-			Uint128 b128 = new Uint128(b_hi, b_lo);
-			Uint128 sum128 = a128.add_v1(b128);
-			BigInteger sum128Big = sum128.toBigInteger();
-			BigInteger sumBig = a128.toBigInteger().add(b128.toBigInteger());
-			Assert.assertEquals(sumBig, sum128Big);
-
-			Uint128 sum128_v2 = a128.add/*_v2*/(b128);
-			BigInteger sum128Big_v2 = sum128_v2.toBigInteger();
-			Assert.assertEquals(sumBig, sum128Big_v2);
-
-			// test multiplication with 63 bit numbers
-			Uint128 prod128 = mul63(a_hi, b_hi);
-			BigInteger prod128Big = prod128.toBigInteger();
-			BigInteger correctProd = a_hi_big.multiply(b_hi_big);
-			Assert.assertEquals(correctProd, prod128Big);
-
-			// test multiplication with 64 bit numbers
-			correctProd = a_lo_big.multiply(b_lo_big);
-			
-			prod128 = mul64_v1(a_lo, b_lo);
-			prod128Big = prod128.toBigInteger();
-			if (!correctProd.equals(prod128Big)) {
-				LOG.error("mul64_v1: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
-			}
-			Assert.assertEquals(correctProd, prod128Big);
-			
-			prod128 = mul64/*_v2*/(a_lo, b_lo);
-			prod128Big = prod128.toBigInteger();
-			if (!correctProd.equals(prod128Big)) {
-				LOG.error("mul64_v2: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
-			}
-			Assert.assertEquals(correctProd, prod128Big);
-		}
-	}
-	
 	private static void testPerformance() {
-		int NCOUNT = 10000000;
+		// Performance tests are carried out in double loops over the same numbers.
+		// Otherwise number creation is much more expensive than testing the operations themselves.
+		int NCOUNT = 100000;
 		
 		// set up test numbers
 		long[] a_arr = new long[NCOUNT];
-		long[] b_arr = new long[NCOUNT];
 		Uint128[] a128_arr =  new Uint128[NCOUNT];
-		Uint128[] b128_arr =  new Uint128[NCOUNT];
 		
 		for (int i=0; i<NCOUNT; i++) {
 			a_arr[i] = RNG.nextLong();
-			b_arr[i] = RNG.nextLong();
 			a128_arr[i] = new Uint128(a_arr[i], RNG.nextLong());
-			b128_arr[i] = new Uint128(b_arr[i], RNG.nextLong());
 		}
 		
 		// test performance of add implementations
 		long t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
-			a128_arr[i].add_v1(b128_arr[i]);
+			for (int j=0; j<NCOUNT; j++) {
+				a128_arr[i].add_v1(a128_arr[j]);
+			}
 		}
 		long t1 = System.currentTimeMillis();
 		LOG.info("add_v1 took " + (t1-t0) + "ms");
 
 		t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
-			a128_arr[i].add/*_v2*/(b128_arr[i]);
+			for (int j=0; j<NCOUNT; j++) {
+				a128_arr[i].add/*_v2*/(a128_arr[j]);
+			}
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("add_v2 took " + (t1-t0) + "ms");
@@ -687,17 +666,39 @@ public class Uint128 {
 		// test performance of mul64 implementations
 		t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
-			mul64_v1(a_arr[i], b_arr[i]);
+			for (int j=0; j<NCOUNT; j++) {
+				mul64_v1(a_arr[i], a_arr[j]);
+			}
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("mul64_v1 took " + (t1-t0) + "ms");
 		
 		t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
-			mul64/*_v2*/(a_arr[i], b_arr[i]);
+			for (int j=0; j<NCOUNT; j++) {
+				mul64/*_v2*/(a_arr[i], a_arr[j]);
+			}
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("mul64_v2 took " + (t1-t0) + "ms");
+		
+		t0 = System.currentTimeMillis();
+		for (int i=0; i<NCOUNT; i++) {
+			for (int j=0; j<NCOUNT; j++) {
+				mul64_MH(a_arr[i], a_arr[j]);
+			}
+		}
+		t1 = System.currentTimeMillis();
+		LOG.info("mul64_MH took " + (t1-t0) + "ms");
+		
+		t0 = System.currentTimeMillis();
+		for (int i=0; i<NCOUNT; i++) {
+			for (int j=0; j<NCOUNT; j++) {
+				spMul64_MH(a_arr[i], a_arr[j]);
+			}
+		}
+		t1 = System.currentTimeMillis();
+		LOG.info("spMul64_MH took " + (t1-t0) + "ms");
 	}
 
 	/**
@@ -706,7 +707,6 @@ public class Uint128 {
 	 */
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
-		testCorrectness();
 		testPerformance();
 	}
 }
