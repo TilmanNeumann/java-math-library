@@ -13,24 +13,19 @@
  */
 package de.tilman_neumann.jml.base;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.tilman_neumann.util.ConfigUtil;
 
-/**
- * Test for UnsignedBigInt classes.
- * 
- * @author Tilman Neumann
- */
-public class UnsignedBigIntTest {
-	private static final Logger LOG = LogManager.getLogger(UnsignedBigIntTest.class);
+public class UnsignedBigIntPerformanceTest {
+	private static final Logger LOG = LogManager.getLogger(UnsignedBigIntPerformanceTest.class);
 	private static final SecureRandom RNG = new SecureRandom();
 	
    	/**
@@ -47,53 +42,6 @@ public class UnsignedBigIntTest {
 	   		i++;
 	   	}
 	   	return testSet;
-	}
-	
-	private static void testCorrectness(int nCount) {
-		// test conversion
-		for (int bits = 100; bits<=1000; bits+=100) {
-			ArrayList<BigInteger> testSet = createTestSet(nCount, bits);
-		   	for (BigInteger testNum : testSet) {
-		   		UnsignedBigInt N = new UnsignedBigInt(testNum);
-				BigInteger reverse = N.toBigInteger();
-				if (!testNum.equals(reverse)) {
-		   			LOG.error("ERROR: conversion of " + testNum + " to UnsignedBigInt and back gave " + reverse);
-				}
-		   	}
-		   	LOG.info("Tested correctness of " + nCount + " conversions of " + bits + "-bit numbers...");
-		}
-
-		// test division
-		UnsignedBigInt quotient = new UnsignedBigInt(new int[32]); // buffer big enough for 1000 bits
-		for (int bits = 100; bits<=1000; bits+=100) {
-			ArrayList<BigInteger> testSet = createTestSet(nCount, bits);
-		   	for (BigInteger testNum : testSet) {
-		   		int divisor = Math.max(2, RNG.nextInt(Integer.MAX_VALUE-2));
-		   		BigInteger[] referenceResult = testNum.divideAndRemainder(BigInteger.valueOf(divisor));
-		   		int remainder = new UnsignedBigInt(testNum).divideAndRemainder(divisor, quotient);
-		   		if (!quotient.toBigInteger().equals(referenceResult[0])) {
-		   			LOG.error("ERROR: divide(" + testNum + ", " + divisor + "): correct quotient = " + referenceResult[0] + ", my result = " + quotient);
-		   		}
-		   		if (remainder != referenceResult[1].intValue()) {
-		   			LOG.error("ERROR: divide(" + testNum + ", " + divisor + "): correct remainder = " + referenceResult[1] + ", my result = " + remainder);
-		   		}
-		   	}
-		   	LOG.info("Tested correctness of " + nCount + " divisions of " + bits + "-bit numbers by ints...");
-		}
-		
-		// test modulus
-		for (int bits = 100; bits<=1000; bits+=100) {
-			ArrayList<BigInteger> testSet = createTestSet(nCount, bits);
-		   	for (BigInteger testNum : testSet) {
-		   		int divisor = Math.max(2, RNG.nextInt(Integer.MAX_VALUE-2));
-		   		int correctRemainder = testNum.mod(BigInteger.valueOf(divisor)).intValue();
-		   		int remainder = new UnsignedBigInt(testNum).mod(divisor);
-		   		if (remainder != correctRemainder) {
-		   			LOG.error("ERROR: mod(" + testNum + ", " + divisor + "): correct remainder = " + correctRemainder + ", my result = " + remainder);
-		   		}
-		   	}
-		   	LOG.info("Tested correctness of " + nCount + " modulus computations of " + bits + "-bit numbers by ints...");
-		}
 	}
 
 	private static void testPerformance(int nCount) {
@@ -131,7 +79,7 @@ public class UnsignedBigIntTest {
 			   	}
 			}
 		   	t1 = System.currentTimeMillis();
-			LOG.info("   UBI's mod() took " + (t1-t0) + " ms");
+			LOG.info("   UnsignedBigInt's mod() took " + (t1-t0) + " ms");
 			
 		   	t0 = System.currentTimeMillis();
 			for (BigInteger divisor_big : divisors_big) {
@@ -151,7 +99,7 @@ public class UnsignedBigIntTest {
 			   	}
 			}
 		   	t1 = System.currentTimeMillis();
-			LOG.info("   UBI's divide() took " + (t1-t0) + " ms");
+			LOG.info("   UnsignedBigInt's divide() took " + (t1-t0) + " ms");
 		}
 	}
 	
@@ -161,8 +109,6 @@ public class UnsignedBigIntTest {
 	 */
 	public static void main(String[] args) {
 	   	ConfigUtil.initProject();
-
-	   	testCorrectness(100000);
 	   	testPerformance(10000);
 	}
 }
