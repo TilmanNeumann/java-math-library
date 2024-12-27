@@ -14,13 +14,11 @@
 package de.tilman_neumann.jml.base;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.Assert;
-import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * An incomplete 128 bit unsigned int implementation.
@@ -34,8 +32,6 @@ public class Uint128 {
 	private static final Logger LOG = LogManager.getLogger(Uint128.class);
 	
 	private static final boolean DEBUG = false;
-	
-	private static final SecureRandom RNG = new SecureRandom();
 
 	private long high, low;
 	
@@ -226,7 +222,7 @@ public class Uint128 {
 	 * <strong>WARNING: This implementation is not generally correct.</strong><br><br>
 	 * 
 	 * However, it seems to be sufficient for the purposes of TinyEcm and PollardRhoBrentMontgomery
-	 * implementations in this library, and should be a bit faster there.
+	 * implementations in this library, and should be a bit faster <em>there</em>.
 	 * 
 	 * @param a
 	 * @param b
@@ -626,87 +622,5 @@ public class Uint128 {
 	@Override
 	public String toString() {
 		return toBigInteger().toString();
-	}
-	
-	private static void testPerformance() {
-		// Performance tests are carried out in double loops over the same numbers.
-		// Otherwise number creation is much more expensive than testing the operations themselves.
-		int NCOUNT = 100000;
-		
-		// set up test numbers
-		long[] a_arr = new long[NCOUNT];
-		Uint128[] a128_arr =  new Uint128[NCOUNT];
-		
-		for (int i=0; i<NCOUNT; i++) {
-			a_arr[i] = RNG.nextLong();
-			a128_arr[i] = new Uint128(a_arr[i], RNG.nextLong());
-		}
-		
-		// test performance of add implementations
-		long t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				a128_arr[i].add_v1(a128_arr[j]);
-			}
-		}
-		long t1 = System.currentTimeMillis();
-		LOG.info("add_v1 took " + (t1-t0) + "ms");
-
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				a128_arr[i].add/*_v2*/(a128_arr[j]);
-			}
-		}
-		t1 = System.currentTimeMillis();
-		LOG.info("add_v2 took " + (t1-t0) + "ms");
-		// The results of this comparison seem to be misleading. If we compare the two implementations
-		// in different PollardRhoBrentMontgomery63 variants than v2 is much faster...
-		
-		// test performance of mul64 implementations
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				mul64_v1(a_arr[i], a_arr[j]);
-			}
-		}
-		t1 = System.currentTimeMillis();
-		LOG.info("mul64_v1 took " + (t1-t0) + "ms");
-		
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				mul64/*_v2*/(a_arr[i], a_arr[j]);
-			}
-		}
-		t1 = System.currentTimeMillis();
-		LOG.info("mul64_v2 took " + (t1-t0) + "ms");
-		
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				mul64_MH(a_arr[i], a_arr[j]);
-			}
-		}
-		t1 = System.currentTimeMillis();
-		LOG.info("mul64_MH took " + (t1-t0) + "ms");
-		
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				spMul64_MH(a_arr[i], a_arr[j]);
-			}
-		}
-		t1 = System.currentTimeMillis();
-		LOG.info("spMul64_MH took " + (t1-t0) + "ms");
-	}
-
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		testPerformance();
 	}
 }
