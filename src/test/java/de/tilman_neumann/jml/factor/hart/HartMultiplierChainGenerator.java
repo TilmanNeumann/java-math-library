@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.hart;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,7 +29,6 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
-import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -35,8 +36,8 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
 /**
  * This program generates good k-multiplier sets for the Hart and Lehman factoring algorithms.
  * 
- * It applies the Lehman/Hart core factor test routine to all pairs (k, N) of (quite big) sets of k and N, and
- * then collects round by round the k that factors most of the yet unfactored N.
+ * It applies the Lehman/Hart core factor test routine to all pairs (k, N) of (quite big) sets of k and N,
+ * and then collects round by round the k that factors most of the yet unfactored N.
  * 
  * For k in [1, sqrt(Nmax)] this algorithm is capable to run up to N with >=28 bit (but needs something like 10GB memory at 28 bit)
  * 
@@ -46,8 +47,8 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  *    If k in [1, cbrt(Nmax)], then we need additional trial division up to N^(1/3) to factor all N.
  *    (the latter was possibly Lehman's key insight to create an O(n^1/3) complexity factoring algorithm)
  */
-public class Hart_MultiplierChain_Factory {
-	private static final Logger LOG = LogManager.getLogger(Hart_MultiplierChain_Factory.class);
+public class HartMultiplierChainGenerator {
+	private static final Logger LOG = LogManager.getLogger(HartMultiplierChainGenerator.class);
 
 	private static final boolean DEBUG = false;
 	
@@ -220,7 +221,7 @@ public class Hart_MultiplierChain_Factory {
 		if (b*b == test) {
 			long gcd = gcdEngine.gcd(a+b, N);
 			if (gcd>1 && gcd<N) {
-				Ensure.ensureEquals(N % gcd, 0);
+				if (DEBUG) assertEquals(N % gcd, 0);
 				return true;
 			}
 		}
@@ -242,7 +243,7 @@ public class Hart_MultiplierChain_Factory {
 		return a;
 	}
 	
-	private static void testComputeFactorChains() {
+	private static void computeFactorChains() {
 		for (int bits = 3; bits<64; bits++) { // there are no composites with less than 3 bit
 			long Nmin = 1L<<(bits-1);
 			long Nmax = (1L<<bits) - 1;
@@ -255,7 +256,7 @@ public class Hart_MultiplierChain_Factory {
 			
 			LOG.debug(bits + " bit: N = " + Nmin + "..." + Nmax + ", kMax = " + kMax);
 			long t0 = System.currentTimeMillis();
-			List<Integer> chain = new Hart_MultiplierChain_Factory().compute(Nmin, Nmax, kMax);
+			List<Integer> chain = new HartMultiplierChainGenerator().compute(Nmin, Nmax, kMax);
 			long t1 = System.currentTimeMillis();
 			LOG.info("Computing the " + bits + "-bit multiplier chain took " + (t1-t0) + " milliseconds.");
 			
@@ -268,14 +269,13 @@ public class Hart_MultiplierChain_Factory {
 			}
 			LOG.info("Found " + chain.size() + " multipliers = " + chain);
 			LOG.info("All factors in the multiplier set = " + allFactorsSet);
-			// die Verteilung der Faktoren folgt ungefähr der Wahrscheinlichkeit P(p) ~ 1/(p*ln(p))
-			// bei p=2 fehlt immer eine 2 im Exponenten weil die schon in den Algorithmus integriert ist
+			// the distribution of factors follows approximately P(p) ~ 1/(p*ln(p))
+			// at p=2 is always missing a 2 in the exponent because it is already integrated in the algorithm
 		}
 	}
 	
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
-		
-		testComputeFactorChains();
+		computeFactorChains();
 	}
 }
