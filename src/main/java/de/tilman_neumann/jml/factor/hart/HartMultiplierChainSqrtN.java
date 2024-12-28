@@ -29,9 +29,9 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  * 
  * @author Tilman Neumann
  */
-public class Hart_MultiplierChain_SqrtN extends FactorAlgorithm {
+public class HartMultiplierChainSqrtN extends FactorAlgorithm {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = LogManager.getLogger(Hart_MultiplierChain_SqrtN.class);
+	private static final Logger LOG = LogManager.getLogger(HartMultiplierChainSqrtN.class);
 
 	/** This constant is used for fast rounding of double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
@@ -92,13 +92,13 @@ public class Hart_MultiplierChain_SqrtN extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Hart_MultiplierChain_SqrtN(boolean doTDivFirst) {
+	public HartMultiplierChainSqrtN(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 	}
 	
 	@Override
 	public String getName() {
-		return "Hart_MultiplierChain_SqrtN(" + doTDivFirst + ")";
+		return "HartMultiplierChainSqrtN(" + doTDivFirst + ")";
 	}
 
 	@Override

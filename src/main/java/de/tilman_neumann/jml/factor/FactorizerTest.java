@@ -98,7 +98,7 @@ public class FactorizerTest {
 //			new Hart_Squarefree(false), // best algorithm for semiprime N for 29 to 37 bit
 //			new Hart_Fast2Mult(false), // best algorithm for semiprime N for 38 to 45 bit
 //			new Hart_Fast2Mult_FMA(false),
-//			new Hart_MultiplierChain_SqrtN(false),
+//			new HartMultiplierChainSqrtN(false),
 
 			// Lehman
 			//new Lehman_Simple(false),
@@ -219,7 +219,7 @@ public class FactorizerTest {
 				if (bits>31 && algName.startsWith("PollardRho31")) continue; // long implementation
 				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
 				if (bits>57 && algName.equals("PollardRhoBrentMontgomeryR64Mul63")) continue; // very slow above
-				if (bits>28 && algName.startsWith("Hart_MultiplierChain_SqrtN")) continue; // no multipliers for bigger N
+				if (bits>28 && algName.startsWith("HartMultiplierChainSqrtN")) continue; // no multipliers for bigger N
 
 				System.gc(); // create equal conditions for all algorithms
 
