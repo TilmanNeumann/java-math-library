@@ -57,6 +57,7 @@ import de.tilman_neumann.util.Ensure;
  * 
  * @author Tilman Neumann
  */
+//TODO Compare performance using Uint128.spMul64_MH() vs. Uint128.mul64_MH().
 public class TinyEcm64MHInlined extends FactorAlgorithm {
 	
 	private static class ecm_pt {
