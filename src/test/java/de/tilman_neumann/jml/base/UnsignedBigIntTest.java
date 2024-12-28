@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.tilman_neumann.util.ConfigUtil;
@@ -40,10 +40,10 @@ public class UnsignedBigIntTest {
 
 	private static final int NCOUNT = 100000; // test numbers per test set
 
-	private Map<Integer, ArrayList<BigInteger>> testSets;
+	private static Map<Integer, ArrayList<BigInteger>> testSets;
 	
-	@Before
-	public void setup() {
+	@BeforeClass
+	public static void setup() {
 		ConfigUtil.initProject();
 		createTestSets();
 	}
@@ -53,7 +53,7 @@ public class UnsignedBigIntTest {
    	 * @param nCount
    	 * @return
    	 */
-	private void createTestSets() {
+	private static void createTestSets() {
 		testSets = new HashMap<Integer, ArrayList<BigInteger>>();
 		for (int bits = BITS_MIN; bits<=BITS_MAX; bits+=BITS_INCREMENT) {
 		   	ArrayList<BigInteger> testSet = new ArrayList<BigInteger>();

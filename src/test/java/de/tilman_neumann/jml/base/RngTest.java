@@ -19,7 +19,7 @@ import java.math.RoundingMode;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.tilman_neumann.util.ConfigUtil;
@@ -34,8 +34,8 @@ public class RngTest {
 	
 	private static final Rng RNG = new Rng();
 
-	@Before
-	public void setup() {
+	@BeforeClass
+	public static void setup() {
 		ConfigUtil.initProject();
 	}
 

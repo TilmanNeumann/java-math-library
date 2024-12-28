@@ -19,7 +19,7 @@ import java.security.SecureRandom;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.tilman_neumann.util.ConfigUtil;
@@ -30,13 +30,13 @@ public class Uint128Test {
 
 	private static final int NCOUNT = 1000;
 	
-	private BigInteger[] hi_big = new BigInteger[NCOUNT];
-	private BigInteger[] lo_big = new BigInteger[NCOUNT];
-	private long[] hi = new long[NCOUNT];
-	private long[] lo = new long[NCOUNT];
+	private static BigInteger[] hi_big = new BigInteger[NCOUNT];
+	private static BigInteger[] lo_big = new BigInteger[NCOUNT];
+	private static long[] hi = new long[NCOUNT];
+	private static long[] lo = new long[NCOUNT];
 
-	@Before
-	public void setup() {
+	@BeforeClass
+	public static void setup() {
 		ConfigUtil.initProject();
 		
 		SecureRandom RNG = new SecureRandom();

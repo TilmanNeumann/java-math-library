@@ -15,7 +15,7 @@ package de.tilman_neumann.jml.base;
 
 import java.math.BigInteger;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.tilman_neumann.util.ConfigUtil;
@@ -25,8 +25,8 @@ import static org.junit.Assert.assertEquals;
 
 public class BigIntConverterTest {
 
-	@Before
-	public void setup() {
+	@BeforeClass
+	public static void setup() {
 		ConfigUtil.initProject();
 	}
 
