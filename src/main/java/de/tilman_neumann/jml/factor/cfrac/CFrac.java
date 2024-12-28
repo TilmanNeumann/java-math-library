@@ -16,8 +16,6 @@ package de.tilman_neumann.jml.factor.cfrac;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,15 +33,11 @@ import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF;
-import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF02;
 import de.tilman_neumann.jml.roots.SqrtExact;
 import de.tilman_neumann.jml.roots.SqrtInt;
 import de.tilman_neumann.util.Ensure;
-import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
-import de.tilman_neumann.util.Timer;
 
 /**
  * CFrac = Shanks' SQUFOF algorithm + carry along continuant recurrence + collect smooth relations + LinAlg solver.<br/><br/>
@@ -231,7 +225,16 @@ public class CFrac extends FactorAlgorithm {
 		// first iteration step
 		BigInteger two_floor_sqrt_kN = floor_sqrt_kN.shiftLeft(1);
 		while (true) {
-			if (DEBUG) verifyCongruence(i, A_i, Q_ip1);
+			if (DEBUG) {
+				// Verify congruence A_i^2 == (-1)^(i+1)*Q_i+1 (mod N)
+				Ensure.ensureGreaterEquals(Q_ip1.signum(), 0);
+				BigInteger Q_test = i%2==1 ? Q_ip1 : Q_ip1.negate().mod(N);
+				BigInteger div[] = A_i.pow(2).subtract(Q_test).divideAndRemainder(N);
+				Ensure.ensureEquals(I_0, div[1]); // exact division
+				LOG.debug("A^2-Q = " + div[0] + " * N");
+				LOG.debug("A^2 % N = " + A_i.pow(2).mod(N) + ", Q = " + Q_test);
+				Ensure.ensureEquals(Q_test, A_i.pow(2).mod(N)); // works
+			}
 			// [McMath 2004] points out (on SquFoF) that we have to look for square Q_i at some even i.
 			// Here I test Q_i+1, so I have to look for square Q_i+1 at odd i.
 			// In CFRAC, square congruences are also tested in the CongruenceCollector,
@@ -280,23 +283,6 @@ public class CFrac extends FactorAlgorithm {
 			if (b_i.equals(two_floor_sqrt_kN)) return null;
 		}
 	}
-
-	/**
-	 * Verify congruence A_i^2 == (-1)^(i+1)*Q_i+1 (mod N)
-	 * @param i
-	 * @param A_i
-	 * @param Q_ip1
-	 */
-	private void verifyCongruence(long i, BigInteger A_i, BigInteger Q_ip1) {
-		Ensure.ensureGreaterEquals(Q_ip1.signum(), 0);
-		// verify congruence A^2 == Q (mod N)
-		BigInteger Q_test = i%2==1 ? Q_ip1 : Q_ip1.negate().mod(N);
-		BigInteger div[] = A_i.pow(2).subtract(Q_test).divideAndRemainder(N);
-		Ensure.ensureEquals(I_0, div[1]); // exact division
-		LOG.debug("A^2-Q = " + div[0] + " * N");
-		LOG.debug("A^2 % N = " + A_i.pow(2).mod(N) + ", Q = " + Q_test);
-		Ensure.ensureEquals(Q_test, A_i.pow(2).mod(N)); // works
-	}
 	
 	/**
 	 * Addition modulo N, with <code>a, b < N</code>.
@@ -335,49 +321,5 @@ public class CFrac extends FactorAlgorithm {
 		}
 		BigInteger product = m.multiply(a);
 		return product.compareTo(N)<0 ? product : product.mod(N);
-	}
-	
-	// Some test numbers to debug cycle counting with 3LP:
-	// 1131700560863845693969719287759517367069129639 (150 bit): found 304 smooth congruences (30 perfect, 47 from 1-partials, 215 involving 2-partials, 12 involving 3-partials) and 21132 partials (8253 1-partials, 12865 2-partials, 14 3-partials)
-	// 1042841142257557545672851027890020895273750538581 (160 bit): found 388 smooth congruences (38 perfect, 45 from 1-partials, 259 involving 2-partials, 46 involving 3-partials) and 34699 partials (9696 1-partials, 24948 2-partials, 55 3-partials)
-	// 1240365498452764190513871432931316765426281182537733 (170 bit): found 500 smooth congruences (90 perfect, 55 from 1-partials, 182 involving 2-partials, 173 involving 3-partials) and 51145 partials (10309 1-partials, 40527 2-partials, 309 3-partials)
-	// 800428260973992320615961356229212951260121574827941327 (180 bit): found 630 smooth congruences (87 perfect, 38 from 1-partials, 186 involving 2-partials, 319 involving 3-partials) and 85259 partials (11123 1-partials, 73206 2-partials, 930 3-partials)
-	private static void testInput() {
-		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), new MatrixSolver_Gauss02(), 5);
-		Timer timer = new Timer();
-		while(true) {
-			try {
-				LOG.info("Please insert the number to factor:");
-				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				String line = in.readLine();
-				String input = line !=null ? line.trim() : "";
-				//LOG.debug("input = >" + input + "<");
-				BigInteger N = new BigInteger(input);
-				LOG.info("Factoring " + N + " ...");
-				timer.capture();
-				BigInteger factor = cfrac.findSingleFactor(N);
-				if (factor != null) {
-					long duration = timer.capture();
-					LOG.info("Found factor " + factor + " in " + TimeUtil.timeStr(duration) + ".");
-				} else {
-					LOG.info("No factor found.");
-				}
-			} catch (Exception ex) {
-				LOG.error("Error " + ex, ex);
-			}
-		}
-	}
-	
-	/**
-	 * Standalone test.
-	 * 
-	 * Test numbers:
-	 * F7 = 340282366920938463463374607431768211457
-	 * 
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-    	testInput();
 	}
 }
