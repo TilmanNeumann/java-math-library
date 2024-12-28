@@ -46,20 +46,18 @@ import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.Ensure;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
 
 /**
  * A port of Ben Buhrow's tinyecm.c (https://www.mersenneforum.org/showpost.php?p=521028&postcount=84)
  * an ECM implementation for unsigned 64 bit integers.
  * So far it works for inputs up to 62 bit, albeit not as fast as the C original.
  * 
- * This variant inlines Uint128.mul64_MH() and with a few subsequent improvements, it is another astomisihing 30% faster than TinyEcm64_MH if intrinsics for Math.multiplyHigh() are supported.
+ * This variant inlines Uint128.mul64_MH() and with a few subsequent improvements, it is another astomisihing 30% faster than TinyEcm64MH if intrinsics for Math.multiplyHigh() are supported.
  * Typically this requires Java 10 and not too oldish hardware.
  * 
  * @author Tilman Neumann
  */
-public class TinyEcm64_MHInlined extends FactorAlgorithm {
+public class TinyEcm64MHInlined extends FactorAlgorithm {
 	
 	private static class ecm_pt {
 		long X;
@@ -99,7 +97,7 @@ public class TinyEcm64_MHInlined extends FactorAlgorithm {
 		}
 	}
 
-	private static final Logger LOG = LogManager.getLogger(TinyEcm64_MHInlined.class);
+	private static final Logger LOG = LogManager.getLogger(TinyEcm64MHInlined.class);
 
 	private static final boolean DEBUG = false;
 
@@ -167,7 +165,7 @@ public class TinyEcm64_MHInlined extends FactorAlgorithm {
 	private BPSWTest bpsw = new BPSWTest();
 
 	public String getName() {
-		return "TinyEcm64_MHInlined";
+		return "TinyEcm64MHInlined";
 	}
 
 	/**
@@ -1216,65 +1214,5 @@ public class TinyEcm64_MHInlined extends FactorAlgorithm {
 		}
 
 		// nothing found
-	}
-
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		
-		TinyEcm64_MHInlined factorizer = new TinyEcm64_MHInlined();
-		long[] testNumbers = new long[] { 
-				1234577*12345701L,
-				// Failures before map[] fix
-				1253586675305333L,
-				1139151196120601L,
-				1553712951089947L,
-				2235885271339597L,
-				1586929215386303L,
-				// Failures before spRand() fix
-				930705057210221L,
-				1067332898136023L,
-				8311092540494299L,
-				23603982383629381L,
-				58725827789610857L,
-				369313815090910177L,
-				// Failures before int to long cast fix
-				41382606407163353L,
-				306358296309770459L,
-				// Failures because #curves is too small
-				474315852287951L,
-				9400170223537253L,
-				35239016917581299L,
-				37915240075398767L,
-				459926431465210403L,
-				752882545886305349L,
-				179503729521451L,
-				1059150637518581L,
-				3209190314462729L,
-				17586811742837503L,
-				13745855671622359L,
-				15727038894518533L,
-				66804960995707271L,
-				38704493646912997L,
-				56025872236672099L,
-				57675022504187287L,
-				69916262762899909L,
-				51113648728234999L,
-				55878279398722441L,
-				// Test numbers with many small factors
-				1096954293075013905L,
-				1100087778366101931L, // Fibonacci(88)
-		};
-		
-		boolean testFullFactorization = true;
-		for (int i=0; i<testNumbers.length; i++) {
-			long N = testNumbers[i];
-			if (testFullFactorization) {
-				SortedMultiset<BigInteger> factors = factorizer.factor(BigInteger.valueOf(N));
-				LOG.info(N + " = " + factors);
-			} else {
-				BigInteger factor = factorizer.findSingleFactor(BigInteger.valueOf(N));
-				LOG.info("Found factor " + factor + " of N=" + N);
-			}
-		}
 	}
 }

@@ -140,8 +140,8 @@ public class FactorizerTest {
 
 			// ECM
 //			new TinyEcm64(),
-//			new TinyEcm64_MH(),
-//			new TinyEcm64_MHInlined(), // best algorithm for N from 46 to 62 bit
+//			new TinyEcm64MH(),
+//			new TinyEcm64MHInlined(), // best algorithm for N from 46 to 62 bit
 //			new EllipticCurveMethod(-1),
 
 			// SIQS:

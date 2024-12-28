@@ -8,7 +8,7 @@ It provides some pretty fast implementations of various factoring algorithms, in
 * Lehman_Fast, Lehman_CustomKOrder: Fast Lehman implementations for numbers <= 62 bit
 * SquFoF31Preload, SquFoF63: SquFoF implementations for numbers <= 52 rsp. 90 bit
 * PollardRhoBrentMontgomery64_MHInlined: Highly optimized Pollard-Rho for numbers <= 62 bit.
-* TinyEcm64_MHInlined: Highly optimized Java version of YaFu's tinyEcm.c for numbers <= 62 bit.
+* TinyEcm64MHInlined: Java version of YaFu's fast tinyEcm.c for numbers <= 62 bit.
 * CFrac63, CFrac: CFrac implementations working on longs rsp. BigIntegers internally.
 * SIQS: Single-threaded self-initializing quadratic sieve (SIQS).
 * PSIQS: Multi-threaded SIQS.

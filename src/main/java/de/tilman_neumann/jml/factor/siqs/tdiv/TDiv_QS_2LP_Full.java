@@ -32,7 +32,7 @@ import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
 import de.tilman_neumann.jml.factor.base.congruence.Partial_2Large;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_1LargeSquare;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
-import de.tilman_neumann.jml.factor.ecm.TinyEcm64_MHInlined;
+import de.tilman_neumann.jml.factor.ecm.TinyEcm64MHInlined;
 import de.tilman_neumann.jml.factor.hart.Hart_Fast2Mult;
 import de.tilman_neumann.jml.factor.siqs.SIQS_Small;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
@@ -85,7 +85,7 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 	private PrPTest prpTest = new PrPTest();
 	
 	private Hart_Fast2Mult hart = new Hart_Fast2Mult(false);
-	private TinyEcm64_MHInlined tinyEcm = new TinyEcm64_MHInlined();
+	private TinyEcm64MHInlined tinyEcm = new TinyEcm64MHInlined();
 	// Nested SIQS is required for quite large N only, > 350 bit ?
 	private SIQS_Small qsInternal;
 	
