@@ -14,33 +14,35 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 
 /**
- * Analyze the moduli of a-values that help the Lehman algorithm to find factors.
+ * Compare the performance of a "guarded sqrt" vs. the usual sqrt computations for long numbers.
+ * 
+ * The question about how they compare arised when the second sqrt in Lehman or Hart algorithms showed no sign of getting faster by "guarding".
+ * This test confirms that there is little difference.
  * 
  * @author Tilman Neumann
  */
-public class IsSqrt_Test {
-	private static final Logger LOG = LogManager.getLogger(IsSqrt_Test.class);
+public class GuardedVsUnguardedSqrtPerformanceTest {
+	private static final Logger LOG = LogManager.getLogger(GuardedVsUnguardedSqrtPerformanceTest.class);
 
-	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000; // bigger values required for useful timings
+	private static final int N_COUNT = 1000000; // bigger values required for useful timings
 	
 	private void testRange(int bits) {
 		BigInteger N_min = I_1.shiftLeft(bits-1);
 		BigInteger[] testNumbers = TestsetGenerator.generate(N_COUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
-		Ensure.ensureEquals(N_COUNT, testNumbers.length);
+		assertEquals(N_COUNT, testNumbers.length);
 		LOG.info("Test N with " + bits + " bits, i.e. N >= " + N_min);
 		long[] NArray = new long[N_COUNT];
 		for (int i=0; i<N_COUNT; i++) {
@@ -56,7 +58,9 @@ public class IsSqrt_Test {
 			}
 		}
 		t1 = System.currentTimeMillis();
-
+		LOG.info("Guarded sqrt took " + (t1-t0) + "ms, sum=" + sum);
+		// the sum is only logged to avoid compiler optimizations
+		
 		t0 = System.currentTimeMillis();
 		sum = 0;
 		for (long N : NArray) {
@@ -64,7 +68,6 @@ public class IsSqrt_Test {
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("Unguarded sqrt took " + (t1-t0) + "ms, sum=" + sum);
-		LOG.info("Guarded sqrt took " + (t1-t0) + "ms, sum=" + sum);
 	}
 
 	public static void main(String[] args) {
@@ -72,7 +75,7 @@ public class IsSqrt_Test {
 		int bits = 63;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
-	    	IsSqrt_Test testEngine = new IsSqrt_Test();
+	    	GuardedVsUnguardedSqrtPerformanceTest testEngine = new GuardedVsUnguardedSqrtPerformanceTest();
 			testEngine.testRange(bits);
 			bits--;
 		}
