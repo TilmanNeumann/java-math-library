@@ -51,8 +51,8 @@ import de.tilman_neumann.util.SortedMultiset;
  * 
  * @author Tilman Neumann
  */
-public class PollardRhoBrentMontgomery64_MHInlined extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(PollardRhoBrentMontgomery64_MHInlined.class);
+public class PollardRhoBrentMontgomery64MHInlined extends FactorAlgorithm {
+	private static final Logger LOG = LogManager.getLogger(PollardRhoBrentMontgomery64MHInlined.class);
 	private static final boolean DEBUG = false;
 
 	private static final Rng RNG = new Rng();
@@ -68,7 +68,7 @@ public class PollardRhoBrentMontgomery64_MHInlined extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "PollardRhoBrentMontgomery64_MHInlined";
+		return "PollardRhoBrentMontgomery64MHInlined";
 	}
 	
 	@Override
@@ -239,7 +239,7 @@ public class PollardRhoBrentMontgomery64_MHInlined extends FactorAlgorithm {
 			}
 			
 			long start = System.currentTimeMillis();
-			SortedMultiset<BigInteger> result = new PollardRhoBrentMontgomery64_MHInlined().factor(n);
+			SortedMultiset<BigInteger> result = new PollardRhoBrentMontgomery64MHInlined().factor(n);
 			LOG.info("Factored " + n + " = " + result.toString() + " in " + (System.currentTimeMillis()-start) + " ms");
 
 		} // next input...

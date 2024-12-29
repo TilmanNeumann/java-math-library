@@ -109,14 +109,14 @@ public class FactorizerTest {
 
 			// PollardRho
 			//new PollardRho(),
-			//new PollardRho_ProductGcd(),
+			//new PollardRhoProductGcd(),
 			//new PollardRhoBrent(),
 			//new PollardRho31(),
 			//new PollardRhoBrent31(),
 //			new PollardRhoBrentMontgomeryR64Mul63(),
 //			new PollardRhoBrentMontgomery64(),
-//			new PollardRhoBrentMontgomery64_MH(),
-//			new PollardRhoBrentMontgomery64_MHInlined(),
+//			new PollardRhoBrentMontgomery64MH(),
+//			new PollardRhoBrentMontgomery64MHInlined(),
 			
 			// SquFoF variants
 			// * pretty good, but never the best algorithm

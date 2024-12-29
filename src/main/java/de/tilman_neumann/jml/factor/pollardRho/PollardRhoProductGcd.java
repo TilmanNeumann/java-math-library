@@ -28,8 +28,8 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
  * 
  * @author Tilman Neumann
  */
-public class PollardRho_ProductGcd extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(PollardRho_ProductGcd.class);
+public class PollardRhoProductGcd extends FactorAlgorithm {
+	private static final Logger LOG = LogManager.getLogger(PollardRhoProductGcd.class);
 	private static final boolean DEBUG = false;
 	private static final SecureRandom RNG = new SecureRandom();
 
@@ -37,7 +37,7 @@ public class PollardRho_ProductGcd extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "PollardRho_Prod";
+		return "PollardRhoProductGcd";
 	}
 	
 	@Override
