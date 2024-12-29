@@ -20,7 +20,6 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
-import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
 /**
@@ -42,11 +41,14 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  * @authors Tilman Neumann + Thilo Harich
  */
 public class Lehman_Fast extends FactorAlgorithm {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LogManager.getLogger(Lehman_Fast.class);
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 	
+	private static final int K_MAX = 1<<21;
+
 	private long N;
 	private long fourN;
 	private double sqrt4N;
@@ -63,10 +65,9 @@ public class Lehman_Fast extends FactorAlgorithm {
 	public Lehman_Fast(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
-		final int kMax = 1<<21;
-		sqrt = new double[kMax + 1];
-		sqrtInv = new double[kMax + 1];
-		for (int i = 1; i < sqrt.length; i++) {
+		sqrt = new double[K_MAX + 1];
+		sqrtInv = new double[K_MAX + 1];
+		for (int i = 1; i <= K_MAX; i++) {
 			final double sqrtI = Math.sqrt(i);
 			sqrt[i] = sqrtI;
 			sqrtInv[i] = 1.0/sqrtI;
@@ -152,7 +153,8 @@ public class Lehman_Fast extends FactorAlgorithm {
 		}
 
 		// k == 0 (mod 6) has the highest chance to find a factor; checking it in the high range boosts performance
-		if ((factor = lehmanEven(kLimit, kLimit << 1)) > 1) return factor;
+		int kLimitExtended = Math.min(kLimit << 1, K_MAX);
+		if ((factor = lehmanEven(kLimit, kLimitExtended)) > 1) return factor;
 
 		// Complete middle range
 		if ((factor = lehmanOdd(kTwoA + 1, kLimit)) > 1) return factor;
@@ -207,55 +209,5 @@ public class Lehman_Fast extends FactorAlgorithm {
 			}
 		}
 		return -1;
-	}
-	
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-
-		// These test number were too hard for previous versions:
-		long[] testNumbers = new long[] {
-				5640012124823L,
-				7336014366011L,
-				19699548984827L,
-				52199161732031L,
-				73891306919159L,
-				112454098638991L,
-				
-				32427229648727L,
-				87008511088033L,
-				92295512906873L,
-				338719143795073L,
-				346425669865991L,
-				1058244082458461L,
-				1773019201473077L,
-				6150742154616377L,
-
-				44843649362329L,
-				67954151927287L,
-				134170056884573L,
-				198589283218993L,
-				737091621253457L,
-				1112268234497993L,
-				2986396307326613L,
-				
-				26275638086419L,
-				62246008190941L,
-				209195243701823L,
-				290236682491211L,
-				485069046631849L,
-				1239671094365611L,
-				2815471543494793L,
-				5682546780292609L,
-			};
-		
-		Lehman_Fast lehman = new Lehman_Fast(true);
-		for (long N : testNumbers) {
-			long factor = lehman.findSingleFactor(N);
-			LOG.info("N=" + N + " has factor " + factor);
-		}
 	}
 }

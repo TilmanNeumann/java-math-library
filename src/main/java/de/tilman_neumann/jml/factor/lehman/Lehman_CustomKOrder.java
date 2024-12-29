@@ -20,7 +20,6 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
-import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 
 /**
@@ -33,12 +32,13 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  * @authors Tilman Neumann + Thilo Harich
  */
 public class Lehman_CustomKOrder extends FactorAlgorithm {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LogManager.getLogger(Lehman_CustomKOrder.class);
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
 
-	private static final int K_MAX = 1<<22;
+	private static final int K_MAX = 1<<21;
 	private static final int ARRAY_COUNT = 7;
 	private static final int MAX_ARRAY_INDEX = ARRAY_COUNT-1;
 
@@ -253,68 +253,5 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 			}
 	    }
 		return 1;
-	}
-	
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-
-		// These test number were too hard for previous versions:
-		long[] testNumbers = new long[] {
-				// odd semiprimes
-				5640012124823L,
-				7336014366011L,
-				19699548984827L,
-				52199161732031L,
-				73891306919159L,
-				112454098638991L,
-				
-				32427229648727L,
-				87008511088033L,
-				92295512906873L,
-				338719143795073L,
-				346425669865991L,
-				1058244082458461L,
-				1773019201473077L,
-				6150742154616377L,
-
-				44843649362329L,
-				67954151927287L,
-				134170056884573L,
-				198589283218993L,
-				737091621253457L,
-				1112268234497993L,
-				2986396307326613L,
-				
-				26275638086419L,
-				62246008190941L,
-				209195243701823L,
-				290236682491211L,
-				485069046631849L,
-				1239671094365611L,
-				2815471543494793L,
-				5682546780292609L,
-				
-				// special case
-				9,
-				
-				// New fails of Hart working here
-				17977882519205951L, // 54 bit
-				57410188984551071L, // 56 bit
-				708198179721093877L, // 60 bit
-				873351084013120721L, // 60 bit
-				// New fails of Hart failing here as well; the numbers are just too big for our Lehman implementation
-				4085731848127832849L, // 62 bit
-				3608228875180849937L, // 62 bit
-		};
-		
-		Lehman_CustomKOrder lehman = new Lehman_CustomKOrder(false);
-		for (long N : testNumbers) {
-			long factor = lehman.findSingleFactor(N);
-			LOG.info("N=" + N + " has factor " + factor);
-		}
 	}
 }
