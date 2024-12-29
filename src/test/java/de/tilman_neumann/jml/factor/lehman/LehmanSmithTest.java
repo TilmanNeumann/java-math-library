@@ -34,12 +34,12 @@ import static org.junit.Assert.assertNotEquals;
 public class LehmanSmithTest {
 	private static final Logger LOG = LogManager.getLogger(LehmanSmithTest.class);
 
-	private static Lehman_Smith lehman;
+	private static LehmanSmith lehman;
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		lehman = new Lehman_Smith(false);
+		lehman = new LehmanSmith(false);
 	}
 	
 	@Test

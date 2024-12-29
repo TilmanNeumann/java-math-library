@@ -29,7 +29,7 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  *
  * @author Tilman Neumann
  */
-public class Lehman_Simple extends FactorAlgorithm {
+public class LehmanSimple extends FactorAlgorithm {
 	private final Gcd63 gcdEngine = new Gcd63();
 
 	private boolean doTDivFirst;
@@ -41,13 +41,13 @@ public class Lehman_Simple extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Lehman_Simple(boolean doTDivFirst) {
+	public LehmanSimple(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 	}
 
 	@Override
 	public String getName() {
-		return "Lehman_Simple(" + doTDivFirst + ")";
+		return "LehmanSimple(" + doTDivFirst + ")";
 	}
 
 	@Override

@@ -32,12 +32,12 @@ import static org.junit.Assert.assertNotEquals;
 public class LehmanCustomKOrderTest {
 	private static final Logger LOG = LogManager.getLogger(LehmanCustomKOrderTest.class);
 
-	private static Lehman_CustomKOrder lehman;
+	private static LehmanCustomKOrder lehman;
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		lehman = new Lehman_CustomKOrder(false);
+		lehman = new LehmanCustomKOrder(false);
 	}
 	
 	@Test

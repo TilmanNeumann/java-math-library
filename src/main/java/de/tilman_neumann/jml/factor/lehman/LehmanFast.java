@@ -32,7 +32,7 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  * (and a multiple of 2^64).
  * Thus <code>test</code> is correct and <code>b</code> is correct, too. <code>a</code> is correct anyway.
  * 
- * Lehman_CustomKOrder is another fast Lehman implementation.
+ * LehmanCustomKOrder is another fast Lehman implementation.
  * HartFast2Mult looks faster on modern hardware.
  * 
  * This class was implemented for YaFu by bSquare,
@@ -40,9 +40,9 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  * 
  * @authors Tilman Neumann + Thilo Harich
  */
-public class Lehman_Fast extends FactorAlgorithm {
+public class LehmanFast extends FactorAlgorithm {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = LogManager.getLogger(Lehman_Fast.class);
+	private static final Logger LOG = LogManager.getLogger(LehmanFast.class);
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
@@ -62,7 +62,7 @@ public class Lehman_Fast extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Lehman_Fast(boolean doTDivFirst) {
+	public LehmanFast(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
 		sqrt = new double[K_MAX + 1];
@@ -76,7 +76,7 @@ public class Lehman_Fast extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "Lehman_Fast(" + doTDivFirst + ")";
+		return "LehmanFast(" + doTDivFirst + ")";
 	}
 
 	@Override

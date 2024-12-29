@@ -4,8 +4,8 @@ This library is quite focused on number theory and particularly integer factoriz
 
 It provides some pretty fast implementations of various factoring algorithms, including the classes
 * TDiv31Barrett: Trial division for numbers < 32 bit using long valued Barrett reduction
-* Hart\_Fast2Mult: Highly optimized "Hart's one-line factorizer" for numbers <= 62 bit
-* Lehman_Fast, Lehman_CustomKOrder: Fast Lehman implementations for numbers <= 62 bit
+* HartFast2Mult: Highly optimized "Hart's one-line factorizer" for numbers <= 62 bit
+* LehmanFast, LehmanCustomKOrder: Fast Lehman implementations for numbers <= 62 bit
 * SquFoF31Preload, SquFoF63: SquFoF implementations for numbers <= 52 rsp. 90 bit
 * PollardRhoBrentMontgomery64_MHInlined: Highly optimized Pollard-Rho for numbers <= 62 bit.
 * TinyEcm64MHInlined: Java version of YaFu's fast tinyEcm.c for numbers <= 62 bit.

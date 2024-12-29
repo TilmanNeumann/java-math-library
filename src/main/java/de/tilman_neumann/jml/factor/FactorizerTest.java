@@ -101,11 +101,11 @@ public class FactorizerTest {
 //			new HartMultiplierChainSqrtN(false),
 
 			// Lehman
-			//new Lehman_Simple(false),
-			//new Lehman_Smith(false),
-//			new Lehman_Fast(false), // the variant implemented by bsquared
-			//new Lehman_Fast(true),
-//			new Lehman_CustomKOrder(false),
+			//new LehmanSimple(false),
+			//new LehmanSmith(false),
+//			new LehmanFast(false), // the variant implemented by bsquared
+			//new LehmanFast(true),
+//			new LehmanCustomKOrder(false),
 
 			// PollardRho
 			//new PollardRho(),

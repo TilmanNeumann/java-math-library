@@ -31,9 +31,9 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  * 
  * @authors Tilman Neumann + Thilo Harich
  */
-public class Lehman_CustomKOrder extends FactorAlgorithm {
+public class LehmanCustomKOrder extends FactorAlgorithm {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = LogManager.getLogger(Lehman_CustomKOrder.class);
+	private static final Logger LOG = LogManager.getLogger(LehmanCustomKOrder.class);
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
@@ -61,7 +61,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Lehman_CustomKOrder(boolean doTDivFirst) {
+	public LehmanCustomKOrder(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// arrange k in different arrays
 		sqrts = new double[ARRAY_COUNT][K_MAX+1];
@@ -126,7 +126,7 @@ public class Lehman_CustomKOrder extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "Lehman_CustomKOrder(" + doTDivFirst + ")";
+		return "LehmanCustomKOrder(" + doTDivFirst + ")";
 	}
 
 	@Override

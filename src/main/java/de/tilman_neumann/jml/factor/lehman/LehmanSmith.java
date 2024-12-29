@@ -28,9 +28,9 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_Smith extends FactorAlgorithm {
+public class LehmanSmith extends FactorAlgorithm {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = LogManager.getLogger(Lehman_Smith.class);
+	private static final Logger LOG = LogManager.getLogger(LehmanSmith.class);
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
@@ -46,13 +46,13 @@ public class Lehman_Smith extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Lehman_Smith(boolean doTDivFirst) {
+	public LehmanSmith(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 	}
 
 	@Override
 	public String getName() {
-		return "Lehman_Smith(" + doTDivFirst + ")";
+		return "LehmanSmith(" + doTDivFirst + ")";
 	}
 
 	@Override
