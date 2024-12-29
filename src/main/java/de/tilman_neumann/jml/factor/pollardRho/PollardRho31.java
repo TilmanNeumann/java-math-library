@@ -28,8 +28,8 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  * @author Tilman Neumann
  */
 public class PollardRho31 extends FactorAlgorithm {
-	@SuppressWarnings("unused")
 	private static final Logger LOG = LogManager.getLogger(PollardRho31.class);
+	private static final boolean DEBUG = false;
 	private static final SecureRandom RNG = new SecureRandom();
 
 	private Gcd63 gcdEngine = new Gcd63();
@@ -58,7 +58,7 @@ public class PollardRho31 extends FactorAlgorithm {
 	            gcd = gcdEngine.gcd(x-xx, n);
 	        } while(gcd==1);
         } while (gcd==n); // leave loop if factor found; otherwise continue with a new random c
-		//LOG.debug("Found factor of " + N + " = " + factor);
+        if (DEBUG) LOG.debug("Found factor of " + N + " = " + gcd);
         return BigInteger.valueOf(gcd);
 	}
 

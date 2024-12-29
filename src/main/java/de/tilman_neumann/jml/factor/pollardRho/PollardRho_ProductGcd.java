@@ -29,8 +29,8 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
  * @author Tilman Neumann
  */
 public class PollardRho_ProductGcd extends FactorAlgorithm {
-	@SuppressWarnings("unused")
 	private static final Logger LOG = LogManager.getLogger(PollardRho_ProductGcd.class);
+	private static final boolean DEBUG = false;
 	private static final SecureRandom RNG = new SecureRandom();
 
 	private BigInteger N;
@@ -65,7 +65,7 @@ public class PollardRho_ProductGcd extends FactorAlgorithm {
 	        
 	    // leave loop if factor found; otherwise continue with new random x0, c
         } while (gcd.equals(N));
-		//LOG.debug("Found factor of " + N + " = " + factor);
+        if (DEBUG) LOG.debug("Found factor of " + N + " = " + gcd);
         return gcd;
 	}
 
