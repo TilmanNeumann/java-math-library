@@ -15,12 +15,11 @@ package de.tilman_neumann.jml.factor.hart;
 
 import java.math.BigInteger;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
-import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Simple implementation of Hart's one line factor algorithm.
@@ -29,9 +28,14 @@ import de.tilman_neumann.util.ConfigUtil;
  */
 public class Hart_Simple extends FactorAlgorithm {
 	private static final Logger LOG = LogManager.getLogger(Hart_Simple.class);
+	
+	private static final boolean DEBUG = false;
 
 	/** This is a constant that is below 1 for rounding up double values to long. */
 	private static final double ROUND_UP_DOUBLE = 0.9999999665;
+	
+	/** Size of arrays */
+	private static final int I_MAX = 1<<21;
 
 	private double[] sqrt;
 
@@ -39,9 +43,8 @@ public class Hart_Simple extends FactorAlgorithm {
 
 	public Hart_Simple() {
 		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
-		final int kMax = 1<<25;
-		sqrt = new double[kMax + 1];
-		for (int i = 1; i < sqrt.length; i++) {
+		sqrt = new double[I_MAX + 1];
+		for (int i = 1; i <= I_MAX; i++) {
 			final double sqrtI = Math.sqrt(i);
 			sqrt[i] = sqrtI;
 		}
@@ -58,65 +61,20 @@ public class Hart_Simple extends FactorAlgorithm {
 	}
 
 	public long findSingleFactor(long N) {
-		double sqrtN = Math.sqrt(N);
-		for (int k = 1; ; k++) {
-			final long a = (long) (sqrtN * sqrt[k] + ROUND_UP_DOUBLE);
-			final long test = a*a - k * N;
-			final long b = (long) Math.sqrt(test);
-			if (b*b == test) {
-				long gcd = gcdEngine.gcd(a+b, N);
-				if (gcd>1 && gcd<N) return gcd;
+		try {
+			double sqrtN = Math.sqrt(N);
+			for (int k = 1; ; k++) {
+				final long a = (long) (sqrtN * sqrt[k] + ROUND_UP_DOUBLE);
+				final long test = a*a - k * N;
+				final long b = (long) Math.sqrt(test);
+				if (b*b == test) {
+					long gcd = gcdEngine.gcd(a+b, N);
+					if (gcd>1 && gcd<N) return gcd;
+				}
 			}
-		}
-	}
-	
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-
-		// These test number were too hard for previous versions:
-		long[] testNumbers = new long[] {
-				5640012124823L,
-				7336014366011L,
-				19699548984827L,
-				52199161732031L,
-				73891306919159L,
-				112454098638991L,
-				
-				32427229648727L,
-				87008511088033L,
-				92295512906873L,
-				338719143795073L,
-				346425669865991L,
-				1058244082458461L,
-				1773019201473077L,
-				6150742154616377L,
-
-				44843649362329L,
-				67954151927287L,
-				134170056884573L,
-				198589283218993L,
-				737091621253457L,
-				1112268234497993L,
-				2986396307326613L,
-				
-				26275638086419L,
-				62246008190941L,
-				209195243701823L,
-				290236682491211L,
-				485069046631849L,
-				1239671094365611L,
-				2815471543494793L,
-				5682546780292609L,
-			};
-		
-		Hart_Simple holf = new Hart_Simple();
-		for (long N : testNumbers) {
-			long factor = holf.findSingleFactor(N);
-			LOG.info("N=" + N + " has factor " + factor);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			if (DEBUG) LOG.error("Hart_Squarefree: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
+			return 1;
 		}
 	}
 }
