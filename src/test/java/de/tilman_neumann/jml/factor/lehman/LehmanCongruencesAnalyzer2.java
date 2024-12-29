@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,8 +76,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeCongruences2 {
-	private static final Logger LOG = LogManager.getLogger(Lehman_AnalyzeCongruences2.class);
+public class LehmanCongruencesAnalyzer2 {
+	private static final Logger LOG = LogManager.getLogger(LehmanCongruencesAnalyzer2.class);
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
@@ -261,7 +263,7 @@ public class Lehman_AnalyzeCongruences2 {
 			aCounts.add(nextACount);
 			
 			// test closed formula
-			Ensure.ensureEquals((1<<(n-2)) * QuadraticResiduesMod2PowN.getNumberOfQuadraticResiduesMod2PowN(n), nextACount);
+			assertEquals((1<<(n-2)) * QuadraticResiduesMod2PowN.getNumberOfQuadraticResiduesMod2PowN(n), nextACount);
 		}
 		LOG.info("Hypothetical aCounts = " + aCounts);
 		LOG.info("");
@@ -272,6 +274,6 @@ public class Lehman_AnalyzeCongruences2 {
     	
     	computeHypotheticalACounts(30);
     	
-    	new Lehman_AnalyzeCongruences2().test();
+    	new LehmanCongruencesAnalyzer2().test();
 	}
 }

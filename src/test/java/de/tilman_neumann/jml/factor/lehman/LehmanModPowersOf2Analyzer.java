@@ -13,6 +13,9 @@
  */
 package de.tilman_neumann.jml.factor.lehman;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.math.BigInteger;
 
 import org.apache.logging.log4j.Logger;
@@ -29,8 +32,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * Analyze quadratic residues of a^2 - 4kN (mod m) for m=2, 4, 8, 16, 32, 64,...
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeModPowersOf2 {
-	private static final Logger LOG = LogManager.getLogger(Lehman_AnalyzeModPowersOf2.class);
+public class LehmanModPowersOf2Analyzer {
+	private static final Logger LOG = LogManager.getLogger(LehmanModPowersOf2Analyzer.class);
 	
 	private final Gcd63 gcdEngine = new Gcd63();
 
@@ -73,8 +76,8 @@ public class Lehman_AnalyzeModPowersOf2 {
 							// The kMod, aMod of k, a that give a factor are 
 							// kMod=lastkMod or kMod=lastkMod+lastMod, and
 							// aMod=lastaMod or aMod=lastaMod+lastMod !
-							Ensure.ensureTrue(kMod == lastkMod || kMod == lastkMod+lastMod);
-							Ensure.ensureTrue(aMod == lastaMod || aMod == lastaMod+lastMod);
+							assertTrue(kMod == lastkMod || kMod == lastkMod+lastMod);
+							assertTrue(aMod == lastaMod || aMod == lastaMod+lastMod);
 							// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 							
 							LOG.info("    MOD = 2^" + n + " = " + mod + ": k%" + mod + " = " + kMod + ", a%" + mod + " = " + aMod);
@@ -89,11 +92,11 @@ public class Lehman_AnalyzeModPowersOf2 {
 							//LOG.info("      ((a % " + mod + ")^2 % " + mod + ") - (4*(k % " + mod + ")*N % " + mod + ") = " + testMod2); // always a quadratic residue
 							// For k, a that give a factor we have a^2 - 4kN (mod mod) == (a mod mod)^2 (mod mod) - 4*(k mod mod)*N (mod mod)
 							// -> we only have to search up to a%mod, k%mod !
-							Ensure.ensureEquals(testMod, testMod2);
+							assertEquals(testMod, testMod2);
 							
 							boolean isQuadraticResidue = QuadraticResiduesMod2PowN.isQuadraticResidueMod2PowN(testMod2, n);
 							//LOG.info("      isQuadraticResidue % " + mod + " = " + isQuadraticResidue);
-							Ensure.ensureTrue(isQuadraticResidue);
+							assertTrue(isQuadraticResidue);
 							//LOG.info("      quadratic residues % " + mod + " = " + QuadraticResidues.getQuadraticResidues(mod));
 							
 							if (mod <= 1<<30) { // for larger mods it gets notably slower
@@ -138,7 +141,7 @@ public class Lehman_AnalyzeModPowersOf2 {
 								// A3(n) = (i (mod 2^n) QR count)^2:        4, 4,  9,  16,  49,  144,  529,  1936,  7569,  29584,  117649,  467856,  1868689,  7463824,  29844369,  119333776,  477291409,  1908990864,  ...
 								// 
 								// First relation: A1(n) = 2^(n+1)*A2(n) for n>1
-								if (n>1) Ensure.ensureEquals(2*mod*qrCount2, qrCount);
+								if (n>1) assertEquals(2*mod*qrCount2, qrCount);
 								
 								// Second relation:
 								// lim_{n->infinity} A1(n)/A3(n) = 12
@@ -147,11 +150,11 @@ public class Lehman_AnalyzeModPowersOf2 {
 								// A1(n) = 12*A3(n) - c*A2(n) = 12*A2(n)^2 - c*A2(n), with c=16 if n even, c=20 if n odd
 								if (n>1) {
 									int c = (n&1)==0 ? 16 : 20;
-									Ensure.ensureEquals(12*qrCount2*qrCount2 - c*qrCount2, qrCount);
+									assertEquals(12*qrCount2*qrCount2 - c*qrCount2, qrCount);
 									
 									// Setting the two relations for A1(n) equal gives A2(n) = A023105(n) = (2^n + c/2) / 6,
 									// which is the formula from David S. Dodson in http://oeis.org/search?q=A023105
-									Ensure.ensureEquals(QuadraticResiduesMod2PowN.getNumberOfQuadraticResiduesMod2PowN(n), qrCount2);
+									assertEquals(QuadraticResiduesMod2PowN.getNumberOfQuadraticResiduesMod2PowN(n), qrCount2);
 								}
 							}
 						}
@@ -168,7 +171,7 @@ public class Lehman_AnalyzeModPowersOf2 {
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
     	
-    	Lehman_AnalyzeModPowersOf2 analyzer = new Lehman_AnalyzeModPowersOf2();
+    	LehmanModPowersOf2Analyzer analyzer = new LehmanModPowersOf2Analyzer();
 		int bits = 30;
 		BigInteger[] testNumbers = TestsetGenerator.generate(2000, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 		

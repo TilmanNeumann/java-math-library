@@ -33,8 +33,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeKProgressions2 {
-	private static final Logger LOG = LogManager.getLogger(Lehman_AnalyzeKProgressions2.class);
+public class LehmanKProgressionsAnalyzer2 {
+	private static final Logger LOG = LogManager.getLogger(LehmanKProgressionsAnalyzer2.class);
 
 	private static class Progression {
 		// parameters
@@ -194,7 +194,7 @@ public class Lehman_AnalyzeKProgressions2 {
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		// test N with BITS bits
-    	Lehman_AnalyzeKProgressions2 testEngine = new Lehman_AnalyzeKProgressions2();
+    	LehmanKProgressionsAnalyzer2 testEngine = new LehmanKProgressionsAnalyzer2();
 		testEngine.test();
 	}
 }

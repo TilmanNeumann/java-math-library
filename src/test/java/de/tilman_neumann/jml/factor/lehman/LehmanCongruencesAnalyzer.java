@@ -36,8 +36,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeCongruences {
-	private static final Logger LOG = LogManager.getLogger(Lehman_AnalyzeCongruences.class);
+public class LehmanCongruencesAnalyzer {
+	private static final Logger LOG = LogManager.getLogger(LehmanCongruencesAnalyzer.class);
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
@@ -120,7 +120,7 @@ public class Lehman_AnalyzeCongruences {
 		int bits = START_BITS;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
-	    	Lehman_AnalyzeCongruences testEngine = new Lehman_AnalyzeCongruences();
+	    	LehmanCongruencesAnalyzer testEngine = new LehmanCongruencesAnalyzer();
 			testEngine.testRange(bits);
 			bits += INCR_BITS;
 			if (MAX_BITS!=null && bits > MAX_BITS) break;

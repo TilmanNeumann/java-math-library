@@ -28,8 +28,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeKMods {
-	private static final Logger LOG = LogManager.getLogger(Lehman_AnalyzeKMods.class);
+public class LehmanKModsAnalyzer {
+	private static final Logger LOG = LogManager.getLogger(LehmanKModsAnalyzer.class);
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
@@ -52,7 +52,7 @@ public class Lehman_AnalyzeKMods {
 
 	private int[] kFactorCounts;
 	
-	public Lehman_AnalyzeKMods(int m) {
+	public LehmanKModsAnalyzer(int m) {
 		this.MOD = m;
 	}
 	
@@ -184,7 +184,7 @@ public class Lehman_AnalyzeKMods {
     	ConfigUtil.initProject();
 		for (int m=2; ; m++) {
 			// test N with BITS bits and mod m
-	    	Lehman_AnalyzeKMods testEngine = new Lehman_AnalyzeKMods(m);
+	    	LehmanKModsAnalyzer testEngine = new LehmanKModsAnalyzer(m);
 			testEngine.testRange(BITS);
 		}
 	}

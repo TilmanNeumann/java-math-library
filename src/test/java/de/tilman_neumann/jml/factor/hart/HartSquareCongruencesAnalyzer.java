@@ -27,8 +27,8 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * @author Tilman Neumann
  */
-public class HartSquareCongruenceAnalyzer {
-	private static final Logger LOG = LogManager.getLogger(HartSquareCongruenceAnalyzer.class);
+public class HartSquareCongruencesAnalyzer {
+	private static final Logger LOG = LogManager.getLogger(HartSquareCongruencesAnalyzer.class);
 	
 	/**
 	 * We only test k-values that are multiples of this constant.
@@ -54,7 +54,7 @@ public class HartSquareCongruenceAnalyzer {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public HartSquareCongruenceAnalyzer(boolean doTDivFirst) {
+	public HartSquareCongruencesAnalyzer(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// Precompute sqrts for all k < I_MAX
 		sqrt = new double[I_MAX];
@@ -70,7 +70,7 @@ public class HartSquareCongruenceAnalyzer {
 	}
 	
 	public String getName() {
-		return "HartSquareCongruenceAnalyzer(" + doTDivFirst + ")";
+		return "HartSquareCongruencesAnalyzer(" + doTDivFirst + ")";
 	}
 
 	public BigInteger findSingleFactor(BigInteger N) {
@@ -134,7 +134,7 @@ public class HartSquareCongruenceAnalyzer {
 		ConfigUtil.initProject();
 		
 		SecureRandom RNG = new SecureRandom();
-		HartSquareCongruenceAnalyzer holf = new HartSquareCongruenceAnalyzer(false);
+		HartSquareCongruencesAnalyzer holf = new HartSquareCongruencesAnalyzer(false);
 		for (int i=0; i<NCOUNT; i++) {
 			BigInteger N = new BigInteger(NBITS, RNG);
 			LOG.info("Test N_" + i + " = " + N);

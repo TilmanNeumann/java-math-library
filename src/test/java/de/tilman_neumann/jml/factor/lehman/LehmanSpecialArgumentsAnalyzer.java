@@ -27,8 +27,8 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeSpecialArguments {
-	private static final Logger LOG = LogManager.getLogger(Lehman_AnalyzeSpecialArguments.class);
+public class LehmanSpecialArgumentsAnalyzer {
+	private static final Logger LOG = LogManager.getLogger(LehmanSpecialArgumentsAnalyzer.class);
 	
 	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
 
@@ -118,7 +118,7 @@ public class Lehman_AnalyzeSpecialArguments {
 				5682546780292609L,
 			};
 		
-		Lehman_AnalyzeSpecialArguments lehman = new Lehman_AnalyzeSpecialArguments();
+		LehmanSpecialArgumentsAnalyzer lehman = new LehmanSpecialArgumentsAnalyzer();
 		for (long testNumber : testNumbers) {
 			lehman.findSingleFactor(testNumber);
 		}

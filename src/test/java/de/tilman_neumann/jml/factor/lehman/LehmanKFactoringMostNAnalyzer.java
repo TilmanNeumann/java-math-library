@@ -32,8 +32,8 @@ import de.tilman_neumann.jml.factor.TestNumberNature;
  * 
  * @author Tilman Neumann
  */
-public class Lehman_AnalyzeKFactoringMostN {
-	private static final Logger LOG = LogManager.getLogger(Lehman_AnalyzeKFactoringMostN.class);
+public class LehmanKFactoringMostNAnalyzer {
+	private static final Logger LOG = LogManager.getLogger(LehmanKFactoringMostNAnalyzer.class);
 	
 	/** Use congruences a==kN mod 2^s if true, congruences a==(k+N) mod 2^s if false */
 	private static final boolean USE_kN_CONGRUENCES = true;
@@ -168,7 +168,7 @@ public class Lehman_AnalyzeKFactoringMostN {
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
 		// test N with BITS bits
-    	Lehman_AnalyzeKFactoringMostN testEngine = new Lehman_AnalyzeKFactoringMostN();
+    	LehmanKFactoringMostNAnalyzer testEngine = new LehmanKFactoringMostNAnalyzer();
 		testEngine.testRange(BITS);
 	}
 }

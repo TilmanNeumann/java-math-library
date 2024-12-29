@@ -32,8 +32,8 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * @author Tilman Neumann
  */
-public class HartCongruenceAnalyzer {
-	private static final Logger LOG = LogManager.getLogger(HartCongruenceAnalyzer.class);
+public class HartCongruencesAnalyzer {
+	private static final Logger LOG = LogManager.getLogger(HartCongruencesAnalyzer.class);
 
 	// algorithm options
 	/** number of test numbers */
@@ -71,7 +71,7 @@ public class HartCongruenceAnalyzer {
 	// dimensions: k%KMOD, (N+k)%KNMOD, a%AMOD, adjust%AMOD
 	private int[][][][] counts;
 	
-	public HartCongruenceAnalyzer() {
+	public HartCongruencesAnalyzer() {
 		// Precompute sqrts for all k < I_MAX
 		sqrt = new double[I_MAX];
 		for (int i=1; i<I_MAX; i++) {
@@ -140,7 +140,7 @@ public class HartCongruenceAnalyzer {
 		int bits = START_BITS;
 		while (true) {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
-	    	HartCongruenceAnalyzer testEngine = new HartCongruenceAnalyzer();
+	    	HartCongruencesAnalyzer testEngine = new HartCongruencesAnalyzer();
 			testEngine.testRange(bits);
 			bits += INCR_BITS;
 			if (MAX_BITS!=null && bits > MAX_BITS) break;
