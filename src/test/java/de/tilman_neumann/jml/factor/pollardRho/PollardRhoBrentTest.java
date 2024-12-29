@@ -20,11 +20,8 @@ import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.tilman_neumann.jml.factor.base.FactorArguments;
-import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
 import static org.junit.Assert.assertEquals;
 
