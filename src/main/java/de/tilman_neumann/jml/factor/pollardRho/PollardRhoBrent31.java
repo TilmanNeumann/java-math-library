@@ -13,9 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.pollardRho;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
@@ -24,8 +21,6 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd31;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
 
 /**
  * Brents's improvement of Pollard's Rho algorithm, following [Richard P. Brent: An improved Monte Carlo Factorization Algorithm, 1980].
@@ -36,6 +31,7 @@ import de.tilman_neumann.util.SortedMultiset;
  */
 public class PollardRhoBrent31 extends FactorAlgorithm {
 	private static final Logger LOG = LogManager.getLogger(PollardRhoBrent31.class);
+	private static final boolean DEBUG = false;
 	private static final SecureRandom RNG = new SecureRandom();
 
 	private int N;
@@ -83,10 +79,10 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	    	        G = gcd.gcd(q, N);
 	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0, c
 	    	        k += m;
-		    	    //LOG.info("r = " + r + ", k = " + k);
+	    	        if (DEBUG) LOG.debug("r = " + r + ", k = " + k);
 	    	    } while (k<r && G==1);
 	    	    r <<= 1;
-	    	    //LOG.info("r = " + r + ", G = " + G);
+	    	    if (DEBUG) LOG.debug("r = " + r + ", G = " + G);
 	    	} while (G==1);
 	    	if (G==N) {
 	    	    do {
@@ -94,10 +90,10 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
     	            int diff = x<ys ? ys-x : x-ys;
     	            G = gcd.gcd(diff, N);
 	    	    } while (G==1);
-	    	    //LOG.info("G = " + G);
+	    	    if (DEBUG) LOG.debug("G = " + G);
 	    	}
         } while (G==N);
-		//LOG.debug("Found factor of " + N + " = " + factor);
+        if (DEBUG) LOG.debug("Found factor of " + N + " = " + G);
         return G;
 	}
 
@@ -119,33 +115,5 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	 */
 	private int squareModN(long x) {
 		return (int) ((x * x) % N);
-	}
-
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-    	
-		while(true) {
-			String input;
-			try {
-				LOG.info("Please insert the integer to factor:");
-				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				String line = in.readLine();
-				input = line.trim();
-				LOG.debug("factoring " + input + "...");
-			} catch (IOException ioe) {
-				LOG.error("io-error occurring on input: " + ioe.getMessage());
-				continue;
-			}
-			
-			long start = System.currentTimeMillis();
-			BigInteger n = new BigInteger(input);
-			SortedMultiset<BigInteger> result = new PollardRhoBrent31().factor(n);
-			LOG.info("Factored " + n + " = " + result.toString() + " in " + (System.currentTimeMillis()-start) + " ms");
-
-		} // next input...
 	}
 }
