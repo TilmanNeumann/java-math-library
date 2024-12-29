@@ -35,12 +35,12 @@ import static org.junit.Assert.assertNotEquals;
 public class HartSimpleTest {
 	private static final Logger LOG = LogManager.getLogger(HartSimpleTest.class);
 
-	private static Hart_Simple hart;
+	private static HartSimple hart;
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		hart = new Hart_Simple();
+		hart = new HartSimple();
 	}
 	
 	@Test

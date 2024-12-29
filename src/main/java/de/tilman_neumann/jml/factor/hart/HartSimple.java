@@ -26,8 +26,8 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  * @see <a href="http://wrap.warwick.ac.uk/54707/">http://wrap.warwick.ac.uk/54707/</a>
  * @author Tilman Neumann
  */
-public class Hart_Simple extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(Hart_Simple.class);
+public class HartSimple extends FactorAlgorithm {
+	private static final Logger LOG = LogManager.getLogger(HartSimple.class);
 	
 	private static final boolean DEBUG = false;
 
@@ -41,7 +41,7 @@ public class Hart_Simple extends FactorAlgorithm {
 
 	private final Gcd63 gcdEngine = new Gcd63();
 
-	public Hart_Simple() {
+	public HartSimple() {
 		// Precompute sqrts for all possible k. 2^21 entries are enough for N~2^63.
 		sqrt = new double[I_MAX + 1];
 		for (int i = 1; i <= I_MAX; i++) {
@@ -52,7 +52,7 @@ public class Hart_Simple extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "Hart_Simple";
+		return "HartSimple";
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class Hart_Simple extends FactorAlgorithm {
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			if (DEBUG) LOG.error("Hart_Squarefree: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
+			if (DEBUG) LOG.error(getName() + ": Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
 			return 1;
 		}
 	}

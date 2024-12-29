@@ -34,12 +34,12 @@ import static org.junit.Assert.assertNotEquals;
 public class HartTDivRaceTest {
 	private static final Logger LOG = LogManager.getLogger(HartTDivRaceTest.class);
 
-	private static Hart_TDiv_Race hart;
+	private static HartTDivRace hart;
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		hart = new Hart_TDiv_Race();
+		hart = new HartTDivRace();
 	}
 	
 	@Test

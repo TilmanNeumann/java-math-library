@@ -70,7 +70,7 @@ public class HartSquareCongruenceAnalyzer {
 	}
 	
 	public String getName() {
-		return "Hart_AnalyzeSquareCongruences(" + doTDivFirst + ")";
+		return "HartSquareCongruenceAnalyzer(" + doTDivFirst + ")";
 	}
 
 	public BigInteger findSingleFactor(BigInteger N) {

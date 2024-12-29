@@ -34,7 +34,7 @@ import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
  * Thus <code>test</code> is correct and <code>b</code> is correct, too. <code>a</code> is correct anyway.
  * 
  * Lehman_CustomKOrder is another fast Lehman implementation.
- * Hart_fast2Mult looks faster on modern hardware.
+ * HartFast2Mult looks faster on modern hardware.
  * 
  * This class was implemented for YaFu by bSquare,
  * see https://www.mersenneforum.org/showpost.php?p=506294&postcount=7

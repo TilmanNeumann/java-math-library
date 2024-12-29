@@ -40,12 +40,12 @@ import static org.junit.Assert.assertNotEquals;
 public class HartFast2MultFMATest {
 	private static final Logger LOG = LogManager.getLogger(HartFast2MultFMATest.class);
 
-	private static Hart_Fast2Mult_FMA hart;
+	private static HartFast2MultFMA hart;
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		hart = new Hart_Fast2Mult_FMA(false);
+		hart = new HartFast2MultFMA(false);
 	}
 	
 	@Test

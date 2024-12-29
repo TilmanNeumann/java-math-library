@@ -31,7 +31,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
 import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.ecm.TinyEcm64MHInlined;
-import de.tilman_neumann.jml.factor.hart.Hart_Fast2Mult;
+import de.tilman_neumann.jml.factor.hart.HartFast2Mult;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS_U;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
@@ -67,7 +67,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	private static final boolean SEARCH_SMALL_FACTORS = true;
 
 	private TDiv31Barrett tDiv31 = new TDiv31Barrett();
-	private Hart_Fast2Mult hart = new Hart_Fast2Mult(true); // for general factor arguments, trial division is needed
+	private HartFast2Mult hart = new HartFast2Mult(true); // for general factor arguments, trial division is needed
 	private TinyEcm64MHInlined tinyEcm = new TinyEcm64MHInlined();
 	private TDiv tdiv = new TDiv();
 	private EllipticCurveMethod ecm = new EllipticCurveMethod(0);

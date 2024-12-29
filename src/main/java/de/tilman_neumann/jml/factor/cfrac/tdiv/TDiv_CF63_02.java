@@ -23,7 +23,7 @@ import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
-import de.tilman_neumann.jml.factor.hart.Hart_TDiv_Race;
+import de.tilman_neumann.jml.factor.hart.HartTDivRace;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
@@ -51,7 +51,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 	private double smoothBound;
 
 	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
-	private Hart_TDiv_Race hart = new Hart_TDiv_Race();
+	private HartTDivRace hart = new HartTDivRace();
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
 	

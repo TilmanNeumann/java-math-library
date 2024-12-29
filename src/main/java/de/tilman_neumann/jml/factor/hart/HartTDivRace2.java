@@ -25,13 +25,13 @@ import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
 /**
  * A factoring algorithm racing Hart's one line factorizer against trial division.
  * 
- * This is the fastest algorithm for test numbers <= 44 bit when their nature is unknown.
- * Hart_Fast is faster for semiprimes that do not have factors < cbrt(N).
+ * This variant is slightly faster than HartTDivRace for N >= 45 bits, but will fail for some N having small factors.
+ * HartFast is faster for hard semiprimes.
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
-public class Hart_TDiv_Race extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(Hart_TDiv_Race.class);
+public class HartTDivRace2 extends FactorAlgorithm {
+	private static final Logger LOG = LogManager.getLogger(HartTDivRace2.class);
 	
 	private static final boolean DEBUG = false;
 
@@ -60,7 +60,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 	/**
 	 * Full constructor.
 	 */
-	public Hart_TDiv_Race() {
+	public HartTDivRace2() {
 		sqrt = new double[I_MAX];
 		primes = new int[I_MAX];
 		reciprocals = new double[I_MAX];
@@ -74,7 +74,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "Hart_TDiv_Race";
+		return "HartTDivRace2";
 	}
 
 	@Override
@@ -103,7 +103,8 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 		try {
 			int i=1;
 			if (pMinBits>0) {
-				// for the smallest primes we must do standard trial division
+				// For the smallest primes we do standard trial division.
+				// This seems to be not necessary for correctness, but to give a small speedup.
 				int pMin = 1<<pMinBits;
 				for ( ; primes[i]<pMin; ) {
 					// tdiv step
@@ -149,11 +150,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 			// continue with Hart and fast inverse trial division
 			for (; ;) {
 				// tdiv step
-				if ((long) (N*reciprocals[i] + DISCRIMINATOR) * primes[i] == N) {
-					if (N%primes[i]==0) { // not required anymore?
-						return primes[i];
-					}
-				}
+				if ((long) (N*reciprocals[i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
 
 				// odd k -> adjust a mod 8, 16, 32
 				final long kN = k*N;
@@ -179,11 +176,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				k += K_MULT;
 
 				// tdiv step
-				if ((long) (N*reciprocals[i] + DISCRIMINATOR) * primes[i] == N) {
-					if (N%primes[i]==0) { // not required anymore?
-						return primes[i];
-					}
-				}
+				if ((long) (N*reciprocals[i] + DISCRIMINATOR) * primes[i] == N) return primes[i];
 
 				// even k -> a must be odd
 				a = (long) (sqrt4N * sqrt[i++] + ROUND_UP_DOUBLE) | 1L;
@@ -195,7 +188,7 @@ public class Hart_TDiv_Race extends FactorAlgorithm {
 				k += K_MULT;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			if (DEBUG) LOG.error("Hart_TDiv_Race: Failed to factor N=" + N + " because the arrays are too small.");
+			if (DEBUG) LOG.error(getName() + ": Failed to factor N=" + N + " because the arrays are too small.");
 			return 1;
 		}
 	}

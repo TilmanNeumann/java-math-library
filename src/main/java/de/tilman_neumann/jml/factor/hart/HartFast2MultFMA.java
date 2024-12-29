@@ -30,8 +30,8 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  *
  * @authors Thilo Harich & Tilman Neumann
  */
-public class Hart_Fast2Mult_FMA extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(Hart_Fast2Mult_FMA.class);
+public class HartFast2MultFMA extends FactorAlgorithm {
+	private static final Logger LOG = LogManager.getLogger(HartFast2MultFMA.class);
 	
 	private static final boolean DEBUG = false;
 
@@ -62,7 +62,7 @@ public class Hart_Fast2Mult_FMA extends FactorAlgorithm {
 	 * With doTDivFirst=false, this implementation is pretty fast for hard semiprimes.
 	 * But the smaller possible factors get, it will become slower and slower.
 	 */
-	public Hart_Fast2Mult_FMA(boolean doTDivFirst) {
+	public HartFast2MultFMA(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// Precompute all required sqrt(k) for i < I_MAX
 		sqrt1 = new double[I_MAX];
@@ -77,7 +77,7 @@ public class Hart_Fast2Mult_FMA extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "Hart_Fast2Mult_FMA(" + doTDivFirst + ")";
+		return "HartFast2MultFMA(" + doTDivFirst + ")";
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class Hart_Fast2Mult_FMA extends FactorAlgorithm {
 				}
 			}
 		} catch (final ArrayIndexOutOfBoundsException e) {
-			if (DEBUG) LOG.error("Hart_Fast2Mult: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
+			if (DEBUG) LOG.error(getName() + ": Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
 			return 1;
 		}
 	}

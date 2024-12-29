@@ -26,16 +26,16 @@ import de.tilman_neumann.jml.gcd.Gcd63;
  * Pretty simple yet fast variant of Hart's one line factorizer.
  * 
  * The main problem with this implementation is that we need to know to nature of test numbers.
- * With doTDivFirst=false it is the fastest algorithm for hard semiprimes,
+ * With doTDivFirst=false it quite fast for hard semiprimes,
  * but if the test numbers contain factors < cbrt(N), it will fail to find some of them.
  * With doTDivFirst=true it will find all factors of any kind of numbers, but not extraordinarily fast.
  * 
- * Hart_TDiv_Race fixes that problem and is faster for test numbers that contain factors < cbrt(N).
+ * HartTDivRace fixes that problem and is faster for test numbers that contain factors < cbrt(N).
  * 
  * @authors Thilo Harich & Tilman Neumann
  */
-public class Hart_Fast extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(Hart_Fast.class);
+public class HartFast extends FactorAlgorithm {
+	private static final Logger LOG = LogManager.getLogger(HartFast.class);
 	
 	private static final boolean DEBUG = false;
 
@@ -61,7 +61,7 @@ public class Hart_Fast extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Hart_Fast(boolean doTDivFirst) {
+	public HartFast(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// Precompute sqrt(i*K_MULT) for all i < I_MAX
 		sqrt = new double[I_MAX];
@@ -72,7 +72,7 @@ public class Hart_Fast extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "Hart_Fast(" + doTDivFirst + ")";
+		return "HartFast(" + doTDivFirst + ")";
 	}
 
 	@Override
@@ -124,7 +124,7 @@ public class Hart_Fast extends FactorAlgorithm {
 				k += K_MULT;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			if (DEBUG) LOG.error("Hart_Fast: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
+			if (DEBUG) LOG.error(getName() + ": Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
 			return 1;
 		}
 	}

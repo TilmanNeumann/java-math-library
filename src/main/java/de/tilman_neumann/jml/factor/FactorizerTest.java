@@ -90,14 +90,14 @@ public class FactorizerTest {
 //			new TDiv().setTestLimit(1<<20),
 			
 			// Hart's one line factorizer
-			//new Hart_Simple(),
-//			new Hart_Fast(false),
-//			new Hart_Fast(true),
-//			new Hart_TDiv_Race(), 
-//			new Hart_TDiv_Race2(),
-//			new Hart_Squarefree(false), // best algorithm for semiprime N for 29 to 37 bit
-//			new Hart_Fast2Mult(false), // best algorithm for semiprime N for 38 to 45 bit
-//			new Hart_Fast2Mult_FMA(false),
+			//new HartSimple(),
+//			new HartFast(false),
+//			new HartFast(true),
+//			new HartTDivRace(), 
+//			new HartTDivRace2(),
+//			new HartSquarefree(false), // best algorithm for semiprime N for 29 to 37 bit
+//			new HartFast2Mult(false), // best algorithm for semiprime N for 38 to 45 bit
+//			new HartFast2MultFMA(false),
 //			new HartMultiplierChainSqrtN(false),
 
 			// Lehman

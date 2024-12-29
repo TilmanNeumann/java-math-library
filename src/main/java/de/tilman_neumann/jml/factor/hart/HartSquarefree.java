@@ -29,8 +29,8 @@ import de.tilman_neumann.jml.sequence.SquarefreeSequence63;
  * 
  * @authors Tilman Neumann
  */
-public class Hart_Squarefree extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(Hart_Squarefree.class);
+public class HartSquarefree extends FactorAlgorithm {
+	private static final Logger LOG = LogManager.getLogger(HartSquarefree.class);
 	
 	private static final boolean DEBUG = false;
 	
@@ -56,7 +56,7 @@ public class Hart_Squarefree extends FactorAlgorithm {
 	 * @param doTDivFirst If true then trial division is done before the Lehman loop.
 	 * This is recommended if arguments N are known to have factors < cbrt(N) frequently.
 	 */
-	public Hart_Squarefree(boolean doTDivFirst) {
+	public HartSquarefree(boolean doTDivFirst) {
 		this.doTDivFirst = doTDivFirst;
 		// Precompute sqrt(i*K_MULT) for all i < I_MAX
 		sqrt = new double[I_MAX];
@@ -72,7 +72,7 @@ public class Hart_Squarefree extends FactorAlgorithm {
 	
 	@Override
 	public String getName() {
-		return "Hart_Squarefree(" + doTDivFirst + ")";
+		return "HartSquarefree(" + doTDivFirst + ")";
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public class Hart_Squarefree extends FactorAlgorithm {
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			if (DEBUG) LOG.error("Hart_Squarefree: Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
+			if (DEBUG) LOG.error(getName() + ": Failed to factor N=" + N + ". Either it has factors < cbrt(N) needing trial division, or the arrays are too small.");
 			return 1;
 		}
 	}

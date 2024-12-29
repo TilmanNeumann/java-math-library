@@ -37,12 +37,12 @@ import static org.junit.Assert.assertNotEquals;
 public class HartSquarefreeTest {
 	private static final Logger LOG = LogManager.getLogger(HartSquarefreeTest.class);
 
-	private static Hart_Squarefree hart;
+	private static HartSquarefree hart;
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		hart = new Hart_Squarefree(false);
+		hart = new HartSquarefree(false);
 	}
 	
 	@Test
