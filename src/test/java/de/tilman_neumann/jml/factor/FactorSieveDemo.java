@@ -13,13 +13,14 @@
  */
 package de.tilman_neumann.jml.factor;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.SortedMultiset;
 
 public class FactorSieveDemo {
@@ -41,7 +42,7 @@ public class FactorSieveDemo {
 				LOG.info(n + " = " + factors);
 				if (n>1) {
 					long test = FactorSieve.computeProduct(factors);
-					Ensure.ensureEquals(n, test);
+					assertEquals(n, test);
 				}
 			}
 		}
