@@ -61,6 +61,9 @@ import de.tilman_neumann.util.Timer;
  * trial division starts to use an nested SIQS to factor large Q rests. A second purpose would be to optimize
  * this class for the factorization of small N (say, below 100 bit), but little effort has been dedicated to that so far.
  * 
+ * On 30.12.2024 I noticed that the optimization towards small numbers has gone that far that
+ * 11111111111111111111111111155555555555111111111111111 (173 bit) cannot get factored reliably anymore ;-)
+ * 
  * @author Tilman Neumann
  */
 public class SIQSSmall extends FactorAlgorithm {

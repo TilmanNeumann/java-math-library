@@ -43,7 +43,7 @@ public class SIQSSmallTest {
 		assertFactorizationSuccess("11111111111111111111111111", "11 * 53 * 79 * 859 * 265371653 * 1058313049");
 		assertFactorizationSuccess("5679148659138759837165981543", "3^3 * 466932157 * 450469808245315337");
 		
-		// It seems that this test causes hanging github CI builds quite often
+		// This number is already too big, it causes hanging github CI builds quite often
 		//assertFactorizationSuccess("11111111111111111111111111155555555555111111111111111", "67 * 157 * 1056289676880987842105819104055096069503860738769");
 	}
 	
