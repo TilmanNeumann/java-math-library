@@ -16,16 +16,10 @@ package de.tilman_neumann.jml.factor.squfof;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.sequence.NumberSequence;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
 
 /**
  * Shanks' SQUFOF algorithm, 63-bit version.<br/>
@@ -34,10 +28,11 @@ import de.tilman_neumann.util.SortedMultiset;
  * Final choice with self-initialization of parameters.
  * Stopping criterion: after a maximum number of iterations.
  * 
+ * Seems to work up to 64 bit numbers.
+ * 
  * @author Tilman Neumann
  */
 public class SquFoF63 extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(SquFoF63.class);
 
 	// input
 	private BigInteger N, kN;
@@ -168,54 +163,5 @@ public class SquFoF63 extends FactorAlgorithm {
 		// result
 		BigInteger gcd = N.gcd(BigInteger.valueOf(P_i));
 		return (gcd.compareTo(I_1)>0 && gcd.compareTo(N)<0) ? gcd : null;
-	}
-	
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		SquFoF63 squfof63 = new SquFoF63();
-		FactorAlgorithm testFactorizer = FactorAlgorithm.getDefault();
-		
-		// test numbers that caused problems with former versions
-		BigInteger N0 = BigInteger.valueOf(1099511627970L); // 2*3*5*7*23*227642159
-		LOG.info("Factoring N=" + N0 + ":");
-		SortedMultiset<BigInteger> correctFactors = testFactorizer.factor(N0);
-		LOG.info("testFactorizer found " + correctFactors);
-		SortedMultiset<BigInteger> squfofFactors = squfof63.factor(N0);
-		LOG.info("SquFoF63 found " + squfofFactors);
-		
-		// test random N
-		SecureRandom RNG = new SecureRandom();
-		int count = 100000;
-		for (int bits=52; bits<63; bits++) {
-			LOG.info("Testing " + count + " random numbers with " + bits + " bits...");
-			int failCount = 0;
-			for (int i=0; i<count; i++) {
-				long N = 0;
-				while (true) { 
-					BigInteger N_big = new BigInteger(bits, RNG);
-					N = N_big.longValue();
-					if (N>2 && !N_big.isProbablePrime(20)) break;
-				}
-				long tdivFactor = squfof63.findSingleFactor(N);
-				if (tdivFactor<2) {
-					long squfofFactor = testFactorizer.findSingleFactor(BigInteger.valueOf(N)).longValue();
-					if (squfofFactor > 1 && squfofFactor<N) {
-						//LOG.debug("N=" + N + ": TDiv failed to find factor " + squfofFactor);
-						failCount++;
-					} else {
-						LOG.error("Squfof63 failed to factor N=" + N + " !");
-					}
-				} else {
-					if (N%tdivFactor!=0) {
-						failCount++;
-					}
-				}
-			}
-			LOG.info("    #fails = " + failCount);
-		}
 	}
 }
