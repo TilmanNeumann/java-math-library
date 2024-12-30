@@ -47,7 +47,7 @@ import de.tilman_neumann.util.Ensure;
 
 /**
  * Final combination of factor algorithms. Integrates trial division and ECM to search small factors of large numbers.
- * As such it is the best algorithm for general factoring arguments.
+ * On the long end, a parallel SIQS is used. Altogether it is the best algorithm for general factoring arguments in this library.
  * 
  * @author Tilman Neumann
  */
