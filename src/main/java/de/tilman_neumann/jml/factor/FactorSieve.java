@@ -13,7 +13,6 @@
  */
 package de.tilman_neumann.jml.factor;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +21,6 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.exact.SegmentedSieve;
 import de.tilman_neumann.jml.primes.exact.SieveCallback;
-import de.tilman_neumann.util.Ensure;
-import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -104,7 +101,7 @@ public class FactorSieve implements SieveCallback {
 		return factorizations;
 	}
 	
-	private static long computeProduct(SortedMultiset<Long> factors) {
+	public static long computeProduct(SortedMultiset<Long> factors) {
 		if (factors == null) return 0;
 
 		long result = 1;
@@ -113,35 +110,5 @@ public class FactorSieve implements SieveCallback {
 			result *= Math.pow(p.longValue(), exponent);
 		}
 		return result;
-	}
-	
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		
-		long start = 99000000, limit = 100000000;
-		FactorSieve sieve = new FactorSieve(start, limit);
-		long t0 = System.currentTimeMillis();
-		sieve.sieve();
-		long t1 = System.currentTimeMillis();
-		LOG.info("Factoring all numbers from " + start + " to " + limit + " using the sieve took " + (t1-t0) + " milliseconds.");
-		if (DEBUG) {
-			for (long n=start; n<=limit; n++) { // n==1 gives null factors
-				SortedMultiset<Long> factors = sieve.getFactorization(n);
-				LOG.info(n + " = " + factors);
-				if (n>1) {
-					long test = computeProduct(factors);
-					Ensure.ensureEquals(n, test);
-				}
-			}
-		}
-		
-		// without batch
-		FactorAlgorithm factorizer = FactorAlgorithm.getDefault();
-		long t2 = System.currentTimeMillis();
-		for (long n=start; n<=limit; n++) {
-			factorizer.factor(BigInteger.valueOf(n));
-		}
-		long t3 = System.currentTimeMillis();
-		LOG.info("Factoring all numbers from " + start + " to " + limit + " individually took " + (t3-t2) + " milliseconds.");
 	}
 }
