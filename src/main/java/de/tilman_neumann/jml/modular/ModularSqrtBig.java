@@ -28,8 +28,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  * 
  * @author Tilman Neumann
  */
-public class ModularSqrt_BB {
-	private static final Logger LOG = LogManager.getLogger(ModularSqrt_BB.class);
+public class ModularSqrtBig {
+	private static final Logger LOG = LogManager.getLogger(ModularSqrtBig.class);
 	private static final boolean DEBUG = false;
 
 	private ModularPower mpe = new ModularPower();
