@@ -39,6 +39,8 @@ public class Rng extends Random {
 
 	private static final Logger LOG = LogManager.getLogger(Rng.class);
 
+	private static final boolean DEBUG = true; // XXX some improvement seems to be possible here
+	
 	public Rng() {
 		super();
 	}
@@ -106,10 +108,12 @@ public class Rng extends Random {
 	public BigInteger nextBigInteger(BigInteger maxValue) {
 		int maxBits = maxValue.bitLength()+1;
 		
-		// do we use the best upper bound?
+		// do we use the best upper bound? Does not look like that yet!
 		BigInteger twoPowMaxBits = I_1.shiftLeft(maxBits);
-		LOG.debug("rng: maxValue  = " + maxValue);
-		LOG.debug("rng: 2^maxBits = " + twoPowMaxBits);
+		if (DEBUG) {
+			LOG.debug("rng: maxValue  = " + maxValue);
+			LOG.debug("rng: 2^maxBits = " + twoPowMaxBits);
+		}
 		
 		BigInteger randomValue = null;
 		do {

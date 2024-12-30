@@ -74,7 +74,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>de.tilman_neumann.jml.factor.CombinedFactorAlgorithm</mainClass>
+									<mainClass>de.tilman_neumann.jml.factor.CombinedFactorAlgorithmRunner</mainClass>
 								</manifest>
                 			</archive>
                 			<descriptorRefs>
