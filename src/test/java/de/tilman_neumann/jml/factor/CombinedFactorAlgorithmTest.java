@@ -35,7 +35,10 @@ public class CombinedFactorAlgorithmTest {
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		int numThreads = 1; // be cautious regarding what github CI supports
+		// gitgub CI results for the 236 bit test number:
+		// 1 thread -> 22s, 2 threads -> 12s, 4 threads -> 14s.
+		// Using 2 threads looks best so far.
+		int numThreads = 2;
 		factorizer = new CombinedFactorAlgorithm(numThreads, null, true);
 	}
 
@@ -47,12 +50,12 @@ public class CombinedFactorAlgorithmTest {
 		assertFactorizationSuccess("874186654300294020965320730991996026550891341278308", "2^2 * 3 * 471997 * 654743 * 2855761 * 79833227 * 982552477 * 1052328969055591"); // 170 bit
 		assertFactorizationSuccess("11111111111111111111111111155555555555111111111111111", "67 * 157 * 1056289676880987842105819104055096069503860738769"); // 173 bit
 		assertFactorizationSuccess("1388091470446411094380555803943760956023126025054082930201628998364642", "2 * 3 * 1907 * 1948073 * 1239974331653 * 50222487570895420624194712095309533522213376829"); // 230 bit
-		// 236 bit, takes ~ 8 seconds with 2 threads
+		// 236 bit, takes ~ 8 seconds with 2 threads on Ryzen3900X
 		assertFactorizationSuccess("99999999999999999999999999999999999999999999999999999999999999999999999", "3^2 * 241573142393627673576957439049 * 45994811347886846310221728895223034301839");
 		if (RUN_SLOW_TESTS_TOO) {
-			 // 263 bit bit, takes ~ 52 seconds with 2 threads
+			 // 263 bit bit, takes ~ 52 seconds with 2 threads on Ryzen3900X
 			assertFactorizationSuccess("10000000000000000000000000000000000000000000000000000000000000000000000000005923", "1333322076518899001350381760807974795003 * 7500063320115780212377802894180923803641");
-			 // 280 bit bit, takes ~ 158 seconds with 2 threads
+			 // 280 bit bit, takes ~ 158 seconds with 2 threads on Ryzen3900X
 			assertFactorizationSuccess("1794577685365897117833870712928656282041295031283603412289229185967719140138841093599", "42181796536350966453737572957846241893933 * 42543889372264778301966140913837516662044603");
 		}
 		
