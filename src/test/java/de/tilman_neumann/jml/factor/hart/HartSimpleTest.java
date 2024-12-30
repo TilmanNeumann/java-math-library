@@ -142,6 +142,8 @@ public class HartSimpleTest {
 		assertFactorizationSuccess(69916262762899909L, "72133751 * 969258659"); // 56 bit
 		assertFactorizationSuccess(51113648728234999L, "49275467 * 1037304197"); // 56 bit
 		assertFactorizationSuccess(55878279398722441L, "131149259 * 426066299"); // 56 bit
+		assertFactorizationSuccess(3225275494496681L, "56791489 * 56791529"); // 52 bit
+		assertFactorizationSuccess(322527333642009919L, "567914891 * 567914909"); // 59 bit
 	}
 
 	@Test
@@ -191,6 +193,7 @@ public class HartSimpleTest {
 		assertFactorizationError(107563481071570333L, "231892711 * 463850203"); // 57 bit, needs I_MAX=2^25
 		assertFactorizationError(107326406641253893L, "231668813 * 463275161"); // 57 bit, needs I_MAX=2^25
 		assertFactorizationError(120459770277978457L, "245433631 * 490803847"); // 57 bit, needs I_MAX=2^25
+		assertFactorizationError(3225273260887418687L, "567914891 * 5679148957"); // 62 bit // does not even work with I_MAX=2^25
 	}
 	
 	@Test
