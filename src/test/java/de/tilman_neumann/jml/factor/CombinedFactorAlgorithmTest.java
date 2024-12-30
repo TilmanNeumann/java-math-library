@@ -35,7 +35,7 @@ public class CombinedFactorAlgorithmTest {
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		int numThreads = 4; // be cautious regarding what github CI supports
+		int numThreads = 1; // be cautious regarding what github CI supports
 		factorizer = new CombinedFactorAlgorithm(numThreads, null, true);
 	}
 
