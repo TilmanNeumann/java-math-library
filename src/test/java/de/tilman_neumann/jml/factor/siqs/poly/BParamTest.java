@@ -14,6 +14,8 @@
 package de.tilman_neumann.jml.factor.siqs.poly;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 
@@ -23,7 +25,6 @@ import org.junit.Test;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.siqs.ModularSqrtsEngine;
-import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
@@ -72,18 +73,18 @@ public class BParamTest {
 		for (int i=0; i<qCount; i++) {
 			int B = B2Array[i].intValue()/2;
 			LOG.info("B[" + i + "] = " + B);
-			Ensure.ensureEquals(correct_B_values[i], B);
+			assertEquals(correct_B_values[i], B);
 		}
 		
 		// compute and test next b-values
 		int[] correct_b_values = new int[] {334, 26, -194, 114};
 		bIndex = 1;
 		LOG.info("b[0] = " + b);
-		Ensure.ensureEquals(correct_b_values[0], b.intValue());
+		assertEquals(correct_b_values[0], b.intValue());
 		for (int i=1; i<4; i++) {
 			computeNextBParameter();
 			LOG.info("b[" + i + "] = " + b);
-			Ensure.ensureEquals(correct_b_values[i], b.intValue());
+			assertEquals(correct_b_values[i], b.intValue());
 		}
 	}
 
@@ -109,8 +110,8 @@ public class BParamTest {
 			if (gamma > (ql>>1)) gamma = ql - gamma; // take the smaller choice of gamma
 			BigInteger Bl = a_div_ql.multiply(BigInteger.valueOf(gamma));
 			if (DEBUG) {
-				Ensure.ensureGreaterEquals(Bl, I_0);
-				Ensure.ensureEquals(I_0, Bl.multiply(Bl).subtract(kN).mod(ql_big));
+				assertTrue(Bl.compareTo(I_0) >= 0);
+				assertEquals(I_0, Bl.multiply(Bl).subtract(kN).mod(ql_big));
 			}
 			B2Array[l] = Bl.shiftLeft(1); // store 2 * B_l in B2[0]...B2[s-1] (the last one is only required to compute b below)
 			// WARNING: In contrast to the description in [Contini p.10, 2nd paragraph],
@@ -119,9 +120,9 @@ public class BParamTest {
 		}
 		if (DEBUG) {
 			// initial b are positive (50% of "next" b's are not)
-			Ensure.ensureGreaterEquals(b.signum(), 0);
+			assertTrue(b.signum() >= 0);
 			// we have b^2 == kN (mod a)
-			Ensure.ensureEquals(I_0, b.multiply(b).subtract(kN).mod(a));
+			assertEquals(I_0, b.multiply(b).subtract(kN).mod(a));
 		}
 	}
 
