@@ -13,27 +13,16 @@
  */
 package de.tilman_neumann.jml.factor.psiqs;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector03;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBlockLanczos;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator02;
-import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.TimeUtil;
-import de.tilman_neumann.util.Timer;
 
 /**
  * Multi-threaded SIQS using the fastest sieve depending on sun.misc.Unsafe, and all sub-algorithms working with 3-partials.
@@ -42,8 +31,6 @@ import de.tilman_neumann.util.Timer;
  * @author Tilman Neumann
  */
 public class PSIQS_U_3LP extends PSIQSBase {
-
-	private static final Logger LOG = LogManager.getLogger(PSIQS_U_3LP.class);
 
 	/**
 	 * Standard constructor.
@@ -69,44 +56,5 @@ public class PSIQS_U_3LP extends PSIQSBase {
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		
 		return new PSIQSThread_U_3LP(k, N, kN, d, sieveParams, baseArrays, apg, cc, threadIndex);
-	}
-
-	// Standalone test --------------------------------------------------------------------------------------------------
-
-	/**
-	 * Stand-alone test. 
-	 * Should only be called with semiprime arguments.
-	 * For general arguments use class CombinedFactorAlgorithm.
-	 * 
-	 * @param args ignored
-	 */
-	// Good 330 bit number to test 3LP: 1193021186851987582089887341794273573523742049278854202794336422907159752083864394187553156410578431
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-		Timer timer = new Timer();
-		int numThreads = 20; // insert your number of threads here
-		PSIQS_U_3LP qs = new PSIQS_U_3LP(0.31F, 0.37F, null, numThreads, new NoPowerFinder(), new MatrixSolverBlockLanczos());
-
-		while(true) {
-			try {
-				LOG.info("Please insert the number to factor:");
-				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				String line = in.readLine();
-				String input = line !=null ? line.trim() : "";
-				//LOG.debug("input = >" + input + "<");
-				BigInteger N = new BigInteger(input);
-				LOG.info("Factoring " + N + " (" + N.bitLength() + " bits)...");
-				timer.capture();
-				SortedMultiset<BigInteger> factors = qs.factor(N);
-				if (factors != null) {
-					long duration = timer.capture();
-					LOG.info("Factored N = " + factors + " in " + TimeUtil.timeStr(duration) + ".");
-			} else {
-					LOG.info("No factor found...");
-				}
-			} catch (Exception ex) {
-				LOG.error("Error " + ex, ex);
-			}
-		}
 	}
 }

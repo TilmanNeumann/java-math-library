@@ -13,27 +13,16 @@
  */
 package de.tilman_neumann.jml.factor.psiqs;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBlockLanczos;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator02;
-import de.tilman_neumann.jml.factor.siqs.powers.NoPowerFinder;
 import de.tilman_neumann.jml.factor.siqs.powers.PowerFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
-import de.tilman_neumann.util.TimeUtil;
-import de.tilman_neumann.util.Timer;
 
 /**
  * Multi-threaded SIQS using a single-block sieve depending on sun.misc.Unsafe.
@@ -41,8 +30,6 @@ import de.tilman_neumann.util.Timer;
  * @author Tilman Neumann
  */
 public class PSIQS_SB_U extends PSIQSBase {
-
-	private static final Logger LOG = LogManager.getLogger(PSIQS_SB_U.class);
 
 	/**
 	 * Standard constructor.
@@ -68,45 +55,5 @@ public class PSIQS_SB_U extends PSIQSBase {
 			AParamGenerator apg, CongruenceCollector cc, int threadIndex) {
 		
 		return new PSIQSThread_SB_U(k, N, kN, d, sieveParams, baseArrays, apg, cc, threadIndex);
-	}
-
-	// Standalone test --------------------------------------------------------------------------------------------------
-
-	/**
-	 * Stand-alone test. 
-	 * Should only be called with semiprime arguments.
-	 * For general arguments use class CombinedFactorAlgorithm.
-	 * 
-	 * @param args ignored
-	 */
-	// Test numbers:
-	// RSA-100 = 1522605027922533360535618378132637429718068114961380688657908494580122963258952897654000350692006139
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-		Timer timer = new Timer();
-		int numThreads = 20; // insert your number of threads here
-		PSIQS_SB_U qs = new PSIQS_SB_U(0.31F, 0.37F, null, numThreads, new NoPowerFinder(), new MatrixSolverBlockLanczos());
-
-		while(true) {
-			try {
-				LOG.info("Please insert the number to factor:");
-				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				String line = in.readLine();
-				String input = line !=null ? line.trim() : "";
-				//LOG.debug("input = >" + input + "<");
-				BigInteger N = new BigInteger(input);
-				LOG.info("Factoring " + N + " (" + N.bitLength() + " bits)...");
-				timer.capture();
-				SortedMultiset<BigInteger> factors = qs.factor(N);
-				if (factors != null) {
-					long duration = timer.capture();
-					LOG.info("Factored N = " + factors + " in " + TimeUtil.timeStr(duration) + ".");
-			} else {
-					LOG.info("No factor found...");
-				}
-			} catch (Exception ex) {
-				LOG.error("Error " + ex, ex);
-			}
-		}
 	}
 }
