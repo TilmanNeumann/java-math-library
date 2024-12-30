@@ -18,6 +18,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 import java.math.BigInteger;
 
 import org.apache.logging.log4j.Logger;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.siqs.ModularSqrtsEngine;
@@ -25,8 +27,14 @@ import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * A test of the b-computation numbers reported by [Contini, p.10]
+ * A test of the b-computation numbers reported by [Contini, p.10].
+ * 
+ * This is no good QA test yet, because most of the tested code is no production code, but a copy of it inlined here.
+ * The reason for this shortcoming is that the data given by Contini would not be easy to reproduce in a real-world factoring example.
+ * 
  * @author Tilman Neumann
+ * 
+ * @see [Contini]: Scott Patrick Contini, "Factoring Integers with the self-initializing quadraric sieve", Master thesis, University of Georgia, 1997
  */
 public class BParamTest {
 	private static final Logger LOG = LogManager.getLogger(BParamTest.class);
@@ -44,6 +52,40 @@ public class BParamTest {
 	
 	// tArray calculator
 	private ModularSqrtsEngine modularSqrtsEngine = new ModularSqrtsEngine();
+
+	@BeforeClass
+	public static void setup() {
+		ConfigUtil.initProject();
+	}
+	
+	@Test
+	public void testBParamComputation() {
+		// compute and log modular sqrt's
+		computeTArray();
+		for (int i=0; i<qCount; i++) {
+			LOG.info("t[" + i + "] = " + tArray[i]);
+		}
+		
+		// compute first b and test B-values reported by [Contini p. 10]
+		int[] correct_B_values = new int[] {154, 110, 70};
+		computeFirstBParameter();
+		for (int i=0; i<qCount; i++) {
+			int B = B2Array[i].intValue()/2;
+			LOG.info("B[" + i + "] = " + B);
+			Ensure.ensureEquals(correct_B_values[i], B);
+		}
+		
+		// compute and test next b-values
+		int[] correct_b_values = new int[] {334, 26, -194, 114};
+		bIndex = 1;
+		LOG.info("b[0] = " + b);
+		Ensure.ensureEquals(correct_b_values[0], b.intValue());
+		for (int i=1; i<4; i++) {
+			computeNextBParameter();
+			LOG.info("b[" + i + "] = " + b);
+			Ensure.ensureEquals(correct_b_values[i], b.intValue());
+		}
+	}
 
 	private void computeTArray() {
 		tArray = modularSqrtsEngine.computeTArray(qArray, 3, kN);
@@ -94,36 +136,5 @@ public class BParamTest {
 		// WARNING: b must not be computed (mod a) !
 		b = bParameterNeedsAddition ? b.add(B2Array[v-1]) : b.subtract(B2Array[v-1]);
 		bIndex++;
-	}
-	
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-		BParamTest test = new BParamTest();
-		
-		// compute and log modular sqrt's
-		test.computeTArray();
-		for (int i=0; i<test.qCount; i++) {
-			LOG.info("t[" + i + "] = " + test.tArray[i]);
-		}
-		
-		// compute first b and test B-values reported by [Contini p. 10]
-		int[] correct_B_values = new int[] {154, 110, 70};
-		test.computeFirstBParameter();
-		for (int i=0; i<test.qCount; i++) {
-			int B = test.B2Array[i].intValue()/2;
-			LOG.info("B[" + i + "] = " + B);
-			Ensure.ensureEquals(correct_B_values[i], B);
-		}
-		
-		// compute and test next b-values
-		int[] correct_b_values = new int[] {334, 26, -194, 114};
-		test.bIndex = 1;
-		LOG.info("b[0] = " + test.b);
-		Ensure.ensureEquals(correct_b_values[0], test.b.intValue());
-		for (int i=1; i<4; i++) {
-			test.computeNextBParameter();
-			LOG.info("b[" + i + "] = " + test.b);
-			Ensure.ensureEquals(correct_b_values[i], test.b.intValue());
-		}
 	}
 }
