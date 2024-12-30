@@ -32,7 +32,7 @@ import de.tilman_neumann.util.TimeUtil;
 /**
  * Factor all entries from a batch file.
  * 
- * Sample run command: -t 6 ./src/de/tilman_neumann/jml/factor/qaTests.txt
+ * Sample run command: -t 6 ./src/test/resources/factor/qaTests.txt
  * 
  * @author Tilman Neumann
  */
