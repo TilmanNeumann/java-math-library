@@ -54,7 +54,7 @@ public class SquFoF31PreloadTest {
 	public void testRandomComposites() {
 		SecureRandom RNG = new SecureRandom();
 		int count = 10000;
-		for (int bits=40; bits<53; bits++) { // not sure if 53 bit numbers are completely safe
+		for (int bits=40; bits<54; bits++) { // not sure if 53 bit numbers are completely safe
 			LOG.info("Testing " + count + " random numbers with " + bits + " bit...");
 			int failCount = 0;
 			for (int i=0; i<count; i++) {
