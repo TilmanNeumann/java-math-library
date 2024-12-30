@@ -13,9 +13,6 @@
  */
 package de.tilman_neumann.jml.factor.pollardRho;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 
 import org.apache.logging.log4j.Logger;
@@ -26,8 +23,6 @@ import de.tilman_neumann.jml.base.Uint128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.util.Ensure;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
 
 /**
  * Brents's improvement of Pollard's Rho algorithm using Montgomery multiplication.
@@ -109,10 +104,10 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithm {
 	    	        G = gcd.gcd(q, N);
 	    	        // if q==0 then G==N -> the loop will be left and restarted with new y
 	    	        k += m;
-		    	    //LOG.info("r = " + r + ", k = " + k);
+	    	        if (DEBUG) LOG.debug("r = " + r + ", k = " + k);
 	    	    } while (k<r && G==1);
 	    	    r <<= 1;
-	    	    //LOG.info("r = " + r + ", G = " + G);
+	    	    if (DEBUG) LOG.debug("r = " + r + ", G = " + G);
 	    	} while (G==1);
 	    	if (G==N) {
 	    	    do {
@@ -120,10 +115,10 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithm {
     	            final long diff = x<ys ? ys-x : x-ys;
 	    	        G = gcd.gcd(diff, N);
 	    	    } while (G==1);
-	    	    //LOG.info("G = " + G);
+	    	    if (DEBUG) LOG.debug("G = " + G);
 	    	}
         } while (G==N);
-		//LOG.debug("Found factor " + G + " of N=" + N);
+        if (DEBUG) LOG.debug("Found factor " + G + " of N=" + N);
         return G;
 	}
 	
@@ -180,7 +175,7 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithm {
 		// * or to a gcd(r, N), where it doesn't matter if we test gcd(c, N) or gcd(c+N, N).
 		
 		if (DEBUG) {
-			//LOG.debug(a + " * " + b + " = " + r);
+			LOG.debug(a + " * " + b + " = " + r);
 			// 0 <= a < N
 			Ensure.ensureSmallerEquals(0, a);
 			Ensure.ensureSmaller(a, N);
@@ -196,38 +191,5 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithm {
 		}
 		
 		return r;
-	}
-
-	/**
-	 * Test.
-	 * Test numbers:
-	 * 3225275494496681 (52 bits) = 56791489 * 56791529
-	 * 322527333642009919 (59 bits) = 567914891 * 567914909
-	 * 3225273260887418687 (62 bits) = 567914891 * 5679148957
-	 * 
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-    	
-		while(true) {
-			BigInteger n;
-			try {
-				LOG.info("Please insert the integer to factor:");
-				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				String line = in.readLine();
-				String input = line.trim();
-				n = new BigInteger(input);
-				LOG.debug("factoring " + input + " (" + n.bitLength() + " bits) ...");
-			} catch (IOException ioe) {
-				LOG.error("io-error occurring on input: " + ioe.getMessage());
-				continue;
-			}
-			
-			long start = System.currentTimeMillis();
-			SortedMultiset<BigInteger> result = new PollardRhoBrentMontgomery64().factor(n);
-			LOG.info("Factored " + n + " = " + result.toString() + " in " + (System.currentTimeMillis()-start) + " ms");
-
-		} // next input...
 	}
 }

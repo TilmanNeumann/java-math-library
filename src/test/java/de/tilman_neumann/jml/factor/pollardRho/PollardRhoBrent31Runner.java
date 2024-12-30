@@ -50,7 +50,7 @@ public class PollardRhoBrent31Runner {
 			long start = System.currentTimeMillis();
 			BigInteger n = new BigInteger(input);
 			SortedMultiset<BigInteger> result = new PollardRhoBrent31().factor(n);
-			LOG.info("Factored " + n + " = " + result.toString() + " in " + (System.currentTimeMillis()-start) + " ms");
+			LOG.info("Factored " + n + " (" + n.bitLength() + " bit) = " + result.toString("*", "^") + " in " + (System.currentTimeMillis()-start) + " ms");
 
 		} // next input...
 	}
