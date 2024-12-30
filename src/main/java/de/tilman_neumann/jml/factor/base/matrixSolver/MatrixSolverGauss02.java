@@ -26,18 +26,18 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
 
 /**
  * A single-threaded congruence equation system solver, doing Gaussian elimination.
- * Much faster than the first version due to improvements by Dave McGuigan; even faster than version 02 thanks to a better sorting of rows,
- * as well by Dave. Best single-threaded Gaussian solver for about N>=130 bit; faster than Block-Lanczos for about N<=290 bit.
+ * Much faster than the first version due to improvements by Dave McGuigan.
+ * Best single-threaded Gaussian solver for about N<=130 bit.
  * 
- * @author Dave McGuigan, Tilman Neumann
+ * @author Tilman Neumann, Dave McGuigan
  */
-public class MatrixSolver_Gauss03 extends MatrixSolverBase03 {
+public class MatrixSolverGauss02 extends MatrixSolverBase02 {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = LogManager.getLogger(MatrixSolver_Gauss03.class);
+	private static final Logger LOG = LogManager.getLogger(MatrixSolverGauss02.class);
 	
 	@Override
 	public String getName() {
-		return "GaussSolver03";
+		return "GaussSolver02";
 	}
 
 	@Override
@@ -54,15 +54,8 @@ public class MatrixSolver_Gauss03 extends MatrixSolverBase03 {
 					pivotRowsForColumns[columnIndex] = row;
 					break;
 				}
-				if (row.getColumnCount()<pivot.getColumnCount()) {
-					// switch pivots
-					MatrixRow t = pivot;
-					pivot = row;
-					pivotRowsForColumns[columnIndex] = row;
-					row = t;
-				}
 				
-				// solution operations taken directly from MatrixSolver_Gauss01 ++
+				// solution operations taken directly from MatrixSolverGauss01
 				row.addXor(pivot); // This operation should be fast!
 				if (row.isNullVector()) {
 					//LOG.debug("solve(): 5: Found null-vector: " + row);

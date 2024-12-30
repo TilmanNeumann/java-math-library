@@ -31,10 +31,10 @@ import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
+import de.tilman_neumann.jml.factor.base.congruence.SmoothPerfect;
 import de.tilman_neumann.jml.factor.ecm.TinyEcm64MHInlined;
 import de.tilman_neumann.jml.factor.hart.HartFast2Mult;
-import de.tilman_neumann.jml.factor.siqs.SIQS_Small;
+import de.tilman_neumann.jml.factor.siqs.SIQSSmall;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
@@ -93,7 +93,7 @@ public class TDiv_QS_nLP implements TDiv_QS {
 	private HartFast2Mult hart = new HartFast2Mult(false);
 	private TinyEcm64MHInlined tinyEcm = new TinyEcm64MHInlined();
 	// Nested SIQS is required for quite large N only, > 350 bit ?
-	private SIQS_Small qsInternal;
+	private SIQSSmall qsInternal;
 	
 	// smallest solutions of Q(x) == A(x)^2 (mod p)
 	private int[] x1Array, x2Array;
@@ -113,10 +113,10 @@ public class TDiv_QS_nLP implements TDiv_QS {
 
 	/**
 	 * Full constructor.
-	 * @param permitUnsafeUsage if true then SIQS_Small (which is used for N > 310 bit to factor Q-rests) uses a sieve exploiting sun.misc.Unsafe features.
+	 * @param permitUnsafeUsage if true then SIQSSmall (which is used for N > 310 bit to factor Q-rests) uses a sieve exploiting sun.misc.Unsafe features.
 	 */
 	public TDiv_QS_nLP(boolean permitUnsafeUsage) {
-		qsInternal = new SIQS_Small(0.305F, 0.37F, null, new SIQSPolyGenerator(), 10, permitUnsafeUsage);
+		qsInternal = new SIQSSmall(0.305F, 0.37F, null, new SIQSPolyGenerator(), 10, permitUnsafeUsage);
 	}
 
 	@Override
@@ -334,7 +334,7 @@ public class TDiv_QS_nLP implements TDiv_QS {
 		if (ANALYZE) pass2Duration += timer.capture();
 		if (QRest_UBI.isOne()) {
 			addCommonFactorsToSmallFactors();
-			return new Smooth_Perfect(A, smallFactors);
+			return new SmoothPerfect(A, smallFactors);
 		}
 		QRest = QRest_UBI.toBigInteger();
 		if (DEBUG) LOG.debug("true QRest after tdiv = " + QRest.bitLength() + " bit");

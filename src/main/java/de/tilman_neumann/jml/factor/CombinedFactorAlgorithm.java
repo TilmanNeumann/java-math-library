@@ -27,8 +27,8 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverGauss02;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBlockLanczos;
 import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.ecm.TinyEcm64MHInlined;
 import de.tilman_neumann.jml.factor.hart.HartFast2Mult;
@@ -73,10 +73,10 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	private EllipticCurveMethod ecm = new EllipticCurveMethod(0);
 
 	// SIQS tuned for small N
-	private SIQS siqs_smallArgs;
+	private SIQS siqsForSmallArgs;
 
 	// The SIQS chosen for big arguments depends on constructor parameters
-	private FactorAlgorithm siqs_bigArgs;
+	private FactorAlgorithm siqsForBigArgs;
 
 	private BPSWTest bpsw = new BPSWTest();
 
@@ -102,20 +102,20 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		super(tdivLimit);
 		
 		Sieve smallSieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
-		siqs_smallArgs = new SIQS(0.32F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), smallSieve, new TDiv_QS_Small(), 10, new MatrixSolver_Gauss02());
+		siqsForSmallArgs = new SIQS(0.32F, 0.37F, null, new PowerOfSmallPrimesFinder(), new SIQSPolyGenerator(), smallSieve, new TDiv_QS_Small(), 10, new MatrixSolverGauss02());
 
 		if (numberOfThreads==1) {
 			// Avoid multi-thread overhead if the requested number of threads is 1
 			if (permitUnsafeUsage) {
-				siqs_bigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2LP(permitUnsafeUsage), 10, new MatrixSolver_BlockLanczos());
+				siqsForBigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2LP(permitUnsafeUsage), 10, new MatrixSolverBlockLanczos());
 			} else {
-				siqs_bigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03h(), new TDiv_QS_2LP(permitUnsafeUsage), 10, new MatrixSolver_BlockLanczos());
+				siqsForBigArgs = new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03h(), new TDiv_QS_2LP(permitUnsafeUsage), 10, new MatrixSolverBlockLanczos());
 			}
 		} else {
 			if (permitUnsafeUsage) {
-				siqs_bigArgs = new PSIQS_U(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+				siqsForBigArgs = new PSIQS_U(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolverBlockLanczos());
 			} else {
-				siqs_bigArgs = new PSIQS(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+				siqsForBigArgs = new PSIQS(0.31F, 0.37F, null, numberOfThreads, new NoPowerFinder(), new MatrixSolverBlockLanczos());
 			}
 		}
 	}
@@ -131,8 +131,8 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		if (NBits<25) return tDiv31.findSingleFactor(N);
 		if (NBits<46) return hart.findSingleFactor(N);
 		if (NBits<63) return tinyEcm.findSingleFactor(N);
-		if (NBits<=150) return siqs_smallArgs.findSingleFactor(N);
-		return siqs_bigArgs.findSingleFactor(N);
+		if (NBits<=150) return siqsForSmallArgs.findSingleFactor(N);
+		return siqsForBigArgs.findSingleFactor(N);
 	}
 	
 	@Override
@@ -206,8 +206,8 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 			}
 
 			// SIQS / PSIQS: The crossover point needs checking
-			if (NBits<=150) siqs_smallArgs.searchFactors(args, result);
-			else siqs_bigArgs.searchFactors(args, result);
+			if (NBits<=150) siqsForSmallArgs.searchFactors(args, result);
+			else siqsForBigArgs.searchFactors(args, result);
 		}
 	}
 

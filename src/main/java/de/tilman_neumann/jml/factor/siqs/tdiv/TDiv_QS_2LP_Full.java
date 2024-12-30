@@ -28,13 +28,13 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
-import de.tilman_neumann.jml.factor.base.congruence.Partial_2Large;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth_1LargeSquare;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
+import de.tilman_neumann.jml.factor.base.congruence.Partial1Large;
+import de.tilman_neumann.jml.factor.base.congruence.Partial2Large;
+import de.tilman_neumann.jml.factor.base.congruence.Smooth1LargeSquare;
+import de.tilman_neumann.jml.factor.base.congruence.SmoothPerfect;
 import de.tilman_neumann.jml.factor.ecm.TinyEcm64MHInlined;
 import de.tilman_neumann.jml.factor.hart.HartFast2Mult;
-import de.tilman_neumann.jml.factor.siqs.SIQS_Small;
+import de.tilman_neumann.jml.factor.siqs.SIQSSmall;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
@@ -87,7 +87,7 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 	private HartFast2Mult hart = new HartFast2Mult(false);
 	private TinyEcm64MHInlined tinyEcm = new TinyEcm64MHInlined();
 	// Nested SIQS is required for quite large N only, > 350 bit ?
-	private SIQS_Small qsInternal;
+	private SIQSSmall qsInternal;
 	
 	// smallest solutions of Q(x) == A(x)^2 (mod p)
 	private int[] x1Array, x2Array;
@@ -102,10 +102,10 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 
 	/**
 	 * Full constructor.
-	 * @param permitUnsafeUsage if true then SIQS_Small (which is used for N > 310 bit to factor Q-rests) uses a sieve exploiting sun.misc.Unsafe features.
+	 * @param permitUnsafeUsage if true then SIQSSmall (which is used for N > 310 bit to factor Q-rests) uses a sieve exploiting sun.misc.Unsafe features.
 	 */
 	public TDiv_QS_2LP_Full(boolean permitUnsafeUsage) {
-		qsInternal = new SIQS_Small(0.305F, 0.37F, null, new SIQSPolyGenerator(), 10, permitUnsafeUsage);
+		qsInternal = new SIQSSmall(0.305F, 0.37F, null, new SIQSPolyGenerator(), 10, permitUnsafeUsage);
 	}
 
 	@Override
@@ -271,7 +271,7 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 		if (ANALYZE) pass2Duration += timer.capture();
 		if (QRest_UBI.isOne()) {
 			addCommonFactorsToSmallFactors();
-			return new Smooth_Perfect(A, smallFactors);
+			return new SmoothPerfect(A, smallFactors);
 		}
 		QRest = QRest_UBI.toBigInteger();
 		if (DEBUG) LOG.debug("true QRest after tdiv = " + QRest.bitLength() + " bit");
@@ -291,7 +291,7 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 			if (DEBUG) Ensure.ensureTrue(prpTest.isProbablePrime(QRest));
 			if (QRest.bitLength() > 31) return null;
 			addCommonFactorsToSmallFactors();
-			return new Partial_1Large(A, smallFactors, QRest.longValue());
+			return new Partial1Large(A, smallFactors, QRest.longValue());
 		} // else: QRest is surely not prime
 		
 		// Find a factor of QRest, where QRest is odd and has two+ factors, each greater than pMax.
@@ -325,10 +325,10 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 		
 		if (factor1.equals(factor2)) {
 			addCommonFactorsToSmallFactors();
-			return new Smooth_1LargeSquare(A, smallFactors, factor1.longValue());
+			return new Smooth1LargeSquare(A, smallFactors, factor1.longValue());
 		}
 		addCommonFactorsToSmallFactors();
-		return new Partial_2Large(A, smallFactors, factor1.longValue(), factor2.longValue());
+		return new Partial2Large(A, smallFactors, factor1.longValue(), factor2.longValue());
 	}
 	
 	/**

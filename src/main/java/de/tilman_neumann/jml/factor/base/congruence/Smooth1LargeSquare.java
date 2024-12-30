@@ -14,49 +14,43 @@
 package de.tilman_neumann.jml.factor.base.congruence;
 
 import java.math.BigInteger;
-import java.util.HashSet;
-import java.util.Set;
 
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
+import de.tilman_neumann.util.SortedMultiset;
 
 /**
- * A smooth congruence from a single AQ-pair.
+ * A smooth congruence with 1 large factor contained as a square.
+ * 
  * @author Tilman Neumann
  */
-abstract public class Smooth_Simple extends AQPair implements Smooth {
+public class Smooth1LargeSquare extends SmoothSimple {
 
-	private Integer[] oddExpElements;
-
-	public Smooth_Simple(BigInteger A, SortedIntegerArray smallFactors) {
+	/** the large factor contained as a square */
+	private long bigFactor;
+	
+	/**
+	 * Full constructor.
+	 * @param A
+	 * @param smallFactors small factors of Q
+	 * @param bigFactor the single large factor of Q contained as square
+	 */
+	public Smooth1LargeSquare(BigInteger A, SortedIntegerArray smallFactors, long bigFactor) {
 		super(A, smallFactors);
-		// determine small factors with odd exponents: first we need a set to eliminate duplicates.
-		Set<Integer> result = new HashSet<Integer>();
-		for (int i=0; i<this.smallFactors.length; i++) {
-			if ((smallFactorExponents[i]&1)==1) result.add(this.smallFactors[i]);
-		}
-		// convert to array
-		this.oddExpElements = result.toArray(new Integer[result.size()]);
+		// the large factor contained as a square
+		this.bigFactor = bigFactor;
 	}
 
 	@Override
-	public Set<AQPair> getAQPairs() {
-		Set<AQPair> set = new HashSet<>();
-		set.add(this);
-		return set;
+	public SortedMultiset<Long> getAllQFactors() {
+		// get small factors of Q
+		SortedMultiset<Long> allFactors = super.getSmallQFactors();
+		// add single large factor square
+		allFactors.add(bigFactor, 2);
+		return allFactors;
 	}
 
 	@Override
-	public void addMyAQPairsViaXor(Set<AQPair> targetSet) {
-		if (!targetSet.remove(this)) targetSet.add(this);
-	}
-
-	@Override
-	public Integer[] getMatrixElements() {
-		return oddExpElements;
-	}
-
-	@Override
-	public boolean isExactSquare() {
-		return oddExpElements.length==0;
+	public int getNumberOfLargeQFactors() {
+		return 2;
 	}
 }

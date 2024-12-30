@@ -200,7 +200,7 @@ public class PartialSolver01 implements PartialSolver {
 						}
 						// We found a smooth congruence from partials.
 						// Checking for exact squares is done in CongruenceCollector.addSmooth(), no need to do it here again...
-						Smooth smoothCongruence = new Smooth_Composite(totalAQPairs);
+						Smooth smoothCongruence = new SmoothComposite(totalAQPairs);
 						return smoothCongruence;
 					} // else: current row is not a null-vector -> just keep it
 				} // else: current row does not have the pivotColumnIndex -> just keep it

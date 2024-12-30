@@ -14,62 +14,55 @@
 package de.tilman_neumann.jml.factor.base.congruence;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
-import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.util.SortedMultiset;
 
 /**
- * A partial congruence having an arbitrary number of large factors.
- * This class will hardly be needed in SIQS, but may be needed in CFrac.
+ * A partial congruence having 2 distinct large factors.
  * 
  * @author Tilman Neumann
  */
-public class Partial_nLarge extends Partial {
+public class Partial2Large extends Partial {
 
-	private long[] bigFactors; // needs about 50 byte for 3 large factors
-	private byte[] bigFactorExponents; // needs about 36 byte for 3 large factors
+	private long bigFactor1, bigFactor2; // needs 16 byte instead of 64 byte for a Long[2]
 	
 	/**
 	 * Full constructor.
 	 * @param A
 	 * @param smallFactors small factors of Q
-	 * @param bigFactors large factors of Q
+	 * @param bigFactor1 the first large factor of Q
+	 * @param bigFactor2 the second large factor of Q
 	 */
-	public Partial_nLarge(BigInteger A, SortedIntegerArray smallFactors, SortedLongArray bigFactors) {
+	public Partial2Large(BigInteger A, SortedIntegerArray smallFactors, long bigFactor1, long bigFactor2) {
 		super(A, smallFactors);
-		// copy big factors of Q
-		this.bigFactors = bigFactors.copyFactors();
-		this.bigFactorExponents = bigFactors.copyExponents();
+		// we have 2 large factor; guarantee that bigFactor1 is the smaller one
+		if (bigFactor1 <= bigFactor2) {
+			this.bigFactor1 = bigFactor1;
+			this.bigFactor2 = bigFactor2;
+		} else {
+			this.bigFactor1 = bigFactor2;
+			this.bigFactor2 = bigFactor1;
+		}
 	}
 
 	@Override
 	public SortedMultiset<Long> getAllQFactors() {
 		// get small factors of Q
 		SortedMultiset<Long> allFactors = super.getSmallQFactors();
-		// add large factors
-		for (int i=0; i<bigFactors.length; i++) {
-			allFactors.add(bigFactors[i], bigFactorExponents[i]);
-		}
+		// add single large factor
+		allFactors.add(bigFactor1);
+		allFactors.add(bigFactor2);
 		return allFactors;
 	}
 
 	@Override
 	public Long[] getLargeFactorsWithOddExponent() {
-		ArrayList<Long> result = new ArrayList<>();
-		for (int i=0; i<bigFactors.length; i++) {
-			if ((bigFactorExponents[i]&1)==1) result.add(bigFactors[i]);
-		}
-		return result.toArray(new Long[result.size()]);
+		return new Long[] {bigFactor1, bigFactor2};
 	}
 
 	@Override
 	public int getNumberOfLargeQFactors() {
-		int count = 0;
-		for (int i=0; i<bigFactorExponents.length; i++) {
-			count += bigFactorExponents[i];
-		}
-		return count;
+		return 2;
 	}
 }

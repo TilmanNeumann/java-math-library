@@ -26,7 +26,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * A smooth congruence composed from several partials.
  * @author Tilman Neumann
  */
-public class Smooth_Composite implements Smooth {
+public class SmoothComposite implements Smooth {
 	private static final boolean DEBUG = false;
 	
 	private Integer[] oddExpElements;
@@ -38,7 +38,7 @@ public class Smooth_Composite implements Smooth {
 	 * Constructor from several AQ-pairs.
 	 * @param aqPairs
 	 */
-	public Smooth_Composite(Set<? extends AQPair> aqPairs) {
+	public SmoothComposite(Set<? extends AQPair> aqPairs) {
 		this.aqPairs = new AQPair[aqPairs.size()];
 		if (DEBUG) Ensure.ensureGreater(aqPairs.size(), 1);
 		HashSet<Integer> smallFactorsWithOddExp = new HashSet<Integer>();
@@ -99,8 +99,8 @@ public class Smooth_Composite implements Smooth {
 	 */
 	@Override
 	public boolean equals(Object o) {
-		if (o==null || !(o instanceof Smooth_Composite)) return false;
-		Smooth_Composite other = (Smooth_Composite) o;
+		if (o==null || !(o instanceof SmoothComposite)) return false;
+		SmoothComposite other = (SmoothComposite) o;
 		// equal objects must have the same hashCode
 		if (hashCode != other.hashCode) return false;
 		return Arrays.equals(this.aqPairs, other.aqPairs);

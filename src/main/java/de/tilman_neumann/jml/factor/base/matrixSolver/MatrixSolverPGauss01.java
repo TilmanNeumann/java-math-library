@@ -30,13 +30,13 @@ import de.tilman_neumann.jml.factor.base.congruence.Smooth;
  * 
  * @author David McGuigan (adapted from Tilman Neumann's single-threaded Gauss solver)
  */
-public class MatrixSolver_PGauss01 extends MatrixSolverBase03 {
+public class MatrixSolverPGauss01 extends MatrixSolverBase03 {
 
-	private static final Logger LOG = LogManager.getLogger(MatrixSolver_PGauss01.class);
+	private static final Logger LOG = LogManager.getLogger(MatrixSolverPGauss01.class);
 
 	final int solveThreads;
 
-	public MatrixSolver_PGauss01(int threads) {
+	public MatrixSolverPGauss01(int threads) {
 		super();
 		this.solveThreads = threads;
 	}
@@ -89,7 +89,7 @@ public class MatrixSolver_PGauss01 extends MatrixSolverBase03 {
 						row = t;
 					}			
 				
-					// solution operations taken directly from original MatrixSolver_Gauss01 ++
+					// solution operations taken directly from original MatrixSolverGauss01
 					row.addXor(pivot); // This operation should be fast!
 					if (!row.isNullVector()) {
 						columnIndex = row.getBiggestColumnIndex();

@@ -14,33 +14,49 @@
 package de.tilman_neumann.jml.factor.base.congruence;
 
 import java.math.BigInteger;
+import java.util.HashSet;
+import java.util.Set;
 
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
-import de.tilman_neumann.util.SortedMultiset;
 
 /**
- * A perfect smooth congruence.
+ * A smooth congruence from a single AQ-pair.
  * @author Tilman Neumann
  */
-public class Smooth_Perfect extends Smooth_Simple {
+abstract public class SmoothSimple extends AQPair implements Smooth {
 
-	/**
-	 * Full constructor.
-	 * @param A
-	 * @param smallFactors small factors of Q
-	 */
-	public Smooth_Perfect(BigInteger A, SortedIntegerArray smallFactors) {
+	private Integer[] oddExpElements;
+
+	public SmoothSimple(BigInteger A, SortedIntegerArray smallFactors) {
 		super(A, smallFactors);
+		// determine small factors with odd exponents: first we need a set to eliminate duplicates.
+		Set<Integer> result = new HashSet<Integer>();
+		for (int i=0; i<this.smallFactors.length; i++) {
+			if ((smallFactorExponents[i]&1)==1) result.add(this.smallFactors[i]);
+		}
+		// convert to array
+		this.oddExpElements = result.toArray(new Integer[result.size()]);
 	}
-	
+
 	@Override
-	public SortedMultiset<Long> getAllQFactors() {
-		// a perfect smooth congruence has no large factors
-		return super.getSmallQFactors();
+	public Set<AQPair> getAQPairs() {
+		Set<AQPair> set = new HashSet<>();
+		set.add(this);
+		return set;
 	}
-	
+
 	@Override
-	public int getNumberOfLargeQFactors() {
-		return 0;
+	public void addMyAQPairsViaXor(Set<AQPair> targetSet) {
+		if (!targetSet.remove(this)) targetSet.add(this);
+	}
+
+	@Override
+	public Integer[] getMatrixElements() {
+		return oddExpElements;
+	}
+
+	@Override
+	public boolean isExactSquare() {
+		return oddExpElements.length==0;
 	}
 }

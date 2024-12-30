@@ -20,7 +20,7 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverGauss02;
 import de.tilman_neumann.jml.factor.cfrac.tdiv.TDiv_CF02;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
@@ -30,7 +30,7 @@ public class CFracRunner {
 	private static final Logger LOG = LogManager.getLogger(CFracRunner.class);
 
 	private static void testInput() {
-		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), new MatrixSolver_Gauss02(), 5);
+		CFrac cfrac = new CFrac(true, 5, 1.5F, 0.152F, 0.253F, new TDiv_CF02(), new MatrixSolverGauss02(), 5);
 		Timer timer = new Timer();
 		while(true) {
 			try {

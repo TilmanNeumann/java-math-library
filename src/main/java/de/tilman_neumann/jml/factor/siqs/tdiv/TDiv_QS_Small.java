@@ -28,8 +28,8 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
+import de.tilman_neumann.jml.factor.base.congruence.Partial1Large;
+import de.tilman_neumann.jml.factor.base.congruence.SmoothPerfect;
 import de.tilman_neumann.jml.factor.siqs.data.SolutionArrays;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
@@ -249,7 +249,7 @@ public class TDiv_QS_Small implements TDiv_QS {
 		if (ANALYZE) pass2Duration += timer.capture();
 		if (QRest_UBI.isOne()) {
 			addCommonFactorsToSmallFactors();
-			return new Smooth_Perfect(A, smallFactors);
+			return new SmoothPerfect(A, smallFactors);
 		}
 		QRest = QRest_UBI.toBigInteger();
 		if (DEBUG) LOG.debug("true QRest after tdiv = " + QRest.bitLength() + " bit");
@@ -262,7 +262,7 @@ public class TDiv_QS_Small implements TDiv_QS {
 		// Q is sufficiently smooth
 		if (DEBUG) LOG.debug("Sufficient smooth big factor = " + QRest);
 		addCommonFactorsToSmallFactors();
-		return new Partial_1Large(A, smallFactors, QRest.longValue());
+		return new Partial1Large(A, smallFactors, QRest.longValue());
 	}
 	
 	/**

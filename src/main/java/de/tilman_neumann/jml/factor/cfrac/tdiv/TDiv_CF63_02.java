@@ -22,7 +22,7 @@ import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
+import de.tilman_neumann.jml.factor.base.congruence.SmoothPerfect;
 import de.tilman_neumann.jml.factor.hart.HartTDivRace;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
@@ -131,7 +131,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 				}
 				trialDivIndex++;
 			} // end while (trialDivIndex < primeBaseSize)
-			if (Q_rest_int==1) return new Smooth_Perfect(A, smallFactors);
+			if (Q_rest_int==1) return new SmoothPerfect(A, smallFactors);
 			Q_rest = (long) Q_rest_int; // keep Q_rest up-to-date
 		}
 

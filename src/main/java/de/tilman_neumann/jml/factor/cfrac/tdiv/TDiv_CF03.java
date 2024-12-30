@@ -23,8 +23,8 @@ import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
+import de.tilman_neumann.jml.factor.base.congruence.SmoothPerfect;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverGauss02;
 import de.tilman_neumann.jml.factor.cfrac.CFrac63;
 import de.tilman_neumann.jml.factor.hart.HartTDivRace;
 import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
@@ -60,7 +60,7 @@ public class TDiv_CF03 implements TDiv_CF {
 	private HartTDivRace hart = new HartTDivRace();
 	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
 	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
-	private CFrac63 cf_internal = new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), new MatrixSolver_Gauss02(), 12);
+	private CFrac63 cf_internal = new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), new MatrixSolverGauss02(), 12);
 
 	private PrPTest prpTest = new PrPTest();
 
@@ -171,7 +171,7 @@ public class TDiv_CF03 implements TDiv_CF {
 				}
 				trialDivIndex++;
 			} // end while (trialDivIndex < primeBaseSize)
-			if (Q_rest_int==1) return new Smooth_Perfect(A, smallFactors);
+			if (Q_rest_int==1) return new SmoothPerfect(A, smallFactors);
 			Q_rest = BigInteger.valueOf(Q_rest_int); // keep Q_rest up-to-date
 		}
 

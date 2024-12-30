@@ -29,7 +29,7 @@ import de.tilman_neumann.util.Ensure;
  * 
  * @author Tilman Neumann
  */
-public class MatrixSolver_BlockLanczos extends MatrixSolverBase03 {
+public class MatrixSolverBlockLanczos extends MatrixSolverBase03 {
 	private static final boolean DEBUG = false;
 
 	private BlockLanczos blockLanczosSolver = new BlockLanczos();

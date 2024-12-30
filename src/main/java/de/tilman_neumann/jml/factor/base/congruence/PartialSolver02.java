@@ -177,7 +177,7 @@ public class PartialSolver02 implements PartialSolver {
 			totalAQPairs.add(congruence);
 		}
 		// Checking for exact squares is done in CongruenceCollector.addSmooth(), no need to do it here again...
-		Smooth smoothCongruence = new Smooth_Composite(totalAQPairs);
+		Smooth smoothCongruence = new SmoothComposite(totalAQPairs);
 		return smoothCongruence;	
 	}
 	
@@ -400,7 +400,7 @@ public class PartialSolver02 implements PartialSolver {
 						}
 						// We found a smooth congruence from partials.
 						// Checking for exact squares is done in CongruenceCollector.addSmooth(), no need to do it here again...
-						Smooth smoothCongruence = new Smooth_Composite(totalAQPairs);
+						Smooth smoothCongruence = new SmoothComposite(totalAQPairs);
 						return smoothCongruence;
 					} // else: current row is not a null-vector -> just keep it
 				} // else: current row does not have the pivotColumnIndex -> just keep it
@@ -429,7 +429,7 @@ public class PartialSolver02 implements PartialSolver {
 					break;
 				}
 				
-				// solution operations taken directly from MatrixSolver_Gauss01 ++
+				// solution operations taken directly from MatrixSolverGauss01
 				row.addXor(pivot); // This operation should be fast!
 				if (row.isNullVector()) {
 					if (DEBUG) LOG.debug("solve(): 5: Found null-vector: " + row);
@@ -442,7 +442,7 @@ public class PartialSolver02 implements PartialSolver {
 					}
 					// We found a smooth congruence from partials.
 					// Checking for exact squares is done in CongruenceCollector.addSmooth(), no need to do it here again...
-					Smooth smoothCongruence = new Smooth_Composite(totalAQPairs);
+					Smooth smoothCongruence = new SmoothComposite(totalAQPairs);
 					return smoothCongruence;
 				} else {
 					// else: current row is not a null-vector, keep trying to reduce

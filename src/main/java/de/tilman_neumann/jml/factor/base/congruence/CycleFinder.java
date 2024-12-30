@@ -105,7 +105,7 @@ public class CycleFinder {
 						allPartials.addAll(chains.get(r0));
 						allPartials.add(ri);
 						allPartials.addAll(chains.get(ri));
-						Smooth smooth = new Smooth_Composite(allPartials);
+						Smooth smooth = new SmoothComposite(allPartials);
 						smoothsFromPartials.add(smooth);
 						continue;
 					}

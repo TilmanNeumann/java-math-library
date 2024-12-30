@@ -16,49 +16,31 @@ package de.tilman_neumann.jml.factor.base.congruence;
 import java.math.BigInteger;
 
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
-import de.tilman_neumann.jml.factor.base.SortedLongArray;
 import de.tilman_neumann.util.SortedMultiset;
 
 /**
- * A smooth congruence having an arbitrary number of large factors.
- * 
+ * A perfect smooth congruence.
  * @author Tilman Neumann
  */
-public class Smooth_nLargeSquares extends Smooth_Simple {
+public class SmoothPerfect extends SmoothSimple {
 
-	private long[] bigFactors;
-	private byte[] bigFactorExponents;
-	
 	/**
 	 * Full constructor.
 	 * @param A
 	 * @param smallFactors small factors of Q
-	 * @param bigFactors large factors of Q
 	 */
-	public Smooth_nLargeSquares(BigInteger A, SortedIntegerArray smallFactors, SortedLongArray bigFactors) {
+	public SmoothPerfect(BigInteger A, SortedIntegerArray smallFactors) {
 		super(A, smallFactors);
-		// copy big factors of Q
-		this.bigFactors = bigFactors.copyFactors();
-		this.bigFactorExponents = bigFactors.copyExponents();
 	}
-
+	
 	@Override
 	public SortedMultiset<Long> getAllQFactors() {
-		// get small factors of Q
-		SortedMultiset<Long> allFactors = super.getSmallQFactors();
-		// add large factors
-		for (int i=0; i<bigFactors.length; i++) {
-			allFactors.add(bigFactors[i], bigFactorExponents[i]);
-		}
-		return allFactors;
+		// a perfect smooth congruence has no large factors
+		return super.getSmallQFactors();
 	}
-
+	
 	@Override
 	public int getNumberOfLargeQFactors() {
-		int count = 0;
-		for (int i=0; i<bigFactorExponents.length; i++) {
-			count += bigFactorExponents[i];
-		}
-		return count;
+		return 0;
 	}
 }

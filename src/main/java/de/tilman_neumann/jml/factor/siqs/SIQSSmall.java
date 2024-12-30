@@ -30,11 +30,11 @@ import de.tilman_neumann.jml.factor.base.PrimeBaseGenerator;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorReport;
-import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector_Small;
+import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollectorSmall;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest;
 import de.tilman_neumann.jml.factor.base.matrixSolver.FactorTest01;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_Gauss02;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverGauss02;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator01;
@@ -67,16 +67,16 @@ import de.tilman_neumann.util.Timer;
  * 
  * @author Tilman Neumann
  */
-public class SIQS_Small extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(SIQS_Small.class);
+public class SIQSSmall extends FactorAlgorithm {
+	private static final Logger LOG = LogManager.getLogger(SIQSSmall.class);
 	private static final boolean DEBUG = false;
 	/**
-	 * SIQS_Small's own ANALYSIS flag should typically be turned off.
-	 * Turning it on may only make sense when SIQS_Small is run stand-alone, e.g. for performance tests.
+	 * SIQSSmall's own ANALYSIS flag should typically be turned off.
+	 * Turning it on may only make sense when SIQSSmall is run stand-alone, e.g. for performance tests.
 	 */
 	private static final boolean ANALYZE = false;
 
-	/** if true then SIQS_Small uses a sieve exploiting sun.misc.Unsafe features. This may be ~10% faster. */
+	/** if true then SIQSSmall uses a sieve exploiting sun.misc.Unsafe features. This may be ~10% faster. */
 	private boolean useUnsafe;
 	
 	private PurePowerTest powerTest = new PurePowerTest();
@@ -110,9 +110,9 @@ public class SIQS_Small extends FactorAlgorithm {
 	 * @param wantedQCount the wanted number of q whose product gives the a-parameter
 	 * @param polyGenerator
 	 * @param extraCongruences the number of surplus congruences we collect to have a greater chance that the equation system solves.
-	 * @param permitUnsafeUsage if true then SIQS_Small uses a sieve exploiting sun.misc.Unsafe features. This may be ~10% faster.
+	 * @param permitUnsafeUsage if true then SIQSSmall uses a sieve exploiting sun.misc.Unsafe features. This may be ~10% faster.
 	 */
-	public SIQS_Small(float Cmult, float Mmult, Integer wantedQCount, SIQSPolyGenerator polyGenerator, int extraCongruences, boolean permitUnsafeUsage) {
+	public SIQSSmall(float Cmult, float Mmult, Integer wantedQCount, SIQSPolyGenerator polyGenerator, int extraCongruences, boolean permitUnsafeUsage) {
 		
 		super(null);
 		
@@ -122,15 +122,15 @@ public class SIQS_Small extends FactorAlgorithm {
 		this.polyGenerator = polyGenerator;
 		this.useUnsafe = permitUnsafeUsage;
 		this.sieve = permitUnsafeUsage ? new Sieve03gU() : new Sieve03g();
-		this.congruenceCollector = new CongruenceCollector_Small(10);
+		this.congruenceCollector = new CongruenceCollectorSmall(10);
 		this.auxFactorizer = new TDiv_QS_Small();
-		this.matrixSolver = new MatrixSolver_Gauss02();
+		this.matrixSolver = new MatrixSolverGauss02();
 		apg = new AParamGenerator01(wantedQCount);
 	}
 
 	@Override
 	public String getName() {
-		return "SIQS_Small(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + powerFinder.getName() + ", " + polyGenerator.getName() + ", " + sieve.getName() + ", " + auxFactorizer.getName() + ", " + matrixSolver.getName() + ", useUnsafe = " + useUnsafe + ")";
+		return "SIQSSmall(Cmult=" + Cmult + ", Mmult=" + Mmult + ", qCount=" + apg.getQCount() + ", " + powerFinder.getName() + ", " + polyGenerator.getName() + ", " + sieve.getName() + ", " + auxFactorizer.getName() + ", " + matrixSolver.getName() + ", useUnsafe = " + useUnsafe + ")";
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		double primeBaseSize_dbl = Math.exp(Cmult * lnTerm);
 		if (primeBaseSize_dbl > Integer.MAX_VALUE) {
 			// For Cmult=0.32 this condition takes effect at 996 bits; but long before we will get memory issues
-			LOG.error("N=" + N + " (" + NBits + " bits) is too big for SIQS_Small!");
+			LOG.error("N=" + N + " (" + NBits + " bits) is too big for SIQSSmall!");
 			return null;
 		}
 		int primeBaseSize = Math.max(30, (int) primeBaseSize_dbl); // min. size for very small N
@@ -281,7 +281,7 @@ public class SIQS_Small extends FactorAlgorithm {
 			if (factor != null) {
 				if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, sieveParams);
 				
-				// ATTENTION: SIQS_Small is only used to factor auxiliary Q-numbers for N with 320 bit or more.
+				// ATTENTION: SIQSSmall is only used to factor auxiliary Q-numbers for N with 320 bit or more.
 				// ATTENTION: After a Q-factorization we only want to clean up the sieve, in case it allocated native memory!
 				// ATTENTION: This behavior is different from SIQS or PSIQS.
 				this.sieve.cleanUp();
@@ -322,7 +322,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		LOG.info("    tDiv: " + tdivReport.getOperationDetails());
 		LOG.info("    cc: " + ccReport.getOperationDetails());
 		if (ccReport.getMaxRelatedPartialsCount() > 0) LOG.info("    cc: maxRelatedPartialsCount = " + ccReport.getMaxRelatedPartialsCount() + ", maxPartialMatrixSize = " + ccReport.getMaxMatrixSize() + " rows");
-		// large factor sizes or Q-signs are not analyzed by CongruenceCollector_Small
+		// large factor sizes or Q-signs are not analyzed by CongruenceCollectorSmall
 		LOG.info("    #solverRuns = " + congruenceCollector.getSolverRunCount() + ", #tested null vectors = " + congruenceCollector.getTestedNullVectorCount());
 		LOG.info("    Approximate phase timings: powerTest=" + powerTestDuration + "ms, initN=" + initNDuration + "ms, initPoly=" + initPolyDuration + "ms, sieve=" + sieveDuration + "ms, tdiv=" + tdivDuration + "ms, cc=" + congruenceCollector.getCollectDuration() + "ms, solver=" + congruenceCollector.getSolverDuration() + "ms");
 		LOG.info("    -> initPoly sub-timings: " + polyReport.getPhaseTimings(1));
@@ -336,7 +336,7 @@ public class SIQS_Small extends FactorAlgorithm {
 		apg.cleanUp();
 		polyGenerator.cleanUp();
 		// ATTENTION: This is the cleanup after a complete N was factorized.
-		// ATTENTION: But SIQS_Small is only used to factor auxiliary Q-numbers for N >= 320 bit.
+		// ATTENTION: But SIQSSmall is only used to factor auxiliary Q-numbers for N >= 320 bit.
 		// ATTENTION: In case it uses native memory, we clean the sieve of SIQS-Small after each Q-factorization, not here.
 		auxFactorizer.cleanUp();
 		congruenceCollector.cleanUp();
@@ -361,7 +361,7 @@ public class SIQS_Small extends FactorAlgorithm {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-		SIQS_Small qs = new SIQS_Small(0.32F, 0.37F, null, new SIQSPolyGenerator(), 10, true);
+		SIQSSmall qs = new SIQSSmall(0.32F, 0.37F, null, new SIQSPolyGenerator(), 10, true);
 		Timer timer = new Timer();
 		while(true) {
 			try {

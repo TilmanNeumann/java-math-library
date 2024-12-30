@@ -23,7 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector;
 import de.tilman_neumann.jml.factor.base.congruence.CongruenceCollector03;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver;
-import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolver_BlockLanczos;
+import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBlockLanczos;
 import de.tilman_neumann.jml.factor.siqs.data.BaseArrays;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator02;
@@ -84,7 +84,7 @@ public class PSIQS_U_nLP extends PSIQSBase {
     	ConfigUtil.initProject();
 		Timer timer = new Timer();
 		int numThreads = 20; // insert your number of threads here
-		PSIQS_U_nLP qs = new PSIQS_U_nLP(0.31F, 0.37F, null, numThreads, new NoPowerFinder(), new MatrixSolver_BlockLanczos());
+		PSIQS_U_nLP qs = new PSIQS_U_nLP(0.31F, 0.37F, null, numThreads, new NoPowerFinder(), new MatrixSolverBlockLanczos());
 
 		while(true) {
 			try {

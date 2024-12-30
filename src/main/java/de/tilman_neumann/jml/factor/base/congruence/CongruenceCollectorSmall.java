@@ -35,8 +35,8 @@ import de.tilman_neumann.util.Timer;
  * Reduced to work with perfect smooths and 1-partials only.
  * @author Tilman Neumann
  */
-public class CongruenceCollector_Small implements CongruenceCollector {
-	private static final Logger LOG = LogManager.getLogger(CongruenceCollector_Small.class);
+public class CongruenceCollectorSmall implements CongruenceCollector {
+	private static final Logger LOG = LogManager.getLogger(CongruenceCollectorSmall.class);
 	private static final boolean DEBUG = false; // used for logs and asserts
 	private static final boolean ANALYZE = false;
 	
@@ -75,7 +75,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	/**
 	 * Default constructor that expects 10 more equations than variables to run the matrix solver.
 	 */
-	public CongruenceCollector_Small() {
+	public CongruenceCollectorSmall() {
 		this(10);
 	}
 
@@ -83,7 +83,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 	 * Full constructor.
 	 * @param extraCongruences The difference #equations-#variables required before the solver is started.
 	 */
-	public CongruenceCollector_Small(int extraCongruences) {
+	public CongruenceCollectorSmall(int extraCongruences) {
 		this.extraCongruences = extraCongruences;
 	}
 	
@@ -171,8 +171,8 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 		}
 		
 		// otherwise aqPair must be a partial with one large factor.
-		if (DEBUG) Ensure.ensureTrue(aqPair instanceof Partial_1Large);
-		Partial_1Large partial = (Partial_1Large) aqPair;
+		if (DEBUG) Ensure.ensureTrue(aqPair instanceof Partial1Large);
+		Partial1Large partial = (Partial1Large) aqPair;
 		final Long bigFactor = partial.getLargeFactorsWithOddExponent()[0];
 				
 		// Check if the partial helps to assemble a smooth congruence:
@@ -182,7 +182,7 @@ public class CongruenceCollector_Small implements CongruenceCollector {
 			Set<AQPair> partials = new LinkedHashSet<>();
 			partials.add(partial);
 			partials.add(relatedPartial);
-			Smooth foundSmooth = new Smooth_Composite(partials);
+			Smooth foundSmooth = new SmoothComposite(partials);
 			boolean added = addSmooth(foundSmooth); // throws FactorException
 			if (ANALYZE) {
 				if (added) {

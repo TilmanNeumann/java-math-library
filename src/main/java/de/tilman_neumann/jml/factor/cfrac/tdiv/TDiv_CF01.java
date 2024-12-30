@@ -21,8 +21,8 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.base.UnsignedBigInt;
 import de.tilman_neumann.jml.factor.base.SortedIntegerArray;
 import de.tilman_neumann.jml.factor.base.congruence.AQPair;
-import de.tilman_neumann.jml.factor.base.congruence.Partial_1Large;
-import de.tilman_neumann.jml.factor.base.congruence.Smooth_Perfect;
+import de.tilman_neumann.jml.factor.base.congruence.Partial1Large;
+import de.tilman_neumann.jml.factor.base.congruence.SmoothPerfect;
 import de.tilman_neumann.util.Ensure;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -146,7 +146,7 @@ public class TDiv_CF01 implements TDiv_CF {
 				}
 				trialDivIndex++;
 			} // end while (trialDivIndex < primeBaseSize)
-			if (Q_rest_int==1) return new Smooth_Perfect(A, smallFactors);
+			if (Q_rest_int==1) return new SmoothPerfect(A, smallFactors);
 			Q_rest = BigInteger.valueOf(Q_rest_int); // keep Q_rest up-to-date
 		}
 
@@ -155,6 +155,6 @@ public class TDiv_CF01 implements TDiv_CF {
 		if (Q_rest.bitLength()>31 || Q_rest.doubleValue() > smoothBound) return null; // Q is not sufficiently smooth
 		
 		// Q is sufficiently smooth
-		return new Partial_1Large(A, smallFactors, Q_rest.intValue());
+		return new Partial1Large(A, smallFactors, Q_rest.intValue());
 	}
 }

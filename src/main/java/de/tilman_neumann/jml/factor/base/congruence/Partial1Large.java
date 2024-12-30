@@ -23,7 +23,7 @@ import de.tilman_neumann.util.SortedMultiset;
  * 
  * @author Tilman Neumann
  */
-public class Partial_1Large extends Partial {
+public class Partial1Large extends Partial {
 
 	private long bigFactor; // needs 8 byte instead of 56 byte for a Long[1]
 	
@@ -33,7 +33,7 @@ public class Partial_1Large extends Partial {
 	 * @param smallFactors small factors of Q
 	 * @param bigFactor the single large factor of Q
 	 */
-	public Partial_1Large(BigInteger A, SortedIntegerArray smallFactors, long bigFactor) {
+	public Partial1Large(BigInteger A, SortedIntegerArray smallFactors, long bigFactor) {
 		super(A, smallFactors);
 		// only 1 large factor
 		this.bigFactor = bigFactor;
