@@ -15,21 +15,12 @@ package de.tilman_neumann.jml.quadraticResidues;
 
 import java.util.TreeSet;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 /**
  * Methods to generate quadratic residues or test for quadratic residuosity for general moduli m.
  * 
  * @author Tilman Neumann
  */
 public class QuadraticResidues {
-
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LogManager.getLogger(QuadraticResidues.class);
-
-	@SuppressWarnings("unused")
-	private static final boolean DEBUG = false;
 
     /**
      * Return all quadratic residues modulo m, computed by brute force.

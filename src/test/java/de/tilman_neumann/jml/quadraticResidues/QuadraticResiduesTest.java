@@ -26,13 +26,13 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Test quadratic residue computations modulo 2^n.
+ * Tests for class QuadraticResidues.
  * 
  * @author Tilman Neumann
  */
-public class QuadraticResiduesMod2PowNTest {
+public class QuadraticResiduesTest {
 	
-	private static final Logger LOG = LogManager.getLogger(QuadraticResiduesMod2PowNTest.class);
+	private static final Logger LOG = LogManager.getLogger(QuadraticResiduesTest.class);
 	
 	private static final boolean DEBUG = false;
 	
@@ -42,7 +42,6 @@ public class QuadraticResiduesMod2PowNTest {
 	}
 
 	@Test
-	// TODO this test must be moved to another class because m=100 is not of the form 2^n
 	public void testSetOfQuadraticResidues() {
 		TreeSet<Long> quadraticResiduesMod100 = QuadraticResidues.getQuadraticResidues(100);
 		LOG.info("m = 100 has " + quadraticResiduesMod100.size() + " quadratic residues: " + quadraticResiduesMod100);
@@ -56,7 +55,7 @@ public class QuadraticResiduesMod2PowNTest {
 	 * a(n) = {1, 1} + A023105(n-2) = 1, 1, 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, 684, 1367, 2732, 5463, 10924, 21847, ... for "even" quadratic residues modulo 2^n.
 	 */
 	@Test
-	public void testQuadraticResidueCounts() {
+	public void testQuadraticResiduesMod2PowNCounts() {
 		ArrayList<Integer> counts = new ArrayList<Integer>();
 		ArrayList<Integer> evenCounts = new ArrayList<Integer>();
 		
