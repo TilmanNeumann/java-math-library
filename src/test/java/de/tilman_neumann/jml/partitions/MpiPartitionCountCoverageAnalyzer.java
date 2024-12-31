@@ -95,9 +95,9 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * No natural number is represented by more than 2 counts of partitions of multipartite numbers !?
  */
-public class MpiPartitionCountCoverageChecker {
+public class MpiPartitionCountCoverageAnalyzer {
 	
-	private static final Logger LOG = LogManager.getLogger(MpiPartitionCountCoverageChecker.class);
+	private static final Logger LOG = LogManager.getLogger(MpiPartitionCountCoverageAnalyzer.class);
 	
 	private static final boolean DEBUG = false;
 	
@@ -150,6 +150,6 @@ public class MpiPartitionCountCoverageChecker {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-    	MpiPartitionCountCoverageChecker.go();
+    	MpiPartitionCountCoverageAnalyzer.go();
     }
 }
