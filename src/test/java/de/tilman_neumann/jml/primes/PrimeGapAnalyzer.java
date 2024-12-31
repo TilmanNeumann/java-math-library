@@ -44,8 +44,8 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * @author Tilman Neumann
  */
-public class PrimeGapTest implements SieveCallback {
-	private static final Logger LOG = LogManager.getLogger(PrimeGapTest.class);
+public class PrimeGapAnalyzer implements SieveCallback {
+	private static final Logger LOG = LogManager.getLogger(PrimeGapAnalyzer.class);
 
 	public static class StackElement {
 		public long lastPrime;
@@ -66,7 +66,7 @@ public class PrimeGapTest implements SieveCallback {
 	private long lastPrime = 2; // avoid "simulated" large relative prime gap
 	private int highestRankUpdate = Integer.MAX_VALUE;
 
-	public PrimeGapTest(long limit) {
+	public PrimeGapAnalyzer(long limit) {
 		stack = new Stack<StackElement>();
 		sieve = new SegmentedSieve(this);
 		this.limit = limit;
@@ -178,6 +178,6 @@ public class PrimeGapTest implements SieveCallback {
 	
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
-		new PrimeGapTest(100000000000L).run();
+		new PrimeGapAnalyzer(100000000000L).run();
 	}
 }

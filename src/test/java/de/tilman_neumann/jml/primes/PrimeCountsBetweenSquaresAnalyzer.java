@@ -25,8 +25,8 @@ import de.tilman_neumann.util.ConfigUtil;
  *
  * @author Tilman Neumann
  */
-public class PrimeCountsBetweenSquares implements SieveCallback {
-	private static final Logger LOG = LogManager.getLogger(PrimeCountsBetweenSquares.class);
+public class PrimeCountsBetweenSquaresAnalyzer implements SieveCallback {
+	private static final Logger LOG = LogManager.getLogger(PrimeCountsBetweenSquaresAnalyzer.class);
 	
 	private SegmentedSieve sieve;
 	private long limit;
@@ -38,7 +38,7 @@ public class PrimeCountsBetweenSquares implements SieveCallback {
 	private long s1;
 
 	
-	public PrimeCountsBetweenSquares(long limit) {
+	public PrimeCountsBetweenSquaresAnalyzer(long limit) {
 		sieve = new SegmentedSieve(this);
 		this.limit = limit;
 	}
@@ -67,7 +67,7 @@ public class PrimeCountsBetweenSquares implements SieveCallback {
 	
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
-		new PrimeCountsBetweenSquares(100000000000L).run();
+		new PrimeCountsBetweenSquaresAnalyzer(100000000000L).run();
 		// result: A014085 = 2, 2, 2, 3, 2, 4, 3, 4, 3, 5, 4, 5, 5, 4, 6, 7, 5, 6, 6, 7, 7, 7, ...
 		// In that entry we also see that a stronger conjecture exists:
 		// There is at least one prime in n^k...n^(k+1) with k = log(127)/log(16) ~ 1.747171172
