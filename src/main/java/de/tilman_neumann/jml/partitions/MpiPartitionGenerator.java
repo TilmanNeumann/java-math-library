@@ -188,4 +188,50 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 		PrimePowers mpiFromFactors = PrimePowers_DefaultImpl.valueOf(n);
 		return numberOfPartitionsOf(mpiFromFactors);
 	}
+	
+	/**
+	 * Computes the number of partitions of partitions.
+	 * A001970 = 1, 1, 3, 6, 14, 27, 58, 111, 223, 424, 817, 1527, 2870, 5279, 9710, 17622, 31877, 57100, 101887, 180406, 318106, 557453, 972796, 1688797, 2920123, ...
+	 */
+	public static long numberOfPartitionsOfPartitions(int n) {
+		long totalNumberOfPartitions = 0;
+		// run over all additive partition of n
+		IntegerPartitionGenerator partgen = new IntegerPartitionGenerator(n);
+		while (partgen.hasNext()) {
+			int[] flatPartition = partgen.next();
+			// partition is in flat form, i.e. a list of all parts. convert this into the multiset form:
+			IntegerPartition expPartition = new IntegerPartition(flatPartition);
+			if (DEBUG) LOG.debug("expPartition from n=" + n + ": " + expPartition);
+			// now we have all the multiplicities
+			Mpi mpiFromPartition = new Mpi_IntegerArrayImpl(expPartition.values());
+			MpiPartitionGenerator mpiPartGen = new MpiPartitionGenerator(mpiFromPartition);
+			while (mpiPartGen.hasNext()) {
+				mpiPartGen.next();
+				totalNumberOfPartitions++;
+			}
+		}
+		return totalNumberOfPartitions;
+	}
+	
+	/**
+	 * Computes the number of partitions of strong multisets.
+	 * This is A035310 = "Ways of partitioning an n-multiset with multiplicities some partition of n."
+     * = 1, 4, 12, 47, 170, 750, 3255, 16010, 81199, 448156, 2579626, 15913058, 102488024, 698976419, 4976098729, 37195337408, 289517846210, 2352125666883, 19841666995265, 173888579505200, 1577888354510786, 14820132616197925, 143746389756336173, 1438846957477988926, ...
+	 */
+	public static long numberOfMultisetPartitions(int n) {
+		int totalNumberOfPartitions = 0;
+		// run over all additive partition of n:
+		IntegerPartitionGenerator partgen = new IntegerPartitionGenerator(n);
+		while (partgen.hasNext()) {
+			int[] flatPartition = partgen.next();
+			// partition is in flat form, i.e. a list of all parts.
+			Mpi mpiFromPartition = new Mpi_IntegerArrayImpl(flatPartition);
+			MpiPartitionGenerator mpiPartGen = new MpiPartitionGenerator(mpiFromPartition);
+			while (mpiPartGen.hasNext()) {
+				mpiPartGen.next();
+				totalNumberOfPartitions++;
+			}
+		}
+		return totalNumberOfPartitions;
+	}
 }
