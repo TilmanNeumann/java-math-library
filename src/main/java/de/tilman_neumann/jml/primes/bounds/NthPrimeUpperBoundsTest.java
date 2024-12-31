@@ -41,7 +41,7 @@ public class NthPrimeUpperBoundsTest implements SieveCallback {
 	}
 
 	/**
-	 * Fallback method: Receives new primes from the sieve and checks the upper bound estimates for the n.th prime p(n).
+	 * Callback method: Receives new primes from the sieve and checks the upper bound estimates for the n.th prime p(n).
 	 * 
 	 * Changing the mod we can regulate the resolution of the data to look at.
 	 * Searching in the results for something like "rs01=-" lets us investigate in which ranges the particular algorithms work.

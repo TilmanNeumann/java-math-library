@@ -41,7 +41,7 @@ public class PrimeCountUpperBoundsTest implements SieveCallback {
 	}
 
 	/**
-	 * Fallback method: Receives new primes from the sieve and checks the upper bound estimates for the prime count function.
+	 * Callback method: Receives new primes from the sieve and checks the upper bound estimates for the prime count function.
 	 * 
 	 * Changing the mod we can regulate the resolution of the data to look at.
 	 * Searching in the results for something like "du65=-" lets us investigate in which ranges the particular algorithms work.
