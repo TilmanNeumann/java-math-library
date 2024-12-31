@@ -13,32 +13,49 @@
  */
 package de.tilman_neumann.jml.quadraticResidues;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.TreeSet;
 
 import org.apache.logging.log4j.Logger;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Tests of quadratic residue computations modulo general m.
+ * Test quadratic residue computations modulo 2^n.
  * 
  * @author Tilman Neumann
  */
-public class QuadraticResiduesMod2PowNTest01 {
+public class QuadraticResiduesMod2PowNTest {
 	
-	private static final Logger LOG = LogManager.getLogger(QuadraticResiduesMod2PowNTest01.class);
+	private static final Logger LOG = LogManager.getLogger(QuadraticResiduesMod2PowNTest.class);
 	
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
+	private static final boolean DEBUG = false;
+	
+	@BeforeClass
+	public static void setup() {
 		ConfigUtil.initProject();
+	}
+
+	@Test
+	public void testSetOfQuadraticResidues() {
 		TreeSet<Long> quadraticResiduesMod100 = QuadraticResidues.getQuadraticResidues(100);
 		LOG.info("m = 100 has " + quadraticResiduesMod100.size() + " quadratic residues: " + quadraticResiduesMod100);
-		
+		assertEquals("[0, 1, 4, 9, 16, 21, 24, 25, 29, 36, 41, 44, 49, 56, 61, 64, 69, 76, 81, 84, 89, 96]", quadraticResiduesMod100.toString());
+	}
+
+	/**
+	 * Test the number of quadratic residues modulo 2^n for n = 0, 1, 2, ...
+	 * This gives number sequences
+	 * A023105(n) = 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, ... for general quadratic residues modulo 2^n, and
+	 * a(n) = {1, 1} + A023105(n-2) = 1, 1, 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, 684, 1367, 2732, 5463, 10924, 21847, ... for "even" quadratic residues modulo 2^n.
+	 */
+	@Test
+	public void testQuadraticResidueCounts() {
 		ArrayList<Integer> counts = new ArrayList<Integer>();
 		ArrayList<Integer> evenCounts = new ArrayList<Integer>();
 		
@@ -46,17 +63,17 @@ public class QuadraticResiduesMod2PowNTest01 {
 			int m = 1<<n;
 			
 			TreeSet<Long> quadraticResiduesMod2PowN = QuadraticResidues.getQuadraticResidues(m);
-			LOG.info("m = " + m + " has " + quadraticResiduesMod2PowN.size() + " quadratic residues: " + quadraticResiduesMod2PowN);
+			if (DEBUG) LOG.debug("m = " + m + " has " + quadraticResiduesMod2PowN.size() + " quadratic residues: " + quadraticResiduesMod2PowN);
 			counts.add(quadraticResiduesMod2PowN.size());
 
 			TreeSet<Long> evenQuadraticResiduesMod2PowN = QuadraticResidues.getEvenQuadraticResidues(m);
-			LOG.info("m = " + m + " has " + evenQuadraticResiduesMod2PowN.size() + " 'even' quadratic residues: " + evenQuadraticResiduesMod2PowN);
+			if (DEBUG) LOG.debug("m = " + m + " has " + evenQuadraticResiduesMod2PowN.size() + " 'even' quadratic residues: " + evenQuadraticResiduesMod2PowN);
 			evenCounts.add(evenQuadraticResiduesMod2PowN.size());
 		}
 		
 		LOG.info("counts = " + counts);
-		// A023105(n) = 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, ...
+		assertEquals("[1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, 684, 1367, 2732, 5463, 10924, 21847, 43692, 87383]", counts.toString());
 		LOG.info("evenCounts = " + evenCounts);
-		// a(n) = {1, 1} + A023105(n-2) = 1, 1, 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, 684, 1367, 2732, 5463, 10924, 21847
+		assertEquals("[1, 1, 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, 684, 1367, 2732, 5463, 10924, 21847]", evenCounts.toString());
 	}
 }
