@@ -14,6 +14,11 @@
 package de.tilman_neumann.jml.primes.bounds;
 
 import org.apache.logging.log4j.Logger;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.exact.SegmentedSieve;
@@ -21,7 +26,7 @@ import de.tilman_neumann.jml.primes.exact.SieveCallback;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Test of upper bound estimates for the prime count function.
+ * Test of upper bound estimates for the prime count function π(x).
  * 
  * @author Tilman Neumann
  */
@@ -29,7 +34,20 @@ public class PrimeCountUpperBoundsTest implements SieveCallback {
 	private static final Logger LOG = LogManager.getLogger(PrimeCountUpperBoundsTest.class);
 	
 	private long n;
+
+	@BeforeClass
+	public static void setup() {
+		ConfigUtil.initProject();
+	}
 	
+	@Test
+	public void testCombinedUpperBound() {
+		PrimeCountUpperBoundsTest test = new PrimeCountUpperBoundsTest();
+		// The maximum p to test has been chosen such that the runtime in github CI is moderate.
+		// For local tests, it could be 1000 times bigger.
+		test.run(1000000000L);
+	}
+
 	/**
 	 * Run the sieve.
 	 * @param limit maximum value to be checked for being prime.
@@ -64,7 +82,7 @@ public class PrimeCountUpperBoundsTest implements SieveCallback {
 			boundStr += ", ax35b=" + (ax35b-n);
 			long ax35c = PrimeCountUpperBounds.Axler_3_5c(p);
 			boundStr += ", ax35c=" + (ax35c-n);
-			long ax35d = PrimeCountUpperBounds.Axler_3_5d(p); // Fails for many x in [230389, 2634562561]
+			long ax35d = PrimeCountUpperBounds.Axler_3_5d(p); // Fails for many x in [230389, 2634562561], but thats not the range where it is best
 			boundStr += ", ax35d=" + (ax35d-n);
 			long du65 = PrimeCountUpperBounds.Dusart2010_eq6_5(p);
 			boundStr += ", du65=" + (du65-n);
@@ -78,21 +96,14 @@ public class PrimeCountUpperBoundsTest implements SieveCallback {
 			LOG.info(boundStr);
 		}
 		
-		// Verify individual estimates for all p
-//		long ax35d = PrimeCountBounds.primeCount_Axler_3_5d(p);
-//		if (ax35d - n < 0) {
-//			LOG.error("ax35d failed at p_" + n + " = " + p + ": diff = " + (ax35d - n));
-//		}
+		// Verifying individual estimates would need to consider them only in the range where they are best
 
 		long combi = PrimeCountUpperBounds.combinedUpperBound(p);
-		if (combi - n < 0) {
-			LOG.error("combi failed at p_" + n + " = " + p + ": diff = " + (combi - n));
+		if (combi < n) {
+			LOG.error("The combined upper bound estimate for the prime counting function π(x) " + combi + " is smaller than " + n + " for x = " + p + ", difference = " + (combi - n));
 		}
-}
-	
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		PrimeCountUpperBoundsTest test = new PrimeCountUpperBoundsTest();
-		test.run(100000000000L);
+		assertTrue(combi >= n);
+		
+		// Testing the tightness of the upper bound would need to compare it to the individual bounds in the range where they are best
 	}
 }

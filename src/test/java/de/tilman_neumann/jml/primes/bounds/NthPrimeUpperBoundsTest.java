@@ -14,6 +14,11 @@
 package de.tilman_neumann.jml.primes.bounds;
 
 import org.apache.logging.log4j.Logger;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.exact.SegmentedSieve;
@@ -21,7 +26,7 @@ import de.tilman_neumann.jml.primes.exact.SieveCallback;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Test of upper bound estimates for the n.th prime.
+ * Test of upper bound estimates for the n.th prime function p(n).
  * 
  * @author Tilman Neumann
  */
@@ -29,7 +34,20 @@ public class NthPrimeUpperBoundsTest implements SieveCallback {
 	private static final Logger LOG = LogManager.getLogger(NthPrimeUpperBoundsTest.class);
 	
 	private long n;
+
+	@BeforeClass
+	public static void setup() {
+		ConfigUtil.initProject();
+	}
 	
+	@Test
+	public void testCombinedUpperBound() {
+		NthPrimeUpperBoundsTest test = new NthPrimeUpperBoundsTest();
+		// The maximum p to test has been chosen such that the runtime in github CI is moderate.
+		// For local tests, it could be 1000 times bigger.
+		test.run(1000000000L);
+	}
+
 	/**
 	 * Run the sieve.
 	 * @param limit maximum value to be checked for being prime.
@@ -74,16 +92,14 @@ public class NthPrimeUpperBoundsTest implements SieveCallback {
 			LOG.info(boundStr);
 		}
 		
-		// Verify individual estimates for all p
+		// Verifying individual estimates would need to consider them only in the range where they are best
+		
 		long combi = NthPrimeUpperBounds.combinedUpperBound(p);
-		if (combi - n < 0) {
-			LOG.error("combi failed at p_" + n + " = " + p + ": diff = " + (combi - n));
+		if (combi < p) {
+			LOG.error("The combined upper bound estimate for n.th prime p(n) " + combi + " is smaller than p_" + n + " = " + p + ", difference = " + (combi - p));
 		}
-	}
-	
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		NthPrimeUpperBoundsTest test = new NthPrimeUpperBoundsTest();
-		test.run(100000000000L);
+		assertTrue(combi >= p);
+		
+		// Testing the tightness of the upper bound would need to compare it to the individual bounds in the range where they are best
 	}
 }
