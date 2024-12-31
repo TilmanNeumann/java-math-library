@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.factor;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.TreeMap;
@@ -27,15 +29,20 @@ import de.tilman_neumann.util.Timer;
 public class TestsetGeneratorTest {
 	private static final Logger LOG = LogManager.getLogger(TestsetGeneratorTest.class);
 
+	// the following parameters have been chosen to make the test run less than 10 seconds on github CI.
+	private static final int NCOUNT = 10;
+	private static final int MIN_BITS = 20;
+	private static final int MAX_BITS = 1000;
+	private static final int INCR_BITS = 10;
+	
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 		Timer timer = new Timer();
-		int nCount = 100;
-		for (int bits = 20; ; bits+=10) {
+		for (int bits = MIN_BITS; bits<=MAX_BITS; bits+=INCR_BITS) {
 			long start = timer.capture();
-			BigInteger[] testNumbers = TestsetGenerator.generate(nCount, bits, TestNumberNature.MODERATE_SEMIPRIMES);
+			BigInteger[] testNumbers = TestsetGenerator.generate(NCOUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
 			long end = timer.capture();
-			// Collect the true
+			// Collect the true bit lengths
 			Map<Integer, Integer> sizeCounts = new TreeMap<>();
 			for (BigInteger num : testNumbers) {
 				int bitlen = num.bitLength();
@@ -43,13 +50,14 @@ public class TestsetGeneratorTest {
 				count = (count==null) ? Integer.valueOf(1) : count.intValue()+1;
 				sizeCounts.put(bitlen, count);
 			}
-			String generatedBitLens = "";
+			String generatedBitLengths = "";
 			for (int bitlen : sizeCounts.keySet()) {
-				generatedBitLens += sizeCounts.get(bitlen) + "x" + bitlen + ", ";
+				generatedBitLengths += sizeCounts.get(bitlen) + "x" + bitlen + ", ";
 			}
-			generatedBitLens = generatedBitLens.substring(0, generatedBitLens.length()-2);
-			LOG.info("Requesting " + nCount + " " + bits + "-numbers took " + TimeUtil.timeDiffStr(start, end) + " ms and generated the following bit lengths: " + generatedBitLens);
-			// Roughly 1/3 of generated numbers are one bit smaller than requested. No big problem though.
+			generatedBitLengths = generatedBitLengths.substring(0, generatedBitLengths.length()-2);
+			LOG.info("Requesting " + NCOUNT + " " + bits + "-numbers took " + TimeUtil.timeDiffStr(start, end) + " ms and generated the following bit lengths: " + generatedBitLengths);
+			// all generated test numbers have the requested bit length
+			assertEquals(NCOUNT + "x" + bits, generatedBitLengths);
 		}
 	}
 }
