@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.partitions;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -31,6 +32,8 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 
 	private static final Logger LOG = LogManager.getLogger(IntegerPartitionGenerator.class);
 	
+	private static final boolean DEBUG = false;
+
 	/** Internal class for stack elements. */
 	private static class IntegerPartitionStackElem {
 		private int rest;
@@ -52,7 +55,7 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 	 * @param n
 	 */
 	public IntegerPartitionGenerator(int n) {
-		//LOG.debug("n = " + n);
+		if (DEBUG) LOG.debug("n = " + n);
 		
 		IntegerPartitionStackElem firstStackElem = new IntegerPartitionStackElem(new int[0], n);
 		stack.push(firstStackElem);
@@ -78,7 +81,7 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 			maxStackSize = stack.size();
 		}
 		IntegerPartitionStackElem stackElem = stack.pop();
-		//LOG.debug("POP prefix=" + Arrays.asList(stackElem.partitionPrefix) + ", rest=" + stackElem.rest);
+		if (DEBUG) LOG.debug("POP prefix=" + Arrays.asList(stackElem.partitionPrefix) + ", rest=" + stackElem.rest);
 		
 		// rest will be the biggest of all parts when the recursion ends
 		int rest = stackElem.rest;
@@ -96,14 +99,14 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 			System.arraycopy(prefix, 0, newPrefix, 0, prefixSize);
 			newPrefix[prefixSize] = part; // next part
 			// new rest is (rest-next part), the complement of next part
-			//LOG.debug("PUSH rest=" + rest + ", part=" + part + " -> newRest=" + (rest-part) + ", newPrefix=" + Arrays.toString(newPrefix));
+			if (DEBUG) LOG.debug("PUSH rest=" + rest + ", part=" + part + " -> newRest=" + (rest-part) + ", newPrefix=" + Arrays.toString(newPrefix));
 			stack.push(new IntegerPartitionStackElem(newPrefix, rest-part));
 		}
 		// prepare result: array is much, much faster than Multiset !
 		int[] result = new int[prefixSize+1];
 		result[0] = rest; // biggest part
 		System.arraycopy(prefix, 0, result, 1, prefixSize);
-		//LOG.debug("RETURN " + Arrays.toString(result));
+		if (DEBUG) LOG.debug("RETURN " + Arrays.toString(result));
 		return result;
 	}
 
@@ -129,11 +132,11 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 			IntegerPartition expPartition = new IntegerPartition(flatPartition);
 			partitions.add(expPartition);
 		}
-    	LOG.debug("maxStackSize = " + partGen.maxStackSize);
+		if (DEBUG) LOG.debug("maxStackSize = " + partGen.maxStackSize);
 		return partitions;
 	}
 
-	public static long getNumberOfPartitions(int n) {
+	public static long numberOfPartitionsOf(int n) {
 		IntegerPartitionGenerator partGen = new IntegerPartitionGenerator(n);
 		long count = 0;
 		while (partGen.hasNext()) {

@@ -13,11 +13,9 @@
  */
 package de.tilman_neumann.jml.partitions;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.SortedSet;
@@ -25,8 +23,6 @@ import java.util.TreeSet;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
-import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * A generator for the additive partitions of multipartite numbers.
@@ -53,6 +49,8 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 
 	private static final Logger LOG = LogManager.getLogger(MpiPartitionGenerator.class);
 	
+	private static final boolean DEBUG = false;
+
 	/** Internal class for stack elements. */
 	private static class MpiPartitionStackElem {
 		private Mpi rest;
@@ -76,10 +74,12 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 	 * @param q
 	 */
 	public MpiPartitionGenerator(Mpi q) {
-		//int dim = q.getDim(); // dimension of the multipartite numbers
-		//LOG.debug("q=" + q + ", dim = " + dim);
+		if (DEBUG) {
+			int dim = q.getDim(); // dimension of the multipartite numbers
+			LOG.debug("q=" + q + ", dim = " + dim);
+		}
 		subvalues = MpiPowerMap.create(q);
-		//LOG.info("power map has " + subvalues.size() + " elements!");		
+		if (DEBUG) LOG.debug("power map has " + subvalues.size() + " elements!");		
 		MpiPartitionStackElem firstStackElem = new MpiPartitionStackElem(new Mpi[0], q);
 		stack.push(firstStackElem);
 	}
@@ -102,7 +102,7 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 			maxStackSize = stack.size();
 		}
 		MpiPartitionStackElem stackElem = stack.pop();
-		//LOG.debug("POP prefix=" + Arrays.asList(stackElem.partitionPrefix) + ", rest=" + stackElem.rest);
+		if (DEBUG) LOG.debug("POP prefix=" + Arrays.asList(stackElem.partitionPrefix) + ", rest=" + stackElem.rest);
 		
 		// rest will be the biggest of all parts when the recursion ends
 		Mpi rest = stackElem.rest;
@@ -116,15 +116,15 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 		
 		// create next parts
 		if (maxNextPart!=null && maxNextPart.getCardinality()>0 && rest.getCardinality()>1) {
-			//LOG.debug("create nextPartsAndComplements of " + rest);
+			if (DEBUG) LOG.debug("create nextPartsAndComplements of " + rest);
 			Map<Mpi, Mpi> nextPartsAndComplements = subvalues.getSubvaluesLessOrEqual(rest, maxNextPart);
-			//LOG.debug("nextPartsAndComplements= " + nextPartsAndComplements);
+			if (DEBUG) LOG.debug("nextPartsAndComplements= " + nextPartsAndComplements);
 			for (Map.Entry<Mpi, Mpi> partAndComplement : nextPartsAndComplements.entrySet()) {
 				Mpi[] newPrefix = new Mpi[prefixSize+1];
 				System.arraycopy(prefix, 0, newPrefix, 0, prefixSize);
 				newPrefix[prefixSize] = partAndComplement.getKey(); // next part
 				// new rest is (rest-next part), the complement of next part
-				//LOG.debug("PUSH rest=" + rest + ", part=" + partAndComplement.getKey() + " -> newRest=" + partAndComplement.getValue() + ", newPrefix=" + Arrays.asList(newPrefix));
+				if (DEBUG) LOG.debug("PUSH rest=" + rest + ", part=" + partAndComplement.getKey() + " -> newRest=" + partAndComplement.getValue() + ", newPrefix=" + Arrays.asList(newPrefix));
 				stack.push(new MpiPartitionStackElem(newPrefix, partAndComplement.getValue()));
 			}
 		}
@@ -133,7 +133,7 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 		Mpi[] result = new Mpi[prefixSize+1];
 		result[0] = rest; // biggest part
 		System.arraycopy(prefix, 0, result, 1, prefixSize);
-		//LOG.debug("RETURN " + Arrays.toString(result));
+		if (DEBUG) LOG.debug("RETURN " + Arrays.toString(result));
 		return result;
 	}
 
@@ -153,8 +153,10 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 			MpiPartition expPartition = new MpiPartition(flatPartition);
 			partitions.add(expPartition);
 		}
-		LOG.debug(partGen.subvalues.accessStats());
-    	LOG.debug("maxStackSize = " + partGen.maxStackSize);
+		if (DEBUG) {
+			LOG.debug(partGen.subvalues.accessStats());
+	    	LOG.debug("maxStackSize = " + partGen.maxStackSize);
+		}
 		return partitions;
 	}
 	
@@ -170,8 +172,10 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 			partGen.next();
 			count++;
 		}
-		//LOG.debug(partGen.subvalues.accessStats());
-    	//LOG.debug("maxStackSize = " + partGen.maxStackSize);
+		if (DEBUG) {
+			LOG.debug(partGen.subvalues.accessStats());
+			LOG.debug("maxStackSize = " + partGen.maxStackSize);
+		}
 		return count;
 	}
 	
@@ -184,40 +188,4 @@ public class MpiPartitionGenerator implements Generator<Mpi[]> {
 		PrimePowers mpiFromFactors = PrimePowers_DefaultImpl.valueOf(n);
 		return numberOfPartitionsOf(mpiFromFactors);
 	}
-
-	private static void printNumberOfMultipartitePartitions(Mpi q) {
-		long start = System.currentTimeMillis();
-		long count = numberOfPartitionsOf(q);
-		LOG.info(q + " has " + count + " partitions (computed in " + (System.currentTimeMillis()-start) + "ms)");
-	}
-
-	/**
-	 * Test
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-    	
-		while(true) {
-			String input;
-			try {
-				LOG.info("\nPlease insert comma-separated parts of multipartite number:");
-				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				String line = in.readLine();
-				input = line.trim();
-				LOG.debug("multipartite number input = [" + input + "]");
-			} catch (IOException ioe) {
-				LOG.error("io-error occurring on input: " + ioe.getMessage());
-				continue;
-			}
-			try {
-				Mpi q = new Mpi_IntegerArrayImpl(input);
-		    	printNumberOfMultipartitePartitions(q);
-				//SortedSet<MpiPartition> partitions = partitionsOf(q);
-				//LOG.debug(q + " has " + partitions.size() + " partitions: " + partitions);
-			} catch (NumberFormatException nfe) {
-				LOG.error("input " + input + " is not a multipartite integer");
-			}
-		} // next input...
-    }
 }

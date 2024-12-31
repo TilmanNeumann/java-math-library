@@ -24,12 +24,12 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Integer partition generator runner.
+ * MPI partition generator runner.
  * @author Tilman Neumann
  */
-public class IntegerPartitionGeneratorRunner {
+public class MpiPartitionGeneratorRunner {
 
-	private static final Logger LOG = LogManager.getLogger(IntegerPartitionGeneratorRunner.class);
+	private static final Logger LOG = LogManager.getLogger(MpiPartitionGeneratorRunner.class);
 	
 	private static final boolean DEBUG = false;
 
@@ -43,26 +43,26 @@ public class IntegerPartitionGeneratorRunner {
 		while(true) {
 			String input;
 			try {
-				LOG.info("\nPlease insert (small) integer number:");
+				LOG.info("\nPlease insert comma-separated parts of multipartite number:");
 				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 				String line = in.readLine();
 				input = line.trim();
-				//LOG.debug("input = " + input);
+				LOG.debug("multipartite number input = [" + input + "]");
 			} catch (IOException ioe) {
 				LOG.error("io-error occurring on input: " + ioe.getMessage());
 				continue;
 			}
 			try {
-				int n = Integer.valueOf(input);
+				Mpi q = new Mpi_IntegerArrayImpl(input);
 				long start = System.currentTimeMillis();
-				long count = IntegerPartitionGenerator.numberOfPartitionsOf(n);
-				LOG.info(n + " has " + count + " partitions (computed in " + (System.currentTimeMillis()-start) + "ms)");
-				if (DEBUG) {
-					SortedSet<IntegerPartition> partitions = IntegerPartitionGenerator.partitionsOf(n);
-					LOG.debug(n + " has " + partitions.size() + " partitions: " + partitions);
-				}
+				long count = MpiPartitionGenerator.numberOfPartitionsOf(q);
+				LOG.info(q + " has " + count + " partitions (computed in " + (System.currentTimeMillis()-start) + "ms)");
+		    	if (DEBUG) {
+		    		SortedSet<MpiPartition> partitions = MpiPartitionGenerator.partitionsOf(q);
+		    		LOG.debug(q + " has " + partitions.size() + " partitions: " + partitions);
+		    	}
 			} catch (NumberFormatException nfe) {
-				LOG.error("input " + input + " is not an integer");
+				LOG.error("input " + input + " is not a multipartite integer");
 			}
 		} // next input...
     }
