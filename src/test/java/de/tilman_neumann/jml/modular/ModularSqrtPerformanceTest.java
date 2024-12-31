@@ -19,12 +19,13 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
-import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
-public class ModularSqrtTest {
-	private static final Logger LOG = LogManager.getLogger(ModularSqrtTest.class);
+public class ModularSqrtPerformanceTest {
+	private static final Logger LOG = LogManager.getLogger(ModularSqrtPerformanceTest.class);
 	
+	private static final int NCOUNT = 100000;
+
 	private static final SecureRandom rng = new SecureRandom();
 	private static final BPSWTest bpsw = new BPSWTest();
 	private static final JacobiSymbol jacobiEngine = new JacobiSymbol();
@@ -65,26 +66,8 @@ public class ModularSqrtTest {
 		}
 		return nArray;
 	}
-
-	private static void testCorrectness(int NCOUNT) {
-		ModularSqrt31 mse31 = new ModularSqrt31();
 	
-		LOG.info("Test correctness of " + NCOUNT + " p with p%8==5");
-		int[] pArray = createPArray(5, NCOUNT);
-		int[] nArray = createNArray(pArray);
-		for (int i=0; i<NCOUNT; i++) {
-			int a = nArray[i];
-			int p = pArray[i];
-			int tonelli = mse31.Tonelli_Shanks(a, p);
-			Ensure.ensureEquals((tonelli * (long)tonelli) % p, a%p);
-			
-			int case5Mod8 = mse31.case5Mod8(a, p);
-			Ensure.ensureEquals((case5Mod8 * (long)case5Mod8) % p, a%p);
-			Ensure.ensureEquals(tonelli, case5Mod8); // both returned the smaller sqrt
-		}
-	}
-	
-	private static void testPerformance(int NCOUNT) {
+	private static void testPerformance() {
 		long t;
 		ModularSqrt31 mse31 = new ModularSqrt31();
 		LOG.info("Test performance with " + NCOUNT + " test numbers:");
@@ -150,7 +133,6 @@ public class ModularSqrtTest {
 	 */
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
-		testCorrectness(100000);
-		testPerformance(100000);
+		testPerformance();
 	}
 }
