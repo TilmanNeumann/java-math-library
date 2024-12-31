@@ -16,99 +16,30 @@ package de.tilman_neumann.jml.modular;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
-import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
- * Test of Legendre and Jacobi symbol.
+ * Performance test of Legendre and Jacobi symbol.
  * 
- * Result: Jacobi is always faster than Eulers formula!
+ * Result: Jacobi is always faster than Eulers formula.
  * 
  * @author Tilman Neumann
  */
-public class JacobiTest {
-	private static final Logger LOG = LogManager.getLogger(JacobiTest.class);
+public class JacobiSymbolPerformanceTest {
+	private static final Logger LOG = LogManager.getLogger(JacobiSymbolPerformanceTest.class);
 	private static final boolean TEST_SLOW = false;
 	
-	private static final int NCOUNT_CORRECTNESS = 200;
-	private static final int NCOUNT_PERFORMANCE = 1000;
+	private static final int NCOUNT = 1000;
 	private static final int MAX_BITS = 500;
 	
 	private static final BPSWTest bpsw = new BPSWTest();
-	
-	private static void testCorrectness() {
-		LegendreSymbol legendreEngine = new LegendreSymbol();
-		JacobiSymbol jacobiEngine = new JacobiSymbol();
-		SecureRandom rng = new SecureRandom();
-		ArrayList<Integer> aList_int=null, pList_int=null;
-		for (int bits=10; bits<100; bits+=10) {
-			// generate test numbers
-			ArrayList<BigInteger> aList = new ArrayList<BigInteger>();
-			ArrayList<BigInteger> pList = new ArrayList<BigInteger>();
-			for (int i=0; i<NCOUNT_CORRECTNESS; i++) {
-				aList.add(new BigInteger(bits, rng));
-			}
-			int i=0;
-			while (i<NCOUNT_CORRECTNESS) {
-				// the p must be odd, and to allow comparison with the Legendre symbol it should be odd primes
-				BigInteger p = bpsw.nextProbablePrime(new BigInteger(bits, rng));
-				if (p.and(I_1).intValue()==1) {
-					pList.add(p);
-					i++;
-				}
-			}
-			
-			if (bits <31) {
-				aList_int = new ArrayList<Integer>();
-				for (BigInteger a : aList) aList_int.add(a.intValue());
-				pList_int = new ArrayList<Integer>();
-				for (BigInteger p : pList) pList_int.add(p.intValue());
-			}
-			
-			LOG.info("test Legendre(a|p) and Jacobi(a|p) for test numbers with " + bits + " bits");
-			
-			Iterator<Integer> aIntIter = aList_int.iterator();
-			for (BigInteger a : aList) {
-				int aInt = aIntIter.next();
-				Iterator<Integer> pIntIter = pList_int.iterator();
-				for (BigInteger p : pList) {
-					int pInt = pIntIter.next();
-					// test big argument formulas
-					int correct = jacobiEngine.jacobiSymbol_v01(a, p);
-					int jacobi02 = jacobiEngine.jacobiSymbol_v02(a, p);
-					int jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(a, p);
-					int legendre = legendreEngine.EulerFormula(a, p);
-					Ensure.ensureEquals(correct, jacobi02);
-					Ensure.ensureEquals(correct, jacobi03);
-					Ensure.ensureEquals(correct, legendre);
-					// test formulas with big a, int p (p and pInt will be different for bits>30)
-					correct = jacobiEngine.jacobiSymbol_v01(a, BigInteger.valueOf(pInt));
-					jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(a, pInt);
-					legendre = legendreEngine.EulerFormula(a, pInt);
-					Ensure.ensureEquals(correct, jacobi03);
-					Ensure.ensureEquals(correct, legendre);
-					// test formulas with int a, big p (a and aInt will be different for bits>30)
-					correct = jacobiEngine.jacobiSymbol_v01(BigInteger.valueOf(aInt), p);
-					jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(aInt, p);
-					Ensure.ensureEquals(correct, jacobi03);
-					// test formulas with all int arguments (a, aInt will differ as well as p, pInt for bits>30)
-					correct = jacobiEngine.jacobiSymbol_v01(BigInteger.valueOf(aInt), BigInteger.valueOf(pInt));
-					jacobi03 = jacobiEngine.jacobiSymbol/*_v03*/(aInt, pInt);
-					legendre = legendreEngine.EulerFormula(aInt, pInt);
-					Ensure.ensureEquals(correct, jacobi03);
-					Ensure.ensureEquals(correct, legendre);
-				}
-			}
-		}
-	}
 	
 	private static void testPerformance() {
 		SecureRandom rng = new SecureRandom();
@@ -117,11 +48,11 @@ public class JacobiTest {
 			// generate test numbers
 			ArrayList<BigInteger> aList = new ArrayList<BigInteger>();
 			ArrayList<BigInteger> pList = new ArrayList<BigInteger>();
-			for (int i=0; i<NCOUNT_PERFORMANCE; i++) {
+			for (int i=0; i<NCOUNT; i++) {
 				aList.add(new BigInteger(bits, rng));
 			}
 			int i=0;
-			while (i<NCOUNT_PERFORMANCE) {
+			while (i<NCOUNT) {
 				// the p must be odd, and to allow comparison with the Legendre symbol it should be odd primes
 				BigInteger p = bpsw.nextProbablePrime(new BigInteger(bits, rng));
 				if (p.and(I_1).intValue()==1) {
@@ -225,7 +156,6 @@ public class JacobiTest {
 	 */
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
-		testCorrectness();
 		testPerformance();
 	}
 }
