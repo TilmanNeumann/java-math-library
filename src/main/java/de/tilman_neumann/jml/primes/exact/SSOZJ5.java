@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -399,7 +398,16 @@ public class SSOZJ5 {
 	/**
 	 * Main routine to setup, time, and display results for twin primes sieve.
 	 */
-	static void twinprimes_ssoz() {
+	public static void twinprimes_ssoz(BigInteger start, BigInteger stop) {
+		start = start.max(THREE);
+		BigInteger end = stop.max(THREE);
+
+		start_num = start.or(ONE); 			 // if start_num even add 1
+		end_num = end.subtract(ONE).or(ONE); // if end_num even subtract 1
+
+		PGparam.Lstart = start_num.longValue();
+		PGparam.Lend = end_num.longValue();
+
 		System.out.println(" Logicals processors used = "+ (countProcessors()));
 		long ts = epochTime();             // start timing sieve setup execution
 
@@ -472,38 +480,6 @@ public class SSOZJ5 {
 
 	}
 
-	/**
-	 * Only BigDecimal understand scientific notation
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		//if (args==null)
-		Scanner userInput = new Scanner(System.in).useDelimiter("[,\\s+]");
-		System.out.println("Please enter an range of integer (comma or space separated): ");
-		BigInteger stop = userInput.nextBigDecimal().toBigIntegerExact();
-		BigInteger start = userInput.hasNextLine()?userInput.nextBigDecimal().toBigIntegerExact():THREE;
-
-		userInput.close();
-
-		if (stop.compareTo(start) < 0) {
-			BigInteger tmp = start;
-			start = stop;
-			stop = tmp;
-		}
-
-		start = start.max(THREE);
-		BigInteger end = stop.max(THREE);
-
-		start_num = start.or(ONE); 			 // if start_num even add 1
-		end_num = end.subtract(ONE).or(ONE); // if end_num even subtract 1
-
-		PGparam.Lstart = start_num.longValue();
-		PGparam.Lend = end_num.longValue();
-
-		twinprimes_ssoz();
-
-	}
-
 	private static int countProcessors() {
 		return Runtime.getRuntime().availableProcessors();
 	}
@@ -562,20 +538,16 @@ public class SSOZJ5 {
 		return ((x + m) % m) % m;
 	}
 
-	public static long gcd(long a, long b) {
-		if (a == 0) return b;
-		return gcd(b % a, a);
-	}
-
 	/**
 	 * According to the Java Language Spec, Java's % operator is a remainder operator, not a modulo operator.
 	 * @param x a long
 	 * @param y a long
 	 * @return a long modulo
 	 */
-	private static long floorMod(long x, long y)	{
+	private static long floorMod(long x, long y) {
 		return ((x >> 31) & (y - 1)) + (x % y);
-		}
+	}
+	
 	@FunctionalInterface
 	public interface Callback<T> {
 		void on(T event);
