@@ -38,8 +38,7 @@ public class CombinedFactorAlgorithmTest {
 		// gitgub CI results for the 236 bit test number:
 		// 1 thread -> 22s, 2 threads -> 12s, 4 threads -> 14s.
 		// Using 2 threads looks best so far.
-		int numThreads = 2;
-		factorizer = new CombinedFactorAlgorithm(numThreads, null, true);
+		factorizer = new CombinedFactorAlgorithm(2, null, true);
 	}
 
 	@Test
