@@ -22,13 +22,14 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.Rng;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
-import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Generation of random N that are not too easy to factor.
  * The standard case are semiprimes N where the smaller factor of N is >= cbrt(N).
+ * 
+ * This class should stay in the Maven main scope because it is of use for referencing projects.
  * 
  * @author Tilman Neumann
  */
@@ -131,19 +132,5 @@ public class TestsetGenerator {
 			if (writer!=null) writer.close();
 		}
 		return NArray;
-	}
-	
-	/**
-	 * A simple main function to generate hard semi-primes.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-
-		for (int bits = 330; bits<=450; bits+=10) {
-			BigInteger num = generate(1, bits, TestNumberNature.QUITE_HARD_SEMIPRIMES)[0];
-			LOG.info("// " + bits + " bits:");
-			LOG.info(num);
-		}
 	}
 }
