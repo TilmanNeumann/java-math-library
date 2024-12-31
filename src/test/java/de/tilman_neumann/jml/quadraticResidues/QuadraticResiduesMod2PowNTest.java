@@ -42,6 +42,7 @@ public class QuadraticResiduesMod2PowNTest {
 	}
 
 	@Test
+	// TODO this test must be moved to another class because m=100 is not of the form 2^n
 	public void testSetOfQuadraticResidues() {
 		TreeSet<Long> quadraticResiduesMod100 = QuadraticResidues.getQuadraticResidues(100);
 		LOG.info("m = 100 has " + quadraticResiduesMod100.size() + " quadratic residues: " + quadraticResiduesMod100);
