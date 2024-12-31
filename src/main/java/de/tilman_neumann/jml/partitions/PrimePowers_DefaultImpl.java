@@ -15,14 +15,11 @@ package de.tilman_neumann.jml.partitions;
 
 import java.math.BigInteger;
 import java.util.Map;
-import java.util.SortedSet;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.Divisors;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -88,33 +85,5 @@ public class PrimePowers_DefaultImpl extends Mpi_IntegerArrayImpl implements Pri
 
 	public BigInteger getPrime(int index) {
 		return primes[index];
-	}
-	
-	/**
-	 * Check relationship between set of divisors and powermap.
-	 * Hypothesis confirmed from 0..203846.
-	 * 
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		for (int n=0; n<1000; n++) {
-			BigInteger bigN = BigInteger.valueOf(n);
-			SortedSet<BigInteger> divisors = Divisors.getDivisors(bigN);
-			int numberOfDivisors = divisors.size();
-			PrimePowers primePowers = PrimePowers_DefaultImpl.valueOf(bigN);
-			MpiPowerMap powerMap = MpiPowerMap.create(primePowers);
-			int powerMapSize = powerMap.size();
-			LOG.info("n=" + n + " has " + numberOfDivisors + " divisors, and power map has " + powerMapSize + " entries");
-			int correctedPowerMapSize = n>0 ? powerMapSize + primePowers.getDim() + 1 : 0;
-			LOG.info("correctedPowerMapSize = " + correctedPowerMapSize);
-			// the power map is missing the unit entries (only one prime) and the empty entry!
-			if (numberOfDivisors!=correctedPowerMapSize) {
-				LOG.info("n = " + n);
-				LOG.info("divisors = " + divisors);
-				LOG.info("powerMap = " + powerMap);
-				throw new IllegalStateException("my hypothesis is wrong for n=" + n);
-			}
-		}
 	}
 }
