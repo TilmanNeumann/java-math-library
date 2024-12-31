@@ -40,34 +40,45 @@ public class QuadraticResiduesMod2PowNPerformanceTest {
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
 
-		for (int n=0; ; n++) {
+		for (int n=0; n<34; n++) {
 			long t0, t1;
 
-			t0 = System.currentTimeMillis();
-			List<BigInteger> quadraticResiduesMod2PowN_v0 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_big(n);
-			t1 = System.currentTimeMillis();
-			LOG.info("v0: n = " + n + " has " + quadraticResiduesMod2PowN_v0.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v0 : "") + " -- duration = " + (t1-t0) + "ms");
-
-			t0 = System.currentTimeMillis();
-			List<Long> quadraticResiduesMod2PowN_v1 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll(n);
-			t1 = System.currentTimeMillis();
-			LOG.info("v1: n = " + n + " has " + quadraticResiduesMod2PowN_v1.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v1 : "") + " -- duration = " + (t1-t0) + "ms");
-
-			t0 = System.currentTimeMillis();
-			List<Long> quadraticResiduesMod2PowN_v2 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_v2(n);
-			t1 = System.currentTimeMillis();
-			LOG.info("v2: n = " + n + " has " + quadraticResiduesMod2PowN_v2.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v2 : "") + " -- duration = " + (t1-t0) + "ms");
-
-			t0 = System.currentTimeMillis();
-			List<Long> quadraticResiduesMod2PowN_v3 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
-			t1 = System.currentTimeMillis();
-			LOG.info("v3: n = " + n + " has " + quadraticResiduesMod2PowN_v3.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v3 : "") + " -- duration = " + (t1-t0) + "ms");
-
-			t0 = System.currentTimeMillis();
-			long[] array = new long[((1<<n) / 6) + 6];
-			int count = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n, array);
-			t1 = System.currentTimeMillis();
-			LOG.info("v4: n = " + n + " has " + count + " quadratic residues" + (SHOW_ELEMENTS ? ": " + Arrays.toString(array) : "") + " -- duration = " + (t1-t0) + "ms");
+			if (n<25) { // otherwise too slow
+				t0 = System.currentTimeMillis();
+				List<BigInteger> quadraticResiduesMod2PowN_v0 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_big(n);
+				t1 = System.currentTimeMillis();
+				LOG.info("v0: n = " + n + " has " + quadraticResiduesMod2PowN_v0.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v0 : "") + " -- duration = " + (t1-t0) + "ms");
+			}
+			
+			if (n<29) { // avoid OutOfMemoryError
+				t0 = System.currentTimeMillis();
+				List<Long> quadraticResiduesMod2PowN_v1 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll(n);
+				t1 = System.currentTimeMillis();
+				LOG.info("v1: n = " + n + " has " + quadraticResiduesMod2PowN_v1.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v1 : "") + " -- duration = " + (t1-t0) + "ms");
+			}
+			
+			if (n<31) { // avoid OutOfMemoryError
+				t0 = System.currentTimeMillis();
+				List<Long> quadraticResiduesMod2PowN_v2 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_v2(n);
+				t1 = System.currentTimeMillis();
+				LOG.info("v2: n = " + n + " has " + quadraticResiduesMod2PowN_v2.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v2 : "") + " -- duration = " + (t1-t0) + "ms");
+			}
+			
+			if (n<30) { // avoid OutOfMemoryError
+				t0 = System.currentTimeMillis();
+				List<Long> quadraticResiduesMod2PowN_v3 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
+				t1 = System.currentTimeMillis();
+				LOG.info("v3: n = " + n + " has " + quadraticResiduesMod2PowN_v3.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v3 : "") + " -- duration = " + (t1-t0) + "ms");
+			}
+			
+			if (n<33) { // avoid OutOfMemoryError
+				t0 = System.currentTimeMillis();
+				int arraySize = (int) ((1L<<n) / 6) + 6; // long conversion gives us 2 more n without "NegativeArraySizeException"
+				long[] array = new long[arraySize];
+				int count = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n, array);
+				t1 = System.currentTimeMillis();
+				LOG.info("v4: n = " + n + " has " + count + " quadratic residues" + (SHOW_ELEMENTS ? ": " + Arrays.toString(array) : "") + " -- duration = " + (t1-t0) + "ms");
+			}
 		}
 	}
 }

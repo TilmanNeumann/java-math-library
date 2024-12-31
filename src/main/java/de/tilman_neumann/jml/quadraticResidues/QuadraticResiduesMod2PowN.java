@@ -142,6 +142,8 @@ public class QuadraticResiduesMod2PowN {
 	/**
 	 * Compute all quadratic residues modulus 2^n.
 	 * 
+	 * OutOfMemoryError at n=29.
+	 * 
 	 * @param n
 	 * @return list of quadratic residue modulus 2^n
 	 */
@@ -159,6 +161,8 @@ public class QuadraticResiduesMod2PowN {
 	/**
 	 * Compute all quadratic residues modulus 2^n.
 	 * 
+	 * OutOfMemoryError at n=31.
+	 * 
 	 * @param n
 	 * @return list of quadratic residue modulus 2^n
 	 */
@@ -175,6 +179,9 @@ public class QuadraticResiduesMod2PowN {
 
 	/**
 	 * Compute all quadratic residues modulus 2^n.
+	 * 
+	 * OutOfMemoryError at n=30.
+	 * 
 	 * @param n
 	 * @return list of quadratic residues
 	 */
@@ -208,6 +215,8 @@ public class QuadraticResiduesMod2PowN {
 	/**
 	 * Compute all quadratic residues modulus 2^n.
 	 * Fast implementation using a single array, not needing reallocations.
+	 * 
+	 * OutOfMemoryError at n=33.
 	 * 
 	 * @param n
 	 * @param array the array to fill with quadratic residues
