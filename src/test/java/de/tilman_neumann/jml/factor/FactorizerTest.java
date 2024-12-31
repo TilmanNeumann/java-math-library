@@ -50,6 +50,8 @@ import de.tilman_neumann.util.*;
  * Main class to compare the performance of factor algorithms.
  * @author Tilman Neumann
  */
+// TODO Is there a better name for this class? It is no unit test, but no simple performance test either, it also checks correctness...
+// Suggenstions: FactorizerPerformanceTest, FactorizerComparator, FactorizerTestRunner, ...
 @SuppressWarnings("unused") // suppress warnings on unused imports
 public class FactorizerTest {
 	private static final Logger LOG = LogManager.getLogger(FactorizerTest.class);
