@@ -22,52 +22,21 @@ import java.util.TreeMap;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-
 /**
- * Performance test of nextProbablePrime() implementations.
+ * Performance test of nextProbablePrime() implementations (currently only Java vs. BPSW).
  * 
  * @author Tilman Neumann
  */
-public class NextProbablePrimeTest {
-	private static final Logger LOG = LogManager.getLogger(NextProbablePrimeTest.class);
+public class NextProbablePrimePerformanceTest {
+	private static final Logger LOG = LogManager.getLogger(NextProbablePrimePerformanceTest.class);
 	private static final SecureRandom RNG = new SecureRandom();
 	
 	/** Number of test numbers for the performance test. */
 	private static final int NCOUNT = 1000;
 
 	private static final BPSWTest bpsw = new BPSWTest();
-	
-	/**
-	 * Verify that the corrected lower/upper integers of sqrt(N) are computed.
-	 */
-	@SuppressWarnings("unused")
-	private static void testCorrectness() {
-		for (int nBits = 20; ; nBits+=10) {
-			LOG.info("Test correctness of " + NCOUNT + " N with " + nBits + " bits:");
-			int i = 0;
-			while (i < NCOUNT) {
-				BigInteger n = new BigInteger(nBits, RNG);
-				if (n.equals(I_0)) continue; // exclude 0 from test set
-				
-				// supposed correct value:
-				BigInteger nextProbablePrime = n.nextProbablePrime();
-				
-				// check others
-				try {
-					BigInteger nextProbablePrime_bpsw = bpsw.nextProbablePrime(n);
-					Ensure.ensureEquals(nextProbablePrime, nextProbablePrime_bpsw);
-				} catch (AssertionError ae) {
-					LOG.error("Failure at n=" + n + ": " + ae, ae);
-				}
-				i++;
-			}
-			LOG.info("    Tested " + NCOUNT + " next probable primes...");
-		}
-	}
 
 	/**
 	 * Performance test.
@@ -134,8 +103,7 @@ public class NextProbablePrimeTest {
 	 * @param args ignored
 	 */
 	public static void main(String[] args) {
-		ConfigUtil.initProject(); // set up logger
-		//testCorrectness();
+		ConfigUtil.initProject();
 		testPerformance();
 	}
 }
