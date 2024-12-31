@@ -13,9 +13,6 @@
  */
 package de.tilman_neumann.jml.partitions;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.SortedSet;
@@ -23,8 +20,6 @@ import java.util.TreeSet;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
-import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Integer partition generator, derived from fast multipartite number partition generator.
@@ -112,6 +107,10 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 		return result;
 	}
 
+	public int getMaxStackSize() {
+		return maxStackSize;
+	}
+	
 	/**
 	 * Computes the partitions of the given number.
 	 * This is much slower than iterating over the results of the next() method and may give
@@ -134,45 +133,13 @@ public class IntegerPartitionGenerator implements Generator<int[]> {
 		return partitions;
 	}
 
-	private static void printNumberOfPartitions(int n) {
-		long start = System.currentTimeMillis();
+	public static long getNumberOfPartitions(int n) {
 		IntegerPartitionGenerator partGen = new IntegerPartitionGenerator(n);
-		int count = 0;
+		long count = 0;
 		while (partGen.hasNext()) {
 			partGen.next();
 			count++;
 		}
-    	LOG.debug("maxStackSize = " + partGen.maxStackSize);
-		LOG.info(n + " has " + count + " partitions (computed in " + (System.currentTimeMillis()-start) + "ms)");
+		return count;
 	}
-
-	/**
-	 * Test
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-    	
-		while(true) {
-			String input;
-			try {
-				LOG.info("\nPlease insert (small) integer number:");
-				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				String line = in.readLine();
-				input = line.trim();
-				//LOG.debug("input = " + input);
-			} catch (IOException ioe) {
-				LOG.error("io-error occurring on input: " + ioe.getMessage());
-				continue;
-			}
-			try {
-				int n = Integer.valueOf(input);
-				printNumberOfPartitions(n);
-				//SortedSet<IntegerPartition> partitions = partitionsOf(n);
-				//LOG.debug(n + " has " + partitions.size() + " partitions: " + partitions);
-			} catch (NumberFormatException nfe) {
-				LOG.error("input " + input + " is not an integer");
-			}
-		} // next input...
-    }
 }
