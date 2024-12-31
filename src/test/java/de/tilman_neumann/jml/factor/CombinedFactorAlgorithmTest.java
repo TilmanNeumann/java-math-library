@@ -44,6 +44,7 @@ public class CombinedFactorAlgorithmTest {
 
 	@Test
 	public void testSomeNumbers() {
+		assertFactorizationSuccess("1100087778366101931", "3 * 7 * 43 * 89 * 199 * 263 * 307 * 881 * 967"); // Fibonacci(88), 60 bit
 		assertFactorizationSuccess("15841065490425479923", "2604221509 * 6082841047"); // 64 bit
 		assertFactorizationSuccess("11111111111111111111111111", "11 * 53 * 79 * 859 * 265371653 * 1058313049"); // 84 bit
 		assertFactorizationSuccess("5679148659138759837165981543", "3^3 * 466932157 * 450469808245315337"); // 93 bit
