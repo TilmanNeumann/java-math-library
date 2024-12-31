@@ -17,49 +17,17 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.bounds.NthPrimeUpperBounds;
-import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Test performance and correctness of results of prime sieves.
+ * Compares the performance of AutoExpandingPrimesArray and SegmentedSieve.
+ * 
+ * Result: Not much of a difference.
+ * 
  * @author Tilman Neumann
  */
-public class SieveTest {
-	private static final Logger LOG = LogManager.getLogger(SieveTest.class);
-	
-	private static void testCorrectness(int maxCount) {
-		for (int count=100; count<=maxCount; count*=10) {
-			LOG.info("Test correctness of first " + count + " primes...");
-			
-			// get correct data
-			CollectingCallback correctCallback = new CollectingCallback(count);
-	    	SimpleSieve correctSieve = new SimpleSieve(correctCallback);
-			int nthPrimeUpperBound = (int) NthPrimeUpperBounds.combinedUpperBound(count);
-	    	correctSieve.sieve(nthPrimeUpperBound);
-	    	int correctCount = correctCallback.count;
-	    	int[] correctResult = correctCallback.array;
-	    	Ensure.ensureEquals(count, correctCount);
-	    	Ensure.ensureEquals(2, correctResult[0]);
-	    	Ensure.ensureEquals(3, correctResult[1]);
-	    	Ensure.ensureEquals(5, correctResult[2]);
-	    	
-			// test segmented sieve
-			CollectingCallback segmentedCallback = new CollectingCallback(count);
-	    	SegmentedSieve segmentedSieve = new SegmentedSieve(segmentedCallback);
-			segmentedSieve.sieve(nthPrimeUpperBound);
-			int[] segmentedResult = segmentedCallback.array;
-			Ensure.ensureEquals(count, segmentedCallback.count);
-	    	for (int i=0; i<count; i++) {
-	    		Ensure.ensureEquals(correctResult[i], segmentedResult[i]);
-	    	}
-			
-			// test sieve facade
-	    	AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get().ensurePrimeCount(count);
-	    	for (int i=0; i<count; i++) {
-	    		Ensure.ensureEquals(correctResult[i], primesArray.getPrime(i));
-	    	}
-		}
-	}
+public class AutoExpandingPrimesArrayPerformanceTest {
+	private static final Logger LOG = LogManager.getLogger(AutoExpandingPrimesArrayPerformanceTest.class);
 	
 	private static void testPerformance() {
 		for (long count=100; ; count*=10) {
@@ -104,7 +72,6 @@ public class SieveTest {
 	 */
 	public static void main(String[] args) {
     	ConfigUtil.initProject();
-    	testCorrectness(10000000); // 100m is quite slow but feasible; but array-storing algorithms will fail soon above that
     	testPerformance();
 	}
 }

@@ -13,11 +13,6 @@
  */
 package de.tilman_neumann.jml.primes.exact;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import de.tilman_neumann.util.ConfigUtil;
-
 /**
  * Monolithic sieve of Eratosthenes, working only for limits < Integer.MAX_VALUE = 2^31 - 1.
  * Used for quality tests only.
@@ -25,8 +20,6 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class SimpleSieve {
-	private static final Logger LOG = LogManager.getLogger(SimpleSieve.class);
-
 	private SieveCallback clientCallback;
 
 	public SimpleSieve(SieveCallback clientCallback) {
@@ -60,23 +53,6 @@ public class SimpleSieve {
 			if (!isComposite[n]) {
 				clientCallback.processPrime(n);
 			}
-		}
-	}
-	
-	/**
-	 * Test performance without load caused by processPrime().
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-		CountingCallback callback = new CountingCallback();
-		long limit = 1000000;
-		while (limit < Integer.MAX_VALUE) {
-			long start = System.nanoTime();
-			SimpleSieve sieve = new SimpleSieve(callback);
-			sieve.sieve(limit);
-			LOG.info("Sieving x <= " + limit + " found " + callback.getCount() + " primes in " + ((System.nanoTime()-start) / 1000000) + " ms");
-			limit *=10;
 		}
 	}
 }
