@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.logging.log4j.Logger;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.util.ConfigUtil;
@@ -34,9 +36,14 @@ public class TestsetGeneratorTest {
 	private static final int MIN_BITS = 20;
 	private static final int MAX_BITS = 1000;
 	private static final int INCR_BITS = 10;
-	
-	public static void main(String[] args) {
+
+	@BeforeClass
+	public static void setup() {
 		ConfigUtil.initProject();
+	}
+
+	@Test
+	public void testGeneratedNumberSize() {
 		Timer timer = new Timer();
 		for (int bits = MIN_BITS; bits<=MAX_BITS; bits+=INCR_BITS) {
 			long start = timer.capture();
