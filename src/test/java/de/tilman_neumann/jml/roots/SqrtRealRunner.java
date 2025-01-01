@@ -25,12 +25,12 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 
 /**
- * Test i.th root of floating point numbers by user input.
+ * Test the computation of square roots of floating point numbers by user input.
  *  
  * @author Tilman Neumann
  */
-public class RootsRealRunner {
-	private static final Logger LOG = LogManager.getLogger(RootsRealRunner.class);
+public class SqrtRealRunner {
+	private static final Logger LOG = LogManager.getLogger(SqrtRealRunner.class);
   
 	/**
 	 * Test.
@@ -51,13 +51,12 @@ public class RootsRealRunner {
 		        long t0, t1;
 		        
 		        t0 = System.currentTimeMillis();
-		    	for (int i=2; i<10; i++) {
-		    		for (Scale scale = Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-		        		LOG.debug(i + ".th root(" + x  + ", " + scale + ") = " + RootsReal.ithRoot(x, i, scale));
-		        	}
+		        t0 = System.currentTimeMillis();
+		        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
+		            LOG.debug("sqrt(" + x  + ", " + scale + ") = " + SqrtReal.sqrt(x, scale));
 		        }
 		        t1 = System.currentTimeMillis();
-		        LOG.debug("Time of root computations: " + TimeUtil.timeDiffStr(t0,t1));
+		        LOG.debug("Time of sqrt computations: " + TimeUtil.timeDiffStr(t0,t1));
 			} catch (Exception ex) {
 				LOG.error("Error " + ex, ex);
 			}

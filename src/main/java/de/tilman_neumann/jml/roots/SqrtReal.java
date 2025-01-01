@@ -120,32 +120,4 @@ public class SqrtReal {
 		
 		throw new IllegalArgumentException("x = " + x + ", but sqrt(x) is defined for x>=0 only!");
   	}
-  
-	/**
-	 * Test.
-	 * @param argv command line arguments
-	 */
-	public static void main(String[] argv) {
-    	ConfigUtil.initProject();
-
-    	if (argv.length != 2) {
-	        // wrong number of arguments !
-	        LOG.error("Usage: Sqrt <argument> <scale in decimal digits> !!");
-	        return;
-	    }
-        
-        // get argument for the sqrt function (decimal input required):
-	    BigDecimal x = new BigDecimal(argv[0]);
-	    
-        // get desired maximal precision
-	    Scale maxScale = Scale.valueOf(Integer.parseInt(argv[1]));
-        long t0, t1;
-        
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            LOG.debug("sqrt(" + x  + ", " + scale + ")=" + sqrt(x, scale));
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of sqrt computation: " + TimeUtil.timeDiffStr(t0,t1));
-	}
 }
