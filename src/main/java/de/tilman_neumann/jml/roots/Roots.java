@@ -14,15 +14,12 @@
 package de.tilman_neumann.jml.roots;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.ArrayList;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.base.BigIntConverter;
 import de.tilman_neumann.util.Ensure;
-import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -41,9 +38,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  */
 public class Roots {
 	private static final Logger LOG = LogManager.getLogger(Roots.class);
-	private static final SecureRandom RNG = new SecureRandom();
 	private static final boolean DEBUG = false;
-	private static final boolean TEST_BITWISE = false;
 
 	/**
 	 * Computes the i.th root of N, using either a bitwise correction approach (for rather big roots <code>i</code>)
@@ -69,7 +64,7 @@ public class Roots {
 	 * @param i root
 	 * @return [lower, upper] int values of i.th root(N)
 	 */
-	private static BigInteger[] ithRoot_bitwise(BigInteger N, int i) {
+	static BigInteger[] ithRoot_bitwise(BigInteger N, int i) {
 		BigInteger ret = I_0;
 		int maxResultBitIndex = N.bitLength()/i;
 		for (int bitIdx=maxResultBitIndex; bitIdx>=0; bitIdx--) {
@@ -251,90 +246,5 @@ public class Roots {
 		BigInteger initialGuess = BigIntConverter.fromDouble(Math.pow(N.doubleValue(), 1.0D/i));
 		//LOG.debug(i + ".th root(" + N + "): initialGuess = " + initialGuess);
 		return initialGuess;
-	}
-
-   	/**
-   	 * create test set for performance test: random ints with random bit length < 1000
-   	 * @param nCount
-   	 * @return
-   	 */
-	private static ArrayList<BigInteger> createTestSet(int nCount, int bits) {
-	   	ArrayList<BigInteger> testSet = new ArrayList<BigInteger>();
-	   	for (int i=0; i<nCount;) {
-	   		BigInteger testNum = new BigInteger(bits, RNG);
-	   		if (testNum.bitLength()<bits) continue; // not exact size, skip
-	   		testSet.add(testNum);
-	   		i++;
-	   	}
-	   	return testSet;
-	}
-	
-	private static void testCorrectness(int nCount) {
-		for (int bits = 100; bits<=1000; bits+=100) {
-			ArrayList<BigInteger> testSet = createTestSet(nCount, bits);
-			// test correctness
-		   	for (BigInteger testNum : testSet) {
-		   		int root = 2 + RNG.nextInt(48);
-		   		BigInteger[] linResult = Roots.ithRoot_bitwise(testNum, root);
-		   		BigInteger[] heronResult = Roots.ithRoot_Heron1(testNum, root);
-		   		if (!linResult[0].equals(heronResult[0])) {
-		   			LOG.error("ERROR: Heron1: lower bound of " + root + ".th root(" + testNum + "): linear algorithm -> " + linResult[0] + ", Heron1 -> " + heronResult[0]);
-		   		}
-		   		if (!linResult[1].equals(heronResult[1])) {
-		   			LOG.error("ERROR: Heron1: upper bound of " + root + ".th root(" + testNum + "): linear algorithm -> " + linResult[1] + ", Heron1 -> " + heronResult[1]);
-		   		}
-
-		   		heronResult = Roots.ithRoot_Heron2(testNum, root);
-		   		if (!linResult[0].equals(heronResult[0])) {
-		   			LOG.error("ERROR: Heron2: lower bound of " + root + ".th root(" + testNum + "): linear algorithm -> " + linResult[0] + ", Heron2 -> " + heronResult[0]);
-		   		}
-		   		if (!linResult[1].equals(heronResult[1])) {
-		   			LOG.error("ERROR: Heron2: upper bound of " + root + ".th root(" + testNum + "): linear algorithm -> " + linResult[1] + ", Heron2 -> " + heronResult[1]);
-		   		}
-		   	}
-		}
-	}
-
-	private static void testPerformance(int nCount) {
-		for (int bits = 100; ; bits+=100) {
-			ArrayList<BigInteger> testSet = createTestSet(nCount, bits);
-			for (int root=3; ((float)bits)/root > 4; root += 1+RNG.nextInt(10)) {
-				// RNG reduces compiler optimizations ? -> makes test results more comparable ?
-				LOG.info("test " + root + ".th root of " + bits + "-bit numbers:");
-				long t0, t1;
-				if (TEST_BITWISE) {
-				   	t0 = System.currentTimeMillis();
-				   	for (BigInteger testNum : testSet) {
-				   		Roots.ithRoot_bitwise(testNum, root);
-				   	}
-				   	t1 = System.currentTimeMillis();
-					LOG.info("   Bitwise ith root test with " + nCount + " numbers took " + (t1-t0) + " ms");
-				}
-		   		
-			   	t0 = System.currentTimeMillis();
-			   	for (BigInteger testNum : testSet) {
-			   		Roots.ithRoot_Heron1(testNum, root);
-			   	}
-			   	t1 = System.currentTimeMillis();
-				LOG.info("   Heron1 ith root test with " + nCount + " numbers took " + (t1-t0) + " ms");
-		   		
-			   	t0 = System.currentTimeMillis();
-			   	for (BigInteger testNum : testSet) {
-			   		Roots.ithRoot_Heron2(testNum, root);
-			   	}
-			   	t1 = System.currentTimeMillis();
-				LOG.info("   Heron2 ith root test with " + nCount + " numbers took " + (t1-t0) + " ms");
-			}
-		}
-	}
-
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-	   	ConfigUtil.initProject();
-	   	testCorrectness(10000);
-	   	testPerformance(5000000);
 	}
 }
