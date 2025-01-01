@@ -29,9 +29,9 @@ import de.tilman_neumann.jml.modular.JacobiSymbol;
  * 
  * @author Tilman Neumann
  */
-public class QuadraticResiduesModBPowN {
+public class QuadraticResiduesModPPowN {
 
-	private static final Logger LOG = LogManager.getLogger(QuadraticResiduesModBPowN.class);
+	private static final Logger LOG = LogManager.getLogger(QuadraticResiduesModPPowN.class);
 
 	private static final boolean DEBUG = false;
 

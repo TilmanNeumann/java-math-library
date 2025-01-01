@@ -26,9 +26,9 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * @author Tilman Neumann
  */
-public class QuadraticResiduesModBPowNTest01 {
+public class QuadraticResiduesModPPowNTest01 {
 	
-	private static final Logger LOG = LogManager.getLogger(QuadraticResiduesModBPowNTest01.class);
+	private static final Logger LOG = LogManager.getLogger(QuadraticResiduesModPPowNTest01.class);
 	
 	private static final int P = 23;
 
