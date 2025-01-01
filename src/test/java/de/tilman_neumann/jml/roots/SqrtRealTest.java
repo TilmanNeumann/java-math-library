@@ -26,8 +26,8 @@ import de.tilman_neumann.util.ConfigUtil;
 /**
  * @author Tilman Neumann
  */
-public class SqrtTest {
-	private static final Logger LOG = LogManager.getLogger(SqrtTest.class);
+public class SqrtRealTest {
+	private static final Logger LOG = LogManager.getLogger(SqrtRealTest.class);
 
 	@Before
 	public void setup() {
