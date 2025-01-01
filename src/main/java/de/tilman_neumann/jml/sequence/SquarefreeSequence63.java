@@ -13,18 +13,13 @@
  */
 package de.tilman_neumann.jml.sequence;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
-import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Sequence of multiplier * {squarefree numbers 1,2,3,5,6,7,10,11,13,...}, long implementation.
  * @author Tilman Neumann
  */
 public class SquarefreeSequence63 implements NumberSequence<Long> {
-	private static final Logger LOG = LogManager.getLogger(SquarefreeSequence63.class);
 
 	private AutoExpandingPrimesArray primesArray = AutoExpandingPrimesArray.get();
 	
@@ -69,15 +64,5 @@ public class SquarefreeSequence63 implements NumberSequence<Long> {
 			if (isSquareFree) break; // found next square-free number
 		}
 		return ret * multiplier;
-	}
-	
-	// standalone test
-	public static void main(String[] args) {
-	   	ConfigUtil.initProject();
-	   	SquarefreeSequence63 seqGen = new SquarefreeSequence63(1);
-		seqGen.reset();
-		for (int i=1; i<=1000; i++) {
-			LOG.info("squarefree(" + i + ") = " + seqGen.next());
-		}
 	}
 }
