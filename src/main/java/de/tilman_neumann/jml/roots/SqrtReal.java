@@ -22,8 +22,6 @@ import de.tilman_neumann.jml.base.BigDecimalMath;
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.jml.powers.Pow2;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.TimeUtil;
 
 import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -36,7 +34,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  */
 public class SqrtReal {
 	private static final Logger LOG = LogManager.getLogger(SqrtReal.class);
-
+	private static final boolean DEBUG = false;
+	
 	/**
 	 * Compute square root.
 	 * 
@@ -47,7 +46,7 @@ public class SqrtReal {
 	public static BigDecimal sqrt(BigDecimal x, Scale resultScale) {
 		// get initial guess correct to double precision (52 bit)
 		BigDecimal guess = getInitialApproximation(x);
-		//LOG.debug("initial guess: sqrt(" + x + ") ~ " + guess);
+		if (DEBUG) LOG.debug("initial guess: sqrt(" + x + ") ~ " + guess);
 		// iteration
 		return sqrt(x, guess, resultScale);
   	}
@@ -107,9 +106,9 @@ public class SqrtReal {
 				lastGuess = guess;
 				guess = BigDecimalMath.divide(x, guess, internalScale);
 				guess = Pow2.divPow2(guess.add(lastGuess), 1);
-				//LOG.debug("next guess: sqrt(" + x + ") ~ " + guess);
+				if (DEBUG) LOG.debug("next guess: sqrt(" + x + ") ~ " + guess);
 				error = guess.subtract(lastGuess).abs();
-				//LOG.debug("error = " + error);
+				if (DEBUG) LOG.debug("error = " + error);
 			} while (error.compareTo(maxAllowedError)>=0);
 	    
 			return resultScale.applyTo(guess);
