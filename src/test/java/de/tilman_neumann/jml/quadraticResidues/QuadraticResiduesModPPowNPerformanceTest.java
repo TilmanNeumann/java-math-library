@@ -47,17 +47,17 @@ public class QuadraticResiduesModPPowNPerformanceTest {
 			LOG.info("v1: n = " + n + ": Computed " + quadraticResidues_v1.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
 			
 			t0 = System.currentTimeMillis();
-			List<Long> quadraticResidues_v2 = QuadraticResiduesModPPowN.getQuadraticResiduesModBPowN(p, n);
+			List<Long> quadraticResidues_v2 = QuadraticResiduesModPPowN.getQuadraticResiduesModPPowN(p, n);
 			t1 = System.currentTimeMillis();
 			LOG.info("v2: n = " + n + ": Computed " + quadraticResidues_v2.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
 			
 			t0 = System.currentTimeMillis();
-			List<Long> quadraticResidues_v3 = QuadraticResiduesModPPowN.getQuadraticResiduesModBPowN_testAll(p, n);
+			List<Long> quadraticResidues_v3 = QuadraticResiduesModPPowN.getQuadraticResiduesModPPowN_testAll(p, n);
 			t1 = System.currentTimeMillis();
 			LOG.info("v3: n = " + n + ": Computed " + quadraticResidues_v3.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
 			
 			t0 = System.currentTimeMillis();
-			List<Long> quadraticResidues_v4 = QuadraticResiduesModPPowN.getQuadraticResiduesModBPowN_testAll_v2(p, n);
+			List<Long> quadraticResidues_v4 = QuadraticResiduesModPPowN.getQuadraticResiduesModPPowN_testAll_v2(p, n);
 			t1 = System.currentTimeMillis();
 			LOG.info("v4: n = " + n + ": Computed " + quadraticResidues_v4.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
 		}

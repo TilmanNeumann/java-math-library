@@ -84,7 +84,7 @@ public class QuadraticResiduesModPPowNTest {
 		for (int p : pArray) {
 			ArrayList<Integer> counts = new ArrayList<Integer>();
 			for (int n=0; n<=nMaxForP[p]; n++) {
-				List<Long> quadraticResidue = QuadraticResiduesModPPowN.getQuadraticResiduesModBPowN(p, n);
+				List<Long> quadraticResidue = QuadraticResiduesModPPowN.getQuadraticResiduesModPPowN(p, n);
 				if (DEBUG) LOG.debug("v2: n = " + n + " has " + quadraticResidue.size() + " quadratic residues modulo " + p + "^" + n + (SHOW_ELEMENTS ? ": " + quadraticResidue : ""));
 				counts.add(quadraticResidue.size());
 			}
@@ -98,7 +98,7 @@ public class QuadraticResiduesModPPowNTest {
 		for (int p : pArray) {
 			ArrayList<Integer> counts = new ArrayList<Integer>();
 			for (int n=0; n<=nMaxForP[p]; n++) {
-				List<Long> quadraticResidue = QuadraticResiduesModPPowN.getQuadraticResiduesModBPowN_testAll(p, n);
+				List<Long> quadraticResidue = QuadraticResiduesModPPowN.getQuadraticResiduesModPPowN_testAll(p, n);
 				if (DEBUG) LOG.debug("v3: n = " + n + " has " + quadraticResidue.size() + " quadratic residues modulo " + p + "^" + n + (SHOW_ELEMENTS ? ": " + quadraticResidue : ""));
 				counts.add(quadraticResidue.size());
 			}
@@ -112,7 +112,7 @@ public class QuadraticResiduesModPPowNTest {
 		for (int p : pArray) {
 			ArrayList<Integer> counts = new ArrayList<Integer>();
 			for (int n=0; n<=nMaxForP[p]; n++) {
-				List<Long> quadraticResidue = QuadraticResiduesModPPowN.getQuadraticResiduesModBPowN_testAll_v2(p, n);
+				List<Long> quadraticResidue = QuadraticResiduesModPPowN.getQuadraticResiduesModPPowN_testAll_v2(p, n);
 				if (DEBUG) LOG.debug("v3: n = " + n + " has " + quadraticResidue.size() + " quadratic residues modulo 3^" + n+ (SHOW_ELEMENTS ? ": " + quadraticResidue : ""));
 				counts.add(quadraticResidue.size());
 			}

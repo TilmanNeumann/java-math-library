@@ -47,7 +47,7 @@ public class QuadraticResiduesModPPowN {
 	 * @param n exponent of the modulus m=p^n
 	 * @return true if 'a' is a quadratic residue modulo p^n
 	 */
-	public static boolean isQuadraticResidueModBPowN(long a, int p, int n) {
+	private static boolean isQuadraticResidueModPPowN_v1(long a, int p, int n) {
 		long m = (long) Math.pow(p, n);
 		if (a >= m) a %= m; // now 0 <= a < m
 		
@@ -73,14 +73,14 @@ public class QuadraticResiduesModPPowN {
 	}
 	
 	/**
-	 * Implementation following https://en.wikipedia.org/wiki/Quadratic_residue.
+	 * Implementation following https://en.wikipedia.org/wiki/Quadratic_residue. Much faster than the first approach.
 	 * @param a
 	 * @param p
 	 * @param n
 	 * @return true if 'a' is a quadratic residue modulo p^n
 	 */
 	// TODO return -1, 0, 1 to check for non-residues, too ?
-	public static boolean isQuadraticResidueModBPowN_v2(long a, int p, int n) {
+	public static boolean isQuadraticResidueModPPowN/*_v2*/(long a, int p, int n) {
 		long m = (long) Math.pow(p, n);
 		if (a >= m) a %= m; // now 0 <= a < m
 		
@@ -114,11 +114,11 @@ public class QuadraticResiduesModPPowN {
 	 * @param n
 	 * @return list of quadratic residue modulus p^n
 	 */
-	public static List<Long> getQuadraticResiduesModBPowN_testAll(int p, int n) {
+	static List<Long> getQuadraticResiduesModPPowN_testAll(int p, int n) {
 		List<Long> list = new ArrayList<>();
 		long m = (long) Math.pow(p, n);
 		for (long a=0; a<m; a++) {
-			if (isQuadraticResidueModBPowN(a, p, n)) {
+			if (isQuadraticResidueModPPowN_v1(a, p, n)) {
 				list.add(a);
 			}
 		}
@@ -132,11 +132,11 @@ public class QuadraticResiduesModPPowN {
 	 * @param n
 	 * @return list of quadratic residue modulus p^n
 	 */
-	public static List<Long> getQuadraticResiduesModBPowN_testAll_v2(int p, int n) {
+	static List<Long> getQuadraticResiduesModPPowN_testAll_v2(int p, int n) {
 		List<Long> list = new ArrayList<>();
 		long m = (long) Math.pow(p, n);
 		for (long a=0; a<m; a++) {
-			if (isQuadraticResidueModBPowN_v2(a, p, n)) {
+			if (isQuadraticResidueModPPowN/*_v2*/(a, p, n)) {
 				list.add(a);
 			}
 		}
@@ -144,12 +144,12 @@ public class QuadraticResiduesModPPowN {
 	}
 
 	/**
-	 * Compute all quadratic residues modulus p^n.
+	 * Compute all quadratic residues modulus p^n. This is the fastest implementation yet.
 	 * @param p
 	 * @param n
 	 * @return list of quadratic residues
 	 */
-	public static List<Long> getQuadraticResiduesModBPowN(int p, int n) {
+	public static List<Long> getQuadraticResiduesModPPowN(int p, int n) {
 		if (n == 0) return Arrays.asList(new Long[] {0L});
 		
 		List<Long> pResidues = getBaseResidues(p);
@@ -186,7 +186,7 @@ public class QuadraticResiduesModPPowN {
 	}
 	
 	private static List<Long> getBaseResidues(int p) {
-		// We use the Jacobi symbol to compute the quaratic residues modulo p only because it is faster than the Legendre symbol.
+		// We use the Jacobi symbol to compute the quadratic residues modulo p only because it is faster than the Legendre symbol.
 		// Note that the result will be correct only for p being an odd prime.
 		// For some reason, Arrays.asList(new Long[] {0L, 1L}) would throw an UnsupportedOperationException if we add Longs to the list...
 		ArrayList<Long> result = new ArrayList<>();
@@ -198,7 +198,7 @@ public class QuadraticResiduesModPPowN {
 				result.add(Long.valueOf(i));
 			}
 		}
-		// LOG.debug("p=" + p + ": result = " + result);
+		if (DEBUG) LOG.debug("p=" + p + ": result = " + result);
 		return result;
 	}
 	
