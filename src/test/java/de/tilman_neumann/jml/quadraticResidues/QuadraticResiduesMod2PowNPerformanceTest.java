@@ -14,7 +14,6 @@
 package de.tilman_neumann.jml.quadraticResidues;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -23,15 +22,13 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.util.ConfigUtil;
 
 /**
- * Performance tests of quadratic residue computations modulo 2^n.
+ * Test performance of quadratic residue computations modulo 2^n.
  * 
  * @author Tilman Neumann
  */
 public class QuadraticResiduesMod2PowNPerformanceTest {
 	
 	private static final Logger LOG = LogManager.getLogger(QuadraticResiduesMod2PowNPerformanceTest.class);
-	
-	private static final boolean SHOW_ELEMENTS = false;
 
 	/**
 	 * Test.
@@ -47,28 +44,28 @@ public class QuadraticResiduesMod2PowNPerformanceTest {
 				t0 = System.currentTimeMillis();
 				List<BigInteger> quadraticResiduesMod2PowN_v0 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_big(n);
 				t1 = System.currentTimeMillis();
-				LOG.info("v0: n = " + n + " has " + quadraticResiduesMod2PowN_v0.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v0 : "") + " -- duration = " + (t1-t0) + "ms");
+				LOG.info("v0: n = " + n + ": Computed " + quadraticResiduesMod2PowN_v0.size() + " quadratic residues modulo 2^" + n + " in " + (t1-t0) + "ms");
 			}
 			
 			if (n<29) { // avoid OutOfMemoryError
 				t0 = System.currentTimeMillis();
 				List<Long> quadraticResiduesMod2PowN_v1 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll(n);
 				t1 = System.currentTimeMillis();
-				LOG.info("v1: n = " + n + " has " + quadraticResiduesMod2PowN_v1.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v1 : "") + " -- duration = " + (t1-t0) + "ms");
+				LOG.info("v1: n = " + n + ": Computed " + quadraticResiduesMod2PowN_v1.size() + " quadratic residues modulo 2^" + n + " in " + (t1-t0) + "ms");
 			}
 			
 			if (n<31) { // avoid OutOfMemoryError
 				t0 = System.currentTimeMillis();
 				List<Long> quadraticResiduesMod2PowN_v2 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_v2(n);
 				t1 = System.currentTimeMillis();
-				LOG.info("v2: n = " + n + " has " + quadraticResiduesMod2PowN_v2.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v2 : "") + " -- duration = " + (t1-t0) + "ms");
+				LOG.info("v2: n = " + n + ": Computed " + quadraticResiduesMod2PowN_v2.size() + " quadratic residues modulo 2^" + n + " in " + (t1-t0) + "ms");
 			}
 			
 			if (n<30) { // avoid OutOfMemoryError
 				t0 = System.currentTimeMillis();
 				List<Long> quadraticResiduesMod2PowN_v3 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
 				t1 = System.currentTimeMillis();
-				LOG.info("v3: n = " + n + " has " + quadraticResiduesMod2PowN_v3.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v3 : "") + " -- duration = " + (t1-t0) + "ms");
+				LOG.info("v3: n = " + n + ": Computed " + quadraticResiduesMod2PowN_v3.size() + " quadratic residues modulo 2^" + n + " in " + (t1-t0) + "ms");
 			}
 			
 			if (n<33) { // avoid OutOfMemoryError
@@ -77,7 +74,7 @@ public class QuadraticResiduesMod2PowNPerformanceTest {
 				long[] array = new long[arraySize];
 				int count = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n, array);
 				t1 = System.currentTimeMillis();
-				LOG.info("v4: n = " + n + " has " + count + " quadratic residues" + (SHOW_ELEMENTS ? ": " + Arrays.toString(array) : "") + " -- duration = " + (t1-t0) + "ms");
+				LOG.info("v4: n = " + n + ": Computed " + count + " quadratic residues modulo 2^" + n + " in " + (t1-t0) + "ms");
 			}
 		}
 	}
