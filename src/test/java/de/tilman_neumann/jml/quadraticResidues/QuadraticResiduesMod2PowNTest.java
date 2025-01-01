@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
@@ -48,14 +49,27 @@ public class QuadraticResiduesMod2PowNTest {
 	public static void setup() {
 		ConfigUtil.initProject();
 		
-		// reference computation
+		// reference computation is brute force
 		correctCounts = new ArrayList<Integer>();
 		for (int n=0; n<NCOUNT; n++) {
-			List<BigInteger> quadraticResidues = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_big(n);
+			int m = 1<<n;
+			TreeSet<Long> quadraticResidues = QuadraticResidues.getQuadraticResidues(m);
 			LOG.info("n = " + n + " has " + quadraticResidues.size() + " quadratic residues modulo 2^" + n + (SHOW_ELEMENTS ? ": " + quadraticResidues : ""));
 			correctCounts.add(quadraticResidues.size());
 		}
-		LOG.info("v0 counts = " + correctCounts);
+		LOG.info("correctCounts = " + correctCounts);
+	}
+
+	@Test
+	public void testV0() {
+		ArrayList<Integer> counts = new ArrayList<Integer>();
+		for (int n=0; n<NCOUNT; n++) {
+			List<BigInteger> quadraticResidues = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_big(n);
+			if (DEBUG) LOG.debug("v0: n = " + n + " has " + quadraticResidues.size() + " quadratic residues modulo 2^" + n + (SHOW_ELEMENTS ? ": " + quadraticResidues : ""));
+			counts.add(quadraticResidues.size());
+		}
+		LOG.info("v0 counts = " + counts);
+		assertEquals(correctCounts, counts);
 	}
 
 	@Test
