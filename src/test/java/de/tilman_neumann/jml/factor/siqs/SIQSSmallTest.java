@@ -38,7 +38,7 @@ public class SIQSSmallTest {
 	}
 
 	@Test
-	// TODO On github CI this test may need up to 13 seconds. Locally the test finishes in less than 100ms. 
+	// TODO On github CI this test may need up to 50 (!) seconds. Locally the test finishes in less than 100ms. 
 	// It is possible that the test numbers are not very appropriate for the algorithm, but why the difference between local and github tests?
 	public void testSomeInputs() {
 		assertFactorizationSuccess("15841065490425479923", "2604221509 * 6082841047"); // 64 bit
