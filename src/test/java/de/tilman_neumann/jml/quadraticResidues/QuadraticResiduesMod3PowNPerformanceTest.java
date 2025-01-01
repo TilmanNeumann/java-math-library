@@ -42,19 +42,19 @@ public class QuadraticResiduesMod3PowNPerformanceTest {
 			long m = (long) Math.pow(3, n);
 			
 			t0 = System.currentTimeMillis();
-			TreeSet<Long> quadraticResiduesModPow = QuadraticResidues.getQuadraticResidues(m);
+			TreeSet<Long> quadraticResidues_v1 = QuadraticResidues.getQuadraticResidues(m);
 			t1 = System.currentTimeMillis();
-			LOG.info("v1: n = " + n + ": Computed " + quadraticResiduesModPow.size() + " quadratic residues mod 3^" + n + " in " + (t1-t0) + "ms");
+			LOG.info("v1: n = " + n + ": Computed " + quadraticResidues_v1.size() + " quadratic residues mod 3^" + n + " in " + (t1-t0) + "ms");
 			
 			t0 = System.currentTimeMillis();
-			List<Long> quadraticResiduesModPow_v2 = QuadraticResiduesMod3PowN.getQuadraticResiduesMod3PowN(n);
+			List<Long> quadraticResidues_v2 = QuadraticResiduesMod3PowN.getQuadraticResiduesMod3PowN(n);
 			t1 = System.currentTimeMillis();
-			LOG.info("v2: n = " + n + ": Computed " + quadraticResiduesModPow_v2.size() + " quadratic residues mod 3^" + n + " in " + (t1-t0) + "ms");
+			LOG.info("v2: n = " + n + ": Computed " + quadraticResidues_v2.size() + " quadratic residues mod 3^" + n + " in " + (t1-t0) + "ms");
 			
 			t0 = System.currentTimeMillis();
-			List<Long> quadraticResiduesModPow_v3 = QuadraticResiduesMod3PowN.getQuadraticResiduesMod3PowN_testAll(n);
+			List<Long> quadraticResidues_v3 = QuadraticResiduesMod3PowN.getQuadraticResiduesMod3PowN_testAll(n);
 			t1 = System.currentTimeMillis();
-			LOG.info("v3: n = " + n + ": Computed " + quadraticResiduesModPow_v3.size() + " quadratic residues mod 3^" + n + " in " + (t1-t0) + "ms");
+			LOG.info("v3: n = " + n + ": Computed " + quadraticResidues_v3.size() + " quadratic residues mod 3^" + n + " in " + (t1-t0) + "ms");
 		}
 	}
 }

@@ -51,9 +51,9 @@ public class QuadraticResiduesMod2PowNTest {
 		// reference computation
 		correctCounts = new ArrayList<Integer>();
 		for (int n=0; n<NCOUNT; n++) {
-			List<BigInteger> quadraticResiduesMod2PowN = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_big(n);
-			LOG.info("n = " + n + " has " + quadraticResiduesMod2PowN.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN : ""));
-			correctCounts.add(quadraticResiduesMod2PowN.size());
+			List<BigInteger> quadraticResidues = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_big(n);
+			LOG.info("n = " + n + " has " + quadraticResidues.size() + " quadratic residues modulo 2^" + n + (SHOW_ELEMENTS ? ": " + quadraticResidues : ""));
+			correctCounts.add(quadraticResidues.size());
 		}
 		LOG.info("v0 counts = " + correctCounts);
 	}
@@ -62,9 +62,9 @@ public class QuadraticResiduesMod2PowNTest {
 	public void testV1() {
 		ArrayList<Integer> counts = new ArrayList<Integer>();
 		for (int n=0; n<NCOUNT; n++) {
-			List<Long> quadraticResiduesMod2PowN_v1 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll(n);
-			if (DEBUG) LOG.debug("v1: n = " + n + " has " + quadraticResiduesMod2PowN_v1.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v1 : ""));
-			counts.add(quadraticResiduesMod2PowN_v1.size());
+			List<Long> quadraticResidues = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll(n);
+			if (DEBUG) LOG.debug("v1: n = " + n + " has " + quadraticResidues.size() + " quadratic residues modulo 2^" + n + (SHOW_ELEMENTS ? ": " + quadraticResidues : ""));
+			counts.add(quadraticResidues.size());
 		}
 		LOG.info("v1 counts = " + counts);
 		assertEquals(correctCounts, counts);
@@ -74,9 +74,9 @@ public class QuadraticResiduesMod2PowNTest {
 	public void testV2() {
 		ArrayList<Integer> counts = new ArrayList<Integer>();
 		for (int n=0; n<NCOUNT; n++) {
-			List<Long> quadraticResiduesMod2PowN_v1 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_v2(n);
-			if (DEBUG) LOG.debug("v2: n = " + n + " has " + quadraticResiduesMod2PowN_v1.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v1 : ""));
-			counts.add(quadraticResiduesMod2PowN_v1.size());
+			List<Long> quadraticResidues = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN_testAll_v2(n);
+			if (DEBUG) LOG.debug("v2: n = " + n + " has " + quadraticResidues.size() + " quadratic residues modulo 2^" + n + (SHOW_ELEMENTS ? ": " + quadraticResidues : ""));
+			counts.add(quadraticResidues.size());
 		}
 		LOG.info("v2 counts = " + counts);
 		assertEquals(correctCounts, counts);
@@ -86,9 +86,9 @@ public class QuadraticResiduesMod2PowNTest {
 	public void testV3() {
 		ArrayList<Integer> counts = new ArrayList<Integer>();
 		for (int n=0; n<NCOUNT; n++) {
-			List<Long> quadraticResiduesMod2PowN_v1 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
-			if (DEBUG) LOG.debug("v3: n = " + n + " has " + quadraticResiduesMod2PowN_v1.size() + " quadratic residues" + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v1 : ""));
-			counts.add(quadraticResiduesMod2PowN_v1.size());
+			List<Long> quadraticResidues = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
+			if (DEBUG) LOG.debug("v3: n = " + n + " has " + quadraticResidues.size() + " quadratic residues modulo 2^" + n + (SHOW_ELEMENTS ? ": " + quadraticResidues : ""));
+			counts.add(quadraticResidues.size());
 		}
 		LOG.info("v3 counts = " + counts);
 		assertEquals(correctCounts, counts);
@@ -100,7 +100,7 @@ public class QuadraticResiduesMod2PowNTest {
 		for (int n=0; n<NCOUNT; n++) {
 			long[] array = new long[((1<<n) / 6) + 6];
 			int count = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n, array);
-			if (DEBUG) LOG.debug("v4: n = " + n + " has " + count + " quadratic residues" + (SHOW_ELEMENTS ? ": " + Arrays.toString(array) : ""));
+			if (DEBUG) LOG.debug("v4: n = " + n + " has " + count + " quadratic residues modulo 2^" + n + (SHOW_ELEMENTS ? ": " + Arrays.toString(array) : ""));
 			counts.add(count);
 		}
 		LOG.info("v4 counts = " + counts);

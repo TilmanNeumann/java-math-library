@@ -42,24 +42,24 @@ public class QuadraticResiduesModBPowNPerformanceTest {
 			
 			long t0, t1;
 			t0 = System.currentTimeMillis();
-			TreeSet<Long> quadraticResiduesModPow = QuadraticResidues.getQuadraticResidues(m);
+			TreeSet<Long> quadraticResidues_v1 = QuadraticResidues.getQuadraticResidues(m);
 			t1 = System.currentTimeMillis();
-			LOG.info("v1: n = " + n + ": Computed " + quadraticResiduesModPow.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
+			LOG.info("v1: n = " + n + ": Computed " + quadraticResidues_v1.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
 			
 			t0 = System.currentTimeMillis();
-			List<Long> quadraticResiduesModPow_v2 = QuadraticResiduesModBPowN.getQuadraticResiduesModBPowN(p, n);
+			List<Long> quadraticResidues_v2 = QuadraticResiduesModBPowN.getQuadraticResiduesModBPowN(p, n);
 			t1 = System.currentTimeMillis();
-			LOG.info("v2: n = " + n + ": Computed " + quadraticResiduesModPow_v2.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
+			LOG.info("v2: n = " + n + ": Computed " + quadraticResidues_v2.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
 			
 			t0 = System.currentTimeMillis();
-			List<Long> quadraticResiduesModPow_v3 = QuadraticResiduesModBPowN.getQuadraticResiduesModBPowN_testAll(p, n);
+			List<Long> quadraticResidues_v3 = QuadraticResiduesModBPowN.getQuadraticResiduesModBPowN_testAll(p, n);
 			t1 = System.currentTimeMillis();
-			LOG.info("v3: n = " + n + ": Computed " + quadraticResiduesModPow_v3.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
+			LOG.info("v3: n = " + n + ": Computed " + quadraticResidues_v3.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
 			
 			t0 = System.currentTimeMillis();
-			List<Long> quadraticResiduesModPow_v4 = QuadraticResiduesModBPowN.getQuadraticResiduesModBPowN_testAll_v2(p, n);
+			List<Long> quadraticResidues_v4 = QuadraticResiduesModBPowN.getQuadraticResiduesModBPowN_testAll_v2(p, n);
 			t1 = System.currentTimeMillis();
-			LOG.info("v4: n = " + n + ": Computed " + quadraticResiduesModPow_v4.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
+			LOG.info("v4: n = " + n + ": Computed " + quadraticResidues_v4.size() + " quadratic residues mod " + p + "^" + n + " in " + (t1-t0) + "ms");
 		}
 	}
 	
