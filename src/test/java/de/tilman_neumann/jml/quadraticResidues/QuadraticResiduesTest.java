@@ -50,29 +50,33 @@ public class QuadraticResiduesTest {
 
 	/**
 	 * Test the number of quadratic residues modulo 2^n for n = 0, 1, 2, ...
-	 * This gives number sequences
-	 * A023105(n) = 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, ... for general quadratic residues modulo 2^n, and
-	 * a(n) = {1, 1} + A023105(n-2) = 1, 1, 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, 684, 1367, 2732, 5463, 10924, 21847, ... for "even" quadratic residues modulo 2^n.
-	 */
+	 * This gives number sequence A023105(n) = 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, ...	 */
 	@Test
 	public void testQuadraticResiduesMod2PowNCounts() {
 		ArrayList<Integer> counts = new ArrayList<Integer>();
-		ArrayList<Integer> evenCounts = new ArrayList<Integer>();
-		
 		for (int n=0; n<20; n++) {
 			int m = 1<<n;
-			
 			TreeSet<Long> quadraticResiduesMod2PowN = QuadraticResidues.getQuadraticResidues(m);
 			if (DEBUG) LOG.debug("m = " + m + " has " + quadraticResiduesMod2PowN.size() + " quadratic residues: " + quadraticResiduesMod2PowN);
 			counts.add(quadraticResiduesMod2PowN.size());
+		}
+		LOG.info("counts = " + counts);
+		assertEquals("[1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, 684, 1367, 2732, 5463, 10924, 21847, 43692, 87383]", counts.toString());
+	}
 
+	/**
+	 * Test the number of even quadratic residues modulo 2^n for n = 0, 1, 2, ...
+	 * This gives number sequence a(n) = {1, 1} + A023105(n-2) = 1, 1, 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, 684, 1367, 2732, 5463, 10924, 21847, ...
+	 */
+	@Test
+	public void testEvenQuadraticResiduesMod2PowNCounts() {
+		ArrayList<Integer> evenCounts = new ArrayList<Integer>();
+		for (int n=0; n<20; n++) {
+			int m = 1<<n;
 			TreeSet<Long> evenQuadraticResiduesMod2PowN = QuadraticResidues.getEvenQuadraticResidues(m);
 			if (DEBUG) LOG.debug("m = " + m + " has " + evenQuadraticResiduesMod2PowN.size() + " 'even' quadratic residues: " + evenQuadraticResiduesMod2PowN);
 			evenCounts.add(evenQuadraticResiduesMod2PowN.size());
 		}
-		
-		LOG.info("counts = " + counts);
-		assertEquals("[1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, 684, 1367, 2732, 5463, 10924, 21847, 43692, 87383]", counts.toString());
 		LOG.info("evenCounts = " + evenCounts);
 		assertEquals("[1, 1, 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, 684, 1367, 2732, 5463, 10924, 21847]", evenCounts.toString());
 	}
