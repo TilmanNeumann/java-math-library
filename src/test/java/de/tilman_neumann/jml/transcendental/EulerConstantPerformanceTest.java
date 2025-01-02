@@ -14,6 +14,9 @@
 package de.tilman_neumann.jml.transcendental;
 
 import org.apache.logging.log4j.Logger;
+
+import java.math.BigDecimal;
+
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.precision.Scale;
@@ -26,8 +29,7 @@ import de.tilman_neumann.util.TimeUtil;
 public class EulerConstantPerformanceTest {
 	private static final Logger LOG = LogManager.getLogger(EulerConstantPerformanceTest.class);
 
-	/** it feels as if the compiler optimizes the computation away if we do not log the result... */
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	
 	/**
 	 * @param args ignored
@@ -40,14 +42,16 @@ public class EulerConstantPerformanceTest {
     	
         t0 = System.currentTimeMillis();
         for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<0; scale = scale.add(1)) {
-            if (DEBUG) LOG.debug("gamma_v1(" + scale + ") = " + EulerConstant.gamma_v1(scale));
+        	BigDecimal gamma = EulerConstant.gamma_v1(scale);
+            if (DEBUG) LOG.debug("gamma_v1(" + scale + ") = " + gamma);
         }
         LOG.info("gamma_v1(" + maxScale + ") = " + EulerConstant.gamma_v1(maxScale));
         String duration_v1 = TimeUtil.timeDiffStr(t0, System.currentTimeMillis());
     	
         t0 = System.currentTimeMillis();
         for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<0; scale = scale.add(1)) {
-        	if (DEBUG) LOG.debug("gamma_v2(" + scale + ") = " + EulerConstant.gamma_v2(scale));
+        	BigDecimal gamma = EulerConstant.gamma_v2(scale);
+        	if (DEBUG) LOG.debug("gamma_v2(" + scale + ") = " + gamma);
         }
         LOG.info("gamma_v2(" + maxScale + ") = " + EulerConstant.gamma_v2(maxScale));
         String duration_v2 = TimeUtil.timeDiffStr(t0, System.currentTimeMillis());
