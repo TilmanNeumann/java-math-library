@@ -97,7 +97,7 @@ public class SimpleSieve implements Sieve {
 		final byte[] logPArray = solutionArrays.logPArray;
 
 		// sieve with p[0]=2: here we use only solution x1
-		//assertEquals(1, ldPArray[0]);
+		//Ensure.ensureEquals(1, ldPArray[0]);
 		int x1min = x1Array[0];
 		byte logP = logPArray[0];
 		for (int x1=x1min; x1<sieveArraySize; x1+=2) {

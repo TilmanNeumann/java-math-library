@@ -97,7 +97,7 @@ public class CycleCounter2LP implements CycleCounter {
 			LOG.debug("#relations=" + relations.size() + ", #roots=" + componentCount + ", #vertices=" + edges.size() + " -> cycleCount = " + cycleCountFormula + " = " + cycleCount);
 
 			Ensure.ensureEquals(roots.size(), componentCount);
-			//Assert.assertEquals(getRootsFromVertices().size(), componentCount); // expensive test
+			//Ensure.ensureEquals(getRootsFromVertices().size(), componentCount); // expensive test
 			LOG.debug("-------------------------------------------------------------");
 		}
 		

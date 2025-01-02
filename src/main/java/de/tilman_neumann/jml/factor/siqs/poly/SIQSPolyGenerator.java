@@ -291,7 +291,7 @@ public class SIQSPolyGenerator {
 				Ensure.ensureEquals(a_div_ql.modInverse(ql_big).longValue(), a_div_ql_modInv_ql);
 				Ensure.ensureGreaterEquals(Bl.compareTo(I_0), 0);
 				Ensure.ensureEquals(I_0, Bl.multiply(Bl).subtract(kN).mod(ql_big));
-				//Assert.assertEquals(t % ql, Bl.mod(ql_big).intValue()); // does not hold if we choose the smaller gamma
+				//Ensure.ensureEquals(t % ql, Bl.mod(ql_big).intValue()); // does not hold if we choose the smaller gamma
 				Ensure.ensureEquals(I_0, Bl.mod(a_div_ql));
 				for (int l2=0; l2<qCount; l2++) {
 					if (l2 != l) {

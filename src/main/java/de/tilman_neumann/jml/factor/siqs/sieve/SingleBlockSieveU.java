@@ -555,7 +555,7 @@ public class SingleBlockSieveU implements Sieve {
 			if (trueLogQDivDaSize > logQdivDaEstimate + 2) { // +2 -> don't log too much :-/
 				LOG.error("d=" + d + ": logQdivDaEstimate = " + logQdivDaEstimate + ", but trueLogQDivDaSize = " + trueLogQDivDaSize);
 			}
-			// assertTrue(trueLogQDivDaSize <= logQdivDaEstimate + 2); // fails sometimes
+			//Ensure.ensureSmallerEquals(trueLogQDivDaSize, logQdivDaEstimate + 2); // fails sometimes
 		}
 		
 		int adjustedScore2 = (int) (adjustedScore + this.logQdivDaEstimate - trueLogQDivDaSize);
