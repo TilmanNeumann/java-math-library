@@ -27,7 +27,6 @@ import org.junit.Test;
 
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.TimeUtil;
 
 /**
@@ -72,7 +71,7 @@ public class CANTest {
 		Double lastEpsilon = null;
 		for (int n=1; n<=1000; n++) {
 			CANEntry entry = canIter.next();
-			Ensure.ensureEquals(n, entry.getExponentSum());
+			assertEquals(n, entry.getExponentSum());
 			double epsilon = entry.getEpsilon();
 			Double epsilonQuot = lastEpsilon!=null ? lastEpsilon/epsilon : null;
 			BigInteger can = entry.getCAN();

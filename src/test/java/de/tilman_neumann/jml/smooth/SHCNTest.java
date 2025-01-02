@@ -26,7 +26,6 @@ import org.junit.Test;
 
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.Ensure;
 import de.tilman_neumann.util.TimeUtil;
 
 /**
@@ -51,7 +50,7 @@ public class SHCNTest {
 		Double lastX = null;
 		for (int n=1; n<=1000; n++) {
 			SHCNEntry entry = shcnIter.next();
-			Ensure.ensureEquals(n, entry.getExponentSum());
+			assertEquals(n, entry.getExponentSum());
 			double x = entry.getX();
 			Double xDiff = lastX!=null ? x-lastX : null;
 			BigInteger shcn = entry.getSHCN();
