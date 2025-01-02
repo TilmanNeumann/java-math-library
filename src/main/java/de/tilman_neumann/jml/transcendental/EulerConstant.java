@@ -24,8 +24,6 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.base.BigDecimalMath;
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Scale;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.TimeUtil;
 
 // TODO there must be faster formulas to be able to compute billions of digits as has been done
 public class EulerConstant {
@@ -64,7 +62,7 @@ public class EulerConstant {
 	 * @param scale
 	 * @return
 	 */
-	private static BigDecimal gamma_v1(Scale scale) {
+	static BigDecimal gamma_v1(Scale scale) {
 		int k = Magnitude.decimalToBinary((int) (scale.digits()/1.41421356) + 2);
 		double lnkEstimate =  Magnitude.of(k)*Math.log(10);
 		int lnkMagnitude = lnkEstimate!=0 ? Magnitude.of(lnkEstimate) : 0;
@@ -114,7 +112,7 @@ public class EulerConstant {
 	 * @param scale
 	 * @return Eulers gamma constant
 	 */
-	private static BigDecimal gamma_v2(Scale scale) {
+	static BigDecimal gamma_v2(Scale scale) {
 		int k = Magnitude.decimalToBinary((int) (scale.digits()/1.41421356) + 2);
 		double lnkEstimate =  Magnitude.of(k)*Math.log(10);
 		int lnkMagnitude = lnkEstimate!=0 ? Magnitude.of(lnkEstimate) : 0;
@@ -149,31 +147,5 @@ public class EulerConstant {
 		
 		BigDecimal gamma = BigDecimal.ONE.subtract(lnK).add(sum2);
 		return scale.applyTo(gamma);
-	}
-
-	/**
-	 * Test.
-	 * 
-	 * @param argv ignored
-	 */
-	public static void main(String[] argv) {
-    	ConfigUtil.initProject();
-    	long t0, t1;
-    	
-    	Scale maxScale = Scale.valueOf(200);
-    	
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            LOG.debug("gamma_v1(" + scale + ")=" + gamma_v1(scale));
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of gamma_v1: " + TimeUtil.timeDiffStr(t0,t1));
-    	
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            LOG.debug("gamma_v2(" + scale + ")=" + gamma_v2(scale));
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of gamma_v2: " + TimeUtil.timeDiffStr(t0,t1));
 	}
 }
