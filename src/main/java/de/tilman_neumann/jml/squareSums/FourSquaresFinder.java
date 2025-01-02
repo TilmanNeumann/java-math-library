@@ -44,7 +44,7 @@ public class FourSquaresFinder {
 
 	private static final boolean DEBUG = false;
 	
-	public static final boolean ANALYZE = true; // if true then collect statistics
+	public static final boolean ANALYZE = false; // if true then collect statistics
 
 	private static final AutoExpandingPrimesArray PRIMES = AutoExpandingPrimesArray.get().ensurePrimeCount(1000); // modest size initialization
 
