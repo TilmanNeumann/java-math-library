@@ -13,20 +13,13 @@
  */
 package de.tilman_neumann.jml;
 
-import java.util.Arrays;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 import de.tilman_neumann.util.Ensure;
-import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Binary search in bottom-up sorted integer arrays.
  * @author Tilman Neumann
  */
 public class BinarySearch {
-	private static final Logger LOG = LogManager.getLogger(BinarySearch.class);
 	private static final boolean DEBUG = false;
 	
 	/**
@@ -95,20 +88,5 @@ public class BinarySearch {
 			Ensure.ensureSmaller(x, array[left]);
 		}
 		return left;
-	}
-
-	private static void testSingleArg(BinarySearch bs, int[] array, int maxIndex, int x) {
-		int index = bs.getInsertPosition(array, maxIndex, x);
-		LOG.info("index of '" + x + "' in " + Arrays.toString(array) + " (maxIndex=" + maxIndex + ") = " + index);
-	}
-	
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		int[] array = new int[] {1,2,3,7,10,10,11};
-		BinarySearch bs = new BinarySearch();
-		testSingleArg(bs, array, 4, 3);
-		testSingleArg(bs, array, 7, 10);
-		testSingleArg(bs, array, 7, 11);
-		testSingleArg(bs, array, 7, 20);
 	}
 }
