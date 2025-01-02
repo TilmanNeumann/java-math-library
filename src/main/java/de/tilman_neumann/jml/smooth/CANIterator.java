@@ -13,16 +13,12 @@
  */
 package de.tilman_neumann.jml.smooth;
 
-import java.math.BigInteger;
 import java.util.TreeMap;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.util.Ensure;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.TimeUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -99,30 +95,7 @@ public class CANIterator {
 		return current;
 	}
 
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-		long startTimeMillis = System.currentTimeMillis();
-		
-		CANIterator canIter = new CANIterator();
-		Double lastEpsilon = null;
-		for (int n=1; n<=1000; n++) {
-			CANEntry entry = canIter.next();
-			Ensure.ensureEquals(n, entry.getExponentSum());
-			double epsilon = entry.getEpsilon();
-			Double epsilonQuot = lastEpsilon!=null ? lastEpsilon/epsilon : null;
-			BigInteger can = entry.getCAN();
-			int digits = Magnitude.of(can);
-			LOG.info("n=" + n + ": epsilon=" + epsilon + ", epsilonQuot=" + epsilonQuot + ", " + digits + " digits CAN = " + entry.getCAN());
-			lastEpsilon = epsilon;
-		}
-		LOG.info(canIter.exponentSum_2_canEntries.size() + " remaining precomputed CANs with exponentSums " + canIter.exponentSum_2_canEntries.keySet());
-
-		long endTimeMillis = System.currentTimeMillis();
-		String durationStr = TimeUtil.timeDiffStr(startTimeMillis, endTimeMillis);
-		LOG.info("Computation took " + durationStr);
+	TreeMap<Integer, CANEntry> getExponentSum2CanEntries() {
+		return exponentSum_2_canEntries;
 	}
 }

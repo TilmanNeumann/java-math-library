@@ -22,8 +22,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
-import de.tilman_neumann.jml.precision.Magnitude;
-import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * A colossally abundant number (CAN), together with some information that was necessary to compute it.
@@ -111,20 +109,5 @@ public class CANEntry {
 	
 	public ArrayList<Integer> getExponents() {
 		return exponents;
-	}
-
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-		for (double epsilon=1.0; epsilon>0; epsilon-=0.05) {
-			CANEntry entry = computeCAN(epsilon);
-			BigInteger can = entry.getCAN();
-			int digits = Magnitude.of(can);
-			LOG.info("n=" + entry.getExponentSum() + ": epsilon=" + epsilon + ", " + digits + " digits CAN = " + entry.getCAN());
-		}
-		// Result: epsilon=0.5 gives first CAN = 2
 	}
 }

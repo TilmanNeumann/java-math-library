@@ -13,16 +13,12 @@
  */
 package de.tilman_neumann.jml.smooth;
 
-import java.math.BigInteger;
 import java.util.TreeMap;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.util.Ensure;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.TimeUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -97,29 +93,7 @@ public class SHCNIterator {
 		return current;
 	}
 
-	/**
-	 * Test.
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-		long startTimeMillis = System.currentTimeMillis();
-		SHCNIterator shcnIter = new SHCNIterator();
-		Double lastX = null;
-		for (int n=1; n<=1000; n++) {
-			SHCNEntry entry = shcnIter.next();
-			Ensure.ensureEquals(n, entry.getExponentSum());
-			double x = entry.getX();
-			Double xDiff = lastX!=null ? x-lastX : null;
-			BigInteger shcn = entry.getSHCN();
-			int digits = Magnitude.of(shcn);
-			LOG.info("n=" + n + ": x=" + x + ", xDiff=" + xDiff + ", " + digits + " digits SHCN = " + entry.getSHCN());
-			lastX = x;
-		}
-		LOG.info(shcnIter.exponentSum_2_shcnEntries.size() + " remaining precomputed SHCNs with exponentSums " + shcnIter.exponentSum_2_shcnEntries.keySet());
-
-		long endTimeMillis = System.currentTimeMillis();
-		String durationStr = TimeUtil.timeDiffStr(startTimeMillis, endTimeMillis);
-		LOG.info("Computation took " + durationStr);
+	TreeMap<Integer, SHCNEntry> getExponentSum2SHCNEntries() {
+		return exponentSum_2_shcnEntries;
 	}
 }
