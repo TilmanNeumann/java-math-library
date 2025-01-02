@@ -13,11 +13,8 @@
  */
 package de.tilman_neumann.jml.transcendental;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.StringTokenizer;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -28,8 +25,6 @@ import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Precision;
 import de.tilman_neumann.jml.precision.Scale;
 import de.tilman_neumann.jml.roots.RootsReal;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.TimeUtil;
 
 import static de.tilman_neumann.jml.base.BigDecimalConstants.*;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -56,7 +51,7 @@ public class Ln {
 	 * @param outScale Wanted precision in after-comma decimal digits
 	 * @return ln(x)
 	 */
-	private static BigDecimal lnSeriesExpansion(BigDecimal x, Scale outScale) {
+	static BigDecimal lnSeriesExpansion(BigDecimal x, Scale outScale) {
 		if (x.compareTo(F_0)<=0) {
 			throw new IllegalArgumentException("x=" + x + ", but ln(x) is only defined for x>0 !");
 		}
@@ -114,8 +109,7 @@ public class Ln {
 	 * @param outScale Wanted precision in after-comma decimal digits
 	 * @return ln(2)
 	 */
-	@SuppressWarnings("unused")
-	private static BigDecimal ln2SeriesExpansion(Scale outScale) {
+	static BigDecimal ln2SeriesExpansion(Scale outScale) {
 	    //LOG.debug("outScale = " + outScale);
 	    if (outScale.compareTo(LN2_DEC_PREC) > 0) {
 	        LN2 = Ln.lnSeriesExpansion(F_2, outScale);
@@ -133,8 +127,7 @@ public class Ln {
 	 * @param outScale
 	 * @return
 	 */
-	@SuppressWarnings("unused")
-	private static BigDecimal ln2ElementarySeriesExpansion(Scale outScale) {
+	static BigDecimal ln2ElementarySeriesExpansion(Scale outScale) {
 	    Scale internalScale = outScale.add(1);
 	    //LOG.debug("internalScale = " + internalScale);
         BigDecimal maxErr = internalScale.getErrorBound();
@@ -203,7 +196,7 @@ public class Ln {
 	 * @param outScale Wanted precision in after-comma decimal digits
 	 * @return ln(x)
 	 */
-	private static BigDecimal lnSimpleReduction(BigDecimal x, Scale outScale) {
+	static BigDecimal lnSimpleReduction(BigDecimal x, Scale outScale) {
 	    // check argument:
 	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
@@ -246,7 +239,7 @@ public class Ln {
 	 * @param outScale
 	 * @return ln(x)
 	 */
-	private static BigDecimal lnReciprocalSimpleReduction(BigDecimal x, Scale outScale) {
+	static BigDecimal lnReciprocalSimpleReduction(BigDecimal x, Scale outScale) {
 	    // check argument:
 	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
@@ -308,7 +301,7 @@ public class Ln {
 	 * ln(x) ~ --------------- - m*ln(2) , with s=x*2^m, s>2^(binPrec/2)
 	 *          2*agm(1, 4/s)
 	 */
-	private static BigDecimal lnAgm(BigDecimal x, Scale outScale) {
+	static BigDecimal lnAgm(BigDecimal x, Scale outScale) {
 	    // check argument:
 	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("Logarithm of a non-positive argument argument expected");
@@ -387,7 +380,7 @@ public class Ln {
 	 * @param outScale
 	 * @return
 	 */
-	private static BigDecimal lnSimplePlusAgmReduction(BigDecimal x, Scale outScale) {
+	static BigDecimal lnSimplePlusAgmReduction(BigDecimal x, Scale outScale) {
 	    // check argument:
 	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
@@ -493,7 +486,7 @@ public class Ln {
 	 * @param outScale Wanted precision in after-comma decimal digits
 	 * @return ln(x)
 	 */
-	private static BigDecimal lnRootReduction(BigDecimal x, Scale outScale) {
+	static BigDecimal lnRootReduction(BigDecimal x, Scale outScale) {
 		if (DEBUG) LOG.debug("outScale = " + outScale);
 		Scale internalScale = outScale.add(Math.abs(Magnitude.of(x)) + 4); // fits exactly!
 		int d = Math.max(2, internalScale.digits());
@@ -516,7 +509,7 @@ public class Ln {
 	 * @param outScale
 	 * @return
 	 */
-	private static BigDecimal lnSimplePlusRootReduction(BigDecimal x, Scale outScale) {
+	static BigDecimal lnSimplePlusRootReduction(BigDecimal x, Scale outScale) {
 	    // check argument:
 	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
@@ -557,7 +550,7 @@ public class Ln {
 	 * @param outScale
 	 * @return ln(x)
 	 */
-	private static BigDecimal lnReciprocalSimplePlusRootReduction(BigDecimal x, Scale outScale) {
+	static BigDecimal lnReciprocalSimplePlusRootReduction(BigDecimal x, Scale outScale) {
 	    // check argument:
 	    if (x.compareTo(F_0) <= 0) {
 	    	throw new IllegalArgumentException("ln: argument should be positive, but is " + x);
@@ -611,147 +604,6 @@ public class Ln {
 	    	result = result.negate();
 	    }
 	    return outScale.applyTo(result);
-	}
-
-	private static void test(BigDecimal x, Scale maxScale) {
-	    long t0, t1;
-    	BigDecimal y=null; // result
-	    
-//        t0 = System.currentTimeMillis();
-//        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-//            LOG.debug("ln2 series expansion(" + scale + ")=" + Ln.ln2SeriesExpansion(scale));
-//        }
-//        t1 = System.currentTimeMillis();
-//        LOG.debug("Time of ln2 series expansion: " + TimeUtil.timeDiffStr(t0,t1));
-//	    
-//        t0 = System.currentTimeMillis();
-//        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-//            LOG.debug("ln2 elementary series(" + scale + ")=" + Ln.ln2ElementarySeriesExpansion(scale));
-//        }
-//        t1 = System.currentTimeMillis();
-//        LOG.debug("Time of ln2 elementary series: " + TimeUtil.timeDiffStr(t0,t1));
-
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            LOG.debug("ln2 root reduction(" + scale + ")=" + Ln.ln2/*RootReduction*/(scale));
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of ln2 root reduction: " + TimeUtil.timeDiffStr(t0,t1));
-   
-        Pi.pi(maxScale.multiply(2)); // do not count pi computation in performance test
-        Ln.ln2(maxScale.multiply(2)); // do not count ln2 computation in performance test
-
-//        // ln series expansion (very slow)
-//        t0 = System.currentTimeMillis();
-//        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-//            y = Ln.lnSeriesExpansion(x, scale);
-//            LOG.debug("lnSeriesExpansion(" + x + ", " + scale + ") = " + y);
-//        }
-//        t1 = System.currentTimeMillis();
-//        LOG.debug("Time of series expansion: " + TimeUtil.timeDiffStr(t0,t1));
-
-        // ln simple reduction:
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            y = Ln.lnSimpleReduction(x, scale);
-            LOG.debug("lnSimpleReduction(" + x + ", " + scale + ") = " + y);
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of simple reduction: " + TimeUtil.timeDiffStr(t0,t1));
-
-        // ln reciprocal + simple reduction:
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            y = Ln.lnReciprocalSimpleReduction(x, scale);
-            LOG.debug("lnReciprocalSimpleReduction(" + x + ", " + scale + ") = " + y);
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of reciprocal simple reduction: " + TimeUtil.timeDiffStr(t0,t1));
-  
-        // ln AGM reduction
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            y = Ln.lnAgm(x, scale);
-            LOG.debug("lnAgm(" + x + ", " + scale + ") = " + y);
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of AGM reduction: " + TimeUtil.timeDiffStr(t0,t1));
-        
-        // ln simple + AGM reduction
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            y = Ln.lnSimplePlusAgmReduction(x, scale);
-            LOG.debug("lnSimple+Agm(" + x + ", " + scale + ") = " + y);
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of Simple+Agm reduction: " + TimeUtil.timeDiffStr(t0,t1));
-
-        // ln reciprocal + simple + AGM reduction: The fastest algorithm!
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            y = Ln.ln/*ReciprocalSimplePlusAgmReduction*/(x, scale);
-            LOG.debug("lnReciprocalSimplePlusAgmReduction(" + x + ", " + scale + ") = " + y);
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of reciprocal simple + AGM reduction: " + TimeUtil.timeDiffStr(t0,t1));
-
-//        // root reduction (slow)
-//        t0 = System.currentTimeMillis();
-//        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-//            y = Ln.lnRootReduction(x, scale);
-//            LOG.debug("lnRootReduction(" + x + ", " + scale + ") = " + y);
-//        }
-//        t1 = System.currentTimeMillis();
-//        LOG.debug("Time of root reduction: " + TimeUtil.timeDiffStr(t0,t1));
-        
-        // ln simple + root reduction
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            y = Ln.lnSimplePlusRootReduction(x, scale);
-            LOG.debug("lnSimple+root(" + x + ", " + scale + ") = " + y);
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of Simple+root reduction: " + TimeUtil.timeDiffStr(t0,t1));
-
-        // ln reciprocal + simple + root reduction:
-        t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-            y = Ln.lnReciprocalSimplePlusRootReduction(x, scale);
-            LOG.debug("lnReciprocalSimplePlusRootReduction(" + x + ", " + scale + ") = " + y);
-        }
-        t1 = System.currentTimeMillis();
-        LOG.debug("Time of reciprocal simple + root reduction: " + TimeUtil.timeDiffStr(t0,t1));
-	}
-
-	/**
-	 * Test.
-	 * 
-	 * @param argv ignored
-	 */
-	public static void main(String[] argv) {
-    	ConfigUtil.initProject();
-	    
-		while(true) {
-			String input;
-			BigDecimal x;
-			Scale scale;
-			try {
-				LOG.info("Insert <x> <scale>:");
-				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				String line = in.readLine();
-				input = line.trim();
-				//LOG.debug("input = >" + input + "<");
-				StringTokenizer tok = new StringTokenizer(input);
-				x = new BigDecimal(tok.nextToken());
-				scale = Scale.valueOf(Integer.parseInt(tok.nextToken()));
-			} catch (Exception e) {
-				LOG.error("Error occurring on input: " + e.getMessage());
-				continue;
-			}
-
-			// test various ln implementations
-			test(x, scale);
-		}
 	}
 }
 
