@@ -13,17 +13,9 @@
  */
 package de.tilman_neumann.jml.squareSums;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.TreeSet;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import de.tilman_neumann.jml.quadraticResidues.QuadraticResidues;
 import de.tilman_neumann.jml.quadraticResidues.QuadraticResiduesMod2PowN;
-import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Stuff concerning sums of 4 squares representations of natural numbers.
@@ -31,20 +23,17 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class SumOf4Squares {
-
-	private static final Logger LOG = LogManager.getLogger(SumOf4Squares.class);
-
-	private static final boolean SHOW_ELEMENTS = true;
 	
 	/**
-	 * Compute all elements of A004215 below m, i.e. all k<m such that k can be expressed as a sum of 4 squares
-	 * but not by a sum of less than four squares.
+	 * Compute all k<=m that can be expressed as a sum of 4 but no fewer non-zero squares.
+	 * In other words, compute all A004215 entries <= m.
+	 * 
 	 * As commented in http://oeis.org/A004215, these are numbers of the form 4^i(8j+7), i >= 0, j >= 0.
 	 * 
 	 * @param m
-	 * @return A004215 entries < m
+	 * @return A004215 entries <= m
 	 */
-	public static TreeSet<Long> getA004215(long m) {
+	static TreeSet<Long> computeNumbersThatAreNoLessThan4NonzeroSquares_v1(long m) {
 		TreeSet<Long> result = new TreeSet<Long>();
 		int mBits = 64 - Long.numberOfLeadingZeros(m);
 		int iMax = (mBits+1)>>1;
@@ -62,15 +51,15 @@ public class SumOf4Squares {
 	}
 
 	/**
-	 * Compute all elements of A004215 below m = 2^n, i.e. all k<m such that k can be expressed as a sum of 4 squares
-	 * but not by a sum of less than 4 squares.
+	 * Compute all k<2^n that can be expressed as a sum of 4 but no fewer non-zero squares.
+	 * In other words, compute all A004215 entries < 2^n.
 	 * 
-	 * This implementation seems to be faster than v1 but in the current form suffers from garbage collection.
+	 * This implementation derives the number to compute from the set of quadratic residues modulo 2^n.
 	 * 
 	 * @param n
 	 * @return A004215 entries < 2^n
 	 */
-	public static TreeSet<Long> getA004215_v2(int n) {
+	static TreeSet<Long> computeNumbersThatAreNoLessThan4NonzeroSquares_v2(int n) {
 		if (n < 3) return new TreeSet<>();
 
 		TreeSet<Long> complement = QuadraticResiduesMod2PowN.getComplementOfQuadraticResiduesMod2PowN(n);
@@ -87,13 +76,19 @@ public class SumOf4Squares {
 	}
 
 	/**
-	 * Another implementation using arrays, much faster than the previous ones.
+	 * Compute all k<2^n that can be expressed as a sum of 4 but no fewer non-zero squares.
+	 * In other words, compute all A004215 entries < 2^n.
 	 * 
-	 * @param n such that m=2^n
+	 * This implementation derives the number to compute from the set of quadratic residues modulo 2^n.
+	 * Besides it uses arrays to speed up performance.
+	 * 
+	 * Fastest implementation so far.
+	 * 
+	 * @param n
 	 * @param array an array big enough to take roughly 2^n/6 values
-	 * @return number of entries
+	 * @return A004215 entries < 2^n
 	 */
-	public static int getA004215_v3(int n, long[] array) {
+	public static int computeNumbersThatAreNoLessThan4NonzeroSquares/*_v3*/(int n, long[] array) {
 		if (n < 3) return 0;
 		
 		long[] residues = new long[array.length];
@@ -124,69 +119,5 @@ public class SumOf4Squares {
 		}
 		
 		return outCount;
-	}
-
-	/**
-	 * A test of the hypothesis that A023105(2^n) == 2 + the number of entries of A004215 that are less than 2^n, for n>0.
-	 * Confirmed until n=29.
-	 * 
-	 * @param args ignored
-	 */
-	// TODO split into more specific tests
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		
-		ArrayList<Integer> quadraticResidueCounts = new ArrayList<Integer>();
-		ArrayList<Integer> quadraticResidueCounts_v2 = new ArrayList<Integer>();
-		
-		ArrayList<Integer> a004215EntryCounts = new ArrayList<Integer>();
-		ArrayList<Integer> a004215EntryCounts_v2 = new ArrayList<Integer>();
-		ArrayList<Integer> a004215EntryCounts_v3 = new ArrayList<Integer>();
-		
-		for (int n=0; n<=10; n++) {
-			LOG.info("n = " + n + ":");
-			
-			long m = 1L<<n;
-			long t0 = System.currentTimeMillis();
-			TreeSet<Long> quadraticResiduesMod2PowN = QuadraticResidues.getQuadraticResidues(m);
-			long t1 = System.currentTimeMillis();
-			LOG.info("v1: There are " + quadraticResiduesMod2PowN.size() + " quadratic residues % " + m + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN : "") + " -- duration: " + (t1-t0) + "ms");
-			quadraticResidueCounts.add(quadraticResiduesMod2PowN.size());
-
-			t0 = System.currentTimeMillis();
-			List<Long> quadraticResiduesMod2PowN_v2 = QuadraticResiduesMod2PowN.getQuadraticResiduesMod2PowN(n);
-			t1 = System.currentTimeMillis();
-			LOG.info("v2: There are " + quadraticResiduesMod2PowN_v2.size() + " quadratic residues % " + m + (SHOW_ELEMENTS ? ": " + quadraticResiduesMod2PowN_v2 : "") + " -- duration: " + (t1-t0) + "ms");
-			quadraticResidueCounts_v2.add(quadraticResiduesMod2PowN_v2.size());
-
-			t0 = System.currentTimeMillis();
-			TreeSet<Long> a004215Entries = getA004215(m);
-			t1 = System.currentTimeMillis();
-			LOG.info("v1: There are " + a004215Entries.size() + " A004215 entries < " + m + (SHOW_ELEMENTS ? ": " + a004215Entries : "") + " -- duration: " + (t1-t0) + "ms");
-			a004215EntryCounts.add(a004215Entries.size());
-			
-			t0 = System.currentTimeMillis();
-			TreeSet<Long> a004215Entries_v2 = getA004215_v2(n);
-			t1 = System.currentTimeMillis();
-			LOG.info("v2: There are " + a004215Entries_v2.size() + " A004215 entries < " + m + (SHOW_ELEMENTS ? ": " + a004215Entries_v2 : "") + " -- duration: " + (t1-t0) + "ms");
-			a004215EntryCounts_v2.add(a004215Entries_v2.size());
-			
-			t0 = System.currentTimeMillis();
-			long[] a004215Entries_v3 = new long[((1<<n) / 6) + 4]; // #{A004215(k) | k<m} is always near to m/6
-			int count = getA004215_v3(n, a004215Entries_v3);
-			t1 = System.currentTimeMillis();
-			LOG.info("v3: There are " + count + " A004215 entries < " + m + (SHOW_ELEMENTS ? ": " + Arrays.toString(a004215Entries_v3) : "") + " -- duration: " + (t1-t0) + "ms");
-			a004215EntryCounts_v3.add(count);
-			
-			LOG.info("");
-		}
-		
-		// A023105(n) = 1, 2, 2, 3, 4, 7, 12, 23, 44, 87, 172, 343, ...
-		LOG.info("v1: quadraticResidueCounts = " + quadraticResidueCounts);
-		LOG.info("v2: quadraticResidueCounts = " + quadraticResidueCounts_v2);
-
-		LOG.info("v1: a004215EntryCounts = " + a004215EntryCounts);
-		LOG.info("v2: a004215EntryCounts = " + a004215EntryCounts_v2);
-		LOG.info("v3: a004215EntryCounts = " + a004215EntryCounts_v3);
 	}
 }
