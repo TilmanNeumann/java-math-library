@@ -29,29 +29,27 @@ import de.tilman_neumann.util.TimeUtil;
 public class EulerConstantPerformanceTest {
 	private static final Logger LOG = LogManager.getLogger(EulerConstantPerformanceTest.class);
 
-	private static final boolean DEBUG = false;
+	private static final boolean ALL_SCALES = false;
 	
-	/**
-	 * @param args ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
+	private static void testGamma(Scale maxScale) {
     	long t0;
     	
-    	Scale maxScale = Scale.valueOf(200);
-    	
         t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<0; scale = scale.add(1)) {
-        	BigDecimal gamma = EulerConstant.gamma_v1(scale);
-            if (DEBUG) LOG.debug("gamma_v1(" + scale + ") = " + gamma);
+        if (ALL_SCALES) {
+	        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<0; scale = scale.add(1)) {
+	        	BigDecimal gamma = EulerConstant.gamma_v1(scale);
+	            LOG.debug("gamma_v1(" + scale + ") = " + gamma);
+	        }
         }
         LOG.info("gamma_v1(" + maxScale + ") = " + EulerConstant.gamma_v1(maxScale));
         String duration_v1 = TimeUtil.timeDiffStr(t0, System.currentTimeMillis());
     	
         t0 = System.currentTimeMillis();
-        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<0; scale = scale.add(1)) {
-        	BigDecimal gamma = EulerConstant.gamma_v2(scale);
-        	if (DEBUG) LOG.debug("gamma_v2(" + scale + ") = " + gamma);
+        if (ALL_SCALES) {
+        	for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<0; scale = scale.add(1)) {
+	        	BigDecimal gamma = EulerConstant.gamma_v2(scale);
+	        	LOG.debug("gamma_v2(" + scale + ") = " + gamma);
+        	}
         }
         LOG.info("gamma_v2(" + maxScale + ") = " + EulerConstant.gamma_v2(maxScale));
         String duration_v2 = TimeUtil.timeDiffStr(t0, System.currentTimeMillis());
@@ -59,4 +57,14 @@ public class EulerConstantPerformanceTest {
         LOG.info("Time for gamma_v1: " + duration_v1);
         LOG.info("Time for gamma_v2: " + duration_v2);
 	}
+	
+	/**
+	 * @param args ignored
+	 */
+	public static void main(String[] args) {
+    	ConfigUtil.initProject();
+    	testGamma(Scale.valueOf(200));
+    	testGamma(Scale.valueOf(400));
+    	testGamma(Scale.valueOf(600));
+ 	}
 }

@@ -29,11 +29,11 @@ import de.tilman_neumann.util.TimeUtil;
 public class PiPerformanceTest {
 	private static final Logger LOG = LogManager.getLogger(PiPerformanceTest.class);
 
-	private static final boolean TEST_ALL_SCALES_BETWEEN = false;
+	private static final boolean ALL_SCALES = false;
 
 	private static void testPi(Scale maxScale) {
         long t0 = System.currentTimeMillis();
-        if (TEST_ALL_SCALES_BETWEEN) {
+        if (ALL_SCALES) {
 	        for (Scale scale=Scale.valueOf(2); scale.compareTo(maxScale)<0; scale = scale.add(1)) {
 	        	BigDecimal pi = Pi.pi(scale);
 	            LOG.debug("pi(" + scale + ") = " + pi);
