@@ -117,7 +117,7 @@ public class QuadraticResiduesMod2PowN {
 		int lsb = Long.numberOfTrailingZeros(a);
 		int i = lsb>>1;
 		long rest = a >> (i<<1); // a / 4^i
-		// if rest is of the form 8*j+1 then a is of the form 4^i*(*j+1)
+		// if rest is of the form 8*j+1 then a is of the form 4^i*(8*j+1)
 		return (rest & 7) == 1;
 	}
 
