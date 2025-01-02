@@ -14,14 +14,12 @@
 package de.tilman_neumann.jml;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -33,7 +31,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
  */
 public class MoebiusFunction {
 	private static final Logger LOG = LogManager.getLogger(MoebiusFunction.class);
-	
+	private static final boolean DEBUG = false;
+
 	private MoebiusFunction() {
 		// static class, not instantiable
 	}
@@ -57,16 +56,16 @@ public class MoebiusFunction {
 			return 1;
 		}
 		
-		// factorize n:
+		// factorize n
 		SortedMultiset<BigInteger> factors = FactorAlgorithm.getDefault().factor(n);
-		//LOG.debug("factors of " + n + " = " + factors);
+		if (DEBUG) LOG.debug("factors of " + n + " = " + factors);
 		
 		if (factors==null || factors.size()==0) {
 			// n is prime
 			return -1;
 		}
 		
-		// accumulate number of different primes in k:
+		// accumulate number of different primes in k
 		int k = 1;
 		for (Map.Entry<BigInteger, Integer> factorAndMultiplicity : factors.entrySet()) {
 			final int e = factorAndMultiplicity.getValue().intValue();
@@ -77,24 +76,6 @@ public class MoebiusFunction {
 				k = -k;
 			}
 		}
-		// return (-1)^k:
 		return k;
-	}
-
-	/**
-	 * Tests.
-	 * 
-	 * @param args Ignored
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-    	int nMax = 100;
-		ArrayList<Integer> results = new ArrayList<>();
-		for (int n=1; n<nMax; n++) {
-			BigInteger bigN = BigInteger.valueOf(n);
-			results.add(moebius(bigN));
-		}
-		LOG.info("Moebius function = " + results);
-		// Result: 1, -1, -1, 0, -1, 1, -1, 0, 0, 1, -1, 0, -1, 1, 1, 0, -1, 0, -1, 0, 1, 1, -1, 0, 0, ...
 	}
 }
