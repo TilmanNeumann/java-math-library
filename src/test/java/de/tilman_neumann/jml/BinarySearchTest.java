@@ -42,7 +42,7 @@ public class BinarySearchTest {
 	public void testGetInsertPosition() {
 		int[] array = new int[] {1, 2, 3, 7, 10, 10, 11};
 		assertCorrectInsertPosition(array, 4, 3, 3);
-		assertCorrectInsertPosition(array, 4, 20, 4); // insert index con not exceed maxIndex
+		assertCorrectInsertPosition(array, 4, 20, 4); // insert index can not exceed maxIndex
 		assertCorrectInsertPosition(array, 7, 10, 6);
 		assertCorrectInsertPosition(array, 7, 11, 7);
 		assertCorrectInsertPosition(array, 7, 20, 7);
