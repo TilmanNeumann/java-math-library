@@ -24,8 +24,6 @@ import de.tilman_neumann.jml.base.BigRational;
 import de.tilman_neumann.jml.powers.Pow2;
 import de.tilman_neumann.jml.precision.Magnitude;
 import de.tilman_neumann.jml.precision.Scale;
-import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.TimeUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
@@ -36,6 +34,7 @@ import static de.tilman_neumann.jml.base.BigDecimalConstants.F_0;
  */
 public class Pi {
 	private static final Logger LOG = LogManager.getLogger(Pi.class);
+	private static final boolean DEBUG = false;
 
 	/** PI computed to PI_SCALE decimal after-floating point digits. */
     private static BigDecimal PI;
@@ -77,7 +76,7 @@ public class Pi {
 
 	            // Add new series element to the total:
 	            PI = PI.add(sElement);
-	            //LOG.debug("i=" + i + ", sElement=" + sElement + ", PI=" + PI);
+	            if (DEBUG) LOG.debug("i=" + i + ", sElement=" + sElement + ", PI=" + PI);
 	            i++;
 	        // Stop if the last series element is smaller than the series computed
 	        // so far multiplied with the desired relative error.
@@ -89,24 +88,5 @@ public class Pi {
 
 	    // assign output with wished accuracy:
 	    return scale.applyTo(PI);
-	}
-
-	private static void testPi(Scale maxScale) {
-        long t0 = System.currentTimeMillis();
-        for (Scale decPrec=Scale.valueOf(2); decPrec.compareTo(maxScale)<=0; decPrec = decPrec.add(1)) {
-            LOG.debug("pi(" + decPrec + ")=" + Pi.pi(decPrec));
-        }
-        long t1 = System.currentTimeMillis();
-        LOG.debug("Time of pi compuatation: " + TimeUtil.timeDiffStr(t0,t1));
-	}
-
-	/**
-	 * Test.
-	 * 
-	 * @param argv command line arguments, ignored
-	 */
-	public static void main(String[] argv) {
-    	ConfigUtil.initProject();
-        testPi(Scale.valueOf(200));
 	}
 }
