@@ -34,7 +34,7 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	private static final boolean DEBUG = false;
 	private static final SecureRandom RNG = new SecureRandom();
 
-	private int N;
+	private int n;
 
 	private Gcd31 gcd = new Gcd31();
 	
@@ -45,17 +45,21 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		return BigInteger.valueOf(findSingleFactor(N.intValue()));
+		if (N.bitLength() > 31) { // this check should be negligible in terms of performance
+			throw new IllegalArgumentException("N = " + N + " has " + N.bitLength() + " bit, but PollardRho31 only supports arguments <= 31 bit");
+		}
+		int factorInt = findSingleFactor(N.intValue());
+        return BigInteger.valueOf(factorInt);
 	}
 	
-	public int findSingleFactor(int N) {
-		this.N = N;
+	public int findSingleFactor(int nOriginal) {
+		this.n = nOriginal<0 ? -nOriginal : nOriginal; // RNG.nextInt(n) below would crash for negative arguments
 		int G;
 		int ys, x;
         do {
 	        // start with random x0, c from [0, N-1]
-        	int c = RNG.nextInt(N);
-            int x0 = RNG.nextInt(N);
+        	int c = RNG.nextInt(n);
+            int x0 = RNG.nextInt(n);
             int y = x0;
 
             // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
@@ -74,9 +78,9 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	    	        for (int i=1; i<=iMax; i++) {
 	    	            y = addModN(squareModN(y), c);
 	    	            final long diff = x<y ? y-x : x-y;
-	    	            q = (int) ((diff*q) % N);
+	    	            q = (int) ((diff*q) % n);
 	    	        }
-	    	        G = gcd.gcd(q, N);
+	    	        G = gcd.gcd(q, n);
 	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0, c
 	    	        k += m;
 	    	        if (DEBUG) LOG.debug("r = " + r + ", k = " + k);
@@ -84,16 +88,16 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	    	    r <<= 1;
 	    	    if (DEBUG) LOG.debug("r = " + r + ", G = " + G);
 	    	} while (G==1);
-	    	if (G==N) {
+	    	if (G==n) {
 	    	    do {
     	            ys = addModN(squareModN(ys), c);
     	            int diff = x<ys ? ys-x : x-ys;
-    	            G = gcd.gcd(diff, N);
+    	            G = gcd.gcd(diff, n);
 	    	    } while (G==1);
 	    	    if (DEBUG) LOG.debug("G = " + G);
 	    	}
-        } while (G==N);
-        if (DEBUG) LOG.debug("Found factor of " + N + " = " + G);
+        } while (G==n);
+        if (DEBUG) LOG.debug("Found factor of " + nOriginal + " = " + G);
         return G;
 	}
 
@@ -104,8 +108,8 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	 * @return (a+b) mod N
 	 */
 	private int addModN(int a, int b) {
-		int sum = a+b;
-		return sum<N ? sum : sum-N;
+		long sum = a + (long)b; // long is needed for the addition of 31 bit numbers
+		return (int) (sum<n ? sum : sum-n);
 	}
 
 	/**
@@ -114,6 +118,6 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	 * @return
 	 */
 	private int squareModN(long x) {
-		return (int) ((x * x) % N);
+		return (int) ((x * x) % n);
 	}
 }
