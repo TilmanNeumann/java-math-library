@@ -16,7 +16,6 @@ package de.tilman_neumann.jml;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.SortedMap;
@@ -24,14 +23,8 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import de.tilman_neumann.jml.combinatorics.Factorial;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.roots.SqrtInt;
-import de.tilman_neumann.util.ConfigUtil;
 
 /**
  * Implementations for finding all divisors of an integer.
@@ -39,9 +32,6 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class Divisors {
-	private static final Logger LOG = LogManager.getLogger(Divisors.class);
-
-	private static final TDiv tdiv = new TDiv().setTestLimit(65536); // 65536 is enough to factor factorials
 	
 	/** {1} */
 	private static final SortedSet<BigInteger> ONE_AS_SET = oneAsSet();
@@ -62,8 +52,7 @@ public class Divisors {
 	 * @param n Argument.
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
-	@SuppressWarnings("unused")
-	private static ArrayList<BigInteger> getDivisors_v1(BigInteger n) {
+	static ArrayList<BigInteger> getDivisors_v1(BigInteger n) {
 		ArrayList<BigInteger> divisors = new ArrayList<BigInteger>();
 		divisors.add(I_1);
 		BigInteger test = I_2;
@@ -87,8 +76,7 @@ public class Divisors {
 	 * @param n Argument.
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
-	@SuppressWarnings("unused")
-	private static ArrayList<BigInteger> getDivisors_v2(BigInteger n) {
+	static ArrayList<BigInteger> getDivisors_v2(BigInteger n) {
 		// all divisors <= sqrt(n)
 		ArrayList<BigInteger> smallDivisors = getSmallDivisors_v1(n);
 		if (n.equals(I_1)) return smallDivisors; // avoid double entry of 1
@@ -129,7 +117,7 @@ public class Divisors {
 	 * @param factors prime factorization
 	 * @return The set of divisors of n, sorted smallest first.
 	 */
-	private static SortedSet<BigInteger> getDivisorsTopDown(SortedMap<BigInteger, Integer> factors) {
+	static SortedSet<BigInteger> getDivisorsTopDown(SortedMap<BigInteger, Integer> factors) {
 		if (factors.size()==0) return ONE_AS_SET; // n=1 has factor set {}
 		
 		ArrayList<BigInteger> primes = new ArrayList<>();
@@ -306,7 +294,6 @@ public class Divisors {
 	 */
 	public static ArrayList<BigInteger> getSmallDivisors_v1(BigInteger n) {
 		BigInteger d_max = SqrtInt.iSqrt(n)[0];
-		//LOG.debug("n=" + n + ", d_max=" + d_max);
 		ArrayList<BigInteger> smallDivisors = new ArrayList<BigInteger>();
 		for (BigInteger d=I_1; d.compareTo(d_max)<=0; d=d.add(I_1)) {
 			if (n.mod(d).equals(I_0)) {
@@ -391,7 +378,7 @@ public class Divisors {
      * @return The sum of all numbers 1<=d<=x that divide x.
      * E.g. sumOfDivisors(6) = 1+2+3+6 = 12.
      */
-	private static BigInteger sumOfDivisors_v1(BigInteger x) {
+	static BigInteger sumOfDivisors_v1(BigInteger x) {
     	BigInteger sum = BigInteger.ZERO;
     	for (BigInteger d : getDivisors(x)) {
     		sum = sum.add(d);
@@ -486,7 +473,7 @@ public class Divisors {
      * @param n
      * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
      */
-    private static int getBiggestDivisorBelowSqrtN_small(int n) {
+    static int getBiggestDivisorBelowSqrtN_small(int n) {
 		// The biggest second factor must be <= lower(sqrt(n));
 		// we start there and return the first (biggest) divisor that we find.
 		for (int test = (int) Math.sqrt(n); test > 1; test--) {
@@ -507,7 +494,7 @@ public class Divisors {
      * @param n
      * @return biggest divisor of n <= sqrt(n); 1 if n=1 or n prime
      */
-    private static BigInteger getBiggestDivisorBelowSqrtN_big(BigInteger n) {
+    static BigInteger getBiggestDivisorBelowSqrtN_big(BigInteger n) {
 		// In repeated applications this is much faster than new CombinedFactorAlgorithm(1) because of the missing initialization cost
 		SortedMap<BigInteger, Integer> factors = FactorAlgorithm.getDefault().factor(n);
 		return getBiggestDivisorBelowSqrtN(n, factors);
@@ -524,161 +511,4 @@ public class Divisors {
     	SortedSet<BigInteger> smallDivisors = getSmallDivisors(n, factors);
     	return smallDivisors.last();
     }
-
-	private static void testSumOfDivisorsForSmallIntegers() {
-		BigInteger n = I_0;
-		while (n.compareTo(I_1E4) <= 0) {
-			LOG.info("sumOfDivisors(" + n + ") = " + sumOfDivisors_v1(n));
-			n = n.add(I_1);
-		}
-	}
-	
-	/**
-	 * Print the sum of divisors of factorials = sigma(n!) [A062569]:
-	 * 1, 1, 3, 12, 60, 360, 2418, 19344, 159120, 1481040, 15334088, 184009056, ...
-	 * 
-	 * These are equal to (n+1)!/2 for 0<n<6, but less for bigger n...
-	 */
-	private static void testSumOfDivisorsForFactorials() {
-		for (int n=0; ; n++) {
-			BigInteger fac = Factorial.factorial(n);
-			BigInteger sigma;
-			long t0, t1;
-			
-			// old version
-//			t0 = System.currentTimeMillis();
-//			sigma = sumOfDivisors_v1(fac);
-//			t1 = System.currentTimeMillis();
-//			LOG.info("sumOfDivisors_v1(" + n + "!) = " + sigma + " computed in " + (t1-t0) + "ms");
-			
-			// second version is much faster
-//			t0 = System.currentTimeMillis();
-//			sigma = sumOfDivisors/*_v2*/(fac);
-//			t1 = System.currentTimeMillis();
-//			LOG.info("sumOfDivisors_v2(" + n + "!) = " + sigma + " computed in " + (t1-t0) + "ms");
-			
-			// third version gives A062569 at high speed
-			t0 = System.currentTimeMillis();
-			SortedMap<BigInteger, Integer> factors = tdiv.factor(fac); // tdiv is sufficient because fac is very smooth
-			sigma = sumOfDivisors(factors);
-			t1 = System.currentTimeMillis();
-			LOG.info("sumOfDivisors_v3(" + n + "!) = " + sigma + " computed in " + (t1-t0) + "ms");
-		}
-	}
-
-	private static void testDivisors() {
-		for (int n=0; ; n++) {
-			BigInteger fac = Factorial.factorial(n);
-			SortedMap<BigInteger, Integer> factors = tdiv.factor(fac); // tdiv is sufficient because fac is very smooth
-
-			// v1 is very slow...
-			//long t0 = System.currentTimeMillis();
-			//ArrayList<BigInteger> divSet1 = getDivisors_v1(fac);
-			
-			// v2 is quite slow
-			//long t1 = System.currentTimeMillis();
-			//ArrayList<BigInteger> divSet2 = getDivisors_v2(fac);
-			
-			long t2 = System.currentTimeMillis();
-			SortedSet<BigInteger> divSet3 = getDivisors/*_v3*/(fac);
-			
-			long t3 = System.currentTimeMillis();
-			SortedSet<BigInteger> divSet4 = getDivisorsTopDown(factors);
-			
-			long t4 = System.currentTimeMillis();
-			SortedSet<BigInteger> divSet5 = getDivisors/*BottomUp*/(factors); // slightly faster than top-down
-			
-			long t5 = System.currentTimeMillis();
-			BigInteger divCount1 = getDivisorCount(fac); // very fast
-			
-			long t6 = System.currentTimeMillis();
-			BigInteger divCount2 = getDivisorCount(factors); // very fast
-			
-			long t7 = System.currentTimeMillis();
-			
-			// The sets get too big for logging
-			//LOG.info("divisors_v1(" + n + "!) = " + divSet1);
-			//LOG.info("divisors_v2(" + n + "!) = " + divSet2);
-			//LOG.info("divisors_v3(" + n + "!) = " + divSet3);
-			//LOG.info("divisors_v4(" + n + "!) = " + divSet4);
-			//LOG.info("divisors_v5(" + n + "!) = " + divSet5);
-			
-			//LOG.info("divisors_v1(" + n + "!) found " + divSet1.size() + " divisors in " + (t1-t0) + "ms");
-			//LOG.info("divisors_v2(" + n + "!) found " + divSet2.size() + " divisors in " + (t2-t1) + "ms");
-			LOG.info("divisors_v3(" + n + "!) found " + divSet3.size() + " divisors in " + (t3-t2) + "ms");
-			LOG.info("divisors_v4(" + n + "!) found " + divSet4.size() + " divisors in " + (t4-t3) + "ms");
-			LOG.info("divisors_v5(" + n + "!) found " + divSet5.size() + " divisors in " + (t5-t4) + "ms");
-			LOG.info("getDivisorCount_v1(" + n + "!) = " + divCount1 + " computed in " + (t6-t5) + "ms");
-			LOG.info("getDivisorCount_v2(" + n + "!) = " + divCount2 + " computed in " + (t7-t6) + "ms");
-			// this gives A027423 at high speed
-		}
-	}
-
-	private static void testSmallDivisors() {
-		for (int n=0; ; n++) {
-			BigInteger fac = Factorial.factorial(n);
-			
-			long t0 = System.currentTimeMillis();
-			ArrayList<BigInteger> divSet1 = getSmallDivisors_v1(fac);
-			long t1 = System.currentTimeMillis();
-			
-			// Much much faster!
-			SortedMap<BigInteger, Integer> factors = tdiv.factor(fac); // tdiv is sufficient because fac is very smooth
-			SortedSet<BigInteger> divSet2 = getSmallDivisors/*_v2*/(fac, factors);
-			long t2 = System.currentTimeMillis();
-			
-//			LOG.info("smallDivisors_v1(" + n + "!) = " + divSet1);
-//			LOG.info("smallDivisors_v2(" + n + "!) = " + divSet2);
-			LOG.info("smallDivisors_v1(" + n + "!) found " + divSet1.size() + " divisors in " + (t1-t0) + "ms");
-			LOG.info("smallDivisors_v2(" + n + "!) found " + divSet2.size() + " divisors in " + (t2-t1) + "ms");
-			// The divisor count sequence for n! up to 38! is
-			// 1, 1, 1, 2, 4, 8, 15, 30, 48, 80, 135, 270, 396, 792, 1296, 2016, 2688, 5376, 7344, 14688, 20520, 30400, 48000, 96000, 121440, 170016, 266112, 338688, 458640, 917280, 1166400, 2332800, 2764800, 3932160, 6082560, 8211456, 9797760, 19595520, 30233088
-			// Since no factorial is a square, this is A027423(n) for n>1
-		}
-	}
-
-	private static void testBiggestDivisorBelowSqrtN() {
-		long t0, t1;
-		SecureRandom rng = new SecureRandom();
-		int NCOUNT=10000;
-		
-		for (int bits = 15; bits<32; bits++) { // getBiggestDivisorBelowSqrtN_small() needs int arguments
-			// create test set
-			ArrayList<BigInteger> testSet = new ArrayList<>();
-			for (int i=0; i<NCOUNT; ) {
-				BigInteger n = new BigInteger(bits, rng);
-				if (n.compareTo(I_0)>0) {
-					testSet.add(n);
-					i++;
-				}
-			}
-			t0 = System.currentTimeMillis();
-			for (BigInteger nBig : testSet) {
-				getBiggestDivisorBelowSqrtN_small(nBig.intValue());
-			}
-			t1 = System.currentTimeMillis();
-			LOG.info("getBiggestDivisorBelowSqrtN_small(" + bits + "bit) took " + (t1-t0) + "ms");
-			
-			t0 = System.currentTimeMillis();
-			for (BigInteger nBig : testSet) {
-				getBiggestDivisorBelowSqrtN_big(nBig);
-			}
-			t1 = System.currentTimeMillis();
-			LOG.info("getBiggestDivisorBelowSqrtN_big(" + bits + "bit) took " + (t1-t0) + "ms");
-		}
-	}
-	
-	/**
-	 * Tests.
-	 * 
-	 * @param args Ignored.
-	 */
-	public static void main(String[] args) {
-    	ConfigUtil.initProject();
-    	testDivisors();
-    	//testSmallDivisors();
-    	//testBiggestDivisorBelowSqrtN();
-    	//testSumOfDivisorsForSmallIntegers();
-    	//testSumOfDivisorsForFactorials();
-	}
 }
