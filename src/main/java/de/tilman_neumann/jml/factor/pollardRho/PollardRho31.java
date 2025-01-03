@@ -20,10 +20,10 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.gcd.Gcd63;
+import de.tilman_neumann.jml.gcd.Gcd31;
 
 /**
- * 31-bit implementation of Pollard' Rho method.
+ * 31-bit implementation of Pollard's Rho method.
  * 
  * @author Tilman Neumann
  */
@@ -32,11 +32,11 @@ public class PollardRho31 extends FactorAlgorithm {
 	private static final boolean DEBUG = false;
 	private static final SecureRandom RNG = new SecureRandom();
 
-	private Gcd63 gcdEngine = new Gcd63();
-
-	/** factor argument converted to int */
+	private Gcd31 gcdEngine = new Gcd31();
+	
+	/** absolute value of the number to factor */
 	private int n;
-
+	
 	@Override
 	public String getName() {
 		return "PollardRho31";
@@ -44,9 +44,17 @@ public class PollardRho31 extends FactorAlgorithm {
 	
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		this.n = N.intValue();
+		if (N.bitLength() > 31) { // this check should be negligible in terms of performance
+			throw new IllegalArgumentException("N = " + N + " has " + N.bitLength() + " bit, but PollardRho31 only supports arguments <= 31 bit");
+		}
+		int factorInt = findSingleFactor(N.intValue());
+        return BigInteger.valueOf(factorInt);
+	}
+	
+	public int findSingleFactor(int nOriginal) {
+		this.n = nOriginal<0 ? -nOriginal : nOriginal; // RNG.nextInt(n) below would crash for negative arguments
 		
-        long gcd;
+        int gcd;
         long x = RNG.nextInt(n); // uniform random int from [0, n)
         long xx = x;
         do {
@@ -55,11 +63,11 @@ public class PollardRho31 extends FactorAlgorithm {
 	            x  = addModN(squareModN(x), c);
 	            xx = addModN(squareModN(xx), c);
 	            xx = addModN(squareModN(xx), c);
-	            gcd = gcdEngine.gcd(x-xx, n);
+	            gcd = gcdEngine.gcd((int)(x-xx), n);
 	        } while(gcd==1);
         } while (gcd==n); // leave loop if factor found; otherwise continue with a new random c
-        if (DEBUG) LOG.debug("Found factor of " + N + " = " + gcd);
-        return BigInteger.valueOf(gcd);
+        if (DEBUG) LOG.debug("Found factor of " + nOriginal + " = " + gcd);
+        return gcd;
 	}
 
 	/**
