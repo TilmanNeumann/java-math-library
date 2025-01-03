@@ -218,7 +218,8 @@ public class FactorizerTest {
 				if (bits>52 && algName.startsWith("SquFoF31")) continue; // int implementation
 				if (bits>59 && algName.startsWith("Lehman")) continue; // TODO make it work again for 60 bit?
 				if (bits>31 && algName.startsWith("TDiv31")) continue; // int implementation
-				if (bits>31 && algName.startsWith("PollardRho31")) continue; // long implementation
+				if (bits>31 && algName.startsWith("PollardRho31")) continue; // int implementation
+				if (bits>31 && algName.startsWith("PollardRhoBrent31")) continue; // int implementation
 				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
 				if (bits>57 && algName.equals("PollardRhoBrentMontgomeryR64Mul63")) continue; // very slow above
 				if (bits>28 && algName.startsWith("HartMultiplierChainSqrtN")) continue; // no multipliers for bigger N
