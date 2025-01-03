@@ -50,7 +50,7 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 	// The reducer R is 2^64, but the only constant still required is the half of it.
 	private static final long R_HALF = 1L << 63;
 
-	private long N;
+	private long n;
 
 	private long minusNInvModR;	// (-1/N) mod R, required for Montgomery multiplication
 	
@@ -63,61 +63,65 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 	
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		return BigInteger.valueOf(findSingleFactor(N.longValue()));
+		if (N.bitLength() > 63) { // this check should be negligible in terms of performance
+			throw new IllegalArgumentException("N = " + N + " has " + N.bitLength() + " bit, but " + getName() + " only supports arguments <= 63 bit");
+		}
+		long factorLong = findSingleFactor(N.longValue());
+        return BigInteger.valueOf(factorLong);
 	}
 	
-	public long findSingleFactor(long N) {
-		// N==9 would require to check if the gcd is 1 < gcd < N before returning it as a factor
-		if (N==9) return 3;
+	public long findSingleFactor(long nOriginal) {
+		this.n = nOriginal<0 ? -nOriginal : nOriginal; // RNG.nextLong(n) below would crash for negative arguments
+		// n==9 would require to check if the gcd is 1 < gcd < n before returning it as a factor
+		if (n==9) return 3;
 		
-		this.N = N;
         long G, x, ys;
         
 		setUpMontgomeryMult();
 
 		// number of iterations before gcd tests.
         // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
-		final int Nbits = 64 - Long.numberOfLeadingZeros(N);
+		final int Nbits = 64 - Long.numberOfLeadingZeros(n);
     	final int m = 2*Nbits;
 
         do {
-	        // start with random y from [0, N)
-            long y = RNG.nextLong(N);
+	        // start with random y from [0, n)
+            long y = RNG.nextLong(n);
 
         	int r = 1;
         	long q = 1;
         	do {
 	    	    x = y;
 	    	    for (int i=r; i>0; i--) {
-	    	        y = montMul63(y, y+1, N, minusNInvModR);
+	    	        y = montMul63(y, y+1, n, minusNInvModR);
 	    	    }
 	    	    int k = 0;
 	    	    do {
 	    	        ys = y;
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=iMax; i>0; i--) {
-	    	            y = montMul63(y, y+1, N, minusNInvModR);
+	    	            y = montMul63(y, y+1, n, minusNInvModR);
 	    	            final long diff = x<y ? y-x : x-y;
-	    	            q = montMul63(diff, q, N, minusNInvModR);
+	    	            q = montMul63(diff, q, n, minusNInvModR);
 	    	        }
-	    	        G = gcd.gcd(q, N);
-	    	        // if q==0 then G==N -> the loop will be left and restarted with new y
+	    	        G = gcd.gcd(q, n);
+	    	        // if q==0 then G==n -> the loop will be left and restarted with new y
 	    	        k += m;
 	    	        if (DEBUG) LOG.debug("r = " + r + ", k = " + k);
 	    	    } while (k<r && G==1);
 	    	    r <<= 1;
 	    	    if (DEBUG) LOG.debug("r = " + r + ", G = " + G);
 	    	} while (G==1);
-	    	if (G==N) {
+	    	if (G==n) {
 	    	    do {
-	    	        ys = montMul63(ys, ys+1, N, minusNInvModR);
+	    	        ys = montMul63(ys, ys+1, n, minusNInvModR);
     	            final long diff = x<ys ? ys-x : x-ys;
-	    	        G = gcd.gcd(diff, N);
+	    	        G = gcd.gcd(diff, n);
 	    	    } while (G==1);
 	    	    if (DEBUG) LOG.debug("G = " + G);
 	    	}
-        } while (G==N);
-        if (DEBUG) LOG.debug("Found factor " + G + " of N=" + N);
+        } while (G==n);
+        if (DEBUG) LOG.debug("Found factor " + G + " of N=" + nOriginal);
         return G;
 	}
 	
@@ -140,7 +144,7 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 	            u >>>= 1;
 	    	    v >>>= 1;
 	        } else {
-	            u = ((u ^ N) >>> 1) + (u & N);
+	            u = ((u ^ n) >>> 1) + (u & n);
 	            v = (v >>> 1) + R_HALF;
 	        }
 	    }
