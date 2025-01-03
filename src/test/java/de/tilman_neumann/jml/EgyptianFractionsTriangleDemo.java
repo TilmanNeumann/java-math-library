@@ -31,10 +31,10 @@ import de.tilman_neumann.util.TimeUtil;
  * @author Tilman Neumann
  */
 // TODO: Compute number of terms
-public class EgyptianFractionsTriangle extends BigIntTriangle {
-	private static final Logger LOG = LogManager.getLogger(EgyptianFractionsTriangle.class);
+public class EgyptianFractionsTriangleDemo extends BigIntTriangle {
+	private static final Logger LOG = LogManager.getLogger(EgyptianFractionsTriangleDemo.class);
 
-	public EgyptianFractionsTriangle(int n) {
+	public EgyptianFractionsTriangleDemo(int n) {
 		super(n, I_0);
 		for (int m=1; m<=n; m++) {
 			for (int k=1; k<=m; k++) {
@@ -67,7 +67,7 @@ public class EgyptianFractionsTriangle extends BigIntTriangle {
     	int n = 30; // 28 is easy (8s), 29 is harder (2:26), 30 again easy (2:25), 31 is very heavy
     	
     	long start = System.currentTimeMillis();
-		EgyptianFractionsTriangle t = new EgyptianFractionsTriangle(n);
+		EgyptianFractionsTriangleDemo t = new EgyptianFractionsTriangleDemo(n);
     	long end = System.currentTimeMillis();
 		LOG.info("greedy count triangle " + n + " computed in " + TimeUtil.timeDiffStr(start, end) + ":\n" + t.toString());
 	}
