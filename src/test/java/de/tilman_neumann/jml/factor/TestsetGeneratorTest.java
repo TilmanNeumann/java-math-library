@@ -14,10 +14,9 @@
 package de.tilman_neumann.jml.factor;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
@@ -35,7 +34,7 @@ public class TestsetGeneratorTest {
 	private static final int NCOUNT = 10;
 	private static final int MIN_BITS = 20;
 	private static final int MAX_BITS = 1000;
-	private static final int INCR_BITS = 10;
+	private static final int INCR_BITS = 20;
 
 	@BeforeClass
 	public static void setup() {
@@ -43,28 +42,57 @@ public class TestsetGeneratorTest {
 	}
 
 	@Test
-	public void testGeneratedNumberSize() {
+	public void testRandomComposites() {
 		Timer timer = new Timer();
 		for (int bits = MIN_BITS; bits<=MAX_BITS; bits+=INCR_BITS) {
-			long start = timer.capture();
-			BigInteger[] testNumbers = TestsetGenerator.generate(NCOUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
-			long end = timer.capture();
-			// Collect the true bit lengths
-			Map<Integer, Integer> sizeCounts = new TreeMap<>();
+			BigInteger[] testNumbers = TestsetGenerator.generate(NCOUNT, bits, TestNumberNature.RANDOM_COMPOSITES);
 			for (BigInteger num : testNumbers) {
-				int bitlen = num.bitLength();
-				Integer count = sizeCounts.get(bitlen);
-				count = (count==null) ? Integer.valueOf(1) : count.intValue()+1;
-				sizeCounts.put(bitlen, count);
+				assertEquals(bits, num.bitLength());
+				assertTrue(num.signum() > 0);
 			}
-			String generatedBitLengths = "";
-			for (int bitlen : sizeCounts.keySet()) {
-				generatedBitLengths += sizeCounts.get(bitlen) + "x" + bitlen + ", ";
-			}
-			generatedBitLengths = generatedBitLengths.substring(0, generatedBitLengths.length()-2);
-			LOG.info("Requesting " + NCOUNT + " " + bits + "-numbers took " + TimeUtil.timeDiffStr(start, end) + " ms and generated the following bit lengths: " + generatedBitLengths);
-			// all generated test numbers have the requested bit length
-			assertEquals(NCOUNT + "x" + bits, generatedBitLengths);
 		}
+		LOG.info("Computing random composites took " + TimeUtil.timeStr(timer.totalRuntime()));
+	}
+
+	@Test
+	public void testRandomOddComposites() {
+		Timer timer = new Timer();
+		for (int bits = MIN_BITS; bits<=MAX_BITS; bits+=INCR_BITS) {
+			BigInteger[] testNumbers = TestsetGenerator.generate(NCOUNT, bits, TestNumberNature.RANDOM_ODD_COMPOSITES);
+			for (BigInteger num : testNumbers) {
+				assertEquals(bits, num.bitLength());
+				assertTrue(num.signum() > 0);
+				assertEquals(num.intValue() & 1, 1);
+			}
+		}
+		LOG.info("Computing random odd composites took " + TimeUtil.timeStr(timer.totalRuntime()));
+	}
+
+	@Test
+	public void testModerateSemiprimes() {
+		Timer timer = new Timer();
+		for (int bits = MIN_BITS; bits<=MAX_BITS; bits+=INCR_BITS) {
+			BigInteger[] testNumbers = TestsetGenerator.generate(NCOUNT, bits, TestNumberNature.MODERATE_SEMIPRIMES);
+			for (BigInteger num : testNumbers) {
+				assertEquals(bits, num.bitLength());
+				assertTrue(num.signum() > 0);
+				// we dont want to factor the numbers here to prove they are semiprimes
+			}
+		}
+		LOG.info("Computing moderate semiprimes took " + TimeUtil.timeStr(timer.totalRuntime()));
+	}
+
+	@Test
+	public void testHardSemiprimes() {
+		Timer timer = new Timer();
+		for (int bits = MIN_BITS; bits<=MAX_BITS; bits+=INCR_BITS) {
+			BigInteger[] testNumbers = TestsetGenerator.generate(NCOUNT, bits, TestNumberNature.QUITE_HARD_SEMIPRIMES);
+			for (BigInteger num : testNumbers) {
+				assertEquals(bits, num.bitLength());
+				assertTrue(num.signum() > 0);
+				// we dont want to factor the numbers here to prove they are semiprimes
+			}
+		}
+		LOG.info("Computing quite hard semiprimes took " + TimeUtil.timeStr(timer.totalRuntime()));
 	}
 }
