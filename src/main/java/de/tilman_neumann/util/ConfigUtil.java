@@ -189,6 +189,7 @@ public class ConfigUtil {
 	 * 
 	 * Works only when run as a project.
 	 */
+	@SuppressWarnings("unused")
 	private static void configureDefaultLogger_v1() {
 		Configurator.setRootLevel(Level.INFO);
 	}
