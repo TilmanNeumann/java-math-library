@@ -39,9 +39,9 @@ import de.tilman_neumann.util.ConfigUtil;
  * 
  * @author Tilman Neumann
  */
-public class FermatCatalanConjectureTest {
+public class FermatCatalanConjectureTestRunner {
 	
-	private static final Logger LOG = LogManager.getLogger(FermatCatalanConjectureTest.class);
+	private static final Logger LOG = LogManager.getLogger(FermatCatalanConjectureTestRunner.class);
 	
 	private static final int b_COUNT = 10000000;
 	
