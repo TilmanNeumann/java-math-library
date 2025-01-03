@@ -46,7 +46,7 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
 		if (N.bitLength() > 31) { // this check should be negligible in terms of performance
-			throw new IllegalArgumentException("N = " + N + " has " + N.bitLength() + " bit, but PollardRho31 only supports arguments <= 31 bit");
+			throw new IllegalArgumentException("N = " + N + " has " + N.bitLength() + " bit, but " + getName() + " only supports arguments <= 31 bit");
 		}
 		int factorInt = findSingleFactor(N.intValue());
         return BigInteger.valueOf(factorInt);
