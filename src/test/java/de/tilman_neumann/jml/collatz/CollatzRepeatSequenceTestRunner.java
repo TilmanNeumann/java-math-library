@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml;
+package de.tilman_neumann.jml.collatz;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
@@ -32,83 +32,16 @@ import de.tilman_neumann.util.ConfigUtil;
  * Test Collatz or 3n+1 problem.
  * @author Tilman Neumann
  */
-public class CollatzSequenceTest {
-	private static final Logger LOG = LogManager.getLogger(CollatzSequenceTest.class);
+public class CollatzRepeatSequenceTestRunner {
+	private static final Logger LOG = LogManager.getLogger(CollatzRepeatSequenceTestRunner.class);
 	
 	private static final int N_COUNT = 30000000;
 	private static final int START_PROGRESSION = 2; // 2 is best for dropping sequences; 2, 3, 9 are good for repeat sequences
 	private static final int MAX_PROGRESSION = 1<<20;
 	
 	/**
-	 * Run the 3n+1 sequence until we find some n<nStart.
+	 * Run the 3n+1 sequence until we find some n that was already contained in the sequence of some smaller n.
 	 */
-	private static void test3nPlus1DroppingSequence() {
-		TreeSet<Integer> lengths = new TreeSet<>();
-		int maxLength = 0;
-		ArrayList<Integer> recordLengths = new ArrayList<Integer>();
-		ArrayList<BigInteger> recordLengthsN = new ArrayList<BigInteger>();
-		// convention: length(1)=0
-		recordLengths.add(0);
-		recordLengthsN.add(I_1);
-		
-		// analyze the length of all dropping sequences, arranged by length
-		TreeMap<Integer, ArrayList<BigInteger>> length2NStartList = new TreeMap<Integer, ArrayList<BigInteger>>();
-		
-		// Define arithmetic progressions of dropping sequences: progr(mul, add) = {mul*n+add, n=0,1,2,...}
-		// Then we analyze the maximal length of sequences of progression progr(mul, add).
-		// Many such progressions have a small maximal length.
-		// Progressions that do not have a small maximal length are called "unbounded".
-		// Finally we analyze the counts of unbounded progressions for sets {progr(mul, add), add=0..(mul-1)}
-		// The smallest numbers of unbounded proressions ar achieved for mul being powers of 2.
-		TreeMap<Integer, TreeMap<Integer, Integer>> progressionToMaxLength = new TreeMap<Integer, TreeMap<Integer, Integer>>();
-		
-		HashSet<BigInteger> resolved = new HashSet<>();
-		resolved.add(I_1);
-		for (int i=2; i<N_COUNT; i++) {
-			ArrayList<BigInteger> sequence = new ArrayList<>();
-			BigInteger nStart = BigInteger.valueOf(i);
-			BigInteger n = nStart;
-			sequence.add(n);
-			while (true) {
-				if ((n.intValue()&1)==1) {
-					n = n.multiply(I_3).add(I_1);
-				} else {
-					n = n.shiftRight(1);
-				}
-				sequence.add(n);
-				if (resolved.contains(n)) {
-					resolved.add(nStart);
-					// sequence length is the number of operations, not the number of elements in the list
-					int length = sequence.size() - 1;
-					//LOG.info("len=" + length + ": " + sequence);
-					lengths.add(length);
-					if (length > maxLength) {
-						maxLength = length;
-						LOG.info("record length=" + length + " at n=" + nStart);
-						// sequence of records = A217934 = 0, 1, 6, 11, 96, 132, 171, 220, 267, 269, 282, 287, 298, 365, 401, 468, 476, 486, 502, 613, 644, 649, 706, 729, 892, 897, 988, 1122, 1161, 1177, 1187, 1445, 1471, 1575, 1614, 1639
-						recordLengths.add(length);
-						recordLengthsN.add(nStart);
-					}
-					addToLength2NMap(length2NStartList, length, nStart);
-					addToProgressionToMaxLengthMap(progressionToMaxLength, nStart, length);
-					break;
-				}
-			}
-		}
-		
-		LOG.info("lengths   = " + lengths); // A122437
-		// data below comes from N_COUNT=100M (16GB RAM hardly enough)
-		LOG.info("record lengths   = " + recordLengths); // A217934 = (0,) 1, 6, 11, 96, 132, 171, 220, 267, 269, 282, 287, 298, 365, 401, 468, 476, 486, 502, 613
-		LOG.info("N(record lengths)= " + recordLengthsN); // A060412 = (1,) 2, 3, 7, 27, 703, 10087, 35655, 270271, 362343, 381727, 626331, 1027431, 1126015, 8088063, 13421671, 20638335, 26716671, 56924955, 63728127
-		
-		analyzeNStartSequences(length2NStartList);
-		analyzeProgressions(progressionToMaxLength);
-	}
-	
-	/**
-	 * Run the 2n+1 sequence until we find some n that was already contained in the sequence of some smaller n.
-	 */
-	@SuppressWarnings("unused")
 	private static void test3nPlus1RepeatSequence() {
 		TreeSet<Integer> lengths = new TreeSet<>();
 		int maxLength = 0;
@@ -264,7 +197,6 @@ public class CollatzSequenceTest {
 	
 	public static void main(String[] args) {
 		ConfigUtil.initProject();
-		test3nPlus1DroppingSequence();
-//		test3nPlus1RepeatSequence();
+		test3nPlus1RepeatSequence();
 	}
 }
