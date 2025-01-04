@@ -31,6 +31,7 @@ import de.tilman_neumann.jml.gcd.Gcd31;
  * 1. Use squareAddModN31() instead of nested addModN(squareModN())
  * 2. reinitialize q before each inner loop
  * 3. Compute the number of steps before each gcd by m=log(n)
+ * 4. Use faster "mulMod"
  * 
  * @author Tilman Neumann
  */
@@ -87,8 +88,13 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=1; i<=iMax; i++) {
 	    	            y = squareAddModN31(y, c);
-	    	            final long diff = x<y ? y-x : x-y;
-	    	            q = (int) ((diff*q) % n);
+	    	            // the "mulMod" operation...
+	    	            // DM: "Apparently getting things into a 64 bit register at the start has benefits"
+	    	            //q = (int) ((((long)x-y) * q) % n);
+	    	            // But we still want to compute x-y in ints?
+	    	            //q = (int) (((x-y) * (long)q) % n);
+	    	            //q = (int) (((long)(x-y) * q) % n);
+	    	            q = (int) (((long)q * (x-y)) % n);
 	    	        }
 	    	        G = gcd.gcd(q, n);
 	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0, c
@@ -102,8 +108,7 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	    	if (G==n) {
 	    	    do {
     	            ys = squareAddModN31(ys, c);
-    	            int diff = x<ys ? ys-x : x-ys;
-    	            G = gcd.gcd(diff, n);
+    	            G = gcd.gcd(x-ys, n);
 	    	    } while (G==1);
 	    	    if (DEBUG) LOG.debug("G = " + G);
 	    	}
