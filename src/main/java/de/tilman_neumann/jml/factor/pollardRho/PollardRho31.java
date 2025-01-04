@@ -66,8 +66,8 @@ public class PollardRho31 extends FactorAlgorithm {
 	            x  = squareAddModN31(x, c);
 	            xx = squareAddModN31(xx, c);
 	            xx = squareAddModN31(xx, c);
-	            gcd = gcdEngine.gcd((int)(x-xx), n);
-	        } while(gcd==1);
+	            gcd = gcdEngine.gcd(x-xx, n);
+	        } while (gcd==1);
         } while (gcd==n); // leave loop if factor found; otherwise continue with a new random c
         if (DEBUG) LOG.debug("Found factor of " + nOriginal + " = " + gcd);
         return gcd;
