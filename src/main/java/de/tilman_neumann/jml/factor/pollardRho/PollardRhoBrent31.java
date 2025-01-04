@@ -27,6 +27,9 @@ import de.tilman_neumann.jml.gcd.Gcd31;
  * 
  * 31 bit version.
  * 
+ * Improvement by Dave McGuigan:
+ * Use squareAddModN31() instead of nested addModN(squareModN())
+ * 
  * @author Tilman Neumann
  */
 public class PollardRhoBrent31 extends FactorAlgorithm {
@@ -69,14 +72,14 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
         	do {
 	    	    x = y;
 	    	    for (int i=1; i<=r; i++) {
-    	            y = addModN(squareModN(y), c);
+    	            y = squareAddModN31(y, c);
 	    	    }
 	    	    int k = 0;
 	    	    do {
 	    	        ys = y;
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=1; i<=iMax; i++) {
-	    	            y = addModN(squareModN(y), c);
+	    	            y = squareAddModN31(y, c);
 	    	            final long diff = x<y ? y-x : x-y;
 	    	            q = (int) ((diff*q) % n);
 	    	        }
@@ -90,7 +93,7 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	    	} while (G==1);
 	    	if (G==n) {
 	    	    do {
-    	            ys = addModN(squareModN(ys), c);
+    	            ys = squareAddModN31(ys, c);
     	            int diff = x<ys ? ys-x : x-ys;
     	            G = gcd.gcd(diff, n);
 	    	    } while (G==1);
@@ -102,22 +105,12 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	}
 
 	/**
-	 * Addition modulo N, with <code>a, b < N</code>.
-	 * @param a
-	 * @param b
-	 * @return (a+b) mod N
-	 */
-	private int addModN(int a, int b) {
-		long sum = a + (long)b; // long is needed for the addition of 31 bit numbers
-		return (int) (sum<n ? sum : sum-n);
-	}
-
-	/**
-	 * x^2 modulo N.
+	 * x^2+c modulo N.
 	 * @param x
 	 * @return
 	 */
-	private int squareModN(long x) {
-		return (int) ((x * x) % n);
+	private int squareAddModN31(int x, int c) {
+		// internal computation must be long, not only for the multiplication, but also for the addition of 31 bit numbers
+		return (int)( ((long)x*x+c) % n);
 	}
 }

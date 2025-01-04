@@ -25,6 +25,9 @@ import de.tilman_neumann.jml.gcd.Gcd31;
 /**
  * 31-bit implementation of Pollard's Rho method.
  * 
+ * Improvement by Dave McGuigan:
+ * Use squareAddModN31() instead of nested addModN(squareModN())
+ * 
  * @author Tilman Neumann
  */
 public class PollardRho31 extends FactorAlgorithm {
@@ -55,14 +58,14 @@ public class PollardRho31 extends FactorAlgorithm {
 		this.n = nOriginal<0 ? -nOriginal : nOriginal; // RNG.nextInt(n) below would crash for negative arguments
 		
         int gcd;
-        long x = RNG.nextInt(n); // uniform random int from [0, n)
-        long xx = x;
+        int x = RNG.nextInt(n); // uniform random int from [0, n)
+        int xx = x;
         do {
         	int c = RNG.nextInt(n); // uniform random int from [0, n)
 	        do {
-	            x  = addModN(squareModN(x), c);
-	            xx = addModN(squareModN(xx), c);
-	            xx = addModN(squareModN(xx), c);
+	            x  = squareAddModN31(x, c);
+	            xx = squareAddModN31(xx, c);
+	            xx = squareAddModN31(xx, c);
 	            gcd = gcdEngine.gcd((int)(x-xx), n);
 	        } while(gcd==1);
         } while (gcd==n); // leave loop if factor found; otherwise continue with a new random c
@@ -71,22 +74,12 @@ public class PollardRho31 extends FactorAlgorithm {
 	}
 
 	/**
-	 * Addition modulo N, with <code>a, b < N</code>.
-	 * @param a
-	 * @param b
-	 * @return (a+b) mod N
-	 */
-	private long addModN(long a, int b) {
-		long sum = a + b;
-		return sum<n ? sum : sum-n;
-	}
-
-	/**
-	 * x^2 modulo N.
+	 * x^2+c modulo N.
 	 * @param x
 	 * @return
 	 */
-	private long squareModN(long x) {
-		return (x * x) % n;
+	private int squareAddModN31(int x, int c) {
+		// internal computation must be long, not only for the multiplication, but also for the addition of 31 bit numbers
+		return (int)( ((long)x*x+c) % n);
 	}
 }
