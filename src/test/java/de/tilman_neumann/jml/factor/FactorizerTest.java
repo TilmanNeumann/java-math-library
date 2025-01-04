@@ -110,16 +110,20 @@ public class FactorizerTest {
 //			new LehmanCustomKOrder(false),
 
 			// PollardRho
+			//new PollardRho31(),
+			//new PollardRhoBrent31(),
+			//new PollardRhoTwoLoops31(),
+			//new PollardRhoBrentMontgomery32(),
+
+			//new PollardRhoBrentMontgomeryR64Mul63(),
+			//new PollardRhoBrentMontgomery64(),
+			//new PollardRhoBrentMontgomery64MH(),
+			//new PollardRhoBrentMontgomery64MHInlined(),
+				
 			//new PollardRho(),
 			//new PollardRhoProductGcd(),
 			//new PollardRhoBrent(),
-			//new PollardRho31(),
-			//new PollardRhoBrent31(),
-//			new PollardRhoBrentMontgomeryR64Mul63(),
-//			new PollardRhoBrentMontgomery64(),
-//			new PollardRhoBrentMontgomery64MH(),
-//			new PollardRhoBrentMontgomery64MHInlined(),
-			
+
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
@@ -212,17 +216,20 @@ public class FactorizerTest {
 			for (FactorAlgorithm algorithm : algorithms) {
 				// exclude special size implementations
 				String algName = algorithm.getName();
-				if (bits<54 && algName.startsWith("SIQS")) continue; // unstable for smaller N
-				if (bits<57 && algName.startsWith("PSIQS")) continue; // unstable for smaller N
-				if (bits>98 && algName.startsWith("CFrac63")) continue; // unstable for N>98 bits
-				if (bits>52 && algName.startsWith("SquFoF31")) continue; // int implementation
-				if (bits>59 && algName.startsWith("Lehman")) continue; // TODO make it work again for 60 bit?
+				if (bits>28 && algName.startsWith("HartMultiplierChainSqrtN")) continue; // no multipliers for bigger N
 				if (bits>31 && algName.startsWith("TDiv31")) continue; // int implementation
 				if (bits>31 && algName.startsWith("PollardRho31")) continue; // int implementation
 				if (bits>31 && algName.startsWith("PollardRhoBrent31")) continue; // int implementation
+				if (bits>31 && algName.startsWith("PollardRhoTwoLoops31")) continue; // int implementation
+				if (bits>31 && algName.startsWith("PollardRhoBrentMontgomery32")) continue; // int implementation
 				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
+				if (bits>52 && algName.startsWith("SquFoF31")) continue; // int implementation
 				if (bits>57 && algName.equals("PollardRhoBrentMontgomeryR64Mul63")) continue; // very slow above
-				if (bits>28 && algName.startsWith("HartMultiplierChainSqrtN")) continue; // no multipliers for bigger N
+				if (bits>59 && algName.startsWith("Lehman")) continue; // TODO make it work again for 60 bit?
+				if (bits>63 && algName.startsWith("PollardRhoBrentMontgomery64")) continue; // long implementation
+				if (bits>98 && algName.startsWith("CFrac63")) continue; // unstable for N>98 bits
+				if (bits<54 && algName.startsWith("SIQS")) continue; // unstable for smaller N
+				if (bits<57 && algName.startsWith("PSIQS")) continue; // unstable for smaller N
 
 				System.gc(); // create equal conditions for all algorithms
 
