@@ -27,8 +27,10 @@ import de.tilman_neumann.jml.gcd.Gcd31;
  * 
  * 31 bit version.
  * 
- * Improvement by Dave McGuigan:
- * Use squareAddModN31() instead of nested addModN(squareModN())
+ * Improvements by Dave McGuigan:
+ * 1. Use squareAddModN31() instead of nested addModN(squareModN())
+ * 2. reinitialize q before each inner loop
+ * 3. Compute the number of steps before each gcd by m=log(n)
  * 
  * @author Tilman Neumann
  */
@@ -66,15 +68,20 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
             int y = x0;
 
             // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
-        	final int m = 100;
+            // DM:  failing is a bit strong. q(i)=0 happens often when there are small powers of small factor (i.e.5*5)
+            //      This occurs because multiple instances of the factor are found with larger blocks. The loop below 
+            //      addresses that by re-doing the last block and checking each individual difference. The "failure" is 
+            //      is that larger blocks have more to re-do. Empirical testing indicates 2*log(N) is better than a fixed choice
+            //      for large N. In 31 bit versions, it was determined just log(N) is best.
+            final int m = Math.max(8, 32 - Integer.numberOfLeadingZeros(n)); // Don't want it too small
         	int r = 1;
-        	int q = 1;
         	do {
 	    	    x = y;
 	    	    for (int i=1; i<=r; i++) {
     	            y = squareAddModN31(y, c);
 	    	    }
 	    	    int k = 0;
+	        	int q = 1;
 	    	    do {
 	    	        ys = y;
 	    	        final int iMax = Math.min(m, r-k);
@@ -85,6 +92,7 @@ public class PollardRhoBrent31 extends FactorAlgorithm {
 	    	        }
 	    	        G = gcd.gcd(q, n);
 	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0, c
+	    	        // after checking each diff separately in the loop below.
 	    	        k += m;
 	    	        if (DEBUG) LOG.debug("r = " + r + ", k = " + k);
 	    	    } while (k<r && G==1);
