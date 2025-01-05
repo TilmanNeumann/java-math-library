@@ -49,14 +49,13 @@ public class PollardRhoTwoLoops extends FactorAlgorithm {
 		// get random x0 from [0, N-1]
         BigInteger x = new BigInteger(bitLength, RNG);
         if (x.compareTo(N)>=0) x=x.subtract(N);
-        BigInteger xx;
 
         do {
     		// get random c from [0, N-1]
         	BigInteger c = new BigInteger(bitLength, RNG);
             if (c.compareTo(N)>=0) c=c.subtract(N);
     		
-            xx = x;
+            BigInteger xx = x;
 	        BigInteger xs;
 	        BigInteger xxs;
         	BigInteger prod = I_1;
