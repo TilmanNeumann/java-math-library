@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -23,14 +23,10 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd31;
 
 /**
- * 31-bit implementation of Pollard's Rho method with improvements by Dave McGuigan.
+ * An improvement of the original Pollard-Rho method by Dave McGuigan,
+ * using a second loop like in Pollard-Rho-Brent.
  * 
- * Most noteworthy, Dave came up with the second loop in this variant.
- * 
- * Other improvements by Dave used here:
- * 1. Use squareAddModN31() instead of nested addModN(squareModN())
- * 2. Compute the number of steps before each gcd by m=log(n)
- * 3. Use faster "mulMod"
+ * 31-bit version.
  * 
  * @author Dave McGuigan
  */
