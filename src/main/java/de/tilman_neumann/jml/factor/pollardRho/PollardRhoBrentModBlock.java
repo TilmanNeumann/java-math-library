@@ -24,15 +24,13 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 
 /**
- * Brents's improvement of Pollard's Rho algorithm, following [Richard P. Brent: An improved Monte Carlo Factorization Algorithm, 1980].
+ * A variant of the Pollard-Rho-Brent algorithm by Dave McGuigan,
+ * adding "mod-blocking", i.e. computing the mod() only every few rounds.
  * 
- * Improvement by Dave McGuigan:
- * Use squareAddModN() instead of nested addModN(squareModN())
- * 
- * @author Tilman Neumann
+ * @author Dave McGuigan
  */
-public class PollardRhoBrent extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(PollardRhoBrent.class);
+public class PollardRhoBrentModBlock extends FactorAlgorithm {
+	private static final Logger LOG = LogManager.getLogger(PollardRhoBrentModBlock.class);
 	private static final boolean DEBUG = false;
 	private static final SecureRandom RNG = new SecureRandom();
 
@@ -40,7 +38,7 @@ public class PollardRhoBrent extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "PollardRhoBrent";
+		return "PollardRhoBrentModBlock";
 	}
 	
 	@Override
@@ -56,39 +54,50 @@ public class PollardRhoBrent extends FactorAlgorithm {
             if (x0.compareTo(N)>=0) x0 = x0.subtract(N);
             BigInteger y = x0;
 
-            // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m too large"
-        	final int m = 100;
-        	int r = 1;
-        	BigInteger q = I_1;
-        	do {
-	    	    x = y;
-	    	    for (int i=1; i<=r; i++) {
-	    	        y = squareAddModN(y, c);
-	    	    }
-	    	    int k = 0;
-	    	    do {
-	    	        ys = y;
-	    	        final int iMax = Math.min(m, r-k);
-	    	        for (int i=1; i<=iMax; i++) {
-	    	            y = squareAddModN(y, c);
-	    	            final BigInteger diff = x.compareTo(y) < 0 ? y.subtract(x) : x.subtract(y);
-	    	            q = diff.multiply(q).mod(N);
-	    	        }
-	    	        G = q.gcd(N);
-	    	        // if q==0 then G==N -> the loop will be left and restarted with new x0, c
-	    	        // after checking each diff separately in the loop below.
-	    	        k += m;
-		    	    if (DEBUG) LOG.debug("r = " + r + ", k = " + k);
-	    	    } while (k<r && G.equals(I_1));
-	    	    r <<= 1;
-	    	    if (DEBUG) LOG.debug("r = " + r + ", G = " + G);
-	    	} while (G.equals(I_1));
+            // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m (gcdBlock) too large"
+            // DM:  failing is a bit strong. q(i)=0 happens often when there are small powers of small factor (i.e.5*5)
+            //      This often occurs because multiple instances of the factor are found with larger blocks. The loop below 
+            //      addresses that by re-doing the last block and checking each individual difference. The "failure" is 
+            //      is that larger blocks have more to re-do. There are cases where a single difference = n, but this would happen even when m=1.
+            //      Empirical testing indicates 2*log(N) is better than a fixed choice for large N.
+            //      In 31 bit versions, is was determined just log(N) is best.
+            final int logN = N.bitLength()-1;
+        	final int gcdBlock = Math.max(100, 2*logN);
+        	final int modBlock = 4; // DM: no real difference between 4 and 8. Conservatively choosing 4.
         	
+        	int r = 1;
+ 
+			do {
+				x = y;
+				for (int i = 1; i <= r; i++) {
+					y = squareAddModN(y, c);
+				}
+				ys = y;
+				BigInteger q = I_1;
+				int k = 0;
+				do {
+					final int iMax = Math.min(gcdBlock, r - k);
+					final int jMax = Math.min(modBlock, iMax);
+					for (int i = 1; i <= iMax; i = i + jMax) {
+						for (int j = 0; j < jMax; j++) {
+							y = squareAddModN(y, c);
+							q = q.multiply(x.subtract(y));
+						}
+						q = q.mod(N); // one mod for the block
+					}
+					G = q.gcd(N);
+					// if q==0 then G==N -> the loop will be left and restarted with new x0, c
+	    	        // after checking each diff separately in the loop below.
+					k += gcdBlock;
+					if (DEBUG) LOG.debug("r = " + r + ", k = " + k);
+				} while (k < r && G.equals(I_1));
+				r <<= 1;
+			} while (G.equals(I_1));
+			
 	    	if (G.equals(N)) {
 	    	    do {
 	    	        ys = squareAddModN(ys, c);
-    	            final BigInteger diff = x.compareTo(ys) < 0 ? ys.subtract(x) : x.subtract(ys);
-    	            G = diff.gcd(N);
+	    	        G = N.gcd(x.subtract(ys));
 	    	    } while (G.equals(I_1));
 	    	    if (DEBUG) LOG.debug("G = " + G);
 	    	}

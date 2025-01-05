@@ -24,13 +24,14 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 
 /**
- * A variant of the original Pollard-Rho method by Dave McGuigan,
- * using a second loop like in Pollard-Rho-Brent.
+ * Another variant of the original Pollard-Rho method by Dave McGuigan,
+ * using a second loop like in Pollard-Rho-Brent,
+ * and "mod-blocking", i.e. computing the mod() only every few rounds.
  * 
  * @author Dave McGuigan
  */
-public class PollardRhoTwoLoops extends FactorAlgorithm {
-	private static final Logger LOG = LogManager.getLogger(PollardRhoTwoLoops.class);
+public class PollardRhoTwoLoopsModBlock extends FactorAlgorithm {
+	private static final Logger LOG = LogManager.getLogger(PollardRhoTwoLoopsModBlock.class);
 	private static final boolean DEBUG = false;
 	private static final SecureRandom RNG = new SecureRandom();
 	
@@ -38,7 +39,7 @@ public class PollardRhoTwoLoops extends FactorAlgorithm {
 
 	@Override
 	public String getName() {
-		return "PollardRhoTwoLoops";
+		return "PollardRhoTwoLoopsModBlock";
 	}
 	
 	@Override
@@ -50,33 +51,55 @@ public class PollardRhoTwoLoops extends FactorAlgorithm {
         BigInteger x = new BigInteger(bitLength, RNG);
         if (x.compareTo(N)>=0) x=x.subtract(N);
 
+        // Brent: "The probability of the algorithm failing because q_i=0 increases, so it is best not to choose m (gcdBlockMax) too large"
+        // DM:  failing is a bit strong. q(i)=0 happens often when there are small powers of small factor (i.e.5*5)
+        //      This often occurs because multiple instances of the factor are found with larger blocks. The loop below 
+        //      addresses that by re-doing the last block and checking each individual difference. The "failure" is 
+        //      is that larger blocks have more to re-do. There are cases where a single difference = n, but this would happen even when m=1.
+        //      Empirical testing indicates 2*log(N) is better than a fixed choice for large N.
+        //      In 31 bit versions, is was determined just log(N) is best.
+        final int logN = N.bitLength()-1;
+    	final int gcdBlockMax = Math.max(100, 2*logN);
+	  	final int modBlock = 4;
         do {
     		// get random c from [0, N-1]
         	BigInteger c = new BigInteger(bitLength, RNG);
             if (c.compareTo(N)>=0) c=c.subtract(N);
-    		
+
+
             BigInteger xx = x;
 	        BigInteger xs;
 	        BigInteger xxs;
-        	BigInteger prod = I_1;
-        	int m = 100;
+		  	int gcdBlock = 1;
+		  	gcd = I_1;
 	        do {
 	        	xs = x;
 	        	xxs = xx;
-		        for(int i=0; i<m; i++) {
-		            x  = squareAddModN(x, c);
-		            xx = squareAddModN(xx, c);
-		            xx = squareAddModN(xx, c);
-		            prod = prod.multiply(x.subtract(xx)).mod(N);
-	        	}
+	        	BigInteger prod = I_1;
+    	        for (int i=0; i<gcdBlock; i = i+modBlock) {
+					final int jMax = Math.min(modBlock, gcdBlock-i);
+    	        	for (int j=0; j<jMax; j++) {
+    		            x  = squareAddModN(x, c);
+    		            xx = squareAddModN(xx, c);
+    		            xx = squareAddModN(xx, c);
+    		            prod = prod.multiply(x.subtract(xx));
+    	        	}
+    	        	prod = prod.mod(N);
+    	        }
 	            gcd = prod.gcd(N);
+	            // grow the gdBlock like R in Brent
+		    	if (gcdBlock<gcdBlockMax) {
+		    		gcdBlock <<= 1;
+		    		if (gcdBlock > gcdBlockMax) gcdBlock = gcdBlockMax;
+		    	}
 	        } while (gcd.equals(I_1));
+	        
  	    	if (gcd.equals(N)) {
 	    	    do {
 		            xs  = squareAddModN(xs, c);
 		            xxs = squareAddModN(xxs, c);
 		            xxs = squareAddModN(xxs, c);
-	    	        gcd = N.gcd(xs.subtract(xxs));
+	    	        gcd = xs.subtract(xxs).gcd(N);
 	    	    } while (gcd.equals(I_1));
 	    	}	        
 	    // leave loop if factor found; otherwise continue with a new random c
