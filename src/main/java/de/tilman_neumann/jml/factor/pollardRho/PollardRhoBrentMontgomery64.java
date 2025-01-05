@@ -64,8 +64,8 @@ public class PollardRhoBrentMontgomery64 extends FactorAlgorithm {
 	
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		if (N.bitLength() > 63) { // this check should be negligible in terms of performance
-			throw new IllegalArgumentException("N = " + N + " has " + N.bitLength() + " bit, but " + getName() + " only supports arguments <= 63 bit");
+		if (N.bitLength() > 62) { // this check should be negligible in terms of performance
+			throw new IllegalArgumentException("N = " + N + " has " + N.bitLength() + " bit, but " + getName() + " only supports arguments <= 62 bit");
 		}
 		long factorLong = findSingleFactor(N.longValue());
         return BigInteger.valueOf(factorLong);
