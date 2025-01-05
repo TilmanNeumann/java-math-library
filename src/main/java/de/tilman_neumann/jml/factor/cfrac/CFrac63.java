@@ -61,7 +61,7 @@ public class CFrac63 extends FactorAlgorithm {
 	
 	// multiplier
 	private int ks_adjust;
-	private KnuthSchroeppel_CFrac ks = new KnuthSchroeppel_CFrac();
+	private KnuthSchroeppelCFrac ks = new KnuthSchroeppelCFrac();
 
 	// prime base
 	private float C;

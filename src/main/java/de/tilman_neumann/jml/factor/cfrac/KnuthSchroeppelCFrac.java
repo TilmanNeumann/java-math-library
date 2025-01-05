@@ -32,9 +32,9 @@ import de.tilman_neumann.jml.sequence.SquarefreeSequence;
  * 
  * @author Tilman Neumann
  */
-public class KnuthSchroeppel_CFrac {
+public class KnuthSchroeppelCFrac {
 	
-	private static final Logger LOG = LogManager.getLogger(KnuthSchroeppel_CFrac.class);
+	private static final Logger LOG = LogManager.getLogger(KnuthSchroeppelCFrac.class);
 	private final static boolean DEBUG = false;
 
 	private static final double ONE_BY_3 = 1.0/3.0 * Math.log(2);
