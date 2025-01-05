@@ -48,12 +48,19 @@ import de.tilman_neumann.util.*;
 
 /**
  * Main class to compare the performance of factor algorithms.
+ * 
+ * Does one warmup-round and a System.gc() before each algorithm is tested.
+ * 
  * @author Tilman Neumann
  */
-// TODO Is there a better name for this class? It is no unit test, but no simple performance test either, it also checks correctness...
-// Suggenstions: FactorizerPerformanceTest, FactorizerComparator, FactorizerTestRunner, ...
 @SuppressWarnings("unused") // suppress warnings on unused imports
 public class FactorizerTest {
+	
+	private enum TestMode {
+		FIRST_FACTOR,
+		PRIME_FACTORIZATION
+	}
+
 	private static final Logger LOG = LogManager.getLogger(FactorizerTest.class);
 
 	private static final boolean DEBUG = false;
@@ -119,10 +126,13 @@ public class FactorizerTest {
 			//new PollardRhoBrentMontgomery64(),
 			//new PollardRhoBrentMontgomery64MH(),
 			//new PollardRhoBrentMontgomery64MHInlined(),
-				
+			
 			//new PollardRho(),
 			//new PollardRhoProductGcd(),
+			//new PollardRhoTwoLoops(),
+			//new PollardRhoTwoLoopsModBlock(),
 			//new PollardRhoBrent(),
+			//new PollardRhoBrentModBlock(),
 
 			// SquFoF variants
 			// * pretty good, but never the best algorithm
@@ -212,7 +222,7 @@ public class FactorizerTest {
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
 		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<Long, List<FactorAlgorithm>>();
-		for (int i=0; i<REPEATS; i++) {
+		for (int i=0; i < REPEATS + 1; i++) { // round 0 is a warmup-round
 			for (FactorAlgorithm algorithm : algorithms) {
 				// exclude special size implementations
 				String algName = algorithm.getName();
@@ -225,8 +235,8 @@ public class FactorizerTest {
 				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
 				if (bits>52 && algName.startsWith("SquFoF31")) continue; // int implementation
 				if (bits>57 && algName.equals("PollardRhoBrentMontgomeryR64Mul63")) continue; // very slow above
-				if (bits>59 && algName.startsWith("Lehman")) continue; // TODO make it work again for 60 bit?
-				if (bits>63 && algName.startsWith("PollardRhoBrentMontgomery64")) continue; // long implementation
+				if (bits>59 && algName.startsWith("Lehman")) continue;
+				if (bits>62 && algName.startsWith("PollardRhoBrentMontgomery64")) continue; // long implementation
 				if (bits>98 && algName.startsWith("CFrac63")) continue; // unstable for N>98 bits
 				if (bits<54 && algName.startsWith("SIQS")) continue; // unstable for smaller N
 				if (bits<57 && algName.startsWith("PSIQS")) continue; // unstable for smaller N
@@ -251,16 +261,18 @@ public class FactorizerTest {
 					duration = endTimeMillis - startTimeMillis; // duration in ms
 					//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
 					
-					// test correctness
-					for (int j=0; j<N_COUNT; j++) {
-						BigInteger N = testNumbers[j];
-						BigInteger factor = factors[j];
-						if (factor==null || factor.equals(I_0) || factor.abs().equals(I_1) || factor.abs().equals(N.abs())) {
-							if (loggedFailCount++<10) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
-							failCount++;
-						} else if (!N.mod(factor).equals(I_0)) {
-							if (loggedFailCount++<10) LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
-							failCount++;
+					if (i==0) {
+						// test correctness
+						for (int j=0; j<N_COUNT; j++) {
+							BigInteger N = testNumbers[j];
+							BigInteger factor = factors[j];
+							if (factor==null || factor.equals(I_0) || factor.abs().equals(I_1) || factor.abs().equals(N.abs())) {
+								if (loggedFailCount++<10) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find a factor of N=" + N + ", it returned " + factor);
+								failCount++;
+							} else if (!N.mod(factor).equals(I_0)) {
+								if (loggedFailCount++<10) LOG.error("FactorAlgorithm " + algorithm.getName() + " returned " + factor + ", but this is not a factor of N=" + N);
+								failCount++;
+							}
 						}
 					}
 					break;
@@ -280,37 +292,39 @@ public class FactorizerTest {
 					duration = endTimeMillis - startTimeMillis; // duration in ms
 					//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
 					
-					// test correctness
-					for (int j=0; j<N_COUNT; j++) {
-						BigInteger N = testNumbers[j];
-						SortedMultiset<BigInteger> factorSet = factorSetArray[j];
-						if (factorSet==null || factorSet.size()==0) {
-							if (loggedFailCount++<10) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find any factor of N=" + N + ", it returned " + factorSet);
-							failCount++;
-						} else {
-							BigInteger product = I_1;
-							ArrayList<BigInteger> nonFactors = new ArrayList<>();
-							ArrayList<BigInteger> nonPrimeFactors = new ArrayList<>();
-							for (BigInteger factor : factorSet.keySet()) {
-								if (factor==null || factor.equals(I_0) || factor.abs().equals(I_1) || factor.abs().equals(N.abs()) || !N.mod(factor).equals(I_0)) {
-									nonFactors.add(factor);
-								} else if (!bpsw.isProbablePrime(factor)) {
-									// not finding the prime factorization is an error
-									nonPrimeFactors.add(factor);
-								}
-								int exp = factorSet.get(factor);
-								BigInteger pow = factor.pow(exp);
-								product = product.multiply(pow);
-							}
-							if (nonFactors.size()>0 || nonPrimeFactors.size()>0 || !N.equals(product)) {
-								if (loggedFailCount++<10) {
-									String msg = "FactorAlgorithm " + algorithm.getName() + " falsely returned N=" + N + " = " + factorSet + ":";
-									if (nonFactors.size()>0) msg += " " + nonFactors + " are not factors of N.";
-									if (nonPrimeFactors.size()>0) msg += " The found factors " + nonPrimeFactors + " are not prime.";
-									if (!N.equals(product)) msg += " The product of the returned factors is not N but " + product + ".";
-									LOG.error(msg);
-								}
+					if (i==0) {
+						// test correctness
+						for (int j=0; j<N_COUNT; j++) {
+							BigInteger N = testNumbers[j];
+							SortedMultiset<BigInteger> factorSet = factorSetArray[j];
+							if (factorSet==null || factorSet.size()==0) {
+								if (loggedFailCount++<10) LOG.error("FactorAlgorithm " + algorithm.getName() + " did not find any factor of N=" + N + ", it returned " + factorSet);
 								failCount++;
+							} else {
+								BigInteger product = I_1;
+								ArrayList<BigInteger> nonFactors = new ArrayList<>();
+								ArrayList<BigInteger> nonPrimeFactors = new ArrayList<>();
+								for (BigInteger factor : factorSet.keySet()) {
+									if (factor==null || factor.equals(I_0) || factor.abs().equals(I_1) || factor.abs().equals(N.abs()) || !N.mod(factor).equals(I_0)) {
+										nonFactors.add(factor);
+									} else if (!bpsw.isProbablePrime(factor)) {
+										// not finding the prime factorization is an error
+										nonPrimeFactors.add(factor);
+									}
+									int exp = factorSet.get(factor);
+									BigInteger pow = factor.pow(exp);
+									product = product.multiply(pow);
+								}
+								if (nonFactors.size()>0 || nonPrimeFactors.size()>0 || !N.equals(product)) {
+									if (loggedFailCount++<10) {
+										String msg = "FactorAlgorithm " + algorithm.getName() + " falsely returned N=" + N + " = " + factorSet + ":";
+										if (nonFactors.size()>0) msg += " " + nonFactors + " are not factors of N.";
+										if (nonPrimeFactors.size()>0) msg += " The found factors " + nonPrimeFactors + " are not prime.";
+										if (!N.equals(product)) msg += " The product of the returned factors is not N but " + product + ".";
+										LOG.error(msg);
+									}
+									failCount++;
+								}
 							}
 						}
 					}
@@ -319,15 +333,19 @@ public class FactorizerTest {
 				default: throw new IllegalArgumentException("TestMode = " + TEST_MODE);
 				}
 				
-				// performance results
-				List<FactorAlgorithm> algList = ms_2_algorithms.get(duration);
-				if (algList==null) algList = new ArrayList<FactorAlgorithm>();
-				algList.add(algorithm);
-				ms_2_algorithms.put(duration, algList);
+				if (i > 0) {
+					// add performance results
+					List<FactorAlgorithm> algList = ms_2_algorithms.get(duration);
+					if (algList==null) algList = new ArrayList<FactorAlgorithm>();
+					algList.add(algorithm);
+					ms_2_algorithms.put(duration, algList);
+				}
 				
-				// failure summary
-				if (failCount>0) {
-					LOG.error("FactorAlgorithm " + algorithm.getName() + " failed at " + failCount + "/" + N_COUNT + " test numbers");
+				if (i==0) {
+					// failure summary
+					if (failCount>0) {
+						LOG.error("FactorAlgorithm " + algorithm.getName() + " failed at " + failCount + "/" + N_COUNT + " test numbers");
+					}
 				}
 			}
 		}
