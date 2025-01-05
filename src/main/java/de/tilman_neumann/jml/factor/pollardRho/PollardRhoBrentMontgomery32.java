@@ -104,8 +104,7 @@ public class PollardRhoBrentMontgomery32 extends FactorAlgorithm {
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=iMax; i>0; i--) {
 	    	            y = montMul32(y, y+1, n, minusNInvModR);
-	    	            final int diff = x<y ? y-x : x-y;
-	    	            q = montMul32(diff, q, n, minusNInvModR);
+	    	            q = montMul32(y-x, q, n, minusNInvModR);
 	    	        }
 	    	        G = gcd.gcd(q, n);
 	    	        // if q==0 then G==n -> the loop will be left and restarted with new y
@@ -118,8 +117,7 @@ public class PollardRhoBrentMontgomery32 extends FactorAlgorithm {
 	    	if (G==n) {
 	    	    do {
 	    	        ys = montMul32(ys, ys+1, n, minusNInvModR);
-    	            final int diff = x<ys ? ys-x : x-ys;
-	    	        G = gcd.gcd(diff, n);
+	    	        G = gcd.gcd(ys-x, n);
 	    	    } while (G==1);
 	    	    if (DEBUG) LOG.debug("G = " + G);
 	    	}

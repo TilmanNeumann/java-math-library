@@ -102,7 +102,7 @@ public class PollardRhoBrentMontgomeryR64Mul63 extends FactorAlgorithm {
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=iMax; i>0; i--) {
 	    	            y = montMul63(y, y+1, n, minusNInvModR);
-	    	            final long diff = x<y ? y-x : x-y;
+	    	            final long diff = x<y ? y-x : x-y; // XXX would be nice if we could get rid of this like in PollardRhoBrentMontgomery32
 	    	            q = montMul63(diff, q, n, minusNInvModR);
 	    	        }
 	    	        G = gcd.gcd(q, n);
