@@ -68,7 +68,7 @@ public class PollardRhoBrentMontgomery64MHInlined extends FactorAlgorithm {
 	
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		// there is a complication with this check: The algorithm works for some 63-bit numbers and there are tests for it, but there may be 63-bit numbers where it fails
+		// this version works for all 63 bit numbers!
 		if (N.bitLength() > 63) { // this check should be negligible in terms of performance
 			throw new IllegalArgumentException("N = " + N + " has " + N.bitLength() + " bit, but " + getName() + " only supports arguments <= 63 bit");
 		}
@@ -108,8 +108,7 @@ public class PollardRhoBrentMontgomery64MHInlined extends FactorAlgorithm {
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=iMax; i>0; i--) {
 	    	            y = montMul64(y, y+1, n, minusNInvModR);
-	    	            final long diff = x<y ? y-x : x-y; // XXX would be nice if we could get rid of this like in PollardRhoBrentMontgomery32
-	    	            q = montMul64(diff, q, n, minusNInvModR);
+	    	            q = montMul64(y-x, q, n, minusNInvModR);
 	    	        }
 	    	        G = gcd.gcd(q, n);
 	    	        // if q==0 then G==n -> the loop will be left and restarted with new y
@@ -122,8 +121,7 @@ public class PollardRhoBrentMontgomery64MHInlined extends FactorAlgorithm {
 	    	if (G==n) {
 	    	    do {
 	    	        ys = montMul64(ys, ys+1, n, minusNInvModR);
-    	            final long diff = x<ys ? ys-x : x-ys;
-	    	        G = gcd.gcd(diff, n);
+	    	        G = gcd.gcd(ys-x, n);
 	    	    } while (G==1);
 	    	    if (DEBUG) LOG.debug("G = " + G);
 	    	}
@@ -171,7 +169,7 @@ public class PollardRhoBrentMontgomery64MHInlined extends FactorAlgorithm {
 	public static long montMul64(long a, long b, long N, long Nhat) {
 		// Step 1: Compute a*b
 		long abHigh = Math.multiplyHigh(a, b);
-		if (a<0) abHigh += b;
+		//if (a<0) abHigh += b; // BAD, KILLS THE ALGORITHM FOR NEGATIVE a
 		
 		// Step 2: Compute t = ab * (-1/N) mod R
 		// Since R=2^64, "x mod R" just means to get the low part of x.
@@ -181,7 +179,7 @@ public class PollardRhoBrentMontgomery64MHInlined extends FactorAlgorithm {
 		long t = abLow * Nhat;
 		final long tNLow = t*N;
 		long tNHigh = Math.multiplyHigh(t, N);
-		if (t<0) tNHigh += N;
+		//if (t<0) tNHigh += N; // bad for performance
 		Uint128 tN = new Uint128(tNHigh, tNLow); // for some reason, removing this object seems to degrade performance
 		
 		// Step 3: Compute r = (a*b + t*N) / R
