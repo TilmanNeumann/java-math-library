@@ -68,6 +68,7 @@ public class PollardRhoBrentMontgomery64MHInlined extends FactorAlgorithm {
 	
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
+		// there is a complication with this check: The algorithm works for some 63-bit numbers and there are tests for it, but there may be 63-bit numbers where it fails
 		if (N.bitLength() > 63) { // this check should be negligible in terms of performance
 			throw new IllegalArgumentException("N = " + N + " has " + N.bitLength() + " bit, but " + getName() + " only supports arguments <= 63 bit");
 		}
