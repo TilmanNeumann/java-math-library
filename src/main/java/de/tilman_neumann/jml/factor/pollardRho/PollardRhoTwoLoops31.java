@@ -23,7 +23,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd31;
 
 /**
- * An improvement of the original Pollard-Rho method by Dave McGuigan,
+ * A variant of the original Pollard-Rho method by Dave McGuigan,
  * using a second loop like in Pollard-Rho-Brent.
  * 
  * 31-bit version.

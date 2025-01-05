@@ -24,7 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 
 /**
- * An improvement of the original Pollard-Rho method by Dave McGuigan,
+ * A variant of the original Pollard-Rho method by Dave McGuigan,
  * using a second loop like in Pollard-Rho-Brent.
  * 
  * @author Dave McGuigan
