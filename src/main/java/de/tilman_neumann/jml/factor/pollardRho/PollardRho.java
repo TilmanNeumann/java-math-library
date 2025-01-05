@@ -40,6 +40,9 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
  * get unlucky, it could be equal to N. By randomly choosing a and b each time, we
  * ensure that we never get too unlucky.
  * 
+ * Improvement by Dave McGuigan:
+ * Use squareAddModN() instead of nested addModN(squareModN())
+ * 
  * @author Tilman Neumann
  */
 public class PollardRho extends FactorAlgorithm {
@@ -70,9 +73,9 @@ public class PollardRho extends FactorAlgorithm {
             if (c.compareTo(N)>=0) c=c.subtract(N);
 	        
 	        do {
-	            x  = addModN( x.multiply(x) .mod(N), c);
-	            xx = addModN(xx.multiply(xx).mod(N), c);
-	            xx = addModN(xx.multiply(xx).mod(N), c);
+	            x  = squareAddModN( x, c);
+	            xx = squareAddModN(xx, c);
+	            xx = squareAddModN(xx, c);
 	            gcd = x.subtract(xx).gcd(N);
 	        } while(gcd.equals(I_1));
 	        
@@ -81,15 +84,14 @@ public class PollardRho extends FactorAlgorithm {
         if (DEBUG) LOG.debug("Found factor of " + N + " = " + gcd);
         return gcd;
 	}
-
+	
 	/**
-	 * Addition modulo N, with <code>a, b < N</code>.
-	 * @param a
-	 * @param b
-	 * @return (a+b) mod N
+	 * Square and add modulo N, with <code>a, b < N</code>.
+	 * @param y
+	 * @param c
+	 * @return () mod N
 	 */
-	private BigInteger addModN(BigInteger a, BigInteger b) {
-		BigInteger sum = a.add(b);
-		return sum.compareTo(N)<0 ? sum : sum.subtract(N);
+	private BigInteger squareAddModN(BigInteger y, BigInteger c) {
+		return y.multiply(y).add(c).mod(N);
 	}
 }

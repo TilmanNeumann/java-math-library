@@ -26,6 +26,9 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 /**
  * Brents's improvement of Pollard's Rho algorithm, following [Richard P. Brent: An improved Monte Carlo Factorization Algorithm, 1980].
  * 
+ * Improvement by Dave McGuigan:
+ * Use squareAddModN() instead of nested addModN(squareModN())
+ * 
  * @author Tilman Neumann
  */
 public class PollardRhoBrent extends FactorAlgorithm {
@@ -60,14 +63,14 @@ public class PollardRhoBrent extends FactorAlgorithm {
         	do {
 	    	    x = y;
 	    	    for (int i=1; i<=r; i++) {
-	    	        y = addModN(y.multiply(y).mod(N), c);
+	    	        y = squareAddModN(y, c);
 	    	    }
 	    	    int k = 0;
 	    	    do {
 	    	        ys = y;
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=1; i<=iMax; i++) {
-	    	            y = addModN(y.multiply(y).mod(N), c);
+	    	            y = squareAddModN(y, c);
 	    	            final BigInteger diff = x.compareTo(y) < 0 ? y.subtract(x) : x.subtract(y);
 	    	            q = diff.multiply(q).mod(N);
 	    	        }
@@ -81,7 +84,7 @@ public class PollardRhoBrent extends FactorAlgorithm {
 	    	} while (G.equals(I_1));
 	    	if (G.equals(N)) {
 	    	    do {
-	    	        ys = addModN(ys.multiply(ys).mod(N), c);
+	    	        ys = squareAddModN(ys, c);
     	            final BigInteger diff = x.compareTo(ys) < 0 ? ys.subtract(x) : x.subtract(ys);
     	            G = diff.gcd(N);
 	    	    } while (G.equals(I_1));
@@ -91,15 +94,14 @@ public class PollardRhoBrent extends FactorAlgorithm {
         if (DEBUG) LOG.debug("Found factor of " + N + " = " + G);
         return G;
 	}
-
+	
 	/**
-	 * Addition modulo N, with <code>a, b < N</code>.
-	 * @param a
-	 * @param b
-	 * @return (a+b) mod N
+	 * Square and add modulo N, with <code>a, b < N</code>.
+	 * @param y
+	 * @param c
+	 * @return () mod N
 	 */
-	private BigInteger addModN(BigInteger a, BigInteger b) {
-		BigInteger sum = a.add(b);
-		return sum.compareTo(N)<0 ? sum : sum.subtract(N);
+	private BigInteger squareAddModN(BigInteger y, BigInteger c) {
+		return y.multiply(y).add(c).mod(N);
 	}
 }
