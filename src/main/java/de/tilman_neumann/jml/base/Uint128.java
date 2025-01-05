@@ -245,6 +245,29 @@ public class Uint128 {
 
 		return new Uint128(r_hi, r_lo);
 	}
+	
+	/**
+	 * Multiplication of two signed 64-bit integers using Math.multiplyHigh().
+	 * Pretty fast if supported by intrinsics, which needs newer hardware and Java 10+.<br><br>
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	// TODO the method doesn't belong to this class anymore (because it's signed); several method names and coments need a workover
+	public static Uint128 mul64_MH_signed(long a, long b) {
+		final long r_lo = a*b;
+		long r_hi = Math.multiplyHigh(a, b);
+		
+		if (DEBUG) {
+			// compare to pure Java implementation
+			Uint128 testResult = mul64(a, b); // TODO compare with signed implementation
+			Ensure.ensureEquals(testResult.high, r_hi);
+			Ensure.ensureEquals(testResult.low, r_lo);
+		}
+
+		return new Uint128(r_hi, r_lo);
+	}
 
 	/**
 	 * The square of an unsigned 64 bit integer.
