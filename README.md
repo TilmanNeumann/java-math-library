@@ -56,7 +56,7 @@ From now on, <strong>Java 10</strong> is required!
 
 Clone the repository and import it into your IDE. If you do not use the Maven build you might need to add the jars from the lib-folder to your classpath. 
 
-You will need Java 8 for the project to compile, but <strong>it is strongly recommended to use Java 10 or above</strong> because that will enable faster intrinsics, e.g. for Math.multiplyHigh().
+You will need Java 9 for the project to compile, but <strong>it is strongly recommended to use Java 10 or above</strong> because that will enable faster intrinsics, e.g. for Math.multiplyHigh().
 
 There is no documentation and no support, so you should be ready to start exploring the source code.
 
