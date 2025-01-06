@@ -27,8 +27,7 @@ import de.tilman_neumann.jml.factor.base.congruence.SmoothPerfect;
 import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverGauss02;
 import de.tilman_neumann.jml.factor.cfrac.CFrac63;
 import de.tilman_neumann.jml.factor.hart.HartTDivRace;
-import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
-import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
+import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64MHInlined;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.Ensure;
@@ -57,8 +56,7 @@ public class TDiv_CF02 implements TDiv_CF {
 
 	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
 	private HartTDivRace hart = new HartTDivRace();
-	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
-	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
+	private PollardRhoBrentMontgomery64MHInlined pollardRho64 = new PollardRhoBrentMontgomery64MHInlined();
 	private CFrac63 cf_internal = new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), new MatrixSolverGauss02(), 12);
 
 	private PrPTest prpTest = new PrPTest();
@@ -217,9 +215,7 @@ public class TDiv_CF02 implements TDiv_CF {
 			factor1 = tDiv31.findSingleFactor(Q_rest);
 		} else if (Q_rest_bits < 50) {
 			factor1 = hart.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits < 57) {
-			factor1 = pollardRhoR64Mul63.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits < 63) {
+		} else if (Q_rest_bits < 64) {
 			factor1 = pollardRho64.findSingleFactor(Q_rest);
 		} else {
 			factor1 = cf_internal.findSingleFactor(Q_rest);

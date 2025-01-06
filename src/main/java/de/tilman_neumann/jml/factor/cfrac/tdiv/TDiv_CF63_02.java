@@ -24,8 +24,7 @@ import de.tilman_neumann.jml.factor.base.congruence.AQPair;
 import de.tilman_neumann.jml.factor.base.congruence.AQPairFactory;
 import de.tilman_neumann.jml.factor.base.congruence.SmoothPerfect;
 import de.tilman_neumann.jml.factor.hart.HartTDivRace;
-import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64;
-import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomeryR64Mul63;
+import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64MHInlined;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Inverse;
 import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.Ensure;
@@ -52,8 +51,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 
 	private TDiv31Inverse tDiv31 = new TDiv31Inverse();
 	private HartTDivRace hart = new HartTDivRace();
-	private PollardRhoBrentMontgomeryR64Mul63 pollardRhoR64Mul63 = new PollardRhoBrentMontgomeryR64Mul63();
-	private PollardRhoBrentMontgomery64 pollardRho64 = new PollardRhoBrentMontgomery64();
+	private PollardRhoBrentMontgomery64MHInlined pollardRho64 = new PollardRhoBrentMontgomery64MHInlined();
 	
 	private PrPTest prpTest = new PrPTest();
 
@@ -169,9 +167,7 @@ public class TDiv_CF63_02 implements TDiv_CF63 {
 			factor1 = tDiv31.findSingleFactor((int) Q_rest);
 		} else if (Q_rest_bits < 50) {
 			factor1 = hart.findSingleFactor(Q_rest);
-		} else if (Q_rest_bits < 57) {
-			factor1 = pollardRhoR64Mul63.findSingleFactor(Q_rest);
-		} else { // max Q_rest_bits is 63, pollardRho64 works only until 62 bit, but that should be ok
+		} else { // max Q_rest_bits is 63, pollardRho64 works only until 63 bit, but that should be ok
 			factor1 = pollardRho64.findSingleFactor(Q_rest);
 		}
 		// Recurrence: Is it possible to further decompose the parts?

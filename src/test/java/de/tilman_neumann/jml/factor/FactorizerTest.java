@@ -122,7 +122,6 @@ public class FactorizerTest {
 			//new PollardRhoTwoLoops31(),
 			//new PollardRhoBrentMontgomery32(),
 
-			//new PollardRhoBrentMontgomeryR64Mul63(),
 			//new PollardRhoBrentMontgomery64(),
 			//new PollardRhoBrentMontgomery64MH(),
 			//new PollardRhoBrentMontgomery64MHInlined(),
@@ -234,7 +233,6 @@ public class FactorizerTest {
 				if (bits>31 && algName.startsWith("PollardRhoBrentMontgomery32")) continue; // int implementation
 				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
 				if (bits>52 && algName.startsWith("SquFoF31")) continue; // int implementation
-				if (bits>57 && algName.equals("PollardRhoBrentMontgomeryR64Mul63")) continue; // very slow above
 				if (bits>59 && algName.startsWith("Lehman")) continue;
 				if (bits>62 && algName.startsWith("PollardRhoBrentMontgomery64")) continue; // long implementation
 				if (bits>98 && algName.startsWith("CFrac63")) continue; // unstable for N>98 bits
