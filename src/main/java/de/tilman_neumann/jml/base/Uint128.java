@@ -28,6 +28,7 @@ import de.tilman_neumann.util.Ensure;
  * 
  * @author Tilman Neumann
  */
+// TODO Now that there are signed methods, this class needs a refactoring
 public class Uint128 {
 	private static final Logger LOG = LogManager.getLogger(Uint128.class);
 	
@@ -245,23 +246,48 @@ public class Uint128 {
 
 		return new Uint128(r_hi, r_lo);
 	}
-	
+
+	/**
+	 * Multiplication of two signed 64 bit integers, adapted from Henry S. Warren, Hacker's Delight, Addison-Wesley, 2nd edition, chapter 8-2.
+	 * This is more or less what Java9 does in Math.multiplyHigh(), but I think I made it a bit faster optimizing register usage.
+	 * 
+	 * @param a signed long
+	 * @param b signed long
+	 * @return a*b as a signed 127 bit number
+	 */
+	public static Uint128 mul64Signed(long a, long b) {
+		final long a_hi = a >> 32;
+		final long a_lo = a & 0xFFFFFFFFL;
+		final long b_hi = b >> 32;
+		final long b_lo = b & 0xFFFFFFFFL;
+		
+		// use b_lo twice as first argument hoping that this optimizes register usage
+		final long w0 = b_lo * a_lo;
+		final long t = b_lo * a_hi + (w0 >>> 32);
+		// same with t
+		final long w2 = t >> 32;
+		final long w1 = (t & 0xFFFFFFFFL) + a_lo * b_hi;
+	    
+		final long r_hi = a_hi * b_hi + w2 + (w1 >> 32);
+		final long r_lo = a * b;
+		return new Uint128(r_hi, r_lo);
+	}
+
 	/**
 	 * Multiplication of two signed 64-bit integers using Math.multiplyHigh().
 	 * Pretty fast if supported by intrinsics, which needs newer hardware and Java 10+.<br><br>
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a signed long
+	 * @param b signed long
+	 * @return a*b as a signed 127 bit number
 	 */
-	// TODO the method doesn't belong to this class anymore (because it's signed); several method names and coments need a workover
-	public static Uint128 mul64_MH_signed(long a, long b) {
+	public static Uint128 mul64SignedMH(long a, long b) {
 		final long r_lo = a*b;
-		long r_hi = Math.multiplyHigh(a, b);
+		final long r_hi = Math.multiplyHigh(a, b);
 		
 		if (DEBUG) {
 			// compare to pure Java implementation
-			Uint128 testResult = mul64(a, b); // TODO compare with signed implementation
+			Uint128 testResult = mul64Signed(a, b);
 			Ensure.ensureEquals(testResult.high, r_hi);
 			Ensure.ensureEquals(testResult.low, r_lo);
 		}

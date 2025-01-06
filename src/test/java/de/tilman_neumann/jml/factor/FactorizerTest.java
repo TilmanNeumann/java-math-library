@@ -234,7 +234,7 @@ public class FactorizerTest {
 				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
 				if (bits>52 && algName.startsWith("SquFoF31")) continue; // int implementation
 				if (bits>59 && algName.startsWith("Lehman")) continue;
-				if (bits>62 && algName.startsWith("PollardRhoBrentMontgomery64")) continue; // long implementation
+				if (bits>63 && algName.startsWith("PollardRhoBrentMontgomery64")) continue; // long implementation
 				if (bits>98 && algName.startsWith("CFrac63")) continue; // unstable for N>98 bits
 				if (bits<54 && algName.startsWith("SIQS")) continue; // unstable for smaller N
 				if (bits<57 && algName.startsWith("PSIQS")) continue; // unstable for smaller N
