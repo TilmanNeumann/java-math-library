@@ -65,7 +65,7 @@ public class SquFoF31PreloadTest {
 				if (squfofFactor < 2) {
 					long correctFactor = testFactorizer.findSingleFactor(NBig).longValue();
 					if (correctFactor > 1 && correctFactor<N) {
-						LOG.debug("N=" + N + ": SquFoF31 failed to find factor " + correctFactor);
+						LOG.debug("N=" + N + ": SquFoF31Preload failed to find factor " + correctFactor);
 						failCount++;
 					} else {
 						LOG.error("The reference factorizer failed to factor N=" + N + " !");

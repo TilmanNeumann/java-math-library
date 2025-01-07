@@ -78,7 +78,7 @@ public class SquFoF63Test {
 				if (squfofFactor.compareTo(I_1) <= 0) {
 					BigInteger correctFactor = testFactorizer.findSingleFactor(N);
 					if (correctFactor.compareTo(I_1)>0 && correctFactor.compareTo(N)<0) {
-						LOG.debug("N=" + N + ": SquFoF31 failed to find factor " + correctFactor);
+						LOG.debug("N=" + N + ": SquFoF63 failed to find factor " + correctFactor);
 						failCount++;
 					} else {
 						LOG.error("The reference factorizer failed to factor N=" + N + " !");
