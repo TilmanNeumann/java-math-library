@@ -29,6 +29,8 @@ import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
+
 public class SquFoF63Test {
 
 	private static final Logger LOG = LogManager.getLogger(SquFoF63Test.class);
@@ -49,22 +51,33 @@ public class SquFoF63Test {
 	}
 
 	/**
-	 * Tests random composite numbers in the range where SquFoF63 should work correctly, i.e. up to 63 bit.
+	 * Tests smaller random composite numbers.
 	 */
 	@Test
-	public void testRandomComposites() {
-		int count = 10000;
-		for (int bits=50; bits<64; bits++) { // 64 bit numbers are not completely safe
+	public void testSmallRandomComposites() {
+		testRange(50, 69, 1000);
+	}
+
+	/**
+	 * Tests random composite numbers in the upper range where SquFoF63 works stable, i.e. up to 87 bit.
+	 */
+	@Test
+	public void testLargerRandomComposites() {
+		testRange(70, 86, 100);
+		testRange(87, 87, 1000);
+	}
+
+	private void testRange(int minBits, int maxBits, int count) {
+		for (int bits=minBits; bits<=maxBits; bits++) {
 			BigInteger[] testNumbers = TestsetGenerator.generate(count, bits, TestNumberNature.RANDOM_ODD_COMPOSITES);
 			LOG.info("Testing " + count + " random numbers with " + bits + " bit...");
 			int failCount = 0;
 			for (int i=0; i<count; i++) {
-				BigInteger NBig = testNumbers[i];
-				long N = NBig.longValue();
-				long squfofFactor = squfof63.findSingleFactor(N);
-				if (squfofFactor < 2) {
-					long correctFactor = testFactorizer.findSingleFactor(NBig).longValue();
-					if (correctFactor > 1 && correctFactor<N) {
+				BigInteger N = testNumbers[i];
+				BigInteger squfofFactor = squfof63.findSingleFactor(N);
+				if (squfofFactor.compareTo(I_1) <= 0) {
+					BigInteger correctFactor = testFactorizer.findSingleFactor(N);
+					if (correctFactor.compareTo(I_1)>0 && correctFactor.compareTo(N)<0) {
 						LOG.debug("N=" + N + ": SquFoF31 failed to find factor " + correctFactor);
 						failCount++;
 					} else {
@@ -72,7 +85,7 @@ public class SquFoF63Test {
 						fail();
 					}
 				} else {
-					if (N % squfofFactor != 0) {
+					if (N.mod(squfofFactor).signum() != 0) {
 						failCount++;
 					}
 				}

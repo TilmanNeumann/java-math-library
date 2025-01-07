@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -22,14 +22,13 @@ import de.tilman_neumann.jml.sequence.NumberSequence;
 import de.tilman_neumann.jml.sequence.SquarefreeSequence;
 
 /**
- * Shanks' SQUFOF algorithm, 63-bit version.<br/>
+ * Shanks' SQUFOF algorithm, "63-bit version", which means that the core is implemented in signed longs.<br/>
  * Implemented according to <link>http://en.wikipedia.org/wiki/Shanks'_square_forms_factorization</link>.
  * 
  * Final choice with self-initialization of parameters.
  * Stopping criterion: after a maximum number of iterations.
  * 
- * Works for all numbers <= 63 bit.
- * Starting from 64 bit, there may be numbers the algorithm can't factor.
+ * Works stable for all numbers <= 87 bit.
  * 
  * @author Tilman Neumann
  */
