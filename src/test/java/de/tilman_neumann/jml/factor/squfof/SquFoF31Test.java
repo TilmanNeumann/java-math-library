@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +24,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
+import de.tilman_neumann.jml.factor.TestNumberNature;
+import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
@@ -52,21 +53,17 @@ public class SquFoF31Test {
 	 */
 	@Test
 	public void testRandomComposites() {
-		SecureRandom RNG = new SecureRandom();
 		int count = 10000;
 		for (int bits=40; bits<54; bits++) { // not sure if 53 bit numbers are completely safe
+			BigInteger[] testNumbers = TestsetGenerator.generate(count, bits, TestNumberNature.RANDOM_ODD_COMPOSITES);
 			LOG.info("Testing " + count + " random numbers with " + bits + " bit...");
 			int failCount = 0;
 			for (int i=0; i<count; i++) {
-				long N = 0;
-				while (true) {
-					BigInteger N_big = new BigInteger(bits, RNG);
-					N = N_big.longValue();
-					if (N>2 && !N_big.isProbablePrime(20)) break;
-				}
+				BigInteger NBig = testNumbers[i];
+				long N = NBig.longValue();
 				long squfofFactor = squfof31.findSingleFactor(N);
 				if (squfofFactor < 2) {
-					long correctFactor = testFactorizer.findSingleFactor(BigInteger.valueOf(N)).longValue();
+					long correctFactor = testFactorizer.findSingleFactor(NBig).longValue();
 					if (correctFactor > 1 && correctFactor<N) {
 						LOG.debug("N=" + N + ": SquFoF31 failed to find factor " + correctFactor);
 						failCount++;

@@ -28,7 +28,8 @@ import de.tilman_neumann.jml.sequence.SquarefreeSequence;
  * Final choice with self-initialization of parameters.
  * Stopping criterion: after a maximum number of iterations.
  * 
- * Seems to work up to 64 bit numbers.
+ * Works for all numbers <= 63 bit.
+ * Starting from 64 bit, there may be numbers the algorithm can't factor.
  * 
  * @author Tilman Neumann
  */
