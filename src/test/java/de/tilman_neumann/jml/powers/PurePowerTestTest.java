@@ -32,7 +32,6 @@ import static org.junit.Assert.assertEquals;
  * 
  * @author Tilman Neumann
  */
-// TODO: A p-adic implementation like in gmp would be much faster for large numbers (with thousands of digits)
 public class PurePowerTestTest {
 	private static final Logger LOG = LogManager.getLogger(PurePowerTestTest.class);
 
