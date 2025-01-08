@@ -13,11 +13,6 @@
  */
 package de.tilman_neumann.jml.random;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import de.tilman_neumann.util.ConfigUtil;
-
 /**
  * Java port of Marsaglia's xorshf generator.
  * @see https://stackoverflow.com/questions/1640258/need-a-fast-random-generator-for-c<br/><br/>
@@ -28,9 +23,8 @@ import de.tilman_neumann.util.ConfigUtil;
  * @author Tilman Neumann
  */
 public class Xorshf32 {
-	private static final Logger LOG = LogManager.getLogger(Xorshf32.class);
 	
-	int x=123456789, y=362436069, z=521288629;
+	private int x=123456789, y=362436069, z=521288629;
 	
 	public int nextInt(int max) {
 		int t;
@@ -44,13 +38,5 @@ public class Xorshf32 {
 	    z = t ^ x ^ y;
 
 	    return Math.abs(z%max);
-	}
-	
-	public static void main(String[] args) {
-		ConfigUtil.initProject();
-		Xorshf32 rng = new Xorshf32();
-		for (int i=0; i<1000; i++) {
-			LOG.info("rand(" + i + ") = " + rng.nextInt(10));
-		}
 	}
 }
