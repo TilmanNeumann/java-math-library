@@ -1,6 +1,8 @@
 package de.tilman_neumann.jml.random;
 
 /**
+ * stub
+ * 
  * @see https://en.wikipedia.org/wiki/Lehmer_random_number_generator
  */
 public class LehmerRng64 {
