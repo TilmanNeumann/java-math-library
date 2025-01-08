@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -14,13 +14,13 @@
 package de.tilman_neumann.jml.factor.pollardRho;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd31;
+import de.tilman_neumann.jml.random.SpRand32;
 
 /**
  * Brents's improvement of Pollard's Rho algorithm, following [Richard P. Brent: An improved Monte Carlo Factorization Algorithm, 1980].
@@ -38,7 +38,7 @@ import de.tilman_neumann.jml.gcd.Gcd31;
 public class PollardRhoBrent31 extends FactorAlgorithm {
 	private static final Logger LOG = LogManager.getLogger(PollardRhoBrent31.class);
 	private static final boolean DEBUG = false;
-	private static final SecureRandom RNG = new SecureRandom();
+	private static final SpRand32 RNG = new SpRand32();
 
 	private int n;
 

@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -20,7 +20,7 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd31;
-import de.tilman_neumann.jml.random.Rng;
+import de.tilman_neumann.jml.random.SpRand32;
 import de.tilman_neumann.util.Ensure;
 
 /**
@@ -47,7 +47,7 @@ public class PollardRhoBrentMontgomery32 extends FactorAlgorithm {
 	private static final Logger LOG = LogManager.getLogger(PollardRhoBrentMontgomery32.class);
 	private static final boolean DEBUG = false;
 
-	private static final Rng RNG = new Rng();
+	private static final SpRand32 RNG = new SpRand32();
 
 	// The reducer R is 2^32, but the only constant still required is the half of it.
 	private static final int R_HALF = 1 << 31;

@@ -14,13 +14,13 @@
 package de.tilman_neumann.jml.factor.pollardRho;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd31;
+import de.tilman_neumann.jml.random.SpRand32;
 
 /**
  * A variant of the original Pollard-Rho method by Dave McGuigan,
@@ -33,7 +33,7 @@ import de.tilman_neumann.jml.gcd.Gcd31;
 public class PollardRhoTwoLoops31 extends FactorAlgorithm {
 	private static final Logger LOG = LogManager.getLogger(PollardRhoTwoLoops31.class);
 	private static final boolean DEBUG = false;
-	private static final SecureRandom RNG = new SecureRandom();
+	private static final SpRand32 RNG = new SpRand32();
 
 	private Gcd31 gcdEngine = new Gcd31();
 	
