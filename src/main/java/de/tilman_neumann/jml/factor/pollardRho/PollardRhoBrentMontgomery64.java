@@ -18,10 +18,10 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.base.Rng;
 import de.tilman_neumann.jml.base.Uint128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
+import de.tilman_neumann.jml.random.Rng;
 import de.tilman_neumann.util.Ensure;
 
 /**

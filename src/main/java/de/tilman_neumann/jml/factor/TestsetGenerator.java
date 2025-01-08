@@ -20,8 +20,8 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.base.Rng;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.random.Rng;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 

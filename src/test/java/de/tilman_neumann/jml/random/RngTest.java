@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.base;
+package de.tilman_neumann.jml.random;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -22,6 +22,8 @@ import org.apache.logging.log4j.LogManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.tilman_neumann.jml.base.BigDecimalMath;
+import de.tilman_neumann.jml.random.Rng;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
