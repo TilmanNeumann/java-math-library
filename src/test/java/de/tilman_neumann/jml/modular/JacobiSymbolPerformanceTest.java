@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -14,7 +14,7 @@
 package de.tilman_neumann.jml.modular;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.util.Random;
 import java.util.ArrayList;
 
 import org.apache.logging.log4j.Logger;
@@ -40,21 +40,21 @@ public class JacobiSymbolPerformanceTest {
 	private static final int MAX_BITS = 500;
 	
 	private static final BPSWTest bpsw = new BPSWTest();
+	private static final Random RNG = new Random();
 	
 	private static void testPerformance() {
-		SecureRandom rng = new SecureRandom();
 		ArrayList<Integer> aList_int=null, pList_int=null;
 		for (int bits=10; bits<MAX_BITS; bits+=10) {
 			// generate test numbers
 			ArrayList<BigInteger> aList = new ArrayList<BigInteger>();
 			ArrayList<BigInteger> pList = new ArrayList<BigInteger>();
 			for (int i=0; i<NCOUNT; i++) {
-				aList.add(new BigInteger(bits, rng));
+				aList.add(new BigInteger(bits, RNG));
 			}
 			int i=0;
 			while (i<NCOUNT) {
 				// the p must be odd, and to allow comparison with the Legendre symbol it should be odd primes
-				BigInteger p = bpsw.nextProbablePrime(new BigInteger(bits, rng));
+				BigInteger p = bpsw.nextProbablePrime(new BigInteger(bits, RNG));
 				if (p.and(I_1).intValue()==1) {
 					pList.add(p);
 					i++;

@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -16,7 +16,7 @@ package de.tilman_neumann.jml;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -39,7 +39,8 @@ public class DivisorsPerformanceTest {
 	private static final boolean TEST_SLOW = false;
 
 	private static final TDiv tdiv = new TDiv().setTestLimit(65536); // 65536 is enough to factor factorials
-	
+	private static final Random RNG = new Random();
+
 	/**
 	 * Print the sum of divisors of factorials = sigma(n!) [A062569]:
 	 * 1, 1, 3, 12, 60, 360, 2418, 19344, 159120, 1481040, 15334088, 184009056, ...
@@ -165,14 +166,13 @@ public class DivisorsPerformanceTest {
 
 	private static void testBiggestDivisorBelowSqrtN() {
 		long t0, t1;
-		SecureRandom rng = new SecureRandom();
 		int NCOUNT=10000;
 		
 		for (int bits = 15; bits<32; bits++) { // getBiggestDivisorBelowSqrtN_small() needs int arguments
 			// create test set
 			ArrayList<BigInteger> testSet = new ArrayList<>();
 			for (int i=0; i<NCOUNT; ) {
-				BigInteger n = new BigInteger(bits, rng);
+				BigInteger n = new BigInteger(bits, RNG);
 				if (n.compareTo(I_0)>0) {
 					testSet.add(n);
 					i++;

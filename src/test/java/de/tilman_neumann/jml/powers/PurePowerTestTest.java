@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -14,7 +14,7 @@
 package de.tilman_neumann.jml.powers;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.util.Random;
 import java.util.ArrayList;
 
 import org.apache.logging.log4j.Logger;
@@ -38,7 +38,7 @@ public class PurePowerTestTest {
 	private static final int NCOUNT = 100000;
 	
 	private static final PurePowerTest powTest = new PurePowerTest();
-	private static final SecureRandom rng = new SecureRandom();
+	private static final Random RNG = new Random();
 
 	@BeforeClass
 	public static void setup() {
@@ -52,7 +52,7 @@ public class PurePowerTestTest {
 	   		LOG.info("Test correctness with " + NCOUNT + " " + bits + "-bit numbers");
 		   	ArrayList<BigInteger> testSet = new ArrayList<BigInteger>();
 		   	for (int i=0; i<NCOUNT; i++) {
-		   		testSet.add(new BigInteger(bits, rng));
+		   		testSet.add(new BigInteger(bits, RNG));
 		   	}
 		   	
 		   	// pure powers are not unique, e.g. 3^9 == 27^3, thus we can only check if the final result is correct

@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -15,7 +15,7 @@ package de.tilman_neumann.jml.modular;
 
 import static org.junit.Assert.assertEquals;
 
-import java.security.SecureRandom;
+import java.util.Random;
 
 import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
@@ -30,7 +30,7 @@ public class ModularSqrtTest {
 	
 	private static final int NCOUNT = 100000;
 	
-	private static final SecureRandom rng = new SecureRandom();
+	private static final Random RNG = new Random();
 	private static final BPSWTest bpsw = new BPSWTest();
 	private static final JacobiSymbol jacobiEngine = new JacobiSymbol();
 	private static final ModularSqrt31 mse31 = new ModularSqrt31();
@@ -62,7 +62,7 @@ public class ModularSqrtTest {
 		int i = 0;
 		while (i<count) {
 			// get non-negative random n
-			int n = rng.nextInt(Integer.MAX_VALUE);
+			int n = RNG.nextInt(Integer.MAX_VALUE);
 			// add n to the test set if it is an odd prime with the wanted modulus mod 8
 			if (n>2 && (n&7) == wantedPMod8 && bpsw.isProbablePrime(n)) {
 				pArray[i] = n;
@@ -83,7 +83,7 @@ public class ModularSqrtTest {
 		int i = 0;
 		while (i<count) {
 			// get non-negative random n
-			int n = rng.nextInt(Integer.MAX_VALUE);
+			int n = RNG.nextInt(Integer.MAX_VALUE);
 			// add n if it has Jacobi(n|p) = 1
 			int p = pList[i];
 			if (jacobiEngine.jacobiSymbol(n, p) == 1) {

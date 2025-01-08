@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -16,7 +16,7 @@ package de.tilman_neumann.jml.base;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,7 @@ import de.tilman_neumann.util.ConfigUtil;
 public class UnsignedBigIntTest {
 	private static final Logger LOG = LogManager.getLogger(UnsignedBigIntTest.class);
 	
-	private static final SecureRandom RNG = new SecureRandom();
+	private static final Random RNG = new Random();
 	
 	private static final int BITS_MIN = 100;
 	private static final int BITS_INCREMENT = 100;
