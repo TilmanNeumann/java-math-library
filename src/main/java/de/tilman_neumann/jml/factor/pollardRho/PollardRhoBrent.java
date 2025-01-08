@@ -16,7 +16,7 @@ package de.tilman_neumann.jml.factor.pollardRho;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.util.Random;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +34,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 public class PollardRhoBrent extends FactorAlgorithm {
 	private static final Logger LOG = LogManager.getLogger(PollardRhoBrent.class);
 	private static final boolean DEBUG = false;
-	private static final SecureRandom RNG = new SecureRandom();
+	private static final Random RNG = new Random();
 
 	private BigInteger N;
 

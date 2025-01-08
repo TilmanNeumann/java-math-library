@@ -67,19 +67,19 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 10000;
+	private static final int N_COUNT = 1000000;
 	/** the bit size of N to start with */
 	private static final int START_BITS = 20;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 5;
+	private static final int INCR_BITS = 1;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = null;
+	private static final Integer MAX_BITS = 31;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_COMPOSITES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
+	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
 
 	private BPSWTest bpsw = new BPSWTest();
 	
@@ -117,10 +117,10 @@ public class FactorizerTest {
 //			new LehmanCustomKOrder(false),
 
 			// PollardRho
-			//new PollardRho31(),
-			//new PollardRhoBrent31(),
-			//new PollardRhoTwoLoops31(),
-			//new PollardRhoBrentMontgomery32(),
+			new PollardRho31(),
+			new PollardRhoBrent31(),
+			new PollardRhoTwoLoops31(),
+			new PollardRhoBrentMontgomery32(),
 
 			//new PollardRhoBrentMontgomery64(),
 			//new PollardRhoBrentMontgomery64MH(),
