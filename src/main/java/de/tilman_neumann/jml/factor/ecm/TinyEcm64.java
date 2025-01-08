@@ -592,7 +592,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		
 		if (sigma == 0)
 		{
-			work.sigma = spRand(7, (int)-1);
+			work.sigma = spRand(7, (int)-1); // inlined is a tiny bit faster than using SpRand32
 			if (DEBUG) LOG.debug("random sigma=" + work.sigma);
 		}
 		else
