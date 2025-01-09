@@ -43,6 +43,7 @@ public class RngPerformanceTest {
 	private static final Rng rng = new Rng();
 	private static final SpRand32 spRand32 = new SpRand32();
 	private static final Xorshf32 xorshf32 = new Xorshf32();
+	private static final LehmerRng64 lehmer64 = new LehmerRng64();
 	
 	/**
 	 * Test.
@@ -127,5 +128,25 @@ public class RngPerformanceTest {
 			xorshf32.nextInt(lower, upper);
 		}
 		LOG.debug("Xorshf32.nextInt(lower, upper) took " + timer.capture() + " ms");
+		
+		// test nextLong()
+		if (TEST_SLOW) {
+			for (int i=0; i<NCOUNT; i++) {
+				secureRandom.nextLong();
+			}
+			LOG.debug("SecureRandom.nextLong() took " + timer.capture() + " ms");
+		}
+		for (int i=0; i<NCOUNT; i++) {
+			random.nextLong();
+		}
+		LOG.debug("Random.nextLong() took " + timer.capture() + " ms");
+		for (int i=0; i<NCOUNT; i++) {
+			rng.nextLong();
+		}
+		LOG.debug("Rng.nextLong() took " + timer.capture() + " ms");
+		for (int i=0; i<NCOUNT; i++) {
+			lehmer64.nextLong();
+		}
+		LOG.debug("LehmerRng64.nextLong() took " + timer.capture() + " ms");
 	}
 }

@@ -341,6 +341,69 @@ public class Uint128 {
 	}
 
 	/**
+	 * Multiplication of two unsigned 128 bit integers.
+	 * 
+	 * @param a Uint128
+	 * @param b Uint128
+	 * @return a*b as an array of [low, high] Uint128 objects;
+	 */
+	public static Uint128[] mul128/*_v2*/(Uint128 a, Uint128 b) {
+		final long a_hi = a.getHigh(); // a >>> 32;
+		final long b_hi = b.getHigh(); // b >>> 32;
+		final long a_lo = a.getLow(); // a & 0xFFFFFFFFL;
+		final long b_lo = b.getLow(); // b & 0xFFFFFFFFL;
+		
+		final Uint128 lo_prod = mul64(a_lo, b_lo); // a_lo * b_lo;
+		final Uint128 med_prod1 = mul64(a_hi, b_lo); // a_hi * b_lo;
+		final Uint128 med_prod2 = mul64(a_lo, b_hi); // a_lo * b_hi;
+		final Uint128 med_term = med_prod1.add(med_prod2); // med_prod1 + med_prod2;
+		final Uint128 hi_prod = mul64(a_hi, b_hi); // a_hi * b_hi;
+		
+		// the medium term could overflow
+		//final long carry = (med_term+Long.MIN_VALUE < med_prod1+Long.MIN_VALUE) ? 1L<<32 : 0;
+		final Uint128 carry = (med_term.getHigh()+Long.MIN_VALUE < med_prod1.getHigh()+Long.MIN_VALUE) ? new Uint128(1, 0) : new Uint128(0, 0);
+		
+		//final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
+		final long lo_prod_hi = lo_prod.getHigh(); // (lo_prod >>> 32)
+		final Uint128 intermediate = new Uint128(0, lo_prod_hi).add(med_term); // ((lo_prod >>> 32) + med_term)
+		final long intermediate_hi = intermediate.getHigh(); // (((lo_prod >>> 32) + med_term) >>> 32)
+		final Uint128 r_hi = new Uint128(0, intermediate_hi).add(hi_prod).add(carry);
+		
+		//final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		final long med_term_lo = med_term.getLow(); // (med_term & 0xFFFFFFFFL)
+		final Uint128 r_lo = new Uint128(med_term_lo, 0).add(lo_prod);
+		
+		//return new Uint128(r_hi, r_lo);
+		return new Uint128[] {r_lo, r_hi};
+	}
+
+	/**
+	 * Get the lower 128 bit integer of a multiplication of two unsigned 128 bit integers.
+	 * 
+	 * @param a Uint128
+	 * @param b Uint128
+	 * @return the low Uint128 of a*b
+	 */
+	public static Uint128 mul128_getLow(Uint128 a, Uint128 b) { // derived from mul128_v2
+		final long a_hi = a.getHigh(); // a >>> 32;
+		final long b_hi = b.getHigh(); // b >>> 32;
+		final long a_lo = a.getLow(); // a & 0xFFFFFFFFL;
+		final long b_lo = b.getLow(); // b & 0xFFFFFFFFL;
+		
+		final Uint128 lo_prod = mul64(a_lo, b_lo); // a_lo * b_lo;
+		final Uint128 med_prod1 = mul64(a_hi, b_lo); // a_hi * b_lo;
+		final Uint128 med_prod2 = mul64(a_lo, b_hi); // a_lo * b_hi;
+		final Uint128 med_term = med_prod1.add(med_prod2); // med_prod1 + med_prod2;
+		
+		//final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		final long med_term_lo = med_term.getLow(); // (med_term & 0xFFFFFFFFL)
+		final Uint128 r_lo = new Uint128(med_term_lo, 0).add(lo_prod);
+		
+		//return new Uint128(r_hi, r_lo);
+		return r_lo;
+	}
+
+	/**
 	 * Compute quotient and remainder of this / v.
 	 * The quotient will be correct only if it is <= 64 bit.
 	 * Ported from https://codereview.stackexchange.com/questions/67962/mostly-portable-128-by-64-bit-division.
