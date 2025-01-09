@@ -72,4 +72,20 @@ public class SpRand32 {
 		if (DEBUG) LOG.debug("quot=" + quot + ", prod=" + prod + ", rand=" + rand + ", result=" + result);
 		return result;
 	}
+
+	public int nextInt() {
+		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE);
+		
+		// advance the state of the LCG and return the appropriate result
+		LCGSTATE = 6364136223846793005L * LCGSTATE + 1442695040888963407L;
+		long LCGSTATE_shifted = LCGSTATE >>> 32;
+		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE + ", LCGSTATE_shifted=" + LCGSTATE_shifted);
+		
+		double quot = (double)LCGSTATE_shifted / 4294967296.0; // dividend is 2^32
+		double prod = Integer.MAX_VALUE * quot;
+		int rand = (int)(0xFFFFFFFF & (long)prod); // (int)prod does not work for prod >= 2^31
+		int result = rand;
+		if (DEBUG) LOG.debug("quot=" + quot + ", prod=" + prod + ", rand=" + rand + ", result=" + result);
+		return result;
+	}
 }
