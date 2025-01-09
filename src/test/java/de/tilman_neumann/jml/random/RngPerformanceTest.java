@@ -103,16 +103,18 @@ public class RngPerformanceTest {
 		
 		// test nextInt(int lower, int upper)
 		int lower = 12345;
+		/*
 		if (TEST_SLOW) {
 			for (int i=0; i<NCOUNT; i++) {
-				secureRandom.nextInt(lower, upper);
+				secureRandom.nextInt(lower, upper); // XXX which Java version is required ?
 			}
 			LOG.debug("SecureRandom.nextInt(lower, upper) took " + timer.capture() + " ms");
 		}
 		for (int i=0; i<NCOUNT; i++) {
-			random.nextInt(lower, upper);
+			random.nextInt(lower, upper); // XXX which Java version is required ?
 		}
 		LOG.debug("Random.nextInt(lower, upper) took " + timer.capture() + " ms");
+		*/
 		for (int i=0; i<NCOUNT; i++) {
 			rng.nextInt(lower, upper);
 		}
