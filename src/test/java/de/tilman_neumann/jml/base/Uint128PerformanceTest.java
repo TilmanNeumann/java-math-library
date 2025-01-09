@@ -28,7 +28,7 @@ public class Uint128PerformanceTest {
 	private static void testPerformance() {
 		// Performance tests are carried out in double loops over the same numbers.
 		// Otherwise number creation is much more expensive than testing the operations themselves.
-		int NCOUNT = 10000000;
+		int NCOUNT = 100000000;
 		int NCOUNT2 = 100000; // used for add operations which are more expensive
 		
 		// set up test numbers
@@ -80,6 +80,15 @@ public class Uint128PerformanceTest {
 		t1 = System.currentTimeMillis();
 		LOG.info("mul64_v2 took " + (t1-t0) + "ms");
 		
+		t0 = System.currentTimeMillis();
+		for (int i=0; i<NCOUNT; i++) {
+			for (int j=0; j<NCOUNT; j++) {
+				Uint128.mul64_v3(a_arr[i], a_arr[j]);
+			}
+		}
+		t1 = System.currentTimeMillis();
+		LOG.info("mul64_v3 took " + (t1-t0) + "ms");
+
 		t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
 			for (int j=0; j<NCOUNT; j++) {

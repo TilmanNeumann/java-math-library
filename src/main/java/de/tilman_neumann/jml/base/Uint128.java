@@ -191,6 +191,36 @@ public class Uint128 {
 
 		return new Uint128(r_hi, r_lo);
 	}
+
+	/**
+	 * Multiplication of unsigned 64 bit integers.
+	 * 
+	 * @param a unsigned long
+	 * @param b unsigned long
+	 * @return a*b
+	 */
+	public static Uint128 mul64_v3(long a, long b) { // derived from mul64Signed()
+		final long a_hi = a >> 32;
+		final long a_lo = a & 0xFFFFFFFFL;
+		final long b_hi = b >> 32;
+		final long b_lo = b & 0xFFFFFFFFL;
+		
+		// use b_lo twice as first argument hoping that this optimizes register usage
+		final long w0 = b_lo * a_lo;
+		final long t = b_lo * a_hi + (w0 >>> 32);
+		// same with t
+		final long w2 = t >> 32;
+		final long w1 = (t & 0xFFFFFFFFL) + a_lo * b_hi;
+	    
+		long r_hi = a_hi * b_hi + w2 + (w1 >> 32);
+		// so far we computed the signed solution; now make it unsigned
+		if (a<0) r_hi += b;
+		if (b<0) r_hi += a;
+
+		final long r_lo = a * b;
+		
+		return new Uint128(r_hi, r_lo);
+	}
 	
 	/**
 	 * Multiplication of two unsigned 64-bit integers using Math.multiplyHigh().

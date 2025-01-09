@@ -174,6 +174,28 @@ public class Uint128Test {
 	}
 
 	@Test
+	public void testMul64_v3() {
+		
+		for (int i=0; i<NCOUNT; i++) {
+			BigInteger a_lo_big = lo_big[i];
+			long a_lo = lo[i];
+			
+			for (int j=0; j<NCOUNT; j++) {
+				BigInteger b_lo_big = lo_big[j];
+				long b_lo = lo[j];
+	
+				Uint128 prod128 = Uint128. mul64_v3(a_lo, b_lo);
+				BigInteger prod128Big = prod128.toBigInteger();
+				BigInteger correctProd = a_lo_big.multiply(b_lo_big);
+				if (!correctProd.equals(prod128Big)) {
+					LOG.error("mul64_v3: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
+				}
+				Assert.assertEquals(correctProd, prod128Big);
+			}
+		}
+	}
+
+	@Test
 	public void testMul64_MH() {
 		
 		for (int i=0; i<NCOUNT; i++) {
