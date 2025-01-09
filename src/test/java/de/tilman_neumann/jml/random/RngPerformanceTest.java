@@ -43,8 +43,11 @@ public class RngPerformanceTest {
 	private static final Rng rng = new Rng();
 	private static final SpRand32 spRand32 = new SpRand32();
 	private static final Xorshf32 xorshf32 = new Xorshf32();
+	private static final Xorshf32b xorshf32b = new Xorshf32b();
 	private static final LehmerRng64 lehmer64 = new LehmerRng64();
-	
+	private static final LehmerRng64MH lehmer64MH = new LehmerRng64MH();
+	private static final Xorshf64 xorshf64 = new Xorshf64();
+
 	/**
 	 * Test.
 	 * @param args ignored
@@ -76,6 +79,10 @@ public class RngPerformanceTest {
 			xorshf32.nextInt();
 		}
 		LOG.debug("Xorshf32.nextInt() took " + timer.capture() + " ms");
+		for (int i=0; i<NCOUNT; i++) {
+			xorshf32b.nextInt();
+		}
+		LOG.debug("Xorshf32b.nextInt() took " + timer.capture() + " ms");
 		
 		// test nextInt(int upper)
 		int upper = 1<<30 + 29;
@@ -101,6 +108,10 @@ public class RngPerformanceTest {
 			xorshf32.nextInt(upper);
 		}
 		LOG.debug("Xorshf32.nextInt(upper) took " + timer.capture() + " ms");
+		for (int i=0; i<NCOUNT; i++) {
+			xorshf32b.nextInt(upper);
+		}
+		LOG.debug("Xorshf32b.nextInt(upper) took " + timer.capture() + " ms");
 		
 		// test nextInt(int lower, int upper)
 		int lower = 12345;
@@ -128,6 +139,10 @@ public class RngPerformanceTest {
 			xorshf32.nextInt(lower, upper);
 		}
 		LOG.debug("Xorshf32.nextInt(lower, upper) took " + timer.capture() + " ms");
+		for (int i=0; i<NCOUNT; i++) {
+			xorshf32b.nextInt(lower, upper);
+		}
+		LOG.debug("Xorshf32b.nextInt(lower, upper) took " + timer.capture() + " ms");
 		
 		// test nextLong()
 		if (TEST_SLOW) {
@@ -148,5 +163,13 @@ public class RngPerformanceTest {
 			lehmer64.nextLong();
 		}
 		LOG.debug("LehmerRng64.nextLong() took " + timer.capture() + " ms");
+		for (int i=0; i<NCOUNT; i++) {
+			lehmer64MH.nextLong();
+		}
+		LOG.debug("LehmerRng64MH.nextLong() took " + timer.capture() + " ms");
+		for (int i=0; i<NCOUNT; i++) {
+			xorshf64.nextLong();
+		}
+		LOG.debug("Xorshf64.nextLong() took " + timer.capture() + " ms");
 	}
 }

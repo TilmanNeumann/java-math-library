@@ -13,23 +13,21 @@
  */
 package de.tilman_neumann.jml.random;
 
-import de.tilman_neumann.jml.base.Uint128;
-
 /**
- * Lehmer's random number generator for 64 bit numbers; requires 128 bit multiplication internally.
+ * <strong>Experimental</strong> 64 bit random number generator computing longs from two consecutive 32 bit random numbers.
  * 
- * This is class is still <strong>experimental</strong>. It seems to work but not much faster than Random yet.
- * 
- * @see https://en.wikipedia.org/wiki/Lehmer_random_number_generator
+ * @author Tilman Neumann
  */
-public class LehmerRng64 {
-	private static final Uint128 mult = new Uint128(0x12e15e35b500f16eL, 0x2e714eb2b37916a5L);
-
-	private Uint128 state = mult;
+public class Xorshf64 {
+	
+	private Xorshf32 intGenerator = new Xorshf32();
 	
 	public long nextLong() {
-		long result = state.getHigh();
-		state = Uint128.mul128_getLow(state, mult);
-		return result;
+	    return ((long) intGenerator.nextInt()) * intGenerator.nextInt();
 	}
+	
+	// TODO nextLong(upper)
+	
+	// TODO nextLong(lower, upper)
+	
 }

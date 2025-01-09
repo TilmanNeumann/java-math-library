@@ -16,20 +16,20 @@ package de.tilman_neumann.jml.random;
 import de.tilman_neumann.jml.base.Uint128;
 
 /**
- * Lehmer's random number generator for 64 bit numbers; requires 128 bit multiplication internally.
+ * Lehmer's random number generator for 64 bit numbers, using Math.multiplyHigh(); requires 128 bit multiplication internally.
  * 
- * This is class is still <strong>experimental</strong>. It seems to work but not much faster than Random yet.
+ * This is class is still <strong>experimental</strong>.
  * 
  * @see https://en.wikipedia.org/wiki/Lehmer_random_number_generator
  */
-public class LehmerRng64 {
+public class LehmerRng64MH {
 	private static final Uint128 mult = new Uint128(0x12e15e35b500f16eL, 0x2e714eb2b37916a5L);
 
 	private Uint128 state = mult;
 	
 	public long nextLong() {
 		long result = state.getHigh();
-		state = Uint128.mul128_getLow(state, mult);
+		state = Uint128.mul128MH_getLow(state, mult);
 		return result;
 	}
 }

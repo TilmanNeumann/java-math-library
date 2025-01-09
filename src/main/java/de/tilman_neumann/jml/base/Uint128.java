@@ -434,6 +434,32 @@ public class Uint128 {
 	}
 
 	/**
+	 * Get the lower 128 bit integer of a multiplication of two unsigned 128 bit integers, using Math.multiplyHigh().
+	 * 
+	 * @param a Uint128
+	 * @param b Uint128
+	 * @return the low Uint128 of a*b
+	 */
+	public static Uint128 mul128MH_getLow(Uint128 a, Uint128 b) { // derived from mul128_v2
+		final long a_hi = a.getHigh(); // a >>> 32;
+		final long b_hi = b.getHigh(); // b >>> 32;
+		final long a_lo = a.getLow(); // a & 0xFFFFFFFFL;
+		final long b_lo = b.getLow(); // b & 0xFFFFFFFFL;
+		
+		final Uint128 lo_prod = mul64_MH(a_lo, b_lo); // a_lo * b_lo;
+		final Uint128 med_prod1 = mul64_MH(a_hi, b_lo); // a_hi * b_lo;
+		final Uint128 med_prod2 = mul64_MH(a_lo, b_hi); // a_lo * b_hi;
+		final Uint128 med_term = med_prod1.add(med_prod2); // med_prod1 + med_prod2;
+		
+		//final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		final long med_term_lo = med_term.getLow(); // (med_term & 0xFFFFFFFFL)
+		final Uint128 r_lo = new Uint128(med_term_lo, 0).add(lo_prod);
+		
+		//return new Uint128(r_hi, r_lo);
+		return r_lo;
+	}
+
+	/**
 	 * Compute quotient and remainder of this / v.
 	 * The quotient will be correct only if it is <= 64 bit.
 	 * Ported from https://codereview.stackexchange.com/questions/67962/mostly-portable-128-by-64-bit-division.
