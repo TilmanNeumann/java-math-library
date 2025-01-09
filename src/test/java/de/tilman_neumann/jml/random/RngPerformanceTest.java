@@ -47,6 +47,7 @@ public class RngPerformanceTest {
 	private static final LehmerRng64 lehmer64 = new LehmerRng64();
 	private static final LehmerRng64MH lehmer64MH = new LehmerRng64MH();
 	private static final Xorshf64 xorshf64 = new Xorshf64();
+	private static final Xorshf64b xorshf64b = new Xorshf64b();
 
 	/**
 	 * Test.
@@ -171,5 +172,9 @@ public class RngPerformanceTest {
 			xorshf64.nextLong();
 		}
 		LOG.debug("Xorshf64.nextLong() took " + timer.capture() + " ms");
+		for (int i=0; i<NCOUNT; i++) {
+			xorshf64b.nextLong();
+		}
+		LOG.debug("Xorshf64b.nextLong() took " + timer.capture() + " ms");
 	}
 }
