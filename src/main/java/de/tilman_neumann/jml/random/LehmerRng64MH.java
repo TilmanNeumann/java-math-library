@@ -27,6 +27,9 @@ public class LehmerRng64MH {
 
 	private Uint128 state = mult;
 	
+	/**
+	 * @return a random long number N with Long.MIN_VALUE <= N <= Long.MAX_VALUE.
+	 */
 	public long nextLong() {
 		long result = state.getHigh();
 		state = Uint128.mul128MH_getLow(state, mult);

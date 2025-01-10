@@ -13,23 +13,41 @@
  */
 package de.tilman_neumann.jml.random;
 
+import static org.junit.Assert.assertTrue;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import de.tilman_neumann.util.ConfigUtil;
+
 /**
- * Yet another <strong>experimental</strong> 64 bit random number generator computing longs from two consecutive 32 bit random numbers.
+ * Tests of the LehmerRng64MH random number generator.
  * 
  * @author Tilman Neumann
  */
-public class Xorshf64b {
+public class LehmerRng64MHTest {
+	private static final Logger LOG = LogManager.getLogger(LehmerRng64MHTest.class);
+
+	private static final int NCOUNT = 1000000;
 	
-	private Xorshf32 intGenerator = new Xorshf32();
+	private static final LehmerRng64MH rng = new LehmerRng64MH();
 	
-	public long nextLong() {
-		final long i1 = intGenerator.nextInt();
-		final long i2 = intGenerator.nextInt();
-	    return i1^2 + i2;
+	@BeforeClass
+	public static void setup() {
+		ConfigUtil.initProject();
 	}
 	
-	// TODO nextLong(upper)
-	
-	// TODO nextLong(lower, upper)
-	
+	@Test
+	public void testNextLongNoArgs() {
+		long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
+		for (int i=0; i<NCOUNT; i++) {
+			long n = rng.nextLong();
+			if (n<min) min = n;
+			if (n>max) max = n;
+		}
+		LOG.debug(NCOUNT + " numbers from " + rng.getClass().getSimpleName() + ".nextLong() gave min = " + min + ", max = " + max);
+		assertTrue(min < 0);
+	}
 }

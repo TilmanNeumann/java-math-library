@@ -19,6 +19,8 @@ import org.apache.logging.log4j.Logger;
 /**
  * My Java port of the pseudo-random number generator from tinyEcm.c by Ben Buhrow.
  * 
+ * This generator is special in that nextInt() creates strictly non-negative random numbers.
+ * 
  * @author Tilman Neumann
  */
 public class SpRand32 {
@@ -26,53 +28,14 @@ public class SpRand32 {
 	
 	private static final boolean DEBUG = false;
 	
+	private static final long MAX_INT_AS_LONG = Integer.MAX_VALUE;
+	
 	// seed
-	//private long LCGSTATE = 65537 * new Random().nextInt();
 	private long LCGSTATE = 4295098403L; // rng comparable with C version of TinyEcm
 
-	public int nextInt(int lower, int upper) {
-		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE);
-		
-		// fix rng for negative upper values
-		long upperl = (long) upper;
-		if (upperl<0) upperl += (1L<<32);
-		long diff = upperl - lower;
-		if (DEBUG) LOG.debug("lower=" + lower + ", upper=" + upperl + ", diff=" + diff);
-		
-		// advance the state of the LCG and return the appropriate result
-		LCGSTATE = 6364136223846793005L * LCGSTATE + 1442695040888963407L;
-		long LCGSTATE_shifted = LCGSTATE >>> 32;
-		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE + ", LCGSTATE_shifted=" + LCGSTATE_shifted);
-		
-		double quot = (double)LCGSTATE_shifted / 4294967296.0; // dividend is 2^32
-		double prod = diff * quot;
-		int rand = (int)(0xFFFFFFFF & (long)prod); // (int)prod does not work for prod >= 2^31
-		int result = lower + rand;
-		if (DEBUG) LOG.debug("quot=" + quot + ", prod=" + prod + ", rand=" + rand + ", result=" + result);
-		return result;
-	}
-
-	public int nextInt(int upper) {
-		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE);
-		
-		// fix rng for negative upper values
-		long upperl = (long) upper;
-		if (upperl<0) upperl += (1L<<32);
-		if (DEBUG) LOG.debug("upper=" + upperl);
-		
-		// advance the state of the LCG and return the appropriate result
-		LCGSTATE = 6364136223846793005L * LCGSTATE + 1442695040888963407L;
-		long LCGSTATE_shifted = LCGSTATE >>> 32;
-		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE + ", LCGSTATE_shifted=" + LCGSTATE_shifted);
-		
-		double quot = (double)LCGSTATE_shifted / 4294967296.0; // dividend is 2^32
-		double prod = upperl * quot;
-		int rand = (int)(0xFFFFFFFF & (long)prod); // (int)prod does not work for prod >= 2^31
-		int result = rand;
-		if (DEBUG) LOG.debug("quot=" + quot + ", prod=" + prod + ", rand=" + rand + ", result=" + result);
-		return result;
-	}
-
+	/**
+	 * @return a random int number N with 0 <= N <= Integer.MAX_VALUE.
+	 */
 	public int nextInt() {
 		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE);
 		
@@ -82,10 +45,44 @@ public class SpRand32 {
 		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE + ", LCGSTATE_shifted=" + LCGSTATE_shifted);
 		
 		double quot = (double)LCGSTATE_shifted / 4294967296.0; // dividend is 2^32
-		double prod = Integer.MAX_VALUE * quot;
+		double prod = MAX_INT_AS_LONG * quot;
 		int rand = (int)(0xFFFFFFFF & (long)prod); // (int)prod does not work for prod >= 2^31
 		int result = rand;
 		if (DEBUG) LOG.debug("quot=" + quot + ", prod=" + prod + ", rand=" + rand + ", result=" + result);
 		return result;
+	}
+
+	/**
+	 * @param max
+	 * @return a random int number N with 0 <= N <= max.
+	 */
+	public int nextInt(int max) {
+		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE);
+		
+		// fix rng for negative upper values
+		long maxLong = (long) max;
+		if (maxLong<0) maxLong += (1L<<32);
+		if (DEBUG) LOG.debug("max=" + maxLong);
+		
+		// advance the state of the LCG and return the appropriate result
+		LCGSTATE = 6364136223846793005L * LCGSTATE + 1442695040888963407L;
+		long LCGSTATE_shifted = LCGSTATE >>> 32;
+		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE + ", LCGSTATE_shifted=" + LCGSTATE_shifted);
+		
+		double quot = (double)LCGSTATE_shifted / 4294967296.0; // dividend is 2^32
+		double prod = maxLong * quot;
+		int rand = (int)(0xFFFFFFFF & (long)prod); // (int)prod does not work for prod >= 2^31
+		int result = rand;
+		if (DEBUG) LOG.debug("quot=" + quot + ", prod=" + prod + ", rand=" + rand + ", result=" + result);
+		return result;
+	}
+
+	/**
+	 * @param min
+	 * @param max
+	 * @return a random int number N with lower <= N <= max.
+	 */
+	public int nextInt(int min, int max) {
+		return min + nextInt(max - min);
 	}
 }

@@ -17,8 +17,7 @@ package de.tilman_neumann.jml.random;
  * Java port of Marsaglia's xorshf generator.
  * @see https://stackoverflow.com/questions/1640258/need-a-fast-random-generator-for-c<br/><br/>
  * 
- * <strong>WARNING: This class is experimental!</strong> SpRand32 looks faster for numbers close to 31 bit.
- * Maybe I need to improve the conversion from C "unsigned long" to Java int (shifts, masks etc.).
+ * This generator is special in that nextInt() creates strictly non-negative random numbers.
  * 
  * @author Tilman Neumann
  */
@@ -26,8 +25,8 @@ public class Xorshf32 {
 	
 	private int x=123456789, y=362436069, z=521288629;
 	
-	public int nextInt(int min, int max) {
-	    return min + nextInt(max - min);
+	public int nextInt() {
+	    return nextInt(Integer.MAX_VALUE);
 	}
 
 	public int nextInt(int max) {
@@ -43,8 +42,8 @@ public class Xorshf32 {
 
 	    return Math.abs(z % max);
 	}
-	
-	public int nextInt() {
-	    return nextInt(Integer.MAX_VALUE);
+
+	public int nextInt(int min, int max) {
+	    return min + nextInt(max - min);
 	}
 }

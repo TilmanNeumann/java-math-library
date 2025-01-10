@@ -14,20 +14,26 @@
 package de.tilman_neumann.jml.random;
 
 /**
- * <strong>Experimental</strong> 64 bit random number generator computing longs from two consecutive 32 bit random numbers.
+ * <strong>Experimental</strong> 64 bit random number generator computing longs from three consecutive 32 bit random numbers.
  * 
  * @author Tilman Neumann
  */
 public class Xorshf64 {
 	
-	private Xorshf32 intGenerator = new Xorshf32();
+	private Xorshf32b intGenerator = new Xorshf32b();
 	
-	public long nextLong() {
-	    return ((long) intGenerator.nextInt()) * intGenerator.nextInt();
+	private long i1, i2;
+	
+	public Xorshf64() {
+		i1 = intGenerator.nextInt();
+		i2 = intGenerator.nextInt();
 	}
 	
-	// TODO nextLong(upper)
-	
-	// TODO nextLong(lower, upper)
-	
+	public long nextLong() {
+		final long i3 = intGenerator.nextInt();
+	    long result = ((i1*i2)<<1) + i3; // make upper bound 63 bit
+	    i1 = i2;
+	    i2 = i3;
+	    return result;
+	}
 }

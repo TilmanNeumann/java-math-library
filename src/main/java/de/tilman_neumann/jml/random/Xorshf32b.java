@@ -14,7 +14,7 @@
 package de.tilman_neumann.jml.random;
 
 /**
- * An <strong>experimental</strong> variant of Marsaglia's xorshf generator.
+ * A variant of Marsaglia's xorshf generator.
  * 
  * @author Tilman Neumann
  */
@@ -22,6 +22,9 @@ public class Xorshf32b {
 	
 	private int x=123456789, y=362436069, z=521288629;
 
+	/**
+	 * @return a random long number N with Integer.MIN_VALUE <= N <= Integer.MAX_VALUE.
+	 */
 	public int nextInt() {
 		int t;
 	    x ^= x << 16;
@@ -36,8 +39,13 @@ public class Xorshf32b {
 	    return z;
 	}
 	
+	/**
+	 * @param max
+	 * @return a random int number N with 0 <= N <= max.
+	 */
 	public int nextInt(int max) {
-		final long l = nextInt();  // up to unsigned 2^32 - 1
+		final long i = nextInt();
+		final long l = i<0 ? -i : i;  // up to unsigned 2^32 - 1
 		final long prod = l * max; // up to max * (2^32 - 1)
 	    return (int) (prod >>> 32);
 	}
