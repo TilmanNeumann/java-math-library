@@ -80,7 +80,7 @@ public class Xorshf32bTest {
 			if (n>max) max = n;
 		}
 		LOG.debug(NCOUNT + " numbers from " + rng.getClass().getSimpleName() + ".nextInt(" + LOWER + ", " + UPPER + ") gave min = " + min + ", max = " + max);
-		assertTrue(min >= LOWER);
-		assertTrue(max <= UPPER);
+		assertTrue("Expected " + min + " >= " + LOWER, min >= LOWER);
+		assertTrue("Expected " + max + " <= " + UPPER, max <= UPPER);
 	}
 }
