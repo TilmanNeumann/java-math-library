@@ -45,8 +45,8 @@ public class Xorshf32b {
 	 */
 	public int nextInt(int max) {
 		final long i = nextInt();
-		final long l = i<0 ? -i : i;  // up to unsigned 2^32 - 1
-		final long prod = l * max; // up to max * (2^32 - 1)
+		final long l = i<0 ? -i : i;  // up to unsigned 2^31 - 1
+		final long prod = l * max; // up to max * (2^31 - 1)
 	    return (int) (prod >>> 32);
 	}
 	

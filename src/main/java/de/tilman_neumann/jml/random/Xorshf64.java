@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.random;
 
+import de.tilman_neumann.jml.base.Uint128;
+
 /**
  * <strong>Experimental</strong> 64 bit random number generator computing longs from three consecutive 32 bit random numbers.
  * 
@@ -35,5 +37,20 @@ public class Xorshf64 {
 	    i1 = i2;
 	    i2 = i3;
 	    return result;
+	}
+	
+	/**
+	 * @param max
+	 * @return a random long number N with 0 <= N <= max.
+	 */
+	public long nextLong(long max) {
+		final long i = nextLong();
+		final long l = i<0 ? -i : i;  // up to unsigned 2^63 - 1
+		final Uint128 prod = Uint128.mul64_MH(l, max);
+	    return prod.getHigh();
+	}
+	
+	public long nextLong(long min, long max) {
+	    return min + nextLong(max - min);
 	}
 }

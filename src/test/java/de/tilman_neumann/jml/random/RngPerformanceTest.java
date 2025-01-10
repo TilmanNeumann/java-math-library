@@ -171,5 +171,19 @@ public class RngPerformanceTest {
 			xorshf64.nextLong();
 		}
 		LOG.debug("Xorshf64.nextLong() took " + timer.capture() + " ms");
+		
+		// test nextLong(long upper)
+		long upperLong = 1L<<55;
+		for (int i=0; i<NCOUNT; i++) {
+			xorshf64.nextLong(upperLong);
+		}
+		LOG.debug("Xorshf64.nextLong(upper) took " + timer.capture() + " ms");
+
+		// test nextLong(long lower, long upper)
+		long lowerLong = 1L<<20;
+		for (int i=0; i<NCOUNT; i++) {
+			xorshf64.nextLong(lowerLong, upperLong);
+		}
+		LOG.debug("Xorshf64.nextLong(lower, upper) took " + timer.capture() + " ms");
 	}
 }
