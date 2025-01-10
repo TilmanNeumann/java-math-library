@@ -18,6 +18,9 @@ import de.tilman_neumann.jml.base.Uint128;
 /**
  * <strong>Experimental</strong> 64 bit random number generator computing longs from three consecutive 32 bit random numbers.
  * 
+ * It is fast, but the quality of the generated numbers seems to be insufficient to improve the performance of
+ * factoring algorithms like PollardRhoBrentMontgomery64.
+ * 
  * @author Tilman Neumann
  */
 public class Xorshf64 {
