@@ -33,7 +33,9 @@ public class Xorshf64Test {
 	private static final Logger LOG = LogManager.getLogger(Xorshf64Test.class);
 
 	private static final int NCOUNT = 1000000;
-	
+	private static final long LOWER = 1L<<20;
+	private static final long UPPER = 1L<<50;
+
 	private static final Xorshf64 rng = new Xorshf64();
 	
 	@BeforeClass
@@ -54,5 +56,31 @@ public class Xorshf64Test {
 		LOG.debug("First 100 elements: " + Arrays.toString(firstElements));
 		LOG.debug(NCOUNT + " numbers from " + rng.getClass().getSimpleName() + ".nextLong() gave min = " + min + ", max = " + max);
 		assertTrue(min < 0);
+	}
+	
+	@Test
+	public void testNextLongUpperBound() {
+		long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
+		for (int i=0; i<NCOUNT; i++) {
+			long n = rng.nextLong(UPPER);
+			if (n<min) min = n;
+			if (n>max) max = n;
+		}
+		LOG.debug(NCOUNT + " numbers from " + rng.getClass().getSimpleName() + ".nextLong(" + UPPER + ") gave min = " + min + ", max = " + max);
+		assertTrue(min >= 0);
+		assertTrue(max <= UPPER);
+	}
+	
+	@Test
+	public void testNextLongLowerUpperBound() {
+		long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
+		for (int i=0; i<NCOUNT; i++) {
+			long n = rng.nextLong(LOWER, UPPER);
+			if (n<min) min = n;
+			if (n>max) max = n;
+		}
+		LOG.debug(NCOUNT + " numbers from " + rng.getClass().getSimpleName() + ".nextLong(" + LOWER + ", " + UPPER + ") gave min = " + min + ", max = " + max);
+		assertTrue(min >= LOWER);
+		assertTrue("Expected " + max + " <= " + UPPER, max <= UPPER);
 	}
 }

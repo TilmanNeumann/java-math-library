@@ -44,8 +44,7 @@ public class Xorshf64 {
 	 * @return a random long number N with 0 <= N <= max.
 	 */
 	public long nextLong(long max) {
-		final long i = nextLong();
-		final long l = i<0 ? -i : i;  // up to unsigned 2^63 - 1
+		final long l = nextLong(); // take it as unsigned
 		final Uint128 prod = Uint128.mul64_MH(l, max);
 	    return prod.getHigh();
 	}

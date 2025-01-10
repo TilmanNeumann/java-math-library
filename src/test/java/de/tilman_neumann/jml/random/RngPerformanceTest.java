@@ -38,6 +38,11 @@ public class RngPerformanceTest {
 	
 	private static final int NCOUNT = 1000000000;
 	
+	private static final int LOWER_INT = 1<<10;
+	private static final int UPPER_INT = 1<<25;
+	private static final long LOWER_LONG = 1L<<20;
+	private static final long UPPER_LONG = 1L<<50;
+
 	private static final SecureRandom secureRandom = new SecureRandom();
 	private static final Random random = new Random();
 	private static final Rng rng = new Rng();
@@ -85,64 +90,62 @@ public class RngPerformanceTest {
 		LOG.debug("Xorshf32b.nextInt() took " + timer.capture() + " ms");
 		
 		// test nextInt(int upper)
-		int upper = 1<<30 + 29;
 		if (TEST_SLOW) {
 			for (int i=0; i<NCOUNT; i++) {
-				secureRandom.nextInt(upper);
+				secureRandom.nextInt(UPPER_INT);
 			}
-			LOG.debug("SecureRandom.nextInt(upper) took " + timer.capture() + " ms");
+			LOG.debug("SecureRandom.nextInt(" + UPPER_INT + ") took " + timer.capture() + " ms");
 		}
 		for (int i=0; i<NCOUNT; i++) {
-			random.nextInt(upper);
+			random.nextInt(UPPER_INT);
 		}
-		LOG.debug("Random.nextInt(upper) took " + timer.capture() + " ms");
+		LOG.debug("Random.nextInt(" + UPPER_INT + ") took " + timer.capture() + " ms");
 		for (int i=0; i<NCOUNT; i++) {
-			rng.nextInt(upper);
+			rng.nextInt(UPPER_INT);
 		}
-		LOG.debug("Rng.nextInt(upper) took " + timer.capture() + " ms");
+		LOG.debug("Rng.nextInt(" + UPPER_INT + ") took " + timer.capture() + " ms");
 		for (int i=0; i<NCOUNT; i++) {
-			spRand32.nextInt(upper);
+			spRand32.nextInt(UPPER_INT);
 		}
-		LOG.debug("SpRand32.nextInt(upper) took " + timer.capture() + " ms");
+		LOG.debug("SpRand32.nextInt(" + UPPER_INT + ") took " + timer.capture() + " ms");
 		for (int i=0; i<NCOUNT; i++) {
-			xorshf32.nextInt(upper);
+			xorshf32.nextInt(UPPER_INT);
 		}
-		LOG.debug("Xorshf32.nextInt(upper) took " + timer.capture() + " ms");
+		LOG.debug("Xorshf32.nextInt(" + UPPER_INT + ") took " + timer.capture() + " ms");
 		for (int i=0; i<NCOUNT; i++) {
-			xorshf32b.nextInt(upper);
+			xorshf32b.nextInt(UPPER_INT);
 		}
-		LOG.debug("Xorshf32b.nextInt(upper) took " + timer.capture() + " ms");
+		LOG.debug("Xorshf32b.nextInt(" + UPPER_INT + ") took " + timer.capture() + " ms");
 		
 		// test nextInt(int lower, int upper)
-		int lower = 12345;
 		/*
 		if (TEST_SLOW) {
 			for (int i=0; i<NCOUNT; i++) {
-				secureRandom.nextInt(lower, upper); // XXX which Java version is required ?
+				secureRandom.nextInt(LOWER_INT, UPPER_INT); // XXX which Java version is required ?
 			}
-			LOG.debug("SecureRandom.nextInt(lower, upper) took " + timer.capture() + " ms");
+			LOG.debug("SecureRandom.nextInt(" + LOWER_INT + ", " + UPPER_INT + ") took " + timer.capture() + " ms");
 		}
 		for (int i=0; i<NCOUNT; i++) {
-			random.nextInt(lower, upper); // XXX which Java version is required ?
+			random.nextInt(LOWER_INT, UPPER_INT); // XXX which Java version is required ?
 		}
-		LOG.debug("Random.nextInt(lower, upper) took " + timer.capture() + " ms");
+		LOG.debug("Random.nextInt(" + LOWER_INT + ", " + UPPER_INT + ") took " + timer.capture() + " ms");
 		*/
 		for (int i=0; i<NCOUNT; i++) {
-			rng.nextInt(lower, upper);
+			rng.nextInt(LOWER_INT, UPPER_INT);
 		}
-		LOG.debug("Rng.nextInt(lower, upper) took " + timer.capture() + " ms");
+		LOG.debug("Rng.nextInt(" + LOWER_INT + ", " + UPPER_INT + ") took " + timer.capture() + " ms");
 		for (int i=0; i<NCOUNT; i++) {
-			spRand32.nextInt(lower, upper);
+			spRand32.nextInt(LOWER_INT, UPPER_INT);
 		}
-		LOG.debug("SpRand32.nextInt(lower, upper) took " + timer.capture() + " ms");
+		LOG.debug("SpRand32.nextInt(" + LOWER_INT + ", " + UPPER_INT + ") took " + timer.capture() + " ms");
 		for (int i=0; i<NCOUNT; i++) {
-			xorshf32.nextInt(lower, upper);
+			xorshf32.nextInt(LOWER_INT, UPPER_INT);
 		}
-		LOG.debug("Xorshf32.nextInt(lower, upper) took " + timer.capture() + " ms");
+		LOG.debug("Xorshf32.nextInt(" + LOWER_INT + ", " + UPPER_INT + ") took " + timer.capture() + " ms");
 		for (int i=0; i<NCOUNT; i++) {
-			xorshf32b.nextInt(lower, upper);
+			xorshf32b.nextInt(LOWER_INT, UPPER_INT);
 		}
-		LOG.debug("Xorshf32b.nextInt(lower, upper) took " + timer.capture() + " ms");
+		LOG.debug("Xorshf32b.nextInt(" + LOWER_INT + ", " + UPPER_INT + ") took " + timer.capture() + " ms");
 		
 		// test nextLong()
 		if (TEST_SLOW) {
@@ -173,17 +176,15 @@ public class RngPerformanceTest {
 		LOG.debug("Xorshf64.nextLong() took " + timer.capture() + " ms");
 		
 		// test nextLong(long upper)
-		long upperLong = 1L<<55;
 		for (int i=0; i<NCOUNT; i++) {
-			xorshf64.nextLong(upperLong);
+			xorshf64.nextLong(UPPER_LONG);
 		}
-		LOG.debug("Xorshf64.nextLong(upper) took " + timer.capture() + " ms");
+		LOG.debug("Xorshf64.nextLong(" + UPPER_LONG + ") took " + timer.capture() + " ms");
 
 		// test nextLong(long lower, long upper)
-		long lowerLong = 1L<<20;
 		for (int i=0; i<NCOUNT; i++) {
-			xorshf64.nextLong(lowerLong, upperLong);
+			xorshf64.nextLong(LOWER_LONG, UPPER_LONG);
 		}
-		LOG.debug("Xorshf64.nextLong(lower, upper) took " + timer.capture() + " ms");
+		LOG.debug("Xorshf64.nextLong(" + LOWER_LONG + ", " + UPPER_LONG + ") took " + timer.capture() + " ms");
 	}
 }
