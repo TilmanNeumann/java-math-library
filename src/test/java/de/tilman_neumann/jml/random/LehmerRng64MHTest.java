@@ -42,12 +42,20 @@ public class LehmerRng64MHTest {
 	@Test
 	public void testNextLongNoArgs() {
 		long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
+		boolean generatesEven = false, generatesOdd = false;
 		for (int i=0; i<NCOUNT; i++) {
 			long n = rng.nextLong();
 			if (n<min) min = n;
 			if (n>max) max = n;
+			if ((n & 1) == 1) {
+				generatesOdd = true;
+			} else {
+				generatesEven = true;
+			}
 		}
 		LOG.debug(NCOUNT + " numbers from " + rng.getClass().getSimpleName() + ".nextLong() gave min = " + min + ", max = " + max);
 		assertTrue(min < 0);
+		assertTrue(generatesEven);
+		assertTrue(generatesOdd);
 	}
 }

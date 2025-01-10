@@ -44,38 +44,50 @@ public class SpRand32Test {
 	@Test
 	public void testNextIntNoArgs() {
 		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+		boolean generatesEven = false, generatesOdd = false;
 		for (int i=0; i<NCOUNT; i++) {
 			int n = rng.nextInt();
 			if (n<min) min = n;
 			if (n>max) max = n;
+			if ((n & 1) == 1) generatesOdd = true; else generatesEven = true;
 		}
 		LOG.debug(NCOUNT + " numbers from " + rng.getClass().getSimpleName() + ".nextInt() gave min = " + min + ", max = " + max);
 		assertTrue(min >= 0);
+		assertTrue(generatesEven);
+		assertTrue(generatesOdd);
 	}
 	
 	@Test
 	public void testNextIntUpperBound() {
 		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+		boolean generatesEven = false, generatesOdd = false;
 		for (int i=0; i<NCOUNT; i++) {
 			int n = rng.nextInt(UPPER);
 			if (n<min) min = n;
 			if (n>max) max = n;
+			if ((n & 1) == 1) generatesOdd = true; else generatesEven = true;
 		}
 		LOG.debug(NCOUNT + " numbers from " + rng.getClass().getSimpleName() + ".nextInt(" + UPPER + ") gave min = " + min + ", max = " + max);
 		assertTrue(min >= 0);
 		assertTrue(max <= UPPER);
+		assertTrue(generatesEven);
+		assertTrue(generatesOdd);
 	}
 	
 	@Test
 	public void testNextIntLowerUpperBound() {
 		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+		boolean generatesEven = false, generatesOdd = false;
 		for (int i=0; i<NCOUNT; i++) {
 			int n = rng.nextInt(LOWER, UPPER);
 			if (n<min) min = n;
 			if (n>max) max = n;
+			if ((n & 1) == 1) generatesOdd = true; else generatesEven = true;
 		}
 		LOG.debug(NCOUNT + " numbers from " + rng.getClass().getSimpleName() + ".nextInt(" + LOWER + ", " + UPPER + ") gave min = " + min + ", max = " + max);
 		assertTrue(min >= LOWER);
 		assertTrue(max <= UPPER);
+		assertTrue(generatesEven);
+		assertTrue(generatesOdd);
 	}
 }
