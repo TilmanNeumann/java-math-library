@@ -13,6 +13,8 @@
  */
 package de.tilman_neumann.jml.random;
 
+import de.tilman_neumann.jml.base.Uint128;
+
 /**
  * 64 bit random number generator adapted from https://rosettacode.org/wiki/Pseudo-random_numbers/Splitmix64.
  * 
@@ -45,5 +47,19 @@ public final class SplitMix64 {
 	    z = (z ^ (z>>>30)) * constant2;
 	    z = (z ^ (z>>>27)) * constant3;
 	    return z ^ (z>>>31);
+	}
+	
+	/**
+	 * @param max
+	 * @return a random long number N with 0 <= N <= max.
+	 */
+	public long nextLong(long max) {
+		final long l = nextLong(); // take it as unsigned
+		final Uint128 prod = Uint128.mul64_MH(l, max);
+	    return prod.getHigh();
+	}
+
+	public long nextLong(long min, long max) {
+	    return min + nextLong(max - min);
 	}
 }
