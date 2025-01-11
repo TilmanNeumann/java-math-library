@@ -20,7 +20,7 @@ package de.tilman_neumann.jml.random;
  * 
  * @author Tilman Neumann
  */
-final class SplitMix64 {
+public final class SplitMix64 {
 	
 	private static final long constant1 = 0x9e3779b97f4a7c15L;
 	private static final long constant2 = 0xbf58476d1ce4e5b9L;
