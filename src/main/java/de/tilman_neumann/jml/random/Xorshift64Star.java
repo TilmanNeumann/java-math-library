@@ -16,38 +16,29 @@ package de.tilman_neumann.jml.random;
 import de.tilman_neumann.jml.base.Uint128;
 
 /**
- * 64 bit random number generator adapted from https://rosettacode.org/wiki/Pseudo-random_numbers/Splitmix64.
- * 
- * Very fast, but its statistical properties are poor.
- * But according to https://en.wikipedia.org/wiki/Xorshift#Initialization, it is well-suited to initialize other random generators.
- * 
+ * 64 bit random number generator adapted from https://nullprogram.com/blog/2017/09/21/.
+. * 
  * @author Tilman Neumann
  */
-public final class SplitMix64 {
+public class Xorshift64Star {
 	
-	private static final long constant1 = 0x9e3779b97f4a7c15L;
-	private static final long constant2 = 0xbf58476d1ce4e5b9L;
-	private static final long constant3 = 0x94d049bb133111ebL;
-    
-	private long state;
-
-	public SplitMix64() {
-		state = 90832436910930047L; // just some semiprime, arbitrary choice
+	private static final long multiplier = 0x2545f4914f6cdd1dL;
+	
+	private long state0;
+	
+	public Xorshift64Star() {
+		SplitMix64 splitMix = new SplitMix64();
+		long seed = System.currentTimeMillis();
+		state0 = seed ^ splitMix.nextLong();
 	}
 	
-	public SplitMix64(long aSeed) {
-		state = aSeed;
-	}
-	
-	public void seed(long aNumber) {
-		state = aNumber;
-	}
-    
 	public long nextLong() {
-	    long z = (state += constant1);
-	    z = (z ^ (z>>>30)) * constant2;
-	    z = (z ^ (z>>>27)) * constant3;
-	    return z ^ (z>>>31);
+	    long x = state0;
+	    x ^= x >>> 12;
+	    x ^= x << 25;
+	    x ^= x >>> 27;
+	    state0 = x;
+	    return x * multiplier;
 	}
 	
 	/**
@@ -59,7 +50,7 @@ public final class SplitMix64 {
 		final Uint128 prod = Uint128.mul64_MH(l, max);
 	    return prod.getHigh();
 	}
-
+	
 	public long nextLong(long min, long max) {
 	    return min + nextLong(max - min);
 	}

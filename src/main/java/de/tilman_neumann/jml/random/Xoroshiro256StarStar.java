@@ -16,38 +16,42 @@ package de.tilman_neumann.jml.random;
 import de.tilman_neumann.jml.base.Uint128;
 
 /**
- * 64 bit random number generator adapted from https://rosettacode.org/wiki/Pseudo-random_numbers/Splitmix64.
+ * 64 bit random number generator adapted from https://en.wikipedia.org/wiki/Xorshift.
  * 
- * Very fast, but its statistical properties are poor.
- * But according to https://en.wikipedia.org/wiki/Xorshift#Initialization, it is well-suited to initialize other random generators.
+ * This seems to be the best 64 bit pseudo-random number generator these days, see also https://nullprogram.com/blog/2017/09/21/
  * 
  * @author Tilman Neumann
  */
-public final class SplitMix64 {
+public class Xoroshiro256StarStar {
 	
-	private static final long constant1 = 0x9e3779b97f4a7c15L;
-	private static final long constant2 = 0xbf58476d1ce4e5b9L;
-	private static final long constant3 = 0x94d049bb133111ebL;
-    
-	private long state;
-
-	public SplitMix64() {
-		state = 90832436910930047L; // just some semiprime, arbitrary choice
+	private long state0, state1, state2, state3;
+	
+	public Xoroshiro256StarStar() {
+		SplitMix64 splitMix = new SplitMix64();
+		long seed = System.currentTimeMillis();
+		state0 = seed ^ splitMix.nextLong();
+		state1 = seed ^ splitMix.nextLong();
+		state2 = seed ^ splitMix.nextLong();
+		state3 = seed ^ splitMix.nextLong();
 	}
 	
-	public SplitMix64(long aSeed) {
-		state = aSeed;
-	}
-	
-	public void seed(long aNumber) {
-		state = aNumber;
-	}
-    
 	public long nextLong() {
-	    long z = (state += constant1);
-	    z = (z ^ (z>>>30)) * constant2;
-	    z = (z ^ (z>>>27)) * constant3;
-	    return z ^ (z>>>31);
+		final long result = rol64(state1 * 5, 7) * 9;
+		final long t = state1 << 17;
+
+		state2 ^= state0;
+		state3 ^= state1;
+		state1 ^= state2;
+		state0 ^= state3;
+
+		state2 ^= t;
+		state3 = rol64(state3, 45);
+
+		return result;
+	}
+	
+	private static long rol64(long x, int k) {
+		return (x << k) | (x >>> (64 - k));
 	}
 	
 	/**
@@ -59,7 +63,7 @@ public final class SplitMix64 {
 		final Uint128 prod = Uint128.mul64_MH(l, max);
 	    return prod.getHigh();
 	}
-
+	
 	public long nextLong(long min, long max) {
 	    return min + nextLong(max - min);
 	}
