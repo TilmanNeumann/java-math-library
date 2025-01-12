@@ -57,7 +57,33 @@ public class Rng extends Random {
 	 * @return random int in the desired range
 	 */
 	public int nextInt(int minValue, int maxValue) {
-		return minValue + nextInt(maxValue - minValue);
+		int diff = maxValue - minValue;
+		if (diff < 1) throw new IllegalArgumentException("maxValue=" + maxValue + " must be bigger than minValue=" + minValue);
+		int rand = nextInt(diff); // 0...(diff-1)
+		return minValue + rand;
+	}
+
+	/**
+	 * Creates a random long from the uniform distribution U[0, maxValue-1].
+	 * The only requirement is maxValue > 0.
+	 * @param maxValue
+	 * @return random long in the desired range
+	 */
+	public long nextLong(long maxValue) {
+		if (maxValue < 1) {
+			throw new IllegalArgumentException("maxValue = " + maxValue + " is not positive");
+		}
+		
+		long rand = nextLong(); // Long.MIN_VALUE...Long.MAX_VALUE
+		long normalized; // shall become 0...(max-1)
+		if (rand >= 0) {
+			normalized = rand % maxValue;
+		} else if (rand > Long.MIN_VALUE) {
+			normalized = (-rand) % maxValue;
+		} else { // special treatment because -Long.MIN_VALUE == Long.MIN_VALUE
+			normalized = Long.MAX_VALUE % maxValue;
+		}
+		return normalized;
 	}
 
 	/**
@@ -68,7 +94,10 @@ public class Rng extends Random {
 	 * @return random long in the desired range
 	 */
 	public long nextLong(long minValue, long maxValue) {
-		return minValue + nextLong(maxValue - minValue);
+		long diff = maxValue - minValue;
+		if (diff < 1) throw new IllegalArgumentException("maxValue=" + maxValue + " must be bigger than minValue=" + minValue);
+		long rand = nextLong(diff); // 0...(diff-1)
+		return minValue + rand;
 	}
 	
 	/**
