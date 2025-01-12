@@ -27,6 +27,7 @@ import de.tilman_neumann.jml.factor.base.matrixSolver.MatrixSolverBlockLanczos;
 import de.tilman_neumann.jml.factor.ecm.EllipticCurveMethod;
 import de.tilman_neumann.jml.factor.ecm.TinyEcm64MHInlined;
 import de.tilman_neumann.jml.factor.hart.HartFast2Mult;
+import de.tilman_neumann.jml.factor.pollardRho.PollardRhoBrentMontgomery64MH;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS;
 import de.tilman_neumann.jml.factor.psiqs.PSIQS_U;
 import de.tilman_neumann.jml.factor.siqs.SIQS;
@@ -61,6 +62,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	private TDiv31Barrett tDiv31 = new TDiv31Barrett();
 	private HartFast2Mult hart = new HartFast2Mult(true); // for general factor arguments, trial division is needed
 	private TinyEcm64MHInlined tinyEcm = new TinyEcm64MHInlined();
+	private PollardRhoBrentMontgomery64MH pollardRhoBrentMontgomery64MH = new PollardRhoBrentMontgomery64MH();
 	private TDiv tdiv = new TDiv();
 	private EllipticCurveMethod ecm = new EllipticCurveMethod(0);
 
@@ -123,6 +125,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 		if (NBits<25) return tDiv31.findSingleFactor(N);
 		if (NBits<46) return hart.findSingleFactor(N);
 		if (NBits<63) return tinyEcm.findSingleFactor(N);
+		if (NBits<64) return pollardRhoBrentMontgomery64MH.findSingleFactor(N);
 		if (NBits<=150) return siqsForSmallArgs.findSingleFactor(N);
 		return siqsForBigArgs.findSingleFactor(N);
 	}

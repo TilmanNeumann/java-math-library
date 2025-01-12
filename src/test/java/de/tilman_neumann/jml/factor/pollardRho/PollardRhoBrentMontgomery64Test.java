@@ -86,6 +86,7 @@ public class PollardRhoBrentMontgomery64Test {
 	public void testCompositesWithManyFactors() {
 		assertFactorizationSuccess(35184372094495L, "5 * 13^2 * 17 * 19 * 29 * 47 * 271 * 349"); // 46 bit
 		assertFactorizationSuccess(1096954293075013905L, "3 * 5 * 7^2 * 169681 * 8795650783"); // 60 bit
+		assertFactorizationSuccess(9223372036854775807L, "7^2 * 73 * 127 * 337 * 92737 * 649657"); // Long.MAX_VALUE = 2^63-1 
 		assertFactorizationSuccess(1100087778366101931L, "3 * 7 * 43 * 89 * 199 * 263 * 307 * 881 * 967"); // Fibonacci(88), 60 bit
 	}
 	
