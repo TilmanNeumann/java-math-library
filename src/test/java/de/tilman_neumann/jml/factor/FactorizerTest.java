@@ -76,6 +76,9 @@ public class FactorizerTest {
 	private static final Integer MAX_BITS = 31;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 1;
+	/** number of warmup rounds */
+	private static final int WARUMPS = 0;
+	
 	/** Nature of test numbers */
 	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
 	/** Test mode */
@@ -221,7 +224,7 @@ public class FactorizerTest {
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
 		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<Long, List<FactorAlgorithm>>();
-		for (int i=0; i < REPEATS + 1; i++) { // round 0 is a warmup-round
+		for (int round=0; round < WARUMPS + REPEATS; round++) {
 			for (FactorAlgorithm algorithm : algorithms) {
 				// exclude special size implementations
 				String algName = algorithm.getName();
@@ -259,7 +262,7 @@ public class FactorizerTest {
 					duration = endTimeMillis - startTimeMillis; // duration in ms
 					//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
 					
-					if (i==0) {
+					if (round==0) {
 						// test correctness
 						for (int j=0; j<N_COUNT; j++) {
 							BigInteger N = testNumbers[j];
@@ -290,7 +293,7 @@ public class FactorizerTest {
 					duration = endTimeMillis - startTimeMillis; // duration in ms
 					//LOG.debug("algorithm " + algName + " finished test set with " + bits + " bits");
 					
-					if (i==0) {
+					if (round==0) {
 						// test correctness
 						for (int j=0; j<N_COUNT; j++) {
 							BigInteger N = testNumbers[j];
@@ -331,7 +334,7 @@ public class FactorizerTest {
 				default: throw new IllegalArgumentException("TestMode = " + TEST_MODE);
 				}
 				
-				if (i > 0) {
+				if (round >= WARUMPS) {
 					// add performance results
 					List<FactorAlgorithm> algList = ms_2_algorithms.get(duration);
 					if (algList==null) algList = new ArrayList<FactorAlgorithm>();
@@ -339,7 +342,7 @@ public class FactorizerTest {
 					ms_2_algorithms.put(duration, algList);
 				}
 				
-				if (i==0) {
+				if (round==0) {
 					// failure summary
 					if (failCount>0) {
 						LOG.error("FactorAlgorithm " + algorithm.getName() + " failed at " + failCount + "/" + N_COUNT + " test numbers");
