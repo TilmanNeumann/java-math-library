@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -50,7 +50,7 @@ public class PollardRhoBrentMontgomery64MHInlined extends FactorAlgorithm {
 	private static final Logger LOG = LogManager.getLogger(PollardRhoBrentMontgomery64MHInlined.class);
 	private static final boolean DEBUG = false;
 
-	private static final Rng RNG = new Rng();
+	private static final Rng RNG = new Rng(); // the numbers produced by java.util.Random.nextLong(bound) have better quality, but that needs Java 17
 
 	// The reducer R is 2^64, but the only constant still required is the half of it.
 	private static final long R_HALF = 1L << 63;

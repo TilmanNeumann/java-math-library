@@ -57,15 +57,15 @@ public class Rng extends Random {
 	 * @return random int in the desired range
 	 */
 	public int nextInt(int minValue, int maxValue) {
-		int diff = maxValue - minValue;
-		if (diff < 1) throw new IllegalArgumentException("maxValue=" + maxValue + " must be bigger than minValue=" + minValue);
-		int rand = nextInt(diff); // 0...(diff-1)
-		return minValue + rand;
+		return minValue + nextInt(maxValue - minValue);
 	}
 
 	/**
 	 * Creates a random long from the uniform distribution U[0, maxValue-1].
 	 * The only requirement is maxValue > 0.
+	 * 
+	 * The numbers produced by java.util.Random.nextLong(bound) have better quality, but that needs Java 17.
+	 * 
 	 * @param maxValue
 	 * @return random long in the desired range
 	 */
@@ -94,10 +94,7 @@ public class Rng extends Random {
 	 * @return random long in the desired range
 	 */
 	public long nextLong(long minValue, long maxValue) {
-		long diff = maxValue - minValue;
-		if (diff < 1) throw new IllegalArgumentException("maxValue=" + maxValue + " must be bigger than minValue=" + minValue);
-		long rand = nextLong(diff); // 0...(diff-1)
-		return minValue + rand;
+		return minValue + nextLong(maxValue - minValue);
 	}
 	
 	/**

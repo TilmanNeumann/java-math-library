@@ -123,12 +123,12 @@ public class RngPerformanceTest {
 		/*
 		if (TEST_SLOW) {
 			for (int i=0; i<NCOUNT; i++) {
-				secureRandom.nextInt(LOWER_INT, UPPER_INT); // XXX which Java version is required ?
+				secureRandom.nextInt(LOWER_INT, UPPER_INT); // needs Java 17
 			}
 			LOG.debug("SecureRandom.nextInt(" + LOWER_INT + ", " + UPPER_INT + ") took " + timer.capture() + " ms");
 		}
 		for (int i=0; i<NCOUNT; i++) {
-			random.nextInt(LOWER_INT, UPPER_INT); // XXX which Java version is required ?
+			random.nextInt(LOWER_INT, UPPER_INT); // needs Java 17
 		}
 		LOG.debug("Random.nextInt(" + LOWER_INT + ", " + UPPER_INT + ") took " + timer.capture() + " ms");
 		*/
