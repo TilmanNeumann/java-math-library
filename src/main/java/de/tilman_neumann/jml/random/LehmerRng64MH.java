@@ -18,7 +18,7 @@ import de.tilman_neumann.jml.base.Uint128;
 /**
  * Lehmer's random number generator for 64 bit numbers; requires 128 bit multiplication internally.
  * 
- * This variant uses using Math.multiplyHigh().
+ * This variant is using Math.multiplyHigh().
  * 
  * @see https://en.wikipedia.org/wiki/Lehmer_random_number_generator
  */
