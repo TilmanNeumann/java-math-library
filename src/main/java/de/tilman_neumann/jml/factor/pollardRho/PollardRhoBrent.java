@@ -71,6 +71,7 @@ public class PollardRhoBrent extends FactorAlgorithm {
 	    	        final int iMax = Math.min(m, r-k);
 	    	        for (int i=1; i<=iMax; i++) {
 	    	            y = squareAddModN(y, c);
+						// In BigInteger variants it is slightly faster to use the absolute value of the difference
 	    	            final BigInteger diff = x.compareTo(y) < 0 ? y.subtract(x) : x.subtract(y);
 	    	            q = diff.multiply(q).mod(N);
 	    	        }

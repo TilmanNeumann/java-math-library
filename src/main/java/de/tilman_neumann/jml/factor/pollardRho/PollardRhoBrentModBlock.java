@@ -81,7 +81,9 @@ public class PollardRhoBrentModBlock extends FactorAlgorithm {
 					for (int i = 1; i <= iMax; i = i + jMax) {
 						for (int j = 0; j < jMax; j++) {
 							y = squareAddModN(y, c);
-							q = q.multiply(x.subtract(y));
+							// In BigInteger variants it is slightly faster to use the absolute value of the difference
+		    	            final BigInteger diff = x.compareTo(y) < 0 ? y.subtract(x) : x.subtract(y);
+		    	            q = diff.multiply(q).mod(N);
 						}
 						q = q.mod(N); // one mod for the block
 					}
@@ -97,7 +99,8 @@ public class PollardRhoBrentModBlock extends FactorAlgorithm {
 	    	if (G.equals(N)) {
 	    	    do {
 	    	        ys = squareAddModN(ys, c);
-	    	        G = N.gcd(x.subtract(ys));
+    	            final BigInteger diff = x.compareTo(ys) < 0 ? ys.subtract(x) : x.subtract(ys);
+    	            G = diff.gcd(N);
 	    	    } while (G.equals(I_1));
 	    	    if (DEBUG) LOG.debug("G = " + G);
 	    	}

@@ -67,7 +67,9 @@ public class PollardRhoTwoLoops extends FactorAlgorithm {
 		            x  = squareAddModN(x, c);
 		            xx = squareAddModN(xx, c);
 		            xx = squareAddModN(xx, c);
-		            prod = prod.multiply(x.subtract(xx)).mod(N);
+					// In BigInteger variants it is slightly faster to use the absolute value of the difference
+    	            final BigInteger diff = x.compareTo(xx) < 0 ? xx.subtract(x) : x.subtract(xx);
+		            prod = diff.multiply(prod).mod(N);
 	        	}
 	            gcd = prod.gcd(N);
 	        } while (gcd.equals(I_1));
@@ -76,7 +78,8 @@ public class PollardRhoTwoLoops extends FactorAlgorithm {
 		            xs  = squareAddModN(xs, c);
 		            xxs = squareAddModN(xxs, c);
 		            xxs = squareAddModN(xxs, c);
-	    	        gcd = N.gcd(xs.subtract(xxs));
+    	            final BigInteger diff = xs.compareTo(xxs) < 0 ? xxs.subtract(xs) : xs.subtract(xxs);
+	    	        gcd = diff.gcd(N);
 	    	    } while (gcd.equals(I_1));
 	    	}	        
 	    // leave loop if factor found; otherwise continue with a new random c

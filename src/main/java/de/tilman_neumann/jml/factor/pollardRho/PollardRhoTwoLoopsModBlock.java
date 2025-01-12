@@ -82,12 +82,14 @@ public class PollardRhoTwoLoopsModBlock extends FactorAlgorithm {
     		            x  = squareAddModN(x, c);
     		            xx = squareAddModN(xx, c);
     		            xx = squareAddModN(xx, c);
-    		            prod = prod.multiply(x.subtract(xx));
+						// In BigInteger variants it is slightly faster to use the absolute value of the difference
+        	            final BigInteger diff = x.compareTo(xx) < 0 ? xx.subtract(x) : x.subtract(xx);
+    		            prod = diff.multiply(prod);
     	        	}
     	        	prod = prod.mod(N);
     	        }
 	            gcd = prod.gcd(N);
-	            // grow the gdBlock like R in Brent
+	            // grow the gdBlock like R in Brent; this improves performance for "larger" N only, like 70 bit or more
 		    	if (gcdBlock<gcdBlockMax) {
 		    		gcdBlock <<= 1;
 		    		if (gcdBlock > gcdBlockMax) gcdBlock = gcdBlockMax;
@@ -99,7 +101,8 @@ public class PollardRhoTwoLoopsModBlock extends FactorAlgorithm {
 		            xs  = squareAddModN(xs, c);
 		            xxs = squareAddModN(xxs, c);
 		            xxs = squareAddModN(xxs, c);
-	    	        gcd = xs.subtract(xxs).gcd(N);
+    	            final BigInteger diff = xs.compareTo(xxs) < 0 ? xxs.subtract(xs) : xs.subtract(xxs);
+	    	        gcd = diff.gcd(N);
 	    	    } while (gcd.equals(I_1));
 	    	}	        
 	    // leave loop if factor found; otherwise continue with a new random c
