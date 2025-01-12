@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -13,8 +13,11 @@
  */
 package de.tilman_neumann.jml.primes.exact;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
-import java.util.Scanner;
+
+import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 
 public class SSOZJ5Runner {
 
@@ -23,18 +26,31 @@ public class SSOZJ5Runner {
 	 * @param args ignored
 	 */
 	public static void main(String[] args) {
-		Scanner userInput = new Scanner(System.in).useDelimiter("[,\\s+]");
-		System.out.println("Please enter a space-separated range of integers: ");
-		BigInteger stop = userInput.nextBigDecimal().toBigIntegerExact();
-		BigInteger start = userInput.nextBigDecimal().toBigIntegerExact();
-		userInput.close();
+	   	while (true) {
+			try {
+				System.out.println("\nPlease enter the range in integer(s) [<start>] <stop>:");
+				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+				String line = in.readLine();
+				String[] splitted = line.split("\\s+");
+				int argc = splitted!=null ? splitted.length : 0;
+				BigInteger start, stop;
+				if (argc == 0 || argc > 2) {
+					System.err.println("Illegal input.");
+					continue;
+				}
+				if (argc == 1) {
+					start = I_0;
+					stop = new BigInteger(splitted[0]);
+				} else {
+					start = new BigInteger(splitted[0]);
+					stop = new BigInteger(splitted[1]);
+				}
 
-		if (stop.compareTo(start) < 0) {
-			BigInteger tmp = start;
-			start = stop;
-			stop = tmp;
+				SSOZJ5.twinprimes_ssoz(start, stop);
+		        
+			} catch (Exception e) {
+				System.err.println("Error " + e);
+			}
 		}
-		
-		SSOZJ5.twinprimes_ssoz(start, stop);
 	}
 }
