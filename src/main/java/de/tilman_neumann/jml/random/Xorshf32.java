@@ -14,10 +14,9 @@
 package de.tilman_neumann.jml.random;
 
 /**
- * Java port of Marsaglia's xorshf generator.
- * @see https://stackoverflow.com/questions/1640258/need-a-fast-random-generator-for-c<br/><br/>
+ * Java port of Marsaglia's xorshf 32 bit random number generator, adapted from https://stackoverflow.com/questions/1640258/need-a-fast-random-generator-for-c.
  * 
- * This generator is special in that nextInt() creates strictly non-negative random numbers.
+ * This version seems out-dated, the variant described in https://en.wikipedia.org/wiki/Xorshift uses other shifts...
  * 
  * @author Tilman Neumann
  */
