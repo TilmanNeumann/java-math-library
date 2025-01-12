@@ -25,11 +25,10 @@ public class Xorshf32 {
 	
 	private int x=123456789, y=362436069, z=521288629;
 	
+	/**
+	 * @return a random long number N with Integer.MIN_VALUE <= N <= Integer.MAX_VALUE.
+	 */
 	public int nextInt() {
-	    return nextInt(Integer.MAX_VALUE);
-	}
-
-	public int nextInt(int max) {
 		int t;
 	    x ^= x << 16;
 	    x ^= x >> 5;
@@ -40,9 +39,19 @@ public class Xorshf32 {
 	    y = z;
 	    z = t ^ x ^ y;
 
-	    return Math.abs(z % max);
+	    return z;
 	}
-
+	
+	/**
+	 * @param max
+	 * @return a random int number N with 0 <= N <= max.
+	 */
+	public int nextInt(int max) {
+		final long l = nextInt() & 0xFFFFFFFFL; // take it as unsigned
+		final long prod = l * max;
+	    return (int) (prod >>> 32);
+	}
+	
 	public int nextInt(int min, int max) {
 	    return min + nextInt(max - min);
 	}

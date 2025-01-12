@@ -57,7 +57,7 @@ public class Xorshf32Test {
 		}
 		LOG.debug("First 100 elements: " + Arrays.toString(firstElements));
 		LOG.debug(NCOUNT + " numbers from " + rng.getClass().getSimpleName() + ".nextInt() gave min = " + min + ", max = " + max);
-		assertTrue(min >= 0);
+		assertTrue(min < 0);
 		assertTrue(generatesEven);
 		assertTrue(generatesOdd);
 	}
