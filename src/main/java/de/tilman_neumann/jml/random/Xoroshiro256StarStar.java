@@ -16,9 +16,10 @@ package de.tilman_neumann.jml.random;
 import de.tilman_neumann.jml.base.Uint128;
 
 /**
- * 64 bit random number generator adapted from https://en.wikipedia.org/wiki/Xorshift.
+ * xoroshiro256** is a 64 bit random number generator using 256 bit state.
+ * Adapted from https://en.wikipedia.org/wiki/Xorshift.
  * 
- * This seems to be the best 64 bit pseudo-random number generator these days, see also https://nullprogram.com/blog/2017/09/21/
+ * This seems to be one of the best 64 bit pseudo-random number generators these days, see also https://nullprogram.com/blog/2017/09/21/
  * 
  * @author Tilman Neumann
  */

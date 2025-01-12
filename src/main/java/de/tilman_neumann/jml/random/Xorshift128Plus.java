@@ -16,7 +16,8 @@ package de.tilman_neumann.jml.random;
 import de.tilman_neumann.jml.base.Uint128;
 
 /**
- * 64 bit random number generator adapted from https://nullprogram.com/blog/2017/09/21/.
+ * xorshift128+ is a 64 bit random number generator using 128 bit state.
+ * Adapted from https://nullprogram.com/blog/2017/09/21/.
 . * 
  * @author Tilman Neumann
  */

@@ -17,7 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * My Java port of the pseudo-random number generator from tinyEcm.c by Ben Buhrow.
+ * My Java port of the 32-bit pseudo-random number generator from tinyEcm.c by Ben Buhrow.
  * 
  * This generator is special in that nextInt() creates strictly non-negative random numbers.
  * 

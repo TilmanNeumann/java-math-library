@@ -16,10 +16,11 @@ package de.tilman_neumann.jml.random;
 import de.tilman_neumann.jml.base.Uint128;
 
 /**
- * 64 bit random number generator adapted from https://rosettacode.org/wiki/Pseudo-random_numbers/Splitmix64.
+ * splitmix64 is a 64 bit random number generator with 64 bit state.
+ * Adapted from https://rosettacode.org/wiki/Pseudo-random_numbers/Splitmix64.
  * 
  * Very fast, but its statistical properties are poor.
- * But according to https://en.wikipedia.org/wiki/Xorshift#Initialization, it is well-suited to initialize other random generators.
+ * According to https://en.wikipedia.org/wiki/Xorshift#Initialization, it is well-suited to initialize other random generators.
  * 
  * @author Tilman Neumann
  */

@@ -18,7 +18,7 @@ import de.tilman_neumann.jml.base.Uint128;
 /**
  * Lehmer's random number generator for 64 bit numbers; requires 128 bit multiplication internally.
  * 
- * This is class is still <strong>experimental</strong>. It seems to work but not much faster than Random yet.
+ * It seems to work but not much faster than Random yet.
  * 
  * @see https://en.wikipedia.org/wiki/Lehmer_random_number_generator
  */
