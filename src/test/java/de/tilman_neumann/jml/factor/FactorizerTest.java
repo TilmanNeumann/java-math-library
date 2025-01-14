@@ -49,7 +49,12 @@ import de.tilman_neumann.util.*;
 /**
  * Main class to compare the performance of factor algorithms.
  * 
- * Does one warmup-round and a System.gc() before each algorithm is tested.
+ * Unfortunately, the timing results produced by this class may be quite inaccurate.
+ * 
+ * The main problem is that the Hotspot compiler optimizes the code from the first several thousand tests.
+ * If you run tests from 50 to 100 bits, the code will be optimized for the 50 bit numbers and the results for 100 bit numbers will be quite inaccurate.
+ * 
+ * I should be use scripts that restart the JVM for every new bitsize...
  * 
  * @author Tilman Neumann
  */
@@ -377,7 +382,8 @@ public class FactorizerTest {
 			// test N with the given number of bits, i.e. 2^(bits-1) <= N <= (2^bits)-1
 			testEngine.testRange(bits);
 			bits += INCR_BITS;
-			if (MAX_BITS!=null && bits > MAX_BITS) break;
+			// permit the generator to run from bigger to smaller test numbers, too
+			if (MAX_BITS!=null && ((INCR_BITS > 0 && bits > MAX_BITS) || (INCR_BITS < 0 && bits < MAX_BITS))) break;
 		}
 	}
 }
