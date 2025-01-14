@@ -13,14 +13,14 @@
  */
 package de.tilman_neumann.jml.random;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.Random;
+
+import de.tilman_neumann.util.Ensure;
 
 /**
  * 64 bit random number generator using Random.nextLong() and the strategy from Java17 for Random.nextLong(long maxValue).
  */
-public abstract class Random64 {
+public class Random64 {
 
 	private static final boolean DEBUG = false;
 	
@@ -58,10 +58,10 @@ public abstract class Random64 {
         while (true) {
         	r = u % maxValue; // now 0 <= r <= u and r < maxValue
         	if (DEBUG) {
-	        	assertTrue(u >= 0);
-	        	assertTrue(r >= 0);
-	        	assertTrue(r <= u);
-	        	assertTrue(r < maxValue);
+	        	Ensure.ensureGreaterEquals(u, 0L);
+	        	Ensure.ensureGreaterEquals(r, 0);
+	        	Ensure.ensureSmallerEquals(r, u);
+	        	Ensure.ensureSmaller(r, maxValue);
         	}
         	// Using the modulus r = u % maxValue to obtain random numbers < maxValue has its caveats...
             // If u is close to 2^63, then r much smaller than maxValue are over-represented.
