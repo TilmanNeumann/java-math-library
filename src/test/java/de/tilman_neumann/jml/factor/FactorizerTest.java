@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -18,7 +18,9 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -228,7 +230,7 @@ public class FactorizerTest {
 		}
 		
 		// take REPEATS timings for each algorithm to be quite sure that one timing is not falsified by garbage collection
-		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<Long, List<FactorAlgorithm>>();
+		Map<FactorAlgorithm, List<Long>> algorithmTimings = new HashMap<>();
 		for (int round=0; round < WARUMPS + REPEATS; round++) {
 			for (FactorAlgorithm algorithm : algorithms) {
 				// exclude special size implementations
@@ -341,10 +343,10 @@ public class FactorizerTest {
 				
 				if (round >= WARUMPS) {
 					// add performance results
-					List<FactorAlgorithm> algList = ms_2_algorithms.get(duration);
-					if (algList==null) algList = new ArrayList<FactorAlgorithm>();
-					algList.add(algorithm);
-					ms_2_algorithms.put(duration, algList);
+					List<Long> timings = algorithmTimings.get(algorithm);
+					if (timings == null) timings = new ArrayList<>();
+					timings.add(duration);
+					algorithmTimings.put(algorithm, timings);
 				}
 				
 				if (round==0) {
@@ -356,14 +358,26 @@ public class FactorizerTest {
 			}
 		}
 		
-		// log best algorithms first
+		// compute timing sums and log best algorithms first
+		TreeMap<Long, List<FactorAlgorithm>> ms_2_algorithms = new TreeMap<Long, List<FactorAlgorithm>>();
+		for (FactorAlgorithm algorithm : algorithmTimings.keySet()) {
+			List<Long> timings = algorithmTimings.get(algorithm);
+			long durationSum = 0;
+			for (long timing : timings) durationSum += timing;
+
+			List<FactorAlgorithm> algList = ms_2_algorithms.get(Long.valueOf(durationSum));
+			if (algList==null) algList = new ArrayList<FactorAlgorithm>();
+			algList.add(algorithm);
+			ms_2_algorithms.put(Long.valueOf(durationSum), algList);
+		}
+		
 		int rank=1;
 		for (long ms : ms_2_algorithms.keySet()) {
 			List<FactorAlgorithm> algList = ms_2_algorithms.get(ms);
 			int j=0;
 			for (FactorAlgorithm algorithm : algList) {
 				String durationStr = TimeUtil.timeStr(ms);
-				LOG.info("#" + rank + ": Algorithm " + algorithm.getName() + " took " + durationStr);
+				LOG.info("#" + rank + ": Algorithm " + algorithm.getName() + " took " + durationStr + " (" + algorithmTimings.get(algorithm) + " ms)");
 				j++;
 			}
 			rank += j;
