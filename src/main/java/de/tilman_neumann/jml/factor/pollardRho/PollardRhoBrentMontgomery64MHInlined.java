@@ -184,7 +184,7 @@ public class PollardRhoBrentMontgomery64MHInlined extends FactorAlgorithm {
 		// Since R=2^64, "x / R" just means to get the high part of x.
 		long low = abLow + tNLow;
 		long high = abHigh + tNHigh;
-		long r = (low+Long.MIN_VALUE < abLow+Long.MIN_VALUE) ? high + 1 : high;
+		long r = (low+Long.MIN_VALUE < abLow+Long.MIN_VALUE) ? high + 1 : high; // this adjustment is very important here
 		// If the correct result is c, then now r==c or r==c+N.
 		// This is fine for this factoring algorithm, because r will 
 		// * either be subjected to another Montgomery multiplication mod N,

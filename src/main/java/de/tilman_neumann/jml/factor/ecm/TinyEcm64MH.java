@@ -1104,7 +1104,7 @@ public class TinyEcm64MH extends FactorAlgorithm {
 		// Since R=2^64, "x / R" just means to get the high part of x.
 		long r = ab.add_getHigh(Uint128.mul64SignedMH(t, N));
 		// If the correct result is c, then now r==c or r==c+N.
-		r = r<N ? r : r-N; // required at ecm
+		r = r<N ? r : r-N; // improves performance for N >= 55 bit, degrades it for smaller N
 
 		if (DEBUG) {
 			//LOG.debug(a + " * " + b + " = " + r);

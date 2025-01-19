@@ -1112,7 +1112,7 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 		long high = abHigh + tNHigh;
 		long r = (low+Long.MIN_VALUE < abLow+Long.MIN_VALUE) ? high + 1 : high;
 		// If the correct result is c, then now r==c or r==c+N.
-		r = r<N ? r : r-N; // required only for N>=62 bit; for smaller N dropping this instruction means a speed gain
+		r = r<N ? r : r-N; // improves performance for N >= 55 bit, degrades it for smaller N
 
 		if (DEBUG) {
 			//LOG.debug(a + " * " + b + " = " + r);
