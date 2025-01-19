@@ -48,16 +48,14 @@ import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.Ensure;
 
 /**
- * A port of Ben Buhrow's tinyecm.c (https://www.mersenneforum.org/showpost.php?p=521028&postcount=84)
+ * A port of Ben Buhrow's tinyecm.c (https://www.mersenneforum.org/showpost.php?p=521028&postcount=84),
  * an ECM implementation for unsigned 64 bit integers.
- * So far it works for inputs up to 62 bit, albeit not as fast as the C original.
  * 
- * This variant inlines Uint128.mul64_MH() and with a few subsequent improvements, it is another astomisihing 30% faster than TinyEcm64MH if intrinsics for Math.multiplyHigh() are supported.
- * Typically this requires Java 10 and not too oldish hardware.
+ * This variant implements montMul64() using _signed_ multiplications of two 64-bit numbers and Math.multiplyHigh().
+ * Intrinsics support for Math.multiplyHigh() typically requires Java 10 and not too old hardware.
  * 
  * @author Tilman Neumann
  */
-//TODO Compare performance using Uint128.spMul64_MH() vs. Uint128.mul64_MH().
 public class TinyEcm64MHInlined extends FactorAlgorithm {
 	
 	private static class ecm_pt {
@@ -378,8 +376,6 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 				add(rho, work, work.pt1, work.pt2, work.pt3, P);		// A = A + B (C)
 			}
 		}
-
-		return;
 	}
 
 	void prac85(long rho, ecm_work work, ecm_pt P) {
@@ -440,8 +436,6 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 				add(rho, work, work.pt1, work.pt2, work.pt3, P);		// A = A + B (C)
 			}
 		}
-
-		return;
 	}
 
 	void prac(long rho, ecm_work work, ecm_pt P, long c, double v) {
@@ -521,8 +515,6 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 		}
 
 		add(rho, work, work.pt1, work.pt2, work.pt3, P);		// A = A + B (C)
-
-		return;
 	}
 
 	/**
@@ -682,7 +674,6 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 		if (DEBUG) LOG.debug("work.s=" + work.s);
 		work.s = u64div(work.s, n);
 		if (DEBUG) LOG.debug("work.s=" + work.s);
-		return;
 	}
 
 	public static class EcmResult {
