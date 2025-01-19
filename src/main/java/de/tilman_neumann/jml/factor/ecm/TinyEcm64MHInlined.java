@@ -1104,7 +1104,7 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 		long t = abLow * Nhat;
 		final long tNLow = t*N;
 		long tNHigh = Math.multiplyHigh(t, N);
-		if (t<0) tNHigh += N;
+		//if (t<0) tNHigh += N; // bad for performance
 
 		// Step 3: Compute r = (a*b + t*N) / R
 		// Since R=2^64, "x / R" just means to get the high part of x.

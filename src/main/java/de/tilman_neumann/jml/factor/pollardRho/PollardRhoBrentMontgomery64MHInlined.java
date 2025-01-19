@@ -18,7 +18,6 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.base.Uint128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.random.Rng;
@@ -180,12 +179,11 @@ public class PollardRhoBrentMontgomery64MHInlined extends FactorAlgorithm {
 		final long tNLow = t*N;
 		long tNHigh = Math.multiplyHigh(t, N);
 		//if (t<0) tNHigh += N; // bad for performance
-		Uint128 tN = new Uint128(tNHigh, tNLow); // for some reason, removing this object seems to degrade performance
 		
 		// Step 3: Compute r = (a*b + t*N) / R
 		// Since R=2^64, "x / R" just means to get the high part of x.
-		long low = abLow + tN.getLow();
-		long high = abHigh + tN.getHigh();
+		long low = abLow + tNLow;
+		long high = abHigh + tNHigh;
 		long r = (low+Long.MIN_VALUE < abLow+Long.MIN_VALUE) ? high + 1 : high;
 		// If the correct result is c, then now r==c or r==c+N.
 		// This is fine for this factoring algorithm, because r will 

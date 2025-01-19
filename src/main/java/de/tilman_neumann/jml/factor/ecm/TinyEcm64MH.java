@@ -103,7 +103,7 @@ public class TinyEcm64MH extends FactorAlgorithm {
 
 	private static final boolean DEBUG = false;
 
-	private static final int MAX_BITS_SUPPORTED = 62;
+	private static final int MAX_BITS_SUPPORTED = 62; // seems to work for 63 bit numbers now, but very slow - so not completely fixed for that
 	
 	// The reducer R is 2^64, but the only constant still required is the half of it.
 	private static final long R_HALF = 1L << 63;
@@ -227,7 +227,7 @@ public class TinyEcm64MH extends FactorAlgorithm {
 	 * @return u*v mod m
 	 */
 	long spMulMod(long u, long v, long m) {
-		return Uint128.spMul64_MH(u, v).spDivide_MH(m)[1];
+		return Uint128.mul64SignedMH(u, v).spDivide_MH(m)[1];
 	}
 
 	long spGCD(long x, long y) {
@@ -1094,7 +1094,7 @@ public class TinyEcm64MH extends FactorAlgorithm {
 	 */
 	public static long montMul64(long a, long b, long N, long Nhat) {
 		// Step 1: Compute a*b
-		Uint128 ab = Uint128.spMul64_MH(a, b);
+		Uint128 ab = Uint128.mul64SignedMH(a, b);
 		// Step 2: Compute t = ab * (-1/N) mod R
 		// Since R=2^64, "x mod R" just means to get the low part of x.
 		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
@@ -1102,7 +1102,7 @@ public class TinyEcm64MH extends FactorAlgorithm {
 		long t = ab.getLow() * Nhat;
 		// Step 3: Compute r = (a*b + t*N) / R
 		// Since R=2^64, "x / R" just means to get the high part of x.
-		long r = ab.add_getHigh(Uint128.spMul64_MH(t, N));
+		long r = ab.add_getHigh(Uint128.mul64SignedMH(t, N));
 		// If the correct result is c, then now r==c or r==c+N.
 		r = r<N ? r : r-N; // required at ecm
 
