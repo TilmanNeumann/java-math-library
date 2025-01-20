@@ -49,14 +49,17 @@ import de.tilman_neumann.jml.sequence.*;
 import de.tilman_neumann.util.*;
 
 /**
- * Main class to compare the performance of factor algorithms.
+ * Main class to test and compare the performance of factor algorithms.<br/><br/>
  * 
- * Unfortunately, the timing results produced by this class may be quite inaccurate.
+ * This class is great to look at the behavior of single factor algorithms for bigger and bigger factor argument sizes,
+ * like running PSIQS with N_COUNT=1 and INCR_BITS=10.<br/><br/>
  * 
+ * However, be aware of that <strong>fast factor algorithms for small numbers (<64 bit) must not be compared for several bit-sizes in a single run!</strong>
  * The main problem is that the Hotspot compiler optimizes the code from the first several thousand tests.
- * If you run tests from 50 to 100 bits, the code will be optimized for the 50 bit numbers and the results for 100 bit numbers will be quite inaccurate.
+ * If you run tests with say NCOUNT=100000 from 50 to 100 bits, the code will be optimized for the 50 bit numbers and the results
+ * for 100 bit numbers will be quite inaccurate.<br/><br/>
  * 
- * I should be use scripts that restart the JVM for every new bitsize...
+ * So in such a case, compare as many algorithms as you want in a single FactorizerTest run, but only for one bit-size at once.
  * 
  * @author Tilman Neumann
  */
