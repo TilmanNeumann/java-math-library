@@ -44,6 +44,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
+import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.Ensure;
 
@@ -160,6 +161,8 @@ public class TinyEcm64 extends FactorAlgorithm {
 
 	private BPSWTest bpsw = new BPSWTest();
 
+	private Gcd63 gcd63 = new Gcd63();
+
 	public String getName() {
 		return "TinyEcm64";
 	}
@@ -221,19 +224,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * @return u*v mod m
 	 */
 	long spMulMod(long u, long v, long m) {
-		return Uint128.mul64(u, v).spDivide(m)[1];
-	}
-
-	long spGCD(long x, long y) {
-		long a, b, c;
-		a = x; b = y;
-		while (b != 0)
-		{
-			c = Long.remainderUnsigned(a, b);
-			a = b;
-			b = c;
-		}
-		return a;
+		return Uint128.mul64Signed(u, v).spDivide(m)[1];
 	}
 
 	int spRand(int lower, int upper) {
@@ -1081,7 +1072,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 */
 	public static long montMul64(long a, long b, long N, long Nhat) {
 		// Step 1: Compute a*b
-		Uint128 ab = Uint128.mul64(a, b);
+		Uint128 ab = Uint128.mul64Signed(a, b);
 		// Step 2: Compute t = ab * (-1/N) mod R
 		// Since R=2^64, "x mod R" just means to get the low part of x.
 		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
@@ -1089,7 +1080,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		long t = ab.getLow() * Nhat;
 		// Step 3: Compute r = (a*b + t*N) / R
 		// Since R=2^64, "x / R" just means to get the high part of x.
-		long r = ab.add_getHigh(Uint128.mul64(t, N));
+		long r = ab.add_getHigh(Uint128.mul64Signed(t, N));
 		// If the correct result is c, then now r==c or r==c+N.
 		r = r<N ? r : r-N; // improves performance for N >= 50 bit, degrades it for smaller N
 
@@ -1114,7 +1105,7 @@ public class TinyEcm64 extends FactorAlgorithm {
      * @return factor or 0 if no factor
 	 */
 	long check_factor(long Z, long n) {
-		long f = spGCD(Z, n);
+		long f = gcd63.gcd(Z,  n);
 		if (DEBUG) LOG.debug("check_factor: gcd(" + Z + ", " + n + ") = " + f);
         return (f>1 && f<n) ? f : 0;
 	}

@@ -649,6 +649,7 @@ public class Uint128 {
 		long q_hat = divideUnsignedLong(r_hi, b_hi);
 		if (DEBUG) LOG.debug("q_hat=" + Long.toUnsignedString(q_hat));
 		
+		// In TinyEcm64MH* variants, spMul64_MH() is slightly faster than mul64_MH(), and with mul64Signed() it doesn't work at all.
 		Uint128 mulResult = spMul64_MH(v, q_hat);
 		p_lo = mulResult.getLow();
 		p_hi = mulResult.getHigh();

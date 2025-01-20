@@ -44,6 +44,7 @@ import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
+import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.Ensure;
 
@@ -163,6 +164,8 @@ public class TinyEcm64MH extends FactorAlgorithm {
 
 	private BPSWTest bpsw = new BPSWTest();
 
+	private Gcd63 gcd63 = new Gcd63();
+	
 	public String getName() {
 		return "TinyEcm64MH";
 	}
@@ -226,18 +229,6 @@ public class TinyEcm64MH extends FactorAlgorithm {
 	long spMulMod(long u, long v, long m) {
 		// using spMul64_MH() or mul64SignedMH() makes no notable difference in terms of performance
 		return Uint128.mul64SignedMH(u, v).spDivide_MH(m)[1];
-	}
-
-	long spGCD(long x, long y) {
-		long a, b, c;
-		a = x; b = y;
-		while (b != 0)
-		{
-			c = Long.remainderUnsigned(a, b);
-			a = b;
-			b = c;
-		}
-		return a;
 	}
 
 	int spRand(int lower, int upper) {
@@ -1118,7 +1109,7 @@ public class TinyEcm64MH extends FactorAlgorithm {
      * @return factor or 0 if no factor
 	 */
 	long check_factor(long Z, long n) {
-		long f = spGCD(Z, n);
+		long f = gcd63.gcd(Z, n);
 		if (DEBUG) LOG.debug("check_factor: gcd(" + Z + ", " + n + ") = " + f);
         return (f>1 && f<n) ? f : 0;
 	}
