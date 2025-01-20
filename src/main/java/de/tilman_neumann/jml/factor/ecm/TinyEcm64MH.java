@@ -224,6 +224,7 @@ public class TinyEcm64MH extends FactorAlgorithm {
 	 * @return u*v mod m
 	 */
 	long spMulMod(long u, long v, long m) {
+		// using spMul64_MH() or mul64SignedMH() makes no notable difference in terms of performance
 		return Uint128.mul64SignedMH(u, v).spDivide_MH(m)[1];
 	}
 

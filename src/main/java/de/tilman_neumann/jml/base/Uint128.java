@@ -195,6 +195,8 @@ public class Uint128 {
 	/**
 	 * Multiplication of unsigned 64 bit integers.
 	 * 
+	 * <strong>Experimental version</strong>, pretty slow when used in TinyEcm.
+	 * 
 	 * @param a unsigned long
 	 * @param b unsigned long
 	 * @return a*b
