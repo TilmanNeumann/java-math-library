@@ -46,6 +46,7 @@ import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.random.SpRand32;
 import de.tilman_neumann.util.Ensure;
 
 /**
@@ -163,6 +164,8 @@ public class TinyEcm64 extends FactorAlgorithm {
 
 	private Gcd63 gcd63 = new Gcd63();
 
+	private SpRand32 spRand32 = new SpRand32();
+
 	public String getName() {
 		return "TinyEcm64";
 	}
@@ -225,28 +228,6 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 */
 	long spMulMod(long u, long v, long m) {
 		return Uint128.mul64Signed(u, v).spDivide(m)[1];
-	}
-
-	int spRand(int lower, int upper) {
-		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE);
-		
-		// fix rng for negative upper values;
-		long upperl = (long) upper;
-		if (upperl<0) upperl += (1L<<32);
-		long diff = upperl - lower;
-		if (DEBUG) LOG.debug("lower=" + lower + ", upper=" + upperl + ", diff=" + diff);
-		
-		// advance the state of the LCG and return the appropriate result
-		LCGSTATE = 6364136223846793005L * LCGSTATE + 1442695040888963407L;
-		long LCGSTATE_shifted = LCGSTATE >>> 32;
-		if (DEBUG) LOG.debug("LCGSTATE=" + LCGSTATE + ", LCGSTATE_shifted=" + LCGSTATE_shifted);
-		
-		double quot = (double)LCGSTATE_shifted / 4294967296.0; // dividend is 2^32
-		double prod = diff * quot;
-		int rand = (int)(0xFFFFFFFF & (long)prod); // (int)prod does not work for prod >= 2^31
-		int result = lower + rand;
-		if (DEBUG) LOG.debug("quot=" + quot + ", prod=" + prod + ", rand=" + rand + ", result=" + result);
-		return result;
 	}
 
 	void add(long rho, ecm_work work, ecm_pt P1, ecm_pt P2, ecm_pt Pin, ecm_pt Pout) {
@@ -581,7 +562,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		
 		if (sigma == 0)
 		{
-			work.sigma = spRand(7, (int)-1); // inlined is a tiny bit faster than using SpRand32
+			work.sigma = spRand32.nextInt(7, (int)-1);
 			if (DEBUG) LOG.debug("random sigma=" + work.sigma);
 		}
 		else
