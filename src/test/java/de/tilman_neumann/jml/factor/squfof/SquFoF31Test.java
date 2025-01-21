@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
+import de.tilman_neumann.jml.factor.FactorTestInfrastructure;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.util.ConfigUtil;
@@ -33,14 +35,18 @@ public class SquFoF31Test {
 
 	private static final Logger LOG = LogManager.getLogger(SquFoF31Test.class);
 
-	private static SquFoF31 squfof31;
-	private static FactorAlgorithm testFactorizer;
+	private static final SquFoF31 squfof = new SquFoF31();
+	private static final FactorAlgorithm verificationFactorizer = FactorAlgorithm.getDefault();
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		squfof31 = new SquFoF31();
-		testFactorizer = FactorAlgorithm.getDefault();
+	}
+	
+	@Test
+	public void testSmallestComposites() {
+		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(100000, squfof);
+		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
 	@Test
@@ -61,9 +67,9 @@ public class SquFoF31Test {
 			for (int i=0; i<count; i++) {
 				BigInteger NBig = testNumbers[i];
 				long N = NBig.longValue();
-				long squfofFactor = squfof31.findSingleFactor(N);
+				long squfofFactor = squfof.findSingleFactor(N);
 				if (squfofFactor < 2) {
-					long correctFactor = testFactorizer.findSingleFactor(NBig).longValue();
+					long correctFactor = verificationFactorizer.findSingleFactor(NBig).longValue();
 					if (correctFactor > 1 && correctFactor<N) {
 						LOG.debug("N=" + N + ": SquFoF31 failed to find factor " + correctFactor);
 						failCount++;
@@ -85,7 +91,7 @@ public class SquFoF31Test {
 	private void assertFactorizationSuccess(long N, String expectedPrimeFactorizationStr) {
 		BigInteger NBig = BigInteger.valueOf(N);
 		LOG.info("Test " + N + " (" + NBig.bitLength() + " bit)");
-		SortedMultiset<BigInteger> factors = squfof31.factor(NBig);
+		SortedMultiset<BigInteger> factors = squfof.factor(NBig);
 		LOG.info(N + " = " + factors.toString("*", "^"));
 		assertEquals(expectedPrimeFactorizationStr, factors.toString("*", "^"));
 	}

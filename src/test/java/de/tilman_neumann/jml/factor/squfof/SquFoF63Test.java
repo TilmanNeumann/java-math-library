@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
+import de.tilman_neumann.jml.factor.FactorTestInfrastructure;
 import de.tilman_neumann.jml.factor.TestNumberNature;
 import de.tilman_neumann.jml.factor.TestsetGenerator;
 import de.tilman_neumann.util.ConfigUtil;
@@ -35,14 +37,18 @@ public class SquFoF63Test {
 
 	private static final Logger LOG = LogManager.getLogger(SquFoF63Test.class);
 
-	private static SquFoF63 squfof63;
-	private static FactorAlgorithm testFactorizer;
+	private static final SquFoF63 squfof = new SquFoF63();
+	private static final FactorAlgorithm verificationFactorizer = FactorAlgorithm.getDefault();
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		squfof63 = new SquFoF63();
-		testFactorizer = FactorAlgorithm.getDefault();
+	}
+	
+	@Test
+	public void testSmallestComposites() {
+		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(100000, squfof);
+		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
 	@Test
@@ -74,9 +80,9 @@ public class SquFoF63Test {
 			int failCount = 0;
 			for (int i=0; i<count; i++) {
 				BigInteger N = testNumbers[i];
-				BigInteger squfofFactor = squfof63.findSingleFactor(N);
+				BigInteger squfofFactor = squfof.findSingleFactor(N);
 				if (squfofFactor.compareTo(I_1) <= 0) {
-					BigInteger correctFactor = testFactorizer.findSingleFactor(N);
+					BigInteger correctFactor = verificationFactorizer.findSingleFactor(N);
 					if (correctFactor.compareTo(I_1)>0 && correctFactor.compareTo(N)<0) {
 						LOG.debug("N=" + N + ": SquFoF63 failed to find factor " + correctFactor);
 						failCount++;
@@ -98,7 +104,7 @@ public class SquFoF63Test {
 	private void assertFactorizationSuccess(long N, String expectedPrimeFactorizationStr) {
 		BigInteger NBig = BigInteger.valueOf(N);
 		LOG.info("Test " + N + " (" + NBig.bitLength() + " bit)");
-		SortedMultiset<BigInteger> factors = squfof63.factor(NBig);
+		SortedMultiset<BigInteger> factors = squfof.factor(NBig);
 		LOG.info(N + " = " + factors.toString("*", "^"));
 		assertEquals(expectedPrimeFactorizationStr, factors.toString("*", "^"));
 	}
