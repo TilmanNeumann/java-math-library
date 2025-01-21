@@ -14,34 +14,58 @@
 package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
+import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 public class TinyEcm64MHInlinedTest {
 	private static final Logger LOG = LogManager.getLogger(TinyEcm64MHInlinedTest.class);
 
-	private static TinyEcm64MHInlined tinyEcm;
+	private static TinyEcm64MHInlined tinyEcm = new TinyEcm64MHInlined();
+	private static BPSWTest bpsw = new BPSWTest();
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		tinyEcm = new TinyEcm64MHInlined();
 	}
 	
 	@Test
-	public void testVerySmallComposites() {
-		assertFactorizationSuccess(893, "19 * 47"); // 10 bit
-		assertFactorizationSuccess(35, "5 * 7"); // 6 bit
-		assertFactorizationSuccess(9, "3^2"); // 4 bit
+	public void testSmallestComposites() {
+		ArrayList<Integer> fails = new ArrayList<>();
+		for (int n=4; n<100000; n++) {
+			if (bpsw.isProbablePrime(n)) continue; // skip primes
+			BigInteger nBig = BigInteger.valueOf(n);
+			SortedMultiset<BigInteger> factors = tinyEcm.factor(nBig);
+			boolean isFail = false;
+			BigInteger testProd = I_1;
+			for (BigInteger factor : factors.keySet()) {
+				if (!bpsw.isProbablePrime(factor)) {
+					isFail = true;
+					break;
+				}
+				int exp = factors.get(factor).intValue();
+				BigInteger pow = factor.pow(exp);
+				testProd = testProd.multiply(pow);
+			}
+			if (!testProd.equals(nBig)) {
+				isFail = true;
+			}
+			if (isFail) {
+				fails.add(n);
+			}
+		}
+		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
 	@Test
