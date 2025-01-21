@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -14,12 +14,14 @@
 package de.tilman_neumann.jml.factor.lehman;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.tilman_neumann.jml.factor.FactorTestInfrastructure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
@@ -32,19 +34,17 @@ import static org.junit.Assert.assertNotEquals;
 public class LehmanSimpleTest {
 	private static final Logger LOG = LogManager.getLogger(LehmanSimpleTest.class);
 
-	private static LehmanSimple lehman;
+	private static final LehmanSimple lehman = new LehmanSimple(false);
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		lehman = new LehmanSimple(false);
 	}
 	
 	@Test
-	public void testVerySmallComposites() {
-		assertFactorizationSuccess(893, "19 * 47"); // 10 bit
-		assertFactorizationSuccess(35, "5 * 7"); // 6 bit
-		assertFactorizationSuccess(9, "3^2"); // 4 bit
+	public void testSmallestComposites() {
+		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(100000, lehman);
+		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
 	@Test
