@@ -26,6 +26,12 @@ import de.tilman_neumann.util.SortedMultiset;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Tests for SIQSSmall.
+ * 
+ * Typical SIQS implementations cannot factor small numbers (say with less than 60 or 50 bit).
+ * A possible reason for this is that the space of possible a-parameters is too restricted.
+ */
 public class SIQSSmallTest {
 	private static final Logger LOG = LogManager.getLogger(SIQSSmallTest.class);
 

@@ -30,6 +30,15 @@ import de.tilman_neumann.util.SortedMultiset;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * SIQS tests.
+ * 
+ * Typical SIQS implementations cannot factor small numbers (say with less than 60 or 50 bit).
+ * A possible reason for this is that the space of possible a-parameters is too restricted.
+ * 
+ * It it already quite a wonder that the complete factorizations in <code>testSomeInputs()</code> work reliably,
+ * because they may need intermediate facorizations of very small numbers.
+ */
 public class SIQSTest {
 	private static final Logger LOG = LogManager.getLogger(SIQSTest.class);
 
@@ -43,9 +52,9 @@ public class SIQSTest {
 
 	@Test
 	public void testSomeInputs() {
-		assertFactorizationSuccess("15841065490425479923", "2604221509 * 6082841047");
-		assertFactorizationSuccess("11111111111111111111111111", "11 * 53 * 79 * 859 * 265371653 * 1058313049");
-		assertFactorizationSuccess("5679148659138759837165981543", "3^3 * 466932157 * 450469808245315337");
+		assertFactorizationSuccess("15841065490425479923", "2604221509 * 6082841047"); // 64 bit
+		assertFactorizationSuccess("11111111111111111111111111", "11 * 53 * 79 * 859 * 265371653 * 1058313049"); // 84 bit
+		assertFactorizationSuccess("5679148659138759837165981543", "3^3 * 466932157 * 450469808245315337"); // 93 bit
 		assertFactorizationSuccess("11111111111111111111111111155555555555111111111111111", "67 * 157 * 1056289676880987842105819104055096069503860738769");
 	}
 	
