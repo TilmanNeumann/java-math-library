@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.factor;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,24 +31,21 @@ public class CombinedFactorAlgorithmTest {
 
 	private boolean RUN_SLOW_TESTS_TOO = false;
 	
-	private static CombinedFactorAlgorithm factorizer1Thread;
-	private static CombinedFactorAlgorithm factorizer2Threads;
+	private static final CombinedFactorAlgorithm factorizer1Thread = new CombinedFactorAlgorithm(1, null, true);
+	// gitgub CI results for the 236 bit test number:
+	// 1 thread -> 22s, 2 threads -> 12s, 4 threads -> 14s.
+	// Using 2 threads looks best so far.
+	private static final CombinedFactorAlgorithm factorizer2Threads = new CombinedFactorAlgorithm(2, null, true);
 
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		factorizer1Thread = new CombinedFactorAlgorithm(1, null, true);
-		// gitgub CI results for the 236 bit test number:
-		// 1 thread -> 22s, 2 threads -> 12s, 4 threads -> 14s.
-		// Using 2 threads looks best so far.
-		factorizer2Threads = new CombinedFactorAlgorithm(2, null, true);
 	}
 	
 	@Test
-	public void testVerySmallComposites() {
-		assertFactorizationSuccess(893, "19 * 47"); // 10 bit
-		assertFactorizationSuccess(35, "5 * 7"); // 6 bit
-		assertFactorizationSuccess(9, "3^2"); // 4 bit
+	public void testSmallestComposites() {
+		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(100000, factorizer1Thread);
+		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
 	@Test
