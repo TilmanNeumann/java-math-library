@@ -31,7 +31,7 @@ import static org.junit.Assert.assertNotEquals;
 public class TinyEcm64MHTest {
 	private static final Logger LOG = LogManager.getLogger(TinyEcm64MHTest.class);
 
-	private static TinyEcm64MH tinyEcm = new TinyEcm64MH();
+	private static final TinyEcm64MH tinyEcm = new TinyEcm64MH();
 
 	@BeforeClass
 	public static void setup() {
