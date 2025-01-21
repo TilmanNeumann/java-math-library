@@ -33,11 +33,11 @@ import de.tilman_neumann.jml.factor.squfof.SquFoF63;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
-public class TDiv63Test {
+public class TDiv63InverseTest {
 
-	private static final Logger LOG = LogManager.getLogger(TDiv63Test.class);
+	private static final Logger LOG = LogManager.getLogger(TDiv63InverseTest.class);
 
-	private static final TDiv63 tdiv = new TDiv63();
+	private static final TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 	// don't use CombinedFactorAlgorithm as verificationFactorizer because Tdiv is part of it
 	private static final FactorAlgorithm verificationFactorizer = new SquFoF63();
 
@@ -65,12 +65,12 @@ public class TDiv63Test {
 		assertFactorizationSuccess(317756737253L, "6823 * 46571411"); // 39 bit
 		assertFactorizationSuccess(3294635112749L, "14879 * 221428531"); // 42 bit
 		assertFactorizationSuccess(13293477682249L, "398077 * 33394237"); // 44 bit
-		assertFactorizationSuccess(24596491225651L, "3311299 * 7428049"); // 45 bit
+		assertFactorizationError(24596491225651L, "3311299 * 7428049"); // 45 bit, needs factorLimit=2^22
 		assertFactorizationSuccess(44579405690563L, "930889 * 47889067"); // 46 bit
 		assertFactorizationSuccess(67915439339311L, "2061599 * 32943089"); // 46 bit
 		assertFactorizationSuccess(72795445155721L, "83459 * 872230019"); // 47 bit
 		assertFactorizationSuccess(155209074377713L, "361909 * 428862157"); // 48 bit
-		assertFactorizationSuccess(293851765137859L, "11736397 * 25037647"); // 49 bit
+		assertFactorizationError(293851765137859L, "11736397 * 25037647"); // 49 bit, needs factorLimit=2^24
 	}
 
 	/**
@@ -115,7 +115,6 @@ public class TDiv63Test {
 		assertEquals(expectedPrimeFactorizationStr, factors.toString("*", "^"));
 	}
 
-	@SuppressWarnings("unused")
 	private void assertFactorizationError(long N, String expectedPrimeFactorizationStr) {
 		BigInteger NBig = BigInteger.valueOf(N);
 		LOG.info("Test " + N + " (" + NBig.bitLength() + " bit)");

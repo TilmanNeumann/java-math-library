@@ -33,11 +33,11 @@ import de.tilman_neumann.jml.factor.squfof.SquFoF63;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
-public class TDiv63Test {
+public class TDiv31InverseTest {
 
-	private static final Logger LOG = LogManager.getLogger(TDiv63Test.class);
+	private static final Logger LOG = LogManager.getLogger(TDiv31InverseTest.class);
 
-	private static final TDiv63 tdiv = new TDiv63();
+	private static final TDiv31Inverse tdiv = new TDiv31Inverse();
 	// don't use CombinedFactorAlgorithm as verificationFactorizer because Tdiv is part of it
 	private static final FactorAlgorithm verificationFactorizer = new SquFoF63();
 
@@ -54,23 +54,8 @@ public class TDiv63Test {
 
 	@Test
 	public void testSomeParticularNumbers() {
-		assertFactorizationSuccess(1099511627970L, "2 * 3 * 5 * 7 * 23 * 227642159"); // 41 bit
-
 		assertFactorizationSuccess(621887327L, "853 * 729059"); // 30 bit
 		assertFactorizationSuccess(676762483L, "877 * 771679"); // 30 bit
-		assertFactorizationSuccess(2947524803L, "1433 * 2056891"); // 32 bit
-		assertFactorizationSuccess(5616540799L, "1777 * 3160687"); // 33 bit
-		assertFactorizationSuccess(35936505149L, "3299 * 10893151"); // 36 bit
-		assertFactorizationSuccess(145682871839L, "5261 * 27691099"); // 38 bit
-		assertFactorizationSuccess(317756737253L, "6823 * 46571411"); // 39 bit
-		assertFactorizationSuccess(3294635112749L, "14879 * 221428531"); // 42 bit
-		assertFactorizationSuccess(13293477682249L, "398077 * 33394237"); // 44 bit
-		assertFactorizationSuccess(24596491225651L, "3311299 * 7428049"); // 45 bit
-		assertFactorizationSuccess(44579405690563L, "930889 * 47889067"); // 46 bit
-		assertFactorizationSuccess(67915439339311L, "2061599 * 32943089"); // 46 bit
-		assertFactorizationSuccess(72795445155721L, "83459 * 872230019"); // 47 bit
-		assertFactorizationSuccess(155209074377713L, "361909 * 428862157"); // 48 bit
-		assertFactorizationSuccess(293851765137859L, "11736397 * 25037647"); // 49 bit
 	}
 
 	/**
@@ -79,16 +64,16 @@ public class TDiv63Test {
 	@Test
 	public void testRandomComposites() {
 		int count = 10000;
-		for (int bits=30; bits<43; bits++) {
+		for (int bits=20; bits<32; bits++) {
 			BigInteger[] testNumbers = TestsetGenerator.generate(count, bits, TestNumberNature.RANDOM_ODD_COMPOSITES);
 			LOG.info("Testing " + count + " random numbers with " + bits + " bit...");
 			int failCount = 0;
 			for (int i=0; i<count; i++) {
 				BigInteger NBig = testNumbers[i];
-				long N = NBig.longValue();
-				long tdivFactor = tdiv.findSingleFactor(N);
+				int N = NBig.intValue();
+				int tdivFactor = tdiv.findSingleFactor(N);
 				if (tdivFactor < 2) {
-					long correctFactor = verificationFactorizer.findSingleFactor(NBig).longValue();
+					int correctFactor = verificationFactorizer.findSingleFactor(NBig).intValue();
 					if (correctFactor > 1 && correctFactor<N) {
 						LOG.debug("N=" + N + ": TDiv63Inverse failed to find factor " + correctFactor);
 						failCount++;

@@ -33,11 +33,20 @@ import de.tilman_neumann.jml.factor.squfof.SquFoF63;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
-public class TDiv63Test {
+import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
-	private static final Logger LOG = LogManager.getLogger(TDiv63Test.class);
+/**
+ * Tests for trial division with BigInteger arguments.
+ * This test is quite expensive for github CI because of the SMALL_PRIMES_ARRAY initialization;
+ * but since it it used in CombinedFactorAlgorithm, we keep it.
+ * 
+ * @author Tilman Neumann
+ */
+public class TDivTest {
 
-	private static final TDiv63 tdiv = new TDiv63();
+	private static final Logger LOG = LogManager.getLogger(TDivTest.class);
+
+	private static final TDiv tdiv = new TDiv();
 	// don't use CombinedFactorAlgorithm as verificationFactorizer because Tdiv is part of it
 	private static final FactorAlgorithm verificationFactorizer = new SquFoF63();
 
@@ -48,14 +57,12 @@ public class TDiv63Test {
 	
 	@Test
 	public void testSmallestComposites() {
-		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(100000, tdiv);
+		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(10000, tdiv);
 		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
 	@Test
 	public void testSomeParticularNumbers() {
-		assertFactorizationSuccess(1099511627970L, "2 * 3 * 5 * 7 * 23 * 227642159"); // 41 bit
-
 		assertFactorizationSuccess(621887327L, "853 * 729059"); // 30 bit
 		assertFactorizationSuccess(676762483L, "877 * 771679"); // 30 bit
 		assertFactorizationSuccess(2947524803L, "1433 * 2056891"); // 32 bit
@@ -63,6 +70,7 @@ public class TDiv63Test {
 		assertFactorizationSuccess(35936505149L, "3299 * 10893151"); // 36 bit
 		assertFactorizationSuccess(145682871839L, "5261 * 27691099"); // 38 bit
 		assertFactorizationSuccess(317756737253L, "6823 * 46571411"); // 39 bit
+		assertFactorizationSuccess(1099511627970L, "2 * 3 * 5 * 7 * 23 * 227642159"); // 41 bit
 		assertFactorizationSuccess(3294635112749L, "14879 * 221428531"); // 42 bit
 		assertFactorizationSuccess(13293477682249L, "398077 * 33394237"); // 44 bit
 		assertFactorizationSuccess(24596491225651L, "3311299 * 7428049"); // 45 bit
@@ -84,12 +92,11 @@ public class TDiv63Test {
 			LOG.info("Testing " + count + " random numbers with " + bits + " bit...");
 			int failCount = 0;
 			for (int i=0; i<count; i++) {
-				BigInteger NBig = testNumbers[i];
-				long N = NBig.longValue();
-				long tdivFactor = tdiv.findSingleFactor(N);
-				if (tdivFactor < 2) {
-					long correctFactor = verificationFactorizer.findSingleFactor(NBig).longValue();
-					if (correctFactor > 1 && correctFactor<N) {
+				BigInteger N = testNumbers[i];
+				BigInteger tdivFactor = tdiv.findSingleFactor(N);
+				if (tdivFactor.compareTo(I_1) <= 0) {
+					BigInteger correctFactor = verificationFactorizer.findSingleFactor(N);
+					if (correctFactor.compareTo(I_1) > 0 && correctFactor.compareTo(N) < 0) {
 						LOG.debug("N=" + N + ": TDiv63Inverse failed to find factor " + correctFactor);
 						failCount++;
 					} else {
@@ -97,7 +104,8 @@ public class TDiv63Test {
 						fail();
 					}
 				} else {
-					if (N % tdivFactor != 0) {
+					BigInteger mod = N.mod(tdivFactor);
+					if (mod.signum() != 0) {
 						failCount++;
 					}
 				}
