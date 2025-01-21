@@ -114,7 +114,6 @@ abstract public class FactorAlgorithm {
 		}
 		
 		// N contains larger factors...
-		FactorArguments args = new FactorArguments(N, 1);
 		FactorResult factorResult = new FactorResult(primeFactors, new SortedMultiset_BottomUp<BigInteger>(), new SortedMultiset_BottomUp<BigInteger>(), 3);
 		SortedMultiset<BigInteger> untestedFactors = factorResult.untestedFactors; // ArrayList would be faster
 		untestedFactors.add(N);
@@ -149,9 +148,7 @@ abstract public class FactorAlgorithm {
 				
 				BigInteger compositeFactor = factorResult.compositeFactors.firstKey();
 				int exp = factorResult.compositeFactors.removeAll(compositeFactor);
-				args.N = compositeFactor;
-				args.NBits = compositeFactor.bitLength();
-				args.exp = exp;
+				FactorArguments args = new FactorArguments(compositeFactor, exp);
 				searchFactors(args, factorResult);
 				if (DEBUG) LOG.debug("3: factorResult: " + factorResult);
 			}
