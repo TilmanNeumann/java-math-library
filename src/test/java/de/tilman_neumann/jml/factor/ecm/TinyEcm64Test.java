@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -14,27 +14,24 @@
 package de.tilman_neumann.jml.factor.ecm;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.factor.FactorTestInfrastructure;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import static de.tilman_neumann.jml.base.BigIntConstants.*;
-
 public class TinyEcm64Test {
 	private static final Logger LOG = LogManager.getLogger(TinyEcm64Test.class);
 
 	private static TinyEcm64 tinyEcm = new TinyEcm64();
-	private static BPSWTest bpsw = new BPSWTest();
 	
 	@BeforeClass
 	public static void setup() {
@@ -43,29 +40,7 @@ public class TinyEcm64Test {
 	
 	@Test
 	public void testSmallestComposites() {
-		ArrayList<Integer> fails = new ArrayList<>();
-		for (int n=4; n<100000; n++) {
-			if (bpsw.isProbablePrime(n)) continue; // skip primes
-			BigInteger nBig = BigInteger.valueOf(n);
-			SortedMultiset<BigInteger> factors = tinyEcm.factor(nBig);
-			boolean isFail = false;
-			BigInteger testProd = I_1;
-			for (BigInteger factor : factors.keySet()) {
-				if (!bpsw.isProbablePrime(factor)) {
-					isFail = true;
-					break;
-				}
-				int exp = factors.get(factor).intValue();
-				BigInteger pow = factor.pow(exp);
-				testProd = testProd.multiply(pow);
-			}
-			if (!testProd.equals(nBig)) {
-				isFail = true;
-			}
-			if (isFail) {
-				fails.add(n);
-			}
-		}
+		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(100000, tinyEcm);
 		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
