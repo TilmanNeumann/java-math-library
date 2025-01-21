@@ -37,7 +37,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 /**
  * Tests for trial division with BigInteger arguments.
- * This test is quite expensive for github CI because of the SMALL_PRIMES_ARRAY initialization;
+ * This test is quite expensive for github CI because of the SMALL_PRIMES initialization;
  * but since it it used in CombinedFactorAlgorithm, we keep it.
  * 
  * @author Tilman Neumann
@@ -57,7 +57,7 @@ public class TDivTest {
 	
 	@Test
 	public void testSmallestComposites() {
-		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(10000, tdiv);
+		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(100000, tdiv);
 		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
