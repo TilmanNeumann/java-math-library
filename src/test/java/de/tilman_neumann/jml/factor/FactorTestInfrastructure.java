@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.factor;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -29,20 +30,33 @@ import de.tilman_neumann.util.SortedMultiset;
  */
 public class FactorTestInfrastructure {
 	
-	private static BPSWTest bpsw = new BPSWTest();
+	private static final BPSWTest bpsw = new BPSWTest();
+	private static final FactorAlgorithm verificationFactorizer = FactorAlgorithm.getDefault();
 
 	/**
-	 * Test factorization of all small composites <= nMax by the given factorAlgorithm.<br/><br/>
-	 * 
-	 * This test could be made more efficient using a composites sieve.
+	 * Tests the full factorization of all composites in the range [4, nMax] by the given factorAlgorithm.<br/><br/>
 	 * 
 	 * @param nMax
 	 * @param factorAlgorithm
 	 * @return list of the factor arguments that were not factored correctly
 	 */
 	public static List<Integer> testSmallComposites(int nMax, FactorAlgorithm factorAlgorithm) {
+		return testComposites(4, nMax, factorAlgorithm);
+	}
+
+	/**
+	 * Tests the full factorization of all composites in the range [nMin, nMax] by the given factorAlgorithm.<br/><br/>
+	 * 
+	 * @param nMin
+	 * @param nMax
+	 * @param factorAlgorithm
+	 * @return list of the factor arguments that were not factored correctly
+	 */
+	// XXX This test could be made more efficient using a prime or composites sieve
+	// TODO use BigIntegers as arguments
+	public static List<Integer> testComposites(int nMin, int nMax, FactorAlgorithm factorAlgorithm) {
 		ArrayList<Integer> fails = new ArrayList<>();
-		for (int n=4; n<=nMax; n++) {
+		for (int n=nMin; n<=nMax; n++) {
 			if (bpsw.isProbablePrime(n)) continue; // skip primes
 			BigInteger nBig = BigInteger.valueOf(n);
 			SortedMultiset<BigInteger> factors = factorAlgorithm.factor(nBig);
@@ -65,5 +79,35 @@ public class FactorTestInfrastructure {
 			}
 		}
 		return fails;
+	}
+
+	/**
+	 * Tests finding a single factor of all semiprimes in the range [nMin, nMax] by the given factorAlgorithm.<br/><br/>
+	 * 
+	 * @param nMin
+	 * @param nMax
+	 * @param factorAlgorithm
+	 * @return list of the factor arguments that were not factored correctly
+	 */
+	public static List<BigInteger> testSemiprimes(BigInteger nMin, BigInteger nMax, FactorAlgorithm factorAlgorithm) {
+		ArrayList<BigInteger> fails = new ArrayList<>();
+		for (BigInteger n=nMin; n.compareTo(nMax)<=0; n=n.add(I_1)) {
+			if (!isSemiprime(n)) continue;
+			
+			BigInteger factor = factorAlgorithm.findSingleFactor(n).abs();
+			if (factor==null || factor.compareTo(I_1) <= 0 || factor.compareTo(n) >= 0 || !factor.multiply(n.divide(factor)).equals(n)) {
+				fails.add(n);
+			}
+		}
+		return fails;
+	}
+	
+	private static boolean isSemiprime(BigInteger N) {
+		if (bpsw.isProbablePrime(N)) return false;
+		
+		BigInteger factor1 = verificationFactorizer.findSingleFactor(N);
+		assertTrue(factor1.compareTo(I_1) > 0 && factor1.compareTo(N) < 0); // otherwise the verificationFactorizer failed
+		BigInteger factor2 = N.divide(factor1);
+		return bpsw.isProbablePrime(factor1) && bpsw.isProbablePrime(factor2);
 	}
 }
