@@ -28,13 +28,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class LehmanFastTest extends FactorTestBase {
 
-	public LehmanFastTest() {
-		super(new LehmanFast(false));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new LehmanFast(false));
 	}
 	
 	@Test

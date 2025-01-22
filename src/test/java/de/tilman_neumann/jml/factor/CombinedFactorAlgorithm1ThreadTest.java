@@ -26,13 +26,10 @@ public class CombinedFactorAlgorithm1ThreadTest extends FactorTestBase {
 
 	private boolean RUN_SLOW_TESTS_TOO = false;
 
-	public CombinedFactorAlgorithm1ThreadTest() {
-		super(new CombinedFactorAlgorithm(1, null, true));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new CombinedFactorAlgorithm(1, null, true));
 	}
 	
 	@Test

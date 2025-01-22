@@ -30,13 +30,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class HartTDivRaceTest extends FactorTestBase {
 
-	public HartTDivRaceTest() {
-		super(new HartTDivRace());
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new HartTDivRace());
 	}
 	
 	@Test

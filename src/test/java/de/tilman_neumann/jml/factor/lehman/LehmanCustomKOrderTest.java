@@ -28,13 +28,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class LehmanCustomKOrderTest extends FactorTestBase {
 
-	public LehmanCustomKOrderTest() {
-		super(new LehmanCustomKOrder(false));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new LehmanCustomKOrder(false));
 	}
 	
 	@Test

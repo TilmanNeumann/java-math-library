@@ -24,14 +24,11 @@ import de.tilman_neumann.jml.factor.FactorTestBase;
 import de.tilman_neumann.util.ConfigUtil;
 
 public class SquFoF63Test extends FactorTestBase {
-
-	public SquFoF63Test() {
-		super(new SquFoF63());
-	}
 	
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new SquFoF63());
 	}
 	
 	@Test

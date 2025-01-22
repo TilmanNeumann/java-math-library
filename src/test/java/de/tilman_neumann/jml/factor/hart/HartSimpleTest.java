@@ -31,13 +31,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class HartSimpleTest extends FactorTestBase {
 
-	public HartSimpleTest() {
-		super(new HartSimple());
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new HartSimple());
 	}
 	
 	@Test

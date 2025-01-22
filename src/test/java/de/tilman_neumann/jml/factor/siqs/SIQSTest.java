@@ -35,13 +35,10 @@ import de.tilman_neumann.util.ConfigUtil;
  */
 public class SIQSTest extends FactorTestBase {
 
-	public SIQSTest() {
-		super(new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2LP(true), 10, new MatrixSolverBlockLanczos()));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new SIQS(0.31F, 0.37F, null, new NoPowerFinder(), new SIQSPolyGenerator(), new Sieve03hU(), new TDiv_QS_2LP(true), 10, new MatrixSolverBlockLanczos()));
 	}
 
 	@Test

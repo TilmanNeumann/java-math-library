@@ -36,13 +36,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class HartFast2Mult2Test extends FactorTestBase {
 
-	public HartFast2Mult2Test() {
-		super(new HartFast2Mult2(false));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new HartFast2Mult2(false));
 	}
 	
 	@Test

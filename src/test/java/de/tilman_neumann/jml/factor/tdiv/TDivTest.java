@@ -33,14 +33,11 @@ import de.tilman_neumann.util.ConfigUtil;
  */
 public class TDivTest extends FactorTestBase {
 
-	public TDivTest() {
-		// don't use CombinedFactorAlgorithm as verificationFactorizer because Tdiv is part of it
-		super(new TDiv(), new SquFoF63());
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		// don't use CombinedFactorAlgorithm as verificationFactorizer because Tdiv is part of it
+		setFactorizer(new TDiv(), new SquFoF63());
 	}
 	
 	@Test

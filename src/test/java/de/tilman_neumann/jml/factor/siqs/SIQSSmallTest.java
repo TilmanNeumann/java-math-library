@@ -28,18 +28,15 @@ import de.tilman_neumann.util.ConfigUtil;
  */
 public class SIQSSmallTest extends FactorTestBase {
 
-	public SIQSSmallTest() {
-		super(new SIQSSmall(0.32F, 0.37F, null, new SIQSPolyGenerator(), 10, true));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new SIQSSmall(0.32F, 0.37F, null, new SIQSPolyGenerator(), 10, true));
 	}
 
 	@Test
 	// TODO On github CI this test may need up to 50 (!) seconds. Locally the test finishes in less than 100ms. 
-	// It is possible that the test numbers are not very appropriate for the algorithm, but why the difference between local and github tests?
+	// The test numbers are not very appropriate for the algorithm, but why the difference between local and github tests?
 	public void testSomeInputs() {
 		assertFullFactorizationSuccess("15841065490425479923", "2604221509 * 6082841047"); // 64 bit
 		assertFullFactorizationSuccess("11111111111111111111111111", "11 * 53 * 79 * 859 * 265371653 * 1058313049"); // 84 bit

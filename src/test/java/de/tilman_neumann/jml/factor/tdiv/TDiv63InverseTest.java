@@ -26,14 +26,11 @@ import de.tilman_neumann.util.ConfigUtil;
 
 public class TDiv63InverseTest extends FactorTestBase {
 
-	public TDiv63InverseTest() {
-		// don't use CombinedFactorAlgorithm as verificationFactorizer because Tdiv is part of it
-		super(new TDiv63Inverse(1<<21), new SquFoF63());
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		// don't use CombinedFactorAlgorithm as verificationFactorizer because Tdiv is part of it
+		setFactorizer(new TDiv63Inverse(1<<21), new SquFoF63());
 	}
 	
 	@Test

@@ -25,13 +25,10 @@ import static org.junit.Assert.assertEquals;
 
 public class PollardRhoTwoLoopsTest extends FactorTestBase {
 
-	public PollardRhoTwoLoopsTest() {
-		super(new PollardRhoTwoLoops());
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new PollardRhoTwoLoops());
 	}
 	
 	@Test

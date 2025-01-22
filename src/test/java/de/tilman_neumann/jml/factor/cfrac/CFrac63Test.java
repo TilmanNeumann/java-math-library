@@ -41,13 +41,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class CFrac63Test extends FactorTestBase {
 
-	public CFrac63Test() {
-		super(new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), new MatrixSolverGauss02(), 3));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_01(), new MatrixSolverGauss02(), 3));
 	}
 	
 	@Test

@@ -21,13 +21,10 @@ import de.tilman_neumann.util.ConfigUtil;
 
 public class EllipticCurveMethodTest extends FactorTestBase {
 
-	public EllipticCurveMethodTest() {
-		super(new EllipticCurveMethod(-1));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new EllipticCurveMethod(-1));
 	}
 
 	@Test

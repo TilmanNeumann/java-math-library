@@ -25,13 +25,10 @@ import static org.junit.Assert.assertEquals;
 
 public class PollardRhoTwoLoopsModBlockTest extends FactorTestBase {
 
-	public PollardRhoTwoLoopsModBlockTest() {
-		super(new PollardRhoTwoLoopsModBlock());
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new PollardRhoTwoLoopsModBlock());
 	}
 	
 	@Test

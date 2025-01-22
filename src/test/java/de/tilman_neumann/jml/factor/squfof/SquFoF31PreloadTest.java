@@ -25,13 +25,10 @@ import de.tilman_neumann.util.ConfigUtil;
 
 public class SquFoF31PreloadTest extends FactorTestBase {
 
-	public SquFoF31PreloadTest() {
-		super(new SquFoF31Preload());
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new SquFoF31Preload());
 	}
 	
 	@Test

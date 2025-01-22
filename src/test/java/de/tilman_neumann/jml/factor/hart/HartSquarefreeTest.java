@@ -33,13 +33,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class HartSquarefreeTest extends FactorTestBase {
 
-	public HartSquarefreeTest() {
-		super(new HartSquarefree(false));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new HartSquarefree(false));
 	}
 	
 	@Test

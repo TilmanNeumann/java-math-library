@@ -40,15 +40,16 @@ public class FactorTestBase {
 
 	private static final BPSWTest bpsw = new BPSWTest();
 	
-	private FactorAlgorithm factorizer, verificationFactorizer;
+	private static FactorAlgorithm factorizer;
+	private static FactorAlgorithm verificationFactorizer;
 
-	public FactorTestBase(FactorAlgorithm factorizer) {
-		this(factorizer, FactorAlgorithm.getDefault());
+	protected static void setFactorizer(FactorAlgorithm factorizer) {
+		FactorTestBase.setFactorizer(factorizer, FactorAlgorithm.getDefault());
 	}
 
-	public FactorTestBase(FactorAlgorithm factorizer, FactorAlgorithm verificationFactorizer) {
-		this.factorizer = factorizer;
-		this.verificationFactorizer = verificationFactorizer;
+	protected static void setFactorizer(FactorAlgorithm factorizer, FactorAlgorithm verificationFactorizer) {
+		FactorTestBase.factorizer = factorizer;
+		FactorTestBase.verificationFactorizer = verificationFactorizer;
 	}
 	
 	/**

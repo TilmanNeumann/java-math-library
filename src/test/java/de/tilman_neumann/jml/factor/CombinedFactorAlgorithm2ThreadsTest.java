@@ -26,16 +26,13 @@ public class CombinedFactorAlgorithm2ThreadsTest extends FactorTestBase {
 
 	private boolean RUN_SLOW_TESTS_TOO = false;
 
-	public CombinedFactorAlgorithm2ThreadsTest() {
-		// gitgub CI results for the 236 bit test number:
-		// 1 thread -> 22s, 2 threads -> 12s, 4 threads -> 14s.
-		// Using 2 threads looks best so far.
-		super(new CombinedFactorAlgorithm(2, null, true));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		// gitgub CI results for the 236 bit test number:
+		// 1 thread -> 22s, 2 threads -> 12s, 4 threads -> 14s.
+		// Using 2 threads looks best so far.
+		setFactorizer(new CombinedFactorAlgorithm(2, null, true));
 	}
 	
 	@Test

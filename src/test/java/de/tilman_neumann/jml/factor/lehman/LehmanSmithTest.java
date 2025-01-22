@@ -30,13 +30,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class LehmanSmithTest extends FactorTestBase {
 
-	public LehmanSmithTest() {
-		super(new LehmanSmith(false));
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new LehmanSmith(false));
 	}
 	
 	@Test

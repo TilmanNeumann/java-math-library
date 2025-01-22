@@ -32,13 +32,10 @@ public class PollardRhoBrentMontgomery64Test extends FactorTestBase {
 
 	private static final boolean RUN_SLOW_TESTS_TOO = false;
 
-	public PollardRhoBrentMontgomery64Test() {
-		super(new PollardRhoBrentMontgomery64());
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new PollardRhoBrentMontgomery64());
 	}
 	
 	@Test

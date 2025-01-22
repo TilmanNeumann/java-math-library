@@ -25,13 +25,10 @@ import static org.junit.Assert.assertEquals;
 
 public class TinyEcm64MHTest extends FactorTestBase {
 
-	public TinyEcm64MHTest() {
-		super(new TinyEcm64MH());
-	}
-
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
+		setFactorizer(new TinyEcm64MH());
 	}
 	
 	@Test
