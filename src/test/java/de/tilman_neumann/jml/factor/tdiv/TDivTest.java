@@ -97,7 +97,7 @@ public class TDivTest {
 				if (tdivFactor.compareTo(I_1) <= 0) {
 					BigInteger correctFactor = verificationFactorizer.findSingleFactor(N);
 					if (correctFactor.compareTo(I_1) > 0 && correctFactor.compareTo(N) < 0) {
-						LOG.debug("N=" + N + ": TDiv63Inverse failed to find factor " + correctFactor);
+						LOG.debug("N=" + N + ": " + tdiv.getName() + " failed to find factor " + correctFactor);
 						failCount++;
 					} else {
 						LOG.error("The reference factorizer failed to factor N=" + N + " !");

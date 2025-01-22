@@ -75,7 +75,7 @@ public class TDiv31Test {
 				if (tdivFactor < 2) {
 					int correctFactor = verificationFactorizer.findSingleFactor(NBig).intValue();
 					if (correctFactor > 1 && correctFactor<N) {
-						LOG.debug("N=" + N + ": TDiv63Inverse failed to find factor " + correctFactor);
+						LOG.debug("N=" + N + ": " + tdiv.getName() + " failed to find factor " + correctFactor);
 						failCount++;
 					} else {
 						LOG.error("The reference factorizer failed to factor N=" + N + " !");
