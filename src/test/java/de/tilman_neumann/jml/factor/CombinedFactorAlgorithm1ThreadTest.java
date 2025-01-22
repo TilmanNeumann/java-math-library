@@ -11,33 +11,23 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  */
-package de.tilman_neumann.jml.factor.hart;
+package de.tilman_neumann.jml.factor;
 
 import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.tilman_neumann.jml.factor.FactorTestBase;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * QA tests for the HartFast2Mult factor algorithm.
- * 
- * Although Hart implementations usually need trial division up to cbrt(N),
- * this algorithm is capable of factoring many inputs with small prime factors.
- * I'm quite sure though that we could still find such numbers needing trial division.
- * 
- * The second interesting point is which size of inputs the algorithm is able to handle.
- * With array sizes I_MAX=2^21 the algorithm factors all test numbers here below 60 bit and some above.
- * testHarderSemiprimesWithFactorsOfDifferentSize() points out a few test numbers that are too hard.
- */
-public class HartFast2MultTest extends FactorTestBase {
+public class CombinedFactorAlgorithm1ThreadTest extends FactorTestBase {
 
-	public HartFast2MultTest() {
-		super(new HartFast2Mult(false));
+	private boolean RUN_SLOW_TESTS_TOO = false;
+
+	public CombinedFactorAlgorithm1ThreadTest() {
+		super(new CombinedFactorAlgorithm(1, null, true));
 	}
 
 	@BeforeClass
@@ -52,7 +42,7 @@ public class HartFast2MultTest extends FactorTestBase {
 	}
 
 	@Test
-	public void testCompositesWithSmallFactors() {
+	public void testSmallCompositesWithSmallFactors() {
 		assertFullFactorizationSuccess(949443, "3 * 11 * 28771"); // 20 bit
 		assertFullFactorizationSuccess(996433, "31 * 32143"); // 20 bit
 		assertFullFactorizationSuccess(1340465, "5 * 7 * 38299"); // 21 bit
@@ -83,14 +73,15 @@ public class HartFast2MultTest extends FactorTestBase {
 	}
 
 	@Test
-	public void testCompositesWithManyFactors() {
+	public void testSmallCompositesWithManyFactors() {
 		assertFullFactorizationSuccess(35184372094495L, "5 * 13^2 * 17 * 19 * 29 * 47 * 271 * 349"); // 46 bit
 		assertFullFactorizationSuccess(1096954293075013905L, "3 * 5 * 7^2 * 169681 * 8795650783"); // 60 bit
+		assertFullFactorizationSuccess(9223372036854775807L, "7^2 * 73 * 127 * 337 * 92737 * 649657"); // Long.MAX_VALUE = 2^63-1 
 		assertFullFactorizationSuccess(1100087778366101931L, "3 * 7 * 43 * 89 * 199 * 263 * 307 * 881 * 967"); // Fibonacci(88), 60 bit
 	}
 	
 	@Test
-	public void testSquares() {
+	public void testSmallSquares() {
 		assertFullFactorizationSuccess(100140049, "10007^2"); // 27 bit
 		assertFullFactorizationSuccess(10000600009L, "100003^2"); // 34 bit
 		assertFullFactorizationSuccess(1000006000009L, "1000003^2"); // 40 bit
@@ -104,7 +95,7 @@ public class HartFast2MultTest extends FactorTestBase {
 	}
 
 	@Test
-	public void testSemiprimesWithFactorsOfSimilarSize() {
+	public void testSmallSemiprimesWithFactorsOfSimilarSize() {
 		assertFullFactorizationSuccess(2157195374713L, "1037957 * 2078309"); // 41 bit
 		assertFullFactorizationSuccess(8370014680591L, "2046637 * 4089643"); // 43 bit
 		assertFullFactorizationSuccess(22568765132167L, "3360503 * 6715889"); // 45 bit
@@ -148,7 +139,7 @@ public class HartFast2MultTest extends FactorTestBase {
 	}
 
 	@Test
-	public void testSemiprimesWithFactorsOfDifferentSize() {
+	public void testSmallSemiprimesWithFactorsOfDifferentSize() {
 		assertFullFactorizationSuccess(5640012124823L, "23117 * 243976819"); // 43 bit
 		assertFullFactorizationSuccess(7336014366011L, "24781 * 296033831"); // 43 bit
 		assertFullFactorizationSuccess(19699548984827L, "1464751 * 13449077"); // 45 bit
@@ -184,7 +175,7 @@ public class HartFast2MultTest extends FactorTestBase {
 	}
 
 	@Test
-	public void testHarderSemiprimesWithFactorsOfSimilarSize() {
+	public void testHarderSmallSemiprimesWithFactorsOfSimilarSize() {
 		assertFullFactorizationSuccess(1454149122259871L, "26970011 * 53917261"); // 51 bit
 		assertFullFactorizationSuccess(5963992216323061L, "54599437 * 109231753"); // 53 bit
 		assertFullFactorizationSuccess(26071073737844227L, "114161413 * 228370279"); // 55 bit
@@ -194,21 +185,44 @@ public class HartFast2MultTest extends FactorTestBase {
 		assertFullFactorizationSuccess(107563481071570333L, "231892711 * 463850203"); // 57 bit
 		assertFullFactorizationSuccess(107326406641253893L, "231668813 * 463275161"); // 57 bit
 		assertFullFactorizationSuccess(120459770277978457L, "245433631 * 490803847"); // 57 bit
-		assertFullFactorizationFailure(3225273260887418687L, "567914891 * 5679148957"); // 62 bit, needs I_MAX=2^23
+		assertFullFactorizationSuccess(3225273260887418687L, "567914891 * 5679148957"); // 62 bit
 	}
 	
 	@Test
-	public void testHarderSemiprimesWithFactorsOfDifferentSize() {
+	public void testHarderSmallSemiprimesWithFactorsOfDifferentSize() {
 		assertFullFactorizationSuccess(17977882519205951L, "6026521 * 2983127831"); // 54 bit
 		assertFullFactorizationSuccess(57410188984551071L, "7419119 * 7738141009"); // 56 bit
 		assertFullFactorizationSuccess(708198179721093877L, "31472003 * 22502481959"); // 60 bit
 		assertFullFactorizationSuccess(4085731848127832849L, "825205747 * 4951167467"); // 62 bit
 		
-		assertFullFactorizationFailure(873351084013120721L, "29133103 * 29977963007"); // 60 bit, needs I_MAX=2^22
-		assertFullFactorizationFailure(7355428158429213199L, "6226303 * 1181347608433"); // 63 bit, needs I_MAX=2^22
-		assertFullFactorizationFailure(7836704265571283783L, "130781947 * 59921911589"); // 63 bit, needs I_MAX=2^22
-		assertFullFactorizationFailure(8940500625246794041L, "240556271 * 37165942871"); // 63 bit, needs I_MAX=2^22
-		assertFullFactorizationFailure(3608228875180849937L, "49696057 * 72605938841"); // 62 bit, needs I_MAX=2^23
-		assertFullFactorizationFailure(9170754184293724117L, "290060959 * 31616644363"); // 63 bit, does not even work with I_MAX=2^25
+		assertFullFactorizationSuccess(873351084013120721L, "29133103 * 29977963007"); // 60 bit
+		assertFullFactorizationSuccess(7355428158429213199L, "6226303 * 1181347608433"); // 63 bit
+		assertFullFactorizationSuccess(7836704265571283783L, "130781947 * 59921911589"); // 63 bit
+		assertFullFactorizationSuccess(8940500625246794041L, "240556271 * 37165942871"); // 63 bit
+		assertFullFactorizationSuccess(3608228875180849937L, "49696057 * 72605938841"); // 62 bit
+		assertFullFactorizationSuccess(9170754184293724117L, "290060959 * 31616644363"); // 63 bit
+	}
+
+	@Test
+	public void testSomeBiggerNumbers() {
+		assertFullFactorizationSuccess("1100087778366101931", "3 * 7 * 43 * 89 * 199 * 263 * 307 * 881 * 967"); // Fibonacci(88), 60 bit
+		assertFullFactorizationSuccess("15841065490425479923", "2604221509 * 6082841047"); // 64 bit
+		assertFullFactorizationSuccess("11111111111111111111111111", "11 * 53 * 79 * 859 * 265371653 * 1058313049"); // 84 bit
+		assertFullFactorizationSuccess("5679148659138759837165981543", "3^3 * 466932157 * 450469808245315337"); // 93 bit
+		assertFullFactorizationSuccess("874186654300294020965320730991996026550891341278308", "2^2 * 3 * 471997 * 654743 * 2855761 * 79833227 * 982552477 * 1052328969055591"); // 170 bit
+		assertFullFactorizationSuccess("11111111111111111111111111155555555555111111111111111", "67 * 157 * 1056289676880987842105819104055096069503860738769"); // 173 bit
+		assertFullFactorizationSuccess("1388091470446411094380555803943760956023126025054082930201628998364642", "2 * 3 * 1907 * 1948073 * 1239974331653 * 50222487570895420624194712095309533522213376829"); // 230 bit
+		// 236 bit, takes ~ 8 seconds with 2 threads on Ryzen3900X
+		assertFullFactorizationSuccess("99999999999999999999999999999999999999999999999999999999999999999999999", "3^2 * 241573142393627673576957439049 * 45994811347886846310221728895223034301839");
+		if (RUN_SLOW_TESTS_TOO) {
+			 // 263 bit bit, takes ~ 52 seconds with 2 threads on Ryzen3900X
+			assertFullFactorizationSuccess("10000000000000000000000000000000000000000000000000000000000000000000000000005923", "1333322076518899001350381760807974795003 * 7500063320115780212377802894180923803641");
+			 // 280 bit bit, takes ~ 158 seconds with 2 threads on Ryzen3900X
+			assertFullFactorizationSuccess("1794577685365897117833870712928656282041295031283603412289229185967719140138841093599", "42181796536350966453737572957846241893933 * 42543889372264778301966140913837516662044603");
+		}
+		
+		// this one only needs only trial division, very fast...
+		assertFullFactorizationSuccess("2900608971182010301486951469292513060638582965350239259380273225053930627446289431038392125", "3^11 * 5^3 * 7^6 * 11^2 * 13^2 * 17^2 * 19 * 37 * 41 * 53 * 59 * 61 * 73 * 113 * 151 * 227^2 * 271 * 337 * 433 * 457 * 547 * 953 * 11113 * 11117 * 11119 * 33343 * 33347 * 33349 * 33353 * 33359"); // 301 bit
+		// = 33333 * 33335 * 33337 * 33339 * 33341 * 33343 * 33345 * 33347 * 33349 * 33351 * 33353 * 33355 * 33357 * 33359 * 33361 * 33363 * 33367 * 33369 * 33369 * 33371
 	}
 }

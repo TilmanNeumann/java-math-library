@@ -13,24 +13,21 @@
  */
 package de.tilman_neumann.jml.factor.pollardRho;
 
-import java.math.BigInteger;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.tilman_neumann.jml.factor.FactorTestInfrastructure;
+import de.tilman_neumann.jml.factor.FactorTestBase;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
 
 import static org.junit.Assert.assertEquals;
 
-public class PollardRhoTwoLoopsTest {
-	private static final Logger LOG = LogManager.getLogger(PollardRhoTwoLoopsTest.class);
+public class PollardRhoTwoLoopsTest extends FactorTestBase {
 
-	private static final PollardRhoTwoLoops pollardRho = new PollardRhoTwoLoops();
+	public PollardRhoTwoLoopsTest() {
+		super(new PollardRhoTwoLoops());
+	}
 
 	@BeforeClass
 	public static void setup() {
@@ -39,26 +36,16 @@ public class PollardRhoTwoLoopsTest {
 	
 	@Test
 	public void testSmallestComposites() {
-		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(100000, pollardRho);
+		List<Integer> fails = testFullFactorizationOfComposites(100000);
 		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
 	@Test
 	public void testSomeInputs() {
-		assertFactorizationSuccess("9223372036854775807", "7^2 * 73 * 127 * 337 * 92737 * 649657"); // Long.MAX_VALUE = 2^63-1 
-		assertFactorizationSuccess("18446744073709551617",  "274177 * 67280421310721"); // F6
-		assertFactorizationSuccess("5679148659138759837165981543", "3^3 * 466932157 * 450469808245315337");
-		assertFactorizationSuccess("8225267468394993133669189614204532935183709603155231863020477010700542265332938919716662623",
+		assertFullFactorizationSuccess("9223372036854775807", "7^2 * 73 * 127 * 337 * 92737 * 649657"); // Long.MAX_VALUE = 2^63-1 
+		assertFullFactorizationSuccess("18446744073709551617",  "274177 * 67280421310721"); // F6
+		assertFullFactorizationSuccess("5679148659138759837165981543", "3^3 * 466932157 * 450469808245315337");
+		assertFullFactorizationSuccess("8225267468394993133669189614204532935183709603155231863020477010700542265332938919716662623",
 				"1234567891 * 1234567907 * 1234567913 * 1234567927 * 1234567949 * 1234567967 * 1234567981 * 1234568021 * 1234568029 * 1234568047");
-	}
-	
-	private void assertFactorizationSuccess(String oddNStr, String expectedPrimeFactorizationStr) {
-		long t0, t1;
-		t0 = System.currentTimeMillis();
-		BigInteger N = new BigInteger(oddNStr);
-		SortedMultiset<BigInteger> factorResult = pollardRho.factor(N);
-		assertEquals(expectedPrimeFactorizationStr, factorResult.toString("*", "^"));
-		t1 = System.currentTimeMillis();
-		LOG.info("Factoring " + oddNStr + " took " + (t1-t0) + "ms");
 	}
 }

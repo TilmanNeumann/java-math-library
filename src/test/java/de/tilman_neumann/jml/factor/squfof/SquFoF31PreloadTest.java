@@ -14,29 +14,20 @@
 package de.tilman_neumann.jml.factor.squfof;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
-import java.math.BigInteger;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.factor.FactorTestInfrastructure;
-import de.tilman_neumann.jml.factor.TestNumberNature;
-import de.tilman_neumann.jml.factor.TestsetGenerator;
+import de.tilman_neumann.jml.factor.FactorTestBase;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
 
-public class SquFoF31PreloadTest {
+public class SquFoF31PreloadTest extends FactorTestBase {
 
-	private static final Logger LOG = LogManager.getLogger(SquFoF31PreloadTest.class);
-
-	private static final SquFoF31Preload squfof = new SquFoF31Preload();
-	private static final FactorAlgorithm verificationFactorizer = FactorAlgorithm.getDefault();
+	public SquFoF31PreloadTest() {
+		super(new SquFoF31Preload());
+	}
 
 	@BeforeClass
 	public static void setup() {
@@ -45,54 +36,17 @@ public class SquFoF31PreloadTest {
 	
 	@Test
 	public void testSmallestComposites() {
-		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(100000, squfof);
+		List<Integer> fails = testFullFactorizationOfComposites(100000);
 		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
 	@Test
 	public void testSomeParticularNumbers() {
-		assertFactorizationSuccess(1099511627970L, "2 * 3 * 5 * 7 * 23 * 227642159"); // 41 bit
+		assertFullFactorizationSuccess(1099511627970L, "2 * 3 * 5 * 7 * 23 * 227642159"); // 41 bit
 	}
 
-	/**
-	 * Tests random composite numbers in the range where SquFoF31Preload should work correctly, i.e. up to 52 or 53 bit.
-	 */
 	@Test
-	public void testRandomComposites() {
-		int count = 10000;
-		for (int bits=40; bits<54; bits++) { // not sure if 53 bit numbers are completely safe
-			BigInteger[] testNumbers = TestsetGenerator.generate(count, bits, TestNumberNature.RANDOM_ODD_COMPOSITES);
-			LOG.info("Testing " + count + " random numbers with " + bits + " bit...");
-			int failCount = 0;
-			for (int i=0; i<count; i++) {
-				BigInteger NBig = testNumbers[i];
-				long N = NBig.longValue();
-				long squfofFactor = squfof.findSingleFactor(N);
-				if (squfofFactor < 2) {
-					long correctFactor = verificationFactorizer.findSingleFactor(NBig).longValue();
-					if (correctFactor > 1 && correctFactor<N) {
-						LOG.debug("N=" + N + ": SquFoF31Preload failed to find factor " + correctFactor);
-						failCount++;
-					} else {
-						LOG.error("The reference factorizer failed to factor N=" + N + " !");
-						fail();
-					}
-				} else {
-					if (N % squfofFactor != 0) {
-						failCount++;
-					}
-				}
-			}
-			LOG.info("    #fails = " + failCount);
-			assertEquals(failCount, 0);
-		}
-	}
-
-	private void assertFactorizationSuccess(long N, String expectedPrimeFactorizationStr) {
-		BigInteger NBig = BigInteger.valueOf(N);
-		LOG.info("Test " + N + " (" + NBig.bitLength() + " bit)");
-		SortedMultiset<BigInteger> factors = squfof.factor(NBig);
-		LOG.info(N + " = " + factors.toString("*", "^"));
-		assertEquals(expectedPrimeFactorizationStr, factors.toString("*", "^"));
+	public void testFindSingleFactorForRandomCompositesNearUpperBound() {
+		testFindSingleFactorForRandomOddComposites(40, 53, 10000);
 	}
 }

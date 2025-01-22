@@ -14,32 +14,22 @@
 package de.tilman_neumann.jml.factor.tdiv;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.fail;
 
-import java.math.BigInteger;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.tilman_neumann.jml.factor.FactorAlgorithm;
-import de.tilman_neumann.jml.factor.FactorTestInfrastructure;
-import de.tilman_neumann.jml.factor.TestNumberNature;
-import de.tilman_neumann.jml.factor.TestsetGenerator;
+import de.tilman_neumann.jml.factor.FactorTestBase;
 import de.tilman_neumann.jml.factor.squfof.SquFoF63;
 import de.tilman_neumann.util.ConfigUtil;
-import de.tilman_neumann.util.SortedMultiset;
 
-public class TDiv31InverseTest {
+public class TDiv31InverseTest extends FactorTestBase {
 
-	private static final Logger LOG = LogManager.getLogger(TDiv31InverseTest.class);
-
-	private static final TDiv31Inverse tdiv = new TDiv31Inverse();
-	// don't use CombinedFactorAlgorithm as verificationFactorizer because Tdiv is part of it
-	private static final FactorAlgorithm verificationFactorizer = new SquFoF63();
+	public TDiv31InverseTest() {
+		// don't use CombinedFactorAlgorithm as verificationFactorizer because Tdiv is part of it
+		super(new TDiv31Inverse(), new SquFoF63());
+	}
 
 	@BeforeClass
 	public static void setup() {
@@ -48,64 +38,18 @@ public class TDiv31InverseTest {
 	
 	@Test
 	public void testSmallestComposites() {
-		List<Integer> fails = FactorTestInfrastructure.testSmallComposites(100000, tdiv);
+		List<Integer> fails = testFullFactorizationOfComposites(100000);
 		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 
 	@Test
 	public void testSomeParticularNumbers() {
-		assertFactorizationSuccess(621887327L, "853 * 729059"); // 30 bit
-		assertFactorizationSuccess(676762483L, "877 * 771679"); // 30 bit
+		assertFullFactorizationSuccess(621887327L, "853 * 729059"); // 30 bit
+		assertFullFactorizationSuccess(676762483L, "877 * 771679"); // 30 bit
 	}
 
-	/**
-	 * Tests random composite numbers in the range where TDiv63Test should work correctly, i.e. with factorLimit=2^21 up to 42 bit.
-	 */
 	@Test
-	public void testRandomComposites() {
-		int count = 10000;
-		for (int bits=20; bits<32; bits++) {
-			BigInteger[] testNumbers = TestsetGenerator.generate(count, bits, TestNumberNature.RANDOM_ODD_COMPOSITES);
-			LOG.info("Testing " + count + " random numbers with " + bits + " bit...");
-			int failCount = 0;
-			for (int i=0; i<count; i++) {
-				BigInteger NBig = testNumbers[i];
-				int N = NBig.intValue();
-				int tdivFactor = tdiv.findSingleFactor(N);
-				if (tdivFactor < 2) {
-					int correctFactor = verificationFactorizer.findSingleFactor(NBig).intValue();
-					if (correctFactor > 1 && correctFactor<N) {
-						LOG.debug("N=" + N + ": " + tdiv.getName() + " failed to find factor " + correctFactor);
-						failCount++;
-					} else {
-						LOG.error("The reference factorizer failed to factor N=" + N + " !");
-						fail();
-					}
-				} else {
-					if (N % tdivFactor != 0) {
-						failCount++;
-					}
-				}
-			}
-			LOG.info("    #fails = " + failCount);
-			assertEquals(failCount, 0);
-		}
-	}
-
-	private void assertFactorizationSuccess(long N, String expectedPrimeFactorizationStr) {
-		BigInteger NBig = BigInteger.valueOf(N);
-		LOG.info("Test " + N + " (" + NBig.bitLength() + " bit)");
-		SortedMultiset<BigInteger> factors = tdiv.factor(NBig);
-		LOG.info(N + " = " + factors.toString("*", "^"));
-		assertEquals(expectedPrimeFactorizationStr, factors.toString("*", "^"));
-	}
-
-	@SuppressWarnings("unused")
-	private void assertFactorizationError(long N, String expectedPrimeFactorizationStr) {
-		BigInteger NBig = BigInteger.valueOf(N);
-		LOG.info("Test " + N + " (" + NBig.bitLength() + " bit)");
-		SortedMultiset<BigInteger> factors = tdiv.factor(NBig);
-		LOG.info(N + " = " + factors.toString("*", "^"));
-		assertNotEquals(expectedPrimeFactorizationStr, factors.toString("*", "^"));
+	public void testFindSingleFactorForRandomCompositesNearUpperBound() {
+		testFindSingleFactorForRandomOddComposites(20, 31, 10000);
 	}
 }
