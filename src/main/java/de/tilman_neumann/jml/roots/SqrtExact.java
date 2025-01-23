@@ -111,7 +111,7 @@ public class SqrtExact {
 					if (!squareRests[i].contains(rest)) return null; // rest = n % nextMod is no square rest
 				}
 			}
-		}
+		} // else: it seems to be impossible to beat the performance of Math.sqrt(long)
 		
 		// Newton sqrt() required
 		BigInteger[] isqrt = SqrtInt.iSqrt(n);
