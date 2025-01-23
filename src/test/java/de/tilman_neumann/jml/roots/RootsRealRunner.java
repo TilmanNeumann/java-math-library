@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -25,7 +25,7 @@ import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.TimeUtil;
 
 /**
- * Test i.th root of floating point numbers by user input.
+ * Test n.th root of floating point numbers by user input.
  *  
  * @author Tilman Neumann
  */
@@ -34,32 +34,30 @@ public class RootsRealRunner {
   
 	/**
 	 * Test.
-	 * @param argv command line arguments
+	 * @param args ignored
 	 */
-	public static void main(String[] argv) {
+	public static void main(String[] args) {
     	ConfigUtil.initProject();
     	
 	   	while (true) {
 			try {
-				LOG.info("\nPlease insert <x> <maximal scale>:");
+				LOG.info("\nPlease insert <x> <root> <maximal scale>:");
 				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 				String line = in.readLine();
 				String[] splitted = line.split("\\s+");
 				BigDecimal x = new BigDecimal(splitted[0]);
-				Integer maxScaleInput = Integer.parseInt(splitted[1]);
+				Integer root = Integer.parseInt(splitted[1]);
+				Integer maxScaleInput = Integer.parseInt(splitted[2]);
 			    Scale maxScale = Scale.valueOf(maxScaleInput);
-		        long t0, t1;
 		        
-		        t0 = System.currentTimeMillis();
-		    	for (int i=2; i<10; i++) {
-		    		for (Scale scale = Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
-		        		LOG.debug(i + ".th root(" + x  + ", " + scale + ") = " + RootsReal.ithRoot(x, i, scale));
-		        	}
+		        long t0 = System.currentTimeMillis();
+		        for (Scale scale = Scale.valueOf(2); scale.compareTo(maxScale)<=0; scale = scale.add(1)) {
+		        	LOG.debug(root + ".th root(" + x  + ", " + scale + ") = " + RootsReal.ithRoot(x, root, scale));
 		        }
-		        t1 = System.currentTimeMillis();
+		        long t1 = System.currentTimeMillis();
 		        LOG.debug("Time of root computations: " + TimeUtil.timeDiffStr(t0,t1));
 			} catch (Exception ex) {
-				LOG.error("Error " + ex, ex);
+				LOG.error("Illegal input...");
 			}
 		}
 	}
