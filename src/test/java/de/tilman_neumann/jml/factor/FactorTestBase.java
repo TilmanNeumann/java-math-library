@@ -171,9 +171,8 @@ public class FactorTestBase {
 	 */
 	protected void assertFullFactorizationSuccess(long N, String expectedPrimeFactorizationStr) {
 		BigInteger NBig = BigInteger.valueOf(N);
-		LOG.info("Test " + N + " (" + NBig.bitLength() + " bit)");
 		SortedMultiset<BigInteger> factors = factorizer.factor(NBig);
-		LOG.info(N + " = " + factors.toString("*", "^"));
+		LOG.info(N + " (" + NBig.bitLength() + " bit) = " + factors.toString("*", "^"));
 		assertEquals(expectedPrimeFactorizationStr, factors.toString("*", "^"));
 	}
 
@@ -184,9 +183,8 @@ public class FactorTestBase {
 	 */
 	protected void assertFullFactorizationFailure(long N, String expectedPrimeFactorizationStr) {
 		BigInteger NBig = BigInteger.valueOf(N);
-		LOG.info("Test " + N + " (" + NBig.bitLength() + " bit)");
 		SortedMultiset<BigInteger> factors = factorizer.factor(NBig);
-		LOG.info(N + " = " + factors.toString("*", "^"));
+		LOG.info(N + " (" + NBig.bitLength() + " bit) = " + factors.toString("*", "^"));
 		assertNotEquals(expectedPrimeFactorizationStr, factors.toString("*", "^"));
 	}
 
@@ -196,13 +194,12 @@ public class FactorTestBase {
 	 * @param expectedPrimeFactorizationStr string representation of the expected full prime factorization
 	 */
 	protected void assertFullFactorizationSuccess(String NStr, String expectedPrimeFactorizationStr) {
-		long t0, t1;
-		t0 = System.currentTimeMillis();
 		BigInteger N = new BigInteger(NStr);
+		long t0 = System.currentTimeMillis();
 		SortedMultiset<BigInteger> factors = factorizer.factor(N);
+		long t1 = System.currentTimeMillis();
+		LOG.info(N + " (" + N.bitLength() + " bit) = " + factors.toString("*", "^") + " computed in " + (t1-t0) + "ms");
 		assertEquals(expectedPrimeFactorizationStr, factors.toString("*", "^"));
-		t1 = System.currentTimeMillis();
-		LOG.info("Factoring " + NStr + " took " + (t1-t0) + "ms");
 	}
 
 	/**
@@ -210,13 +207,12 @@ public class FactorTestBase {
 	 * @param NStr string representation of the integer to factor (should be odd)
 	 * @param expectedPrimeFactorizationStr string representation of the correct full prime factorization
 	 */
-	protected void assertFullFactorizationFailure(String oddNStr, String expectedPrimeFactorizationStr) {
-		long t0, t1;
-		t0 = System.currentTimeMillis();
-		BigInteger N = new BigInteger(oddNStr);
-		SortedMultiset<BigInteger> factorResult = factorizer.factor(N);
-		assertNotEquals(expectedPrimeFactorizationStr, factorResult.toString("*", "^"));
-		t1 = System.currentTimeMillis();
-		LOG.info("Factoring " + oddNStr + " took " + (t1-t0) + "ms");
+	protected void assertFullFactorizationFailure(String NStr, String expectedPrimeFactorizationStr) {
+		BigInteger N = new BigInteger(NStr);
+		long t0 = System.currentTimeMillis();
+		SortedMultiset<BigInteger> factors = factorizer.factor(N);
+		long t1 = System.currentTimeMillis();
+		LOG.info(N + " (" + N.bitLength() + " bit) = " + factors.toString("*", "^") + " computed in " + (t1-t0) + "ms");
+		assertNotEquals(expectedPrimeFactorizationStr, factors.toString("*", "^"));
 	}
 }
