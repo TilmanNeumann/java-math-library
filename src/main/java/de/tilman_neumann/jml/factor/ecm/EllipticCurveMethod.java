@@ -1698,8 +1698,14 @@ public class EllipticCurveMethod extends FactorAlgorithm {
 	    if (i < 0 || B[i] < CalcAuxModInvMu[i]) { // If B < Mu
 	    	SubtractBigNbr32(CalcAuxModInvMu, B, CalcAuxModInvMu); // Mu <- Mu - B
 	    }
-	    // XXX Convert32To31Bits() does not work for negative inputs!
+	    // It doesn't matter here that Convert32To31Bits() does not work for negative inputs, because CalcAuxModInvMu is always positive
 	    Convert32To31Bits(CalcAuxModInvMu, inv, NumberLength);
+	    if (DEBUG) {
+		    BigInteger inv32 = BigIntToBigNbr(CalcAuxModInvMu);
+		    Ensure.ensureGreater(inv32.signum(), 0);
+		    BigInteger inv31 = BigIntToBigNbr(inv);
+		    Ensure.ensureEquals(inv32, inv31);
+	    }
 	}
 
 	BigInteger BigIntToBigNbr(int[] nbr) {
