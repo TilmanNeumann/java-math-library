@@ -15,6 +15,7 @@ package de.tilman_neumann.jml.factor.tdiv;
 
 import static org.junit.Assert.assertEquals;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -35,7 +36,7 @@ public class TDiv63InverseTest extends FactorTestBase {
 	
 	@Test
 	public void testSmallestComposites() {
-		List<Integer> fails = testFullFactorizationOfComposites(100000);
+		List<BigInteger> fails = testFullFactorizationOfComposites(100000);
 		assertEquals("Failed to factor n = " + fails, 0, fails.size());
 	}
 

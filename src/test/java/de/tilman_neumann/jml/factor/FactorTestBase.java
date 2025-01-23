@@ -14,6 +14,7 @@
 package de.tilman_neumann.jml.factor;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.I_1;
+import static de.tilman_neumann.jml.base.BigIntConstants.I_4;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
@@ -59,8 +60,8 @@ public class FactorTestBase {
 	 * @param factorAlgorithm
 	 * @return list of the factor arguments that were not factored correctly
 	 */
-	public List<Integer> testFullFactorizationOfComposites(int nMax) {
-		return testFullFactorizationOfComposites(4, nMax);
+	protected List<BigInteger> testFullFactorizationOfComposites(long nMax) {
+		return testFullFactorizationOfComposites(I_4, BigInteger.valueOf(nMax));
 	}
 
 	/**
@@ -72,13 +73,11 @@ public class FactorTestBase {
 	 * @return list of the factor arguments that were not factored correctly
 	 */
 	// XXX This test could be made more efficient using a prime or composites sieve
-	// TODO use BigIntegers as arguments
-	protected List<Integer> testFullFactorizationOfComposites(int nMin, int nMax) {
-		ArrayList<Integer> fails = new ArrayList<>();
-		for (int n=nMin; n<=nMax; n++) {
+	protected List<BigInteger> testFullFactorizationOfComposites(BigInteger nMin, BigInteger nMax) {
+		ArrayList<BigInteger> fails = new ArrayList<>();
+		for (BigInteger n=nMin; n.compareTo(nMax)<=0; n=n.add(I_1)) {
 			if (bpsw.isProbablePrime(n)) continue; // skip primes
-			BigInteger nBig = BigInteger.valueOf(n);
-			SortedMultiset<BigInteger> factors = factorizer.factor(nBig);
+			SortedMultiset<BigInteger> factors = factorizer.factor(n);
 			boolean isFail = false;
 			BigInteger testProd = I_1;
 			for (BigInteger factor : factors.keySet()) {
@@ -90,7 +89,7 @@ public class FactorTestBase {
 				BigInteger pow = factor.pow(exp);
 				testProd = testProd.multiply(pow);
 			}
-			if (!testProd.equals(nBig)) {
+			if (!testProd.equals(n)) {
 				isFail = true;
 			}
 			if (isFail) {
@@ -108,7 +107,7 @@ public class FactorTestBase {
 	 * @param factorAlgorithm
 	 * @return list of the factor arguments that were not factored correctly
 	 */
-	public List<BigInteger> testFindSingleFactorForSemiprimes(BigInteger nMin, BigInteger nMax) {
+	protected List<BigInteger> testFindSingleFactorForSemiprimes(BigInteger nMin, BigInteger nMax) {
 		ArrayList<BigInteger> fails = new ArrayList<>();
 		for (BigInteger n=nMin; n.compareTo(nMax)<=0; n=n.add(I_1)) {
 			if (!isSemiprime(n)) continue;
