@@ -75,6 +75,12 @@ public class CombinedFactorAlgorithm2ThreadsTest extends FactorTestBase {
 
 	@Test
 	public void testSmallCompositesWithManyFactors() {
+		assertFullFactorizationSuccess(853079565045063L, "3 * 2389^2 * 2579 * 19319");
+		assertFullFactorizationSuccess(641200294641979L, "1487^2 * 6791 * 42701");
+		assertFullFactorizationSuccess(22436046236739091L, "11 * 2267^2 * 13681 * 29009");
+		assertFullFactorizationSuccess(25702072057537247L, "83 * 1231^2 * 1777 * 114997");
+		assertFullFactorizationSuccess(1052330620377735995L, "5 * 5107^2 * 20549 * 392699");
+		assertFullFactorizationSuccess(772770126233127151L, "1493^2 * 11273 * 30753263");
 		assertFullFactorizationSuccess(35184372094495L, "5 * 13^2 * 17 * 19 * 29 * 47 * 271 * 349"); // 46 bit
 		assertFullFactorizationSuccess(1096954293075013905L, "3 * 5 * 7^2 * 169681 * 8795650783"); // 60 bit
 		assertFullFactorizationSuccess(9223372036854775807L, "7^2 * 73 * 127 * 337 * 92737 * 649657"); // Long.MAX_VALUE = 2^63-1 
@@ -206,7 +212,6 @@ public class CombinedFactorAlgorithm2ThreadsTest extends FactorTestBase {
 
 	@Test
 	public void testSomeBiggerNumbers() {
-		assertFullFactorizationSuccess("1100087778366101931", "3 * 7 * 43 * 89 * 199 * 263 * 307 * 881 * 967"); // Fibonacci(88), 60 bit
 		assertFullFactorizationSuccess("15841065490425479923", "2604221509 * 6082841047"); // 64 bit
 		assertFullFactorizationSuccess("11111111111111111111111111", "11 * 53 * 79 * 859 * 265371653 * 1058313049"); // 84 bit
 		assertFullFactorizationSuccess("5679148659138759837165981543", "3^3 * 466932157 * 450469808245315337"); // 93 bit

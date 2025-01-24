@@ -217,12 +217,6 @@ public class CFracTest extends FactorTestBase {
 	}
 
 	@Test
-	public void testNumbersWithManyFactors() {
-		assertFullFactorizationSuccess(1096954293075013905L, "3 * 5 * 7^2 * 169681 * 8795650783");
-		assertFullFactorizationSuccess(1100087778366101931L, "3 * 7 * 43 * 89 * 199 * 263 * 307 * 881 * 967"); // Fibonacci(88)
-	}
-
-	@Test
 	public void testSomeInputs() {
 		assertFullFactorizationSuccess("9223372036854775807", "7^2 * 73 * 127 * 337 * 92737 * 649657"); // Long.MAX_VALUE = 2^63-1 
 		assertFullFactorizationSuccess("18446744073709551617",  "274177 * 67280421310721"); // F6

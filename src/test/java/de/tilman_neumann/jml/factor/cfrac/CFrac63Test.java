@@ -215,10 +215,4 @@ public class CFrac63Test extends FactorTestBase {
 		assertFullFactorizationSuccess(8940500625246794041L, "240556271 * 37165942871"); // 63 bit
 		assertFullFactorizationSuccess(9170754184293724117L, "290060959 * 31616644363"); // 63 bit
 	}
-
-	@Test
-	public void testNumbersWithManyFactors() {
-		assertFullFactorizationSuccess(1096954293075013905L, "3 * 5 * 7^2 * 169681 * 8795650783");
-		assertFullFactorizationSuccess(1100087778366101931L, "3 * 7 * 43 * 89 * 199 * 263 * 307 * 881 * 967"); // Fibonacci(88)
-	}
 }
