@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -76,8 +76,7 @@ public class TDiv extends FactorAlgorithm {
 	}
 	
 	/**
-	 * Tries to find small factors of a positive, possibly large argument N by doing trial division
-	 * by all primes p &lt;= pLimit.
+	 * Try to find small factors of a positive, possibly large argument N by doing trial division by all primes p <= pLimit.
 	 * 
 	 * @param args
 	 * @param result a pre-initialized data structure to add results to
