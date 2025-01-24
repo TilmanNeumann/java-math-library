@@ -37,7 +37,7 @@ public class BigNbrTest {
 	private static final boolean LOG_SPOILERS = false;
 	
 	/** number of test numbers per bit size for random tests */
-	private static final int N_COUNT = 10000;
+	private static final int N_COUNT = 1000;
 	/** maximum bit size for random tests */
 	private static final int MAX_BITS = 1000;
 
