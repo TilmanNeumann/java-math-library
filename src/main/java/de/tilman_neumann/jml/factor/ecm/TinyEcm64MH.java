@@ -1149,24 +1149,24 @@ public class TinyEcm64MH extends FactorAlgorithm {
 		// tinyEcm is unstable when it comes to find factors of small composites like 735 = 3*5*7^2
 		// so we need some trial division first
 		tdiv.setTestLimit(1<<16).searchFactors(args, result);
-		
+		if (DEBUG) LOG.debug("result after tdiv = " + result);
+
 		if (result.untestedFactors.isEmpty()) return; // N was "easy"
 		// Otherwise we continue
 		BigInteger N = result.untestedFactors.firstKey();
-		int exp = result.untestedFactors.removeAll(N);
-		if (DEBUG) Ensure.ensureEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
+		int exp = result.untestedFactors.removeAll(N); // can be > 1
 
 		if (bpsw.isProbablePrime(N)) {
-			result.primeFactors.add(N);
+			result.primeFactors.add(N, exp);
 			return;
 		}
 
 		BigInteger factor1 = findSingleFactor(N);
-		//LOG.debug("After findSingleFactor()...");
+		if (DEBUG) LOG.debug("result after findSingleFactor() = " + result);
 		if (factor1.compareTo(I_1) > 0 && factor1.compareTo(N) < 0) {
 			// We found a factor, but here we cannot know if it is prime or composite
-			result.untestedFactors.add(factor1, args.exp);
-			result.untestedFactors.add(N.divide(factor1), args.exp);
+			result.untestedFactors.add(factor1, exp);
+			result.untestedFactors.add(N.divide(factor1), exp);
 		}
 
 		// nothing found

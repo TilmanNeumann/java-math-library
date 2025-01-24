@@ -71,6 +71,12 @@ public class TinyEcm64MHTest extends FactorTestBase {
 
 	@Test
 	public void testCompositesWithManyFactors() {
+		assertFullFactorizationSuccess(853079565045063L, "3 * 2389^2 * 2579 * 19319");
+		assertFullFactorizationSuccess(641200294641979L, "1487^2 * 6791 * 42701");
+		assertFullFactorizationSuccess(22436046236739091L, "11 * 2267^2 * 13681 * 29009");
+		assertFullFactorizationSuccess(25702072057537247L, "83 * 1231^2 * 1777 * 114997");
+		assertFullFactorizationSuccess(1052330620377735995L, "5 * 5107^2 * 20549 * 392699");
+		assertFullFactorizationSuccess(772770126233127151L, "1493^2 * 11273 * 30753263");
 		assertFullFactorizationSuccess(35184372094495L, "5 * 13^2 * 17 * 19 * 29 * 47 * 271 * 349"); // 46 bit
 		assertFullFactorizationSuccess(1096954293075013905L, "3 * 5 * 7^2 * 169681 * 8795650783"); // 60 bit
 		assertFullFactorizationSuccess(1100087778366101931L, "3 * 7 * 43 * 89 * 199 * 263 * 307 * 881 * 967"); // Fibonacci(88), 60 bit
@@ -199,11 +205,5 @@ public class TinyEcm64MHTest extends FactorTestBase {
 		//assertFactorizationSuccess(7836704265571283783L, "130781947 * 59921911589"); // 63 bit
 		//assertFactorizationSuccess(8940500625246794041L, "240556271 * 37165942871"); // 63 bit
 		//assertFactorizationSuccess(9170754184293724117L, "290060959 * 31616644363"); // 63 bit
-	}
-
-	@Test
-	public void testNumbersWithManyFactors() {
-		assertFullFactorizationSuccess(1096954293075013905L, "3 * 5 * 7^2 * 169681 * 8795650783");
-		assertFullFactorizationSuccess(1100087778366101931L, "3 * 7 * 43 * 89 * 199 * 263 * 307 * 881 * 967"); // Fibonacci(88)
 	}
 }
