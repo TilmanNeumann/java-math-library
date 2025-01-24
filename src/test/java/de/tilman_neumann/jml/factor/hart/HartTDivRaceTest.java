@@ -28,6 +28,7 @@ import static org.junit.Assert.assertEquals;
  * QA tests for the HartTDivRace factor algorithm.
  * 
  * The tests show that this implementation is surprisingly stable.
+ * The few test errors are caussed by too small sqrt arrays.
  */
 public class HartTDivRaceTest extends FactorTestBase {
 
@@ -72,6 +73,13 @@ public class HartTDivRaceTest extends FactorTestBase {
 		assertFullFactorizationSuccess(569172749, "83 * 6857503"); // 30 bit
 		assertFullFactorizationSuccess(624800360363L, "233 * 2681546611"); // 40 bit
 		assertFullFactorizationSuccess(883246601513L, "251 * 3518910763"); // 40 bit
+		assertFullFactorizationSuccess(625284020431L, "7 * 89326288633");
+		assertFullFactorizationSuccess(586263075576L, "2^3 * 3 * 24427628149");
+		assertFullFactorizationSuccess(864106952674L, "2 * 7 * 61721925191");
+		assertFullFactorizationSuccess(926922993731L, "7 * 132417570533");
+		assertFullFactorizationSuccess(718370101419L, "3 * 239456700473");
+		assertFullFactorizationSuccess(34108147078032L, "2^4 * 3 * 710586397459");
+		assertFullFactorizationSuccess(906984307049289L, "3 * 7 * 293 * 147405218113");
 	}
 
 	@Test

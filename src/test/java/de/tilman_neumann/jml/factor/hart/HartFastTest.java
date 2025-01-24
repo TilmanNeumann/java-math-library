@@ -27,9 +27,10 @@ import static org.junit.Assert.assertEquals;
 /**
  * QA tests for the HartFast factor algorithm.
  * 
- * The factorization errors in this test point out that in comparison to the HartFast2Mult* variants
- * a) HartFast is not as resistant against small factors
- * b) it needs bigger sqrt arrays to factor big numbers
+ * Usually Hart implementations need trial division up to cbrt(N).
+ * This is confirmed by the tests although many numbers with small prime factors can be factored completely.
+ * 
+ * Some more test failures in this variant are caused by too small sqrt arrays.
  */
 public class HartFastTest extends FactorTestBase {
 
@@ -74,6 +75,13 @@ public class HartFastTest extends FactorTestBase {
 		assertFullFactorizationSuccess(569172749, "83 * 6857503"); // 30 bit
 		assertFullFactorizationSuccess(624800360363L, "233 * 2681546611"); // 40 bit
 		assertFullFactorizationSuccess(883246601513L, "251 * 3518910763"); // 40 bit
+		assertFullFactorizationFailure(625284020431L, "7 * 89326288633");
+		assertFullFactorizationFailure(586263075576L, "2^3 * 3 * 24427628149");
+		assertFullFactorizationFailure(864106952674L, "2 * 7 * 61721925191");
+		assertFullFactorizationFailure(926922993731L, "7 * 132417570533");
+		assertFullFactorizationFailure(718370101419L, "3 * 239456700473");
+		assertFullFactorizationFailure(34108147078032L, "2^4 * 3 * 710586397459");
+		assertFullFactorizationSuccess(906984307049289L, "3 * 7 * 293 * 147405218113"); // interesting
 	}
 
 	@Test
