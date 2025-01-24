@@ -43,7 +43,7 @@ import de.tilman_neumann.jml.base.Uint128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
-import de.tilman_neumann.jml.factor.tdiv.TDiv;
+import de.tilman_neumann.jml.factor.tdiv.TDiv63;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.jml.random.SpRand32;
@@ -55,6 +55,10 @@ import de.tilman_neumann.util.Ensure;
  * 
  * This variant implements montMul64() using _signed_ multiplications of two 64-bit numbers and Math.multiplyHigh().
  * Intrinsics support for Math.multiplyHigh() typically requires Java 10 and not too old hardware.
+ * 
+ * TinyEcm does not work stable (i.e. it would eventually not terminate) for factor arguments having 2 or more factors < 2^9.
+ * This issue has been addressed in the searchFactors() method, but not in findSingleFactor(), which should only be used to find factors of semiprimes
+ * with not too small factors.
  * 
  * @author Tilman Neumann
  */
@@ -102,7 +106,7 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 
 	private static final boolean DEBUG = false;
 
-	private static final int MAX_BITS_SUPPORTED = 62;
+	private static final int MAX_BITS_SUPPORTED = 62; // seems to work for 63 bit numbers now, but very slow - so not completely fixed for that
 	
 	// The reducer R is 2^64, but the only constant still required is the half of it.
 	private static final long R_HALF = 1L << 63;
@@ -161,7 +165,7 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 
 	private long LCGSTATE;
 	
-	private TDiv tdiv = new TDiv();
+	private TDiv63 tdiv = new TDiv63();
 
 	private BPSWTest bpsw = new BPSWTest();
 
@@ -1105,11 +1109,10 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * {@inheritDoc}<br/><br/>
 	 * 
-	 * <br><br>
-	 * WARNING: tinyEcm's findSingleFactor() implementation is unstable when called with N having only small factors, like 735=3*5*7^2.
-	 * In such cases, an suitable amount of trial division should be carried out before.
+	 * <strong>WARNING: This implementation does not work stable (i.e. it would eventually not terminate) for factor arguments having 2 or more factors < 2^9.</strong>
+	 * It should only be used when it is clear that this is not the case or after carrying out the required amount of trial division.
 	 */
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
@@ -1155,9 +1158,10 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 	
 	@Override
 	public void searchFactors(FactorArguments args, FactorResult result) {
-		// tinyEcm is unstable when it comes to find factors of small composites like 735 = 3*5*7^2
-		// so we need some trial division first
-		tdiv.setTestLimit(1<<16).searchFactors(args, result);
+		// tinyEcm fails (i.e. runs forever) for some N having >=2 small factors, like 735 = 3*5*7^2.
+		// THe required amount of trial division to fix that has been derived experimentally.
+		// With a tdiv limit of 2^8 it still fails sometimes; 2^9 is stable; 2^10 is best in terms of performance.
+		tdiv.setTestLimit(1<<10).searchFactors(args, result);
 		if (DEBUG) LOG.debug("result after tdiv = " + result);
 
 		if (result.untestedFactors.isEmpty()) return; // N was "easy"
