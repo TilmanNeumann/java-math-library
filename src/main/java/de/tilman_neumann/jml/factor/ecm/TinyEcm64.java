@@ -51,11 +51,10 @@ import de.tilman_neumann.util.Ensure;
 
 /**
  * A port of Ben Buhrow's tinyecm.c (https://www.mersenneforum.org/showpost.php?p=521028&postcount=84),
- * an ECM implementation for unsigned 64 bit integers.
+ * an ECM implementation for unsigned 64 bit integers.<br/><br/>
  * 
- * TinyEcm does not work stable (i.e. it would eventually not terminate) for factor arguments having 2 or more factors < 2^9.
- * This issue has been addressed in the searchFactors() method, but not in findSingleFactor(), which should only be used to find factors of semiprimes
- * with not too small factors.
+ * <strong>WARNING: Without trial division, tinyEcm might fail (i.e. run forever) for some N having >=2 small factors, like 735 = 3*5*7^2.</strong>
+ * If you are not sure about the nature of your test numbers, use doTDivFirst==true.
  * 
  * @author Tilman Neumann
  */
@@ -159,8 +158,6 @@ public class TinyEcm64 extends FactorAlgorithm {
 		0, 12, 0, 13, 0, 0, 0, 14, 0, 15,
 		0, 0, 0, 16, 0, 0, 0, 0, 0, 17,
 		18, 0 }; // last entry 0 or 1 makes no performance difference
-
-	private long LCGSTATE;
 	
 	private TDiv63 tdiv = new TDiv63();
 
@@ -169,6 +166,18 @@ public class TinyEcm64 extends FactorAlgorithm {
 	private Gcd63 gcd63 = new Gcd63();
 
 	private SpRand32 spRand32 = new SpRand32();
+	
+	private boolean doTDivFirst;
+	
+	/**
+	 * Standard constructor.<br/><br/>
+	 * <strong>WARNING: Without trial division, tinyEcm might fail (i.e. run forever) for some N having >=2 small factors, like 735 = 3*5*7^2.</strong>
+     *
+	 * @param doTDivFirst
+	 */
+	public TinyEcm64(boolean doTDivFirst) {
+		this.doTDivFirst = doTDivFirst;
+	}
 	
 	public String getName() {
 		return "TinyEcm64";
@@ -1095,22 +1104,20 @@ public class TinyEcm64 extends FactorAlgorithm {
         return (f>1 && f<n) ? f : 0;
 	}
 
-	/**
-	 * {@inheritDoc}<br/><br/>
-	 * 
-	 * <strong>WARNING: This implementation does not work stable (i.e. it would eventually not terminate) for factor arguments having 2 or more factors < 2^9.</strong>
-	 * It should only be used when it is clear that this is not the case or after carrying out the required amount of trial division.
-	 */
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		// original rng, not comparable with C version
-		//Random rng = new Random();
-		//rng.setSeed(42);
-		//LCGSTATE = 65537 * rng.nextInt();
-		// rng comparable with C version
-		LCGSTATE = 4295098403L;
-		if (DEBUG) LOG.debug("LCGSTATE = " + LCGSTATE);
-		
+		return findSingleFactor(N, this.doTDivFirst);
+	}
+
+	private BigInteger findSingleFactor(BigInteger N, boolean doTDivFirst) {
+		if (doTDivFirst) {
+			// Do trial division before ecm.
+			// The required amount of trial division has been derived experimentally.
+			// With a tdiv limit of 2^8 it still fails sometimes; 2^9 is stable; 2^10 is best in terms of performance.
+			final long factor = tdiv.setTestLimit(1<<10).findSingleFactor(N.longValue());
+			if (factor > 1) return BigInteger.valueOf(factor);
+		}
+				
 		int NBits = N.bitLength();
 		if (NBits > MAX_BITS_SUPPORTED) throw new IllegalArgumentException("N=" + N + " has " + NBits + " bit, but tinyEcm only supports arguments <= " + MAX_BITS_SUPPORTED + " bit.");
 		// TODO Try to make it work for 63, 64 bit numbers
@@ -1145,23 +1152,30 @@ public class TinyEcm64 extends FactorAlgorithm {
 	
 	@Override
 	public void searchFactors(FactorArguments args, FactorResult result) {
-		// tinyEcm fails (i.e. runs forever) for some N having >=2 small factors, like 735 = 3*5*7^2.
-		// THe required amount of trial division to fix that has been derived experimentally.
-		// With a tdiv limit of 2^8 it still fails sometimes; 2^9 is stable; 2^10 is best in terms of performance.
-		tdiv.setTestLimit(1<<10).searchFactors(args, result);
-		if (DEBUG) LOG.debug("result after tdiv = " + result);
-
-		if (result.untestedFactors.isEmpty()) return; // N was "easy"
-		// Otherwise we continue
-		BigInteger N = result.untestedFactors.firstKey();
-		int exp = result.untestedFactors.removeAll(N); // can be > 1
-
-		if (bpsw.isProbablePrime(N)) {
-			result.primeFactors.add(N, exp);
-			return;
+		BigInteger N;
+		int exp;
+		if (this.doTDivFirst) {
+			// Do trial division before ecm.
+			// The required amount of trial division has been derived experimentally.
+			// With a tdiv limit of 2^8 it still fails sometimes; 2^9 is stable; 2^10 is best in terms of performance.
+			tdiv.setTestLimit(1<<10).searchFactors(args, result);
+			if (DEBUG) LOG.debug("result after tdiv = " + result);
+	
+			if (result.untestedFactors.isEmpty()) return; // N was "easy"
+			// Otherwise we continue
+			N = result.untestedFactors.firstKey();
+			exp = result.untestedFactors.removeAll(N); // can be > 1
+	
+			if (bpsw.isProbablePrime(N)) {
+				result.primeFactors.add(N, exp);
+				return;
+			}
+		} else {
+			N = args.N;
+			exp = args.exp;
 		}
-
-		BigInteger factor1 = findSingleFactor(N);
+		
+		BigInteger factor1 = findSingleFactor(N, false);
 		if (DEBUG) LOG.debug("result after findSingleFactor() = " + result);
 		if (factor1.compareTo(I_1) > 0 && factor1.compareTo(N) < 0) {
 			// We found a factor, but here we cannot know if it is prime or composite

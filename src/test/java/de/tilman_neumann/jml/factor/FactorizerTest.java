@@ -170,9 +170,9 @@ public class FactorizerTest {
 //			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), new MatrixSolverGauss02(), 12),
 
 			// ECM
-//			new TinyEcm64(),
-			new TinyEcm64MH(),
-			new TinyEcm64MHInlined(), // best algorithm for N from 46 to 62 bit
+//			new TinyEcm64(true),
+			new TinyEcm64MH(true),
+			new TinyEcm64MHInlined(true), // best algorithm for N from 46 to 62 bit
 //			new EllipticCurveMethod(-1),
 
 			// SIQS:

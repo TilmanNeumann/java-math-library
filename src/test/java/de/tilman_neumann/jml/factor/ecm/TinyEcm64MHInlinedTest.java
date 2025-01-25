@@ -29,7 +29,7 @@ public class TinyEcm64MHInlinedTest extends FactorTestBase {
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
-		setFactorizer(new TinyEcm64MHInlined());
+		setFactorizer(new TinyEcm64MHInlined(true));
 	}
 	
 	@Test

@@ -61,7 +61,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 
 	private TDiv31Barrett tDiv31 = new TDiv31Barrett();
 	private HartFast2Mult hart = new HartFast2Mult(true); // for general factor arguments, trial division is needed
-	private TinyEcm64MHInlined tinyEcm = new TinyEcm64MHInlined();
+	private TinyEcm64MHInlined tinyEcm = new TinyEcm64MHInlined(true); // for general factor arguments, trial division is needed
 	private PollardRhoBrentMontgomery64MH pollardRhoBrentMontgomery64MH = new PollardRhoBrentMontgomery64MH();
 	private TDiv tdiv = new TDiv();
 	private EllipticCurveMethod ecm = new EllipticCurveMethod(0);
