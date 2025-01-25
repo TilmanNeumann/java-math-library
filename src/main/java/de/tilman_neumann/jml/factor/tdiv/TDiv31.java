@@ -49,6 +49,8 @@ public class TDiv31 extends FactorAlgorithm {
 				} while (N%p == 0);
 				primeFactors.add(BigInteger.valueOf(p), exp);
 			}
+			// for random composite N, it is much much faster to check the termination condition after each p;
+			// for semiprime N, it would be ~40% faster to do it only after sucessful divisions
 			if (((long)p) * p > N) { // move p as long into registers makes a performance difference
 				if (N>1) primeFactors.add(BigInteger.valueOf(N));
 				break;
