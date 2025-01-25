@@ -76,9 +76,13 @@ public class TDiv31Inverse extends FactorAlgorithm {
 		int q;
 		for (int i=0; ; i++) {
 			final int p = primes[i];
+			int exp = 0;
 			while ((q = (int) (N*reciprocals[i] + DISCRIMINATOR)) * p == N) {
-				primeFactors.add(BigInteger.valueOf(p), Nexp);
+				exp++;
 				N = q; // avoiding a division here by storing q benefits the int version but not the long version
+			}
+			if (exp > 0) {
+				primeFactors.add(BigInteger.valueOf(p), exp*Nexp);
 			}
 			// for random composite N, it is much much faster to check the termination condition after each p;
 			// for semiprime N, it would be ~40% faster to do it only after sucessful divisions
