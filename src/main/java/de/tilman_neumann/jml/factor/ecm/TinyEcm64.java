@@ -180,7 +180,8 @@ public class TinyEcm64 extends FactorAlgorithm {
 	}
 	
 	public String getName() {
-		return "TinyEcm64";
+		String tdivStr = doTDivFirst ? "with tdiv" : "without tdiv";
+		return "TinyEcm64(" + tdivStr + ")";
 	}
 
 	/**

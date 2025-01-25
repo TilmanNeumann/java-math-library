@@ -183,7 +183,8 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 	}
 
 	public String getName() {
-		return "TinyEcm64MHInlined";
+		String tdivStr = doTDivFirst ? "with tdiv" : "without tdiv";
+		return "TinyEcm64MHInlined(" + tdivStr + ")";
 	}
 
 	/**
