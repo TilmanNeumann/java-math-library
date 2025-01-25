@@ -89,7 +89,7 @@ public class TDiv31Barrett extends FactorAlgorithm {
 				primeFactors.add(BigInteger.valueOf(p), Nexp);
 				N = q;
 			}
-			if (p*(long)p > N) {
+			if (((long)p) * p > N) { // move p as long into registers makes a performance difference
 				break;
 			}
 		}

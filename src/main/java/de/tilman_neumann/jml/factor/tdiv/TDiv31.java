@@ -49,7 +49,7 @@ public class TDiv31 extends FactorAlgorithm {
 				} while (N%p == 0);
 				primeFactors.add(BigInteger.valueOf(p), exp);
 			}
-			if (p*(long)p > N) {
+			if (((long)p) * p > N) { // move p as long into registers makes a performance difference
 				if (N>1) primeFactors.add(BigInteger.valueOf(N));
 				break;
 			}

@@ -80,7 +80,7 @@ public class TDiv31Inverse extends FactorAlgorithm {
 				primeFactors.add(BigInteger.valueOf(p), Nexp);
 				N = q; // avoiding a division here by storing q benefits the int version but not the long version
 			}
-			if (p*(long)p > N) {
+			if (((long)p) * p > N) { // move p as long into registers makes a performance difference
 				break;
 			}
 		}

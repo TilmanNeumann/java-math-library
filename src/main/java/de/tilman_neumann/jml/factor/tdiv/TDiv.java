@@ -113,9 +113,9 @@ public class TDiv extends FactorAlgorithm {
 				addToMap(p_i_big, exp*Nexp, primeFactors);
 				if (N.bitLength() < 63) {
 					// Check if we are done
-					long p_i_square = p_i *(long)p_i;
+					long p_i_square = ((long)p_i) * p_i;
 					if (p_i_square > N.longValue()) {
-						if (DEBUG) LOG.debug("N=" + N + " < p^2=" + p_i_square);
+						if (DEBUG) LOG.debug("N=" + N + " < p^2 = " + p_i_square);
 						// the remaining N is 1 or prime
 						if (N.compareTo(I_1)>0) addToMap(N, Nexp, primeFactors);
 						result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms

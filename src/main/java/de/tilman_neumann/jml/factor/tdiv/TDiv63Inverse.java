@@ -128,7 +128,7 @@ public class TDiv63Inverse extends FactorAlgorithm {
 			if (exp>0) {
 				primeFactors.add(BigInteger.valueOf(p), exp);
 			}
-			if (p*(long)p > N) {
+			if (((long)p) * p > N) { // move p as long into registers makes a performance difference
 				break; // the remaining N is prime
 			}
 		}
@@ -176,7 +176,7 @@ public class TDiv63Inverse extends FactorAlgorithm {
 				// At least one division has occurred, add the factor(s) to the result map
 				addToMap(BigInteger.valueOf(p_i), exp*Nexp, primeFactors);
 				// Check if we are done
-				if (p_i *(long)p_i > N) {
+				if (((long)p_i) * p_i > N) { // move p as long into registers makes a performance difference
 					// the remaining N is 1 or prime
 					if (N>1) addToMap(BigInteger.valueOf(N), Nexp, primeFactors);
 					result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
