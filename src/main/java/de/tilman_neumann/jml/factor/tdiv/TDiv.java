@@ -111,16 +111,20 @@ public class TDiv extends FactorAlgorithm {
 			if (exp > 0) {
 				// At least one exact division has occurred; add to results
 				addToMap(p_i_big, exp*Nexp, primeFactors);
-				if (N.bitLength() < 63) {
-					// Check if we are done
-					long p_i_square = ((long)p_i) * p_i;
-					if (p_i_square > N.longValue()) {
-						if (DEBUG) LOG.debug("N=" + N + " < p^2 = " + p_i_square);
-						// the remaining N is 1 or prime
-						if (N.compareTo(I_1)>0) addToMap(N, Nexp, primeFactors);
-						result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
-						return;
-					}
+			}
+			
+			// for random composite N, it is much much faster to check the termination condition after each p;
+			// for semiprime N, it would be ~40% faster to do it only after successful divisions
+			int pbits = 32-Integer.numberOfLeadingZeros(p_i);
+			if (pbits<<1 >= N.bitLength()) {
+				// Check if we are done
+				long p_i_square = ((long)p_i) * p_i;
+				if (p_i_square > N.longValue()) {
+					if (DEBUG) LOG.debug("N=" + N + " < p^2 = " + p_i_square);
+					// the remaining N is 1 or prime
+					if (N.compareTo(I_1)>0) addToMap(N, Nexp, primeFactors);
+					result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
+					return;
 				}
 			}
 		}
