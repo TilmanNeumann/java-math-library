@@ -35,7 +35,7 @@ import de.tilman_neumann.util.SortedMultiset_BottomUp;
  * @author Tilman Neumann
  */
 public class TDiv extends FactorAlgorithm {
-	@SuppressWarnings("unused")
+
 	private static final Logger LOG = LogManager.getLogger(TDiv.class);
 	private static final boolean DEBUG = false;
 	
@@ -117,7 +117,6 @@ public class TDiv extends FactorAlgorithm {
 			// for semiprime N, it would be ~40% faster to do it only after successful divisions
 			int pbits = 32-Integer.numberOfLeadingZeros(p_i);
 			if (pbits<<1 >= N.bitLength()) {
-				// Check if we are done
 				long p_i_square = ((long)p_i) * p_i;
 				if (p_i_square > N.longValue()) {
 					if (DEBUG) LOG.debug("N=" + N + " < p^2 = " + p_i_square);

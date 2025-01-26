@@ -43,7 +43,7 @@ import de.tilman_neumann.jml.base.Uint128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
-import de.tilman_neumann.jml.factor.tdiv.TDiv63;
+import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.probable.BPSWTest;
 import de.tilman_neumann.jml.random.SpRand32;
@@ -162,7 +162,7 @@ public class TinyEcm64MH extends FactorAlgorithm {
 		0, 0, 0, 16, 0, 0, 0, 0, 0, 17,
 		18, 0 }; // last entry 0 or 1 makes no performance difference
 	
-	private TDiv63 tdiv = new TDiv63();
+	private TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 
 	private BPSWTest bpsw = new BPSWTest();
 

@@ -108,6 +108,7 @@ public class FactorizerTest {
 //			new TDiv31(),
 			new TDiv31Inverse(),
 			new TDiv31Barrett(), // Fastest algorithm for N < 29 bit
+//			new TDiv63(),
 			new TDiv63Inverse(1<<21),
 //			new TDiv().setTestLimit(1<<20),
 			

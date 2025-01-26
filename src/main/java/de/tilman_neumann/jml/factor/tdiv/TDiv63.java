@@ -60,7 +60,7 @@ public class TDiv63 extends FactorAlgorithm {
 				int exp = 0;
 				do {
 					exp++;
-					N = N/p;
+					N /= p;
 				} while (N%p == 0);
 				primeFactors.add(BigInteger.valueOf(p), exp);
 			}
@@ -111,18 +111,19 @@ public class TDiv63 extends FactorAlgorithm {
 			if (exp > 0) {
 				// At least one division has occurred, add the factor(s) to the result map
 				addToMap(BigInteger.valueOf(p_i), exp*Nexp, primeFactors);
-				// Check if we are done
-				if (((long)p_i) * p_i > N) { // move p as long into registers makes a performance difference
-					// the remaining N is 1 or prime
-					if (N>1) addToMap(BigInteger.valueOf(N), Nexp, primeFactors);
-					result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
-					return;
-				}
+			}
+			// for random composite N, it is much much faster to check the termination condition after each p;
+			// for semiprime N, it would be ~40% faster to do it only after successful divisions
+			if (((long)p_i) * p_i > N) { // move p as long into registers makes a performance difference
+				// the remaining N is 1 or prime
+				if (N>1) addToMap(BigInteger.valueOf(N), Nexp, primeFactors);
+				result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
+				return;
 			}
 		}
 		
 		result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
-		result.untestedFactors.add(BigInteger.valueOf(N), Nexp); // we do not know if the remaining N is prime or composite
+		if (N>1) result.untestedFactors.add(BigInteger.valueOf(N), Nexp); // we do not know if the remaining N is prime or composite
 	}
 
 	private void addToMap(BigInteger N, int exp, SortedMap<BigInteger, Integer> map) {

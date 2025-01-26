@@ -45,7 +45,8 @@ import de.tilman_neumann.util.SortedMultiset;
  */
 public class TDiv63Inverse extends FactorAlgorithm {
 	private static final Logger LOG = LogManager.getLogger(TDiv63Inverse.class);
-	
+	private static final boolean DEBUG = false;
+
 	private static AutoExpandingPrimesArray SMALL_PRIMES = AutoExpandingPrimesArray.get();
 
 	private static final int DISCRIMINATOR_BITS = 10; // experimental result
@@ -100,11 +101,12 @@ public class TDiv63Inverse extends FactorAlgorithm {
 		
 		long N = Nbig.longValue();
 		
-		int i=0;
+		int p;
+		int i = 0;
 		int pMinBits = NBits - 53 + DISCRIMINATOR_BITS;
 		if (pMinBits>0) {
 			// for the smallest primes we must do standard trial division
-			int pMin = 1<<pMinBits, p;
+			int pMin = Math.min(1<<pMinBits, pLimit);
 			for (; (p=primes[i])<pMin; i++) {
 				int exp = 0;
 				while (N%p == 0) {
@@ -117,9 +119,8 @@ public class TDiv63Inverse extends FactorAlgorithm {
 			}
 		}
 
-		int p, exp;
 		for (; (p=primes[i])<=pLimit; i++) {
-			exp = 0;
+			int exp = 0;
 			double r = reciprocals[i];
 			while ((long) (N*r + DISCRIMINATOR) * p == N) {
 				exp++;
@@ -147,7 +148,6 @@ public class TDiv63Inverse extends FactorAlgorithm {
 	 * @param args
 	 * @param result a pre-initialized data structure to add results to
 	 */
-	// TODO this is a copy from TDiv63. Optimize it for this class.
 	@Override
 	public void searchFactors(FactorArguments args, FactorResult result) {
 		if (args.NBits > 63) throw new IllegalArgumentException(getName() + ".searchFactors() does not work for N>63 bit, but N=" + args.N + " has " + args.NBits + " bit");
@@ -166,18 +166,47 @@ public class TDiv63Inverse extends FactorAlgorithm {
 		if (N == 1) return;
 		
 		SMALL_PRIMES.ensureLimit(pLimit);
-		
+
+		if (DEBUG) LOG.debug("N=" + N + ", pLimit = " + pLimit);
+
 		int p_i;
-		for (int i=1; (p_i=SMALL_PRIMES.getPrime(i))<=pLimit; i++) {
-			int exp = 0;
-			while (N%p_i == 0) {
-				N /= p_i;
-				exp++;
+		int i = 1;
+		int Nbits = 64-Long.numberOfLeadingZeros(N);
+		int pMinBits = Nbits - 53 + DISCRIMINATOR_BITS;
+		try {
+			if (pMinBits>0) {
+				// for the smallest primes we must do standard trial division
+				int pMin = Math.min(1<<pMinBits, pLimit);
+				for ( ; (p_i = primes[i]) < pMin; i++) {
+					int exp = 0;
+					while (N%p_i == 0) {
+						N /= p_i;
+						exp++;
+					}
+					if (exp > 0) {
+						// At least one division has occurred, add the factor(s) to the result map
+						addToMap(BigInteger.valueOf(p_i), exp*Nexp, primeFactors);
+					}
+				}
 			}
-			if (exp > 0) {
-				// At least one division has occurred, add the factor(s) to the result map
-				addToMap(BigInteger.valueOf(p_i), exp*Nexp, primeFactors);
-				// Check if we are done
+			
+			if (N == 1) return;
+
+			// Now the primes are big enough to apply trial division by inverses.
+			// We stop when pLimit is reached, which may have been set before via setTestLimit().
+			for (; (p_i = primes[i]) <= pLimit; i++) {
+				if (DEBUG) LOG.trace("N=" + N + ": Test p=" + primes[i]);
+				int exp = 0;
+				while (((long) (N*reciprocals[i] + DISCRIMINATOR)) * primes[i] == N) {
+					N /= p_i;
+					exp++;
+				}
+				if (exp > 0) {
+					// At least one division has occurred, add the factor(s) to the result map
+					addToMap(BigInteger.valueOf(p_i), exp*Nexp, primeFactors);
+				}
+				// for random composite N, it is much much faster to check the termination condition after each p;
+				// for semiprime N, it would be ~40% faster to do it only after successful divisions
 				if (((long)p_i) * p_i > N) { // move p as long into registers makes a performance difference
 					// the remaining N is 1 or prime
 					if (N>1) addToMap(BigInteger.valueOf(N), Nexp, primeFactors);
@@ -185,10 +214,16 @@ public class TDiv63Inverse extends FactorAlgorithm {
 					return;
 				}
 			}
+			
+			result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
+			if (N>1) result.untestedFactors.add(BigInteger.valueOf(N), Nexp); // we do not know if the remaining N is prime or composite
+			if (DEBUG) LOG.debug("result = " + result);
+			
+		} catch (ArrayIndexOutOfBoundsException e) {
+			int pMaxIndex = primeCountBound-1;
+			int pMax = primes[pMaxIndex];
+			LOG.error("TDiv63Inverse has been set up to find factors until p[" + pMaxIndex + "] = " + pMax + ", but now you are trying to access p[" + i + "] !");
 		}
-		
-		result.smallestPossibleFactor = p_i; // may be helpful in following factor algorithms
-		result.untestedFactors.add(BigInteger.valueOf(N), Nexp); // we do not know if the remaining N is prime or composite
 	}
 
 	private void addToMap(BigInteger N, int exp, SortedMap<BigInteger, Integer> map) {
