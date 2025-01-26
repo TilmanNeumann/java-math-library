@@ -79,11 +79,11 @@ public class FactorizerTest {
 	/** number of test numbers */
 	private static final int N_COUNT = 100000;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 45;
+	private static final int START_BITS = 20;
 	/** the increment in bit size from test set to test set */
 	private static final int INCR_BITS = 5;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = 45;
+	private static final Integer MAX_BITS = 20;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
 	private static final int REPEATS = 5;
 	/** number of warmup rounds */
@@ -105,23 +105,19 @@ public class FactorizerTest {
 		algorithms = new FactorAlgorithm[] {
 
 			// Trial division
-//			new TDiv31(),
+			new TDiv31(),
 			new TDiv31Inverse(),
 			new TDiv31Barrett(), // Fastest algorithm for N < 29 bit
-//			new TDiv63(),
+			new TDiv63(),
 			new TDiv63Inverse(1<<21),
-//			new TDiv().setTestLimit(1<<20),
+//			new TDiv().setTestLimit(1<<21),
 			
 			// Hart's one line factorizer
 			//new HartSimple(),
-//			new HartFast(false),
-//			new HartFast(true),
-//			new HartTDivRace(), 
-//			new HartTDivRace2(),
-//			new HartSquarefree(false), // best algorithm for semiprime N for 29 to 37 bit
-//			new HartFast2Mult(false), // best algorithm for semiprime N for 38 to 45 bit
-//			new HartFast2MultFMA(false),
-//			new HartMultiplierChainSqrtN(false),
+			new HartFast(true),
+			new HartTDivRace(), 
+			new HartTDivRace2(),
+			new HartSquarefree(true), // best algorithm for semiprime N for 29 to 37 bit
 			new HartFast2Mult(true), // best algorithm for semiprime N for 38 to 45 bit
 			new HartFast2MultFMA(true),
 			new HartFast2Mult2(true), // best algorithm for semiprime N for 38 to 45 bit
@@ -129,8 +125,7 @@ public class FactorizerTest {
 			// Lehman
 			//new LehmanSimple(false),
 			//new LehmanSmith(false),
-//			new LehmanFast(false), // the variant implemented by bsquared
-			//new LehmanFast(true),
+			new LehmanFast(true), // the variant implemented by bsquared
 			new LehmanCustomKOrder(true),
 
 			// PollardRho
@@ -139,7 +134,7 @@ public class FactorizerTest {
 //			new PollardRhoTwoLoops31(),
 			new PollardRhoBrentMontgomery32(),
 
-			//new PollardRhoBrentMontgomery64(),
+			new PollardRhoBrentMontgomery64(),
 			new PollardRhoBrentMontgomery64MH(),
 			new PollardRhoBrentMontgomery64MHInlined(),
 			
@@ -155,10 +150,10 @@ public class FactorizerTest {
 			// * SquFoF31 works until 52 bit and is faster there than SquFoF63
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
-			new SquFoF63(),
 			//new SquFoF31(),
 			new SquFoF31Preload(),
-			
+			new SquFoF63(),
+
 			// CFrac
 			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits
 			// * stopRoot, stopMult: if big enough, then a second k is rarely needed; (5, 1.5) is good
@@ -171,7 +166,7 @@ public class FactorizerTest {
 //			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), new MatrixSolverGauss02(), 12),
 
 			// ECM
-//			new TinyEcm64(true),
+			new TinyEcm64(true),
 			new TinyEcm64MH(true),
 			new TinyEcm64MHInlined(true), // best algorithm for N from 46 to 62 bit
 //			new EllipticCurveMethod(-1),
