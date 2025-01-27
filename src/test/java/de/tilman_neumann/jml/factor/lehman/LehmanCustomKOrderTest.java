@@ -182,12 +182,23 @@ public class LehmanCustomKOrderTest extends FactorTestBase {
 
 	@Test
 	public void testHarderSemiprimesWithFactorsOfSimilarSize() {
+		assertFullFactorizationSuccess(583452201186457L, "12077393 * 48309449"); // 50 bit
+		assertFullFactorizationSuccess(978446392056317L, "15640063 * 62560259"); // 50 bit
+		assertFullFactorizationSuccess(1001714888187367L, "15824917 * 63299851"); // 50 bit
 		assertFullFactorizationSuccess(1454149122259871L, "26970011 * 53917261"); // 51 bit
 		assertFullFactorizationSuccess(5963992216323061L, "54599437 * 109231753"); // 53 bit
 		assertFullFactorizationSuccess(26071073737844227L, "114161413 * 228370279"); // 55 bit
 		assertFullFactorizationSuccess(8296707175249091L, "64415917 * 128799023"); // 53 bit
 		assertFullFactorizationSuccess(35688516583284121L, "133595303 * 267139007"); // 55 bit
 		assertFullFactorizationSuccess(35245060305489557L, "132737413 * 265524689"); // 55 bit
+		assertFullFactorizationSuccess(18669195182946827L, "96614633 * 193233619"); // 55 bit
+		assertFullFactorizationSuccess(18237799262630789L, "95491969 * 190987781"); // 55 bit
+		assertFullFactorizationSuccess(31745056894754761L, "125985031 * 251974831"); // 55 bit
+		assertFullFactorizationSuccess(19780076027096071L, "125793713 * 157242167"); // 55 bit
+		assertFullFactorizationSuccess(23667184817186563L, "133230703 * 177640621"); // 55 bit
+		assertFullFactorizationSuccess(21560613770598187L, "127162963 * 169551049"); // 55 bit
+		assertFullFactorizationSuccess(27244608402201133L, "130490851 * 208785583"); // 55 bit
+		assertFullFactorizationSuccess(19574813545806263L, "125139401 * 156424063"); // 55 bit
 		assertFullFactorizationSuccess(107563481071570333L, "231892711 * 463850203"); // 57 bit
 		assertFullFactorizationSuccess(107326406641253893L, "231668813 * 463275161"); // 57 bit
 		assertFullFactorizationSuccess(120459770277978457L, "245433631 * 490803847"); // 57 bit
