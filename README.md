@@ -32,7 +32,7 @@ Other noteworthy parts of this library are
 
 ## Releases
 
-* v1.4.0 was mainly a quality assurance initiative: Upgrade log4j to version 2, convert the project to Maven structure, set up a CI in github, and convert main() method tests into JUnit tests. Next, it fixes  two more bugs resulting from the poor initial integration of TinyEcm64, leading to CombinedFactorAlgorithm.factor() to omit factors of some composites having 46 to 62 bit and several small factors including at least one square, or CombinedFactorAlgorithm.findSingleFactor() to fail termination for some numbers of the same characteristics. Last not least, the performance of all PollardRho- and TinyEcm64-variants has been improved considerably. 
+* v1.4.0 is mainly a quality assurance initiative: Upgrade log4j to version 2, convert the project to Maven structure, set up a CI in github, and convert main() method tests into JUnit tests. Next, it fixes  two more bugs resulting from the poor initial integration of TinyEcm64, leading to CombinedFactorAlgorithm.factor() to omit factors of some composites having 46 to 62 bit and several small factors including at least one square, or CombinedFactorAlgorithm.findSingleFactor() to fail termination for some numbers of the same characteristics. Last not least, the performance of all PollardRho- and TinyEcm64-variants has been improved considerably. 
 * v1.3.1: Fixed two bugs that may lead to factoring failures when trying to factor arguments in the range 32..62 bit using class CombinedFactorAlgorithm.
   These bugs were introduced 2021-07-12 shortly after release 1.1, so they affect release 1.2 and 1.3.
 * v1.3: Implemented Gaussian integer and quaternion arithmetics including gcd's, and a four-square finder using them.
