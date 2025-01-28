@@ -32,12 +32,13 @@ Other noteworthy parts of this library are
 
 ## Releases
 
+* v1.4.0 was mainly a quality assurance initiative: Upgrade log4j to version 2, convert the project to Maven structure, set up a CI in github, and convert main() method tests into JUnit tests. Next, it fixes  two more bugs resulting from the poor initial integration of TinyEcm64, leading to CombinedFactorAlgorithm.factor() to omit factors of some composites having 46 to 62 bit and several small factors including at least one square, or CombinedFactorAlgorithm.findSingleFactor() to fail termination for some numbers of the same characteristics. Last not least, the performance of all PollardRho- and TinyEcm64-variants has been improved considerably. 
 * v1.3.1: Fixed two bugs that may lead to factoring failures when trying to factor arguments in the range 32..62 bit using class CombinedFactorAlgorithm.
   These bugs were introduced 2021-07-12 shortly after release 1.1, so they affect release 1.2 and 1.3.
 * v1.3: Implemented Gaussian integer and quaternion arithmetics including gcd's, and a four-square finder using them.
 * v1.2: Implemented SIQS with three large primes (but with the current parametrization, 3-partials are not found for N<=400 bit)
 * v1.1: Faster sieve for large N, speedup close to factor 2 at 360 bit inputs. Improved Gaussian solvers (by Dave McGuigan), including a parallel Gaussian solver that outperforms Block-Lanczos until about 375 bit on a Ryzen 3900X with 20 threads.
-From now on, <strong>Java 10</strong> is required!
+From now on, Java 9 is required!
 * v1.0: Integrated and adjusted Dario Alpern's ECM in class CombinedFactorAlgorithm.
 * v0.9.11: Added SSOZJ, a fast twin prime sieve; guard analysis code by final static booleans, so that the code is removed by the compiler when the boolean is set to false.
 * v0.9.10: Added port of Ben Buhrow's tinyecm.c.
@@ -74,15 +75,19 @@ The amount of analysis and logging can be influenced by setting the static varia
 Note that for factoring very large numbers with multi-threaded algorithms like PSIQS, PSIQS_U, CombinedFactorAlgorithm or BatchFactorizer, the number of threads should not exceed the number of physical cores of your computer. The number size bound where this effect sets in seems to depend mostly on the L3 cache of your computer. The cause is explained well in [SMT disadvantages](https://en.wikipedia.org/wiki/Simultaneous_multithreading#Disadvantages).
 
 
-## Factoring records
+## Factoring performance
 
-My current factoring record is the 400 bit (121 decimal digits) hard semiprime
+Here is an actual performance comparison of [jml 1.4.0 CombinedFactorAlgorithm vs. Yafu](doc/PSIQS-performance.txt). They seem to be more or less on the same level now.
+
+jml's current factoring record is the 400 bit (121 decimal digits) hard semiprime
 <code>
 1830579336380661228946399959861611337905178485105549386694491711628042180605636192081652243693741094118383699736168785617 
 = 785506617513464525087105385677215644061830019071786760495463 * 2330444194315502255622868487811486748081284934379686652689159
 </code><br />
 
 Its factorization took less than 22 hours on a Ryzen 9 3900X with 12 sieve threads using jml 1.1. See [factoring report on mersenneforum.org](https://www.mersenneforum.org/showthread.php?p=583868#post583868).
+
+Actually it should be easy to beat that. I didn't try that number or anything bigger again.
 
 
 ## Authors
@@ -102,7 +107,7 @@ Big thanks to
 * Graeme Willoughby for his great comments on the BigInteger algorithms in the SqrtInt, SqrtExact, Root and PurePowerTest classes
 * Thilo Harich for a great collaboration and his immense improvements on the Lehman factoring method
 * Ben Buhrow for his free, open source [tinyecm.c](https://www.mersenneforum.org/showpost.php?p=521028&postcount=84) and his comments on mersenneforum.org that helped a lot to improve the performance of my Java port
-* Dave McGuigan, who contributed a parallel Gaussian solver and even sped up my single-threaded Gaussian solver by a remarkable factor
+* Dave McGuigan, who contributed a parallel Gaussian solver, even sped up my single-threaded Gaussian solver by a remarkable factor, and helped to improve some of my PollardRho implementations
 
 Some (other) third-party software reused in this library:
 * [Dario Alpern's ECM implementation](https://github.com/alpertron/calculators/blob/master/OldApplets/ecm.java),
