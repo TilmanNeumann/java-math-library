@@ -77,7 +77,7 @@ Note that for factoring very large numbers with multi-threaded algorithms like P
 
 ## Factoring performance
 
-Here is an actual performance comparison of [jml 1.4.0 CombinedFactorAlgorithm vs. Yafu](doc/PSIQS-performance.txt). They seem to be more or less on the same level now.
+Here is an actual performance comparison of the parallel SIQS implementations of [jml 1.4.0 CombinedFactorAlgorithm vs. Yafu](doc/PSIQS-performance.txt). They seem to be more or less on the same level now.
 
 jml's current factoring record is the 400 bit (121 decimal digits) hard semiprime
 <code>
