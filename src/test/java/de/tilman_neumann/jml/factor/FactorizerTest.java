@@ -77,22 +77,22 @@ public class FactorizerTest {
 	
 	// algorithm options
 	/** number of test numbers */
-	private static final int N_COUNT = 100000;
+	private static final int N_COUNT = 1;
 	/** the bit size of N to start with */
-	private static final int START_BITS = 20;
+	private static final int START_BITS = 100;
 	/** the increment in bit size from test set to test set */
-	private static final int INCR_BITS = 5;
+	private static final int INCR_BITS = 10;
 	/** maximum number of bits to test (no maximum if null) */
-	private static final Integer MAX_BITS = 20;
+	private static final Integer MAX_BITS = null;
 	/** each algorithm is run REPEATS times for each input in order to reduce GC influence on timings */
-	private static final int REPEATS = 5;
+	private static final int REPEATS = 1;
 	/** number of warmup rounds */
-	private static final int WARUMPS = 2;
+	private static final int WARUMPS = 0;
 	
 	/** Nature of test numbers */
-	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.RANDOM_ODD_COMPOSITES;
+	private static final TestNumberNature TEST_NUMBER_NATURE = TestNumberNature.MODERATE_SEMIPRIMES;
 	/** Test mode */
-	private static final TestMode TEST_MODE = TestMode.PRIME_FACTORIZATION;
+	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
 
 	private BPSWTest bpsw = new BPSWTest();
 	
@@ -105,38 +105,38 @@ public class FactorizerTest {
 		algorithms = new FactorAlgorithm[] {
 
 			// Trial division
-			new TDiv31(),
-			new TDiv31Inverse(),
-			new TDiv31Barrett(), // Fastest algorithm for N < 29 bit
-			new TDiv63(),
-			new TDiv63Inverse(1<<21),
-//			new TDiv().setTestLimit(1<<21),
+			//new TDiv31(),
+//			new TDiv31Inverse(),
+//			new TDiv31Barrett(), // very good to completely factor N < 32 bit
+			//new TDiv63(),
+//			new TDiv63Inverse(1<<21),
+			//new TDiv().setTestLimit(1<<21),
 			
 			// Hart's one line factorizer
 			//new HartSimple(),
-			new HartFast(true),
-			new HartTDivRace(), 
-			new HartTDivRace2(),
-			new HartSquarefree(true), // best algorithm for semiprime N for 29 to 37 bit
-			new HartFast2Mult(true), // best algorithm for semiprime N for 38 to 45 bit
-			new HartFast2MultFMA(true),
-			new HartFast2Mult2(true), // best algorithm for semiprime N for 38 to 45 bit
+//			new HartFast(true),
+			//new HartTDivRace(), // quite good to factor random composites until 40 bit
+			//new HartTDivRace2(),
+			//new HartSquarefree(true),
+//			new HartFast2Mult(true), // with doTDivFirst==false, very good for semiprime N from 25 to 45 bit
+//			new HartFast2MultFMA(true),
+//			new HartFast2Mult2(true),
 
 			// Lehman
 			//new LehmanSimple(false),
 			//new LehmanSmith(false),
-			new LehmanFast(true), // the variant implemented by bsquared
-			new LehmanCustomKOrder(true),
+			//new LehmanFast(true), // the variant implemented by bsquared
+			//new LehmanCustomKOrder(true),
 
 			// PollardRho
-//			new PollardRho31(),
-//			new PollardRhoBrent31(),
-//			new PollardRhoTwoLoops31(),
-			new PollardRhoBrentMontgomery32(),
+			//new PollardRho31(),
+			//new PollardRhoBrent31(),
+			//new PollardRhoTwoLoops31(),
+			//new PollardRhoBrentMontgomery32(),
 
-			new PollardRhoBrentMontgomery64(),
-			new PollardRhoBrentMontgomery64MH(),
-			new PollardRhoBrentMontgomery64MHInlined(),
+			//new PollardRhoBrentMontgomery64(),
+			//new PollardRhoBrentMontgomery64MH(),
+//			new PollardRhoBrentMontgomery64MHInlined(), // best for moderate semiprimes from ~40 to 50 bit
 			
 			//new PollardRho(),
 			//new PollardRhoProductGcd(),
@@ -151,8 +151,8 @@ public class FactorizerTest {
 			// * best multiplier sequence = 1680 * {squarefree sequence}
 			// * best stopping criterion = O(5.th root(N))
 			//new SquFoF31(),
-			new SquFoF31Preload(),
-			new SquFoF63(),
+			//new SquFoF31Preload(),
+			//new SquFoF63(),
 
 			// CFrac
 			// * never the best algorithm: SquFoF63 is better for N <= 65 bit, SIQS is better for N >= 55 bits
@@ -166,9 +166,9 @@ public class FactorizerTest {
 //			new CFrac63(true, 5, 1.5F, 0.152F, 0.25F, new TDiv_CF63_02(), new MatrixSolverGauss02(), 12),
 
 			// ECM
-			new TinyEcm64(true),
-			new TinyEcm64MH(true),
-			new TinyEcm64MHInlined(true), // best algorithm for N from 46 to 62 bit
+			//new TinyEcm64(true),
+			//new TinyEcm64MH(true),
+//			new TinyEcm64MHInlined(true), // very good for N from 46 to 62 bit
 //			new EllipticCurveMethod(-1),
 
 			// SIQS:
@@ -193,7 +193,7 @@ public class FactorizerTest {
 			// On a Ryzen 3900X, Cmult=0.31 seems to be best for N <= 345 bit, Cmult=0.305 best for N > 345 bit.
 			// Probably, this depends heavily on the number of threads and the hardware, in particular the size of the L3-Cache.
 //			new PSIQS(0.31F, 0.37F, null, 12, new NoPowerFinder(), new MatrixSolverBlockLanczos()),
-	//		new PSIQS_U(0.31F, 0.37F, null, 12, new NoPowerFinder(), new MatrixSolverBlockLanczos()),
+//			new PSIQS_U(0.31F, 0.37F, null, 12, new NoPowerFinder(), new MatrixSolverBlockLanczos()),
 //			new PSIQS_U(0.31F, 0.37F, null, 12, new NoPowerFinder(), new MatrixSolverPGauss01(12)),
 //			new PSIQS_U(0.31F, 0.37F, null, 12, new PowerOfSmallPrimesFinder(), new MatrixSolverBlockLanczos()),
 //			new PSIQS_U(0.31F, 0.37F, null, 12, new AllPowerFinder(), new MatrixSolverBlockLanczos()),
