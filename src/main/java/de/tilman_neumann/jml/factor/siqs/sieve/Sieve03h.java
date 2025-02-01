@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -116,7 +116,7 @@ public class Sieve03h implements Sieve {
 	/** buffers for trial division engine. */
 	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
 	private UnsignedBigInt quotient_UBI = new UnsignedBigInt(new int[50]);
-	private SieveResult sieveResult = new SieveResult(10);
+	private SieveResultDefaultImpl sieveResult = new SieveResultDefaultImpl(10);
 
 	/** the primes found to divide Q in pass 1 */
 	private int[] pass2Primes = new int[100];
@@ -225,7 +225,7 @@ public class Sieve03h implements Sieve {
 	}
 
 	@Override
-	public Iterable<SmoothCandidate> sieve() {
+	public SieveResult sieve() {
 		if (ANALYZE) timer.capture();
 		this.initializeSieveArray(sieveArraySize);
 		sieveResult.reset();

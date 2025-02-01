@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -57,7 +57,7 @@ public interface Sieve {
 	 * Sieve for a new set of x1, x2 solutions.
 	 * @return (something like a) list of sieve locations x where Q(x) is smooth enough to be passed to trial division
 	 */
-	Iterable<SmoothCandidate> sieve();
+	SieveResult sieve();
 
 	/**
 	 * @return description of the durations of the individual sub-phases

@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -26,9 +26,9 @@ import de.tilman_neumann.jml.factor.siqs.poly.AParamGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.SIQSPolyGenerator;
 import de.tilman_neumann.jml.factor.siqs.poly.PolyReport;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
-import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
+import de.tilman_neumann.jml.factor.siqs.sieve.SieveResult;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
 
@@ -86,23 +86,25 @@ abstract public class PSIQSThreadBase extends Thread {
 			polyGenerator.nextPolynomial();
 			
 			// run sieve and get the sieve locations x where Q(x) is sufficiently smooth
-			Iterable<SmoothCandidate> smoothCandidates = sieve.sieve();
-			//LOG.debug("Sieve found " + smoothXList.size() + " Q(x) smooth enough to be passed to trial division.");
-
-			// trial division stage: produce AQ-pairs
-			List<AQPair> aqPairs = auxFactorizer.testList(smoothCandidates);
-			//LOG.debug("Trial division found " + aqPairs.size() + " Q(x) smooth enough for a congruence.");
-
-			if (aqPairs.size()>0) {
-				// add all congruences synchronized and notify control thread
-				synchronized (congruenceCollector) {
-					if (congruenceCollector.getFactor() == null) {
-						congruenceCollector.collectAndProcessAQPairs(aqPairs);
-					}
-					if (congruenceCollector.getFactor() != null) {
-						finishNow = true;
-						if (DEBUG) LOG.debug("Thread " + getName() + " found factor " + congruenceCollector.getFactor() + " and is done.");
-						congruenceCollector.notify();
+			SieveResult smoothCandidates = sieve.sieve();
+			if (DEBUG) LOG.debug("Sieve found " + smoothCandidates.size() + " Q(x) smooth enough to be passed to trial division: " + smoothCandidates);
+			
+			if (smoothCandidates.size() > 0) {
+				// trial division stage: produce AQ-pairs
+				List<AQPair> aqPairs = auxFactorizer.testList(smoothCandidates);
+				if (DEBUG) LOG.debug("Trial division found " + aqPairs.size() + " Q(x) smooth enough for a congruence.");
+	
+				if (aqPairs.size() > 0) {
+					// add all congruences synchronized and notify control thread
+					synchronized (congruenceCollector) {
+						if (congruenceCollector.getFactor() == null) {
+							congruenceCollector.collectAndProcessAQPairs(aqPairs);
+						}
+						if (congruenceCollector.getFactor() != null) {
+							finishNow = true;
+							if (DEBUG) LOG.debug("Thread " + getName() + " found factor " + congruenceCollector.getFactor() + " and is done.");
+							congruenceCollector.notify();
+						}
 					}
 				}
 			}

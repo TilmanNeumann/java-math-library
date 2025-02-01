@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -43,10 +43,10 @@ import de.tilman_neumann.jml.factor.siqs.powers.PowerOfSmallPrimesFinder;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03g;
 import de.tilman_neumann.jml.factor.siqs.sieve.Sieve03gU;
-import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParamsFactory01;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
+import de.tilman_neumann.jml.factor.siqs.sieve.SieveResult;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_Small;
@@ -267,25 +267,27 @@ public class SIQSSmall extends FactorAlgorithm {
 			polyGenerator.nextPolynomial(); // sets filtered prime base in SIQS
 
 			// run sieve and get the sieve locations x where Q(x) is sufficiently smooth
-			Iterable<SmoothCandidate> smoothCandidates = sieve.sieve();
-			//LOG.debug("Sieve found " + smoothXList.size() + " Q(x) smooth enough to be passed to trial division.");
-
-			// trial division stage: produce AQ-pairs
-			List<AQPair> aqPairs = this.auxFactorizer.testList(smoothCandidates);
-			//LOG.debug("Trial division found " + aqPairs.size() + " Q(x) smooth enough for a congruence.");
-
-			// add all congruences
-			congruenceCollector.collectAndProcessAQPairs(aqPairs);
-			BigInteger factor = congruenceCollector.getFactor();
-			if (factor != null) {
-				if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, sieveParams);
-				
-				// ATTENTION: SIQSSmall is only used to factor auxiliary Q-numbers for N with 320 bit or more.
-				// ATTENTION: After a Q-factorization we only want to clean up the sieve, in case it allocated native memory!
-				// ATTENTION: This behavior is different from SIQS or PSIQS.
-				this.sieve.cleanUp();
-				// done
-				return factor;
+			SieveResult smoothCandidates = sieve.sieve();
+			if (DEBUG) LOG.debug("Sieve found " + smoothCandidates.size() + " Q(x) smooth enough to be passed to trial division: " + smoothCandidates);
+			
+			if (smoothCandidates.size() > 0) {
+				// trial division stage: produce AQ-pairs
+				List<AQPair> aqPairs = this.auxFactorizer.testList(smoothCandidates);
+				//LOG.debug("Trial division found " + aqPairs.size() + " Q(x) smooth enough for a congruence.");
+	
+				// add all congruences
+				congruenceCollector.collectAndProcessAQPairs(aqPairs);
+				BigInteger factor = congruenceCollector.getFactor();
+				if (factor != null) {
+					if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, sieveParams);
+					
+					// ATTENTION: SIQSSmall is only used to factor auxiliary Q-numbers for N with 320 bit or more.
+					// ATTENTION: After a Q-factorization we only want to clean up the sieve, in case it allocated native memory!
+					// ATTENTION: This behavior is different from SIQS or PSIQS.
+					this.sieve.cleanUp();
+					// done
+					return factor;
+				}
 			}
 		}
 	}

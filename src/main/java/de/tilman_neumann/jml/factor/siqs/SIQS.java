@@ -46,6 +46,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.SmoothCandidate;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParams;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveParamsFactory02;
 import de.tilman_neumann.jml.factor.siqs.sieve.SieveReport;
+import de.tilman_neumann.jml.factor.siqs.sieve.SieveResult;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDivReport;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS;
 import de.tilman_neumann.jml.powers.PurePowerTest;
@@ -266,37 +267,39 @@ public class SIQS extends FactorAlgorithm {
 			polyGenerator.nextPolynomial(); // sets filtered prime base in SIQS
 
 			// run sieve and get the sieve locations x where Q(x) is sufficiently smooth
-			Iterable<SmoothCandidate> smoothXList = sieve.sieve();
-			//LOG.debug("Sieve found " + smoothXList.size() + " Q(x) smooth enough to be passed to trial division.");
-
+			SieveResult smoothCandidates = sieve.sieve();
+			if (DEBUG) LOG.debug("Sieve found " + smoothCandidates.size() + " Q(x) smooth enough to be passed to trial division: " + smoothCandidates);
+			
 			// trial division stage: produce AQ-pairs
-			List<AQPair> aqPairs = this.auxFactorizer.testList(smoothXList);
-			//LOG.debug("Trial division found " + aqPairs.size() + " Q(x) smooth enough for a congruence.");
+			List<AQPair> aqPairs = this.auxFactorizer.testList(smoothCandidates);
+			if (DEBUG) LOG.debug("Trial division found " + aqPairs.size() + " Q(x) smooth enough for a congruence.");
 			if (TEST_SIEVE) testSieve(aqPairs, adjustedSieveArraySize, kN);
 
-			// add all congruences
-			congruenceCollector.collectAndProcessAQPairs(aqPairs);
-			BigInteger factor = congruenceCollector.getFactor();
-			if (factor != null) {
-				if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, sieveParams);
-
-				if (TEST_SIEVE) {
-					float perfectSmoothPercentage = foundPerfectSmoothCount*100 / (float) allPerfectSmoothCount;
-					LOG.debug("foundAQPairsCount = " + foundAQPairsCount + ", foundPerfectSmoothCount = " + foundPerfectSmoothCount);
-					LOG.debug("allAQPairsCount = " + allAQPairsCount + ", allPerfectSmoothCount = " + allPerfectSmoothCount);
-					int allPartialsCount = allAQPairsCount-allPerfectSmoothCount;
-					if (allPartialsCount > 0) {
-						float partialPercentage = (foundAQPairsCount-foundPerfectSmoothCount)*100 / (float) (allAQPairsCount-allPerfectSmoothCount);
-						LOG.debug("Sieve found " + perfectSmoothPercentage + " % of perfectly smooth and " + partialPercentage + " % of partial congruences");
-					} else {
-						LOG.debug("Sieve found " + perfectSmoothPercentage + " % of perfectly smooth; there were no partial congruences because N is too small");
+			if (aqPairs.size() > 0) {
+				// add all congruences
+				congruenceCollector.collectAndProcessAQPairs(aqPairs);
+				BigInteger factor = congruenceCollector.getFactor();
+				if (factor != null) {
+					if (ANALYZE) logResults(N, k, kN, factor, primeBaseSize, sieveParams);
+	
+					if (TEST_SIEVE) {
+						float perfectSmoothPercentage = foundPerfectSmoothCount*100 / (float) allPerfectSmoothCount;
+						LOG.debug("foundAQPairsCount = " + foundAQPairsCount + ", foundPerfectSmoothCount = " + foundPerfectSmoothCount);
+						LOG.debug("allAQPairsCount = " + allAQPairsCount + ", allPerfectSmoothCount = " + allPerfectSmoothCount);
+						int allPartialsCount = allAQPairsCount-allPerfectSmoothCount;
+						if (allPartialsCount > 0) {
+							float partialPercentage = (foundAQPairsCount-foundPerfectSmoothCount)*100 / (float) (allAQPairsCount-allPerfectSmoothCount);
+							LOG.debug("Sieve found " + perfectSmoothPercentage + " % of perfectly smooth and " + partialPercentage + " % of partial congruences");
+						} else {
+							LOG.debug("Sieve found " + perfectSmoothPercentage + " % of perfectly smooth; there were no partial congruences because N is too small");
+						}
 					}
+					
+					// release memory after a factorization; this improves the accuracy of timings when several algorithms are tested in parallel
+					this.cleanUp();
+					// done
+					return factor;
 				}
-				
-				// release memory after a factorization; this improves the accuracy of timings when several algorithms are tested in parallel
-				this.cleanUp();
-				// done
-				return factor;
 			}
 		}
 	}
