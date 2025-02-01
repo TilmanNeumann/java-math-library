@@ -124,7 +124,7 @@ public class TDiv_QS_3LP implements TDiv_QS {
 
 	@Override
 	public String getName() {
-		return "TDiv_3L_UBI_3h";
+		return "TDiv_3LP";
 	}
 
 	@Override

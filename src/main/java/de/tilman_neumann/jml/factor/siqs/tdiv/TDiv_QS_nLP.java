@@ -123,7 +123,7 @@ public class TDiv_QS_nLP implements TDiv_QS {
 
 	@Override
 	public String getName() {
-		return "TDiv_nL_UBI_3h";
+		return "TDiv_nLP";
 	}
 
 	@Override

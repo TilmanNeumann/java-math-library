@@ -112,7 +112,7 @@ public class TDiv_QS_2LP_Full implements TDiv_QS {
 
 	@Override
 	public String getName() {
-		return "TDiv_2L_UBI";
+		return "TDiv_2LP_Full";
 	}
 
 	@Override
