@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -255,17 +255,15 @@ public class TDiv_QS_3LP implements TDiv_QS {
 					final long m = pinvArrayL[pIndex];
 					final long q = ((x*m)>>>32);
 					xModP = (int) (x - q * p);
-					if (DEBUG) Ensure.ensureSmaller(xModP, p);
 					if (xModP<0) xModP += p;
 					if (DEBUG) {
 						// 0 <= xModP < p
 						Ensure.ensureSmallerEquals(0, xModP);
 						Ensure.ensureSmaller(xModP, p);
 
-						int xModP2 = x % p;
-						if (xModP2<0) xModP2 += p;
-						if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-						Ensure.ensureEquals(xModP2, xModP);
+						int correctMod = correctMod(x, p);
+						if (xModP != correctMod) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but correctMod=" + correctMod);
+						Ensure.ensureEquals(correctMod, xModP);
 					}
 				}
 				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
@@ -294,17 +292,15 @@ public class TDiv_QS_3LP implements TDiv_QS {
 					final long m = pinvArrayL[pIndex];
 					final long q = ((x*m)>>>32);
 					xModP = (int) (x - q * p);
-					if (DEBUG) Ensure.ensureGreaterEquals(xModP, 0);
 					if (xModP>=p) xModP -= p;
 					if (DEBUG) {
 						// 0 <= xModP < p
 						Ensure.ensureSmallerEquals(0, xModP);
 						Ensure.ensureSmaller(xModP, p);
 
-						int xModP2 = x % p;
-						if (xModP2<0) xModP2 += p;
-						if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-						Ensure.ensureEquals(xModP2, xModP);
+						int correctMod = correctMod(x, p);
+						if (xModP != correctMod) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but correctMod=" + correctMod);
+						Ensure.ensureEquals(correctMod, xModP);
 					}
 				}
 				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
@@ -433,6 +429,12 @@ public class TDiv_QS_3LP implements TDiv_QS {
 		return aqPairFactory.create(A, smallFactors, bigFactors);
 	}
 	
+	private static final int correctMod(int x, int p) {
+		int mod = x % p;
+		// x < 0 then mod < 0, fix that
+		return mod < 0 ? mod + p : mod;
+	}
+
 	/**
 	 * Add factors that all Q(x) for the same a-parameter have in common.
 	 * These are the q-values whose product gives the a-parameter and 2 if d==2.
