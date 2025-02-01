@@ -202,7 +202,7 @@ public class Sieve03hU implements Sieve {
 		int logP = logPMax;
 		int lastBound = filteredBaseSize;
 		for (int i=logPBoundCount-1; i>0; i--) {
-			lastBound = logPBounds[i] = binarySearch.getInsertPosition(logPArray, lastBound, --logP);
+			lastBound = logPBounds[i] = binarySearch.getInsertPosition(logPArray, lastBound, (byte) --logP);
 			if (DEBUG) LOG.debug("logPBound[" + i + "] = " + logPBounds[i] + ", logP[" + logPBounds[i] + "] = " + logPArray[logPBounds[i]] + ", logP[" + (logPBounds[i]-1) + "] = " + logPArray[logPBounds[i]-1]);
 		}
 		logPBounds[0] = p1Index;

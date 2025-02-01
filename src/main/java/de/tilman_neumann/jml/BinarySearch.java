@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -12,6 +12,8 @@
  * if not, see <http://www.gnu.org/licenses/>.
  */
 package de.tilman_neumann.jml;
+
+import java.util.Arrays;
 
 import de.tilman_neumann.util.Ensure;
 
@@ -34,7 +36,7 @@ public class BinarySearch {
 	 * @param x
 	 * @return the insert position
 	 */
-	public int getInsertPosition(int[] array, int maxIndex, int x) {
+	public int getInsertPosition_v1(int[] array, int maxIndex, int x) {
 		if (maxIndex<=0 || array[maxIndex-1] <= x) return maxIndex;
 		int left = 0;
 		int right = maxIndex-1;
@@ -63,12 +65,32 @@ public class BinarySearch {
 	 * If array[maxIndex-1] >  x, return the index of the first entry of array[0].. array[maxIndex-1] greater than x.
 	 * If array[maxIndex-1] <= x, return maxIndex.
 	 * 
+	 * Faster version using Arrays.binarySearch().
+	 * 
 	 * @param array
 	 * @param maxIndex the maximum index to consider, exclusive (may be smaller than the array size)
 	 * @param x
 	 * @return the insert position
 	 */
-	public int getInsertPosition(byte[] array, int maxIndex, int x) {
+	public int getInsertPosition/*_v2*/(int[] array, int maxIndex, int x) {
+		// see @returns in Arrays.binarySearch() javadoc
+		int i = Arrays.binarySearch(array, 0, maxIndex, x);
+		return i >= 0 ? i + 1 : -i - 1;
+	}
+
+	/**
+	 * Find the insert position for x into array given that array is sorted bottom-up.
+	 * 
+	 * More precisely:
+	 * If array[maxIndex-1] >  x, return the index of the first entry of array[0].. array[maxIndex-1] greater than x.
+	 * If array[maxIndex-1] <= x, return maxIndex.
+	 * 
+	 * @param array
+	 * @param maxIndex the maximum index to consider, exclusive (may be smaller than the array size)
+	 * @param x
+	 * @return the insert position
+	 */
+	public int getInsertPosition_v1(byte[] array, int maxIndex, byte x) {
 		if (maxIndex<=0 || array[maxIndex-1] <= x) return maxIndex;
 		int left = 0;
 		int right = maxIndex-1;
@@ -88,5 +110,25 @@ public class BinarySearch {
 			Ensure.ensureSmaller(x, array[left]);
 		}
 		return left;
+	}
+	
+	/**
+	 * Find the insert position for x into array given that array is sorted bottom-up.
+	 * 
+	 * More precisely:
+	 * If array[maxIndex-1] >  x, return the index of the first entry of array[0].. array[maxIndex-1] greater than x.
+	 * If array[maxIndex-1] <= x, return maxIndex.
+	 * 
+	 * Faster version using Arrays.binarySearch().
+	 * 
+	 * @param array
+	 * @param maxIndex the maximum index to consider, exclusive (may be smaller than the array size)
+	 * @param x
+	 * @return the insert position
+	 */
+	public int getInsertPosition/*_v2*/(byte[] array, int maxIndex, byte x) {
+		// see @returns in Arrays.binarySearch() javadoc
+		int i = Arrays.binarySearch(array, 0, maxIndex, x);
+		return i >= 0 ? i + 1 : -i - 1;
 	}
 }
