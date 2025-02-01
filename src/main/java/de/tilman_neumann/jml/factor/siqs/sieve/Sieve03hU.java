@@ -17,6 +17,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -202,7 +203,8 @@ public class Sieve03hU implements Sieve {
 		int logP = logPMax;
 		int lastBound = filteredBaseSize;
 		for (int i=logPBoundCount-1; i>0; i--) {
-			lastBound = logPBounds[i] = binarySearch.getInsertPosition(logPArray, lastBound, (byte) --logP);
+			// here we want the precise insert position because logPArray contains many elements many times
+			lastBound = logPBounds[i] = binarySearch.getPreciseInsertPosition(logPArray, lastBound, (byte) --logP);
 			if (DEBUG) LOG.debug("logPBound[" + i + "] = " + logPBounds[i] + ", logP[" + logPBounds[i] + "] = " + logPArray[logPBounds[i]] + ", logP[" + (logPBounds[i]-1) + "] = " + logPArray[logPBounds[i]-1]);
 		}
 		logPBounds[0] = p1Index;
@@ -247,6 +249,7 @@ public class Sieve03hU implements Sieve {
 		for (int lpbc=logPBoundCount-1; lpbc>=0; lpbc--, bigLogP--) {
 			int logPBound = logPBounds[lpbc];
 			for (; i>=logPBound; i--) {
+				if (DEBUG) Ensure.ensureEquals(logPArray[i], bigLogP);
 				// x1 == x2 happens only if p divides k -> for large primes p > k there are always 2 distinct solutions.
 				// x1, x2 may exceed sieveArraySize, but we allocated the arrays somewhat bigger to save the size checks.
 				x1Addr = sieveArrayAddress + x1Array[i];
@@ -365,6 +368,7 @@ public class Sieve03hU implements Sieve {
 		for (int lpbc=logPBoundCount-1; lpbc>=0; lpbc--, bigLogP--) {
 			int logPBound = logPBounds[lpbc];
 			for (; i>=logPBound; i--) {
+				if (DEBUG) Ensure.ensureEquals(logPArray[i], bigLogP);
 				final int p = pArray[i];
 				x1Addr = sieveArrayAddress + p - x1Array[i];
 				UNSAFE.putByte(x1Addr, (byte) (UNSAFE.getByte(x1Addr) + bigLogP));

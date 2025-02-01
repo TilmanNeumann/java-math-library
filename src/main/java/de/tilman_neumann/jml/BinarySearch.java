@@ -27,7 +27,7 @@ public class BinarySearch {
 	/**
 	 * Find the insert position for x into array given that array is sorted bottom-up.
 	 * 
-	 * More precisely:
+	 * This version defines the insert position unambiguously, no matter if some entries in the array occur multiple times, as
 	 * If array[maxIndex-1] >  x, return the index of the first entry of array[0].. array[maxIndex-1] greater than x.
 	 * If array[maxIndex-1] <= x, return maxIndex.
 	 * 
@@ -36,7 +36,7 @@ public class BinarySearch {
 	 * @param x
 	 * @return the insert position
 	 */
-	public int getInsertPosition_v1(int[] array, int maxIndex, int x) {
+	public int getPreciseInsertPosition(int[] array, int maxIndex, int x) {
 		if (maxIndex<=0 || array[maxIndex-1] <= x) return maxIndex;
 		int left = 0;
 		int right = maxIndex-1;
@@ -56,32 +56,12 @@ public class BinarySearch {
 			Ensure.ensureSmaller(x, array[left]);
 		}
 		return left;
-	}
-	
-	/**
-	 * Find the insert position for x into array given that array is sorted bottom-up.
-	 * 
-	 * More precisely:
-	 * If array[maxIndex-1] >  x, return the index of the first entry of array[0].. array[maxIndex-1] greater than x.
-	 * If array[maxIndex-1] <= x, return maxIndex.
-	 * 
-	 * Faster version using Arrays.binarySearch().
-	 * 
-	 * @param array
-	 * @param maxIndex the maximum index to consider, exclusive (may be smaller than the array size)
-	 * @param x
-	 * @return the insert position
-	 */
-	public int getInsertPosition/*_v2*/(int[] array, int maxIndex, int x) {
-		// see @returns in Arrays.binarySearch() javadoc
-		int i = Arrays.binarySearch(array, 0, maxIndex, x);
-		return i >= 0 ? i + 1 : -i - 1;
 	}
 
 	/**
 	 * Find the insert position for x into array given that array is sorted bottom-up.
 	 * 
-	 * More precisely:
+	 * This version defines the insert position unambiguously, no matter if some entries in the array occur multiple times, as
 	 * If array[maxIndex-1] >  x, return the index of the first entry of array[0].. array[maxIndex-1] greater than x.
 	 * If array[maxIndex-1] <= x, return maxIndex.
 	 * 
@@ -90,7 +70,7 @@ public class BinarySearch {
 	 * @param x
 	 * @return the insert position
 	 */
-	public int getInsertPosition_v1(byte[] array, int maxIndex, byte x) {
+	public int getPreciseInsertPosition(byte[] array, int maxIndex, byte x) {
 		if (maxIndex<=0 || array[maxIndex-1] <= x) return maxIndex;
 		int left = 0;
 		int right = maxIndex-1;
@@ -111,22 +91,34 @@ public class BinarySearch {
 		}
 		return left;
 	}
-	
+
 	/**
 	 * Find the insert position for x into array given that array is sorted bottom-up.
 	 * 
-	 * More precisely:
-	 * If array[maxIndex-1] >  x, return the index of the first entry of array[0].. array[maxIndex-1] greater than x.
-	 * If array[maxIndex-1] <= x, return maxIndex.
-	 * 
-	 * Faster version using Arrays.binarySearch().
+	 * This version is faster than getPreciseInsertPosition(), but "If the range contains multiple elements with the specified value, there is no guarantee which one will be found."
 	 * 
 	 * @param array
 	 * @param maxIndex the maximum index to consider, exclusive (may be smaller than the array size)
 	 * @param x
 	 * @return the insert position
 	 */
-	public int getInsertPosition/*_v2*/(byte[] array, int maxIndex, byte x) {
+	public int getInsertPosition(int[] array, int maxIndex, int x) {
+		// see @returns in Arrays.binarySearch() javadoc
+		int i = Arrays.binarySearch(array, 0, maxIndex, x);
+		return i >= 0 ? i + 1 : -i - 1;
+	}
+	
+	/**
+	 * Find the insert position for x into array given that array is sorted bottom-up.
+	 * 
+	 * This version is faster than getPreciseInsertPosition(), but "If the range contains multiple elements with the specified value, there is no guarantee which one will be found."
+	 * 
+	 * @param array
+	 * @param maxIndex the maximum index to consider, but "If the range contains multiple elements with the specified value, there is no guarantee which one will be found."
+	 * @param x
+	 * @return the insert position
+	 */
+	public int getInsertPosition(byte[] array, int maxIndex, byte x) {
 		// see @returns in Arrays.binarySearch() javadoc
 		int i = Arrays.binarySearch(array, 0, maxIndex, x);
 		return i >= 0 ? i + 1 : -i - 1;
