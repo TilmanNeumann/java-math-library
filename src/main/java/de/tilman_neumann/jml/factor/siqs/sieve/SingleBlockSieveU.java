@@ -617,8 +617,8 @@ public class SingleBlockSieveU implements Sieve {
 				// Compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
 				// We can use the long-variant here because x*m will never overflow positive long values.
 				final long m = pinvArrayL[pIndex];
-				final long q = ((x*m)>>>32);
-				xModP = (int) (x - q * p);
+				final long q = ( ( ((long)x) * m) >>> 32); // first argument long optimizes register usage
+				xModP = (int) ( ((long)x) - q * p);
 				if (xModP<0) xModP += p;
 				else if (xModP>=p) xModP -= p;
 				if (DEBUG) {

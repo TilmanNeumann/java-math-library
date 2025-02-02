@@ -250,8 +250,8 @@ public class TDiv_QS_2LP implements TDiv_QS {
 					xModP = x+p;
 				} else {
 					final long m = pinvArrayL[pIndex];
-					final long q = ((x*m)>>>32);
-					xModP = (int) (x - q * p);
+					final long q = ( ( ((long)x) * m) >>> 32); // first argument long optimizes register usage
+					xModP = (int) ( ((long)x) - q * p);
 					if (xModP<0) xModP += p;
 					if (DEBUG) {
 						// 0 <= xModP < p
@@ -287,8 +287,8 @@ public class TDiv_QS_2LP implements TDiv_QS {
 					xModP = x;
 				} else {
 					final long m = pinvArrayL[pIndex];
-					final long q = ((x*m)>>>32);
-					xModP = (int) (x - q * p);
+					final long q = ( ( ((long)x) * m) >>> 32); // first argument long optimizes register usage
+					xModP = (int) ( ((long)x) - q * p);
 					if (xModP>=p) xModP -= p;
 					if (DEBUG) {
 						// 0 <= xModP < p
