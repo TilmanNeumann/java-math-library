@@ -621,16 +621,15 @@ public class Sieve03hU implements Sieve {
 				xModP = (int) ( ((long)x) - q * p);
 				if (xModP<0) xModP += p;
 				else if (xModP>=p) xModP -= p;
-				if (DEBUG) {
-					// 0 <= xModP < p
-					Ensure.ensureSmallerEquals(0, xModP);
-					Ensure.ensureSmaller(xModP, p);
-
-					int xModP2 = x % p;
-					if (xModP2<0) xModP2 += p;
-					if (xModP != xModP2) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but xModP2=" + xModP2);
-					Ensure.ensureEquals(xModP2, xModP);
-				}
+			}
+			if (DEBUG) {
+				// 0 <= xModP < p
+				Ensure.ensureSmallerEquals(0, xModP);
+				Ensure.ensureSmaller(xModP, p);
+				// compare with correct but slower mod computation
+				int correctMod = correctMod(x, p);
+				if (xModP != correctMod) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but correctMod=" + correctMod);
+				Ensure.ensureEquals(correctMod, xModP);
 			}
 			if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
 				pass2Primes[pass2Count] = primes[pIndex];
@@ -685,6 +684,12 @@ public class Sieve03hU implements Sieve {
 		return smoothCandidate;
 	}
 	
+	private static final int correctMod(int x, int p) {
+		int mod = x % p;
+		// x < 0 then mod < 0, fix that
+		return mod < 0 ? mod + p : mod;
+	}
+
 	@Override
 	public SieveReport getReport() {
 		return new SieveReport(sieveHitCount, initDuration, sieveDuration, collectDuration);
