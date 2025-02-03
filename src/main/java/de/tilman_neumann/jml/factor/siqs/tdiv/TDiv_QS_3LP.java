@@ -256,15 +256,15 @@ public class TDiv_QS_3LP implements TDiv_QS {
 					final long q = ( ( ((long)x) * m) >>> 32); // first argument long optimizes register usage
 					xModP = (int) ( ((long)x) - q * p);
 					if (xModP<0) xModP += p;
-					if (DEBUG) {
-						// 0 <= xModP < p
-						Ensure.ensureSmallerEquals(0, xModP);
-						Ensure.ensureSmaller(xModP, p);
-
-						int correctMod = correctMod(x, p);
-						if (xModP != correctMod) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but correctMod=" + correctMod);
-						Ensure.ensureEquals(correctMod, xModP);
-					}
+				}
+				if (DEBUG) {
+					// 0 <= xModP < p
+					Ensure.ensureSmallerEquals(0, xModP);
+					Ensure.ensureSmaller(xModP, p);
+					// compare with correct but slower mod computation
+					int correctMod = correctMod(x, p);
+					if (xModP != correctMod) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but correctMod=" + correctMod);
+					Ensure.ensureEquals(correctMod, xModP);
 				}
 				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
 					pass2Primes[pass2Count] = primes[pIndex];
@@ -293,15 +293,15 @@ public class TDiv_QS_3LP implements TDiv_QS {
 					final long q = ( ( ((long)x) * m) >>> 32); // first argument long optimizes register usage
 					xModP = (int) ( ((long)x) - q * p);
 					if (xModP>=p) xModP -= p;
-					if (DEBUG) {
-						// 0 <= xModP < p
-						Ensure.ensureSmallerEquals(0, xModP);
-						Ensure.ensureSmaller(xModP, p);
-
-						int correctMod = correctMod(x, p);
-						if (xModP != correctMod) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but correctMod=" + correctMod);
-						Ensure.ensureEquals(correctMod, xModP);
-					}
+				}
+				if (DEBUG) {
+					// 0 <= xModP < p
+					Ensure.ensureSmallerEquals(0, xModP);
+					Ensure.ensureSmaller(xModP, p);
+					// compare with correct but slower mod computation
+					int correctMod = correctMod(x, p);
+					if (xModP != correctMod) LOG.debug("x=" + x + ", p=" + p + ": xModP=" + xModP + ", but correctMod=" + correctMod);
+					Ensure.ensureEquals(correctMod, xModP);
 				}
 				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
 					pass2Primes[pass2Count] = primes[pIndex];
