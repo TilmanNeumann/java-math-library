@@ -226,17 +226,17 @@ public class TDiv_QS_3LP implements TDiv_QS {
 		BigInteger QRest = QRest0; // keep initial QRest0 for logging below
 
 		// Pass 1: Test solution arrays.
-		// If |x| < p, then no modulus computation is required.
-		// Otherwise we compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
+		// The performance bottle-neck here is the modulus computation.
+		// The current approach is already quite fast for large N, because then we have pMax > 3*sieveArraySize,
+		// which means that for ~75% of x-values we can completely omit the mod-computation or replace it by a simple addition.
+		// For (big |x|, small p) we compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
 		// We can use the long-variant here because x*m will never overflow positive long values.
-		// For some reasons I do not understand, it is faster to divide Q by p in pass 2 only, not here.
-		// IMPORTANT: Java gives x % p = x for |x| < p, and we have many p bigger than any sieve array entry.
-		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
+		// For some reasons I do not understand yet, it is faster to divide Q by p in pass 2 only, not here.
 		int pass2Count = 0;
 		int pIndex = baseSize-1;
 		if (x < 0) {
 			for ( ; pIndex >= p1Index; pIndex--) {
-				// for pIndex >= p1Index, we know that |x| < sieveArraySize < p
+				// for pIndex >= p1Index, we know that |x| < p
 				int xModP = x+pArray[pIndex];
 				if (xModP==x1Array[pIndex] || xModP==x2Array[pIndex]) {
 					pass2Primes[pass2Count] = primes[pIndex];
@@ -275,7 +275,7 @@ public class TDiv_QS_3LP implements TDiv_QS {
 		} else {
 			// x >= 0
 			for ( ; pIndex >= p1Index; pIndex--) {
-				// for pIndex > p1Index, we know that |x| < sieveArraySize < p
+				// for pIndex > p1Index, we know that |x| < p
 				if (x==x1Array[pIndex] || x==x2Array[pIndex]) {
 					pass2Primes[pass2Count] = primes[pIndex];
 					pass2Exponents[pass2Count] = exponents[pIndex];
