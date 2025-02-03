@@ -487,8 +487,12 @@ public class Sieve03h implements Sieve {
 		}
 		
 		// Pass 1: Test solution arrays.
-		// IMPORTANT: Java gives x % p = x for |x| < p, and we have many p bigger than any sieve array entry.
-		// IMPORTANT: Not computing the modulus in these cases improves performance by almost factor 2!
+		// The performance bottle-neck here is the modulus computation.
+		// The current approach is already quite fast for large N, because then we have pMax > 3*sieveArraySize,
+		// which means that for ~75% of x-values we can completely omit the mod-computation or replace it by a simple addition.
+		// For (big |x|, small p) we compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
+		// We can use the long-variant here because x*m will never overflow positive long values.
+		// For some reasons I do not understand yet, it is faster to divide Q by p in pass 2 only, not here.
 		int pass2Count = 0;
 		int[] pArray = solutionArrays.pArray;
 		int[] primes = solutionArrays.primes;
@@ -497,14 +501,12 @@ public class Sieve03h implements Sieve {
 		int[] x1Array = solutionArrays.x1Array, x2Array = solutionArrays.x2Array;
 		
 		final int xAbs = x<0 ? -x : x;
-		for (int pIndex = pMinIndex-1; pIndex > 0; pIndex--) { // p[0]=2 was already tested
+		for (int pIndex = pMinIndex-1; pIndex > 0; pIndex--) { // p[0]=2 has already been tested
 			int p = pArray[pIndex];
 			int xModP;
 			if (xAbs<p) {
 				xModP = x<0 ? x+p : x;
 			} else {
-				// Compute x%p using long-valued Barrett reduction, see https://en.wikipedia.org/wiki/Barrett_reduction.
-				// We can use the long-variant here because x*m will never overflow positive long values.
 				final long m = pinvArrayL[pIndex];
 				final long q = ( ( ((long)x) * m) >>> 32); // first argument long optimizes register usage
 				xModP = (int) ( ((long)x) - q * p);
@@ -525,7 +527,6 @@ public class Sieve03h implements Sieve {
 				pass2Exponents[pass2Count] = exponents[pIndex];
 				pass2LogPArray[pass2Count] = smallPrimesLogPArray[pIndex];
 				pass2Powers[pass2Count++] = p;
-				// for some reasons I do not understand it is faster to divide Q by p in pass 2 only, not here
 			}
 		}
 
