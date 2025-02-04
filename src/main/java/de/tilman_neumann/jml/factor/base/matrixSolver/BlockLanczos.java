@@ -35,10 +35,10 @@ public class BlockLanczos implements Serializable {
 	 * A row contains the indices of the primes that occur in the smooth part of the relation with odd exponent.
 	 * As such, the size of the sub-arrays depends on each relation. matrixB is not changed by the Block-Lanczos algorithm.
 	 * 
-	 * @param matrixBlength number of rows
+	 * @param matrixBlength the number of rows and also the number of base primes
 	 * 
-	 * @return The solution matrix matrixV. This matrix can encode 32 different potential solutions: one in bit 0 of all ints, 
-	 * the next one in bit 1 of all ints, and so on.
+	 * @return The solution matrix matrixV. This matrix has one int-entry for each base prime, and can encode 32 different potential solutions:
+	 * One in bit 0 of all ints, the next one in bit 1 of all ints, and so on.
 	 */
 	public int[] computeBlockLanczos(final int[][] matrixB, int matrixBlength) {
 	    int i, j, k;
@@ -59,12 +59,16 @@ public class BlockLanczos implements Serializable {
 	    int[] matrixAV = new int[matrixBlength];
 	    int[] matrixCalcParenD = new int[32];
 	    int[] vectorIndex = new int[64];
-	    // The solution matrix, encoding up to 32 solutions, one in bit 0 of all ints, one in bit 1 of all ints, and so on
+	    
+	    /** The solution matrix, encoding up to 32 solutions, one in bit 0 of all ints, one in bit 1 of all ints, and so on */
 	    int[] matrixV = new int[matrixBlength];
+	    
 	    int[] matrixV1 = new int[matrixBlength];
 	    int[] matrixV2 = new int[matrixBlength];
-	    // matrix X-Y
+	    
+	    /** matrix X-Y, the second-most important matrix, encoded like matrixV */
 	    int[] matrixXmY = new int[matrixBlength];
+	    
 	    int[] matrixCalc3 = new int[matrixBlength]; // Matrix that holds temporary data
 	    int[] matrixTemp;
 	    int[] matrixCalc1 = new int[32]; // Matrix that holds temporary data
