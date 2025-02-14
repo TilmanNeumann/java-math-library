@@ -48,7 +48,7 @@ public class Ensure {
 	}
 	
 	public static void ensureEquals(long left, long right) {
-		if (! (left == right)) {
+		if (left != right) {
 			throw new AssertionError("Assertion failed: " + left + " == " + right);
 		}
 	}
@@ -65,6 +65,12 @@ public class Ensure {
 		}
 	}
 	
+	public static void ensureNotEquals(long left, long right) {
+		if (left == right) {
+			throw new AssertionError("Assertion failed: " + left + " != " + right);
+		}
+	}
+
 	// BigInteger comparison
 
 	public static void ensureSmaller(BigInteger left, BigInteger right) {
