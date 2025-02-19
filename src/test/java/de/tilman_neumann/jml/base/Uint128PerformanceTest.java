@@ -28,8 +28,7 @@ public class Uint128PerformanceTest {
 	private static void testPerformance() {
 		// Performance tests are carried out in double loops over the same numbers.
 		// Otherwise number creation is much more expensive than testing the operations themselves.
-		int NCOUNT = 100000000;
-		int NCOUNT2 = 100000; // used for add operations which are more expensive
+		int NCOUNT = 300000;
 		
 		// set up test numbers
 		long[] a_arr = new long[NCOUNT];
@@ -42,8 +41,8 @@ public class Uint128PerformanceTest {
 		
 		// test performance of add implementations
 		long t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT2; i++) {
-			for (int j=0; j<NCOUNT2; j++) {
+		for (int i=0; i<NCOUNT; i++) {
+			for (int j=0; j<NCOUNT; j++) {
 				a128_arr[i].add_v1(a128_arr[j]);
 			}
 		}
@@ -51,15 +50,13 @@ public class Uint128PerformanceTest {
 		LOG.info("add_v1 took " + (t1-t0) + "ms");
 
 		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT2; i++) {
-			for (int j=0; j<NCOUNT2; j++) {
+		for (int i=0; i<NCOUNT; i++) {
+			for (int j=0; j<NCOUNT; j++) {
 				a128_arr[i].add/*_v2*/(a128_arr[j]);
 			}
 		}
 		t1 = System.currentTimeMillis();
 		LOG.info("add_v2 took " + (t1-t0) + "ms");
-		// The results of this comparison seem to be misleading. If we compare the two implementations
-		// in different PollardRhoBrentMontgomery63 variants than v2 is much faster...
 		
 		// test performance of mul64 implementations
 		t0 = System.currentTimeMillis();
