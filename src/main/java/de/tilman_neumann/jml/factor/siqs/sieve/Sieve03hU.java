@@ -308,9 +308,9 @@ public class Sieve03hU implements Sieve {
 		} // end for (p)
 		if (ANALYZE) sieveDuration += timer.capture();
 
-		// collect results: we check 8 sieve locations in one long
+		// collect results: we check 8 sieve locations in one long and 32 longs at once
 		long x = sieveArrayAddress-8;
-		while (x<sieveArrayAddress+sieveArraySize-8) {
+		while (x < sieveArrayAddress+sieveArraySize-8) {
 			long t = UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8); 
@@ -343,14 +343,14 @@ public class Sieve03hU implements Sieve {
 			t |= UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8);
-			if((t & LONG_MASK) == 0) continue;
+			if ((t & LONG_MASK) == 0) continue;
 			
-			// back up to get the last 8 and look in more detail
+			// go back and look in more detail
 			x -= 256;
 			
-			for(int l=0; l<32; l++) {				
+			for (int l=0; l<32; l++) {				
 				final long y = UNSAFE.getLong(x+=8);
-				if((y & LONG_MASK) != 0) {
+				if ((y & LONG_MASK) != 0) {
 					testLongPositive(y, (int) (x-sieveArrayAddress));
 				}
 			}
@@ -424,9 +424,9 @@ public class Sieve03hU implements Sieve {
 		} // end for (p)
 		if (ANALYZE) sieveDuration += timer.capture();
 
-		// collect results
+		// collect results: we check 8 sieve locations in one long and 32 longs at once
 		x = sieveArrayAddress-8;
-		while (x<sieveArrayAddress+sieveArraySize-8) {
+		while (x < sieveArrayAddress+sieveArraySize-8) {
 			long t = UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8); 
@@ -459,14 +459,14 @@ public class Sieve03hU implements Sieve {
 			t |= UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8);
-			if((t & LONG_MASK) == 0) continue;
+			if ((t & LONG_MASK) == 0) continue;
 			
-			// back up to get the last 8 and look in more detail
+			// go back and look in more detail
 			x -= 256;
 			
-			for(int l=0; l<32; l++) {
+			for (int l=0; l<32; l++) {
 				final long y = UNSAFE.getLong(x+=8);
-				if((y & LONG_MASK) != 0) {
+				if ((y & LONG_MASK) != 0) {
 					testLongNegative(y, (int) (x-sieveArrayAddress));
 				}
 			}

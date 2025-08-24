@@ -17,6 +17,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.I_0;
 import static de.tilman_neumann.jml.factor.base.GlobalFactoringOptions.*;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -65,12 +67,17 @@ import de.tilman_neumann.util.Timer;
  * 
  * Version 03h:
  * -> unroll largest primes with the same logP value
+ * -> using a ByteBuffer allows to access the byte array as longs in the collect phase
  * 
  * @author Tilman Neumann
  */
 public class Sieve03h implements Sieve {
 	private static final Logger LOG = LogManager.getLogger(Sieve03h.class);
 	private static final boolean DEBUG = false;
+
+	private static final long LONG_MASK =   0x8080808080808080L;
+	private static final long UPPER_MASK =  0x8080808000000000L;
+	private static final long LOWER_MASK =          0x80808080L;
 
 	private static final double LN2 = Math.log(2.0);
 
@@ -106,12 +113,15 @@ public class Sieve03h implements Sieve {
 	
 	// sieve
 	private int sieveArraySize;
+	private int sieveAllocationSize;
 	/** the initalizer value */
 	private byte initializerValue;
 	/** basic building block for fast initialization of sieve array */
 	private byte[] initializerBlock;
 	/** the array holding logP sums for all x */
 	private byte[] sieveArray;
+	/** a view on the sieveArray that allows to access it in pieces of longs */
+    ByteBuffer sieveBuffer;
 
 	/** buffers for trial division engine. */
 	private UnsignedBigInt Q_rest_UBI = new UnsignedBigInt(new int[50]);
@@ -159,9 +169,11 @@ public class Sieve03h implements Sieve {
 		// For primes p[i], i<p1Index, we need p[i]+sieveArraySize = 2*sieveArraySize entries.
 		this.sieveArraySize = sieveParams.sieveArraySize;
 		int pMax = sieveParams.pMax;
-		int sieveAllocationSize = Math.max(pMax+1, 2*sieveArraySize);
+		sieveAllocationSize = Math.max(pMax+1, 2*sieveArraySize);
 		sieveArray = new byte[sieveAllocationSize];
-		if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
+	    sieveBuffer = ByteBuffer.wrap(sieveArray).order(ByteOrder.LITTLE_ENDIAN);
+
+	    if (DEBUG) LOG.debug("pMax = " + pMax + ", sieveArraySize = " + sieveArraySize + " --> sieveAllocationSize = " + sieveAllocationSize);
 
 		if (ANALYZE) {
 			sieveHitCount = 0;
@@ -299,17 +311,56 @@ public class Sieve03h implements Sieve {
 		} // end for (p)
 		if (ANALYZE) sieveDuration += timer.capture();
 
-		// collect results
-		// let the sieve entry counter x run down to 0 is much faster because of the simpler exit condition
-		for (int x=sieveArraySize-1; x>=0; ) {
-			// Unfortunately, in Java we can not cast byte[] to int[] or long[].
-			// So we have to use 'or'. More than 4 'or's do not pay out.
-			if (((sieveArray[x--] | sieveArray[x--] | sieveArray[x--] | sieveArray[x--]) & 0x80) != 0) {
-				// at least one of the tested Q(x) is sufficiently smooth to be passed to trial division!
-				if (sieveArray[x+1] < 0) addSmoothCandidate(x+1, sieveArray[x+1] & 0xFF);
-				if (sieveArray[x+2] < 0) addSmoothCandidate(x+2, sieveArray[x+2] & 0xFF);
-				if (sieveArray[x+3] < 0) addSmoothCandidate(x+3, sieveArray[x+3] & 0xFF);
-				if (sieveArray[x+4] < 0) addSmoothCandidate(x+4, sieveArray[x+4] & 0xFF);
+		sieveBuffer.rewind();
+		
+		// collect results: we check 8 sieve locations in one long and 32 longs at once
+		int x = 0;
+		int sieveArraySizeLong = sieveArraySize >> 3;
+		while (x < sieveArraySizeLong) {
+			long t = sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			x += 32;
+			if ((t & LONG_MASK) == 0) continue;
+			
+			// go back and look in more detail
+			x -= 32;
+			sieveBuffer.position(x<<3);
+
+			for (int l=0; l<32; l++, x++) {	
+				final long y = sieveBuffer.getLong();
+				if ((y & LONG_MASK) != 0) {
+					testLongPositive(y, x<<3);
+				}
 			}
 		}
 		if (ANALYZE) collectDuration += timer.capture();
@@ -373,17 +424,55 @@ public class Sieve03h implements Sieve {
 		} // end for (p)
 		if (ANALYZE) sieveDuration += timer.capture();
 
-		// collect results
-		// let the sieve entry counter x run down to 0 is much faster because of the simpler exit condition
-		for (int x=sieveArraySize-1; x>=0; ) {
-			// Unfortunately, in Java we can not cast byte[] to int[] or long[].
-			// So we have to use 'or'. More than 4 'or's do not pay out.
-			if (((sieveArray[x--] | sieveArray[x--] | sieveArray[x--] | sieveArray[x--]) & 0x80) != 0) {
-				// at least one of the tested Q(-x) is sufficiently smooth to be passed to trial division!
-				if (sieveArray[x+1] < 0) addSmoothCandidate(-(x+1), sieveArray[x+1] & 0xFF);
-				if (sieveArray[x+2] < 0) addSmoothCandidate(-(x+2), sieveArray[x+2] & 0xFF);
-				if (sieveArray[x+3] < 0) addSmoothCandidate(-(x+3), sieveArray[x+3] & 0xFF);
-				if (sieveArray[x+4] < 0) addSmoothCandidate(-(x+4), sieveArray[x+4] & 0xFF);
+		sieveBuffer.rewind();
+		
+		// collect results: we check 8 sieve locations in one long and 32 longs at once
+		x = 0;
+		while (x < sieveArraySizeLong) {
+			long t = sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			t |= sieveBuffer.getLong();
+			x += 32;
+			if ((t & LONG_MASK) == 0) continue;
+			
+			// go back and look in more detail
+			x -= 32;
+			sieveBuffer.position(x<<3);
+			
+			for (int l=0; l<32; l++, x++) {				
+				final long y = sieveBuffer.getLong();
+				if ((y & LONG_MASK) != 0) {
+					testLongNegative(y, x<<3);
+				}
 			}
 		}
 		if (ANALYZE) collectDuration += timer.capture();
@@ -404,6 +493,40 @@ public class Sieve03h implements Sieve {
 			System.arraycopy(sieveArray, 0, sieveArray, filled, fillNext);
 			filled += fillNext;
 			unfilled = sieveArraySize-filled;
+		}
+	}
+
+	private void testLongPositive(long y, int x) {
+		if ((y & LOWER_MASK) != 0) {
+			final int y0 = (int) y;
+			if ((y0 &       0x80) != 0) addSmoothCandidate(x  ,  y0      & 0xFF);
+			if ((y0 &     0x8000) != 0) addSmoothCandidate(x+1, (y0>> 8) & 0xFF);
+			if ((y0 &   0x800000) != 0) addSmoothCandidate(x+2, (y0>>16) & 0xFF);
+			if ((y0 & 0x80000000) != 0) addSmoothCandidate(x+3, (y0>>24) & 0xFF);
+		}
+		if((y & UPPER_MASK) != 0) {
+			final int y1 = (int) (y >> 32);
+			if ((y1 &       0x80) != 0) addSmoothCandidate(x+4,  y1      & 0xFF);
+			if ((y1 &     0x8000) != 0) addSmoothCandidate(x+5, (y1>> 8) & 0xFF);
+			if ((y1 &   0x800000) != 0) addSmoothCandidate(x+6, (y1>>16) & 0xFF);
+			if ((y1 & 0x80000000) != 0) addSmoothCandidate(x+7, (y1>>24) & 0xFF);
+		}
+	}
+	
+	private void testLongNegative(long y, int x) {
+		if ((y & LOWER_MASK) != 0) {
+			final int y0 = (int) y;
+			if ((y0 &       0x80) != 0) addSmoothCandidate(- x   ,  y0      & 0xFF);
+			if ((y0 &     0x8000) != 0) addSmoothCandidate(-(x+1), (y0>> 8) & 0xFF);
+			if ((y0 &   0x800000) != 0) addSmoothCandidate(-(x+2), (y0>>16) & 0xFF);
+			if ((y0 & 0x80000000) != 0) addSmoothCandidate(-(x+3), (y0>>24) & 0xFF);
+		}
+		if((y & UPPER_MASK) != 0) {
+			final int y1 = (int) (y >> 32);
+			if ((y1 &       0x80) != 0) addSmoothCandidate(-(x+4),  y1      & 0xFF);
+			if ((y1 &     0x8000) != 0) addSmoothCandidate(-(x+5), (y1>> 8) & 0xFF);
+			if ((y1 &   0x800000) != 0) addSmoothCandidate(-(x+6), (y1>>16) & 0xFF);
+			if ((y1 & 0x80000000) != 0) addSmoothCandidate(-(x+7), (y1>>24) & 0xFF);
 		}
 	}
 
