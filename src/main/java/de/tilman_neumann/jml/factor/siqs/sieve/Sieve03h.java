@@ -113,7 +113,6 @@ public class Sieve03h implements Sieve {
 	
 	// sieve
 	private int sieveArraySize;
-	private int sieveAllocationSize;
 	/** the initalizer value */
 	private byte initializerValue;
 	/** basic building block for fast initialization of sieve array */
@@ -169,7 +168,7 @@ public class Sieve03h implements Sieve {
 		// For primes p[i], i<p1Index, we need p[i]+sieveArraySize = 2*sieveArraySize entries.
 		this.sieveArraySize = sieveParams.sieveArraySize;
 		int pMax = sieveParams.pMax;
-		sieveAllocationSize = Math.max(pMax+1, 2*sieveArraySize);
+		int sieveAllocationSize = Math.max(pMax+1, 2*sieveArraySize);
 		sieveArray = new byte[sieveAllocationSize];
 	    sieveBuffer = ByteBuffer.wrap(sieveArray).order(ByteOrder.LITTLE_ENDIAN);
 
