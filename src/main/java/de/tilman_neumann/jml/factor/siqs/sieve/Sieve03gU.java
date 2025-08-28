@@ -388,7 +388,7 @@ public class Sieve03gU implements Sieve {
 			if ((y0 &   0x800000) != 0) addSmoothCandidate(x+2, (y0>>16) & 0xFF);
 			if ((y0 & 0x80000000) != 0) addSmoothCandidate(x+3, (y0>>24) & 0xFF);
 		}
-		if((y & UPPER_MASK) != 0) {
+		if ((y & UPPER_MASK) != 0) {
 			final int y1 = (int) (y >> 32);
 			if ((y1 &       0x80) != 0) addSmoothCandidate(x+4,  y1      & 0xFF);
 			if ((y1 &     0x8000) != 0) addSmoothCandidate(x+5, (y1>> 8) & 0xFF);
@@ -405,7 +405,7 @@ public class Sieve03gU implements Sieve {
 			if ((y0 &   0x800000) != 0) addSmoothCandidate(-(x+2), (y0>>16) & 0xFF);
 			if ((y0 & 0x80000000) != 0) addSmoothCandidate(-(x+3), (y0>>24) & 0xFF);
 		}
-		if((y & UPPER_MASK) != 0) {
+		if ((y & UPPER_MASK) != 0) {
 			final int y1 = (int) (y >> 32);
 			if ((y1 &       0x80) != 0) addSmoothCandidate(-(x+4),  y1      & 0xFF);
 			if ((y1 &     0x8000) != 0) addSmoothCandidate(-(x+5), (y1>> 8) & 0xFF);
