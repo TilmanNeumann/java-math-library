@@ -244,14 +244,14 @@ public class Sieve03gU implements Sieve {
 			t |= UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8);
-			if((t & LONG_MASK) == 0) continue;
+			if ((t & LONG_MASK) == 0) continue;
 			
 			// back up to get the last 8 and look in more detail
 			x -= 256;
 			
-			for(int l=0; l<32; l++) {				
+			for (int l=0; l<32; l++) {				
 				final long y = UNSAFE.getLong(x+=8);
-				if((y & LONG_MASK) != 0) {
+				if ((y & LONG_MASK) != 0) {
 					testLongPositive(y, (int) (x-sieveArrayAddress));
 				}
 			}
@@ -355,14 +355,14 @@ public class Sieve03gU implements Sieve {
 			t |= UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8);
 			t |= UNSAFE.getLong(x+=8);
-			if((t & LONG_MASK) == 0) continue;
+			if ((t & LONG_MASK) == 0) continue;
 			
 			// back up to get the last 8 and look in more detail
 			x -= 256;
 			
-			for(int l=0; l<32; l++) {
+			for (int l=0; l<32; l++) {
 				final long y = UNSAFE.getLong(x+=8);
-				if((y & LONG_MASK) != 0) {
+				if ((y & LONG_MASK) != 0) {
 					testLongNegative(y, (int) (x-sieveArrayAddress));
 				}
 			}
