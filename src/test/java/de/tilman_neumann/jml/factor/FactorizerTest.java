@@ -111,7 +111,9 @@ public class FactorizerTest {
 			//new TDiv63(),
 //			new TDiv63Inverse(1<<21),
 			//new TDiv().setTestLimit(1<<21),
-			
+//			new LemireIntTrialDivision(),
+//			new LemireTrialDivision(),
+
 			// Hart's one line factorizer
 			//new HartSimple(),
 //			new HartFast(true),
@@ -243,6 +245,8 @@ public class FactorizerTest {
 				if (bits>31 && algName.startsWith("PollardRhoBrent31")) continue; // int implementation
 				if (bits>31 && algName.startsWith("PollardRhoTwoLoops31")) continue; // int implementation
 				if (bits>31 && algName.startsWith("PollardRhoBrentMontgomery32")) continue; // int implementation
+				if (bits>32 && algName.startsWith("LemireIntTrialDivision")) continue; // int implementation
+				if (bits>36 && algName.startsWith("LemireTrialDivision")) continue; // not enough primes stored
 				if (bits>42 && algName.startsWith("TDiv63Inverse")) continue; // not enough primes stored
 				if (bits>52 && algName.startsWith("SquFoF31")) continue; // int implementation
 				if (bits>59 && algName.startsWith("Lehman")) continue;
