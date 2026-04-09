@@ -52,15 +52,7 @@ public class ModularPower {
 	 * @return a^b (mod c)
 	 */
   	public int modPow(BigInteger a, long b, int c) {
-  		// products need long precision
-  		long modPow = 1;
-  		long aModC = a.mod(BigInteger.valueOf(c)).longValue();
-  		while (b > 0) {
-  			if ((b&1) == 1) modPow = (modPow * aModC) % c;
-  			aModC = (aModC * aModC) % c;
-  			b >>= 1;
-  		}
-  		return (int) modPow;
+  		return modPowCore(a.mod(BigInteger.valueOf(c)).longValue(), b, c);
   	}
   	
 	/**
@@ -71,9 +63,11 @@ public class ModularPower {
 	 * @return a^b (mod c)
 	 */
   	public int modPow(int a, long b, int c) {
-  		// products need long precision
+  		return modPowCore(a % c, b, c);
+  	}
+  	
+  	private int modPowCore(long aModC, long b, long c) {
   		long modPow = 1;
-  		long aModC = a % c;
   		while (b > 0) {
   			if ((b&1) == 1) modPow = (modPow * aModC) % c;
   			aModC = (aModC * aModC) % c;
