@@ -45,13 +45,13 @@ public class ModularPower {
   	}
   	
 	/**
-	 * Computes a^b (mod c) for <code>a</code> BigInteger, <code>b, c</code> int. Very fast.
+	 * Computes a^b (mod c) for <code>a</code> BigInteger, <code>b</code> long, <code>c</code> int. Very fast.
 	 * @param a
 	 * @param b
 	 * @param c
 	 * @return a^b (mod c)
 	 */
-  	public int modPow(BigInteger a, int b, int c) {
+  	public int modPow(BigInteger a, long b, int c) {
   		// products need long precision
   		long modPow = 1;
   		long aModC = a.mod(BigInteger.valueOf(c)).longValue();
@@ -64,13 +64,13 @@ public class ModularPower {
   	}
   	
 	/**
-	 * Computes a^b (mod c) for all-int arguments. Very fast.
+	 * Computes a^b (mod c) for <code>a</code> int, <code>b</code> long, <code>c</code> int. Very fast.
 	 * @param a
 	 * @param b
 	 * @param c
 	 * @return a^b (mod c)
 	 */
-  	public int modPow(int a, int b, int c) {
+  	public int modPow(int a, long b, int c) {
   		// products need long precision
   		long modPow = 1;
   		long aModC = a % c;
