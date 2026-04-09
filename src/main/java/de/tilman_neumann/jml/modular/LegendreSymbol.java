@@ -56,8 +56,7 @@ public class LegendreSymbol {
 	}
 
 	/**
-	 * Computes the Legendre symbol L(a|p) via Eulers formula for a, p int.
-	 * p must be an odd prime.
+	 * Computes the Legendre symbol L(a|p) via Eulers formula for <code>a</code> long, <code>p</code> an odd prime int.
 	 * 
 	 * Eulers formula with int p is quite fast, but the Jacobi symbol may be faster.
 	 *
@@ -65,7 +64,7 @@ public class LegendreSymbol {
 	 * @param p
 	 * @return Legendre symbol L(a|p)
 	 */
-	public int EulerFormula(int a, int p) {
+	public int EulerFormula(long a, int p) {
 		int modPow = mpe.modPow(a, (p-1)>>1, p);
 		return (modPow>1) ? modPow-p : modPow;
 	}

@@ -56,6 +56,17 @@ public class ModularPower {
   	}
   	
 	/**
+	 * Computes a^b (mod c) for <code>a, b</code> long, <code>c</code> int. Very fast.
+	 * @param a
+	 * @param b
+	 * @param c
+	 * @return a^b (mod c)
+	 */
+  	public int modPow(long a, long b, int c) {
+  		return modPowCore(a % c, b, c);
+  	}
+
+	/**
 	 * Computes a^b (mod c) for <code>a</code> int, <code>b</code> long, <code>c</code> int. Very fast.
 	 * @param a
 	 * @param b

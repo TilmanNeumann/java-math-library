@@ -174,7 +174,7 @@ public class ModularSqrt31 {
 	 * @param p
 	 * @return (the smaller) sqrt of n (mod p)
 	 */
-	int bruteForce(int n, int p) { // not private because used in tests
+	private int bruteForce(int n, int p) { // not private because used in tests
 		//boolean foundT = false;
 		int nModP = n%p;
 		int t;
@@ -204,14 +204,14 @@ public class ModularSqrt31 {
 	 * Works for any odd p with t^2 == n (mod p) having solution t>0.
 	 * Implementation for arguments having int solutions.
 	 * 
-	 * @param n a positive integer having Jacobi(n|p) = 1
+	 * @param n a positive long having Jacobi(n|p) = 1
 	 * @param power p^exponent
 	 * @param last_power p^(exponent-1)
 	 * @param t solution of t^2 == n (mod p)
 	 * 
 	 * @return sqrt of n (mod p^exponent)
 	 */
-	public int modularSqrtModPower(int n, int power, int last_power, int t) {
+	public int modularSqrtModPower(long n, int power, int last_power, long t) {
 		// Barthel's e = (power - 2*last_power + 1)/2
 		int f = (power - (last_power<<1) + 1)>>1;
 		// square root == n (mod p^exponent)

@@ -191,14 +191,14 @@ public class ModularSqrt {
 	 * Works for any odd p with t^2 == n (mod p) having solution t>0.
 	 * Implementation for arguments having int solutions.
 	 * 
-	 * @param n
+	 * @param n a positive BigInteger having Jacobi(n|p) = 1
 	 * @param power p^exponent
 	 * @param last_power p^(exponent-1)
 	 * @param t solution of t^2 == n (mod p)
 	 * 
 	 * @return sqrt of n (mod p^exponent)
 	 */
-	public int modularSqrtModPower(BigInteger n, int power, int last_power, int t) {
+	public int modularSqrtModPower(BigInteger n, int power, int last_power, long t) {
 		// Barthel's e = (power - 2*last_power + 1)/2
 		int f = (power - (last_power<<1) + 1)>>1;
 		// square root == n (mod p^exponent)
