@@ -232,8 +232,7 @@ public class TinyEcm64MH extends FactorAlgorithm {
 	 * @return c*2^64 mod n
 	 */
 	long u64div(long c, long n) {
-		// optimizing on lo=0 does not yield any notable performance gain
-		return new Uint128(c, 0L).spDivide_MH(n)[1];
+		return Uint128.divide128by64Unsigned(c, 0, n)[2];
 	}
 
 	/**
@@ -244,8 +243,8 @@ public class TinyEcm64MH extends FactorAlgorithm {
 	 * @return u*v mod m
 	 */
 	long spMulMod(long u, long v, long m) {
-		// using spMul64_MH() or mul64SignedMH() makes no notable difference in terms of performance
-		return Uint128.mul64SignedMH(u, v).spDivide_MH(m)[1];
+		Uint128 prod = Uint128.mul64SignedMH(u, v);
+		return Uint128.divide128by64Unsigned(prod.getHigh(), prod.getLow(), m)[2];
 	}
 
 	void add(long rho, ecm_work work, ecm_pt P1, ecm_pt P2, ecm_pt Pin, ecm_pt Pout) {

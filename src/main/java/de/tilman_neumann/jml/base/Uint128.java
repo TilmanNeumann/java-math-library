@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -30,6 +30,7 @@ import de.tilman_neumann.util.Ensure;
  */
 // TODO Now that there are signed methods, this class needs a refactoring
 public class Uint128 {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LogManager.getLogger(Uint128.class);
 	
 	private static final boolean DEBUG = false;
@@ -247,37 +248,6 @@ public class Uint128 {
 
 		return new Uint128(r_hi, r_lo);
 	}
-	
-	/**
-	 * Special implementation for the multiplication of two unsigned 64-bit integers using Math.multiplyHigh().
-	 * Pretty fast if supported by intrinsics, which needs newer hardware and Java 10+.<br><br>
-	 * 
-	 * <strong>WARNING: This implementation is not generally correct.</strong><br><br>
-	 * 
-	 * However, it seems to be sufficient for the purposes of TinyEcm and PollardRhoBrentMontgomery
-	 * implementations in this library, and should be a bit faster <em>there</em>.
-	 * 
-	 * @param a
-	 * @param b
-	 * @return
-	 */
-	public static Uint128 spMul64_MH(long a, long b) {
-		final long r_lo = a*b;
-		long r_hi = Math.multiplyHigh(a, b);
-		if (a<0) r_hi += b;
-		// For general correctness we would need as well
-		//if (b<0) r_hi += a;
-		// See implementation of java.lang.Math.unsignedMultiplyHigh() starting from Java 18.
-		
-		if (DEBUG) {
-			// compare to pure Java implementation
-			Uint128 testResult = mul64(a, b);
-			Ensure.ensureEquals(testResult.high, r_hi);
-			Ensure.ensureEquals(testResult.low, r_lo);
-		}
-
-		return new Uint128(r_hi, r_lo);
-	}
 
 	/**
 	 * Multiplication of two signed 64 bit integers, adapted from Henry S. Warren, Hacker's Delight, Addison-Wesley, 2nd edition, chapter 8-2.
@@ -439,285 +409,103 @@ public class Uint128 {
 		return r_lo;
 	}
 
-	/**
-	 * Compute quotient and remainder of this / v.
-	 * The quotient will be correct only if it is <= 64 bit.
-	 * Ported from https://codereview.stackexchange.com/questions/67962/mostly-portable-128-by-64-bit-division.
-	 * 
-	 * @param v 64 bit unsigned integer
-	 * @return [quotient, remainder] of this / v
-	 */
-	public long[] spDivide(long v)
-	{
-		long p_lo;
-		long p_hi;
-		long q = 0;
-		long r;
-		
-		long r_hi = getHigh();
-		long r_lo = getLow();
-		if (DEBUG) LOG.debug("r_hi=" + Long.toUnsignedString(r_hi) + ", r_lo=" + Long.toUnsignedString(r_lo));
-		
-		int s = 0;
-		if(0 == (v >>> 63)){
-		    // Normalize so quotient estimates are no more than 2 in error.
-		    // Note: If any bits get shifted out of r_hi at this point, the result would overflow.
-		    s = Long.numberOfLeadingZeros(v);
-		    int t = 64 - s;
-		
-		    v <<= s;
-		    r_hi = (r_hi << s)|(r_lo >>> t);
-		    r_lo <<= s;
-		}
-		if (DEBUG) LOG.debug("s=" + s + ", b=" + Long.toUnsignedString(v) + ", r_lo=" + r_lo + ", r_hi=" + r_hi);
-		
-		long b_hi = v >>> 32;
-		
-		/*
-		The first full-by-half division places b
-		across r_hi and r_lo, making the reduction
-		step a little complicated.
-		
-		To make this easier, u_hi and u_lo will hold
-		a shifted image of the remainder.
-		
-		[u_hi||    ][u_lo||    ]
-		      [r_hi||    ][r_lo||    ]
-		            [ b  ||    ]
-		[p_hi||    ][p_lo||    ]
-		              |
-		              V
-		            [q_hi||    ]
-		*/
-		
-		long q_hat = divideUnsignedLong(r_hi, b_hi);
-		if (DEBUG) LOG.debug("q_hat=" + Long.toUnsignedString(q_hat));
-		
-		Uint128 mulResult = mul64(v, q_hat);
-		p_lo = mulResult.getLow();
-		p_hi = mulResult.getHigh();
-		if (DEBUG) LOG.debug("p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
-		
-		long u_hi = r_hi >>> 32;
-		long u_lo = (r_hi << 32)|(r_lo >>> 32);
-		
-		// r -= b*q_hat
-		//
-		// At most 2 iterations of this...
-		while( (p_hi+Long.MIN_VALUE > u_hi+Long.MIN_VALUE) || ((p_hi == u_hi) && (p_lo+Long.MIN_VALUE > u_lo+Long.MIN_VALUE)) )
-		{
-		    if (p_lo+Long.MIN_VALUE < v+Long.MIN_VALUE) {
-		        --p_hi;
-		    }
-		    p_lo -= v;
-		    --q_hat;
-		}
-		
-		long w_lo = (p_lo << 32);
-		long w_hi = (p_hi << 32)|(p_lo >>> 32);
-		if (DEBUG) LOG.debug("w_lo=" + Long.toUnsignedString(w_lo) + ", w_hi=" + Long.toUnsignedString(w_hi));
-		
-		if (w_lo+Long.MIN_VALUE > r_lo+Long.MIN_VALUE) {
-			if (DEBUG) LOG.debug("increment w_hi!");
-		    ++w_hi;
-		}
-		
-		r_lo -= w_lo;
-		r_hi -= w_hi;
-		if (DEBUG) LOG.debug("r_lo=" + Long.toUnsignedString(r_lo) + ", r_hi=" + Long.toUnsignedString(r_hi));
-		
-		q = q_hat << 32;
-		
-		/*
-		The lower half of the quotient is easier,
-		as b is now aligned with r_lo.
-		
-		      |r_hi][r_lo||    ]
-		            [ b  ||    ]
-		[p_hi||    ][p_lo||    ]
-		                    |
-		                    V
-		            [q_hi||q_lo]
-		*/
-		
-		q_hat = divideUnsignedLong((r_hi << 32)|(r_lo >>> 32), b_hi);
-		if (DEBUG) LOG.debug("b=" + Long.toUnsignedString(v) + ", q_hat=" + Long.toUnsignedString(q_hat));
-		
-		mulResult = mul64(v, q_hat);
-		p_lo = mulResult.getLow();
-		p_hi = mulResult.getHigh();
-		if (DEBUG) LOG.debug("2: p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
-		
-		// r -= b*q_hat
-		//
-		// ...and at most 2 iterations of this.
-		while( (p_hi+Long.MIN_VALUE > r_hi+Long.MIN_VALUE) || ((p_hi == r_hi) && (p_lo+Long.MIN_VALUE > r_lo+Long.MIN_VALUE)) )
-		{
-		    if(p_lo+Long.MIN_VALUE < v+Long.MIN_VALUE){
-		        --p_hi;
-		    }
-		    p_lo -= v;
-		    --q_hat;
-		}
-		
-		r_lo -= p_lo;
-		
-		q |= q_hat;
-		
-		r = r_lo >>> s;
-		
-		return new long[] {q, r};
-	}
+    /**
+     * Complete unsigned 128 / 64 bit division.
+     * This implementation has been worked out with support from Google Gemini.
+     * 
+     * @param u1 high 64 bits of the dividend
+     * @param u0 low 64 bits of the dividend
+     * @param v divisor
+     * @return [quotientHigh, quotientLow, remainder]
+     */
+    public static long[] divide128by64Unsigned(long u1, long u0, long v) {
+        if (v == 0) throw new ArithmeticException("Division by zero");
 
-	/**
-	 * Compute quotient and remainder of this / v.
-	 * The quotient will be correct only if it is <= 64 bit.
-	 * Ported from https://codereview.stackexchange.com/questions/67962/mostly-portable-128-by-64-bit-division.
-	 * 
-	 * In this variant we use Math.multiplyHigh() to multiply two unsigned 64 bit integers. This makes hardly a difference in terms of performance, though.
-	 * Otherwise the implementation does not differ from spDivide().
-	 * 
-	 * @param v 64 bit unsigned integer
-	 * @return [quotient, remainder] of this / v
-	 */
-	// XXX The name sp_divide stems from YaFu's tinyEcm.c. I guess that "sp" stands for "special". But here we have a full division; so some improvement potential may be given for certain applications.
-	public long[] spDivide_MH(long v)
-	{
-		long p_lo;
-		long p_hi;
-		long q = 0;
-		long r;
-		
-		long r_hi = getHigh();
-		long r_lo = getLow();
-		if (DEBUG) LOG.debug("r_hi=" + Long.toUnsignedString(r_hi) + ", r_lo=" + Long.toUnsignedString(r_lo));
-		
-		int s = 0;
-		if(0 == (v >>> 63)){
-		    // Normalize so quotient estimates are no more than 2 in error.
-		    // Note: If any bits get shifted out of r_hi at this point, the result would overflow.
-		    s = Long.numberOfLeadingZeros(v);
-		    int t = 64 - s;
-		
-		    v <<= s;
-		    r_hi = (r_hi << s)|(r_lo >>> t);
-		    r_lo <<= s;
-		}
-		if (DEBUG) LOG.debug("s=" + s + ", b=" + Long.toUnsignedString(v) + ", r_lo=" + r_lo + ", r_hi=" + r_hi);
-		
-		long b_hi = v >>> 32;
-		
-		/*
-		The first full-by-half division places b
-		across r_hi and r_lo, making the reduction
-		step a little complicated.
-		
-		To make this easier, u_hi and u_lo will hold
-		a shifted image of the remainder.
-		
-		[u_hi||    ][u_lo||    ]
-		      [r_hi||    ][r_lo||    ]
-		            [ b  ||    ]
-		[p_hi||    ][p_lo||    ]
-		              |
-		              V
-		            [q_hi||    ]
-		*/
-		
-		long q_hat = divideUnsignedLong(r_hi, b_hi);
-		if (DEBUG) LOG.debug("q_hat=" + Long.toUnsignedString(q_hat));
-		
-		// In TinyEcm64MH* variants, spMul64_MH() is slightly faster than mul64_MH(), and with mul64Signed() it doesn't work at all.
-		Uint128 mulResult = spMul64_MH(v, q_hat);
-		p_lo = mulResult.getLow();
-		p_hi = mulResult.getHigh();
-		if (DEBUG) LOG.debug("p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
-		
-		long u_hi = r_hi >>> 32;
-		long u_lo = (r_hi << 32)|(r_lo >>> 32);
-		
-		// r -= b*q_hat
-		//
-		// At most 2 iterations of this...
-		while( (p_hi+Long.MIN_VALUE > u_hi+Long.MIN_VALUE) || ((p_hi == u_hi) && (p_lo+Long.MIN_VALUE > u_lo+Long.MIN_VALUE)) )
-		{
-		    if (p_lo+Long.MIN_VALUE < v+Long.MIN_VALUE) {
-		        --p_hi;
-		    }
-		    p_lo -= v;
-		    --q_hat;
-		}
-		
-		long w_lo = (p_lo << 32);
-		long w_hi = (p_hi << 32)|(p_lo >>> 32);
-		if (DEBUG) LOG.debug("w_lo=" + Long.toUnsignedString(w_lo) + ", w_hi=" + Long.toUnsignedString(w_hi));
-		
-		if (w_lo+Long.MIN_VALUE > r_lo+Long.MIN_VALUE) {
-			if (DEBUG) LOG.debug("increment w_hi!");
-		    ++w_hi;
-		}
-		
-		r_lo -= w_lo;
-		r_hi -= w_hi;
-		if (DEBUG) LOG.debug("r_lo=" + Long.toUnsignedString(r_lo) + ", r_hi=" + Long.toUnsignedString(r_hi));
-		
-		q = q_hat << 32;
-		
-		/*
-		The lower half of the quotient is easier,
-		as b is now aligned with r_lo.
-		
-		      |r_hi][r_lo||    ]
-		            [ b  ||    ]
-		[p_hi||    ][p_lo||    ]
-		                    |
-		                    V
-		            [q_hi||q_lo]
-		*/
-		
-		q_hat = divideUnsignedLong((r_hi << 32)|(r_lo >>> 32), b_hi);
-		if (DEBUG) LOG.debug("b=" + Long.toUnsignedString(v) + ", q_hat=" + Long.toUnsignedString(q_hat));
-		
-		mulResult = spMul64_MH(v, q_hat);
-		p_lo = mulResult.getLow();
-		p_hi = mulResult.getHigh();
-		if (DEBUG) LOG.debug("2: p_lo=" + Long.toUnsignedString(p_lo) + ", p_hi=" + Long.toUnsignedString(p_hi));
-		
-		// r -= b*q_hat
-		//
-		// ...and at most 2 iterations of this.
-		while( (p_hi+Long.MIN_VALUE > r_hi+Long.MIN_VALUE) || ((p_hi == r_hi) && (p_lo+Long.MIN_VALUE > r_lo+Long.MIN_VALUE)) )
-		{
-		    if(p_lo+Long.MIN_VALUE < v+Long.MIN_VALUE){
-		        --p_hi;
-		    }
-		    p_lo -= v;
-		    --q_hat;
-		}
-		
-		r_lo -= p_lo;
-		
-		q |= q_hat;
-		
-		r = r_lo >>> s;
-		
-		return new long[] {q, r};
-	}
+        // Step 1: check for quotients > 64 bit
+        long qHigh = 0;
+        if (Long.compareUnsigned(u1, v) >= 0) {
+            qHigh = Long.divideUnsigned(u1, v);
+            u1 = Long.remainderUnsigned(u1, v);
+        }
 
-	/**
-	 * A good replacement for the slow Long.divideUnsigned(). Taken from the Huldra project,
-	 * see BigInt.div(..) at https://github.com/bwakell/Huldra.
-	 * @param a
-	 * @param b
-	 * @return unsigned a/b
-	 */
-	private static long divideUnsignedLong(long a, long b) {
-		long qhat = (a >>> 1)/b << 1;
-		long t = a - qhat*b;
-		if (t+Long.MIN_VALUE >= b+Long.MIN_VALUE) qhat++;
-		if (DEBUG) Ensure.ensureEquals(Long.divideUnsigned(a, b), qhat);
-		return qhat;
-	}
+        // Step 2: highly optimized 64/64 division for the remaining part
+        // (the dividend now is u1:u0, which guarantees u1 < v)
+        
+        // 2.1. Normalization
+        int s = Long.numberOfLeadingZeros(v);
+        long v_norm = v << s;
+        long v_hi = v_norm >>> 32;
+        long v_lo = v_norm & 0xFFFFFFFFL;
+
+        // shift u1:u0 (careful with s=0)
+        long u_hi = (s == 0) ? u1 : (u1 << s) | (u0 >>> (64 - s));
+        long u_lo = u0 << s;
+
+        // 2.2. first 32-bit half of the quotient (q1)
+        long q1 = Long.divideUnsigned(u_hi, v_hi);
+        long rhat = Long.remainderUnsigned(u_hi, v_hi);
+
+        while (Long.compareUnsigned(q1, 0x100000000L) >= 0 || Long.compareUnsigned(q1 * v_lo, (rhat << 32) | (u_lo >>> 32)) > 0) {
+            q1--;
+            rhat += v_hi;
+            if (Long.compareUnsigned(rhat, 0x100000000L) >= 0) break;
+        }
+
+        // intermediate remainder
+        long rem = ((u_hi << 32) | (u_lo >>> 32)) - (q1 * v_norm);
+
+        // 2.3. Second 32-bit half of the quotient (q0)
+        long q0 = Long.divideUnsigned(rem, v_hi);
+        rhat = Long.remainderUnsigned(rem, v_hi);
+
+        while (Long.compareUnsigned(q0, 0x100000000L) >= 0 || Long.compareUnsigned(q0 * v_lo, (rhat << 32) | (u_lo & 0xFFFFFFFFL)) > 0) {
+            q0--;
+            rhat += v_hi;
+            if (Long.compareUnsigned(rhat, 0x100000000L) >= 0) break;
+        }
+
+        // 2.4. Assemble results
+        long qLow = (q1 << 32) | q0;
+        long finalRemainder = (((rem << 32) | (u_lo & 0xFFFFFFFFL)) - (q0 * v_norm)) >>> s;
+
+        return new long[] { qHigh, qLow, finalRemainder };
+    }
+    
+    /**
+     * Computes the remainder of an unsigned 128 % 64 bit division.
+     * This implementation has been worked out with support from Google Gemini.
+     * 
+     * @param u1 high 64 bits of the dividend
+     * @param u0 low 64 bits of the dividend
+     * @param v divisor
+     * @return the (unsigned) 64-bit remainder
+     */
+    public static long mod128by64Unsigned(long u1, long u0, long v) {
+        if (v == 0) throw new ArithmeticException("Division by zero");
+
+        // 1. Reduce the high part (u1) directly to eliminate the case of quotients > 64 bit
+        long rem = Long.remainderUnsigned(u1, v);
+        
+        // if rem is 0, a simple modulus on u0 is sufficient
+        if (rem == 0) {
+            return Long.remainderUnsigned(u0, v);
+        }
+
+        // 2. The remaining part now is (rem : u0) % v
+        // Since rem < v, we can use a compact bit loop.
+        // For modulus computations this is often faster than Knuths algorithm D style 32-bit decompositions,
+        // because it needs less case distinctions and no multiplications.
+        for (int i = 0; i < 64; i++) {
+            long msb = (u0 >>> 63);
+            rem = (rem << 1) | msb;
+            u0 <<= 1;
+            if (Long.compareUnsigned(rem, v) >= 0) {
+                rem -= v;
+            }
+        }
+        
+        return rem;
+    }
 
 	/**
 	 * Shift this 'bits' bits to the left.

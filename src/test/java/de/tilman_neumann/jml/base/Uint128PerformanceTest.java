@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -29,17 +29,21 @@ public class Uint128PerformanceTest {
 		// Performance tests are carried out in double loops over the same numbers.
 		// Otherwise number creation is much more expensive than testing the operations themselves.
 		int NCOUNT = 300000;
+		int NCOUNT_DIV = 20000;
 		
 		// set up test numbers
 		long[] a_arr = new long[NCOUNT];
+		long[] b_arr = new long[NCOUNT];
 		Uint128[] a128_arr =  new Uint128[NCOUNT];
 		
 		for (int i=0; i<NCOUNT; i++) {
 			a_arr[i] = RNG.nextLong();
-			a128_arr[i] = new Uint128(a_arr[i], RNG.nextLong());
+			b_arr[i] = RNG.nextLong();
+			a128_arr[i] = new Uint128(a_arr[i], b_arr[i]);
 		}
 		
 		// test performance of add implementations
+		
 		long t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
 			for (int j=0; j<NCOUNT; j++) {
@@ -59,6 +63,7 @@ public class Uint128PerformanceTest {
 		LOG.info("add_v2 took " + (t1-t0) + "ms");
 		
 		// test performance of mul64 implementations
+		
 		t0 = System.currentTimeMillis();
 		for (int i=0; i<NCOUNT; i++) {
 			for (int j=0; j<NCOUNT; j++) {
@@ -95,14 +100,25 @@ public class Uint128PerformanceTest {
 		t1 = System.currentTimeMillis();
 		LOG.info("mul64_MH took " + (t1-t0) + "ms");
 		
+		// test performance of 128 / 64 bit division and modulus
+		
 		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				Uint128.spMul64_MH(a_arr[i], a_arr[j]);
+		for (int i=0; i<NCOUNT_DIV; i++) {
+			for (int j=0; j<NCOUNT_DIV; j++) {
+				Uint128.divide128by64Unsigned(a_arr[i], b_arr[i], a_arr[j]);
 			}
 		}
 		t1 = System.currentTimeMillis();
-		LOG.info("spMul64_MH took " + (t1-t0) + "ms");
+		LOG.info("divide128by64Unsigned took " + (t1-t0) + "ms");
+		
+		t0 = System.currentTimeMillis();
+		for (int i=0; i<NCOUNT_DIV; i++) {
+			for (int j=0; j<NCOUNT_DIV; j++) {
+				Uint128.mod128by64Unsigned(a_arr[i], b_arr[i], a_arr[j]);
+			}
+		}
+		t1 = System.currentTimeMillis();
+		LOG.info("mod128by64Unsigned took " + (t1-t0) + "ms");
 	}
 
 	/**

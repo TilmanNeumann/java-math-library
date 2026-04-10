@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -162,7 +162,7 @@ public class Uint128Test {
 				BigInteger b_lo_big = lo_big[j];
 				long b_lo = lo[j];
 	
-				Uint128 prod128 = Uint128. mul64/*_v2*/(a_lo, b_lo);
+				Uint128 prod128 = Uint128.mul64/*_v2*/(a_lo, b_lo);
 				BigInteger prod128Big = prod128.toBigInteger();
 				BigInteger correctProd = a_lo_big.multiply(b_lo_big);
 				if (!correctProd.equals(prod128Big)) {
@@ -184,7 +184,7 @@ public class Uint128Test {
 				BigInteger b_lo_big = lo_big[j];
 				long b_lo = lo[j];
 	
-				Uint128 prod128 = Uint128. mul64_v3(a_lo, b_lo);
+				Uint128 prod128 = Uint128.mul64_v3(a_lo, b_lo);
 				BigInteger prod128Big = prod128.toBigInteger();
 				BigInteger correctProd = a_lo_big.multiply(b_lo_big);
 				if (!correctProd.equals(prod128Big)) {
@@ -206,7 +206,7 @@ public class Uint128Test {
 				BigInteger b_lo_big = lo_big[j];
 				long b_lo = lo[j];
 				
-				Uint128 prod128 = Uint128. mul64_MH(a_lo, b_lo);
+				Uint128 prod128 = Uint128.mul64_MH(a_lo, b_lo);
 				BigInteger prod128Big = prod128.toBigInteger();
 				BigInteger correctProd = a_lo_big.multiply(b_lo_big);
 				if (!correctProd.equals(prod128Big)) {
@@ -216,6 +216,50 @@ public class Uint128Test {
 			}
 		}
 	}
-	
-	// we do not test spMul64_MH() here because we know that it is wrong in general
+
+	@Test
+	public void testDivide128by64Unsigned() {
+		for (int i=0; i<NCOUNT; i++) {
+			Uint128 a = new Uint128(hi[i], lo[i]);
+			BigInteger aBig = a.toBigInteger();
+
+			for (int j=0; j<NCOUNT; j++) {
+				BigInteger bBig = hi_big[j];
+				long b = hi[j];
+				
+				long[] result = Uint128.divide128by64Unsigned(hi[i], lo[i], b);
+				BigInteger quot = new Uint128(result[0], result[1]).toBigInteger();
+				BigInteger rem = BigInteger.valueOf(result[2]);
+				BigInteger[] correctResult = aBig.divideAndRemainder(bBig);
+				BigInteger correctQuot = correctResult[0];
+				BigInteger correctRem = correctResult[1];
+				if (!correctQuot.equals(quot) || !correctRem.equals(rem) ) {
+					LOG.error("divide128by64Unsigned: " + a + " / " + b + ": correct = " + correctQuot + " rem " + correctRem + ", but result = " + quot + " rem " + rem);
+				}
+				Assert.assertEquals(correctQuot, quot);
+				Assert.assertEquals(correctRem, rem);
+			}
+		}
+	}
+
+	@Test
+	public void testMod128by64Unsigned() {
+		for (int i=0; i<NCOUNT; i++) {
+			Uint128 a = new Uint128(hi[i], lo[i]);
+			BigInteger aBig = a.toBigInteger();
+
+			for (int j=0; j<NCOUNT; j++) {
+				BigInteger bBig = hi_big[j];
+				long b = hi[j];
+				
+				long result = Uint128.mod128by64Unsigned(hi[i], lo[i], b);
+				BigInteger rem = BigInteger.valueOf(result);
+				BigInteger correctRem = aBig.mod(bBig);
+				if (!correctRem.equals(rem) ) {
+					LOG.error("mod128by64Unsigned: " + a + " % " + b + ": correct = " + correctRem + ", but result = " + rem);
+				}
+				Assert.assertEquals(correctRem, rem);
+			}
+		}
+	}
 }
