@@ -21,10 +21,10 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.util.Ensure;
 
 /**
- * An incomplete 128 bit unsigned int implementation.
+ * An incomplete 128 bit integer implementation.
  * 
- * Implementation notes:
- * * a+Long.MIN_VALUE <> b+Long-MIN_VALUE is an inlined compareUnsigned(a, b) <> 0.
+ * Implementation note:
+ * r_lo+Long.MIN_VALUE < low+Long.MIN_VALUE is an inlined compareUnsigned(r_lo, low) < 0.
  * 
  * @author Tilman Neumann
  */
@@ -51,64 +51,88 @@ public class Uint128 {
 	}
 
 	/**
-	 * Add two unsigned 128 bit integers.
-	 * @param other
-	 * @return this + other
+	 * Add two 128 bit integers.
+	 * @param b
+	 * @return this + b
 	 */
-	public Uint128 add_v1(Uint128 other) {
-		// We know for sure that low overflows if both low and o_lo are 64 bit. If only one of the input 'low's
-		// is 64 bit, then we can recognize an overflow if the result.lo is not 64 bit.
-		final long o_lo = other.getLow();
-		final long o_hi = other.getHigh();
-		final long r_lo = low + o_lo;
-		long r_hi = high + o_hi;
-		if ((low<0 && o_lo<0) || ((low<0 || o_lo<0) && (r_lo >= 0))) r_hi++;
+	public Uint128 add_v1(Uint128 b) {
+		// We know for sure that low overflows if both low and b_lo are 64 bit. If only one of the input 'low's
+		// is 64 bit, then we can recognize an overflow if r_lo is not 64 bit.
+		final long b_lo = b.getLow();
+		final long b_hi = b.getHigh();
+		final long r_lo = low + b_lo;
+		long r_hi = high + b_hi;
+		if ((low<0 && b_lo<0) || ((low<0 || b_lo<0) && (r_lo >= 0))) r_hi++;
 		return new Uint128(r_hi, r_lo);
 	}
 
 	/**
-	 * Add two unsigned 128 bit integers.
+	 * Add two 128 bit integers.
 	 * 
-	 * Simpler carry recognition and thus much faster than the first version,
-	 * thanks to Ben, see https://www.mersenneforum.org/showpost.php?p=524300&postcount=173.
+	 * Simpler carry recognition thanks to Ben Buhrow,
+	 * see https://www.mersenneforum.org/showpost.php?p=524300&postcount=173.
 	 * 
-	 * @param other
-	 * @return this + other
+	 * @param b
+	 * @return this + b
 	 */
-	public Uint128 add/*_v2*/(Uint128 other) {
-		long a = low + other.getLow();
-		long b = high + other.getHigh();
-		if (a+Long.MIN_VALUE < low+Long.MIN_VALUE) b++;
-		return new Uint128(b, a);
+	public Uint128 add/*_v2*/(Uint128 b) {
+		long r_lo = low + b.getLow();
+		long r_hi = high + b.getHigh();
+		if (r_lo+Long.MIN_VALUE < low+Long.MIN_VALUE) r_hi++;
+		return new Uint128(r_hi, r_lo);
 	}
 
 	/**
-	 * Compute the sum of this and other, return the high part.
-	 * @param other
-	 * @return high part of this + other
+	 * Add two 128 bit integers, AI-generated version.
+	 * 
+	 * @param b
+	 * @return this + b
 	 */
-	public long add_getHigh(Uint128 other) {
-		long a = low + other.getLow();
-		long b = high + other.getHigh();
-		return (a+Long.MIN_VALUE < low+Long.MIN_VALUE) ? b + 1 : b;
+	public Uint128 add_v3(Uint128 b) {
+	    long r_lo = low + b.getLow();
+	    long carry = Long.compareUnsigned(r_lo, low) < 0 ? 1 : 0;
+	    long r_hi = high + b.getHigh() + carry;
+		return new Uint128(r_hi, r_lo);
+	}
+	
+	/**
+	 * Add two 128 bit integers, return the high part.
+	 * @param b
+	 * @return high part of this + b
+	 */
+	public long add_getHigh(Uint128 b) {
+		long r_lo = low + b.getLow();
+		long r_hi = high + b.getHigh();
+		return r_lo+Long.MIN_VALUE < low+Long.MIN_VALUE ? r_hi + 1 : r_hi;
 	}
 
 	/**
-	 * Subtract two unsigned 128 bit integers.
+	 * Subtract two 128 bit integers.
 	 * 
-	 * @param other
-	 * @return this - other
+	 * @param b
+	 * @return this - b, may be negative
 	 */
-	// XXX experimental, probably wrong...
-	public Uint128 subtract(Uint128 other) {
-		long r_lo = low - other.getLow();
-		long r_hi = high - other.getHigh();
-        // check for underflow of low 64 bits, subtract carry to high
-        if (Long.compareUnsigned(r_lo, low) > 0) {
-            --r_hi;
-        }
+	public Uint128 subtract(Uint128 b) {
+    	long b_lo = b.getLow();
+		long r_lo = low - b_lo;
+		long r_hi = high - b.getHigh();
+        if (Long.compareUnsigned(low, b_lo) < 0) --r_hi;
         return new Uint128(r_hi, r_lo);
 	}
+	
+	/**
+	 * Subtract two 128 bit integers. AI-generated version.
+	 * 
+	 * @param b
+	 * @return this - b, may be negative
+	 */
+    public Uint128 subtract_v2(Uint128 b) {
+    	long b_lo = b.getLow();
+        long r_lo = low - b_lo;
+        long borrow = Long.compareUnsigned(low, b_lo) < 0 ? 1 : 0;
+        long r_hi = high - b.getHigh() - borrow;
+		return new Uint128(r_hi, r_lo);
+    }
 
 	/**
 	 * Multiplication of unsigned 63 bit integers,
@@ -547,17 +571,48 @@ public class Uint128 {
 	public double doubleValue() {
 		return toBigInteger().doubleValue(); // TODO more efficient solution
 	}
-	
-	/**
-	 * Convert this to BigInteger.
-	 * @return this unsigned 128 bit integer converted to BigInteger
-	 */
-	public BigInteger toBigInteger() {
-		return new BigInteger(Long.toBinaryString(high), 2).shiftLeft(64).add(new BigInteger(Long.toBinaryString(low), 2));
+
+	public double doubleValueUnsigned() {
+		return toBigIntegerUnsigned().doubleValue(); // TODO more efficient solution
 	}
 	
+	/**
+	 * Signed conversion to BigInteger.
+	 * @return this as a signed 127 bit integer converted to BigInteger
+	 */
+	public BigInteger toBigInteger() {
+		return BigInteger.valueOf(high).shiftLeft(64).or(toBigIntegerUnsigned(low));
+	}
+
+	/**
+	 * Unsigned conversion to BigInteger.
+	 * @return this as an unsigned 128 bit integer converted to BigInteger
+	 */
+	public BigInteger toBigIntegerUnsigned() {
+		return toBigIntegerUnsigned(high).shiftLeft(64).or(toBigIntegerUnsigned(low));
+	}
+
+	// helper method
+	private static BigInteger toBigIntegerUnsigned(long n) {
+		BigInteger big = BigInteger.valueOf(n & Long.MAX_VALUE); // drop sign bit
+	    if (n < 0) {
+	    	big = big.setBit(63); // now big is unsigned 64 bit
+	    }
+	    return big;
+	}
+	
+	/**
+	 * @return a string representing this as a signed integer
+	 */
 	@Override
 	public String toString() {
-		return toBigInteger().toString();
+		return toBigInteger().toString(); // TODO more efficient solution
+	}
+	
+	/**
+	 * @return a string representing this as an unsigned integer
+	 */
+	public String toStringUnsigned() {
+		return toBigIntegerUnsigned().toString(); // TODO more efficient solution
 	}
 }
