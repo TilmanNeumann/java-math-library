@@ -27,11 +27,11 @@ import de.tilman_neumann.util.ConfigUtil;
  * Performance tests of 2-argument methods are carried out in double loops over the same numbers.
  * Otherwise number creation would be much more expensive than testing the operations themselves.
  *
- * Despite some effort, the timings are still quite unreliable.
- * E.g. mul64_MH looks sometimes slightly faster than mul64 (which would be the expected result) but quite often notably slower.
+ * Despite some effort, the timings are still quite unreliable. E.g. mul64UnsignedMH looks sometimes slightly faster
+ * than mul64Unsigned (which would be the expected result) but quite often notably slower.
  */
-public class Uint128PerformanceTest {
-	private static final Logger LOG = LogManager.getLogger(Uint128PerformanceTest.class);
+public class Int128PerformanceTest {
+	private static final Logger LOG = LogManager.getLogger(Int128PerformanceTest.class);
 	
 	private static final int NCOUNT = 1000000;
 	private static final int NCOUNT_ADD = 50000;
@@ -47,12 +47,12 @@ public class Uint128PerformanceTest {
 		// set up test numbers
 		long[] a_arr = new long[NCOUNT];
 		long[] b_arr = new long[NCOUNT];
-		Uint128[] a128_arr =  new Uint128[NCOUNT];
+		Int128[] a128_arr =  new Int128[NCOUNT];
 		
 		for (int i=0; i<NCOUNT; i++) {
 			a_arr[i] = RNG.nextLong();
 			b_arr[i] = RNG.nextLong();
-			a128_arr[i] = new Uint128(a_arr[i], b_arr[i]);
+			a128_arr[i] = new Int128(a_arr[i], b_arr[i]);
 		}
 		
 		// test performance of conversion
@@ -135,7 +135,7 @@ public class Uint128PerformanceTest {
 			t0 = System.currentTimeMillis();
 			for (int i=0; i<NCOUNT_MUL; i++) {
 				for (int j=0; j<NCOUNT_MUL; j++) {
-					Uint128 result = Uint128.mul63(a_arr[i], a_arr[j]);
+					Int128 result = Int128.mul63Unsigned(a_arr[i], a_arr[j]);
 					dummy += result.getHigh() + result.getLow();
 				}
 			}
@@ -147,7 +147,7 @@ public class Uint128PerformanceTest {
 				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		LOG.info("mul63 took " + totalDuration + "ms " + Arrays.toString(allDurations));
+		LOG.info("mul63Unsigned took " + totalDuration + "ms " + Arrays.toString(allDurations));
 		
 		totalDuration = 0;
 		for (int r=0; r<WARMUPS+REPEATS; r++) {
@@ -155,7 +155,7 @@ public class Uint128PerformanceTest {
 			t0 = System.currentTimeMillis();
 			for (int i=0; i<NCOUNT_MUL; i++) {
 				for (int j=0; j<NCOUNT_MUL; j++) {
-					Uint128 result = Uint128.mul64(a_arr[i], a_arr[j]);
+					Int128 result = Int128.mul64Unsigned(a_arr[i], a_arr[j]);
 					dummy += result.getHigh() + result.getLow();
 				}
 			}
@@ -167,7 +167,7 @@ public class Uint128PerformanceTest {
 				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		LOG.info("mul64 took " + totalDuration + "ms " + Arrays.toString(allDurations));
+		LOG.info("mul64Unsigned took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
 		totalDuration = 0;
 		for (int r=0; r<WARMUPS+REPEATS; r++) {
@@ -175,7 +175,7 @@ public class Uint128PerformanceTest {
 			t0 = System.currentTimeMillis();
 			for (int i=0; i<NCOUNT_MUL; i++) {
 				for (int j=0; j<NCOUNT_MUL; j++) {
-					Uint128 result = Uint128.mul64_MH(a_arr[i], a_arr[j]);
+					Int128 result = Int128.mul64UnsignedMH(a_arr[i], a_arr[j]);
 					dummy += result.getHigh() + result.getLow();
 				}
 			}
@@ -187,7 +187,7 @@ public class Uint128PerformanceTest {
 				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		LOG.info("mul64_MH took " + totalDuration + "ms " + Arrays.toString(allDurations));
+		LOG.info("mul64UnsignedMH took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
 		// test performance of 128 / 64 bit division and modulus
 		
@@ -196,7 +196,7 @@ public class Uint128PerformanceTest {
 			t0 = System.currentTimeMillis();
 			for (int i=0; i<NCOUNT_DIV; i++) {
 				for (int j=0; j<NCOUNT_DIV; j++) {
-					Uint128.divide128by64Unsigned(a_arr[i], b_arr[i], a_arr[j]);
+					Int128.divide128by64Unsigned(a_arr[i], b_arr[i], a_arr[j]);
 				}
 			}
 			t1 = System.currentTimeMillis();
@@ -213,7 +213,7 @@ public class Uint128PerformanceTest {
 			t0 = System.currentTimeMillis();
 			for (int i=0; i<NCOUNT_DIV; i++) {
 				for (int j=0; j<NCOUNT_DIV; j++) {
-					Uint128.mod128by64Unsigned(a_arr[i], b_arr[i], a_arr[j]);
+					Int128.mod128by64Unsigned(a_arr[i], b_arr[i], a_arr[j]);
 				}
 			}
 			t1 = System.currentTimeMillis();

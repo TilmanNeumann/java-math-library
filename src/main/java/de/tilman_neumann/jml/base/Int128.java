@@ -28,16 +28,15 @@ import de.tilman_neumann.util.Ensure;
  * 
  * @author Tilman Neumann
  */
-// TODO Now that there are signed methods, this class needs a refactoring
-public class Uint128 {
+public class Int128 {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = LogManager.getLogger(Uint128.class);
+	private static final Logger LOG = LogManager.getLogger(Int128.class);
 	
 	private static final boolean DEBUG = false;
 
 	private long high, low;
 	
-	public Uint128(long high, long low) {
+	public Int128(long high, long low) {
 		this.high = high;
 		this.low = low;
 	}
@@ -55,11 +54,11 @@ public class Uint128 {
 	 * @param b
 	 * @return this + b
 	 */
-	public Uint128 add(Uint128 b) {
+	public Int128 add(Int128 b) {
 	    long r_lo = low + b.getLow();
 	    long carry = Long.compareUnsigned(r_lo, low) < 0 ? 1 : 0;
 	    long r_hi = high + b.getHigh() + carry;
-		return new Uint128(r_hi, r_lo);
+		return new Int128(r_hi, r_lo);
 	}
 	
 	/**
@@ -67,7 +66,7 @@ public class Uint128 {
 	 * @param b
 	 * @return high part of this + b
 	 */
-	public long add_getHigh(Uint128 b) {
+	public long add_getHigh(Int128 b) {
 		long r_lo = low + b.getLow();
 	    long carry = Long.compareUnsigned(r_lo, low) < 0 ? 1 : 0;
 	    return high + b.getHigh() + carry;
@@ -79,88 +78,13 @@ public class Uint128 {
 	 * @param b
 	 * @return this - b, may be negative
 	 */
-    public Uint128 subtract(Uint128 b) {
+    public Int128 subtract(Int128 b) {
     	long b_lo = b.getLow();
         long r_lo = low - b_lo;
         long borrow = Long.compareUnsigned(low, b_lo) < 0 ? 1 : 0;
         long r_hi = high - b.getHigh() - borrow;
-		return new Uint128(r_hi, r_lo);
+		return new Int128(r_hi, r_lo);
     }
-
-	/**
-	 * Multiplication of unsigned 63 bit integers,
-	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
-	 * 
-	 * This method ignores overflows of the "middle term".
-	 * As such it won't work for 64 bit inputs but is otherwise faster than mul64().
-	 * 
-	 * @param a
-	 * @param b
-	 * @return a*b accurate for inputs <= 63 bit
-	 */
-	public static Uint128 mul63(long a, long b) {
-		final long a_hi = a >>> 32;
-		final long b_hi = b >>> 32;
-		final long a_lo = a & 0xFFFFFFFFL;
-		final long b_lo = b & 0xFFFFFFFFL;
-		final long lo_prod = a_lo * b_lo;
-		final long med_term = a_hi * b_lo + a_lo * b_hi; // possible overflow here
-		final long hi_prod = a_hi * b_hi;
-		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
-		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
-		return new Uint128(r_hi, r_lo);
-	}
-
-	/**
-	 * Multiplication of unsigned 64 bit integers with simplified carry recognition.
-	 * 
-	 * @param a unsigned long
-	 * @param b unsigned long
-	 * @return a*b
-	 */
-	public static Uint128 mul64(long a, long b) {
-		final long a_hi = a >>> 32;
-		final long b_hi = b >>> 32;
-		final long a_lo = a & 0xFFFFFFFFL;
-		final long b_lo = b & 0xFFFFFFFFL;
-		
-		final long lo_prod = a_lo * b_lo;
-		final long med_prod1 = a_hi * b_lo;
-		final long med_prod2 = a_lo * b_hi;
-		final long med_term = med_prod1 + med_prod2;
-		final long hi_prod = a_hi * b_hi;
-		
-		// the medium term could overflow
-		final long carry = (med_term+Long.MIN_VALUE < med_prod1+Long.MIN_VALUE) ? 1L<<32 : 0;
-		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
-		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
-
-		return new Uint128(r_hi, r_lo);
-	}
-	
-	/**
-	 * Multiplication of two unsigned 64-bit integers using Math.multiplyHigh().
-	 * Pretty fast if supported by intrinsics, which needs newer hardware and Java 10+.
-	 * 
-	 * @param a
-	 * @param b
-	 * @return
-	 */
-	public static Uint128 mul64_MH(long a, long b) {
-		final long r_lo = a*b;
-		long r_hi = Math.multiplyHigh(a, b);
-		if (a<0) r_hi += b;
-		if (b<0) r_hi += a;
-		
-		if (DEBUG) {
-			// compare to pure Java implementation
-			Uint128 testResult = mul64(a, b);
-			Ensure.ensureEquals(testResult.high, r_hi);
-			Ensure.ensureEquals(testResult.low, r_lo);
-		}
-
-		return new Uint128(r_hi, r_lo);
-	}
 
 	/**
 	 * Multiplication of two signed 64 bit integers, adapted from Henry S. Warren, Hacker's Delight, Addison-Wesley, 2nd edition, chapter 8-2.
@@ -170,7 +94,7 @@ public class Uint128 {
 	 * @param b signed long
 	 * @return a*b as a signed 127 bit number
 	 */
-	public static Uint128 mul64Signed(long a, long b) {
+	public static Int128 mul64(long a, long b) {
 		final long a_hi = a >> 32;
 		final long a_lo = a & 0xFFFFFFFFL;
 		final long b_hi = b >> 32;
@@ -185,7 +109,7 @@ public class Uint128 {
 	    
 		final long r_hi = a_hi * b_hi + w2 + (w1 >> 32);
 		final long r_lo = a * b;
-		return new Uint128(r_hi, r_lo);
+		return new Int128(r_hi, r_lo);
 	}
 
 	/**
@@ -196,18 +120,93 @@ public class Uint128 {
 	 * @param b signed long
 	 * @return a*b as a signed 127 bit number
 	 */
-	public static Uint128 mul64SignedMH(long a, long b) {
+	public static Int128 mul64MH(long a, long b) {
 		final long r_lo = a*b;
 		final long r_hi = Math.multiplyHigh(a, b);
 		
 		if (DEBUG) {
 			// compare to pure Java implementation
-			Uint128 testResult = mul64Signed(a, b);
+			Int128 testResult = mul64(a, b);
 			Ensure.ensureEquals(testResult.high, r_hi);
 			Ensure.ensureEquals(testResult.low, r_lo);
 		}
 
-		return new Uint128(r_hi, r_lo);
+		return new Int128(r_hi, r_lo);
+	}
+
+	/**
+	 * Multiplication of unsigned 63 bit integers,
+	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
+	 * 
+	 * This method ignores overflows of the "middle term".
+	 * As such it won't work for 64 bit inputs but is otherwise faster than mul64().
+	 * 
+	 * @param a
+	 * @param b
+	 * @return a*b accurate for inputs <= 63 bit
+	 */
+	public static Int128 mul63Unsigned(long a, long b) {
+		final long a_hi = a >>> 32;
+		final long b_hi = b >>> 32;
+		final long a_lo = a & 0xFFFFFFFFL;
+		final long b_lo = b & 0xFFFFFFFFL;
+		final long lo_prod = a_lo * b_lo;
+		final long med_term = a_hi * b_lo + a_lo * b_hi; // possible overflow here
+		final long hi_prod = a_hi * b_hi;
+		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
+		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+		return new Int128(r_hi, r_lo);
+	}
+
+	/**
+	 * Multiplication of unsigned 64 bit integers with simplified carry recognition.
+	 * 
+	 * @param a unsigned long
+	 * @param b unsigned long
+	 * @return a*b
+	 */
+	public static Int128 mul64Unsigned(long a, long b) {
+		final long a_hi = a >>> 32;
+		final long b_hi = b >>> 32;
+		final long a_lo = a & 0xFFFFFFFFL;
+		final long b_lo = b & 0xFFFFFFFFL;
+		
+		final long lo_prod = a_lo * b_lo;
+		final long med_prod1 = a_hi * b_lo;
+		final long med_prod2 = a_lo * b_hi;
+		final long med_term = med_prod1 + med_prod2;
+		final long hi_prod = a_hi * b_hi;
+		
+		// the medium term could overflow
+		final long carry = Long.compareUnsigned(med_term, med_prod1) < 0 ? 1L<<32 : 0;
+		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
+		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
+
+		return new Int128(r_hi, r_lo);
+	}
+	
+	/**
+	 * Multiplication of two unsigned 64-bit integers using Math.multiplyHigh().
+	 * Pretty fast if supported by intrinsics, which needs newer hardware and Java 10+.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static Int128 mul64UnsignedMH(long a, long b) {
+		final long r_lo = a*b;
+		long r_hi = Math.multiplyHigh(a, b);
+		if (a<0) r_hi += b;
+		if (b<0) r_hi += a;
+		
+		if (DEBUG) {
+			// compare to pure Java implementation
+			Int128 testResult = mul64Unsigned(a, b);
+			Ensure.ensureEquals(testResult.high, r_hi);
+			Ensure.ensureEquals(testResult.low, r_lo);
+		}
+
+		return new Int128(r_hi, r_lo);
 	}
 
 	/**
@@ -217,7 +216,7 @@ public class Uint128 {
 	 * @return a^2
 	 */
 	// XXX speed up using intrinsics like in mul64_MH() ?
-	public static Uint128 square64(long a) {
+	public static Int128 square64Unsigned(long a) {
 		final long a_hi = a >>> 32;
 		final long a_lo = a & 0xFFFFFFFFL;
 		
@@ -230,7 +229,7 @@ public class Uint128 {
 		final long carry = (med_term+Long.MIN_VALUE < med_prod+Long.MIN_VALUE) ? 1L<<32 : 0;
 		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
 		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
-		return new Uint128(r_hi, r_lo);
+		return new Int128(r_hi, r_lo);
 	}
 
 	/**
@@ -240,34 +239,34 @@ public class Uint128 {
 	 * @param b Uint128
 	 * @return a*b as an array of [low, high] Uint128 objects;
 	 */
-	public static Uint128[] mul128/*_v2*/(Uint128 a, Uint128 b) {
+	public static Int128[] mul128Unsigned(Int128 a, Int128 b) {
 		final long a_hi = a.getHigh(); // a >>> 32;
 		final long b_hi = b.getHigh(); // b >>> 32;
 		final long a_lo = a.getLow(); // a & 0xFFFFFFFFL;
 		final long b_lo = b.getLow(); // b & 0xFFFFFFFFL;
 		
-		final Uint128 lo_prod = mul64(a_lo, b_lo); // a_lo * b_lo;
-		final Uint128 med_prod1 = mul64(a_hi, b_lo); // a_hi * b_lo;
-		final Uint128 med_prod2 = mul64(a_lo, b_hi); // a_lo * b_hi;
-		final Uint128 med_term = med_prod1.add(med_prod2); // med_prod1 + med_prod2;
-		final Uint128 hi_prod = mul64(a_hi, b_hi); // a_hi * b_hi;
+		final Int128 lo_prod = mul64Unsigned(a_lo, b_lo); // a_lo * b_lo;
+		final Int128 med_prod1 = mul64Unsigned(a_hi, b_lo); // a_hi * b_lo;
+		final Int128 med_prod2 = mul64Unsigned(a_lo, b_hi); // a_lo * b_hi;
+		final Int128 med_term = med_prod1.add(med_prod2); // med_prod1 + med_prod2;
+		final Int128 hi_prod = mul64Unsigned(a_hi, b_hi); // a_hi * b_hi;
 		
 		// the medium term could overflow
 		//final long carry = (med_term+Long.MIN_VALUE < med_prod1+Long.MIN_VALUE) ? 1L<<32 : 0;
-		final Uint128 carry = (med_term.getHigh()+Long.MIN_VALUE < med_prod1.getHigh()+Long.MIN_VALUE) ? new Uint128(1, 0) : new Uint128(0, 0);
+		final Int128 carry = (med_term.getHigh()+Long.MIN_VALUE < med_prod1.getHigh()+Long.MIN_VALUE) ? new Int128(1, 0) : new Int128(0, 0);
 		
 		//final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
 		final long lo_prod_hi = lo_prod.getHigh(); // (lo_prod >>> 32)
-		final Uint128 intermediate = new Uint128(0, lo_prod_hi).add(med_term); // ((lo_prod >>> 32) + med_term)
+		final Int128 intermediate = new Int128(0, lo_prod_hi).add(med_term); // ((lo_prod >>> 32) + med_term)
 		final long intermediate_hi = intermediate.getHigh(); // (((lo_prod >>> 32) + med_term) >>> 32)
-		final Uint128 r_hi = new Uint128(0, intermediate_hi).add(hi_prod).add(carry);
+		final Int128 r_hi = new Int128(0, intermediate_hi).add(hi_prod).add(carry);
 		
 		//final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
 		final long med_term_lo = med_term.getLow(); // (med_term & 0xFFFFFFFFL)
-		final Uint128 r_lo = new Uint128(med_term_lo, 0).add(lo_prod);
+		final Int128 r_lo = new Int128(med_term_lo, 0).add(lo_prod);
 		
 		//return new Uint128(r_hi, r_lo);
-		return new Uint128[] {r_lo, r_hi};
+		return new Int128[] {r_lo, r_hi};
 	}
 
 	/**
@@ -277,20 +276,20 @@ public class Uint128 {
 	 * @param b Uint128
 	 * @return the low Uint128 of a*b
 	 */
-	public static Uint128 mul128_getLow(Uint128 a, Uint128 b) { // derived from mul128_v2
+	public static Int128 mul128Unsigned_getLow(Int128 a, Int128 b) {
 		final long a_hi = a.getHigh(); // a >>> 32;
 		final long b_hi = b.getHigh(); // b >>> 32;
 		final long a_lo = a.getLow(); // a & 0xFFFFFFFFL;
 		final long b_lo = b.getLow(); // b & 0xFFFFFFFFL;
 		
-		final Uint128 lo_prod = mul64(a_lo, b_lo); // a_lo * b_lo;
-		final Uint128 med_prod1 = mul64(a_hi, b_lo); // a_hi * b_lo;
-		final Uint128 med_prod2 = mul64(a_lo, b_hi); // a_lo * b_hi;
-		final Uint128 med_term = med_prod1.add(med_prod2); // med_prod1 + med_prod2;
+		final Int128 lo_prod = mul64Unsigned(a_lo, b_lo); // a_lo * b_lo;
+		final Int128 med_prod1 = mul64Unsigned(a_hi, b_lo); // a_hi * b_lo;
+		final Int128 med_prod2 = mul64Unsigned(a_lo, b_hi); // a_lo * b_hi;
+		final Int128 med_term = med_prod1.add(med_prod2); // med_prod1 + med_prod2;
 		
 		//final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
 		final long med_term_lo = med_term.getLow(); // (med_term & 0xFFFFFFFFL)
-		final Uint128 r_lo = new Uint128(med_term_lo, 0).add(lo_prod);
+		final Int128 r_lo = new Int128(med_term_lo, 0).add(lo_prod);
 		
 		//return new Uint128(r_hi, r_lo);
 		return r_lo;
@@ -303,20 +302,20 @@ public class Uint128 {
 	 * @param b Uint128
 	 * @return the low Uint128 of a*b
 	 */
-	public static Uint128 mul128MH_getLow(Uint128 a, Uint128 b) { // derived from mul128_v2
+	public static Int128 mul128UnsignedMH_getLow(Int128 a, Int128 b) {
 		final long a_hi = a.getHigh(); // a >>> 32;
 		final long b_hi = b.getHigh(); // b >>> 32;
 		final long a_lo = a.getLow(); // a & 0xFFFFFFFFL;
 		final long b_lo = b.getLow(); // b & 0xFFFFFFFFL;
 		
-		final Uint128 lo_prod = mul64_MH(a_lo, b_lo); // a_lo * b_lo;
-		final Uint128 med_prod1 = mul64_MH(a_hi, b_lo); // a_hi * b_lo;
-		final Uint128 med_prod2 = mul64_MH(a_lo, b_hi); // a_lo * b_hi;
-		final Uint128 med_term = med_prod1.add(med_prod2); // med_prod1 + med_prod2;
+		final Int128 lo_prod = mul64UnsignedMH(a_lo, b_lo); // a_lo * b_lo;
+		final Int128 med_prod1 = mul64UnsignedMH(a_hi, b_lo); // a_hi * b_lo;
+		final Int128 med_prod2 = mul64UnsignedMH(a_lo, b_hi); // a_lo * b_hi;
+		final Int128 med_term = med_prod1.add(med_prod2); // med_prod1 + med_prod2;
 		
 		//final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
 		final long med_term_lo = med_term.getLow(); // (med_term & 0xFFFFFFFFL)
-		final Uint128 r_lo = new Uint128(med_term_lo, 0).add(lo_prod);
+		final Int128 r_lo = new Int128(med_term_lo, 0).add(lo_prod);
 		
 		//return new Uint128(r_hi, r_lo);
 		return r_lo;
@@ -425,13 +424,13 @@ public class Uint128 {
 	 * @param bits
 	 * @return this << bits
 	 */
-	public Uint128 shiftLeft(int bits) {
+	public Int128 shiftLeft(int bits) {
 		if (bits<64) {
 			long rh = (high<<bits) | (low>>>(64-bits));
 			long rl = low<<bits;
-			return new Uint128(rh, rl);
+			return new Int128(rh, rl);
 		}
-		return new Uint128(low<<(bits-64), 0);
+		return new Int128(low<<(bits-64), 0);
 	}
 	
 	/**
@@ -439,13 +438,13 @@ public class Uint128 {
 	 * @param bits
 	 * @return this >>> bits
 	 */
-	public Uint128 shiftRight(int bits) {
+	public Int128 shiftRight(int bits) {
 		if (bits<64) {
 			long rh = high>>>bits;
 			long rl = (low>>>bits) | (high<<(64-bits));
-			return new Uint128(rh, rl);
+			return new Int128(rh, rl);
 		}
-		return new Uint128(0, high>>>(bits-64));
+		return new Int128(0, high>>>(bits-64));
 	}
 
 	/**

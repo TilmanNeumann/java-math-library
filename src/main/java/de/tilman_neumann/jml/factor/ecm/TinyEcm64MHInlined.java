@@ -39,7 +39,7 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.base.Uint128;
+import de.tilman_neumann.jml.base.Int128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
@@ -232,7 +232,7 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 	 * @return c*2^64 mod n
 	 */
 	long u64div(long c, long n) {
-		return Uint128.divide128by64Unsigned(c, 0, n)[2];
+		return Int128.divide128by64Unsigned(c, 0, n)[2];
 	}
 
 	/**
@@ -243,8 +243,8 @@ public class TinyEcm64MHInlined extends FactorAlgorithm {
 	 * @return u*v mod m
 	 */
 	long spMulMod(long u, long v, long m) {
-		Uint128 prod = Uint128.mul64SignedMH(u, v);
-		return Uint128.divide128by64Unsigned(prod.getHigh(), prod.getLow(), m)[2];
+		Int128 prod = Int128.mul64MH(u, v);
+		return Int128.divide128by64Unsigned(prod.getHigh(), prod.getLow(), m)[2];
 	}
 
 	void add(long rho, ecm_work work, ecm_pt P1, ecm_pt P2, ecm_pt Pin, ecm_pt Pout) {

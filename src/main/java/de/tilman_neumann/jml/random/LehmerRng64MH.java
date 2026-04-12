@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.random;
 
-import de.tilman_neumann.jml.base.Uint128;
+import de.tilman_neumann.jml.base.Int128;
 
 /**
  * Lehmer's random number generator for 64 bit numbers; requires 128 bit multiplication internally.
@@ -23,16 +23,16 @@ import de.tilman_neumann.jml.base.Uint128;
  * @see https://en.wikipedia.org/wiki/Lehmer_random_number_generator
  */
 public class LehmerRng64MH {
-	private static final Uint128 mult = new Uint128(0x12e15e35b500f16eL, 0x2e714eb2b37916a5L);
+	private static final Int128 mult = new Int128(0x12e15e35b500f16eL, 0x2e714eb2b37916a5L);
 
-	private Uint128 state = mult;
+	private Int128 state = mult;
 	
 	/**
 	 * @return a random long number N with Long.MIN_VALUE <= N <= Long.MAX_VALUE.
 	 */
 	public long nextLong() {
 		long result = state.getHigh();
-		state = Uint128.mul128MH_getLow(state, mult);
+		state = Int128.mul128UnsignedMH_getLow(state, mult);
 		return result;
 	}
 }

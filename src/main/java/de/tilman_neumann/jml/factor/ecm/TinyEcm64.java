@@ -39,7 +39,7 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.base.Uint128;
+import de.tilman_neumann.jml.base.Int128;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
@@ -229,7 +229,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * @return c*2^64 mod n
 	 */
 	long u64div(long c, long n) {
-		return Uint128.divide128by64Unsigned(c, 0, n)[2];
+		return Int128.divide128by64Unsigned(c, 0, n)[2];
 	}
 
 	/**
@@ -240,8 +240,8 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 * @return u*v mod m
 	 */
 	long spMulMod(long u, long v, long m) {
-		Uint128 prod = Uint128.mul64Signed(u, v);
-		return Uint128.divide128by64Unsigned(prod.getHigh(), prod.getLow(), m)[2];
+		Int128 prod = Int128.mul64(u, v);
+		return Int128.divide128by64Unsigned(prod.getHigh(), prod.getLow(), m)[2];
 	}
 
 	void add(long rho, ecm_work work, ecm_pt P1, ecm_pt P2, ecm_pt Pin, ecm_pt Pout) {
@@ -1067,7 +1067,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	 */
 	public static long montMul64(long a, long b, long N, long Nhat) {
 		// Step 1: Compute a*b
-		Uint128 ab = Uint128.mul64Signed(a, b);
+		Int128 ab = Int128.mul64(a, b);
 		// Step 2: Compute t = ab * (-1/N) mod R
 		// Since R=2^64, "x mod R" just means to get the low part of x.
 		// That would give t = Uint128.mul64(ab.getLow(), minusNInvModR).getLow();
@@ -1075,7 +1075,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 		long t = ab.getLow() * Nhat;
 		// Step 3: Compute r = (a*b + t*N) / R
 		// Since R=2^64, "x / R" just means to get the high part of x.
-		long r = ab.add_getHigh(Uint128.mul64Signed(t, N));
+		long r = ab.add_getHigh(Int128.mul64(t, N));
 		// If the correct result is c, then now r==c or r==c+N.
 		r = r<N ? r : r-N; // improves performance for N >= 50 bit, degrades it for smaller N
 

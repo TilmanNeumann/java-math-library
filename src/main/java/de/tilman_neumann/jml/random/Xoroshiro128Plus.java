@@ -13,7 +13,7 @@
  */
 package de.tilman_neumann.jml.random;
 
-import de.tilman_neumann.jml.base.Uint128;
+import de.tilman_neumann.jml.base.Int128;
 
 /**
  * xoroshiro128+ is a 64 bit random number generator using 128 bit state.
@@ -49,7 +49,7 @@ public class Xoroshiro128Plus {
 	 */
 	public long nextLong(long max) {
 		final long l = nextLong(); // take it as unsigned
-		final Uint128 prod = Uint128.mul64_MH(l, max);
+		final Int128 prod = Int128.mul64UnsignedMH(l, max);
 	    return prod.getHigh();
 	}
 	

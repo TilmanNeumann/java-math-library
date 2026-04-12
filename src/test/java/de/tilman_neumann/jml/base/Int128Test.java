@@ -24,9 +24,9 @@ import org.junit.Test;
 
 import de.tilman_neumann.util.ConfigUtil;
 
-public class Uint128Test {
+public class Int128Test {
 
-	private static final Logger LOG = LogManager.getLogger(Uint128Test.class);
+	private static final Logger LOG = LogManager.getLogger(Int128Test.class);
 
 	private static final int NCOUNT = 1000;
 	
@@ -65,9 +65,9 @@ public class Uint128Test {
 				long b_lo = lo[j];
 				
 				// add two 127 bit integers
-				Uint128 a128 = new Uint128(a_hi, a_lo);
-				Uint128 b128 = new Uint128(b_hi, b_lo);
-				Uint128 sum128 = a128.add/*_v2*/(b128);
+				Int128 a128 = new Int128(a_hi, a_lo);
+				Int128 b128 = new Int128(b_hi, b_lo);
+				Int128 sum128 = a128.add(b128);
 				// compute correct result in bigIntegers and compare
 				BigInteger a128Big = a_hi_big.shiftLeft(64).add(a_lo_big);
 				BigInteger b128Big = b_hi_big.shiftLeft(64).add(b_lo_big);
@@ -92,9 +92,9 @@ public class Uint128Test {
 				long b_lo = lo[j];
 				
 				// subtract two 127 bit integers
-				Uint128 a128 = new Uint128(a_hi, a_lo);
-				Uint128 b128 = new Uint128(b_hi, b_lo);
-				Uint128 diff128 = a128.subtract(b128);
+				Int128 a128 = new Int128(a_hi, a_lo);
+				Int128 b128 = new Int128(b_hi, b_lo);
+				Int128 diff128 = a128.subtract(b128);
 				// compute correct result in bigIntegers and compare
 				BigInteger a128Big = a_hi_big.shiftLeft(64).add(a_lo_big);
 				BigInteger b128Big = b_hi_big.shiftLeft(64).add(b_lo_big);
@@ -105,7 +105,7 @@ public class Uint128Test {
 	}
 
 	@Test
-	public void testMul63() {
+	public void testMul63Unsigned() {
 		
 		// here we only use the "hi" numbers which are 63 bit
 		
@@ -117,7 +117,7 @@ public class Uint128Test {
 				BigInteger b_hi_big = hi_big[j];
 				long b_hi = hi[j];
 	
-				Uint128 prod128 = Uint128.mul63(a_hi, b_hi);
+				Int128 prod128 = Int128.mul63Unsigned(a_hi, b_hi);
 				BigInteger prod128Big = prod128.toBigIntegerUnsigned();
 				BigInteger correctProd = a_hi_big.multiply(b_hi_big);
 				Assert.assertEquals(correctProd, prod128Big);
@@ -126,7 +126,7 @@ public class Uint128Test {
 	}
 
 	@Test
-	public void testMul64() {
+	public void testMul64Unsigned() {
 		for (int i=0; i<NCOUNT; i++) {
 			BigInteger a_lo_big = lo_big[i];
 			long a_lo = lo[i];
@@ -135,11 +135,11 @@ public class Uint128Test {
 				BigInteger b_lo_big = lo_big[j];
 				long b_lo = lo[j];
 	
-				Uint128 prod128 = Uint128.mul64(a_lo, b_lo);
+				Int128 prod128 = Int128.mul64Unsigned(a_lo, b_lo);
 				BigInteger prod128Big = prod128.toBigIntegerUnsigned();
 				BigInteger correctProd = a_lo_big.multiply(b_lo_big);
 				if (!correctProd.equals(prod128Big)) {
-					LOG.error("mul64_v2: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
+					LOG.error("mul64Unsigned: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
 				}
 				Assert.assertEquals(correctProd, prod128Big);
 			}
@@ -147,7 +147,7 @@ public class Uint128Test {
 	}
 
 	@Test
-	public void testMul64_MH() {
+	public void testMul64UnsignedMH() {
 		for (int i=0; i<NCOUNT; i++) {
 			BigInteger a_lo_big = lo_big[i];
 			long a_lo = lo[i];
@@ -156,11 +156,11 @@ public class Uint128Test {
 				BigInteger b_lo_big = lo_big[j];
 				long b_lo = lo[j];
 				
-				Uint128 prod128 = Uint128.mul64_MH(a_lo, b_lo);
+				Int128 prod128 = Int128.mul64UnsignedMH(a_lo, b_lo);
 				BigInteger prod128Big = prod128.toBigIntegerUnsigned();
 				BigInteger correctProd = a_lo_big.multiply(b_lo_big);
 				if (!correctProd.equals(prod128Big)) {
-					LOG.error("mul64_MH: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
+					LOG.error("mul64UnsignedMH: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
 				}
 				Assert.assertEquals(correctProd, prod128Big);
 			}
@@ -170,15 +170,15 @@ public class Uint128Test {
 	@Test
 	public void testDivide128by64Unsigned() {
 		for (int i=0; i<NCOUNT; i++) {
-			Uint128 a = new Uint128(hi[i], lo[i]);
+			Int128 a = new Int128(hi[i], lo[i]);
 			BigInteger aBig = a.toBigIntegerUnsigned();
 
 			for (int j=0; j<NCOUNT; j++) {
 				BigInteger bBig = hi_big[j];
 				long b = hi[j];
 				
-				long[] result = Uint128.divide128by64Unsigned(hi[i], lo[i], b);
-				BigInteger quot = new Uint128(result[0], result[1]).toBigIntegerUnsigned();
+				long[] result = Int128.divide128by64Unsigned(hi[i], lo[i], b);
+				BigInteger quot = new Int128(result[0], result[1]).toBigIntegerUnsigned();
 				BigInteger rem = BigInteger.valueOf(result[2]);
 				BigInteger[] correctResult = aBig.divideAndRemainder(bBig);
 				BigInteger correctQuot = correctResult[0];
@@ -195,14 +195,14 @@ public class Uint128Test {
 	@Test
 	public void testMod128by64Unsigned() {
 		for (int i=0; i<NCOUNT; i++) {
-			Uint128 a = new Uint128(hi[i], lo[i]);
+			Int128 a = new Int128(hi[i], lo[i]);
 			BigInteger aBig = a.toBigIntegerUnsigned();
 
 			for (int j=0; j<NCOUNT; j++) {
 				BigInteger bBig = hi_big[j];
 				long b = hi[j];
 				
-				long result = Uint128.mod128by64Unsigned(hi[i], lo[i], b);
+				long result = Int128.mod128by64Unsigned(hi[i], lo[i], b);
 				BigInteger rem = BigInteger.valueOf(result);
 				BigInteger correctRem = aBig.mod(bBig);
 				if (!correctRem.equals(rem) ) {
