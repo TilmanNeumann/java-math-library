@@ -13,6 +13,7 @@
  */
 package de.tilman_neumann.jml.base;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
@@ -20,17 +21,28 @@ import org.apache.logging.log4j.Logger;
 
 import de.tilman_neumann.util.ConfigUtil;
 
+/**
+ * Test performance of 128 bit operations.
+ * 
+ * Performance tests of 2-argument methods are carried out in double loops over the same numbers.
+ * Otherwise number creation would be much more expensive than testing the operations themselves.
+ *
+ * Despite some effort, the timings are still quite unreliable.
+ * E.g. mul64_MH looks sometimes slightly faster than mul64 (which would be the expected result) but quite often notably slower.
+ */
 public class Uint128PerformanceTest {
 	private static final Logger LOG = LogManager.getLogger(Uint128PerformanceTest.class);
+	
+	private static final int NCOUNT = 1000000;
+	private static final int NCOUNT_ADD = 50000;
+	private static final int NCOUNT_MUL = 10000;
+	private static final int NCOUNT_DIV = 3000;
+	private static final int REPEATS = 10;
+	private static final int WARMUPS = 2;
 
 	private static final Random RNG = new Random();
 
 	private static void testPerformance() {
-		// Performance tests of 2-argument methods are carried out in double loops over the same numbers.
-		// Otherwise number creation is much more expensive than testing the operations themselves.
-		int NCOUNT = 300000;
-		int NCOUNT_MUL = 40000;
-		int NCOUNT_DIV = 20000;
 		
 		// set up test numbers
 		long[] a_arr = new long[NCOUNT];
@@ -45,149 +57,264 @@ public class Uint128PerformanceTest {
 		
 		// test performance of conversion
 		
-		long t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			a128_arr[i].toBigInteger();
-		}
-		long t1 = System.currentTimeMillis();
-		LOG.info("toBigInteger took " + (t1-t0) + "ms");
-
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			a128_arr[i].toBigIntegerUnsigned();
-		}
-		t1 = System.currentTimeMillis();
-		LOG.info("toBigIntegerUnsigned took " + (t1-t0) + "ms");
-
-		// test performance of add implementations
+		long t0, t1, duration, totalDuration;
+		long[] allDurations = new long[REPEATS];
 		
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				a128_arr[i].add_v1(a128_arr[j]);
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT; i++) {
+				a128_arr[i].toBigInteger();
+			}
+			t1 = System.currentTimeMillis();
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("add_v1 took " + (t1-t0) + "ms");
+		LOG.info("toBigInteger took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				a128_arr[i].add/*_v2*/(a128_arr[j]);
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT; i++) {
+				a128_arr[i].toBigIntegerUnsigned();
+			}
+			t1 = System.currentTimeMillis();
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("add_v2 took " + (t1-t0) + "ms");
+		LOG.info("toBigIntegerUnsigned took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				a128_arr[i].add_v3(a128_arr[j]);
-			}
-		}
-		t1 = System.currentTimeMillis();
-		LOG.info("add_v3 took " + (t1-t0) + "ms");
+		// test performance of add/subtract implementations
 
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				a128_arr[i].subtract(a128_arr[j]);
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_ADD; i++) {
+				for (int j=0; j<NCOUNT_ADD; j++) {
+					a128_arr[i].add_v1(a128_arr[j]);
+				}
+			}
+			t1 = System.currentTimeMillis();
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("subtract took " + (t1-t0) + "ms");
+		LOG.info("add_v1 took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT; i++) {
-			for (int j=0; j<NCOUNT; j++) {
-				a128_arr[i].subtract_v2(a128_arr[j]);
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_ADD; i++) {
+				for (int j=0; j<NCOUNT_ADD; j++) {
+					a128_arr[i].add/*_v2*/(a128_arr[j]);
+				}
+			}
+			t1 = System.currentTimeMillis();
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("subtract_v2 took " + (t1-t0) + "ms");
+		LOG.info("add_v2 took " + totalDuration + "ms " + Arrays.toString(allDurations));
+
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_ADD; i++) {
+				for (int j=0; j<NCOUNT_ADD; j++) {
+					a128_arr[i].add_v3(a128_arr[j]);
+				}
+			}
+			t1 = System.currentTimeMillis();
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
+			}
+		}
+		LOG.info("add_v3 took " + totalDuration + "ms " + Arrays.toString(allDurations));
+
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_ADD; i++) {
+				for (int j=0; j<NCOUNT_ADD; j++) {
+					a128_arr[i].subtract(a128_arr[j]);
+				}
+			}
+			t1 = System.currentTimeMillis();
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
+			}
+		}
+		LOG.info("subtract took " + totalDuration + "ms " + Arrays.toString(allDurations));
+
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_ADD; i++) {
+				for (int j=0; j<NCOUNT_ADD; j++) {
+					a128_arr[i].subtract_v2(a128_arr[j]);
+				}
+			}
+			t1 = System.currentTimeMillis();
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
+			}
+		}
+		LOG.info("subtract_v2 took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
 		// Test performance of mul64 implementations:
 		// Here we need to do something with the results to avoid the compiler optimizing thhe tests to nothing
 		
-		long r = 0;
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT_MUL; i++) {
-			for (int j=0; j<NCOUNT_MUL; j++) {
-				Uint128 result = Uint128.mul63(a_arr[i], a_arr[j]);
-				r += result.getHigh() + result.getLow();
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			long dummy = 0;
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_MUL; i++) {
+				for (int j=0; j<NCOUNT_MUL; j++) {
+					Uint128 result = Uint128.mul63(a_arr[i], a_arr[j]);
+					dummy += result.getHigh() + result.getLow();
+				}
+			}
+			t1 = System.currentTimeMillis();
+			LOG.trace("dummy = " + dummy);
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("mul63 took " + (t1-t0) + "ms");
-		LOG.trace("r = " + r);
+		LOG.info("mul63 took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
-		r = 0;
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT_MUL; i++) {
-			for (int j=0; j<NCOUNT_MUL; j++) {
-				Uint128 result = Uint128.mul64_v1(a_arr[i], a_arr[j]);
-				r += result.getHigh() + result.getLow();
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			long dummy = 0;
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_MUL; i++) {
+				for (int j=0; j<NCOUNT_MUL; j++) {
+					Uint128 result = Uint128.mul64_v1(a_arr[i], a_arr[j]);
+					dummy += result.getHigh() + result.getLow();
+				}
+			}
+			t1 = System.currentTimeMillis();
+			LOG.trace("dummy = " + dummy);
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("mul64_v1 took " + (t1-t0) + "ms");
-		LOG.trace("r = " + r);
+		LOG.info("mul64_v1 took " + totalDuration + "ms " + Arrays.toString(allDurations));
 		
-		r = 0;
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT_MUL; i++) {
-			for (int j=0; j<NCOUNT_MUL; j++) {
-				Uint128 result = Uint128.mul64/*_v2*/(a_arr[i], a_arr[j]);
-				r += result.getHigh() + result.getLow();
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			long dummy = 0;
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_MUL; i++) {
+				for (int j=0; j<NCOUNT_MUL; j++) {
+					Uint128 result = Uint128.mul64/*_v2*/(a_arr[i], a_arr[j]);
+					dummy += result.getHigh() + result.getLow();
+				}
+			}
+			t1 = System.currentTimeMillis();
+			LOG.trace("dummy = " + dummy);
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("mul64_v2 took " + (t1-t0) + "ms");
-		LOG.trace("r = " + r);
+		LOG.info("mul64_v2 took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
-		r = 0;
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT_MUL; i++) {
-			for (int j=0; j<NCOUNT_MUL; j++) {
-				Uint128 result = Uint128.mul64_v3(a_arr[i], a_arr[j]);
-				r += result.getHigh() + result.getLow();
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			long dummy = 0;
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_MUL; i++) {
+				for (int j=0; j<NCOUNT_MUL; j++) {
+					Uint128 result = Uint128.mul64_v3(a_arr[i], a_arr[j]);
+					dummy += result.getHigh() + result.getLow();
+				}
+			}
+			t1 = System.currentTimeMillis();
+			LOG.trace("dummy = " + dummy);
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("mul64_v3 took " + (t1-t0) + "ms");
-		LOG.trace("r = " + r);
+		LOG.info("mul64_v3 took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
-		r = 0;
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT_MUL; i++) {
-			for (int j=0; j<NCOUNT_MUL; j++) {
-				Uint128 result = Uint128.mul64_MH(a_arr[i], a_arr[j]);
-				r += result.getHigh() + result.getLow();
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			long dummy = 0;
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_MUL; i++) {
+				for (int j=0; j<NCOUNT_MUL; j++) {
+					Uint128 result = Uint128.mul64_MH(a_arr[i], a_arr[j]);
+					dummy += result.getHigh() + result.getLow();
+				}
+			}
+			t1 = System.currentTimeMillis();
+			LOG.trace("dummy = " + dummy);
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("mul64_MH took " + (t1-t0) + "ms");
-		LOG.trace("r = " + r);
+		LOG.info("mul64_MH took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
 		// test performance of 128 / 64 bit division and modulus
 		
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT_DIV; i++) {
-			for (int j=0; j<NCOUNT_DIV; j++) {
-				Uint128.divide128by64Unsigned(a_arr[i], b_arr[i], a_arr[j]);
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_DIV; i++) {
+				for (int j=0; j<NCOUNT_DIV; j++) {
+					Uint128.divide128by64Unsigned(a_arr[i], b_arr[i], a_arr[j]);
+				}
+			}
+			t1 = System.currentTimeMillis();
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("divide128by64Unsigned took " + (t1-t0) + "ms");
+		LOG.info("divide128by64Unsigned took " + totalDuration + "ms " + Arrays.toString(allDurations));
 		
-		t0 = System.currentTimeMillis();
-		for (int i=0; i<NCOUNT_DIV; i++) {
-			for (int j=0; j<NCOUNT_DIV; j++) {
-				Uint128.mod128by64Unsigned(a_arr[i], b_arr[i], a_arr[j]);
+		totalDuration = 0;
+		for (int r=0; r<WARMUPS+REPEATS; r++) {
+			t0 = System.currentTimeMillis();
+			for (int i=0; i<NCOUNT_DIV; i++) {
+				for (int j=0; j<NCOUNT_DIV; j++) {
+					Uint128.mod128by64Unsigned(a_arr[i], b_arr[i], a_arr[j]);
+				}
+			}
+			t1 = System.currentTimeMillis();
+			duration = t1-t0;
+			if (r >= WARMUPS) {
+				totalDuration += duration;
+				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		t1 = System.currentTimeMillis();
-		LOG.info("mod128by64Unsigned took " + (t1-t0) + "ms");
+		LOG.info("mod128by64Unsigned took " + totalDuration + "ms " + Arrays.toString(allDurations));
 	}
 
 	/**
