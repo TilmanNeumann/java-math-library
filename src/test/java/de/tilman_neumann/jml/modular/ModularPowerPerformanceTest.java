@@ -84,7 +84,7 @@ public class ModularPowerPerformanceTest {
 			aBig_arr[i].modPow(bBig_arr[i], cIntBig_arr[i]);
 		}
 		t1 = System.currentTimeMillis();
-		LOG.info("BigInteger.modPow(long modulus) took " + (t1-t0) + " ms");
+		LOG.info("BigInteger.modPow(int modulus) took " + (t1-t0) + " ms");
 
 		// test my implementation with int modulus
 		t0 = System.currentTimeMillis();
