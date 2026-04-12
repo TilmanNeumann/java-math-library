@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -19,6 +19,8 @@ import static org.junit.Assert.assertEquals;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,6 +33,8 @@ import de.tilman_neumann.util.ConfigUtil;
  */
 public class DivisorsTest {
 
+	private static Logger LOG = LogManager.getLogger(DivisorsTest.class);
+	
 	@BeforeClass
 	public static void setup() {
 		ConfigUtil.initProject();
@@ -44,6 +48,18 @@ public class DivisorsTest {
 		for (int i=0; i<reference.size(); i++) {
 			BigInteger n = BigInteger.valueOf(i+1);
 			assertEquals(BigInteger.valueOf(reference.get(i)), Divisors.sumOfDivisors_v1(n));
+		}
+	}
+	
+	@Test
+	public void testEulerPhiForSmallArguments() {
+		// reference data from https://oeis.org/A000010, starts at n=1
+		List<Integer> reference = List.of(1, 1, 2, 2, 4, 2, 6, 4, 6, 4, 10, 4, 12, 6, 8, 8, 16, 6, 18, 8, 12, 10, 22, 8, 20, 12, 18, 12, 28, 8, 30, 16, 20, 16, 24, 12, 36, 18, 24, 16, 40, 12, 42, 20, 24, 22, 46, 16, 42, 20, 32, 24, 52, 18, 40, 24, 36, 28, 58, 16, 60, 30, 36, 32, 48, 20, 66, 32, 44);
+		for (int i=0; i<reference.size(); i++) {
+			BigInteger n = BigInteger.valueOf(i+1);
+			BigInteger phi = Divisors.computeEulerPhi(n);
+			LOG.trace("i=" + i + ": phi = " + phi);
+			assertEquals(BigInteger.valueOf(reference.get(i)), phi);
 		}
 	}
 }

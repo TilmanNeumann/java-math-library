@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -511,4 +511,27 @@ public class Divisors {
     	SortedSet<BigInteger> smallDivisors = getSmallDivisors(n, factors);
     	return smallDivisors.last();
     }
+    
+
+	/**
+	 * Computes Euler's phi(n), which is the number of k with 1<=k<=n that are coprime to n.
+	 * Formula: phi(n) = n * prod_{p|n} 1-1/p
+     *
+	 * @param n
+	 * @return phi(n)
+	 */
+	public static BigInteger computeEulerPhi(BigInteger n) {
+		if (n.equals(I_0)) return I_0;
+		
+		SortedMap<BigInteger, Integer> factors = FactorAlgorithm.getDefault().factor(n);
+		BigInteger num = I_1;
+		BigInteger den = I_1;
+		for (Map.Entry<BigInteger, Integer> entry : factors.entrySet()) {
+			BigInteger divisor = entry.getKey();
+			num = num.multiply(divisor.subtract(I_1));
+			den = den.multiply(divisor);
+		}
+		return n.multiply(num).divide(den);
+	}
+
 }
