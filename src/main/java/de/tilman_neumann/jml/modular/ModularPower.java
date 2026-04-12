@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -16,6 +16,8 @@ package de.tilman_neumann.jml.modular;
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
+
+import de.tilman_neumann.jml.base.Int128;
 
 /**
  * Modular power.
@@ -43,7 +45,46 @@ public class ModularPower {
   		}
   		return modPow;
   	}
+
+	/**
+	 * Computes a^b (mod c) for <code>a</code> BigInteger, <code>b, c</code> long.
+	 * This is about 4 times slower than BigInteger.modPow() with the same arguments.
+	 * @param a
+	 * @param b
+	 * @param c
+	 * @return a^b (mod c)
+	 */
+  	/* not public */ long modPow(BigInteger a, long b, long c) {
+  		return modPowCore128(a.mod(BigInteger.valueOf(c)).longValue(), b, c);
+  	}
+
+	/**
+	 * Computes a^b (mod c) for <code>a, b, c</code> long.
+	 * This is about 4 times slower than BigInteger.modPow() with the same arguments.
+	 * @param a
+	 * @param b
+	 * @param c
+	 * @return a^b (mod c)
+	 */
+  	/* not public */ long modPow(long a, long b, long c) {
+  		return modPowCore128(a % c, b, c);
+  	}
   	
+  	private long modPowCore128(long aModC, long b, long c) {
+  		// if c is long, then the internal products need 128 bit
+  		long modPow = 1;
+  		while (b > 0) {
+  			if ((b&1) == 1) {
+  				Int128 prod = Int128.mul64Unsigned(modPow, aModC);
+  				modPow = Int128.mod128by64Unsigned(prod.getHigh(), prod.getLow(), c);
+  			}
+  			Int128 aModCSquare = Int128.square64Unsigned(aModC);
+  			aModC = Int128.mod128by64Unsigned(aModCSquare.getHigh(), aModCSquare.getLow(), c);
+  			b >>= 1;
+  		}
+  		return modPow;
+  	}
+
 	/**
 	 * Computes a^b (mod c) for <code>a</code> BigInteger, <code>b</code> long, <code>c</code> int. Very fast.
 	 * @param a
@@ -52,9 +93,9 @@ public class ModularPower {
 	 * @return a^b (mod c)
 	 */
   	public int modPow(BigInteger a, long b, int c) {
-  		return modPowCore(a.mod(BigInteger.valueOf(c)).longValue(), b, c);
+  		return modPowCore64(a.mod(BigInteger.valueOf(c)).longValue(), b, c);
   	}
-  	
+
 	/**
 	 * Computes a^b (mod c) for <code>a, b</code> long, <code>c</code> int. Very fast.
 	 * @param a
@@ -63,7 +104,7 @@ public class ModularPower {
 	 * @return a^b (mod c)
 	 */
   	public int modPow(long a, long b, int c) {
-  		return modPowCore(a % c, b, c);
+  		return modPowCore64(a % c, b, c);
   	}
 
 	/**
@@ -74,10 +115,10 @@ public class ModularPower {
 	 * @return a^b (mod c)
 	 */
   	public int modPow(int a, long b, int c) {
-  		return modPowCore(a % c, b, c);
+  		return modPowCore64(a % c, b, c);
   	}
   	
-  	private int modPowCore(long aModC, long b, long c) {
+  	private int modPowCore64(long aModC, long b, long c) {
   		long modPow = 1;
   		while (b > 0) {
   			if ((b&1) == 1) modPow = (modPow * aModC) % c;
