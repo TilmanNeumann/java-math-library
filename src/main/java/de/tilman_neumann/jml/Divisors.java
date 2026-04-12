@@ -523,6 +523,8 @@ public class Divisors {
 	public static BigInteger computeEulerPhi(BigInteger n) {
 		if (n.equals(I_0)) return I_0;
 		
+		// XXX do prime test before factorization?
+		
 		SortedMap<BigInteger, Integer> factors = FactorAlgorithm.getDefault().factor(n);
 		BigInteger num = I_1;
 		BigInteger den = I_1;
@@ -530,8 +532,8 @@ public class Divisors {
 			BigInteger divisor = entry.getKey();
 			num = num.multiply(divisor.subtract(I_1));
 			den = den.multiply(divisor);
+			// XXX reduce num and den after a couple of multiplications by gcd?
 		}
 		return n.multiply(num).divide(den);
 	}
-
 }
