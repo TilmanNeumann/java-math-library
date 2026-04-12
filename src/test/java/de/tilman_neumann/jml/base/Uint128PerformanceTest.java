@@ -97,7 +97,7 @@ public class Uint128PerformanceTest {
 			t0 = System.currentTimeMillis();
 			for (int i=0; i<NCOUNT_ADD; i++) {
 				for (int j=0; j<NCOUNT_ADD; j++) {
-					a128_arr[i].add_v1(a128_arr[j]);
+					a128_arr[i].add(a128_arr[j]);
 				}
 			}
 			t1 = System.currentTimeMillis();
@@ -107,41 +107,7 @@ public class Uint128PerformanceTest {
 				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		LOG.info("add_v1 took " + totalDuration + "ms " + Arrays.toString(allDurations));
-
-		totalDuration = 0;
-		for (int r=0; r<WARMUPS+REPEATS; r++) {
-			t0 = System.currentTimeMillis();
-			for (int i=0; i<NCOUNT_ADD; i++) {
-				for (int j=0; j<NCOUNT_ADD; j++) {
-					a128_arr[i].add/*_v2*/(a128_arr[j]);
-				}
-			}
-			t1 = System.currentTimeMillis();
-			duration = t1-t0;
-			if (r >= WARMUPS) {
-				totalDuration += duration;
-				allDurations[r - WARMUPS] = duration;
-			}
-		}
-		LOG.info("add_v2 took " + totalDuration + "ms " + Arrays.toString(allDurations));
-
-		totalDuration = 0;
-		for (int r=0; r<WARMUPS+REPEATS; r++) {
-			t0 = System.currentTimeMillis();
-			for (int i=0; i<NCOUNT_ADD; i++) {
-				for (int j=0; j<NCOUNT_ADD; j++) {
-					a128_arr[i].add_v3(a128_arr[j]);
-				}
-			}
-			t1 = System.currentTimeMillis();
-			duration = t1-t0;
-			if (r >= WARMUPS) {
-				totalDuration += duration;
-				allDurations[r - WARMUPS] = duration;
-			}
-		}
-		LOG.info("add_v3 took " + totalDuration + "ms " + Arrays.toString(allDurations));
+		LOG.info("add took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
 		totalDuration = 0;
 		for (int r=0; r<WARMUPS+REPEATS; r++) {
@@ -159,23 +125,6 @@ public class Uint128PerformanceTest {
 			}
 		}
 		LOG.info("subtract took " + totalDuration + "ms " + Arrays.toString(allDurations));
-
-		totalDuration = 0;
-		for (int r=0; r<WARMUPS+REPEATS; r++) {
-			t0 = System.currentTimeMillis();
-			for (int i=0; i<NCOUNT_ADD; i++) {
-				for (int j=0; j<NCOUNT_ADD; j++) {
-					a128_arr[i].subtract_v2(a128_arr[j]);
-				}
-			}
-			t1 = System.currentTimeMillis();
-			duration = t1-t0;
-			if (r >= WARMUPS) {
-				totalDuration += duration;
-				allDurations[r - WARMUPS] = duration;
-			}
-		}
-		LOG.info("subtract_v2 took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
 		// Test performance of mul64 implementations:
 		// Here we need to do something with the results to avoid the compiler optimizing thhe tests to nothing
@@ -199,26 +148,6 @@ public class Uint128PerformanceTest {
 			}
 		}
 		LOG.info("mul63 took " + totalDuration + "ms " + Arrays.toString(allDurations));
-
-		totalDuration = 0;
-		for (int r=0; r<WARMUPS+REPEATS; r++) {
-			long dummy = 0;
-			t0 = System.currentTimeMillis();
-			for (int i=0; i<NCOUNT_MUL; i++) {
-				for (int j=0; j<NCOUNT_MUL; j++) {
-					Uint128 result = Uint128.mul64_v1(a_arr[i], a_arr[j]);
-					dummy += result.getHigh() + result.getLow();
-				}
-			}
-			t1 = System.currentTimeMillis();
-			LOG.trace("dummy = " + dummy);
-			duration = t1-t0;
-			if (r >= WARMUPS) {
-				totalDuration += duration;
-				allDurations[r - WARMUPS] = duration;
-			}
-		}
-		LOG.info("mul64_v1 took " + totalDuration + "ms " + Arrays.toString(allDurations));
 		
 		totalDuration = 0;
 		for (int r=0; r<WARMUPS+REPEATS; r++) {
@@ -226,7 +155,7 @@ public class Uint128PerformanceTest {
 			t0 = System.currentTimeMillis();
 			for (int i=0; i<NCOUNT_MUL; i++) {
 				for (int j=0; j<NCOUNT_MUL; j++) {
-					Uint128 result = Uint128.mul64/*_v2*/(a_arr[i], a_arr[j]);
+					Uint128 result = Uint128.mul64(a_arr[i], a_arr[j]);
 					dummy += result.getHigh() + result.getLow();
 				}
 			}
@@ -238,27 +167,7 @@ public class Uint128PerformanceTest {
 				allDurations[r - WARMUPS] = duration;
 			}
 		}
-		LOG.info("mul64_v2 took " + totalDuration + "ms " + Arrays.toString(allDurations));
-
-		totalDuration = 0;
-		for (int r=0; r<WARMUPS+REPEATS; r++) {
-			long dummy = 0;
-			t0 = System.currentTimeMillis();
-			for (int i=0; i<NCOUNT_MUL; i++) {
-				for (int j=0; j<NCOUNT_MUL; j++) {
-					Uint128 result = Uint128.mul64_v3(a_arr[i], a_arr[j]);
-					dummy += result.getHigh() + result.getLow();
-				}
-			}
-			t1 = System.currentTimeMillis();
-			LOG.trace("dummy = " + dummy);
-			duration = t1-t0;
-			if (r >= WARMUPS) {
-				totalDuration += duration;
-				allDurations[r - WARMUPS] = duration;
-			}
-		}
-		LOG.info("mul64_v3 took " + totalDuration + "ms " + Arrays.toString(allDurations));
+		LOG.info("mul64 took " + totalDuration + "ms " + Arrays.toString(allDurations));
 
 		totalDuration = 0;
 		for (int r=0; r<WARMUPS+REPEATS; r++) {

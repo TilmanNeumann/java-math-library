@@ -51,36 +51,7 @@ public class Uint128Test {
 	}
 
 	@Test
-	public void testAdd_v1() {
-		
-		for (int i=0; i<NCOUNT; i++) {
-			BigInteger a_hi_big = hi_big[i];
-			BigInteger a_lo_big = lo_big[i];
-			long a_hi = hi[i];
-			long a_lo = lo[i];
-			
-			for (int j=0; j<NCOUNT; j++) {
-				BigInteger b_hi_big = hi_big[j];
-				BigInteger b_lo_big = lo_big[j];
-				long b_hi = hi[j];
-				long b_lo = lo[j];
-				
-				// add two 127 bit integers
-				Uint128 a128 = new Uint128(a_hi, a_lo);
-				Uint128 b128 = new Uint128(b_hi, b_lo);
-				Uint128 sum128 = a128.add_v1(b128);
-				// compute correct result in bigIntegers and compare
-				BigInteger a128Big = a_hi_big.shiftLeft(64).add(a_lo_big);
-				BigInteger b128Big = b_hi_big.shiftLeft(64).add(b_lo_big);
-				BigInteger correctSum = a128Big.add(b128Big);
-				Assert.assertEquals(correctSum, sum128.toBigIntegerUnsigned());
-			}
-		}
-	}
-
-	@Test
-	public void testAdd_v2() {
-		
+	public void testAdd() {
 		for (int i=0; i<NCOUNT; i++) {
 			BigInteger a_hi_big = hi_big[i];
 			BigInteger a_lo_big = lo_big[i];
@@ -108,7 +79,6 @@ public class Uint128Test {
 
 	@Test
 	public void testSubtract() {
-		
 		for (int i=0; i<NCOUNT; i++) {
 			BigInteger a_hi_big = hi_big[i];
 			BigInteger a_lo_big = lo_big[i];
@@ -156,10 +126,7 @@ public class Uint128Test {
 	}
 
 	@Test
-	public void testMul64_v1() {
-		
-		// here we only use the "lo" numbers which are 64 bit
-
+	public void testMul64() {
 		for (int i=0; i<NCOUNT; i++) {
 			BigInteger a_lo_big = lo_big[i];
 			long a_lo = lo[i];
@@ -168,29 +135,7 @@ public class Uint128Test {
 				BigInteger b_lo_big = lo_big[j];
 				long b_lo = lo[j];
 	
-				Uint128 prod128 =  Uint128.mul64_v1(a_lo, b_lo);
-				BigInteger prod128Big = prod128.toBigIntegerUnsigned();
-				BigInteger correctProd = a_lo_big.multiply(b_lo_big);
-				if (!correctProd.equals(prod128Big)) {
-					LOG.error("mul64_v1: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
-				}
-				Assert.assertEquals(correctProd, prod128Big);
-			}
-		}
-	}
-
-	@Test
-	public void testMul64_v2() {
-		
-		for (int i=0; i<NCOUNT; i++) {
-			BigInteger a_lo_big = lo_big[i];
-			long a_lo = lo[i];
-			
-			for (int j=0; j<NCOUNT; j++) {
-				BigInteger b_lo_big = lo_big[j];
-				long b_lo = lo[j];
-	
-				Uint128 prod128 = Uint128.mul64/*_v2*/(a_lo, b_lo);
+				Uint128 prod128 = Uint128.mul64(a_lo, b_lo);
 				BigInteger prod128Big = prod128.toBigIntegerUnsigned();
 				BigInteger correctProd = a_lo_big.multiply(b_lo_big);
 				if (!correctProd.equals(prod128Big)) {
@@ -202,30 +147,7 @@ public class Uint128Test {
 	}
 
 	@Test
-	public void testMul64_v3() {
-		
-		for (int i=0; i<NCOUNT; i++) {
-			BigInteger a_lo_big = lo_big[i];
-			long a_lo = lo[i];
-			
-			for (int j=0; j<NCOUNT; j++) {
-				BigInteger b_lo_big = lo_big[j];
-				long b_lo = lo[j];
-	
-				Uint128 prod128 = Uint128.mul64_v3(a_lo, b_lo);
-				BigInteger prod128Big = prod128.toBigIntegerUnsigned();
-				BigInteger correctProd = a_lo_big.multiply(b_lo_big);
-				if (!correctProd.equals(prod128Big)) {
-					LOG.error("mul64_v3: " + a_lo_big + "*" + b_lo_big + ": correct = " + correctProd + " but result = " + prod128Big);
-				}
-				Assert.assertEquals(correctProd, prod128Big);
-			}
-		}
-	}
-
-	@Test
 	public void testMul64_MH() {
-		
 		for (int i=0; i<NCOUNT; i++) {
 			BigInteger a_lo_big = lo_big[i];
 			long a_lo = lo[i];

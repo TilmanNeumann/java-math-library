@@ -55,40 +55,7 @@ public class Uint128 {
 	 * @param b
 	 * @return this + b
 	 */
-	public Uint128 add_v1(Uint128 b) {
-		// We know for sure that low overflows if both low and b_lo are 64 bit. If only one of the input 'low's
-		// is 64 bit, then we can recognize an overflow if r_lo is not 64 bit.
-		final long b_lo = b.getLow();
-		final long b_hi = b.getHigh();
-		final long r_lo = low + b_lo;
-		long r_hi = high + b_hi;
-		if ((low<0 && b_lo<0) || ((low<0 || b_lo<0) && (r_lo >= 0))) r_hi++;
-		return new Uint128(r_hi, r_lo);
-	}
-
-	/**
-	 * Add two 128 bit integers.
-	 * 
-	 * Simpler carry recognition thanks to Ben Buhrow,
-	 * see https://www.mersenneforum.org/showpost.php?p=524300&postcount=173.
-	 * 
-	 * @param b
-	 * @return this + b
-	 */
-	public Uint128 add/*_v2*/(Uint128 b) {
-		long r_lo = low + b.getLow();
-		long r_hi = high + b.getHigh();
-		if (r_lo+Long.MIN_VALUE < low+Long.MIN_VALUE) r_hi++;
-		return new Uint128(r_hi, r_lo);
-	}
-
-	/**
-	 * Add two 128 bit integers, AI-generated version.
-	 * 
-	 * @param b
-	 * @return this + b
-	 */
-	public Uint128 add_v3(Uint128 b) {
+	public Uint128 add(Uint128 b) {
 	    long r_lo = low + b.getLow();
 	    long carry = Long.compareUnsigned(r_lo, low) < 0 ? 1 : 0;
 	    long r_hi = high + b.getHigh() + carry;
@@ -102,8 +69,8 @@ public class Uint128 {
 	 */
 	public long add_getHigh(Uint128 b) {
 		long r_lo = low + b.getLow();
-		long r_hi = high + b.getHigh();
-		return r_lo+Long.MIN_VALUE < low+Long.MIN_VALUE ? r_hi + 1 : r_hi;
+	    long carry = Long.compareUnsigned(r_lo, low) < 0 ? 1 : 0;
+	    return high + b.getHigh() + carry;
 	}
 
 	/**
@@ -112,21 +79,7 @@ public class Uint128 {
 	 * @param b
 	 * @return this - b, may be negative
 	 */
-	public Uint128 subtract(Uint128 b) {
-    	long b_lo = b.getLow();
-		long r_lo = low - b_lo;
-		long r_hi = high - b.getHigh();
-        if (Long.compareUnsigned(low, b_lo) < 0) --r_hi;
-        return new Uint128(r_hi, r_lo);
-	}
-	
-	/**
-	 * Subtract two 128 bit integers. AI-generated version.
-	 * 
-	 * @param b
-	 * @return this - b, may be negative
-	 */
-    public Uint128 subtract_v2(Uint128 b) {
+    public Uint128 subtract(Uint128 b) {
     	long b_lo = b.getLow();
         long r_lo = low - b_lo;
         long borrow = Long.compareUnsigned(low, b_lo) < 0 ? 1 : 0;
@@ -159,45 +112,13 @@ public class Uint128 {
 	}
 
 	/**
-	 * Multiplication of unsigned 64 bit integers,
-	 * following https://stackoverflow.com/questions/18859207/high-bits-of-long-multiplication-in-java.
-	 * 
-	 * This method takes notice of overflows of the "middle term".
-	 * As such it works for 64 bit inputs but is slightly slower than mul63().
-	 * 
-	 * @param a unsigned long
-	 * @param b unsigned long
-	 * @return a*b
-	 */
-	public static Uint128 mul64_v1(long a, long b) {
-		final long a_hi = a >>> 32;
-		final long b_hi = b >>> 32;
-		final long a_lo = a & 0xFFFFFFFFL;
-		final long b_lo = b & 0xFFFFFFFFL;
-		
-		final long lo_prod = a_lo * b_lo;
-		final long med_prod1 = a_hi * b_lo;
-		final long med_prod2 = a_lo * b_hi;
-		final long med_term = med_prod1 + med_prod2;
-		final long hi_prod = a_hi * b_hi;
-		
-		// the medium term could overflow		
-		long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod;
-		if ((med_prod1<0 && med_prod2<0) || ((med_prod1<0 || med_prod2<0) && med_term>=0)) r_hi += 1L<<32;
-		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
-		return new Uint128(r_hi, r_lo);
-	}
-
-	/**
 	 * Multiplication of unsigned 64 bit integers with simplified carry recognition.
 	 * 
-	 * Faster than v1 except for N>=52 bit in PollardRhoBrentMontgomery64 (strange)
-	 * 
 	 * @param a unsigned long
 	 * @param b unsigned long
 	 * @return a*b
 	 */
-	public static Uint128 mul64/*_v2*/(long a, long b) {
+	public static Uint128 mul64(long a, long b) {
 		final long a_hi = a >>> 32;
 		final long b_hi = b >>> 32;
 		final long a_lo = a & 0xFFFFFFFFL;
@@ -214,38 +135,6 @@ public class Uint128 {
 		final long r_hi = (((lo_prod >>> 32) + med_term) >>> 32) + hi_prod + carry;
 		final long r_lo = ((med_term & 0xFFFFFFFFL) << 32) + lo_prod;
 
-		return new Uint128(r_hi, r_lo);
-	}
-
-	/**
-	 * Multiplication of unsigned 64 bit integers.
-	 * 
-	 * <strong>Experimental version</strong>, pretty slow when used in TinyEcm.
-	 * 
-	 * @param a unsigned long
-	 * @param b unsigned long
-	 * @return a*b
-	 */
-	public static Uint128 mul64_v3(long a, long b) { // derived from mul64Signed()
-		final long a_hi = a >> 32;
-		final long a_lo = a & 0xFFFFFFFFL;
-		final long b_hi = b >> 32;
-		final long b_lo = b & 0xFFFFFFFFL;
-		
-		// use b_lo twice as first argument hoping that this optimizes register usage
-		final long w0 = b_lo * a_lo;
-		final long t = b_lo * a_hi + (w0 >>> 32);
-		// same with t
-		final long w2 = t >> 32;
-		final long w1 = (t & 0xFFFFFFFFL) + a_lo * b_hi;
-	    
-		long r_hi = a_hi * b_hi + w2 + (w1 >> 32);
-		// so far we computed the signed solution; now make it unsigned
-		if (a<0) r_hi += b;
-		if (b<0) r_hi += a;
-
-		final long r_lo = a * b;
-		
 		return new Uint128(r_hi, r_lo);
 	}
 	
