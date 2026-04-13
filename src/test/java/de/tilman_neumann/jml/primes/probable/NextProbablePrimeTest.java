@@ -39,6 +39,7 @@ public class NextProbablePrimeTest {
 	private static final int MAX_BITS = 150;
 
 	private static final BPSWTest bpsw = new BPSWTest();
+	private static final PrPTest prp = new PrPTest();
 	
 	@BeforeClass
 	public static void setup() {
@@ -46,9 +47,9 @@ public class NextProbablePrimeTest {
 	}
 
 	@Test
-	public void testNextProbablePrime() {
+	public void testNextProbablePrimeBPSW() {
 		for (int nBits = 20; nBits<=MAX_BITS; nBits+=10) {
-			LOG.info("Test correctness of " + NCOUNT + " N with " + nBits + " bits:");
+			LOG.info("Test correctness of " + NCOUNT + " N with " + nBits + " bits using BPSW:");
 			int i = 0;
 			while (i < NCOUNT) {
 				BigInteger n = new BigInteger(nBits, RNG);
@@ -56,6 +57,25 @@ public class NextProbablePrimeTest {
 				
 				BigInteger correctValue = n.nextProbablePrime();
 				BigInteger bpswValue = bpsw.nextProbablePrime(n);
+				assertEquals(correctValue, bpswValue);
+
+				i++;
+			}
+			LOG.info("    Tested " + NCOUNT + " next probable primes...");
+		}
+	}
+
+	@Test
+	public void testNextProbablePrimePrP() {
+		for (int nBits = 20; nBits<=MAX_BITS; nBits+=10) {
+			LOG.info("Test correctness of " + NCOUNT + " N with " + nBits + " bits using PrP:");
+			int i = 0;
+			while (i < NCOUNT) {
+				BigInteger n = new BigInteger(nBits, RNG);
+				if (n.equals(I_0)) continue; // exclude 0 from test set
+				
+				BigInteger correctValue = n.nextProbablePrime();
+				BigInteger bpswValue = prp.nextProbablePrime(n);
 				assertEquals(correctValue, bpswValue);
 
 				i++;

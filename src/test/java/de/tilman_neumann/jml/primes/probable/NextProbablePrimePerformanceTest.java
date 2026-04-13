@@ -34,9 +34,10 @@ public class NextProbablePrimePerformanceTest {
 	private static final Random RNG = new Random();
 	
 	/** Number of test numbers for the performance test. */
-	private static final int NCOUNT = 1000;
+	private static final int NCOUNT = 10000;
 
 	private static final BPSWTest bpsw = new BPSWTest();
+	private static final PrPTest prp = new PrPTest();
 
 	/**
 	 * Performance test.
@@ -63,6 +64,14 @@ public class NextProbablePrimePerformanceTest {
 			}
 			duration = System.currentTimeMillis() - startMillis;
 			addToMap(duration_2_algLists, duration, "BPSW");
+
+			// test PrP
+			startMillis = System.currentTimeMillis();
+			for (BigInteger n : testSet) {
+				prp.nextProbablePrime(n);
+			}
+			duration = System.currentTimeMillis() - startMillis;
+			addToMap(duration_2_algLists, duration, "PrP");
 
 			// test built-in method
 			startMillis = System.currentTimeMillis();
