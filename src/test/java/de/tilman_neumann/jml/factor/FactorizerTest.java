@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -44,7 +44,7 @@ import de.tilman_neumann.jml.factor.siqs.sieve.*;
 import de.tilman_neumann.jml.factor.siqs.tdiv.*;
 import de.tilman_neumann.jml.factor.squfof.*;
 import de.tilman_neumann.jml.factor.tdiv.*;
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.jml.sequence.*;
 import de.tilman_neumann.util.*;
 
@@ -94,7 +94,7 @@ public class FactorizerTest {
 	/** Test mode */
 	private static final TestMode TEST_MODE = TestMode.FIRST_FACTOR;
 
-	private BPSWTest bpsw = new BPSWTest();
+	private PrPTest prpTest = new PrPTest();
 	
 	/** 
 	 * Algorithms to compare. Non-static to permit to use Loggers in the algorithm constructors.
@@ -321,7 +321,7 @@ public class FactorizerTest {
 								for (BigInteger factor : factorSet.keySet()) {
 									if (factor==null || factor.equals(I_0) || factor.abs().equals(I_1) || factor.abs().equals(N.abs()) || !N.mod(factor).equals(I_0)) {
 										nonFactors.add(factor);
-									} else if (!bpsw.isProbablePrime(factor)) {
+									} else if (!prpTest.isProbablePrime(factor)) {
 										// not finding the prime factorization is an error
 										nonPrimeFactors.add(factor);
 									}

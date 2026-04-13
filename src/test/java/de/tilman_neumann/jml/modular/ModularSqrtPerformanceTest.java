@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -18,7 +18,7 @@ import java.util.Random;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.ConfigUtil;
 
 public class ModularSqrtPerformanceTest {
@@ -27,7 +27,7 @@ public class ModularSqrtPerformanceTest {
 	private static final int NCOUNT = 100000;
 
 	private static final Random RNG = new Random();
-	private static final BPSWTest bpsw = new BPSWTest();
+	private static final PrPTest prpTest = new PrPTest();
 	private static final JacobiSymbol jacobiEngine = new JacobiSymbol();
 	
 	private static int[] createPArray(int wantedPMod8, int count) {
@@ -37,7 +37,7 @@ public class ModularSqrtPerformanceTest {
 			// get non-negative random n
 			int n = RNG.nextInt(Integer.MAX_VALUE);
 			// add n to the test set if it is an odd prime with the wanted modulus mod 8
-			if (n>2 && (n&7) == wantedPMod8 && bpsw.isProbablePrime(n)) {
+			if (n>2 && (n&7) == wantedPMod8 && prpTest.isProbablePrime(n)) {
 				pArray[i] = n;
 				i++;
 			}

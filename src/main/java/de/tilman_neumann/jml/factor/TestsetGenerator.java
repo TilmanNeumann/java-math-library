@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -20,7 +20,7 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.jml.random.Rng;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -38,7 +38,7 @@ public class TestsetGenerator {
 	private static final boolean DEBUG = false;
 	private static final boolean DUMP_DATA_TO_FILE = false;
 	
-	private static final BPSWTest bpsw = new BPSWTest();
+	private static final PrPTest prpTest = new PrPTest();
 	private static final Rng RNG = new Rng();
 	
 	/**
@@ -61,7 +61,7 @@ public class TestsetGenerator {
 					if (bits<3) throw new IllegalArgumentException("There are no composites with " + bits + " bits.");
 					for (int i=0; i<N_count; ) {
 						BigInteger N = new BigInteger(bits, RNG);
-						if(N.bitLength()==bits && !bpsw.isProbablePrime(N)) {
+						if(N.bitLength()==bits && !prpTest.isProbablePrime(N)) {
 							NArray[i++] = N;
 							// TODO write to data file
 						}
@@ -72,7 +72,7 @@ public class TestsetGenerator {
 					if (bits<4) throw new IllegalArgumentException("There are no odd composites with " + bits + " bits.");
 					for (int i=0; i<N_count; ) {
 						BigInteger N = new BigInteger(bits, RNG).or(I_1); // odd random number
-						if(N.bitLength()==bits && !bpsw.isProbablePrime(N)) {
+						if(N.bitLength()==bits && !prpTest.isProbablePrime(N)) {
 							NArray[i++] = N;
 							// TODO write to data file
 						}
@@ -88,11 +88,11 @@ public class TestsetGenerator {
 						// of randomness while still being reasonably fast for large bit sizes.
 						int n1bits = RNG.nextInt(minBits, maxBits);
 						BigInteger n1 = new BigInteger(n1bits, RNG);
-						n1 = bpsw.nextProbablePrime(n1);
+						n1 = prpTest.nextProbablePrime(n1);
 						if (n1.bitLength()<minBits) continue;
 						
 						BigInteger N = new BigInteger(bits, RNG);
-						BigInteger n2 = bpsw.nextProbablePrime(N.divide(n1));
+						BigInteger n2 = prpTest.nextProbablePrime(N.divide(n1));
 						N = n1.multiply(n2);
 						if (N.bitLength() != bits) continue;
 						if (n1.pow(3).compareTo(N) < 0) continue;
@@ -109,11 +109,11 @@ public class TestsetGenerator {
 						// generate random N with 2 prime factors
 						BigInteger n1 = new BigInteger(minBits, RNG);
 						n1 = n1.setBit(minBits-1);
-						n1 = bpsw.nextProbablePrime(n1);
+						n1 = prpTest.nextProbablePrime(n1);
 						int n2bits = bits-n1.bitLength();
 						BigInteger n2 = new BigInteger(n2bits, RNG);
 						n2 = n2.setBit(n2bits-1);
-						n2 = bpsw.nextProbablePrime(n2);
+						n2 = prpTest.nextProbablePrime(n2);
 						BigInteger N = n1.multiply(n2);
 						if (DEBUG) LOG.debug("bits=" + bits + ", N1Bits=" + n1.bitLength() + ", N2Bits=" + n2.bitLength());
 						

@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -28,7 +28,7 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.factor.FactorAlgorithm;
 import de.tilman_neumann.jml.gcd.Gcd63;
 import de.tilman_neumann.jml.primes.exact.AutoExpandingPrimesArray;
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.ConfigUtil;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
@@ -57,7 +57,7 @@ public class HartMultiplierChainGenerator {
 	
 	private final Gcd63 gcdEngine = new Gcd63();
 
-	private final BPSWTest bpsw = new BPSWTest();
+	private final PrPTest prpTest = new PrPTest();
 	
 	private static final FactorAlgorithm factorizer = FactorAlgorithm.getDefault();
 
@@ -76,7 +76,7 @@ public class HartMultiplierChainGenerator {
 		// using an ArrayList here is very bad for N>=22 bit
 		Set<Long> remainingNSet = new LinkedHashSet<>();
 		for (long N=Nmin; N<Nmax; N++) {
-			if (!bpsw.isProbablePrime(N)) {
+			if (!prpTest.isProbablePrime(N)) {
 				remainingNSet.add(N);
 			}
 		}

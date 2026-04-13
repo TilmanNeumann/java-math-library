@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.SortedMultiset;
 
 /**
@@ -39,7 +39,7 @@ public class FactorTestBase {
 
 	private static final Logger LOG = LogManager.getLogger(FactorTestBase.class);
 
-	private static final BPSWTest bpsw = new BPSWTest();
+	private static final PrPTest prpTest = new PrPTest();
 	
 	private static FactorAlgorithm factorizer;
 	private static FactorAlgorithm verificationFactorizer;
@@ -76,12 +76,12 @@ public class FactorTestBase {
 	protected List<BigInteger> testFullFactorizationOfComposites(BigInteger nMin, BigInteger nMax) {
 		ArrayList<BigInteger> fails = new ArrayList<>();
 		for (BigInteger n=nMin; n.compareTo(nMax)<=0; n=n.add(I_1)) {
-			if (bpsw.isProbablePrime(n)) continue; // skip primes
+			if (prpTest.isProbablePrime(n)) continue; // skip primes
 			SortedMultiset<BigInteger> factors = factorizer.factor(n);
 			boolean isFail = false;
 			BigInteger testProd = I_1;
 			for (BigInteger factor : factors.keySet()) {
-				if (!bpsw.isProbablePrime(factor)) {
+				if (!prpTest.isProbablePrime(factor)) {
 					isFail = true;
 					break;
 				}
@@ -121,12 +121,12 @@ public class FactorTestBase {
 	}
 	
 	private boolean isSemiprime(BigInteger N) {
-		if (bpsw.isProbablePrime(N)) return false;
+		if (prpTest.isProbablePrime(N)) return false;
 		
 		BigInteger factor1 = verificationFactorizer.findSingleFactor(N);
 		assertTrue(factor1.compareTo(I_1) > 0 && factor1.compareTo(N) < 0); // otherwise the verificationFactorizer failed
 		BigInteger factor2 = N.divide(factor1);
-		return bpsw.isProbablePrime(factor1) && bpsw.isProbablePrime(factor2);
+		return prpTest.isProbablePrime(factor1) && prpTest.isProbablePrime(factor2);
 	}
 
 	/**

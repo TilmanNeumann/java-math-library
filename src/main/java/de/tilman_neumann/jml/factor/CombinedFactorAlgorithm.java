@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -43,7 +43,7 @@ import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_2LP;
 import de.tilman_neumann.jml.factor.siqs.tdiv.TDiv_QS_Small;
 import de.tilman_neumann.jml.factor.tdiv.TDiv;
 import de.tilman_neumann.jml.factor.tdiv.TDiv31Barrett;
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.Ensure;
 
 /**
@@ -72,7 +72,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 	// The SIQS chosen for big arguments depends on constructor parameters
 	private FactorAlgorithm siqsForBigArgs;
 
-	private BPSWTest bpsw = new BPSWTest();
+	private PrPTest prpTest = new PrPTest();
 
 	// profiling
 	private long t0;
@@ -169,7 +169,7 @@ public class CombinedFactorAlgorithm extends FactorAlgorithm {
 					int exp = result.untestedFactors.removeAll(N);
 					if (DEBUG) Ensure.ensureEquals(1, exp); // looks safe, otherwise we'ld have to consider exp below
 	
-					if (bpsw.isProbablePrime(N)) { // TODO exploit tdiv done so far
+					if (prpTest.isProbablePrime(N)) { // TODO exploit tdiv done so far
 						result.primeFactors.add(N);
 						return;
 					}

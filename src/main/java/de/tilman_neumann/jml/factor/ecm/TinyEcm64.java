@@ -45,7 +45,7 @@ import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
 import de.tilman_neumann.jml.factor.tdiv.TDiv63Inverse;
 import de.tilman_neumann.jml.gcd.Gcd63;
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.jml.random.SpRand32;
 import de.tilman_neumann.util.Ensure;
 
@@ -161,7 +161,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 	
 	private TDiv63Inverse tdiv = new TDiv63Inverse(1<<21);
 
-	private BPSWTest bpsw = new BPSWTest();
+	private PrPTest prpTest = new PrPTest();
 
 	private Gcd63 gcd63 = new Gcd63();
 
@@ -1167,7 +1167,7 @@ public class TinyEcm64 extends FactorAlgorithm {
 			N = result.untestedFactors.firstKey();
 			exp = result.untestedFactors.removeAll(N); // can be > 1
 	
-			if (bpsw.isProbablePrime(N)) {
+			if (prpTest.isProbablePrime(N)) {
 				result.primeFactors.add(N, exp);
 				return;
 			}

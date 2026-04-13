@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2025 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.ConfigUtil;
 
 import static de.tilman_neumann.jml.base.BigIntConstants.*;
@@ -39,7 +39,7 @@ public class JacobiSymbolPerformanceTest {
 	private static final int NCOUNT = 1000;
 	private static final int MAX_BITS = 500;
 	
-	private static final BPSWTest bpsw = new BPSWTest();
+	private static final PrPTest prpTest = new PrPTest();
 	private static final Random RNG = new Random();
 	
 	private static void testPerformance() {
@@ -54,7 +54,7 @@ public class JacobiSymbolPerformanceTest {
 			int i=0;
 			while (i<NCOUNT) {
 				// the p must be odd, and to allow comparison with the Legendre symbol it should be odd primes
-				BigInteger p = bpsw.nextProbablePrime(new BigInteger(bits, RNG));
+				BigInteger p = prpTest.nextProbablePrime(new BigInteger(bits, RNG));
 				if (p.and(I_1).intValue()==1) {
 					pList.add(p);
 					i++;

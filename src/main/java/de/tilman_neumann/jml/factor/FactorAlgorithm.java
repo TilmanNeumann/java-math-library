@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018-2024 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -22,7 +22,7 @@ import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.factor.base.FactorArguments;
 import de.tilman_neumann.jml.factor.base.FactorResult;
-import de.tilman_neumann.jml.primes.probable.BPSWTest;
+import de.tilman_neumann.jml.primes.probable.PrPTest;
 import de.tilman_neumann.util.SortedMultiset;
 import de.tilman_neumann.util.SortedMultiset_BottomUp;
 
@@ -41,7 +41,7 @@ abstract public class FactorAlgorithm {
 	/** the number of primes needed to factor any int <= 2^31 - 1 using trial division */
 	protected static final int NUM_PRIMES_FOR_31_BIT_TDIV = 4793;
 
-	private BPSWTest bpsw = new BPSWTest();
+	private PrPTest prpTest = new PrPTest();
 	
 	protected Integer tdivLimit;
 	
@@ -123,7 +123,7 @@ abstract public class FactorAlgorithm {
 			while (untestedFactors.size()>0) {
 				BigInteger untestedFactor = untestedFactors.firstKey();
 				int exp = untestedFactors.removeAll(untestedFactor);
-				if (bpsw.isProbablePrime(untestedFactor)) {
+				if (prpTest.isProbablePrime(untestedFactor)) {
 					// The untestedFactor is probable prime. In exceptional cases this prediction may be wrong and untestedFactor composite
 					// -> then we would falsely predict untestedFactor to be prime. BPSW is known to be exact for arguments <= 64 bit.
 					//LOG.debug(untestedFactor + " is probable prime.");
