@@ -1,6 +1,6 @@
 /*
  * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
- * Copyright (C) 2018 Tilman Neumann - tilman.neumann@web.de
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -17,6 +17,8 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 
 import java.math.BigInteger;
 import java.util.HashSet;
+
+import de.tilman_neumann.jml.primes.exact.LemirePrimeTest;
 
 /**
  * BPSW probable prime test. The implementation starts checking the moduli of N % 30030 and then follows
@@ -43,7 +45,8 @@ public class BPSWTest {
 	
 	MillerRabinTest millerRabinTest = new MillerRabinTest();
 	LucasTest lucasTest = new LucasTest();
-
+	LemirePrimeTest tdiv = LemirePrimeTest.getInstance();
+	
 	// TODO rename to isPrime() ?
 	// TODO the implementation in PrPTest is already quite ok but could be optimized
     public boolean isProbablePrime(long N) {
@@ -64,7 +67,7 @@ public class BPSWTest {
     boolean isProbablePrimeCore(BigInteger N) {
         // For small N, trial division is much faster than BPSW
         if (N.bitLength() < 32) {
-        	return TDivPrimeTest.getInstance().isPrime(N.intValue());
+        	return tdiv.isPrime(N.intValue());
         }
         
 		// Test residues % 30030. Note that N<30030 have been exclude by trial division above.

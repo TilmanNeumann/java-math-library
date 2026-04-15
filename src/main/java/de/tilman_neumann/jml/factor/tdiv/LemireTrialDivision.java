@@ -38,17 +38,17 @@ public class LemireTrialDivision extends FactorAlgorithm {
         limits = new long[primes.length];
         for (int i = 0; i < primes.length; i++) {
             long p = primes[i];
-            // Berechne die modulare Inverse für ungerade p (Newton-Verfahren)
+            // compute modular inverses of p (mod 2^64) using Newton's method
             long inverse = modularInverse(p);
             modularInverse[i] = inverse;
-            // Limit = (2^64 - 1) / p (Unsigned)
+            // limit = (2^64 - 1) / prime (unsigned)
             limits[i] = Long.divideUnsigned(-1L, p);
         }
     }
 
     private static long modularInverse(long n) {
-        long inverse = n; // Initialer Schätzwert
-        for (int i = 0; i < 5; i++) { // 5 Iterationen reichen für 64-bit
+        long inverse = n; // initial estimate
+        for (int i = 0; i < 5; i++) { // 5 iterations are sufficient for 64 bit numbers
             inverse *= 2 - n * inverse;
         }
         return inverse;
@@ -65,30 +65,28 @@ public class LemireTrialDivision extends FactorAlgorithm {
 		return BigInteger.valueOf(findSingleFactor(N.longValue()));
 	}
 
-    public int findSingleFactor(long numberToFactorize) {
+    public int findSingleFactor(long N) {
         // Lemire can not handle even numbers
-        if ((numberToFactorize & 1) == 0) return 2;
+        if ((N & 1) == 0) return 2;
 
         for (int i = 1; i < primes.length; i++) {
             // for hard numbers like big semiprimes finding a factor (early) is unlikely and JIT predicts that
             // the return branch is unlikely -> always the same data processing; preloading the arrays
-            if (factorFound (numberToFactorize, i)) return primes[i];
+            if (factorFound (N, i)) return primes[i];
         }
         
         return -1;
     }
 
-    private boolean factorFound(long numberToFactorize, int i) {
-        // 1. Hole vorberechnete Inverse und Limit
+    private boolean factorFound(long N, int i) {
+        // 1. get pre-computed inverse and limit
         long inv = modularInverse[i];
         long limit = limits[i];
 
-        // 2. Multipliziere number * inverse (Überlauf ist beabsichtigt!)
-        long product = numberToFactorize * inv;
+        // 2. multiply number * inverse (overflow is intended!)
+        long product = N * inv;
 
-        // 3. Wenn das Produkt (unsigned) kleiner oder gleich dem Limit ist,
-        // dann ist numberToFactorize restlos durch primes[i] teilbar.
-        // the calculation is done completely in long -> might be the main speedup 50%
+        // 3. if the (unsigned) product is less than or equal to the limit, then primes[i] divides N without rest.
         return  Long.compareUnsigned(product, limit) <= 0;
     }
 }

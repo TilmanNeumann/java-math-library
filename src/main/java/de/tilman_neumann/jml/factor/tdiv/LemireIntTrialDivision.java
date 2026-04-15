@@ -37,18 +37,17 @@ public class LemireIntTrialDivision extends FactorAlgorithm {
         limits = new int[primes.length];
         for (int i = 0; i < primes.length; i++) {
             int prime = primes[i];
-            // Modulare Inverse für 32-bit (Newton-Verfahren)
+            // compute modular inverses of p (mod 2^32) using Newton's method
             int inv = modularInverseInt(prime);
             modularInverse[i] = inv;
-            // Limit = (2^32 - 1) / prime (Unsigned)
-            // In Java: Integer.divideUnsigned(-1, prime)
+            // limit = (2^32 - 1) / prime (unsigned)
             limits[i] = Integer.divideUnsigned(-1, prime);
         }
     }
 
     private static int modularInverseInt(int n) {
-        int inverse = n;
-        for (int i = 0; i < 4; i++) { // 4 Iterationen reichen für 32-bit
+        int inverse = n; // initial estimate
+        for (int i = 0; i < 4; i++) { // 4 iterations are sufficient for 32 bit numbers
             inverse *= 2 - n * inverse;
         }
         return inverse;
@@ -65,21 +64,21 @@ public class LemireIntTrialDivision extends FactorAlgorithm {
 		return BigInteger.valueOf(findSingleFactor(N.longValue()));
 	}
 
-    public int findSingleFactor(long numberToFactorize) {
+    public int findSingleFactor(long N) {
         // Lemire can not handle even numbers
-        if ((numberToFactorize & 1) == 0) return 2;
+        if ((N & 1) == 0) return 2;
 
         for (int i = 1; i < primes.length; i++) {
             // for hard numbers like big semiprimes finding a factor (early) is unlikely and JIT predicts that
             // the return branch is unlikely -> always the same data processing; preloading the arrays
-            if (factorFound (numberToFactorize, i)) return primes[i];
+            if (factorFound (N, i)) return primes[i];
         }
         
         return -1;
     }
 
-    private boolean factorFound(long numberToFactorize, int i) {
-        int nInt = (int) numberToFactorize;
+    private boolean factorFound(long N, int i) {
+        int nInt = (int) N;
         int product = nInt * modularInverse[i];
         return Integer.compareUnsigned (product, limits[i]) <= 0;
     }
