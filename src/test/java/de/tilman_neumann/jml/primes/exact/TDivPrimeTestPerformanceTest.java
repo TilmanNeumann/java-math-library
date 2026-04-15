@@ -16,6 +16,7 @@ public class TDivPrimeTestPerformanceTest {
 	private static final LemirePrimeTest LEMIRE_TEST = LemirePrimeTest.getInstance();
 	private static final Random RNG = new Random();
 
+	// here we need random test numbers, otherwise the compiler would over-optimize the tests
 	private static final int[] TEST_NUMBERS = setupTestNumbers();
 	
 	private static int[] setupTestNumbers() {
@@ -68,14 +69,14 @@ public class TDivPrimeTestPerformanceTest {
 			LEMIRE_TEST.isPrime_v2(n);
 		}
 		t1 = System.nanoTime();
-		LOG.info("LEMIRE_TEST.isPrime_v2 took " + (t1-t0) + " ns"); // best so far!
+		LOG.info("LEMIRE_TEST.isPrime_v2 took " + (t1-t0) + " ns");
 		
 		t0 = System.nanoTime();
 		for (int n : TEST_NUMBERS) {
 			LEMIRE_TEST.isPrime/*Unrolled*/(n);
 		}
 		t1 = System.nanoTime();
-		LOG.info("LEMIRE_TEST.isPrimeUnrolled took " + (t1-t0) + " ns");
+		LOG.info("LEMIRE_TEST.isPrimeUnrolled took " + (t1-t0) + " ns"); // champion
 	}
 	
 	public static void main(String[] args) {
