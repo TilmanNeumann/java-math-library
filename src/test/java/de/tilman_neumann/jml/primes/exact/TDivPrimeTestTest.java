@@ -1,3 +1,16 @@
+/*
+ * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program;
+ * if not, see <http://www.gnu.org/licenses/>.
+ */
 package de.tilman_neumann.jml.primes.exact;
 
 import static org.junit.Assert.assertEquals;
@@ -14,6 +27,7 @@ public class TDivPrimeTestTest {
 
 	private static final BarrettPrimeTest BARRETT_TEST = BarrettPrimeTest.getInstance();
 	private static final LemirePrimeTest LEMIRE_TEST = LemirePrimeTest.getInstance();
+	private static final LemireIntPrimeTest LEMIRE_INT_TEST = LemireIntPrimeTest.getInstance();
 	
 	@Before
 	public void setup() {
@@ -45,6 +59,9 @@ public class TDivPrimeTestTest {
 		boolean lemireResult = LEMIRE_TEST.isPrime_v1(n);
 		boolean lemireResult_v2 = LEMIRE_TEST.isPrime_v2(n);
 		boolean lemireResult_unrolled = LEMIRE_TEST.isPrime/*Unrolled*/(n);
+		boolean lemireIntResult = LEMIRE_INT_TEST.isPrime_v1(n);
+		boolean lemireIntResult_v2 = LEMIRE_INT_TEST.isPrime_v2(n);
+		boolean lemireIntResult_unrolled = LEMIRE_INT_TEST.isPrime/*Unrolled*/(n);
 		if (barrettResult != barrettResult_v2) {
 			LOG.error("n=" + n + ": barrettResult = " + barrettResult + ", barrettResult_v2 = " + barrettResult_v2);
 		}
@@ -60,10 +77,22 @@ public class TDivPrimeTestTest {
 		if (barrettResult != lemireResult_unrolled) {
 			LOG.error("n=" + n + ": barrettResult = " + barrettResult + ", lemireResult_unrolled = " + lemireResult_unrolled);
 		}
+		if (barrettResult != lemireIntResult) {
+			LOG.error("n=" + n + ": barrettResult = " + barrettResult + ", lemireIntResult = " + lemireIntResult);
+		}
+		if (barrettResult != lemireIntResult_v2) {
+			LOG.error("n=" + n + ": barrettResult = " + barrettResult + ", lemireIntResult_v2 = " + lemireIntResult_v2);
+		}
+		if (barrettResult != lemireIntResult_unrolled) {
+			LOG.error("n=" + n + ": barrettResult = " + barrettResult + ", lemireIntResult_unrolled = " + lemireIntResult_unrolled);
+		}
 		assertEquals(barrettResult, barrettResult_v2);
 		assertEquals(barrettResult, barrettResult_unrolled);
 		assertEquals(barrettResult, lemireResult);
 		assertEquals(barrettResult, lemireResult_v2);
 		assertEquals(barrettResult, lemireResult_unrolled);
+		assertEquals(barrettResult, lemireIntResult);
+		assertEquals(barrettResult, lemireIntResult_v2);
+		assertEquals(barrettResult, lemireIntResult_unrolled);
 	}
 }

@@ -29,18 +29,17 @@ public class LemireTrialDivision extends FactorAlgorithm {
 	private static final int MAX_PRIME_FACTOR = 1 << ((MAX_N_BITS+1)/2);
 	
     private static int[] primes;
-    private static long[] modularInverse;
+    private static long[] modularInverses;
     private static long[] limits;
 
     static {
         primes = SmallPrimes.generatePrimes(MAX_PRIME_FACTOR);
-        modularInverse = new long[primes.length];
+        modularInverses = new long[primes.length];
         limits = new long[primes.length];
         for (int i = 0; i < primes.length; i++) {
             long p = primes[i];
-            // compute modular inverses of p (mod 2^64) using Newton's method
-            long inverse = modularInverse(p);
-            modularInverse[i] = inverse;
+            // compute modular inverse of p (mod 2^64) using Newton's method
+            modularInverses[i] = modularInverse(p);
             // limit = (2^64 - 1) / prime (unsigned)
             limits[i] = Long.divideUnsigned(-1L, p);
         }
@@ -80,14 +79,13 @@ public class LemireTrialDivision extends FactorAlgorithm {
 
     private boolean factorFound(long N, int i) {
         // 1. get pre-computed inverse and limit
-        long inv = modularInverse[i];
+        long inv = modularInverses[i];
         long limit = limits[i];
 
         // 2. multiply number * inverse (overflow is intended!)
         long product = N * inv;
 
         // 3. if the (unsigned) product is less than or equal to the limit, then primes[i] divides N without rest.
-        return  Long.compareUnsigned(product, limit) <= 0;
+        return Long.compareUnsigned(product, limit) <= 0;
     }
 }
-

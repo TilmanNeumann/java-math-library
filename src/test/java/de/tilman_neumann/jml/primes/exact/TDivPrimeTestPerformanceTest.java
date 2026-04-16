@@ -1,3 +1,16 @@
+/*
+ * java-math-library is a Java library focused on number theory, but not necessarily limited to it. It is based on the PSIQS 4.0 factoring project.
+ * Copyright (C) 2018-2026 Tilman Neumann - tilman.neumann@web.de
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program;
+ * if not, see <http://www.gnu.org/licenses/>.
+ */
 package de.tilman_neumann.jml.primes.exact;
 
 import java.util.Random;
@@ -14,6 +27,7 @@ public class TDivPrimeTestPerformanceTest {
 	
 	private static final BarrettPrimeTest BARRETT_TEST = BarrettPrimeTest.getInstance();
 	private static final LemirePrimeTest LEMIRE_TEST = LemirePrimeTest.getInstance();
+	private static final LemireIntPrimeTest LEMIRE_INT_TEST = LemireIntPrimeTest.getInstance();
 	private static final Random RNG = new Random();
 
 	// here we need random test numbers, otherwise the compiler would over-optimize the tests
@@ -77,6 +91,27 @@ public class TDivPrimeTestPerformanceTest {
 		}
 		t1 = System.nanoTime();
 		LOG.info("LEMIRE_TEST.isPrimeUnrolled took " + (t1-t0) + " ns"); // champion
+
+		t0 = System.nanoTime();
+		for (int n : TEST_NUMBERS) {
+			LEMIRE_INT_TEST.isPrime_v1(n);
+		}
+		t1 = System.nanoTime();
+		LOG.info("LEMIRE_INT_TEST.isPrime_v1 took " + (t1-t0) + " ns");
+		
+		t0 = System.nanoTime();
+		for (int n : TEST_NUMBERS) {
+			LEMIRE_INT_TEST.isPrime_v2(n);
+		}
+		t1 = System.nanoTime();
+		LOG.info("LEMIRE_INT_TEST.isPrime_v2 took " + (t1-t0) + " ns");
+		
+		t0 = System.nanoTime();
+		for (int n : TEST_NUMBERS) {
+			LEMIRE_INT_TEST.isPrime/*Unrolled*/(n);
+		}
+		t1 = System.nanoTime();
+		LOG.info("LEMIRE_INT_TEST.isPrimeUnrolled took " + (t1-t0) + " ns"); // champion
 	}
 	
 	public static void main(String[] args) {

@@ -18,7 +18,7 @@ import static de.tilman_neumann.jml.base.BigIntConstants.*;
 import java.math.BigInteger;
 import java.util.HashSet;
 
-import de.tilman_neumann.jml.primes.exact.LemirePrimeTest;
+import de.tilman_neumann.jml.primes.exact.LemireIntPrimeTest;
 
 /**
  * BPSW probable prime test. The implementation starts checking the moduli of N % 30030 and then follows
@@ -45,7 +45,7 @@ public class BPSWTest {
 	
 	MillerRabinTest millerRabinTest = new MillerRabinTest();
 	LucasTest lucasTest = new LucasTest();
-	LemirePrimeTest tdiv = LemirePrimeTest.getInstance();
+	LemireIntPrimeTest tdiv = LemireIntPrimeTest.getInstance();
 	
 	// TODO rename to isPrime() ?
 	// TODO the implementation in PrPTest is already quite ok but could be optimized

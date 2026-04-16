@@ -19,58 +19,59 @@ import org.apache.logging.log4j.LogManager;
 import de.tilman_neumann.jml.BinarySearch;
 
 /**
- * A deterministic prime test for N < 32 bit (or even a few bits more) using Lemire division.
+ * A deterministic prime test for N < 32 bit using Lemire division.
  * 
  * Implements the singleton pattern so that the resources will not be allocated twice no
  * matter how often the class is used.
  * 
+ * For N < 32 bit, this class seems to slightly faster than LemirePrimeTest.
+ * 
  * @author Thilo Harich, Tilman Neumann
  */
-public class LemirePrimeTest {
+public class LemireIntPrimeTest {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = LogManager.getLogger(LemirePrimeTest.class);
+	private static final Logger LOG = LogManager.getLogger(LemireIntPrimeTest.class);
 	
-	private static final int MAX_N_BITS = 36;
-	private static final int MAX_PRIME_FACTOR = 1 << ((MAX_N_BITS+1)/2);
+	private static final int MAX_PRIME_FACTOR = 1<<16; // sufficient for numbers to factor with 32 bits
 
 	private static final BinarySearch binarySeach = new BinarySearch();
 	
 	private static int MAX_INDEX; // for N<32 bit this would be 4792
 
-    private int[] primes;
-    private long[] modularInverses;
-    private long[] limits;
+    private static int[] primes;
+    private static int[] modularInverses;
+    private static int[] limits;
 	
 	// lazy-initialized singleton
-	private static LemirePrimeTest the_instance = null;
+	private static LemireIntPrimeTest the_instance = null;
 
 	/**
 	 * @return the only TDivPrimeTest instance (singleton)
 	 */
-	public static synchronized final LemirePrimeTest getInstance() {
+	public static synchronized final LemireIntPrimeTest getInstance() {
 		if (the_instance == null) {
-			the_instance = new LemirePrimeTest();
+			the_instance = new LemireIntPrimeTest();
 		}
 		return the_instance;
 	}
 
-	private LemirePrimeTest() {
+	private LemireIntPrimeTest() {
         primes = SmallPrimes.generatePrimes(MAX_PRIME_FACTOR);
         MAX_INDEX = primes.length - 1;
-        modularInverses = new long[primes.length];
-        limits = new long[primes.length];
+        modularInverses = new int[primes.length];
+        limits = new int[primes.length];
         for (int i = 0; i < primes.length; i++) {
-            long p = primes[i];
-            // compute modular inverses of p (mod 2^64) using Newton's method
-            modularInverses[i] = modularInverse(p);
-            // limit = (2^64 - 1) / p (unsigned)
-            limits[i] = Long.divideUnsigned(-1L, p);
+            int prime = primes[i];
+            // compute modular inverses of p (mod 2^32) using Newton's method
+            modularInverses[i] = modularInverse(prime);
+            // limit = (2^32 - 1) / prime (unsigned)
+            limits[i] = Integer.divideUnsigned(-1, prime);
         }
     }
 
-    private static long modularInverse(long n) {
-        long inverse = n; // initial estimate
-        for (int i = 0; i < 5; i++) { // 5 iterations are sufficient for 64 bit numbers
+    private static int modularInverse(int n) {
+        int inverse = n; // initial estimate
+        for (int i = 0; i < 4; i++) { // 4 iterations are sufficient for 32 bit numbers
             inverse *= 2 - n * inverse;
         }
         return inverse;
@@ -135,15 +136,15 @@ public class LemirePrimeTest {
         return true;
     }
 
-    private boolean factorFound(long N, int i) {
+    private boolean factorFound(int N, int i) {
         // 1. get pre-computed inverse and limit
-        long inv = modularInverses[i];
-        long limit = limits[i];
+        int inv = modularInverses[i];
+        int limit = limits[i];
         
         // 2. multiply number * inverse (overflow is intended!)
-        long product = N * inv;
+        int product = N * inv;
 
         // 3. if the (unsigned) product is less than or equal to the limit, then primes[i] divides N without rest.
-        return Long.compareUnsigned(product, limit) <= 0;
+        return Integer.compareUnsigned(product, limit) <= 0;
     }
 }

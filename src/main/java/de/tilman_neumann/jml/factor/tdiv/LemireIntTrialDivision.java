@@ -28,24 +28,23 @@ public class LemireIntTrialDivision extends FactorAlgorithm {
 	private static final int MAX_PRIME_FACTOR = 1<<16; // sufficient for numbers to factor with 32 bits
 	
     private static int[] primes;
-    private static int[] modularInverse;
+    private static int[] modularInverses;
     private static int[] limits;
 
     static {
         primes = SmallPrimes.generatePrimes(MAX_PRIME_FACTOR);
-        modularInverse = new int[primes.length];
+        modularInverses = new int[primes.length];
         limits = new int[primes.length];
         for (int i = 0; i < primes.length; i++) {
             int prime = primes[i];
-            // compute modular inverses of p (mod 2^32) using Newton's method
-            int inv = modularInverseInt(prime);
-            modularInverse[i] = inv;
+            // compute modular inverse of p (mod 2^32) using Newton's method
+            modularInverses[i] = modularInverse(prime);
             // limit = (2^32 - 1) / prime (unsigned)
             limits[i] = Integer.divideUnsigned(-1, prime);
         }
     }
 
-    private static int modularInverseInt(int n) {
+    private static int modularInverse(int n) {
         int inverse = n; // initial estimate
         for (int i = 0; i < 4; i++) { // 4 iterations are sufficient for 32 bit numbers
             inverse *= 2 - n * inverse;
@@ -60,11 +59,11 @@ public class LemireIntTrialDivision extends FactorAlgorithm {
 
 	@Override
 	public BigInteger findSingleFactor(BigInteger N) {
-		if (N.bitLength() > 32) throw new IllegalArgumentException("LemireIntTrialDivision.findSingleFactor() does not work for N>32 bit, but N=" + N + " has " + N.bitLength() + " bits.");
-		return BigInteger.valueOf(findSingleFactor(N.longValue()));
+		if (N.bitLength() > 31) throw new IllegalArgumentException("LemireIntTrialDivision.findSingleFactor() does not work for N>31 bit, but N=" + N + " has " + N.bitLength() + " bits.");
+		return BigInteger.valueOf(findSingleFactor(N.intValue()));
 	}
 
-    public int findSingleFactor(long N) {
+    public int findSingleFactor(int N) {
         // Lemire can not handle even numbers
         if ((N & 1) == 0) return 2;
 
@@ -77,9 +76,15 @@ public class LemireIntTrialDivision extends FactorAlgorithm {
         return -1;
     }
 
-    private boolean factorFound(long N, int i) {
-        int nInt = (int) N;
-        int product = nInt * modularInverse[i];
-        return Integer.compareUnsigned (product, limits[i]) <= 0;
+    private boolean factorFound(int N, int i) {
+        // 1. get pre-computed inverse and limit
+        int inv = modularInverses[i];
+        int limit = limits[i];
+        
+        // 2. multiply number * inverse (overflow is intended!)
+        int product = N * inv;
+
+        // 3. if the (unsigned) product is less than or equal to the limit, then primes[i] divides N without rest.
+        return Integer.compareUnsigned(product, limit) <= 0;
     }
 }
