@@ -22,6 +22,13 @@ import org.junit.Test;
 
 import de.tilman_neumann.util.ConfigUtil;
 
+/**
+ * Tests correctness of prime tests for N<2^31.
+ * 
+ * Comparing the results of (established reference algorithm) BARRETT_TEST.isPrime_v1(n) 
+ * with (currently fastest) LEMIRE_INT_TEST.isPrimeUnrolled(n)
+ * for all odd N<2^31 takes less than 10 minutes and shows no errors.
+ */
 public class TDivPrimeTestTest {
 	private static final Logger LOG = LogManager.getLogger(TDivPrimeTestTest.class);
 
@@ -42,7 +49,7 @@ public class TDivPrimeTestTest {
 		test(2565572);
 		
 		// test many odd numbers
-		for (int n=3; n < 10000000; n+=2) {
+		for (int n=3; n <= 10000000 /* Integer.MAX_VALUE */; n+=2) {
 			test(n);
 		}
 		

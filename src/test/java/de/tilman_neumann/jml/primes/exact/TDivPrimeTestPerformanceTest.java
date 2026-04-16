@@ -20,6 +20,14 @@ import org.apache.logging.log4j.Logger;
 
 import de.tilman_neumann.util.ConfigUtil;
 
+/**
+ * Compare performance of prime tests for N<2^31.
+ * 
+ * Currently fastest is LEMIRE_INT_TEST.isPrimeUnrolled(n).
+ * 
+ * But since there are just 105.097.565 primes < 2^31 (Integer.MAX_VALUE = 2^31 - 1 being the biggest)
+ * and 203.280.221 primes < 2^32, maybe soon we will simply store them and look then up...
+ */
 public class TDivPrimeTestPerformanceTest {
 	private static final Logger LOG = LogManager.getLogger(TDivPrimeTestPerformanceTest.class);
 
