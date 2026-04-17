@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import de.tilman_neumann.jml.BinarySearch;
+import de.tilman_neumann.jml.primes.util.PrimeRestsMod30030;
 
 /**
  * A deterministic prime test for N < 32 bit (or even a few bits more) using Lemire division.
@@ -34,7 +35,8 @@ public class LemirePrimeTest {
 	private static final int MAX_PRIME_FACTOR = 1 << ((MAX_N_BITS+1)/2);
 
 	private static final BinarySearch binarySeach = new BinarySearch();
-	
+	private PrimeRestsMod30030 primeRestsMod30030 = PrimeRestsMod30030.getInstance();
+
 	private static int MAX_INDEX; // for N<32 bit this would be 4792
 
     private int[] primes;
@@ -42,16 +44,16 @@ public class LemirePrimeTest {
     private long[] limits;
 	
 	// lazy-initialized singleton
-	private static LemirePrimeTest the_instance = null;
+	private static LemirePrimeTest theInstance = null;
 
 	/**
 	 * @return the only TDivPrimeTest instance (singleton)
 	 */
 	public static synchronized final LemirePrimeTest getInstance() {
-		if (the_instance == null) {
-			the_instance = new LemirePrimeTest();
+		if (theInstance == null) {
+			theInstance = new LemirePrimeTest();
 		}
-		return the_instance;
+		return theInstance;
 	}
 
 	private LemirePrimeTest() {
@@ -84,8 +86,6 @@ public class LemirePrimeTest {
 		int pmax = (int) Math.sqrt(N);
 		
         for (int i = 1; primes[i]<=pmax; i++) {
-            // for hard numbers like big semiprimes finding a factor (early) is unlikely and JIT predicts that
-            // the return branch is unlikely -> always the same data processing; preloading the arrays
             if (factorFound (N, i)) return false;
         }
         
@@ -101,14 +101,38 @@ public class LemirePrimeTest {
 		int imax = binarySeach.getInsertPosition(primes, MAX_INDEX, pmax);
 		
         for (int i = 1; i<=imax; i++) {
-            // for hard numbers like big semiprimes finding a factor (early) is unlikely and JIT predicts that
-            // the return branch is unlikely -> always the same data processing; preloading the arrays
             if (factorFound (N, i)) return false;
         }
         
         return true;
     }
 	
+	// not public because isPrimeUnrolled() is faster; unrolling this approach did not give a faster variant yet
+	boolean isPrime_v3(int N) {
+		if (N==1) return false;
+		if ((N&1)==0) return N==2;
+		
+		int pmax = (int) Math.sqrt(N);
+		int imax = binarySeach.getInsertPosition(primes, MAX_INDEX, pmax);
+		int imax1 = Math.min(imax, 3247);
+		
+		int i = 1;
+        for ( ; i<=imax1; i++) {
+            if (factorFound (N, i)) return false;
+        }
+        
+        if (i < imax) {
+			// Test residues % 30030. Note that N<30030 have been exclude by trial division above.
+			if (!primeRestsMod30030.isPossiblyPrime(N)) return false;
+			
+	        for ( ; i<=imax; i++) {
+	            if (factorFound (N, i)) return false;
+	        }
+        }
+        
+        return true;
+    }
+
 	public boolean isPrime/*Unrolled*/(int N) {
 		if (N==1) return false;
 		if ((N&1)==0) return N==2;
@@ -136,6 +160,9 @@ public class LemirePrimeTest {
     }
 
     private boolean factorFound(long N, int i) {
+        // for hard numbers like big semiprimes finding a factor (early) is unlikely and JIT predicts that
+        // the return branch is unlikely -> always the same data processing; preloading the arrays
+    	
         // 1. get pre-computed inverse and limit
         long inv = modularInverses[i];
         long limit = limits[i];

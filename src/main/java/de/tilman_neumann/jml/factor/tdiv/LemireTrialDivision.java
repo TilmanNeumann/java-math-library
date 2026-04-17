@@ -69,8 +69,6 @@ public class LemireTrialDivision extends FactorAlgorithm {
         if ((N & 1) == 0) return 2;
 
         for (int i = 1; i < primes.length; i++) {
-            // for hard numbers like big semiprimes finding a factor (early) is unlikely and JIT predicts that
-            // the return branch is unlikely -> always the same data processing; preloading the arrays
             if (factorFound (N, i)) return primes[i];
         }
         
@@ -78,6 +76,9 @@ public class LemireTrialDivision extends FactorAlgorithm {
     }
 
     private boolean factorFound(long N, int i) {
+        // for hard numbers like big semiprimes finding a factor (early) is unlikely and JIT predicts that
+        // the return branch is unlikely -> always the same data processing; preloading the arrays
+    	
         // 1. get pre-computed inverse and limit
         long inv = modularInverses[i];
         long limit = limits[i];

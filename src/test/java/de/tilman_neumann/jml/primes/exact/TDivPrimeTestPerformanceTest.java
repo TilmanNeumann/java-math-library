@@ -95,6 +95,13 @@ public class TDivPrimeTestPerformanceTest {
 		
 		t0 = System.nanoTime();
 		for (int n : TEST_NUMBERS) {
+			LEMIRE_TEST.isPrime_v3(n);
+		}
+		t1 = System.nanoTime();
+		LOG.info("LEMIRE_TEST.isPrime_v3 took " + (t1-t0) + " ns");
+		
+		t0 = System.nanoTime();
+		for (int n : TEST_NUMBERS) {
 			LEMIRE_TEST.isPrime/*Unrolled*/(n);
 		}
 		t1 = System.nanoTime();
@@ -113,6 +120,13 @@ public class TDivPrimeTestPerformanceTest {
 		}
 		t1 = System.nanoTime();
 		LOG.info("LEMIRE_INT_TEST.isPrime_v2 took " + (t1-t0) + " ns");
+		
+		t0 = System.nanoTime();
+		for (int n : TEST_NUMBERS) {
+			LEMIRE_INT_TEST.isPrime_v3(n);
+		}
+		t1 = System.nanoTime();
+		LOG.info("LEMIRE_INT_TEST.isPrime_v3 took " + (t1-t0) + " ns");
 		
 		t0 = System.nanoTime();
 		for (int n : TEST_NUMBERS) {

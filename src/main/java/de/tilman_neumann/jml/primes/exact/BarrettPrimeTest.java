@@ -39,16 +39,16 @@ public class BarrettPrimeTest {
 	private long[] pinv;
 	
 	/** lazy-initialized singleton */
-	private static BarrettPrimeTest the_instance = null;
+	private static BarrettPrimeTest theInstance = null;
 	
 	/**
 	 * @return the only TDivPrimeTest instance (singleton)
 	 */
 	public static synchronized final BarrettPrimeTest getInstance() {
-		if (the_instance == null) {
-			the_instance = new BarrettPrimeTest();
+		if (theInstance == null) {
+			theInstance = new BarrettPrimeTest();
 		}
-		return the_instance;
+		return theInstance;
 	}
 
 	private BarrettPrimeTest() {
