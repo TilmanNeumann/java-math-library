@@ -48,7 +48,7 @@ public class PrPTest extends BPSWTest {
         }
         
 		// Test residues % 30030. Note that N<30030 have been exclude by trial division above.
-		if (!primeRestsMod30030.contains(N.mod(BIG_30030).intValue())) return false;
+		if (!primeRestsMod30030.isPossiblyPrime(N)) return false;
 
         if (Nbits < 64) {
         	// For N<64 bit, a deterministic Miller-Rabin test is faster than BPSW.
