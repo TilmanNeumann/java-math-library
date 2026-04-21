@@ -382,7 +382,67 @@ public class Int128 {
 
         return new long[] { qHigh, qLow, finalRemainder };
     }
-    
+
+    /**
+     * Truncated unsigned 128 / 64 bit division which returns only the low part of the quotient,
+     * derived from <code>divide128by64Unsigned(long u1, long u0, long v)</code>.
+     * 
+     * In the cases where it is useful, this implementation is a little bit faster because it does not allocate the result array.
+     * 
+     * @param u1 high 64 bits of the dividend
+     * @param u0 low 64 bits of the dividend
+     * @param v divisor
+     * @return the lower 64 bit of the quotient
+     */
+    public static long truncatedDivide128by64Unsigned(long u1, long u0, long v) {
+        if (v == 0) throw new ArithmeticException("Division by zero");
+        
+        // Step 1: check for quotients > 64 bit
+        if (Long.compareUnsigned(u1, v) >= 0) {
+            u1 = Long.remainderUnsigned(u1, v);
+        }
+
+        // Step 2: highly optimized 64/64 division for the remaining part
+        // (the dividend now is u1:u0, which guarantees u1 < v)
+        
+        // 2.1. Normalization
+        int s = Long.numberOfLeadingZeros(v);
+        long v_norm = v << s;
+        long v_hi = v_norm >>> 32;
+        long v_lo = v_norm & 0xFFFFFFFFL;
+
+        // shift u1:u0 (careful with s=0)
+        long u_hi = (s == 0) ? u1 : (u1 << s) | (u0 >>> (64 - s));
+        long u_lo = u0 << s;
+
+        // 2.2. first 32-bit half of the quotient (q1)
+        long q1 = Long.divideUnsigned(u_hi, v_hi);
+        long rhat = Long.remainderUnsigned(u_hi, v_hi);
+
+        while (Long.compareUnsigned(q1, 0x100000000L) >= 0 || Long.compareUnsigned(q1 * v_lo, (rhat << 32) | (u_lo >>> 32)) > 0) {
+            q1--;
+            rhat += v_hi;
+            if (Long.compareUnsigned(rhat, 0x100000000L) >= 0) break;
+        }
+
+        // intermediate remainder
+        long rem = ((u_hi << 32) | (u_lo >>> 32)) - (q1 * v_norm);
+
+        // 2.3. Second 32-bit half of the quotient (q0)
+        long q0 = Long.divideUnsigned(rem, v_hi);
+        rhat = Long.remainderUnsigned(rem, v_hi);
+
+        while (Long.compareUnsigned(q0, 0x100000000L) >= 0 || Long.compareUnsigned(q0 * v_lo, (rhat << 32) | (u_lo & 0xFFFFFFFFL)) > 0) {
+            q0--;
+            rhat += v_hi;
+            if (Long.compareUnsigned(rhat, 0x100000000L) >= 0) break;
+        }
+
+        // 2.4. Assemble results
+        long qLow = (q1 << 32) | q0;
+        return qLow;
+    }
+
     /**
      * Computes the remainder of an unsigned 128 % 64 bit division.
      * This implementation has been worked out with support from Google Gemini.
