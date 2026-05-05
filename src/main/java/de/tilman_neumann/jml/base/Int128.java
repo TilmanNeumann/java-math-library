@@ -28,7 +28,7 @@ import de.tilman_neumann.util.Ensure;
  * 
  * @author Tilman Neumann
  */
-public class Int128 {
+public class Int128 implements Comparable<Int128> {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LogManager.getLogger(Int128.class);
 	
@@ -47,6 +47,26 @@ public class Int128 {
 	
 	public long getLow() {
 		return low;
+	}
+
+	@Override
+	public int compareTo(Int128 b) {
+		return high != b.high ? Long.compareUnsigned(high, b.high) : Long.compareUnsigned(low, b.low);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Int128) {
+			Int128 b = (Int128) o;
+			return high == b.high && low == b.low;
+		}
+		// we could treat other number classes here like Long but this is sufficient for a start
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return Long.hashCode(high) * 31 + Long.hashCode(low);
 	}
 
 	/**
