@@ -49,8 +49,20 @@ public class Int128 implements Comparable<Int128> {
 		return low;
 	}
 
+	/**
+	 * Signed comparison with b.
+	 * @param b
+	 */
 	@Override
 	public int compareTo(Int128 b) {
+		return high != b.high ? Long.compare(high, b.high) : Long.compareUnsigned(low, b.low);
+	}
+
+	/**
+	 * Unsigned comparison with b.
+	 * @param b
+	 */
+	public int compareUnsigned(Int128 b) {
 		return high != b.high ? Long.compareUnsigned(high, b.high) : Long.compareUnsigned(low, b.low);
 	}
 
