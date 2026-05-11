@@ -161,57 +161,6 @@ public class UnsignedBigInt {
 	public int bitLength() {
 		return intLength==0 ? 0 : (intLength<<5) - Integer.numberOfLeadingZeros(intArray[intLength-1]);
 	}
-	
-    /**
-     * Divide this by the given <code>divisor</code>, store the quotient in <code>quotient</code> and return the remainder.
-     * The caller must make sure that {@link #set(BigInteger)} has been invoked before.
-     * 
-     * @param divisor
-     * @param quotient output
-     * @return remainder
-     */
-	@Deprecated // v2 is significantly faster
-    public int divideAndRemainder_v1(final int divisor, UnsignedBigInt quotient) {
-    	// A special treatment of intLength==1 is asymptotically bad
-        long rem = 0;
-        long divisor_long = divisor & 0xFFFFFFFFL;
-        long currentDividend, quot;
-
-        // loop that determines intLength by the way
-        quotient.intLength = 0; // if this < divisor
-        int i = intLength-1;
-        for (; i >= 0; i--) {
-            currentDividend = (rem << 32) | (intArray[i] & 0xFFFFFFFFL);
-            quot = currentDividend / divisor_long;
-    		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
-            rem = currentDividend % divisor_long;
-            if (DEBUG) {
-            	Ensure.ensureGreaterEquals(currentDividend, 0);
-            	Ensure.ensureSmallerEquals(quot, 0xFFFFFFFFL);
-            }
-            quotient.intArray[i] = (int) (quot & 0xFFFFFFFFL);
-            if (quot>0) {
-            	quotient.intLength = i+1;
-            	i--; // loop decrement will not be carried out after break
-            	break; // go to loop without intLength-test
-            }
-        }
-        
-        // loop without intLength-test
-        for (; i >= 0; i--) {
-            currentDividend = (rem << 32) | (intArray[i] & 0xFFFFFFFFL);
-            quot = currentDividend / divisor_long;
-    		// rem = currentDividend % divisor_long is faster than currentDividend - quot*divisor_long
-            rem = currentDividend % divisor_long;
-            if (DEBUG) {
-            	Ensure.ensureGreaterEquals(currentDividend, 0);
-            	Ensure.ensureSmallerEquals(quot, 0xFFFFFFFFL);
-            }
-            quotient.intArray[i] = (int) (quot & 0xFFFFFFFFL);
-        }
-        
-        return (int) rem;
-    }
     
     /**
      * Divide this by the given <code>divisor</code>, store the quotient in <code>quotient</code> and return the remainder.
@@ -221,7 +170,7 @@ public class UnsignedBigInt {
      * @param quotient output
      * @return remainder
      */
-    public int divideAndRemainder/*_v2*/(final int divisor, UnsignedBigInt quotient) {
+    public int divideAndRemainder(final int divisor, UnsignedBigInt quotient) {
     	// A special treatment of intLength==1 is asymptotically bad
     	
         long divisor_long = divisor & 0xFFFFFFFFL;
@@ -254,10 +203,6 @@ public class UnsignedBigInt {
     /**
      * Compute the remainder of this modulo divisor.
      * The caller must make sure that {@link #set(BigInteger)} has been invoked before.
-     * 
-     * This simple implementation seems to be amazingly fast, like 100 times faster than BigInteger.mod(d),
-     * where BigInteger d = BigInteger.valueOf(divisor) has been created before the performance test loop.
-     * Here, Barrett reduction has no chance to shine...
      * 
      * @param divisor
      * @return remainder
